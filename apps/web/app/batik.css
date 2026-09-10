@@ -1,0 +1,31 @@
+/* Batik Background - Original Theme */
+/* By Irfan Akbari Vuteq Indonesia - Updated 2026-06-18 */
+.batik-bg {
+    background-color: #0f172a !important;
+    background-image: url("/images/batik5.png") !important;
+    background-size: 1000px !important;
+    background-repeat: repeat !important;
+    background-position: center !important;
+    color: #ffffff !important;
+    position: relative !important;
+}
+
+/* Optional overlay for better text readability */
+.batik-bg::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    /* Dark overlay */
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Ensure content sits above the overlay */
+.batik-bg > * {
+    position: relative;
+    z-index: 1;
+}

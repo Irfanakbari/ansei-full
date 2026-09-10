@@ -1,0 +1,716 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- ENUMS ---
+// list lokasi barang
+enum LocationType {
+  WAREHOUSE
+  RACK
+  FINISH_GOOD_AREA
+}
+
+// jenis transaksi buat tracking di ledger
+enum TransactionType {
+  INCOMING_SUPPLIER
+  TRANSFER_TO_RACK
+  PRODUCTION_USAGE
+  PRODUCTION_RESULT
+  DELIVERY_TO_CUSTOMER
+  NG_SCRAP
+  ADJUSTMENT_MANUAL
+  STOCK_OPNAME_DIFF
+
+  MATERIAL_OUT_DELIVERY
+}
+
+enum ItemCategory {
+  MATERIAL
+  FINISH_GOOD
+}
+
+enum OpnameStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// sisa enum bawaan dari db lama
+enum TypeShopping {
+  REGULER
+  ADDITIONAL
+}
+
+enum PokayokeCompareStatus {
+  SUKSES
+  GAGAL
+}
+
+enum NotificationType {
+  MANAGEMENT
+  DEFAULT
+}
+
+enum PartType {
+  ONE
+  TWO
+  THREE
+  FOUR
+}
+
+// --- MASTER DATA ---
+
+model Satuan {
+  Id       Int        @id @default(autoincrement())
+  Name     String
+  Material Material[]
+}
+
+model Supplier {
+  Id        Int        @id @default(autoincrement())
+  Name      String
+  CreatedAt DateTime   @default(now())
+  Incoming  Incoming[]
+}
+
+model Material {
+  Id           Int      @id @default(autoincrement())
+  PartNumber   String   @unique
+  PartName     String
+  CreatedAt    DateTime @default(now())
+  CreatedBy    String
+  UpdatedAt    DateTime @updatedAt
+  Supplier     String?
+  SatuanId     Int?
+  RackLocation String?
+
+  IsActive        Boolean   @default(true)
+  DiscontinueDate DateTime?
+
+  // stok cache aja buat nampilin di ui biar cepet
+  // realnya (source of truth) tetep hitung dari ledger kalau mau divalidasi
+  QtyRack      Int @default(0)
+  QtyWarehouse Int @default(0)
+
+  SatuanData Satuan? @relation(fields: [SatuanId], references: [Id])
+
+  // relasi ke tabel lain
+  BillOfMaterials             BillOfMaterials[]
+  IncomingMaterial            IncomingMaterial[]
+  MaterialNG                  MaterialNG[]
+  Shopping                    Shopping[]
+  InventoryLedger             InventoryLedger[]
+  StockOpnameDetail           StockOpnameDetail[]
+  MaterialDeliveryNoteDetails MaterialDeliveryNoteDetail[]
+
+  @@index([SatuanId], map: "Material_satuanId_fkey")
+}
+
+model FinishGood {
+  Id         Int      @id @default(autoincrement())
+  PartNumber String   @unique
+  PartName   String
+  Price      Float?   @default(0)
+  CreatedAt  DateTime @default(now())
+  CreatedBy  String
+  UpdatedAt  DateTime @updatedAt
+
+  // cache stok fg
+  Qty Int @default(0)
+
+  BillOfMaterials   BillOfMaterials[]
+  BoxQTY            BoxQTY?
+  Forecast          Forecast[]
+  LabelData         LabelData[]
+  LineStatus        LineStatus[]
+  ProductionReport  ProductionReport[]
+  InventoryLedger   InventoryLedger[]
+  StockOpnameDetail StockOpnameDetail[]
+}
+
+model BoxQTY {
+  Id         Int        @id @default(autoincrement())
+  PartNumber String     @unique
+  Qty        Int
+  PartData   FinishGood @relation(fields: [PartNumber], references: [PartNumber])
+}
+
+model BillOfMaterials {
+  Id           Int @id @default(autoincrement())
+  MaterialId   Int
+  FinishGoodId Int
+  Qty          Int
+
+  FGData       FinishGood @relation(fields: [FinishGoodId], references: [Id], onDelete: Cascade)
+  MaterialData Material   @relation(fields: [MaterialId], references: [Id], onDelete: Cascade)
+
+  @@unique([FinishGoodId, MaterialId])
+  @@index([MaterialId], map: "BillOfMaterials_materialId_fkey")
+}
+
+model ManPower {
+  Uid              String             @id @default(uuid(4))
+  Nik              String             @unique
+  Name             String
+  CreatedAt        DateTime           @default(now())
+  Status           Boolean            @default(true)
+  Line             String?
+  ProductionReport ProductionReport[]
+}
+
+// --- CORE INVENTORY (LEDGER) ---
+// ini sumber kebenaran stok (source of truth), gak boleh ada yg kehapus
+model InventoryLedger {
+  Id              String       @id @default(uuid())
+  TransactionDate DateTime     @default(now())
+  ItemCategory    ItemCategory
+
+  // isi salah satu aja tergantung barangnya material apa fg
+  MaterialId   String?
+  FinishGoodId String?
+
+  Location        LocationType
+  TransactionType TransactionType
+
+  // no referensi dokumen kayak po, id produksi, id opname dll buat gampang tracking
+  ReferenceDoc String
+
+  // mutasi stok (wajib isi urut biar auditnya gampang ditarik)
+  BalanceBefore Int
+  QtyIn         Int @default(0)
+  QtyOut        Int @default(0)
+  BalanceAfter  Int
+
+  CreatedBy String
+  Notes     String?
+
+  MaterialData Material?   @relation(fields: [MaterialId], references: [PartNumber])
+  FGData       FinishGood? @relation(fields: [FinishGoodId], references: [PartNumber])
+
+  @@index([MaterialId, Location])
+  @@index([FinishGoodId])
+  @@index([TransactionDate])
+}
+
+// --- FITUR STOCK OPNAME ---
+model StockOpname {
+  Id           String       @id @default(uuid())
+  OpnameNumber String       @unique
+  Category     ItemCategory
+  Status       OpnameStatus @default(DRAFT)
+
+  CreatedAt   DateTime  @default(now())
+  CreatedBy   String
+  StartedAt   DateTime? // waktu tombol mulai opname dipencet (snapshot diambil)
+  CompletedAt DateTime? // waktu opname di-close/selesai
+  CompletedBy String?
+  Notes       String?
+
+  Details StockOpnameDetail[]
+}
+
+model StockOpnameDetail {
+  Id       Int    @id @default(autoincrement())
+  OpnameId String
+
+  MaterialId   String?
+  FinishGoodId String?
+  Location     LocationType
+
+  SystemQty     Int  @default(0) // qty di sistem saat disnapshoot
+  SystemQtyRack Int  @default(0) //qty di sistem bagian qtyrack jika type MATERIAL
+  ActualQty     Int? // hasil hitung aktual di lapangan (STO)
+  ActualQtyRack Int? // hasil hitung aktual di lapangan (STO) Rack
+  DiffQty       Int? // ActualQty - SystemQty (dihitung oleh sistem pas di-submit)
+  DiffQtyRack   Int? // ActualQty - SystemQty (dihitung oleh sistem pas di-submit) jika type MATERIAL
+
+  Notes String?
+
+  OpnameData   StockOpname @relation(fields: [OpnameId], references: [Id], onDelete: Cascade)
+  MaterialData Material?   @relation(fields: [MaterialId], references: [PartNumber])
+  FGData       FinishGood? @relation(fields: [FinishGoodId], references: [PartNumber])
+
+  @@unique([OpnameId, MaterialId, Location])
+  @@unique([OpnameId, FinishGoodId, Location])
+}
+
+// --- TRANSAKSI & OPERASIONAL LAIN-LAIN ---
+
+model Incoming {
+  Id               String             @id
+  PoId             String             @unique
+  Description      String?
+  CreatedAt        DateTime           @default(now())
+  UpdatedAt        DateTime           @updatedAt
+  ReceivedBy       String
+  ApprovedAt       DateTime?
+  Closed           Boolean            @default(false)
+  ApprovedBy       String?
+  SupplierId       Int
+  SupplierData     Supplier           @relation(fields: [SupplierId], references: [Id])
+  IncomingMaterial IncomingMaterial[]
+
+  FileName String?
+  FilePath String?
+
+  @@index([SupplierId], map: "Incoming_supplierId_fkey")
+}
+
+model IncomingMaterial {
+  Id           Int       @id @default(autoincrement())
+  IncomingId   String?
+  MaterialId   Int?
+  Qty          Int       @default(0)
+  QtyChecked   Int       @default(0)
+  CreatedAt    DateTime  @default(now())
+  IncomingData Incoming? @relation(fields: [IncomingId], references: [Id])
+  MaterialData Material? @relation(fields: [MaterialId], references: [Id])
+
+  @@index([IncomingId], map: "IncomingMaterial_incomingId_fkey")
+  @@index([MaterialId], map: "IncomingMaterial_materialId_fkey")
+}
+
+model MaterialNG {
+  Id           Int      @id @default(autoincrement())
+  MaterialId   String
+  Qty          Int      @default(0)
+  CreatedAt    DateTime @default(now())
+  CreatedBy    String
+  Description  String
+  MaterialData Material @relation(fields: [MaterialId], references: [PartNumber])
+
+  @@index([MaterialId], map: "MaterialNG_materialId_fkey")
+}
+
+model Forecast {
+  Id             Int      @id @default(autoincrement())
+  PoId           String   @unique
+  Date           DateTime
+  VendorCode     String
+  VendorName     String
+  ReceivingArea  String
+  DeliveryDate   DateTime
+  DeliveryPeriod Int
+  Classification String
+  PoNumber       String
+  Item           Int
+  Qty            Int
+  FinishGoodId   String
+
+  // Relasi ke jadwal produksi. Jika null, berarti PO ini belum dijadwalkan oleh Leader.
+  ProductionReleaseId String?
+
+  AttachmentDeliveryId Int?
+
+  DeliveryHistory    DeliveryHistory[]
+  PartData           FinishGood          @relation(fields: [FinishGoodId], references: [PartNumber], onDelete: Cascade)
+  LabelData          LabelData[]
+  Shopping           Shopping[]
+  ProductionRelease  ProductionRelease?  @relation(fields: [ProductionReleaseId], references: [Id])
+  AttachmentDelivery DeliveryAttachment? @relation(fields: [AttachmentDeliveryId], references: [id])
+
+  @@index([FinishGoodId], map: "Forecast_finishGoodId_fkey")
+  @@index([DeliveryDate])
+  @@index([PoId])
+  @@index([ProductionReleaseId])
+}
+
+enum ProductionStatus {
+  DRAFT
+  RELEASED
+  COMPLETED
+  CANCELLED
+}
+
+// --- HEADER JADWAL PRODUKSI ---
+model ProductionRelease {
+  Id            String   @id @default(uuid())
+  ReleaseNumber String   @unique
+  PlanDate      DateTime
+
+  Status ProductionStatus @default(DRAFT)
+  Notes  String?
+
+  // Rekap total agar UI dashboard lebih ringan (tidak perlu sum dari child)
+  TotalTargetQty Int @default(0)
+  TotalGoodQty   Int @default(0)
+  TotalNgQty     Int @default(0)
+
+  CreatedAt DateTime @default(now())
+  CreatedBy String
+  UpdatedAt DateTime @updatedAt
+
+  IsNoAttachment Boolean @default(false)
+
+  // 1 Jadwal rilis BANYAK PO (Forecast)
+  Forecasts          Forecast[]
+  LabelDatas         LabelData[]
+  DeliveryAttachment DeliveryAttachment[]
+
+  @@index([PlanDate])
+  @@index([Status])
+}
+
+model DeliveryAttachment {
+  id Int @id @default(autoincrement())
+
+  FileName String?
+  FilePath String?
+
+  CreatedAt DateTime @default(now())
+  CreatedBy String?
+  UpdatedAt DateTime @updatedAt
+
+  ProductionRelease   ProductionRelease? @relation(fields: [ProductionReleaseId], references: [Id])
+  ProductionReleaseId String?
+  Forecast            Forecast[]
+}
+
+model Shopping {
+  Id          String       @id
+  Description String?
+  Type        TypeShopping
+  CreatedAt   DateTime     @default(now())
+  UpdatedAt   DateTime     @updatedAt
+  ForecastId  String?
+  CreatedBy   String
+  QtyPick     Int
+  MaterialId  String
+
+  ForecastData Forecast? @relation(fields: [ForecastId], references: [PoId], onDelete: Cascade)
+  MaterialData Material  @relation(fields: [MaterialId], references: [PartNumber])
+
+  @@index([ForecastId], map: "Shopping_forecastId_fkey")
+  @@index([MaterialId], map: "Shopping_materialId_fkey")
+}
+
+model ProductionReport {
+  Id              Int       @id @default(autoincrement())
+  Date            String?
+  Time            String?
+  ProductionStamp DateTime
+  NgQty           Int       @default(0)
+  StartTime       String?
+  StartStamp      DateTime?
+  EndTime         String?
+  EndStamp        DateTime?
+  StopMinute      Int?      @default(0)
+  LatchDate       String?
+  CableHDate      String?
+  CableLDate      String?
+  CoverDate       String?
+  RodDate         String?
+  SponsDate       String?
+  SponsRearDate   String?
+  ClipDate        String?
+  LeverDate       String?
+  SmallPadDate    String?
+  ActuatorDate    String?
+  BackPlateDate   String?
+  StampDate       String?
+  PoNumber        String?
+  CreatedAt       DateTime  @default(now())
+  UpdatedAt       DateTime  @updatedAt
+  ValidatedAt     DateTime?
+  ValidatedBy     String?
+  RecordType      PartType?
+  Qty             Int       @default(0)
+  ManPowerUid     String
+  FinishGoodId    String
+
+  ManPowerData ManPower   @relation(fields: [ManPowerUid], references: [Uid])
+  FGData       FinishGood @relation(fields: [FinishGoodId], references: [PartNumber])
+
+  @@unique([Date, ManPowerUid, FinishGoodId, CreatedAt])
+}
+
+model LabelData {
+  Id           Int     @id @default(autoincrement())
+  LabelNumber  String  @unique
+  FinishGoodId String
+  ForecastId   String //Ambil dari POID
+  Scanned      Boolean @default(false)
+  QtyThisBox   Int     @default(0)
+
+  DeliveryHistory       DeliveryHistory?
+  PokayokeHistory       PokayokeScanHistory[]
+  PartData              FinishGood            @relation(fields: [FinishGoodId], references: [PartNumber])
+  POData                Forecast              @relation(fields: [ForecastId], references: [PoId], onDelete: Cascade)
+  ProductionRelease     ProductionRelease?    @relation(fields: [ProductionReleaseId], references: [Id])
+  ProductionReleaseId   String?
+  PokayokeScanHistoryId String?
+
+  @@index([FinishGoodId], map: "LabelData_finishGoodId_fkey")
+  @@index([ForecastId], map: "LabelData_forecastId_fkey")
+  @@index([ProductionReleaseId])
+}
+
+model PokayokeScanHistory {
+  Id          Int                   @id @default(autoincrement())
+  LabelNumber String
+  PoId        String //Forecast.PoId
+  PartNumber  String
+  PartName    String
+  CreatedAt   DateTime              @default(now())
+  CreatedBy   String
+  Status      PokayokeCompareStatus
+
+  LabelData   LabelData? @relation(fields: [LabelDataId], references: [Id])
+  LabelDataId Int?
+}
+
+model DeliveryHistory {
+  Id          Int      @id @default(autoincrement())
+  ForecastId  String //ambil dari PoID
+  Qty         Int
+  CreatedAt   DateTime @default(now())
+  CreatedBy   String
+  LabelDataId String   @unique(map: "DeliveryHistory_pk")
+
+  PoData    Forecast  @relation(fields: [ForecastId], references: [PoId])
+  LabelData LabelData @relation(fields: [LabelDataId], references: [LabelNumber])
+
+  @@index([ForecastId], map: "DeliveryHistory_forecastId_fkey")
+  @@index([CreatedAt])
+}
+
+// --- SYSTEM SETTINGS ---
+
+model LineStatus {
+  Id           Int    @id @default(autoincrement())
+  LineName     String
+  FinishGoodId String
+
+  CurrentProduction FinishGood @relation(fields: [FinishGoodId], references: [PartNumber])
+
+  @@index([FinishGoodId], map: "LineStatus_finishGoodId_fkey")
+}
+
+model EmailNotification {
+  Id    Int              @id @default(autoincrement())
+  Name  String
+  Email String
+  Type  NotificationType @default(DEFAULT)
+}
+
+model DashboardSetting {
+  Id        Int      @id @default(autoincrement())
+  StartDate DateTime
+  EndDate   DateTime
+  UpdatedAt DateTime
+}
+
+// --- AUDIT LOG ---
+
+model LogProcess {
+  ProcessId         String             @id @db.VarChar(50)
+  FunctionId        String             @db.VarChar(50)
+  FunctionName      String             @db.VarChar(255)
+  ProcessStatus     String             @db.VarChar(20)
+  ProcessStart      DateTime
+  ProcessEnd        DateTime?
+  ProcessDate       DateTime
+  CreatedAt         DateTime
+  CreatedBy         String?
+  LogProcessDetails LogProcessDetail[]
+
+  @@index([ProcessId])
+  @@index([FunctionId])
+  @@index([ProcessDate])
+  @@index([ProcessStatus])
+}
+
+model LogProcessDetail {
+  ProcessDetailId BigInt      @id @default(autoincrement())
+  ProcessId       String      @db.VarChar(50)
+  MessageId       String      @db.VarChar(50)
+  Message         String      @db.Text
+  Type            String      @db.VarChar(20)
+  Location        String      @db.VarChar(255)
+  ProcessDate     DateTime
+  CreatedAt       DateTime
+  LogProcess      LogProcess? @relation(fields: [ProcessId], references: [ProcessId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([ProcessId])
+  @@index([MessageId])
+  @@index([Type])
+  @@index([ProcessDate])
+}
+
+model MTCUserSession {
+  SessionId String   @id @default(uuid())
+  UserId    String
+  UserAgent String
+  IpAddress String
+  IsActive  Boolean  @default(true)
+  CreatedAt DateTime @default(now())
+  ExpiresAt DateTime
+}
+
+model MTCUserManagement {
+  Id          String    @id @default(uuid())
+  UserId      String    @unique
+  Password    String?
+  PhoneNumber String?   @db.VarChar(32)
+  IsActive    Boolean   @default(true)
+  Name        String
+  LastLogin   DateTime?
+  Email       String    @unique
+
+  AuthProvider String  @default("LOCAL") //LOCAL | SSO
+  SsoObjectId  String? @unique
+
+  RoleId      Int?
+  Role        MTCRole?     @relation(fields: [RoleId], references: [Id], onUpdate: Cascade)
+  mtcauthLogs MTCAuthLog[]
+  ApiKeys     ApiKey[]
+
+  @@index([Email])
+  @@index([SsoObjectId])
+}
+
+enum MTCAuthAction {
+  LOGIN
+  LOGOUT
+  PASSWORD_RESET
+  SSO_CALLBACK
+}
+
+enum MTCAuthStatus {
+  SUCCESS
+  FAILED
+}
+
+model MTCAuthLog {
+  Id            String        @id @default(uuid())
+  UserId        String?
+  EmailAttempt  String?       @db.VarChar(255)
+  Action        MTCAuthAction
+  Status        MTCAuthStatus
+  FailureReason String?       @db.VarChar(255)
+  IpAddress     String?       @db.VarChar(45)
+  UserAgent     String?
+  CreatedAt     DateTime      @default(now())
+
+  User MTCUserManagement? @relation(fields: [UserId], references: [UserId], onDelete: Cascade)
+
+  @@index([UserId])
+  @@index([CreatedAt])
+  @@index([EmailAttempt])
+}
+
+model MTCRole {
+  Id          Int                 @id @default(autoincrement())
+  RoleName    String              @unique
+  Description String?
+  CreateDate  DateTime            @default(now())
+  CreateBy    String?
+  UpdateDate  DateTime?           @default(now())
+  UpdateBy    String?
+  Permission  MTCPermission[]
+  Users       MTCUserManagement[]
+}
+
+model MTCPermission {
+  Id          Int       @id @default(autoincrement())
+  Action      String    @unique
+  Description String?
+  CreateDate  DateTime  @default(now())
+  CreateBy    String?
+  UpdateDate  DateTime? @default(now())
+  UpdateBy    String?
+  Roles       MTCRole[]
+
+  @@index([Action])
+}
+
+enum DeliveryNoteStatus {
+  DRAFT
+  SHIPPED
+  RECEIVED // Barang sudah sampai dan diterima di tujuan
+  CANCELLED
+}
+
+// --- HEADER SURAT JALAN MATERIAL ---
+model MaterialDeliveryNote {
+  Id              String             @id @default(uuid())
+  DeliveryNoteNum String             @unique // Contoh: SJ-MAT/2026/06/0001
+  Destination     String // Lokasi tujuan pengiriman
+  Status          DeliveryNoteStatus @default(DRAFT)
+  Notes           String? // Alasan pengeluaran (misal: Retur, Transfer Subcont, dll)
+  DNPath          String? //URL Surat Jalan
+  // Timestamps & Aktor
+  CreatedAt       DateTime           @default(now())
+  CreatedBy       String
+  ShippedAt       DateTime? // Kapan barang mulai dikirim keluar
+  ShippedBy       String?
+  ReceivedAt      DateTime? // Kapan barang dikonfirmasi sampai di tujuan
+  ReceivedBy      String? // Siapa yang menerima di tujuan
+
+  Details MaterialDeliveryNoteDetail[]
+
+  @@index([Status])
+  @@index([DeliveryNoteNum])
+}
+
+// --- DETAIL BARANG DI SURAT JALAN ---
+model MaterialDeliveryNoteDetail {
+  Id             Int    @id @default(autoincrement())
+  DeliveryNoteId String
+  MaterialId     String
+
+  QtyRequested Int // Jumlah yang direncanakan/diminta dikeluarkan
+  QtyPicking   Int //jumlah yg sudah di prepare siap kirim, harus = qtyRequested
+  QtyReceived  Int? // Jumlah aktual yang diterima di tujuan (bisa jadi ada selisih dijalan)
+
+  // Relasi
+  DeliveryNoteData MaterialDeliveryNote @relation(fields: [DeliveryNoteId], references: [Id], onDelete: Cascade)
+  MaterialData     Material             @relation(fields: [MaterialId], references: [PartNumber])
+
+  @@unique([DeliveryNoteId, MaterialId])
+}
+
+model PrinterSetting {
+  Id        String   @id @default(uuid(4))
+  Name      String?
+  IpAddress String   @unique
+  CreatedAt DateTime @default(now())
+  UpdatedAt DateTime @updatedAt
+}
+
+model ApiKey {
+  Id          String    @id @default(uuid())
+  KeyHash     String    @unique // SHA-256 hash of the API key
+  KeyPrefix   String
+  Name        String
+  Description String?
+  UserId      String
+  IsActive    Boolean   @default(true)
+  LastUsedAt  DateTime?
+  CreatedAt   DateTime  @default(now())
+  CreatedBy   String
+
+  User MTCUserManagement @relation(fields: [UserId], references: [UserId])
+}
+
+model DisplayConfig {
+  Id          Int       @id @default(autoincrement())
+  Description String
+  CreatedAt   DateTime? @default(now())
+  UpdatedAt   DateTime  @updatedAt
+  IsOpen      Boolean   @default(false)
+  Url         String
+  Loop        Boolean   @default(true)
+}

@@ -1,0 +1,585 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { InventoryCountingService } from './inventory-counting.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { LogProcessService } from '../common/log-process/log-process.service';
+import { ItemCategory, OpnameStatus } from '../generated/prisma/enums';
+
+describe('InventoryCountingService', () => {
+  let service: InventoryCountingService;
+  let prismaService: any;
+  let logService: any;
+
+  const mockLogProcess = {
+    ProcessId: 'PR202506110000001',
+    FunctionId: 'INV_COUNT_001',
+    FunctionName: 'Test',
+    ProcessStatus: 'SUCCESS',
+    ProcessStart: new Date(),
+    ProcessDate: new Date(),
+    CreatedAt: new Date(),
+    CreatedBy: 'test',
+  };
+
+  beforeEach(async () => {
+    const mockPrismaService = {
+      stockOpname: {
+        findUnique: jest.fn(),
+        findFirst: jest.fn(),
+        findMany: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
+        count: jest.fn(),
+      },
+      stockOpnameDetail: {
+        findUnique: jest.fn(),
+        findMany: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+        createMany: jest.fn(),
+      },
+      material: {
+        findMany: jest.fn(),
+        findUnique: jest.fn(),
+        update: jest.fn(),
+      },
+      finishGood: {
+        findMany: jest.fn(),
+        findUnique: jest.fn(),
+        update: jest.fn(),
+      },
+      $transaction: jest.fn(),
+    };
+
+    const mockLogProcessService = {
+      startProcess: jest.fn().mockResolvedValue(mockLogProcess),
+      addLog: jest.fn().mockResolvedValue({}),
+      completeProcess: jest.fn().mockResolvedValue(undefined),
+      resetCounter: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        InventoryCountingService,
+        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: LogProcessService, useValue: mockLogProcessService },
+      ],
+    }).compile();
+
+    service = module.get<InventoryCountingService>(InventoryCountingService);
+    prismaService = module.get(PrismaService);
+    logService = module.get(LogProcessService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('create', () => {
+    const createDto = {
+      opnameNumber: 'INV-2025-001',
+      category: ItemCategory.MATERIAL,
+      notes: 'Test notes',
+    };
+
+    it('should create inventory counting successfully', async () => {
+      const mockResult = {
+        Id: '123',
+        OpnameNumber: createDto.opnameNumber,
+        Category: createDto.category,
+        Status: OpnameStatus.DRAFT,
+        CreatedAt: new Date(),
+        CreatedBy: 'test',
+        Notes: createDto.notes,
+      };
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(null);
+      prismaService.stockOpname.create.mockResolvedValue(mockResult);
+
+      const result = await service.create(createDto, 'test');
+
+      expect(result.success).toBe(true);
+      expect(result.processId).toBe(mockLogProcess.ProcessId);
+      expect(result.data.OpnameNumber).toBe(createDto.opnameNumber);
+      expect(prismaService.stockOpname.create).toHaveBeenCalledWith({
+        data: {
+          OpnameNumber: createDto.opnameNumber,
+          Category: createDto.category,
+          Status: OpnameStatus.DRAFT,
+          Notes: createDto.notes,
+          CreatedBy: 'test',
+        },
+      });
+      expect(logService.startProcess).toHaveBeenCalled();
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        mockLogProcess.ProcessId,
+        'SUCCESS',
+        'Inventory counting created successfully',
+      );
+    });
+
+    it('should throw BadRequestException for duplicate opnameNumber', async () => {
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        OpnameNumber: createDto.opnameNumber,
+      });
+
+      await expect(service.create(createDto, 'test')).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        mockLogProcess.ProcessId,
+        'FAILED',
+      );
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return paginated inventory counting list', async () => {
+      const mockList = [
+        {
+          Id: '1',
+          OpnameNumber: 'INV-001',
+          Category: ItemCategory.MATERIAL,
+          Status: OpnameStatus.DRAFT,
+          CreatedAt: new Date(),
+          CreatedBy: 'test',
+          StartedAt: null,
+          CompletedAt: null,
+          CompletedBy: null,
+          Notes: null,
+          Details: [],
+        },
+      ];
+
+      prismaService.stockOpname.count.mockResolvedValue(1);
+      prismaService.stockOpname.findMany.mockResolvedValue(mockList);
+
+      const result = await service.findAll({});
+
+      expect(result.total).toBe(1);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].TotalItems).toBe(0);
+      expect(result.data[0].CompletedItems).toBe(0);
+    });
+
+    it('should filter by status', async () => {
+      prismaService.stockOpname.count.mockResolvedValue(0);
+      prismaService.stockOpname.findMany.mockResolvedValue([]);
+
+      await service.findAll({ status: OpnameStatus.IN_PROGRESS });
+
+      expect(prismaService.stockOpname.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { Status: OpnameStatus.IN_PROGRESS },
+        }),
+      );
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return inventory counting with details', async () => {
+      const mockResult = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Category: ItemCategory.MATERIAL,
+        Status: OpnameStatus.DRAFT,
+        CreatedAt: new Date(),
+        CreatedBy: 'test',
+        StartedAt: null,
+        CompletedAt: null,
+        CompletedBy: null,
+        Notes: null,
+        Details: [
+          {
+            Id: 1,
+            OpnameId: '123',
+            MaterialId: 'MAT-001',
+            FinishGoodId: null,
+            Location: 'WAREHOUSE',
+            SystemQty: 100,
+            ActualQty: null,
+            DiffQty: null,
+            Notes: null,
+          },
+        ],
+      };
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockResult);
+
+      const result = await service.findOne('123');
+
+      expect(result.Id).toBe('123');
+      expect(result.TotalItems).toBe(1);
+      expect(result.CompletedItems).toBe(0);
+    });
+
+    it('should throw NotFoundException when not found', async () => {
+      prismaService.stockOpname.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne('999')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('update', () => {
+    it('should update notes successfully', async () => {
+      const mockExisting = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Status: OpnameStatus.DRAFT,
+      };
+
+      const mockUpdated = {
+        ...mockExisting,
+        Notes: 'Updated notes',
+      };
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockExisting);
+      prismaService.stockOpname.update.mockResolvedValue(mockUpdated);
+
+      const result = await service.update(
+        '123',
+        { notes: 'Updated notes' },
+        'test',
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.data.Notes).toBe('Updated notes');
+    });
+
+    it('should throw NotFoundException when not found', async () => {
+      prismaService.stockOpname.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.update('999', { notes: 'test' }, 'test'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('remove', () => {
+    it('should delete DRAFT inventory counting', async () => {
+      const mockExisting = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Status: OpnameStatus.DRAFT,
+        _count: { Details: 0 },
+      };
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockExisting);
+      prismaService.stockOpname.delete.mockResolvedValue(mockExisting);
+
+      const result = await service.remove('123');
+
+      expect(result.success).toBe(true);
+      expect(prismaService.stockOpname.delete).toHaveBeenCalledWith({
+        where: { Id: '123' },
+      });
+    });
+
+    it('should throw BadRequestException when deleting non-DRAFT', async () => {
+      const mockExisting = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Status: OpnameStatus.COMPLETED,
+        _count: { Details: 0 },
+      };
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockExisting);
+
+      await expect(service.remove('123')).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('start', () => {
+    it('should start DRAFT inventory counting', async () => {
+      const mockExisting = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Status: OpnameStatus.DRAFT,
+        Category: ItemCategory.MATERIAL,
+        Details: [],
+      };
+
+      const mockStarted = {
+        ...mockExisting,
+        Status: OpnameStatus.IN_PROGRESS,
+        StartedAt: new Date(),
+      };
+
+      const mockMaterials = [{ PartNumber: 'MAT-001', PartName: 'Material 1' }];
+
+      prismaService.stockOpname.findUnique
+        .mockResolvedValueOnce(mockExisting) // First call in start method
+        .mockResolvedValueOnce(mockStarted); // Second call in findOne (return from start)
+
+      prismaService.material.findMany.mockResolvedValue(mockMaterials);
+      prismaService.stockOpnameDetail.createMany.mockResolvedValue({
+        count: 1,
+      });
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue([
+        { Id: 1, MaterialId: 'MAT-001', Location: 'WAREHOUSE' },
+      ]);
+
+      prismaService.$transaction.mockImplementation((callback: any) => {
+        const tx = {
+          material: {
+            findUnique: jest
+              .fn()
+              .mockResolvedValue({ QtyWarehouse: 50, QtyRack: 100 }),
+          },
+          finishGood: {
+            findUnique: jest.fn(),
+          },
+          stockOpnameDetail: {
+            update: jest.fn().mockResolvedValue({}),
+          },
+          stockOpname: {
+            update: jest.fn().mockResolvedValue(mockStarted),
+          },
+        };
+        return callback(tx);
+      });
+
+      const result = await service.start('123', 'test');
+
+      expect(result.success).toBe(true);
+      expect(result.data.Status).toBe(OpnameStatus.IN_PROGRESS);
+    });
+
+    it('should throw BadRequestException when starting non-DRAFT', async () => {
+      const mockExisting = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Status: OpnameStatus.COMPLETED,
+        Category: ItemCategory.MATERIAL,
+        Details: [],
+      };
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockExisting);
+
+      await expect(service.start('123', 'test')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+  });
+
+  describe('generateCutOff', () => {
+    it('should generate cut-off items for MATERIAL', async () => {
+      const mockExisting = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Status: OpnameStatus.DRAFT,
+        Details: [],
+      };
+
+      const mockMaterials = [
+        {
+          PartNumber: 'MAT-001',
+          PartName: 'Material 1',
+          QtyRack: 100,
+          QtyWarehouse: 50,
+        },
+        {
+          PartNumber: 'MAT-002',
+          PartName: 'Material 2',
+          QtyRack: 200,
+          QtyWarehouse: 0,
+        },
+      ];
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockExisting);
+      prismaService.material.findMany.mockResolvedValue(mockMaterials);
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue([]);
+      prismaService.stockOpnameDetail.createMany.mockResolvedValue({
+        count: 2,
+      });
+      prismaService.stockOpname.update.mockResolvedValue({
+        ...mockExisting,
+        Status: OpnameStatus.IN_PROGRESS,
+      });
+
+      const result = await service.generateCutOff(
+        {
+          inventoryCountingId: '123',
+          itemCategory: 'MATERIAL',
+          location: 'WAREHOUSE',
+        },
+        'test',
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.data.count).toBe(2);
+      expect(prismaService.stockOpnameDetail.createMany).toHaveBeenCalled();
+    });
+
+    it('should generate cut-off items for FINISH_GOOD', async () => {
+      const mockExisting = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Status: OpnameStatus.IN_PROGRESS,
+        Details: [],
+      };
+
+      const mockFinishGoods = [
+        { PartNumber: 'FG-001', PartName: 'Finish Good 1', Qty: 50 },
+        { PartNumber: 'FG-002', PartName: 'Finish Good 2', Qty: 30 },
+      ];
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockExisting);
+      prismaService.finishGood.findMany.mockResolvedValue(mockFinishGoods);
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue([]);
+      prismaService.stockOpnameDetail.createMany.mockResolvedValue({
+        count: 2,
+      });
+
+      const result = await service.generateCutOff(
+        {
+          inventoryCountingId: '123',
+          itemCategory: 'FINISH_GOOD',
+        },
+        'test',
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.data.count).toBe(2);
+    });
+  });
+
+  describe('updateActualStock', () => {
+    it('should update actual stock and calculate diff', async () => {
+      const mockDetail = {
+        Id: 1,
+        OpnameId: '123',
+        MaterialId: 'MAT-001',
+        FinishGoodId: null,
+        Location: 'WAREHOUSE',
+        SystemQty: 100,
+        ActualQty: null,
+        DiffQty: null,
+        Notes: null,
+        OpnameData: {
+          Status: OpnameStatus.IN_PROGRESS,
+        },
+      };
+
+      const mockUpdated = {
+        ...mockDetail,
+        ActualQty: 95,
+        DiffQty: -5,
+      };
+
+      prismaService.stockOpnameDetail.findUnique.mockResolvedValue(mockDetail);
+      prismaService.stockOpnameDetail.update.mockResolvedValue(mockUpdated);
+
+      const result = await service.updateActualStock(
+        '123',
+        1,
+        { actualQty: 95 },
+        'test',
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.data.ActualQty).toBe(95);
+      expect(result.data.DiffQty).toBe(-5);
+    });
+
+    it('should throw BadRequestException when parent is not IN_PROGRESS', async () => {
+      const mockDetail = {
+        Id: 1,
+        OpnameData: { Status: OpnameStatus.COMPLETED },
+      };
+
+      prismaService.stockOpnameDetail.findUnique.mockResolvedValue(mockDetail);
+
+      await expect(
+        service.updateActualStock('123', 1, { actualQty: 100 }, 'test'),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('close', () => {
+    it('should close inventory counting and adjust stock', async () => {
+      const mockExisting = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Status: OpnameStatus.IN_PROGRESS,
+        Details: [
+          {
+            Id: 1,
+            MaterialId: 'MAT-001',
+            FinishGoodId: null,
+            Location: 'RACK',
+            SystemQty: 100,
+            ActualQty: 95,
+            DiffQty: -5,
+          },
+        ],
+      };
+
+      const mockMaterial = {
+        PartNumber: 'MAT-001',
+        QtyRack: 100,
+        QtyWarehouse: 0,
+      };
+
+      const mockUpdatedOpname = {
+        ...mockExisting,
+        Status: OpnameStatus.COMPLETED,
+        CompletedAt: new Date(),
+        CompletedBy: 'test',
+      };
+
+      prismaService.stockOpname.findUnique
+        .mockResolvedValueOnce(mockExisting)
+        .mockResolvedValueOnce(mockUpdatedOpname);
+
+      prismaService.$transaction.mockImplementation((callback: any) => {
+        const tx = {
+          material: {
+            findUnique: jest.fn().mockResolvedValue(mockMaterial),
+            update: jest
+              .fn()
+              .mockResolvedValue({ ...mockMaterial, QtyRack: 95 }),
+          },
+          stockOpname: {
+            update: jest.fn().mockResolvedValue(mockUpdatedOpname),
+          },
+          stockOpnameDetail: {
+            update: jest.fn().mockResolvedValue({}),
+          },
+          inventoryLedger: {
+            createMany: jest.fn().mockResolvedValue({ count: 1 }),
+          },
+        };
+        return callback(tx);
+      });
+
+      const result = await service.close('123', 'test');
+
+      expect(result.success).toBe(true);
+      expect(prismaService.$transaction).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when items have null ActualQty', async () => {
+      const mockExisting = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Status: OpnameStatus.IN_PROGRESS,
+        Details: [
+          {
+            Id: 1,
+            MaterialId: 'MAT-001',
+            ActualQty: null,
+          },
+        ],
+      };
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockExisting);
+
+      await expect(service.close('123', 'test')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+  });
+});

@@ -1,0 +1,356 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { InventoryCountingController } from './inventory-counting.controller';
+import { InventoryCountingService } from './inventory-counting.service';
+import { CreateInventoryCountingDto, UpdateInventoryCountingDto } from './dto';
+import { ItemCategory, OpnameStatus } from '../generated/prisma/enums';
+import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
+
+describe('InventoryCountingController', () => {
+  let controller: InventoryCountingController;
+  let service: any;
+
+  const mockUser: ICurrentUser = {
+    username: 'testuser',
+    name: 'Test User',
+    email: 'test@example.com',
+    roleId: 1,
+    roleName: 'Admin',
+    sessionId: 'sess-123',
+    permissions: ['INVENTORY_COUNTING_CREATE', 'INVENTORY_COUNTING_READ'],
+    departments: ['WAREHOUSE'],
+  };
+
+  const mockProcessId = 'PR202506110000001';
+
+  beforeEach(async () => {
+    const mockService = {
+      create: jest.fn(),
+      findAll: jest.fn(),
+      findOne: jest.fn(),
+      getDetails: jest.fn(),
+      update: jest.fn(),
+      remove: jest.fn(),
+      start: jest.fn(),
+      generateCutOff: jest.fn(),
+      updateActualStock: jest.fn(),
+      close: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [InventoryCountingController],
+      providers: [{ provide: InventoryCountingService, useValue: mockService }],
+    }).compile();
+
+    controller = module.get<InventoryCountingController>(
+      InventoryCountingController,
+    );
+    service = module.get(InventoryCountingService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('create', () => {
+    it('should create inventory counting', async () => {
+      const createDto: CreateInventoryCountingDto = {
+        opnameNumber: 'INV-2025-001',
+        category: ItemCategory.MATERIAL,
+        notes: 'Test notes',
+      };
+
+      const mockResult = {
+        success: true,
+        processId: mockProcessId,
+        data: {
+          Id: '123',
+          OpnameNumber: createDto.opnameNumber,
+          Category: createDto.category,
+          Status: OpnameStatus.DRAFT,
+          CreatedAt: new Date(),
+          CreatedBy: 'testuser',
+          Notes: createDto.notes,
+          StartedAt: null,
+          CompletedAt: null,
+          CompletedBy: null,
+        },
+      };
+
+      service.create.mockResolvedValue(mockResult);
+
+      const result = await controller.create(createDto, mockUser);
+
+      expect(result).toEqual(mockResult);
+      expect(service.create).toHaveBeenCalledWith(createDto, mockUser.username);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return paginated inventory counting list', async () => {
+      const mockResult = {
+        data: [
+          {
+            id: '123',
+            opnameNumber: 'INV-001',
+            category: ItemCategory.MATERIAL,
+            status: OpnameStatus.DRAFT,
+            createdAt: new Date(),
+            createdBy: 'testuser',
+            startedAt: null,
+            completedAt: null,
+            completedBy: null,
+            notes: null,
+            details: [],
+            totalItems: 0,
+            completedItems: 0,
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 50,
+        totalPages: 1,
+      };
+
+      service.findAll.mockResolvedValue(mockResult);
+
+      const result = await controller.findAll({});
+
+      expect(result).toEqual(mockResult);
+      expect(service.findAll).toHaveBeenCalledWith({});
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return inventory counting by id', async () => {
+      const mockResult = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Category: ItemCategory.MATERIAL,
+        Status: OpnameStatus.DRAFT,
+        CreatedAt: new Date(),
+        CreatedBy: 'testuser',
+        StartedAt: null,
+        CompletedAt: null,
+        CompletedBy: null,
+        Notes: null,
+        Details: [],
+        totalItems: 10,
+        completedItems: 5,
+      };
+
+      service.findOne.mockResolvedValue(mockResult);
+
+      const result = await controller.findOne('123');
+
+      expect(result).toEqual(mockResult);
+      expect(service.findOne).toHaveBeenCalledWith('123');
+    });
+  });
+
+  describe('getDetails', () => {
+    it('should return details for inventory counting', async () => {
+      const mockResult = [
+        {
+          Id: 1,
+          OpnameId: '123',
+          MaterialId: 'MAT-001',
+          FinishGoodId: null,
+          Location: 'WAREHOUSE',
+          SystemQty: 100,
+          ActualQty: null,
+          DiffQty: null,
+          Notes: null,
+        },
+      ];
+
+      service.getDetails.mockResolvedValue(mockResult);
+
+      const result = await controller.getDetails('123');
+
+      expect(result).toEqual(mockResult);
+      expect(service.getDetails).toHaveBeenCalledWith('123');
+    });
+  });
+
+  describe('update', () => {
+    it('should update inventory counting notes', async () => {
+      const updateDto: UpdateInventoryCountingDto = {
+        notes: 'Updated notes',
+      };
+
+      const mockResult = {
+        success: true,
+        processId: mockProcessId,
+        data: {
+          Id: '123',
+          OpnameNumber: 'INV-001',
+          Category: ItemCategory.MATERIAL,
+          Status: OpnameStatus.DRAFT,
+          CreatedAt: new Date(),
+          CreatedBy: 'testuser',
+          Notes: 'Updated notes',
+          StartedAt: null,
+          CompletedAt: null,
+          CompletedBy: null,
+        },
+      };
+
+      service.update.mockResolvedValue(mockResult);
+
+      const result = await controller.update('123', updateDto, mockUser);
+
+      expect(result).toEqual(mockResult);
+      expect(service.update).toHaveBeenCalledWith(
+        '123',
+        updateDto,
+        mockUser.username,
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('should delete inventory counting', async () => {
+      const mockResult = {
+        success: true,
+        processId: mockProcessId,
+        message: 'Inventory counting #123 deleted',
+      };
+
+      service.remove.mockResolvedValue(mockResult);
+
+      const result = await controller.remove('123');
+
+      expect(result).toEqual(mockResult);
+      expect(service.remove).toHaveBeenCalledWith('123');
+    });
+  });
+
+  describe('start', () => {
+    it('should start inventory counting', async () => {
+      const mockResult = {
+        success: true,
+        processId: mockProcessId,
+        data: {
+          Id: '123',
+          OpnameNumber: 'INV-001',
+          Category: ItemCategory.MATERIAL,
+          Status: OpnameStatus.IN_PROGRESS,
+          CreatedAt: new Date(),
+          CreatedBy: 'testuser',
+          Notes: null,
+          StartedAt: new Date(),
+          CompletedAt: null,
+          CompletedBy: null,
+        },
+      };
+
+      service.start.mockResolvedValue(mockResult);
+
+      const result = await controller.start('123', mockUser);
+
+      expect(result).toEqual(mockResult);
+      expect(service.start).toHaveBeenCalledWith('123', mockUser.username);
+    });
+  });
+
+  describe('generateCutOff', () => {
+    it('should generate cut-off items', async () => {
+      const mockDto = {
+        inventoryCountingId: '123',
+        itemCategory: 'MATERIAL' as const,
+        location: 'WAREHOUSE',
+      };
+
+      const mockResult = {
+        success: true,
+        processId: mockProcessId,
+        data: {
+          inventoryCountingId: '123',
+          count: 10,
+        },
+      };
+
+      service.generateCutOff.mockResolvedValue(mockResult);
+
+      const result = await controller.generateCutOff(mockDto, mockUser);
+
+      expect(result).toEqual(mockResult);
+      expect(service.generateCutOff).toHaveBeenCalledWith(
+        mockDto,
+        mockUser.username,
+      );
+    });
+  });
+
+  describe('updateActualStock', () => {
+    it('should update actual stock for detail', async () => {
+      const mockDto = {
+        actualQty: 95,
+        notes: 'Counted manually',
+      };
+
+      const mockResult = {
+        success: true,
+        processId: mockProcessId,
+        data: {
+          Id: 1,
+          OpnameId: '123',
+          MaterialId: 'MAT-001',
+          FinishGoodId: null,
+          Location: 'WAREHOUSE',
+          SystemQty: 100,
+          ActualQty: 95,
+          DiffQty: -5,
+          Notes: 'Counted manually',
+        },
+      };
+
+      service.updateActualStock.mockResolvedValue(mockResult);
+
+      const result = await controller.updateActualStock(1, mockDto, mockUser);
+
+      expect(result).toEqual(mockResult);
+      expect(service.updateActualStock).toHaveBeenCalledWith(
+        '',
+        1,
+        mockDto,
+        mockUser.username,
+      );
+    });
+  });
+
+  describe('close', () => {
+    it('should close inventory counting', async () => {
+      const mockDto = {
+        id: '123',
+      };
+
+      const mockResult = {
+        success: true,
+        processId: mockProcessId,
+        data: {
+          Id: '123',
+          OpnameNumber: 'INV-001',
+          Category: ItemCategory.MATERIAL,
+          Status: OpnameStatus.COMPLETED,
+          CreatedAt: new Date(),
+          CreatedBy: 'testuser',
+          Notes: null,
+          StartedAt: new Date(),
+          CompletedAt: new Date(),
+          CompletedBy: 'testuser',
+          Details: [],
+          totalItems: 10,
+          completedItems: 10,
+        },
+      };
+
+      service.close.mockResolvedValue(mockResult);
+
+      const result = await controller.close(mockDto, mockUser);
+
+      expect(result).toEqual(mockResult);
+      expect(service.close).toHaveBeenCalledWith('123', mockUser.username);
+    });
+  });
+});

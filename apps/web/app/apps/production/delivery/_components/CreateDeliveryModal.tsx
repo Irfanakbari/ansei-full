@@ -1,0 +1,144 @@
+/*By Irfan Akbari Vuteq Indonesia - 2026-06-10*/
+"use client";
+
+import React, { useState, useMemo } from 'react';
+import { Modal, Form, Select, App, Button, Space, Tag } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
+import { createDelivery, CreateDeliveryRequest } from '@/store/features/production/delivery/deliverySlice';
+
+interface Props {
+    visible: boolean;
+    onClose: () => void;
+    onSuccess?: () => void;
+}
+
+const CreateDeliveryModal: React.FC<Props> = ({ visible, onClose, onSuccess }) => {
+    const { message: antMessage } = App.useApp();
+    const dispatch = useDispatch<AppDispatch>();
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
+
+    const { data: preDeliveryData } = useSelector((state: RootState) => state.preDelivery);
+    const { data: deliveryData } = useSelector((state: RootState) => state.delivery);
+
+    // Get list of labelDataIds that already have delivery
+    // Compare both id and labelNumber since labelDataId could reference either
+    const deliveredLabelIds = useMemo(() => {
+        return new Set(deliveryData.map(d => d.labelDataId));
+    }, [deliveryData]);
+
+    // Filter preDelivery to only show labels that can be delivered
+    const availableLabels = useMemo(() => {
+        // Only show labels that are scanned (ready for delivery)
+        return preDeliveryData.filter(label => label.scanned);
+    }, [preDeliveryData]);
+
+    const handleFinish = async (values: CreateDeliveryRequest) => {
+        try {
+            setLoading(true);
+            const resultAction = await dispatch(createDelivery(values));
+
+            if (createDelivery.fulfilled.match(resultAction)) {
+                antMessage.success('Delivery created successfully');
+                form.resetFields();
+                onClose();
+                onSuccess?.();
+            } else if (createDelivery.rejected.match(resultAction)) {
+                const errorMsg = resultAction.payload as string;
+                antMessage.error(errorMsg || 'Delivery failed');
+            }
+        } catch (error: any) {
+            antMessage.error(error?.message || 'Delivery failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <Modal
+            title="Create New Delivery"
+            open={visible}
+            onCancel={() => {
+                form.resetFields();
+                onClose();
+            }}
+            footer={null}
+            centered
+            width={600}
+            zIndex={1050}
+        >
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleFinish}
+            >
+                <Form.Item
+                    name="labelDataId"
+                    label="Label Number"
+                    rules={[{ required: true, message: 'Please select Label Number' }]}
+                    extra="Select label to deliver. Labels already delivered cannot be selected."
+                >
+                    <Select
+                        placeholder="Select Label Number"
+                        showSearch
+                        size="large"
+                        filterOption={(input, option) =>
+                            (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
+                        }
+                    >
+                        {availableLabels.map(label => {
+                            // Check if this label is already delivered
+                            // Compare against both id and labelNumber since labelDataId could reference either
+                            const isDelivered =
+                                deliveredLabelIds.has(String(label.id)) ||
+                                deliveredLabelIds.has(label.labelNumber);
+
+                            return (
+                                <Select.Option
+                                    key={label.id}
+                                    value={label.id}
+                                    label={label.labelNumber}
+                                    disabled={isDelivered}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <code style={{ fontSize: 11 }}>{label.labelNumber}</code>
+                                            <div style={{ fontSize: 10, color: '#666' }}>
+                                                {label.finishGoodName} | Qty: {label.qtyThisBox}
+                                            </div>
+                                            <div style={{ fontSize: 10, color: '#666' }}>
+                                                Forecast: {label.forecastId}
+                                            </div>
+                                        </div>
+                                        {isDelivered ? (
+                                            <Tag color="green">Delivered</Tag>
+                                        ) : (
+                                            <Tag color="blue">Ready</Tag>
+                                        )}
+                                    </div>
+                                </Select.Option>
+                            );
+                        })}
+                    </Select>
+                </Form.Item>
+
+                <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+                    <Space>
+                        <Button onClick={() => {
+                            form.resetFields();
+                            onClose();
+                        }}>
+                            Cancel
+                        </Button>
+                        <Button type="primary" htmlType="submit" loading={loading}>
+                            Create Delivery
+                        </Button>
+                    </Space>
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+};
+
+export default CreateDeliveryModal;

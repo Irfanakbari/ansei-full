@@ -1,0 +1,262 @@
+@import "tailwindcss";
+
+/* ============================================
+   IPS-FE Design System - CSS Variables
+   Original Theme with Improved Typography
+   ============================================ */
+
+:root {
+  /* Background Colors */
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* Primary Colors (Original Blue/Indigo) */
+  --color-primary: #4F46E5;
+  --color-primary-light: #6366F1;
+  --color-primary-pale: #EEF2FF;
+  --color-primary-dark: #3730A3;
+
+  /* Secondary Colors (Original) */
+  --color-secondary: #7C3AED;
+  --color-secondary-light: #8B5CF6;
+  --color-secondary-pale: #F5F3FF;
+
+  /* Accent Colors */
+  --color-accent: #EC4899;
+  --color-accent-light: #F472B6;
+  --color-accent-pale: #FDF2F8;
+
+  /* Neutral Colors */
+  --color-surface: #FFFFFF;
+  --color-border: #E5E7EB;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+
+  /* Semantic Colors */
+  --color-success: #10B981;
+  --color-success-pale: #D1FAE5;
+  --color-warning: #F59E0B;
+  --color-warning-pale: #FEF3C7;
+  --color-error: #EF4444;
+  --color-error-pale: #FEE2E2;
+  --color-info: #3B82F6;
+  --color-info-pale: #DBEAFE;
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* Text Sizes - Improved for readability */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+
+  /* Sidebar Font Size */
+  --sidebar-font-size: 14px;
+  --sidebar-icon-size: 18px;
+
+  /* Toolbar Font Size */
+  --toolbar-font-size: 14px;
+
+  /* Table Font Size */
+  --table-font-size: 10px;
+  --table-header-font-size: 13px;
+  --table-cell-font-size: 10px;
+
+  /* Spacing */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+
+@layer utilities {
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+}
+
+.ant-table table {
+  font-size: var(--table-font-size);
+}
+
+/* Hide scrollbars on all elements */
+.hidden-scrollbar {
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Safari and Chrome */
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+}
+
+/* Original Gradient Background */
+.gradient-background {
+  background: linear-gradient(56deg, #010031, #292751);
+  background-size: 120% 120%;
+  animation: gradient-animation 12s ease infinite;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Table adjustments */
+.small-table .ant-table-cell {
+  font-size: var(--table-cell-font-size) !important;
+  padding: 8px 10px !important;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Ant Design overrides */
+.ant-btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: var(--color-primary-dark) !important;
+  border-color: var(--color-primary-dark) !important;
+}
+
+.ant-table-thead > tr > th {
+  font-weight: 600;
+  font-size: var(--table-header-font-size);
+}
+
+.ant-table-row:hover > td {
+  background: #fafafa !important;
+}
+
+.ant-table-row-selected > td {
+  background: #F2ECFF !important;
+}
+
+.ant-tag {
+  border-radius: var(--radius-sm);
+}
+
+/* Focus states */
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2) !important;
+}
+
+/* Sidebar Menu Styling */
+.ant-menu-dark .ant-menu-item {
+  font-size: var(--sidebar-font-size);
+  height: 44px;
+  line-height: 44px;
+  margin: 4px 8px;
+  border-radius: var(--radius-md);
+}
+
+.ant-menu-dark .ant-menu-item-icon {
+  font-size: var(--sidebar-icon-size) !important;
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  background: rgba(99, 102, 241, 0.3) !important;
+}
+
+.ant-menu-dark .ant-menu-sub .ant-menu-item {
+  font-size: calc(var(--sidebar-font-size) - 1px);
+  height: 40px;
+  line-height: 40px;
+  padding-left: 48px !important;
+}
+
+/* Increased font sizes for better readability */
+h1 { font-size: var(--text-4xl); font-weight: 700; }
+h2 { font-size: var(--text-2xl); font-weight: 600; }
+h3 { font-size: var(--text-2xl); font-weight: 600; }
+h4 { font-size: var(--text-xl); font-weight: 600; }
+h5 { font-size: var(--text-lg); font-weight: 500; }
+h6 { font-size: var(--text-base); font-weight: 500; }

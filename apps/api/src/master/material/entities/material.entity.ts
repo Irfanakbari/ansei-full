@@ -1,0 +1,78 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+/**
+ * Material Entity - Material response format with SatuanData
+ */
+export class SatuanDataEntity {
+  @ApiProperty({ description: 'ID satuan', example: 1 })
+  Id: number;
+
+  @ApiProperty({ description: 'Nama satuan', example: 'PCS' })
+  Name: string;
+}
+
+export class MaterialEntity {
+  @ApiProperty({ description: 'ID material', example: 1 })
+  Id: number;
+
+  @ApiProperty({ description: 'Part number', example: 'MAT-001' })
+  PartNumber: string;
+
+  @ApiProperty({ description: 'Nama part', example: 'Baut M10x30' })
+  PartName: string;
+
+  @ApiProperty({
+    description: 'Tanggal dibuat',
+    example: '2026-01-15T08:00:00.000Z',
+  })
+  CreatedAt: Date;
+
+  @ApiProperty({ description: 'Dibuat oleh', example: 'admin' })
+  CreatedBy: string;
+
+  @ApiProperty({
+    description: 'Tanggal update',
+    example: '2026-06-14T09:00:00.000Z',
+  })
+  UpdatedAt: Date;
+
+  @ApiPropertyOptional({
+    description: 'Nama supplier',
+    nullable: true,
+    example: 'PT Supplier ABC',
+  })
+  Supplier: string | null;
+
+  @ApiPropertyOptional({ description: 'ID satuan', nullable: true, example: 1 })
+  SatuanId: number | null;
+
+  @ApiPropertyOptional({
+    description: 'Lokasi rak',
+    nullable: true,
+    example: 'R-A01',
+  })
+  RackLocation: string | null;
+
+  @ApiProperty({ description: 'Qty di rak', example: 100 })
+  QtyRack: number;
+
+  @ApiProperty({ description: 'Qty di gudang', example: 500 })
+  QtyWarehouse: number;
+
+  @ApiProperty({ description: 'Status aktif material', example: true })
+  IsActive: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Tanggal discontinue material',
+    nullable: true,
+    example: '2026-07-20T10:00:00.000Z',
+  })
+  DiscontinueDate: Date | null;
+
+  @ApiPropertyOptional({
+    description: 'Data satuan',
+    nullable: true,
+    type: SatuanDataEntity,
+  })
+  SatuanData: SatuanDataEntity | null;
+}

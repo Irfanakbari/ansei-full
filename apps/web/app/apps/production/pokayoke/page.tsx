@@ -1,0 +1,214 @@
+/*By Irfan Akbari Vuteq Indonesia - 2026-06-09*/
+"use client";
+
+import React, { useEffect, useRef } from 'react';
+import { Table, Card, Breadcrumb, App, Input, Button, Select, Tag, Tooltip, Space } from 'antd';
+import type { InputRef } from 'antd';
+import { ReloadOutlined, SearchOutlined, ScanOutlined } from '@ant-design/icons';
+import ToolbarWrapper from '@/components/ToolbarWrapper';
+import ButtonToolbar from '@/components/ButtonToolbar';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
+import { fetchPokayoke, PokayokeScanEntity } from '@/store/features/production/pokayoke/pokayokeSlice';
+import ScanPokayokeModal from './_components/ScanPokayokeModal';
+
+const formatDateTime = (val: string | null | undefined) => {
+    if (!val) return '-';
+    return new Date(val).toLocaleString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+};
+
+const STATUS_COLORS: Record<string, string> = {
+    SUKSES: 'green',
+    GAGAL: 'red',
+};
+
+export default function PokayokePage() {
+    const { message: antMessage } = App.useApp();
+    const dispatch = useDispatch<AppDispatch>();
+    const { data, loading } = useSelector((state: RootState) => state.pokayoke);
+    const searchInput = useRef<InputRef>(null);
+    const [isScanModalVisible, setIsScanModalVisible] = React.useState(false);
+
+    useEffect(() => {
+        dispatch(fetchPokayoke());
+    }, [dispatch]);
+
+    // Column search filter
+    const getColumnSearchProps = (dataIndex: string) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
+            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                <Input
+                    ref={searchInput as any}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => confirm()}
+                    style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Space>
+                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 80 }}>
+                        Search
+                    </Button>
+                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 80 }}>
+                        Reset
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        ),
+        onFilter: (value: any, record: any) => {
+            return record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase());
+        },
+    });
+
+    // Status filter dropdown
+    const getStatusFilterProps = () => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
+            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                <Select
+                    placeholder="Select status"
+                    value={selectedKeys[0]}
+                    onChange={(val) => setSelectedKeys(val ? [val] : [])}
+                    style={{ width: '100%', marginBottom: 8 }}
+                    allowClear
+                >
+                    <Select.Option value="SUKSES">SUKSES</Select.Option>
+                    <Select.Option value="GAGAL">GAGAL</Select.Option>
+                </Select>
+                <Space>
+                    <Button type="primary" onClick={() => confirm()} size="small" style={{ width: 60 }}>
+                        OK
+                    </Button>
+                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 60 }}>
+                        Reset
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        ),
+        onFilter: (value: any, record: PokayokeScanEntity) => {
+            return record.status === value;
+        },
+    });
+
+    const columns = [
+        {
+            title: 'Label Number',
+            dataIndex: 'labelNumber',
+            key: 'labelNumber',
+            width: 180,
+            ...getColumnSearchProps('labelNumber'),
+            render: (val: string) => (
+                <Tooltip title={val}>
+                    <code style={{ fontSize: 11 }}>{val}</code>
+                </Tooltip>
+            ),
+        },
+        {
+            title: 'PO ID',
+            dataIndex: 'poId',
+            key: 'poId',
+            width: 120,
+            ...getColumnSearchProps('poId'),
+            render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
+        },
+        {
+            title: 'Part Number',
+            dataIndex: 'partNumber',
+            key: 'partNumber',
+            width: 120,
+            ...getColumnSearchProps('partNumber'),
+            render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
+        },
+        {
+            title: 'Part Name',
+            dataIndex: 'partName',
+            key: 'partName',
+            width: 180,
+            render: (val: string) => <span style={{ fontSize: 11 }}>{val}</span>,
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            width: 100,
+            align: 'center' as const,
+            ...getStatusFilterProps(),
+            render: (val: string) => (
+                <Tag color={STATUS_COLORS[val] || 'default'}>{val}</Tag>
+            ),
+        },
+        {
+            title: 'Scanned At',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            width: 150,
+            render: formatDateTime,
+        },
+    ];
+
+    const handleScanSuccess = () => {
+        antMessage.success('Pokayoke scan successful');
+        dispatch(fetchPokayoke());
+    };
+
+    return (
+        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
+            <Breadcrumb
+                style={{ marginBottom: 16 }}
+                items={[
+                    { title: 'Home' },
+                    { title: 'Production' },
+                    { title: 'Process' },
+                    { title: 'Pokayoke Validation' },
+                ]}
+            />
+
+            <ToolbarWrapper>
+                <ButtonToolbar
+                    title="Refresh"
+                    icon={<ReloadOutlined />}
+                    onClick={() => dispatch(fetchPokayoke())}
+                />
+                <ButtonToolbar
+                    title="Scan"
+                    icon={<ScanOutlined />}
+                    onClick={() => setIsScanModalVisible(true)}
+                />
+            </ToolbarWrapper>
+
+            <Table
+                columns={columns}
+                dataSource={data}
+                size="small"
+                loading={loading}
+                pagination={{
+                    size: 'small',
+                    pageSize: 50,
+                    showSizeChanger: true,
+                    showTotal: (total: number) => `Total ${total} records`,
+                }}
+                rowKey="id"
+                scroll={{ x: 1000, y: 'calc(100vh - 360px)' }}
+                className="small-table"
+            />
+
+            <ScanPokayokeModal
+                visible={isScanModalVisible}
+                onClose={() => setIsScanModalVisible(false)}
+                onSuccess={handleScanSuccess}
+            />
+        </Card>
+    );
+}

@@ -1,0 +1,20 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testMatch": [
+    "**/test/**/*.e2e-spec.ts",
+    "**/test/master/**/*.spec.ts",
+    "**/test/user-management/**/*.spec.ts",
+    "**/test/production/**/*.spec.ts",
+    "**/test/warehouse/**/*.spec.ts"
+  ],
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^src\\/(.*)$": "/Users/vuteqindo/IdeaProjects/api-ansei-revamp/src/$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
+  "testTimeout": 60000
+}

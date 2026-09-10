@@ -1,0 +1,2 @@
+wasm/soffice.data filter=lfs diff=lfs merge=lfs -text
+wasm/soffice.wasm filter=lfs diff=lfs merge=lfs -text
