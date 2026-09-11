@@ -18,9 +18,9 @@ import { DualAuthGuard } from './guards/dual-auth.guard';
       imports: [PrismaModule],
       inject: [ConfigService, PrismaService],
       useFactory: (configService: ConfigService, prisma: PrismaService) => ({
-         baseUrl: configService.getOrThrow<string>('VUTEQ_SSO_BASE_URL'),
-         secret: configService.getOrThrow<string>('VUTEQ_SSO_SECRET'),
-         global: false,
+        baseUrl: configService.getOrThrow<string>('VUTEQ_SSO_BASE_URL'),
+        secret: configService.getOrThrow<string>('VUTEQ_SSO_SECRET'),
+        global: false,
         resolveAuthorization: async (identity) => {
           const email = identity.email ?? `${identity.id}@sso.invalid`;
           const name = identity.name ?? identity.username ?? identity.id;
@@ -29,30 +29,34 @@ import { DualAuthGuard } from './guards/dual-auth.guard';
           });
           const existingByEmail = existingBySsoId
             ? null
-            : await prisma.mTCUserManagement.findUnique({ where: { Email: email } });
-
-          const user = existingBySsoId || existingByEmail
-            ? await prisma.mTCUserManagement.update({
-                where: { Id: (existingBySsoId || existingByEmail)!.Id },
-                data: {
-                  UserId: identity.id,
-                  SsoObjectId: identity.id,
-                  Name: name,
-                  Email: email,
-                  LastLogin: new Date(),
-                },
-                include: { Role: { include: { Permission: true } } },
-              })
-            : await prisma.mTCUserManagement.create({
-                data: {
-                  UserId: identity.id,
-                  SsoObjectId: identity.id,
-                  Name: name,
-                  Email: email,
-                  LastLogin: new Date(),
-                },
-                include: { Role: { include: { Permission: true } } },
+            : await prisma.mTCUserManagement.findUnique({
+                where: { Email: email },
               });
+
+          const user =
+            existingBySsoId || existingByEmail
+              ? await prisma.mTCUserManagement.update({
+                  where: { Id: (existingBySsoId || existingByEmail)!.Id },
+                  data: {
+                    UserId: identity.id,
+                    SsoObjectId: identity.id,
+                    Name: name,
+                    Email: email,
+                    LastLogin: new Date(),
+                  },
+                  include: { Role: { include: { Permission: true } } },
+                })
+              : await prisma.mTCUserManagement.create({
+                  data: {
+                    UserId: identity.id,
+                    SsoObjectId: identity.id,
+                    Name: name,
+                    Email: email,
+                    RoleId: null,
+                    LastLogin: new Date(),
+                  },
+                  include: { Role: { include: { Permission: true } } },
+                });
           if (!user.IsActive) throw new Error('User account is inactive');
           return {
             roles: user.Role ? [user.Role.RoleName] : [],

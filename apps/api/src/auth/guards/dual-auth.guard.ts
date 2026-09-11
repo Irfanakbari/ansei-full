@@ -87,18 +87,38 @@ export class DualAuthGuard implements CanActivate {
         throw error;
       }
 
-      const authError = error as { name?: unknown; code?: unknown; message?: unknown; cause?: unknown };
-      process.stderr.write(`${JSON.stringify({
-        level: 'error',
-        event: 'sso_authentication_failed',
-        errorName: typeof authError.name === 'string' ? authError.name : 'UnknownError',
-        errorCode: typeof authError.code === 'string' ? authError.code : undefined,
-        errorMessage: typeof authError.message === 'string' ? authError.message : 'Unknown authentication error',
-        causeName: authError.cause instanceof Error ? authError.cause.name : undefined,
-        causeMessage: authError.cause instanceof Error ? authError.cause.message : undefined,
-        requestPath: request.url,
-        hasBearerToken: typeof authHeader === 'string' && authHeader.toLowerCase().startsWith('bearer '),
-      })}\n`);
+      const authError = error as {
+        name?: unknown;
+        code?: unknown;
+        message?: unknown;
+        cause?: unknown;
+      };
+      process.stderr.write(
+        `${JSON.stringify({
+          level: 'error',
+          event: 'sso_authentication_failed',
+          errorName:
+            typeof authError.name === 'string'
+              ? authError.name
+              : 'UnknownError',
+          errorCode:
+            typeof authError.code === 'string' ? authError.code : undefined,
+          errorMessage:
+            typeof authError.message === 'string'
+              ? authError.message
+              : 'Unknown authentication error',
+          causeName:
+            authError.cause instanceof Error ? authError.cause.name : undefined,
+          causeMessage:
+            authError.cause instanceof Error
+              ? authError.cause.message
+              : undefined,
+          requestPath: request.url,
+          hasBearerToken:
+            typeof authHeader === 'string' &&
+            authHeader.toLowerCase().startsWith('bearer '),
+        })}\n`,
+      );
 
       throw new UnauthorizedException('Authentication failed');
     }
