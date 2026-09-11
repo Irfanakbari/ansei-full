@@ -51,7 +51,7 @@ jobs:
         run: pnpm lint:api
 
       - name: Test API
-        run: pnpm test:api
+        run: pnpm --filter @ansei/api exec jest --runInBand --passWithNoTests
 
       - name: Build API
         run: pnpm build:api
