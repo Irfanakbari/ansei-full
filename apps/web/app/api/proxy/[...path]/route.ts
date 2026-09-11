@@ -1,9 +1,8 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-09-09*/
 
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { ACCESS_TOKEN_COOKIE_NAME } from '../../auth/_lib/cookie';
 import { type ApiVersion, getApiUrl } from '@/lib/config';
+import { sso } from '@/lib/sso';
 
 const ALLOWED_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 const API_VERSION_PATTERN = /^v\d+$/;
@@ -20,11 +19,6 @@ async function handler(
     const [version, ...segments] = path;
     if (!version || !API_VERSION_PATTERN.test(version) || segments.length === 0) {
         return NextResponse.json({ message: 'Invalid API path' }, { status: 400 });
-    }
-
-    const token = (await cookies()).get(ACCESS_TOKEN_COOKIE_NAME)?.value;
-    if (!token) {
-        return NextResponse.json({ message: 'No token found' }, { status: 401 });
     }
 
     const backendUrl = new URL(
@@ -44,12 +38,10 @@ async function handler(
         headers.set('accept', accept);
     }
 
-    headers.set('authorization', `Bearer ${token}`);
-
     const body = request.method === 'GET' ? undefined : await request.arrayBuffer();
     let response: Response;
     try {
-        response = await fetch(backendUrl, {
+        response = await sso.fetch(request, backendUrl, {
             method: request.method,
             headers,
             body,

@@ -8,11 +8,6 @@ import {
 } from 'class-validator';
 
 export class UpdateUserDto {
-  @ApiPropertyOptional({ description: 'Password baru', example: 'NewP@ss456' })
-  @IsOptional()
-  @IsString()
-  Password?: string;
-
   @ApiPropertyOptional({
     description: 'Nama lengkap',
     example: 'John Doe Updated',

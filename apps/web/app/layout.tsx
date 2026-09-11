@@ -1,157 +1,94 @@
 // By Irfan Akbari Vuteq Indonesia - 2026-06-18
-import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter } from "next/font/google";
+import type {Metadata} from "next";
+import {Inter} from "next/font/google";
 import "./globals.css";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { ReduxProvider } from "@/store/provider";
-import { ConfigProvider, App } from "antd";
-import { NextAuthProvider } from "./providers/NextAuthProvider";
+import {AntdRegistry} from "@ant-design/nextjs-registry";
+import {ReduxProvider} from "@/store/provider";
+import {ConfigProvider, App} from "antd";
+import {VuteqSsoProvider} from "@vuteq/sso-client-react/react";
 import React from "react";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-plus-jakarta",
-  display: "swap",
-});
-
 const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
+    subsets: ["latin"],
+    variable: "--font-inter",
+    display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "IPS - ANSEI LINE",
-  description: "IPS - ANSEI LINE",
+    title: "IPS - ANSEI LINE",
+    description: "IPS - ANSEI LINE",
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
+                                       children,
+                                   }: Readonly<{
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={`${plusJakartaSans.variable} ${inter.variable} antialiased`}>
-        <NextAuthProvider>
-          <ReduxProvider>
-            <ConfigProvider
-              theme={{
-                token: {
-                  // Primary color - Original Indigo
-                  colorPrimary: '#4F46E5',
-                  colorPrimaryHover: '#6366F1',
-                  colorPrimaryActive: '#3730A3',
-                  colorPrimaryBg: '#EEF2FF',
-                  colorPrimaryBgHover: '#E0E7FF',
-
-                  // Success
-                  colorSuccess: '#10B981',
-                  colorSuccessBg: '#D1FAE5',
-
-                  // Warning
-                  colorWarning: '#F59E0B',
-                  colorWarningBg: '#FEF3C7',
-
-                  // Error
-                  colorError: '#EF4444',
-                  colorErrorBg: '#FEE2E2',
-
-                  // Info
-                  colorInfo: '#3B82F6',
-                  colorInfoBg: '#DBEAFE',
-
-                  // Border & Background
-                  colorBorder: '#E5E7EB',
-                  colorBorderSecondary: '#F3F4F6',
-                  colorBgContainer: '#FFFFFF',
-                  colorBgLayout: '#ffffff',
-
-                  // Text colors
-                  colorText: '#111827',
-                  colorTextSecondary: '#6B7280',
-                  colorTextTertiary: '#9CA3AF',
-                  colorTextQuaternary: '#D1D5DB',
-
-                  // Typography - Improved sizes
-                  fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                  fontSize: 15,
-                  fontSizeHeading1: 36,
-                  fontSizeHeading2: 30,
-                  fontSizeHeading3: 24,
-                  fontSizeHeading4: 20,
-                  fontSizeHeading5: 18,
-
-                  // Border radius
-                  borderRadius: 8,
-                  borderRadiusLG: 12,
-                  borderRadiusSM: 6,
-
-                  // Shadows
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                  boxShadowSecondary: '0 1px 2px rgba(0, 0, 0, 0.05)',
-                },
-                components: {
-                  Layout: {
-                    footerPadding: 10,
-                    headerBg: '#0f172a',
-                    bodyBg: '#ffffff',
-                  },
-                  Table: {
-                    cellPaddingBlock: 10,
-                    cellPaddingBlockSM: 8,
-                    rowSelectedBg: '#F2ECFF',
-                    rowHoverBg: '#FAFAFA',
-                    rowSelectedHoverBg: '#E0E7FF',
-                    fontSize: 10,
-                  },
-                  Menu: {
-                    itemBg: 'transparent',
-                    itemSelectedBg: 'rgba(99, 102, 241, 0.3)',
-                    itemSelectedColor: '#818CF8',
-                    itemHoverBg: 'rgba(99, 102, 241, 0.15)',
-                    itemColor: '#CBD5E1',
-                    itemHoverColor: '#ffffff',
-                    subMenuItemBg: 'transparent',
-                    itemActiveBg: 'rgba(99, 102, 241, 0.25)',
-                    fontSize: 14,
-                    iconSize: 18,
-                  },
-                  Button: {
-                    primaryShadow: '0 2px 4px rgba(79, 70, 229, 0.3)',
-                    fontSize: 14,
-                  },
-                  Card: {
-                    colorBgContainer: '#FFFFFF',
-                    paddingLG: 24,
-                  },
-                  Tag: {
-                    defaultBg: '#F3F4F6',
-                    defaultColor: '#6B7280',
-                    fontSize: 12,
-                  },
-                  Input: {
-                    colorBgContainer: '#FFFFFF',
-                    activeBorderColor: '#4F46E5',
-                    hoverBorderColor: '#6366F1',
-                    fontSize: 14,
-                  },
-                  Select: {
-                    colorBgContainer: '#FFFFFF',
-                    optionSelectedBg: '#EEF2FF',
-                    fontSize: 14,
-                  },
-                },
-              }}
-            >
-              <AntdRegistry>
-                <App>{children}</App>
-              </AntdRegistry>
-            </ConfigProvider>
-          </ReduxProvider>
-        </NextAuthProvider>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en">
+        <body className={`${inter.variable} antialiased`}>
+        <VuteqSsoProvider>
+            <ReduxProvider>
+                <ConfigProvider
+                    theme={{
+                        token: {
+                            colorPrimary: '#4F46E5',
+                            colorSuccess: '#16a34a',
+                            colorWarning: '#d97706',
+                            colorError: '#dc2626',
+                            colorInfo: '#4F46E5',
+                            colorText: '#293241',
+                            colorTextSecondary: '#66727D',
+                            colorBorder: '#D9DDDF',
+                            colorBorderSecondary: '#E6E8E8',
+                            colorBgLayout: '#F7F7F5',
+                            colorBgContainer: '#FCFCFA',
+                            colorBgElevated: '#FCFCFA',
+                            colorLink: '#4C6A85',
+                            colorLinkHover: '#3F596F',
+                            fontFamily: 'Arial, Helvetica, sans-serif',
+                            borderRadius: 4,
+                            borderRadiusLG: 6,
+                            boxShadowSecondary: '0 8px 20px rgba(38, 53, 69, 0.1)',
+                        },
+                        components: {
+                            Layout: {
+                                footerPadding: 10,
+                                bodyBg: '#F7F7F5',
+                                headerBg: '#263545',
+                                footerBg: '#263545',
+                            },
+                            Menu: {
+                                darkItemBg: '#263545',
+                                darkSubMenuItemBg: '#304254',
+                                darkPopupBg: '#304254',
+                                darkItemColor: '#EDF2F6',
+                                darkItemHoverBg: '#3A4E61',
+                                darkItemSelectedBg: '#4C6A85',
+                                darkItemSelectedColor: '#FFFFFF',
+                            },
+                            Table: {
+                                cellPaddingBlock: 2,
+                                cellPaddingBlockSM: 6,
+                                rowSelectedBg: '#E4EBF0',
+                                rowHoverBg: '#EDF2F6',
+                                rowSelectedHoverBg: '#DCE6ED',
+                                colorText: '#293241',
+                            },
+                            Tag: {
+                                fontSize: 16,
+                                fontSizeIcon: 16,
+                            },
+                        },
+                    }}
+                >
+                    <AntdRegistry>
+                        <App>{children}</App>
+                    </AntdRegistry>
+                </ConfigProvider>
+            </ReduxProvider>
+        </VuteqSsoProvider>
+        </body>
+        </html>
+    );
 }

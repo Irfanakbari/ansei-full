@@ -4,7 +4,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 import { BullModule } from '@nestjs/bullmq';
 import { AuthModule } from './auth/auth.module';
 import { UserManagementModule } from './user-management/user-management.module';
@@ -52,10 +51,6 @@ import { join } from 'path';
         port: Number(process.env.REDIS_PORT) || 6379,
         password: process.env.REDIS_PASSWORD || undefined,
       },
-    }),
-    JwtModule.register({
-      global: true,
-      secret: process.env.SECRET_KEY || 'tambun123',
     }),
     ThrottlerModule.forRoot({
       throttlers: [

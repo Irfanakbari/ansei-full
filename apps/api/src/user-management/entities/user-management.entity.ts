@@ -7,6 +7,9 @@ export class UserManagementEntity {
   @ApiProperty({ description: 'User ID / Username', example: 'admin001' })
   UserId: string;
 
+  @ApiProperty({ description: 'SSO subject identifier' })
+  SsoObjectId: string;
+
   @ApiProperty({ description: 'Status aktif user', example: true })
   IsActive: boolean;
 

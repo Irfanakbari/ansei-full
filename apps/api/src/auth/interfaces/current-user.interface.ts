@@ -7,8 +7,7 @@ export interface ICurrentUser {
   sessionId: string;
   permissions: string[];
   departments: string[];
-  /** Authentication method: 'JWT' or 'API_KEY' */
-  authType?: 'JWT' | 'API_KEY';
-  /** Source ID (sessionId for JWT, apiKeyId for API_KEY) */
+  globalRoles?: string[];
+  authType?: 'SSO' | 'API_KEY';
   sourceId?: string;
 }

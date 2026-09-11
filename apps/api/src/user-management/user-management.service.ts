@@ -5,10 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdatePasswordDto } from './dto/update-password.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
@@ -24,18 +22,12 @@ export class UserManagementService {
     });
 
     if (users.length === 0) return [];
-    return users.map((u) => {
-      const { Password, ...userWithoutPassword } = u;
-      return {
-        ...userWithoutPassword,
-      };
-    });
+    return users;
   }
 
   async createUser(createUserDto: CreateUserDto) {
     try {
-      const { Password, DeptPermission, ...rest } = createUserDto;
-      const hashedPassword = await bcrypt.hash(Password, 10);
+      const { DeptPermission, ...rest } = createUserDto;
 
       const existingUser = await this.prisma.mTCUserManagement.findFirst({
         where: {
@@ -48,14 +40,10 @@ export class UserManagementService {
       }
 
       const newUser = await this.prisma.mTCUserManagement.create({
-        data: {
-          ...rest,
-          Password: hashedPassword,
-        },
+        data: rest,
       });
 
-      const { Password: _, ...userWithoutPassword } = newUser;
-      return userWithoutPassword;
+      return newUser;
     } catch (e) {
       console.log(e);
       if (e.code === 'P2002')
@@ -73,13 +61,10 @@ export class UserManagementService {
       });
       if (!isUserExist) throw new NotFoundException('User not found');
 
-      const { Password, DeptPermission, ...rest } = updateUserDto;
+      const { DeptPermission, ...rest } = updateUserDto;
 
       const dataToUpdate: Record<string, unknown> = {};
 
-      if (Password) {
-        dataToUpdate.Password = await bcrypt.hash(Password, 10);
-      }
       if (rest.Name !== undefined) dataToUpdate.Name = rest.Name;
       if (rest.Email !== undefined) dataToUpdate.Email = rest.Email;
       if (rest.IsActive !== undefined) dataToUpdate.IsActive = rest.IsActive;
@@ -100,23 +85,6 @@ export class UserManagementService {
       throw (
         e || new InternalServerErrorException('Update failed: ' + e.message)
       );
-    }
-  }
-
-  async updatePassword(id: string, updatePw: UpdatePasswordDto) {
-    try {
-      const { Password } = updatePw;
-      if (Password) {
-        const hashedPassword = await bcrypt.hash(Password, 10);
-        await this.prisma.mTCUserManagement.update({
-          where: { UserId: id },
-          data: { Password: hashedPassword },
-        });
-      }
-      return { message: 'User updated successfully' };
-    } catch (e) {
-      console.log(e);
-      throw new InternalServerErrorException('Update failed: ' + e.message);
     }
   }
 

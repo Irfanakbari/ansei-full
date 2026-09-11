@@ -12,6 +12,7 @@ interface User {
     DeptPermission: string[];
     RoleName: string;
     Permission: string[];
+    GlobalRoles?: string[];
 }
 
 interface AuthState {

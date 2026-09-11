@@ -502,13 +502,11 @@ export type MTCUserSessionScalarFieldEnum = (typeof MTCUserSessionScalarFieldEnu
 export const MTCUserManagementScalarFieldEnum = {
   Id: 'Id',
   UserId: 'UserId',
-  Password: 'Password',
   PhoneNumber: 'PhoneNumber',
   IsActive: 'IsActive',
   Name: 'Name',
   LastLogin: 'LastLogin',
   Email: 'Email',
-  AuthProvider: 'AuthProvider',
   SsoObjectId: 'SsoObjectId',
   RoleId: 'RoleId'
 } as const

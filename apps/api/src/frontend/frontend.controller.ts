@@ -1,15 +1,11 @@
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { FrontendService } from './frontend.service';
 import { Public } from '../auth/decorators/public.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
-import { Permission } from '../auth/decorators/permission.decorator';
 import { DashboardResponseEntity } from './entities/dashboard-response.entity';
 
 @ApiTags('Frontend')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('frontend')
 export class FrontendController {
   constructor(private readonly frontendService: FrontendService) {}

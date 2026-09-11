@@ -20,7 +20,9 @@ export class PermissionsGuard implements CanActivate {
     const user = request.user;
     if (
       user &&
-      (user.roleName === 'SUPER' || user.permissions?.includes('SUPER'))
+      (user.globalRoles?.includes('SUPER_ADMINISTRATOR') ||
+        user.roleName === 'SUPER' ||
+        user.permissions?.includes('SUPER'))
     ) {
       return true;
     }

@@ -74,10 +74,3 @@ export const getApiUrl = (
   }
   return `${getBackendBaseUrl(apiVersionOrRequest)}/v1`;
 };
-
-/**
- * Returns the dynamic SSO URL (e.g., http://192.168.1.10:7500/auth/microsoft)
- */
-export const getSsoUrl = (): string => {
-  return `${getBackendBaseUrl()}/auth/microsoft`;
-};

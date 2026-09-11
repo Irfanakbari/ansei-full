@@ -2,20 +2,16 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
+    const sessionUrl = new URL('/api/auth/session', request.url);
+    const response = await fetch(sessionUrl, {
+        headers: { cookie: request.headers.get('cookie') ?? '' },
+        cache: 'no-store',
+    });
+    const session = response.ok ? await response.json() : null;
 
-    // Only protect /apps/* routes
-    // if (pathname.startsWith('/apps')) {
-    //     const session = await getToken({
-    //         req: request,
-    //         secret: process.env.NEXTAUTH_SECRET
-    //     });
-    //     const token = request.cookies.get('token');
-
-    //     if (!session && !token) {
-    //         return NextResponse.redirect(new URL('/', request.url));
-    //     }
-    // }
+    if (!session) {
+        return NextResponse.redirect(new URL('/', request.url));
+    }
 
     return NextResponse.next();
 }

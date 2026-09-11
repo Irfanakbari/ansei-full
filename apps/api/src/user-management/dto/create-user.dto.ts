@@ -15,11 +15,6 @@ export class CreateUserDto {
   @IsString()
   UserId: string;
 
-  @ApiProperty({ description: 'Password', example: 'SecureP@ss123' })
-  @IsNotEmpty()
-  @IsString()
-  Password: string;
-
   @ApiProperty({ description: 'Nama lengkap', example: 'John Doe' })
   @IsNotEmpty()
   @IsString()
@@ -53,4 +48,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   PhoneNumber?: string;
+
+  @ApiProperty({ description: 'SSO subject identifier' })
+  @IsNotEmpty()
+  @IsString()
+  SsoObjectId: string;
 }

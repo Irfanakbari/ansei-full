@@ -562,15 +562,13 @@ model MTCUserSession {
 model MTCUserManagement {
   Id          String    @id @default(uuid())
   UserId      String    @unique
-  Password    String?
   PhoneNumber String?   @db.VarChar(32)
   IsActive    Boolean   @default(true)
   Name        String
   LastLogin   DateTime?
   Email       String    @unique
 
-  AuthProvider String  @default("LOCAL") //LOCAL | SSO
-  SsoObjectId  String? @unique
+  SsoObjectId String @unique
 
   RoleId      Int?
   Role        MTCRole?     @relation(fields: [RoleId], references: [Id], onUpdate: Cascade)
@@ -584,7 +582,6 @@ model MTCUserManagement {
 enum MTCAuthAction {
   LOGIN
   LOGOUT
-  PASSWORD_RESET
   SSO_CALLBACK
 }
 

@@ -69,7 +69,6 @@ const CreateUserModal: React.FC<Props> = ({ visible, onClose }) => {
             }}
             confirmLoading={loading}
             destroyOnHidden
-            forceRender
             width={600}
             zIndex={1050}
         >
@@ -77,8 +76,8 @@ const CreateUserModal: React.FC<Props> = ({ visible, onClose }) => {
                 <Form.Item name="UserId" label="User ID" rules={[{ required: true, message: 'Please enter User ID' }]}>
                     <Input placeholder="Enter unique user ID" />
                 </Form.Item>
-                <Form.Item name="Password" label="Password" rules={[{ required: true, message: 'Please enter password' }]}>
-                    <Input.Password placeholder="Enter password" />
+                <Form.Item name="SsoObjectId" label="SSO Subject ID" rules={[{ required: true, message: 'Please enter SSO subject ID' }]}>
+                    <Input placeholder="Enter SSO subject ID" />
                 </Form.Item>
                 <Form.Item name="Name" label="Full Name" rules={[{ required: true, message: 'Please enter full name' }]}>
                     <Input placeholder="Enter full name" />

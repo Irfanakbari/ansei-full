@@ -5,6 +5,7 @@ import { fetchWithAuth } from '../../utils/fetchWithAuth';
 export interface UserManagementEntity {
     Id: string;
     UserId: string;
+    SsoObjectId: string;
     IsActive: boolean;
     Name: string;
     LastLogin: string | null;

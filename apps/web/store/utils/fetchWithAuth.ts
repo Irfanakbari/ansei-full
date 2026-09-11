@@ -1,7 +1,5 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-04-03 - Updated 2026-06-16*/
 
-import { getTokenFromCookie } from '@/app/api/auth/_lib/token-client';
-
 async function clearAuthenticationState(): Promise<void> {
     const [{ store }, { clearAuth }] = await Promise.all([
         import('@/store'),
@@ -20,21 +18,29 @@ export async function fetchWithAuth(
     options?: RequestInit
 ): Promise<Response> {
     // Get token from httpOnly cookie
-    const token = await getTokenFromCookie();
-
     // Prepare headers with token if available
     const headers: Record<string, string> = {
         ...(options?.headers as Record<string, string>),
     };
 
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
+    delete headers.Authorization;
+    delete headers.authorization;
 
-    const response = await fetch(url, {
+    // SSO access tokens are server-side only. Route legacy slice calls through
+    // the authenticated BFF proxy instead of expecting the browser to provide
+    // an Authorization header.
+    const requestUrl = new URL(url, window.location.origin);
+    const isLegacyApiRoute = requestUrl.pathname.startsWith('/api/') &&
+        !requestUrl.pathname.startsWith('/api/auth/session') &&
+        !requestUrl.pathname.startsWith('/api/auth/logout');
+    const targetUrl = isLegacyApiRoute
+        ? `/api/proxy/v1${requestUrl.pathname.slice('/api'.length)}${requestUrl.search}`
+        : `${requestUrl.pathname}${requestUrl.search}`;
+
+    const response = await fetch(targetUrl, {
         ...options,
         headers,
-        credentials: 'include', // Important: include cookies in request
+        credentials: 'include', // Important: include SSO session cookie
     });
 
     if (response.status === 401) {
