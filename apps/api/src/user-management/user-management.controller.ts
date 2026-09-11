@@ -17,7 +17,6 @@ import { UserManagementService } from './user-management.service';
 import { Permission } from 'src/auth/decorators/permission.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UpdatePasswordDto } from './dto/update-password.dto';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
@@ -61,17 +60,6 @@ export class UserManagementController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.userManagementService.updateUser(id, updateUserDto);
-  }
-
-  @ApiOperation({ summary: 'Update password' })
-  @ApiResponse({ status: 200, type: UserManagementEntity })
-  @Patch('users/password/:id')
-  @Permission('IPCS.USER_MANAGEMENT')
-  async updatePassword(
-    @Param('id') id: string,
-    @Body() updatePasswordDto: UpdatePasswordDto,
-  ) {
-    return this.userManagementService.updatePassword(id, updatePasswordDto);
   }
 
   @ApiOperation({ summary: 'Delete user' })

@@ -1,204 +1,78 @@
-# STYLING.md - IPS-FE Design System Documentation
+# ANSEI Web Styling
 
-## Overview
-Dokumentasi sistem styling untuk IPS-FE (Inventory Production Control System). Menggunakan tema original dengan font Plus Jakarta Sans yang lebih modern dan readable.
+## Direction
 
-## Color Palette
-
-### Primary Colors (Indigo)
-| Name | Hex Code | Usage |
-|------|----------|-------|
-| Primary | `#4F46E5` | Main buttons, primary actions, links |
-| Primary Light | `#6366F1` | Hover states, secondary emphasis |
-| Primary Pale | `#EEF2FF` | Backgrounds, badges, highlights |
-| Primary Dark | `#3730A3` | Active states, pressed buttons |
-
-### Secondary Colors (Violet)
-| Name | Hex Code | Usage |
-|------|----------|-------|
-| Secondary | `#7C3AED` | Secondary actions |
-| Secondary Light | `#8B5CF6` | Violet highlights |
-| Secondary Pale | `#F5F3FF` | Secondary backgrounds |
-
-### Accent Colors (Pink)
-| Name | Hex Code | Usage |
-|------|----------|-------|
-| Accent | `#EC4899` | Accent highlights |
-| Accent Light | `#F472B6` | Soft pink highlights |
-| Accent Pale | `#FDF2F8` | Pink backgrounds |
-
-### Neutral Colors
-| Name | Hex Code | Usage |
-|------|----------|-------|
-| Background | `#FFFFFF` | Page backgrounds |
-| Surface | `#FFFFFF` | Cards, panels |
-| Border | `#E5E7EB` | Borders, dividers |
-| Text Primary | `#111827` | Main text |
-| Text Secondary | `#6B7280` | Secondary text |
-| Text Tertiary | `#9CA3AF` | Placeholder text |
-
-### Semantic Colors
-| Name | Hex Code | Usage |
-|------|----------|-------|
-| Success | `#10B981` | Success messages |
-| Success Pale | `#D1FAE5` | Success backgrounds |
-| Warning | `#F59E0B` | Warning messages |
-| Warning Pale | `#FEF3C7` | Warning backgrounds |
-| Error | `#EF4444` | Error messages |
-| Error Pale | `#FEE2E2` | Error backgrounds |
-| Info | `#3B82F6` | Information messages |
-| Info Pale | `#DBEAFE` | Information backgrounds |
+ANSEI follows ESSA's compact enterprise UI conventions while retaining ANSEI purple for accents, primary actions, links, selected states, sidebar highlights, and existing logo assets.
 
 ## Typography
 
-### Font Families
-```css
-/* Primary Font - Plus Jakarta Sans (Improved readability) */
-font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+- Google font loading uses Inter through `next/font/google`.
+- Base body and Ant Design typography use `Arial, Helvetica, sans-serif` to match ESSA rendering.
+- Base text is `14px` with a `1.5` line height.
+- Sidebar and toolbar text use `13px`.
+- Tables use `12px`, with compact tables using `11px` cells.
+- Heading scale: 32px, 28px, 22px, 18px, 16px, and 14px.
 
-/* Secondary Font - Inter */
-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+## Colors
 
-/* Monospace Font - JetBrains Mono */
-font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-```
+### ANSEI accents
 
-### Font Sizes (Improved for better readability)
-| Name | Size | CSS Variable | Usage |
-|------|------|--------------|-------|
-| xs | 12px | `--text-xs` | Labels, badges |
-| sm | 14px | `--text-sm` | Secondary text, menu items |
-| base | 15px | `--text-base` | Body text |
-| lg | 17px | `--text-lg` | Large body text |
-| xl | 20px | `--text-xl` | Subtitles |
-| 2xl | 24px | `--text-2xl` | Titles |
-| 3xl | 30px | `--text-3xl` | Headings |
-| 4xl | 36px | `--text-4xl` | Page titles |
+| Token | Value | Usage |
+|---|---|---|
+| Primary | `#4F46E5` | Primary buttons, links, selected states, sidebar highlights |
+| Primary light | `#6366F1` | Hover and focus emphasis |
+| Primary pale | `#EEF2FF` | Selected table rows and subtle highlights |
+| Primary dark | `#3730A3` | Active and pressed states |
 
-### Component Font Sizes
-| Component | Size | CSS Variable |
-|-----------|------|-------------|
-| Sidebar Menu | 14px | `--sidebar-font-size` |
-| Sidebar Icon | 18px | `--sidebar-icon-size` |
-| Toolbar | 14px | `--toolbar-font-size` |
-| Table Header | 13px | `--table-header-font-size` |
-| Table Cell | 13px | `--table-cell-font-size` |
+### ESSA-aligned neutrals
 
-## Ant Design Theme Configuration
+| Token | Value | Usage |
+|---|---|---|
+| Layout background | `#F7F7F5` | Application canvas |
+| Surface | `#FCFCFA` | Content containers, cards, modals, drawers, popovers |
+| Table header / hover | `#EDF2F6` | Table headers and hovered rows |
+| Text | `#293241` | Primary text |
+| Secondary text | `#66727D` | Supporting content |
+| Border | `#D9DDDF` | Controls and table separators |
+| Secondary border | `#E6E8E8` | Subtle dividers |
+| Chrome | `#263545` | Sidebar, header, and footer beneath the batik treatment |
+| Submenu | `#304254` | Dark submenu surfaces |
 
-```typescript
-const themeConfig = {
-  token: {
-    colorPrimary: '#4F46E5',
-    colorSuccess: '#10B981',
-    colorWarning: '#F59E0B',
-    colorError: '#EF4444',
-    colorInfo: '#3B82F6',
-    borderRadius: 8,
-    fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
-    fontSize: 15,
-  },
-  components: {
-    Table: {
-      cellPaddingBlock: 10,
-      rowSelectedBg: '#F2ECFF',
-      rowHoverBg: '#EEF2FF',
-      fontSize: 13,
-    },
-    Menu: {
-      itemBg: 'transparent',
-      itemSelectedBg: 'rgba(99, 102, 241, 0.3)',
-      fontSize: 14,
-    },
-    Button: {
-      primaryShadow: '0 2px 4px rgba(79, 70, 229, 0.3)',
-    },
-  },
-};
-```
+## Radius and elevation
 
-## Spacing System
-Based on 4px grid:
-| Name | Size |
-|------|------|
-| 1 | 4px |
-| 2 | 8px |
-| 3 | 12px |
-| 4 | 16px |
-| 5 | 20px |
-| 6 | 24px |
-| 8 | 32px |
-| 10 | 40px |
-| 12 | 48px |
+- Default radius: `4px`.
+- Large surface radius: `6px`.
+- Pills and avatars may remain fully rounded.
+- Standard surface shadow: `0 6px 16px rgba(38, 53, 69, 0.08)`.
+- Elevated overlays: `0 8px 20px rgba(38, 53, 69, 0.1)`.
 
-## Border Radius
-| Name | Size | Usage |
-|------|------|-------|
-| sm | 4px | Badges, small elements |
-| md | 8px | Default, buttons, inputs |
-| lg | 12px | Cards, modals |
-| xl | 16px | Large elements |
-| full | 9999px | Avatars, pills |
+## Layout chrome
 
-## Shadows
-| Name | Value |
-|------|-------|
-| sm | `0 1px 2px rgba(0,0,0,0.05)` |
-| md | `0 4px 6px -1px rgba(0,0,0,0.1)` |
-| lg | `0 10px 15px -3px rgba(0,0,0,0.1)` |
-| xl | `0 20px 25px -5px rgba(0,0,0,0.1)` |
+- Sidebar remains 300px expanded and 80px collapsed.
+- Header and footer are sticky and use ESSA's dark chrome treatment with the existing ANSEI batik asset.
+- Main content scrolls independently and uses a `#FCFCFA` surface with 20px padding and a 6px radius.
+- Sidebar interaction states remain ANSEI purple.
 
-## Gradient Backgrounds
-```
-gradient-background: linear-gradient(56deg, #010031, #292751)
-batik-bg: #0f172a with batik5.png pattern overlay
-```
+## Tables
 
-## Usage Guidelines
+- Header background: `#EDF2F6`.
+- Header and table text: `#293241`.
+- Hover background: `#EDF2F6`.
+- Selected background: `#EEF2FF` to preserve ANSEI branding.
+- Default table text: `12px`; compact cells: `11px` with `6px 8px` padding.
+- Table surfaces use a 6px radius and restrained shadow.
 
-### Color Usage
-1. **Indigo (#4F46E5)**: Primary buttons, links, selected states
-2. **Violet (#7C3AED)**: Secondary actions
-3. **Pink (#EC4899)**: Accent highlights
-4. **White (#FFFFFF)**: Card backgrounds, content areas
-5. **Slate (#0f172a)**: Sidebar, header, footer backgrounds
+## Cards and overlays
 
-### Typography Guidelines
-1. Use Plus Jakarta Sans for all UI elements
-2. Base font size: 15px (increased for readability)
-3. Line height: 1.6 for body text
-4. Font weights: 400 (normal), 500 (medium), 600 (semibold), 700 (bold)
+Cards, modals, drawers, popovers, dropdowns, inputs, selects, and date pickers use the `#FCFCFA` surface and neutral ESSA border/elevation palette. Modal and drawer headers remain transparent with subtle separators.
 
-### Sidebar Guidelines
-1. Menu items: 44px height, 14px font
-2. Icons: 18px size
-3. Selected items: Indigo highlight
-4. Collapsed width: 80px
-5. Expanded width: 300px
+## Loader
 
-### Table Guidelines
-1. Header: 13px, font-weight 600, pale indigo background
-2. Cells: 13px font size
-3. Row hover: Light indigo
-4. Row selected: Light purple (#F2ECFF)
+The existing loader structure and class names are preserved. It uses ESSA's blurred dark glass overlay and sizing, with purple spinner accents retained for ANSEI.
 
-## File Structure
-```
-app/
-├── globals.css          # Base styles, CSS variables
-├── batik.css           # Header/footer background
-├── layout.tsx          # Ant Design theme config
-├── page.tsx            # Login page
-apps/
-├── layout.tsx          # Sidebar, header, footer
-```
+## Source files
 
-## Version History
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.1.0 | 2026-06-18 | Added Plus Jakarta Sans font, improved typography sizes |
-| 1.0.0 | 2026-06-07 | Original theme |
-
----
-
-*Last updated: 2026-06-18*
+- `app/globals.css`: variables, base styles, tables, surfaces, and sidebar states.
+- `app/layout.tsx`: Inter loading and Ant Design theme tokens.
+- `app/apps/layout.tsx`: application chrome and content surface layout.
+- `app/batik.css`: batik chrome and glass loader treatment.

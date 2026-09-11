@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { VuteqSsoService } from '@vuteq/sso-client-nest';
 import { PermissionsGuard } from './permissions.guard';
 import { ApiKeyStrategy } from '../strategies/api-key.strategy';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
@@ -27,7 +27,7 @@ import type { ICurrentUser } from '../interfaces/current-user.interface';
 @Injectable()
 export class DualAuthGuard implements CanActivate {
   constructor(
-    private jwtAuthGuard: JwtAuthGuard,
+    private sso: VuteqSsoService,
     private apiKeyStrategy: ApiKeyStrategy,
     private permissionsGuard: PermissionsGuard,
     private reflector: Reflector,
@@ -61,11 +61,21 @@ export class DualAuthGuard implements CanActivate {
       }
 
       if (authHeader?.toLowerCase().startsWith('bearer ')) {
-        // JWT Authentication - delegate to existing JWT guard
-        const canActivate = await this.jwtAuthGuard.canActivate(context);
-        if (!canActivate) return false;
-
-        // JWT guard validated successfully, now check permissions
+        const auth = await this.sso.authenticate(authHeader);
+        request.auth = auth;
+        request.user = {
+          username: auth.user.id,
+          name: auth.user.name ?? auth.user.username ?? auth.user.id,
+          email: auth.user.email ?? `${auth.user.id}@sso.invalid`,
+          roleId: (auth.user.attributes?.roleId as number | null) ?? null,
+          roleName: auth.user.roles[0],
+          sessionId: '',
+          permissions: auth.user.permissions,
+          departments: [],
+          globalRoles: auth.user.globalRoles,
+          authType: 'SSO',
+          sourceId: auth.grantId,
+        } satisfies ICurrentUser;
         return this.permissionsGuard.canActivate(context);
       }
 
@@ -76,6 +86,20 @@ export class DualAuthGuard implements CanActivate {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
+
+      const authError = error as { name?: unknown; code?: unknown; message?: unknown; cause?: unknown };
+      process.stderr.write(`${JSON.stringify({
+        level: 'error',
+        event: 'sso_authentication_failed',
+        errorName: typeof authError.name === 'string' ? authError.name : 'UnknownError',
+        errorCode: typeof authError.code === 'string' ? authError.code : undefined,
+        errorMessage: typeof authError.message === 'string' ? authError.message : 'Unknown authentication error',
+        causeName: authError.cause instanceof Error ? authError.cause.name : undefined,
+        causeMessage: authError.cause instanceof Error ? authError.cause.message : undefined,
+        requestPath: request.url,
+        hasBearerToken: typeof authHeader === 'string' && authHeader.toLowerCase().startsWith('bearer '),
+      })}\n`);
+
       throw new UnauthorizedException('Authentication failed');
     }
   }
@@ -98,7 +122,11 @@ export class DualAuthGuard implements CanActivate {
     }
 
     // Superuser bypass
-    if (user.roleName === 'SUPER' || user.permissions?.includes('SUPER')) {
+    if (
+      user.globalRoles?.includes('SUPER_ADMINISTRATOR') ||
+      user.roleName === 'SUPER' ||
+      user.permissions?.includes('SUPER')
+    ) {
       return true;
     }
 

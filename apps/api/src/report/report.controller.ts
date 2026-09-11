@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -22,15 +22,12 @@ import {
   MaterialNgReportQueryDto,
   InventoryLedgerReportQueryDto,
 } from './dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { Permission } from '../auth/decorators/permission.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
 
 @ApiTags('Reports')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('report')
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}

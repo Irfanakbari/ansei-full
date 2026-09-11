@@ -98,7 +98,6 @@ export type ProductionStatus = (typeof ProductionStatus)[keyof typeof Production
 export const MTCAuthAction = {
   LOGIN: 'LOGIN',
   LOGOUT: 'LOGOUT',
-  PASSWORD_RESET: 'PASSWORD_RESET',
   SSO_CALLBACK: 'SSO_CALLBACK'
 } as const
 

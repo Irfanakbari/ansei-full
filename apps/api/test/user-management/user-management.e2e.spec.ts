@@ -242,7 +242,7 @@ describe('User Management E2E', () => {
         .set('Authorization', `Bearer ${token}`)
         .send({
           UserId: 'testuser001',
-          Password: 'Password123!',
+          SsoObjectId: 'sso-testuser001',
           Name: 'Test User',
           Email: 'testuser001@test.com',
         })
@@ -250,14 +250,14 @@ describe('User Management E2E', () => {
 
       expect(res.body.UserId).toBe('testuser001');
       expect(res.body.Name).toBe('Test User');
-      expect(res.body.Password).toBeUndefined(); // Password should not be returned
+      expect(res.body.SsoObjectId).toBe('sso-testuser001');
     });
 
     it('GET /users - should list all users', async () => {
       await prisma.mTCUserManagement.create({
         data: {
           UserId: 'testuser002',
-          Password: 'hashed',
+          SsoObjectId: 'sso-testuser002',
           Name: 'Test User 2',
           Email: 'testuser002@test.com',
         },
@@ -275,7 +275,7 @@ describe('User Management E2E', () => {
       await prisma.mTCUserManagement.create({
         data: {
           UserId: 'testuser003',
-          Password: 'hashed',
+          SsoObjectId: 'sso-testuser003',
           Name: 'Original Name',
           Email: 'testuser003@test.com',
         },
@@ -290,25 +290,6 @@ describe('User Management E2E', () => {
       expect(res.body.message).toBe('User updated successfully');
     });
 
-    it('PATCH /users/password/:id - should update user password', async () => {
-      await prisma.mTCUserManagement.create({
-        data: {
-          UserId: 'testuser004',
-          Password: 'hashed',
-          Name: 'Password Test User',
-          Email: 'testuser004@test.com',
-        },
-      });
-
-      const res = await request(app.getHttpServer())
-        .patch('/users/password/testuser004')
-        .set('Authorization', `Bearer ${token}`)
-        .send({ Password: 'NewPassword123!' })
-        .expect(200);
-
-      expect(res.body.message).toBe('User updated successfully');
-    });
-
     it('POST /users/:id/roles - should assign role to user', async () => {
       const role = await prisma.mTCRole.create({
         data: { RoleName: 'TEST_USER_ROLE', Description: 'User role test' },
@@ -317,7 +298,7 @@ describe('User Management E2E', () => {
       await prisma.mTCUserManagement.create({
         data: {
           UserId: 'testuser005',
-          Password: 'hashed',
+          SsoObjectId: 'sso-testuser005',
           Name: 'Role Assign Test User',
           Email: 'testuser005@test.com',
         },
@@ -343,7 +324,7 @@ describe('User Management E2E', () => {
       await prisma.mTCUserManagement.create({
         data: {
           UserId: 'testuser006',
-          Password: 'hashed',
+          SsoObjectId: 'sso-testuser006',
           Name: 'Role Remove Test User',
           Email: 'testuser006@test.com',
           RoleId: role.Id,
@@ -362,7 +343,7 @@ describe('User Management E2E', () => {
       await prisma.mTCUserManagement.create({
         data: {
           UserId: 'testuser007',
-          Password: 'hashed',
+          SsoObjectId: 'sso-testuser007',
           Name: 'Delete Test User',
           Email: 'testuser007@test.com',
         },

@@ -2,7 +2,6 @@ import { config } from 'dotenv';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
-import * as bcrypt from 'bcrypt';
 
 // Load environment variables
 config();
@@ -406,12 +405,10 @@ async function main() {
   // ============================================
   // 3. Create admin user
   // ============================================
-  const hashedPassword = await bcrypt.hash('tambun123', 10);
-
   const adminUser = await prisma.mTCUserManagement.upsert({
     where: { UserId: 'admin' },
     update: {
-      Password: hashedPassword,
+      SsoObjectId: 'admin',
       Name: 'Administrator',
       Email: 'irfan@vuteq.co.id',
       RoleId: superRole.Id,
@@ -419,7 +416,7 @@ async function main() {
     },
     create: {
       UserId: 'admin',
-      Password: hashedPassword,
+      SsoObjectId: 'admin',
       Name: 'Administrator',
       Email: 'irfan@vuteq.co.id',
       RoleId: superRole.Id,
@@ -436,7 +433,7 @@ async function main() {
   const admin2User = await prisma.mTCUserManagement.upsert({
     where: { UserId: 'admin2' },
     update: {
-      Password: hashedPassword,
+      SsoObjectId: 'admin2',
       Name: 'Administrator 2 (Read Only)',
       Email: 'admin2@vuteq.co.id',
       RoleId: readonlyRole.Id,
@@ -444,7 +441,7 @@ async function main() {
     },
     create: {
       UserId: 'admin2',
-      Password: hashedPassword,
+      SsoObjectId: 'admin2',
       Name: 'Administrator 2 (Read Only)',
       Email: 'admin2@vuteq.co.id',
       RoleId: readonlyRole.Id,
@@ -827,13 +824,11 @@ async function main() {
   // Summary
   // ============================================
   console.log('\n🎉 Database seeding completed successfully!');
-  console.log('\n📋 Admin Credentials:');
+  console.log('\n📋 Seeded SSO users:');
   console.log('   Username: admin');
-  console.log('   Password: tambun123');
   console.log('   Email: irfan@vuteq.co.id');
   console.log('   Role: SUPER (full access)');
   console.log('\n   Username: admin2');
-  console.log('   Password: tambun123');
   console.log('   Email: admin2@vuteq.co.id');
   console.log('   Role: READONLY (read-only access)');
 

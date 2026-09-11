@@ -28,10 +28,7 @@ const EditUserModal: React.FC<Props> = ({ visible, onClose, data }) => {
 
     useEffect(() => {
         if (visible && data) {
-            form.setFieldsValue({
-                ...data,
-                Password: '' // keep empty by default
-            });
+            form.setFieldsValue(data);
         }
     }, [visible, data, form]);
 
@@ -49,10 +46,6 @@ const EditUserModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 DeptPermission: values.DeptPermission || [],
                 RoleId: values.RoleId ? Number(values.RoleId) : null,
             };
-
-            if (values.Password) {
-                payload.Password = values.Password;
-            }
 
             const result = await dispatch(updateUser({ id: data.UserId, userData: payload }));
             if (updateUser.rejected.match(result)) {
@@ -82,7 +75,6 @@ const EditUserModal: React.FC<Props> = ({ visible, onClose, data }) => {
             }}
             confirmLoading={loading}
             destroyOnHidden
-            forceRender
             zIndex={1050}
         >
             <Form form={form} layout="vertical">
@@ -94,9 +86,6 @@ const EditUserModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 </Form.Item>
                 <Form.Item name="PhoneNumber" label="Phone Number">
                     <Input placeholder="Enter phone number" />
-                </Form.Item>
-                <Form.Item name="Password" label="New Password (leave blank to keep current)">
-                    <Input.Password placeholder="Enter new password" />
                 </Form.Item>
                 <Form.Item name="IsActive" label="Account Active" valuePropName="checked">
                     <Switch />
