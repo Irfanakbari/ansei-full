@@ -4,7 +4,7 @@ import {useVuteqSso} from '@vuteq/sso-client-react/react';
 import {useRouter} from 'next/navigation';
 import {useEffect} from 'react';
 
-const APP_VERSION = '1.4.3';
+const APP_VERSION = '1.4.4';
 
 export default function LoginPage() {
     const router = useRouter();

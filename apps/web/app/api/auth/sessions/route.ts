@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 /*By Irfan Akbari Vuteq Indonesia - 21 May 2026*/
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://10.10.10.10:7500';
+const API_URL = process.env.API_URL || 'http://10.10.10.10:7500';
 
 export async function GET(request: Request) {
     try {

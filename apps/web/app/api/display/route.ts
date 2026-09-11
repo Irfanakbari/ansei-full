@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7500/v1';
+const API_URL = process.env.API_URL || 'http://localhost:7500/v1';
 
 export async function GET() {
     try {

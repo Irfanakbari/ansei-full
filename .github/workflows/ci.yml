@@ -100,6 +100,6 @@ jobs:
           cache-from: type=gha,scope=ansei-single-app
           cache-to: type=gha,mode=max,scope=ansei-single-app
           build-args: |
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            API_URL=${{ secrets.API_URL }}
             NEXT_PUBLIC_SSO_URL=${{ secrets.NEXT_PUBLIC_SSO_URL }}
             NEXT_PUBLIC_CALLBACK_AUTH_URL=${{ secrets.NEXT_PUBLIC_CALLBACK_AUTH_URL }}

@@ -40,10 +40,6 @@ export const getBackendBaseUrl = (request?: Request): string => {
     return validateBackendBaseUrl(process.env.API_URL);
   }
 
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return normalizeBackendBaseUrl(process.env.NEXT_PUBLIC_API_URL);
-  }
-
   // On the client (browser), use window.location
   if (typeof window !== 'undefined') {
     const { protocol, hostname } = window.location;

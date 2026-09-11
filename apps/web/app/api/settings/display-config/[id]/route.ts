@@ -1,7 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-21*/
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7500/v1';
+const API_URL = process.env.API_URL || 'http://localhost:7500/v1';
 
 interface RouteParams {
     params: Promise<{ id: string }>;

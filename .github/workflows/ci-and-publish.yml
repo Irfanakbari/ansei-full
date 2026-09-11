@@ -63,7 +63,7 @@ jobs:
       - name: Build web
         run: pnpm build:web
         env:
-          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || secrets.NEXT_PUBLIC_API_URL }}
+          API_URL: ${{ vars.API_URL || secrets.API_URL }}
           NEXT_PUBLIC_SSO_URL: ${{ vars.NEXT_PUBLIC_SSO_URL || secrets.NEXT_PUBLIC_SSO_URL }}
           NEXT_PUBLIC_CALLBACK_AUTH_URL: ${{ vars.NEXT_PUBLIC_CALLBACK_AUTH_URL || secrets.NEXT_PUBLIC_CALLBACK_AUTH_URL }}
 
@@ -111,6 +111,6 @@ jobs:
           cache-from: type=gha,scope=ansei-app
           cache-to: type=gha,mode=max,scope=ansei-app
           build-args: |
-            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL || secrets.NEXT_PUBLIC_API_URL }}
+            API_URL=${{ vars.API_URL || secrets.API_URL }}
             NEXT_PUBLIC_SSO_URL=${{ vars.NEXT_PUBLIC_SSO_URL || secrets.NEXT_PUBLIC_SSO_URL }}
             NEXT_PUBLIC_CALLBACK_AUTH_URL=${{ vars.NEXT_PUBLIC_CALLBACK_AUTH_URL || secrets.NEXT_PUBLIC_CALLBACK_AUTH_URL }}

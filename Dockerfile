@@ -15,11 +15,11 @@ RUN pnpm install --frozen-lockfile
 
 COPY apps apps
 
-# These values are embedded into the Next.js browser bundle at build time.
-ARG NEXT_PUBLIC_API_URL
+# Configure the server-only API URL and public browser URLs for the web build.
+ARG API_URL
 ARG NEXT_PUBLIC_SSO_URL
 ARG NEXT_PUBLIC_CALLBACK_AUTH_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV API_URL=${API_URL}
 ENV NEXT_PUBLIC_SSO_URL=${NEXT_PUBLIC_SSO_URL}
 ENV NEXT_PUBLIC_CALLBACK_AUTH_URL=${NEXT_PUBLIC_CALLBACK_AUTH_URL}
 

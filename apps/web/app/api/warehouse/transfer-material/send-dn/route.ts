@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerToken } from '@/lib/utils/serverToken';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7500/v1';
+const API_URL = process.env.API_URL || 'http://localhost:7500/v1';
 
 interface SendDNBody {
     id: string;
