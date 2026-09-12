@@ -1,9 +1,7 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter';
 import helmet from 'helmet';
 
 async function bootstrap() {
@@ -32,17 +30,11 @@ async function bootstrap() {
       },
     }),
   );
-  const { httpAdapter } = app.get(HttpAdapterHost);
-
   const instance = app.getHttpAdapter().getInstance();
   if (instance && instance.set) {
     instance.set('trust proxy', 1);
   }
 
-  app.useGlobalFilters(
-    new AllExceptionsFilter(),
-    new PrismaClientExceptionFilter(httpAdapter),
-  );
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',

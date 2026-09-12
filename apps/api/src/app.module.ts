@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -33,6 +33,10 @@ import { ReportModule } from './report/report.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { DualAuthGuard } from './auth/guards/dual-auth.guard';
 import { join } from 'path';
+import { LoggingModule } from './common/logging/logging.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter';
+import { RequestCorrelationMiddleware } from './common/middleware/request-correlation.middleware';
 
 @Module({
   imports: [
@@ -61,6 +65,7 @@ import { join } from 'path';
       ],
     }),
     AuthModule,
+    LoggingModule,
     UserManagementModule,
     SatuanModule,
     SupplierModule,
@@ -94,6 +99,18 @@ import { join } from 'path';
       provide: APP_GUARD,
       useClass: DualAuthGuard,
     },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: PrismaClientExceptionFilter,
+    },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(RequestCorrelationMiddleware).forRoutes('*');
+  }
+}

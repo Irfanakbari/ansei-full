@@ -5,14 +5,21 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Response } from 'express';
+import type { Request, Response } from 'express';
+import { OriginalErrorFileLogService } from '../logging/original-error-file-log.service';
+
+type ErrorRequest = Request & { requestId?: string };
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  constructor(
+    private readonly originalErrorFileLogService: OriginalErrorFileLogService,
+  ) {}
+
+  async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+    const request = ctx.getRequest<ErrorRequest>();
 
     const status =
       exception instanceof HttpException
@@ -23,6 +30,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.getResponse()
         : 'Internal server error';
+
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      await this.originalErrorFileLogService.write(exception, {
+        requestId: request.requestId,
+        method: request.method,
+        statusCode: status,
+      });
+    }
 
     // Log the exception for debugging
     // console.error('Exception caught by AllExceptionsFilter:', exception);

@@ -1,18 +1,28 @@
-import { ArgumentsHost, Catch, HttpStatus } from '@nestjs/common';
-import { BaseExceptionFilter } from '@nestjs/core';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpStatus,
+} from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client';
-import { Response } from 'express';
+import type { Request, Response } from 'express';
+import { OriginalErrorFileLogService } from '../logging/original-error-file-log.service';
+
+type ErrorRequest = Request & { requestId?: string };
 
 @Catch(Prisma.PrismaClientKnownRequestError)
-export class PrismaClientExceptionFilter extends BaseExceptionFilter {
-  catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
+export class PrismaClientExceptionFilter implements ExceptionFilter {
+  constructor(
+    private readonly originalErrorFileLogService: OriginalErrorFileLogService,
+  ) {}
+
+  async catch(
+    exception: Prisma.PrismaClientKnownRequestError,
+    host: ArgumentsHost,
+  ): Promise<void> {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const message = exception.message.replace(/\n/g, '');
-
-    console.error('Prisma Error Code:', exception.code);
-    console.error('Prisma Error Message:', message);
-
+    const request = ctx.getRequest<ErrorRequest>();
     switch (exception.code) {
       case 'P2000': // Input Value too long
         this.catchValueTooLong(exception, response);
@@ -30,7 +40,18 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         this.catchTransactionTimeout(exception, response);
         break;
       default:
-        super.catch(exception, host);
+        await this.originalErrorFileLogService.write(exception, {
+          requestId: request.requestId,
+          method: request.method,
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        });
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Internal server error',
+          timestamp: new Date().toISOString(),
+          path: request.url,
+        });
         break;
     }
   }
@@ -99,7 +120,8 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
     response: Response,
   ) {
     const status = HttpStatus.GATEWAY_TIMEOUT;
-    const meta = exception.meta as any;
+    const meta = exception.meta as
+      { timeout?: unknown; timeTaken?: unknown } | undefined;
     const timeout = meta?.timeout ?? 5000;
     const timeTaken = meta?.timeTaken ?? 'unknown';
 
