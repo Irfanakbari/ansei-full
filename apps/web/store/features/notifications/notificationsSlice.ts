@@ -69,7 +69,7 @@ export const fetchNotifications = createAsyncThunk(
     'notifications/fetch',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetch('/api/frontend/notifications');
+            const response = await fetch('/ansei/api/frontend/notifications');
             const data = await response.json();
             if (!response.ok) return rejectWithValue(data.message || 'Gagal mengambil data notifications');
             return data;

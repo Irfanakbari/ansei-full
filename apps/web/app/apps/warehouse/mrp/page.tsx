@@ -68,7 +68,7 @@ export default function MRPPage() {
         try {
             message.loading({ content: 'Exporting MRP data...', key: 'export' });
 
-            const response = await fetch('/api/warehouse/mrp/export', {
+            const response = await fetch('/ansei/api/warehouse/mrp/export', {
                 method: 'POST',
             });
 

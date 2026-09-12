@@ -107,7 +107,7 @@ async function handleUnauthorized(notify = true): Promise<void> {
     ]);
     store.dispatch(clearAuth());
 
-    await fetch('/api/auth/logout', {
+    await fetch('/ansei/api/auth/logout', {
       method: 'POST',
       credentials: 'include',
       keepalive: true,
@@ -117,7 +117,7 @@ async function handleUnauthorized(notify = true): Promise<void> {
 
   if (notify) broadcastAuth('logout');
 
-  window.location.href = '/?sessionExpired=true';
+  window.location.href = '/ansei/?sessionExpired=true';
 }
 
 /**
@@ -146,7 +146,7 @@ function buildUrl(
 
   // Route browser requests through the same-origin authenticated proxy
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  const fullUrl = `/api/proxy/${apiVersion}${cleanPath}`;
+  const fullUrl = `/ansei/api/proxy/${apiVersion}${cleanPath}`;
 
   if (!params || Object.keys(params).length === 0) {
     return fullUrl;
@@ -300,7 +300,8 @@ export async function postBff<T, B = unknown>(path: string, body: B): Promise<T>
   if (!path.startsWith('/api/') || path.startsWith('/api/proxy/')) {
     throw new ApiError('Invalid BFF path', 400);
   }
-  const response = await fetch(path, {
+  const bffPath = `/ansei${path}`;
+  const response = await fetch(bffPath, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     credentials: 'include',

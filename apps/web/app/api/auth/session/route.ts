@@ -15,9 +15,20 @@ export async function GET(request: Request) {
     new URL(`${getApiUrl('v1')}/auth/profile`),
     { cache: 'no-store' },
   );
-  const profile = response.ok
-    ? (await response.json()) as { RoleName?: string | null; Permission?: string[] }
-    : undefined;
+  let profile: { RoleName?: string | null; Permission?: string[] } | undefined;
+  if (response.ok) {
+    const body = await response.text();
+    if (body) {
+      try {
+        profile = JSON.parse(body) as {
+          RoleName?: string | null;
+          Permission?: string[];
+        };
+      } catch {
+        // A profile response is optional for constructing the SSO session.
+      }
+    }
+  }
 
   return Response.json(
     toClientSession(session, {

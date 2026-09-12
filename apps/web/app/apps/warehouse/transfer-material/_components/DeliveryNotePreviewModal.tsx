@@ -1,10 +1,9 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-12 - Updated 2026-06-16*/
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Modal, Button, Space, App, Spin } from 'antd';
-import { DownloadOutlined, PrinterOutlined, FilePdfOutlined } from '@ant-design/icons';
-import { getTokenFromCookie } from '@/app/api/auth/_lib/token-client';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
+import {Modal, Button, Space, App, Spin} from 'antd';
+import {DownloadOutlined, PrinterOutlined, FilePdfOutlined} from '@ant-design/icons';
 
 interface Props {
     visible: boolean;
@@ -14,12 +13,12 @@ interface Props {
 }
 
 const DeliveryNotePreviewModal: React.FC<Props> = ({
-    visible,
-    onClose,
-    deliveryNoteId,
-    deliveryNoteNum,
-}) => {
-    const { message: antMessage } = App.useApp();
+                                                       visible,
+                                                       onClose,
+                                                       deliveryNoteId,
+                                                       deliveryNoteNum,
+                                                   }) => {
+    const {message: antMessage} = App.useApp();
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -32,16 +31,8 @@ const DeliveryNotePreviewModal: React.FC<Props> = ({
         setPdfUrl(null);
 
         try {
-            const token = await getTokenFromCookie();
-            if (!token) {
-                throw new Error('No authentication token found');
-            }
-
-            const response = await fetch(`/api/warehouse/transfer-material/${deliveryNoteId}/generate-dn`, {
+            const response = await fetch(`/ansei/api/warehouse/transfer-material/${deliveryNoteId}/generate-dn`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
                 credentials: 'include',
             });
 
@@ -111,7 +102,7 @@ const DeliveryNotePreviewModal: React.FC<Props> = ({
         <Modal
             title={
                 <Space>
-                    <FilePdfOutlined />
+                    <FilePdfOutlined/>
                     <span>Delivery Note: {deliveryNoteNum}</span>
                 </Space>
             }
@@ -120,7 +111,7 @@ const DeliveryNotePreviewModal: React.FC<Props> = ({
             footer={
                 <Space>
                     <Button
-                        icon={<DownloadOutlined />}
+                        icon={<DownloadOutlined/>}
                         onClick={handleDownload}
                         disabled={!pdfUrl || loading}
                     >
@@ -128,7 +119,7 @@ const DeliveryNotePreviewModal: React.FC<Props> = ({
                     </Button>
                     <Button
                         type="primary"
-                        icon={<PrinterOutlined />}
+                        icon={<PrinterOutlined/>}
                         onClick={handlePrint}
                         disabled={!pdfUrl || loading}
                     >
@@ -138,7 +129,7 @@ const DeliveryNotePreviewModal: React.FC<Props> = ({
             }
             centered
             width={800}
-            style={{ top: 20 }}
+            style={{top: 20}}
             zIndex={1050}
             styles={{
                 body: {
@@ -156,17 +147,17 @@ const DeliveryNotePreviewModal: React.FC<Props> = ({
                 background: '#e8e8e8',
             }}>
                 {loading && (
-                    <Spin description="Loading document..." size="large" />
+                    <Spin description="Loading document..." size="large"/>
                 )}
 
                 {error && !loading && (
-                    <div style={{ textAlign: 'center', color: '#ff4d4f' }}>
-                        <FilePdfOutlined style={{ fontSize: 48, marginBottom: 16 }} />
+                    <div style={{textAlign: 'center', color: '#ff4d4f'}}>
+                        <FilePdfOutlined style={{fontSize: 48, marginBottom: 16}}/>
                         <div>{error}</div>
                         <Button
                             type="link"
                             onClick={fetchPdf}
-                            style={{ marginTop: 8 }}
+                            style={{marginTop: 8}}
                         >
                             Try again
                         </Button>

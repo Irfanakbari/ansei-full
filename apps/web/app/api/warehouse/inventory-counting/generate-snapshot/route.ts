@@ -1,23 +1,16 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-11*/
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerToken } from '@/lib/utils/serverToken';
-
-const API_URL = process.env.API_URL || 'http://localhost:7500/v1';
+import {NextRequest, NextResponse} from 'next/server';
+import {getApiUrl} from '@/lib/config';
+import {sso} from '@/lib/sso';
 
 export async function POST(request: NextRequest) {
     try {
-        const token = await getServerToken(request);
-        if (!token) {
-            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-        }
-
         const body = await request.json();
-        const targetUrl = `${API_URL}/inventory-counting/generate-snapshot`;
+        const targetUrl = `${getApiUrl()}/inventory-counting/generate-snapshot`;
 
-        const response = await fetch(targetUrl, {
+        const response = await sso.fetch(request, targetUrl, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(body),
@@ -39,8 +32,8 @@ export async function POST(request: NextRequest) {
         }
 
         const data = await response.json();
-        return NextResponse.json(data, { status: response.status });
+        return NextResponse.json(data, {status: response.status});
     } catch (error: any) {
-        return NextResponse.json({ message: error.message || 'Internal server error' }, { status: 500 });
+        return NextResponse.json({message: error.message || 'Internal server error'}, {status: 500});
     }
 }

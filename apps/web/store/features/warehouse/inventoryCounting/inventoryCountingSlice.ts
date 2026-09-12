@@ -1,7 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-11 - Updated 2026-06-16*/
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
-import { getTokenFromCookie } from '@/app/api/auth/_lib/token-client';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {fetchWithAuth} from '@/store/utils/fetchWithAuth';
 
 // Entity interfaces - API returns PascalCase fields
 export interface InventoryCountingDetailEntity {
@@ -131,7 +130,7 @@ const initialState: InventoryCountingState = {
 // Fetch all inventory counting
 export const fetchInventoryCounting = createAsyncThunk(
     'inventoryCounting/fetchAll',
-    async (filters: InventoryCountingQuery, { rejectWithValue }) => {
+    async (filters: InventoryCountingQuery, {rejectWithValue}) => {
         try {
             const params = new URLSearchParams();
             if (filters.status) params.append('status', filters.status);
@@ -156,7 +155,7 @@ export const fetchInventoryCounting = createAsyncThunk(
 // Fetch single inventory counting
 export const fetchInventoryCountingById = createAsyncThunk(
     'inventoryCounting/fetchById',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
             const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}`);
             const data = await response.json();
@@ -171,7 +170,7 @@ export const fetchInventoryCountingById = createAsyncThunk(
 // Fetch details for inventory counting
 export const fetchInventoryCountingDetails = createAsyncThunk(
     'inventoryCounting/fetchDetails',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
             const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}/details`);
             const data = await response.json();
@@ -186,11 +185,11 @@ export const fetchInventoryCountingDetails = createAsyncThunk(
 // Create inventory counting
 export const createInventoryCounting = createAsyncThunk(
     'inventoryCounting/create',
-    async (dto: CreateInventoryCountingDto, { rejectWithValue }) => {
+    async (dto: CreateInventoryCountingDto, {rejectWithValue}) => {
         try {
             const response = await fetchWithAuth('/api/warehouse/inventory-counting', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(dto),
             });
             const data = await response.json();
@@ -205,11 +204,11 @@ export const createInventoryCounting = createAsyncThunk(
 // Update inventory counting (notes)
 export const updateInventoryCounting = createAsyncThunk(
     'inventoryCounting/update',
-    async ({ id, dto }: { id: string; dto: UpdateInventoryCountingDto }, { rejectWithValue }) => {
+    async ({id, dto}: { id: string; dto: UpdateInventoryCountingDto }, {rejectWithValue}) => {
         try {
             const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(dto),
             });
             const data = await response.json();
@@ -224,7 +223,7 @@ export const updateInventoryCounting = createAsyncThunk(
 // Delete inventory counting
 export const deleteInventoryCounting = createAsyncThunk(
     'inventoryCounting/delete',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
             const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}`, {
                 method: 'DELETE',
@@ -241,7 +240,7 @@ export const deleteInventoryCounting = createAsyncThunk(
 // Start inventory counting
 export const startInventoryCounting = createAsyncThunk(
     'inventoryCounting/start',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
             const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}/start`, {
                 method: 'POST',
@@ -258,11 +257,11 @@ export const startInventoryCounting = createAsyncThunk(
 // Generate cutoff items
 export const generateCutOff = createAsyncThunk(
     'inventoryCounting/generateCutOff',
-    async (dto: GenerateCutOffDto, { rejectWithValue }) => {
+    async (dto: GenerateCutOffDto, {rejectWithValue}) => {
         try {
             const response = await fetchWithAuth('/api/warehouse/inventory-counting/generate-cutoff', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(dto),
             });
             const data = await response.json();
@@ -277,11 +276,11 @@ export const generateCutOff = createAsyncThunk(
 // Update actual stock
 export const updateActualStock = createAsyncThunk(
     'inventoryCounting/updateActualStock',
-    async ({ detailId, dto }: { detailId: number; dto: UpdateActualStockDto }, { rejectWithValue }) => {
+    async ({detailId, dto}: { detailId: number; dto: UpdateActualStockDto }, {rejectWithValue}) => {
         try {
             const response = await fetchWithAuth(`/api/warehouse/inventory-counting/details/${detailId}`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(dto),
             });
             const data = await response.json();
@@ -296,11 +295,11 @@ export const updateActualStock = createAsyncThunk(
 // Close inventory counting
 export const closeInventoryCounting = createAsyncThunk(
     'inventoryCounting/close',
-    async (dto: CloseInventoryCountingDto, { rejectWithValue }) => {
+    async (dto: CloseInventoryCountingDto, {rejectWithValue}) => {
         try {
             const response = await fetchWithAuth('/api/warehouse/inventory-counting/close', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(dto),
             });
             const data = await response.json();
@@ -315,20 +314,14 @@ export const closeInventoryCounting = createAsyncThunk(
 // Download Worksheet Excel - returns blob directly for download
 export const downloadWorksheet = createAsyncThunk(
     'inventoryCounting/downloadWorksheet',
-    async (inventoryCountingId: string, { rejectWithValue }) => {
+    async (inventoryCountingId: string, {rejectWithValue}) => {
         try {
-            const token = await getTokenFromCookie();
-            if (!token) {
-                return rejectWithValue('No authentication token found');
-            }
-
-            const response = await fetch('/api/warehouse/inventory-counting/generate-ws', {
+            const response = await fetch('/ansei/api/warehouse/inventory-counting/generate-ws', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ id: inventoryCountingId }),
+                body: JSON.stringify({id: inventoryCountingId}),
                 credentials: 'include',
             });
 
@@ -350,7 +343,7 @@ export const downloadWorksheet = createAsyncThunk(
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            return { success: true, filename };
+            return {success: true, filename};
         } catch (error: any) {
             return rejectWithValue(error.message);
         }
@@ -360,20 +353,14 @@ export const downloadWorksheet = createAsyncThunk(
 // Download Snapshot Excel
 export const downloadSnapshot = createAsyncThunk(
     'inventoryCounting/downloadSnapshot',
-    async (inventoryCountingId: string, { rejectWithValue }) => {
+    async (inventoryCountingId: string, {rejectWithValue}) => {
         try {
-            const token = await getTokenFromCookie();
-            if (!token) {
-                return rejectWithValue('No authentication token found');
-            }
-
-            const response = await fetch('/api/warehouse/inventory-counting/generate-snapshot', {
+            const response = await fetch('/ansei/api/warehouse/inventory-counting/generate-snapshot', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ id: inventoryCountingId }),
+                body: JSON.stringify({id: inventoryCountingId}),
                 credentials: 'include',
             });
 
@@ -395,7 +382,7 @@ export const downloadSnapshot = createAsyncThunk(
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            return { success: true, filename };
+            return {success: true, filename};
         } catch (error: any) {
             return rejectWithValue(error.message);
         }
@@ -408,7 +395,7 @@ const inventoryCountingSlice = createSlice({
     initialState,
     reducers: {
         setFilters: (state, action) => {
-            state.filters = { ...state.filters, ...action.payload };
+            state.filters = {...state.filters, ...action.payload};
         },
         resetFilters: (state) => {
             state.filters = {
@@ -531,5 +518,5 @@ const inventoryCountingSlice = createSlice({
     },
 });
 
-export const { setFilters, resetFilters, clearCurrentItem, clearError } = inventoryCountingSlice.actions;
+export const {setFilters, resetFilters, clearCurrentItem, clearError} = inventoryCountingSlice.actions;
 export default inventoryCountingSlice.reducer;

@@ -55,7 +55,7 @@ export const fetchDashboard = createAsyncThunk(
     'dashboard/fetch',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetch('/api/frontend/dashboard');
+            const response = await fetch('/ansei/api/frontend/dashboard');
             const data = await response.json();
             if (!response.ok) return rejectWithValue(data.message || 'Gagal mengambil data dashboard');
             return data;

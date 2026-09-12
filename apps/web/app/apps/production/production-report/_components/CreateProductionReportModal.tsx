@@ -77,7 +77,7 @@ const CreateProductionReportModal: React.FC<Props> = ({ visible, onClose, onSucc
                 finishGoodId: values.finishGoodId,
             };
 
-            const response = await fetch('/api/production/production-report', {
+            const response = await fetch('/ansei/api/proxy/v1/production/production-report', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),

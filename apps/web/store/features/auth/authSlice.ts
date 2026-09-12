@@ -35,7 +35,7 @@ export const loginUser = createAsyncThunk(
     'auth/login',
     async (credentials: { username: string; password: string }, { rejectWithValue }) => {
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('/ansei/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export const logoutUser = createAsyncThunk(
     'auth/logout',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetch('/api/auth/logout', {
+            const response = await fetch('/ansei/api/auth/logout', {
                 method: 'POST',
                 credentials: 'include', // Important: include cookies in request
             });

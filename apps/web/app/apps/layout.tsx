@@ -387,7 +387,7 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
                     }}
                 >
                     <div className="text-center justify-center flex p-1">
-                        <Image src="/images/icuksw.png" alt="ANSEI logo" width={200} height={100}
+                        <Image src="/ansei/images/ansei.png" alt="ANSEI logo" width={200} height={100}
                                priority/>
                     </div>
                     <Menu
@@ -421,7 +421,7 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
                     }}>
                         <div style={{display: 'flex', alignItems: 'left'}}>
 <h2 className="text-xl ml-1 text-white" style={{fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 20, fontWeight: 400, margin: 0, lineHeight: 'normal'}}>
-                                    IPCS - Icuk Production Control System
+Ansei Inventory & Production System
                                 </h2>
                         </div>
 
@@ -531,7 +531,7 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
                         zIndex: 999,
                         flexShrink: 0
                     }}>
-                        <span>IPCS - Inventory Production Control System © {new Date().getFullYear()} PT Vuteq Indonesia</span>
+                        <span>Ansei Inventory & Production System © {new Date().getFullYear()} PT Vuteq Indonesia</span>
                         <span style={{margin: '0 8px'}}>|</span>
                         <span>v{APP_VERSION}</span>
                     </Footer>

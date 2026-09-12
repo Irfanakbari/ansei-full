@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-IPCS (Icuk Production Control System) adalah aplikasi frontend enterprise untuk Inventory & Production Control System yang dikembangkan oleh PT Vuteq Indonesia. Aplikasi ini berfungsi sebagai antarmuka pengguna yang menghubungkan dengan backend NestJS untuk mengelola data inventaris, produksi, dan kontrol sistem secara menyeluruh.
+ANSEI INVENTORY & PRODUCTION SYSTEM adalah aplikasi frontend enterprise untuk pengelolaan inventaris dan produksi yang dikembangkan oleh PT Vuteq Indonesia. Aplikasi ini berfungsi sebagai antarmuka pengguna yang menghubungkan dengan backend NestJS untuk mengelola data inventaris, produksi, dan kontrol sistem secara menyeluruh.
 
 ## Tech Stack
 

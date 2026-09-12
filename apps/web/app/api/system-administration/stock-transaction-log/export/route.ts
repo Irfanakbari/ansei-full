@@ -1,7 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
-import { NextResponse } from 'next/server';
-
-const API_URL = process.env.API_URL || 'http://localhost:7500/v1';
+import {NextResponse} from 'next/server';
+import {getApiUrl} from '@/lib/config';
+import {sso} from '@/lib/sso';
 
 interface ExportParams {
     transactionDateFrom?: string;
@@ -16,12 +16,6 @@ interface ExportParams {
 
 export async function POST(request: Request) {
     try {
-        const authHeader = request.headers.get('Authorization');
-        if (!authHeader) {
-            return NextResponse.json({ message: 'Missing Authorization header' }, { status: 401 });
-        }
-
-        const { searchParams } = new URL(request.url);
         const params: ExportParams = {};
 
         // Build query params from request body
@@ -42,14 +36,13 @@ export async function POST(request: Request) {
             if (value) queryString.append(key, value);
         });
 
-        const response = await fetch(`${API_URL}/system-log/inventory-ledger/export?${queryString}`, {
+        const response = await sso.fetch(request, `${getApiUrl()}/system-log/inventory-ledger/export?${queryString}`, {
             method: 'POST',
-            headers: { 'Authorization': authHeader },
         });
 
         if (!response.ok) {
             const data = await response.json().catch(() => ({}));
-            return NextResponse.json({ message: data.message || 'Gagal export stock transaction log' }, { status: response.status });
+            return NextResponse.json({message: data.message || 'Gagal export stock transaction log'}, {status: response.status});
         }
 
         // Get the file as binary data
@@ -75,6 +68,6 @@ export async function POST(request: Request) {
             },
         });
     } catch (error: any) {
-        return NextResponse.json({ message: error.message || 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({message: error.message || 'Internal Server Error'}, {status: 500});
     }
 }

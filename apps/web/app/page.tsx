@@ -4,7 +4,7 @@ import {useVuteqSso} from '@vuteq/sso-client-react/react';
 import {useRouter} from 'next/navigation';
 import {useEffect} from 'react';
 
-const APP_VERSION = '1.4.5';
+const APP_VERSION = '1.4.6';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -17,7 +17,7 @@ export default function LoginPage() {
             return;
         }
 
-        window.location.replace('/auth/login');
+        window.location.replace('/ansei/auth/login');
     }, [authenticated, loading, router]);
 
     return (

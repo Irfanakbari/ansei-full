@@ -1,7 +1,7 @@
 # Master Data Implementation Progress
 
 ## Overview
-Implementing Master Data module for IPCS with 7 sub-modules following the existing pattern in system-administration.
+Implementing Master Data module for ANSEI INVENTORY & PRODUCTION SYSTEM with 7 sub-modules following the existing pattern in system-administration.
 
 ## Modules Implemented
 

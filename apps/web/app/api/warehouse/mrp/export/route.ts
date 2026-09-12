@@ -1,17 +1,17 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
-import { NextResponse } from 'next/server';
-
-const API_URL = process.env.API_URL || 'http://localhost:7500/v1';
+import {NextResponse} from 'next/server';
+import {getApiUrl} from '@/lib/config';
+import {sso} from '@/lib/sso';
 
 export async function POST(request: Request) {
     try {
-        const response = await fetch(`${API_URL}/mrp/export`, {
+        const response = await sso.fetch(request, `${getApiUrl()}/mrp/export`, {
             method: 'POST',
         });
 
         if (!response.ok) {
             const data = await response.json().catch(() => ({}));
-            return NextResponse.json({ message: data.message || 'Gagal export MRP' }, { status: response.status });
+            return NextResponse.json({message: data.message || 'Gagal export MRP'}, {status: response.status});
         }
 
         // Get the file as binary data
@@ -37,6 +37,6 @@ export async function POST(request: Request) {
             },
         });
     } catch (error: any) {
-        return NextResponse.json({ message: error.message || 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({message: error.message || 'Internal Server Error'}, {status: 500});
     }
 }

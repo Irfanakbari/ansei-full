@@ -11,7 +11,7 @@
  */
 export async function getTokenFromCookie(): Promise<string | null> {
     try {
-        const response = await fetch('/api/auth/token', {
+        const response = await fetch('/ansei/api/auth/token', {
             method: 'GET',
             credentials: 'include', // Important: include cookies in request
         });

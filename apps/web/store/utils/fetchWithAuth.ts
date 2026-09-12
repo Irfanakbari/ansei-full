@@ -1,7 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-04-03 - Updated 2026-06-16*/
 
 async function clearAuthenticationState(): Promise<void> {
-    const [{ store }, { clearAuth }] = await Promise.all([
+    const [{store}, {clearAuth}] = await Promise.all([
         import('@/store'),
         import('@/store/features/auth/authSlice'),
     ]);
@@ -30,12 +30,26 @@ export async function fetchWithAuth(
     // the authenticated BFF proxy instead of expecting the browser to provide
     // an Authorization header.
     const requestUrl = new URL(url, window.location.origin);
-    const isLegacyApiRoute = requestUrl.pathname.startsWith('/api/') &&
-        !requestUrl.pathname.startsWith('/api/auth/session') &&
-        !requestUrl.pathname.startsWith('/api/auth/logout');
+    const pathWithoutBase = requestUrl.pathname.startsWith('/ansei/')
+        ? requestUrl.pathname.slice('/ansei'.length)
+        : requestUrl.pathname;
+    const preservedRoutePrefixes = [
+        '/api/auth/',
+        '/api/display',
+        '/api/frontend/',
+        '/api/production/forecast/import',
+        '/api/system-administration/stock-transaction-log/export',
+        '/api/warehouse/inventory-counting/generate-snapshot',
+        '/api/warehouse/inventory-counting/generate-ws',
+        '/api/warehouse/mrp/export',
+        '/api/warehouse/transfer-material/',
+    ];
+    const isLegacyApiRoute = pathWithoutBase.startsWith('/api/') &&
+        !pathWithoutBase.startsWith('/api/proxy/') &&
+        !preservedRoutePrefixes.some((prefix) => pathWithoutBase.startsWith(prefix));
     const targetUrl = isLegacyApiRoute
-        ? `/api/proxy/v1${requestUrl.pathname.slice('/api'.length)}${requestUrl.search}`
-        : `${requestUrl.pathname}${requestUrl.search}`;
+        ? `/ansei/api/proxy/v1${pathWithoutBase.slice('/api'.length)}${requestUrl.search}`
+        : `/ansei${pathWithoutBase}${requestUrl.search}`;
 
     const response = await fetch(targetUrl, {
         ...options,
@@ -66,7 +80,7 @@ export async function fetchWithAuth(
             }, 1000);
 
             // Navigate to login with sessionExpired flag
-            window.location.href = '/?sessionExpired=true';
+            window.location.href = '/ansei/?sessionExpired=true';
         }
     }
 
@@ -93,7 +107,7 @@ export async function fetchWithToken(
     if (response.status === 401) {
         await clearAuthenticationState();
         if (typeof window !== 'undefined') {
-            window.location.href = '/?sessionExpired=true';
+            window.location.href = '/ansei/?sessionExpired=true';
         }
     }
 
