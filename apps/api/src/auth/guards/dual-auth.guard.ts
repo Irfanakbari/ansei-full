@@ -2,15 +2,16 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
+  ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { VuteqSsoService } from '@vuteq/sso-client-nest';
 import { PermissionsGuard } from './permissions.guard';
 import { ApiKeyStrategy } from '../strategies/api-key.strategy';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { PERMISSIONS_KEY } from '../decorators/permission.decorator';
 import type { ICurrentUser } from '../interfaces/current-user.interface';
+import { SsoAuthService } from '../sso-auth.service';
 
 /**
  * DualAuthGuard - Supports both JWT Bearer Token and X-Api-Key authentication
@@ -27,7 +28,7 @@ import type { ICurrentUser } from '../interfaces/current-user.interface';
 @Injectable()
 export class DualAuthGuard implements CanActivate {
   constructor(
-    private sso: VuteqSsoService,
+    private sso: SsoAuthService,
     private apiKeyStrategy: ApiKeyStrategy,
     private permissionsGuard: PermissionsGuard,
     private reflector: Reflector,
@@ -83,7 +84,10 @@ export class DualAuthGuard implements CanActivate {
         'Missing authentication credentials. Provide either X-Api-Key header or Authorization: Bearer token.',
       );
     } catch (error) {
-      if (error instanceof UnauthorizedException) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof ServiceUnavailableException
+      ) {
         throw error;
       }
 
