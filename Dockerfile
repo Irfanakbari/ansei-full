@@ -1,21 +1,20 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22-bookworm AS build
+FROM node:22-bookworm AS dependencies
 
 WORKDIR /workspace
 
 RUN corepack enable && corepack prepare pnpm@10.0.0 --activate
 
-# Install dependencies from the lockfile before copying application sources.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json apps/web/package.json
 COPY apps/api/package.json apps/api/package.json
 COPY vendor vendor
 RUN pnpm install --frozen-lockfile
 
+FROM dependencies AS build
 COPY apps apps
 
-# Configure the server-only API URL and public browser URLs for the web build.
 ARG API_URL
 ARG NEXT_PUBLIC_SSO_URL
 ARG NEXT_PUBLIC_CALLBACK_AUTH_URL
@@ -29,9 +28,13 @@ RUN pnpm exec prisma generate && pnpm run build
 WORKDIR /workspace/apps/web
 RUN pnpm run build
 
-# Keep only production dependencies for the combined runtime image.
 WORKDIR /workspace
-RUN pnpm prune --prod
+RUN mkdir -p /api-runtime/apps/api /api-runtime/vendor \
+    && cp package.json pnpm-lock.yaml pnpm-workspace.yaml /api-runtime/ \
+    && cp apps/api/package.json /api-runtime/apps/api/package.json \
+    && cp vendor/* /api-runtime/vendor/ \
+    && cd /api-runtime \
+    && pnpm install --prod --frozen-lockfile --filter @ansei/api
 
 FROM node:22-bookworm-slim AS runtime
 
@@ -39,33 +42,33 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV CI=true
 ENV LIBREOFFICE_PATH=/usr/bin/soffice
+ENV ERROR_LOG_STORAGE_PATH=/app/storage/error-logs
+ENV PORT=3005
+ENV HOSTNAME=0.0.0.0
 
-# LibreOffice is required by the API document conversion flow.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        dumb-init \
-       libreoffice \
        libreoffice-writer \
        libreoffice-calc \
-       libreoffice-impress \
-       fonts-dejavu \
+       fonts-dejavu-core \
        fonts-liberation \
        fontconfig \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=build /workspace/node_modules ./node_modules
-COPY --from=build /workspace/package.json ./package.json
-COPY --from=build /workspace/apps/api/node_modules ./apps/api/node_modules
-COPY --from=build /workspace/apps/api/package.json ./apps/api/package.json
-COPY --from=build /workspace/apps/api/dist ./apps/api/dist
-COPY --from=build /workspace/apps/api/prisma ./apps/api/prisma
-COPY --from=build /workspace/apps/web/node_modules ./apps/web/node_modules
-COPY --from=build /workspace/apps/web/package.json ./apps/web/package.json
-COPY --from=build /workspace/apps/web/.next ./apps/web/.next
-COPY --from=build /workspace/apps/web/public ./apps/web/public
-
-RUN chown -R node:node /app
+COPY --from=build --chown=node:node /api-runtime/node_modules ./node_modules
+COPY --from=build --chown=node:node /api-runtime/apps/api/node_modules ./apps/api/node_modules
+COPY --from=build --chown=node:node /workspace/apps/api/package.json ./apps/api/package.json
+COPY --from=build --chown=node:node /workspace/apps/api/dist ./apps/api/dist
+COPY --from=build --chown=node:node /workspace/apps/api/prisma ./apps/api/prisma
+COPY --from=build --chown=node:node /workspace/apps/web/.next/standalone ./web-runtime
+COPY --from=build --chown=node:node /workspace/apps/web/.next/static ./web-runtime/apps/web/.next/static
+COPY --from=build --chown=node:node /workspace/apps/web/public ./web-runtime/apps/web/public
+RUN mkdir -p /app/storage/error-logs \
+    && chown -R node:node /app/storage \
+    && chmod 700 /app/storage/error-logs
 USER node
+VOLUME ["/app/storage/error-logs"]
 
 EXPOSE 7500
 EXPOSE 3005
