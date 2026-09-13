@@ -15,7 +15,7 @@ import {
 } from '@ant-design/icons';
 import type {MenuProps} from 'antd';
 import Image from 'next/image';
-import {Layout, Menu, Avatar, Space, Dropdown, Badge} from 'antd';
+import {Layout, Menu, Avatar, Space, Dropdown, Badge, Spin, App} from 'antd';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useVuteqSso} from '@vuteq/sso-client-react/react';
@@ -26,21 +26,8 @@ import {fetchNotifications} from '@/store/features/notifications/notificationsSl
 import '../batik.css';
 import {LockOutlined} from '@ant-design/icons';
 
-const APP_VERSION = '1.6.4';
+const APP_VERSION = '1.6.5';
 const {Header, Content, Footer, Sider} = Layout;
-
-const LoadingOverlay = () => (
-    <div className="glass-loader-container">
-        <div className="loader-content">
-            <div className="spinner-box">
-                <div className="circle-border">
-                    <div className="circle-core"></div>
-                </div>
-            </div>
-            <div className="loader-text">Verifying Session...</div>
-        </div>
-    </div>
-);
 
 type MenuItem = Required<MenuProps>['items'][number] & {
     permission?: string[];
@@ -163,6 +150,7 @@ const applyPermission = (
 };
 
 const AppLayout = ({children}: { children: React.ReactNode }) => {
+    const { modal } = App.useApp();
     const [collapsed, setCollapsed] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
@@ -201,7 +189,7 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
                 setIsChecking(false);
                 return;
             }
-            router.push('/');
+            window.location.replace('/auth/login');
         };
 
         checkAuth();
@@ -218,14 +206,22 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
     }, [isChecking, dispatch]);
 
     const handleLogout = () => {
-        if (window.confirm('Apakah Anda yakin ingin keluar dari aplikasi dan SSO?')) {
-            dispatch(clearAuth());
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/auth/logout';
-            document.body.appendChild(form);
-            form.submit();
-        }
+        modal.confirm({
+            centered: true,
+            title: 'Konfirmasi Logout',
+            content: 'Apakah Anda yakin ingin keluar dari aplikasi dan akun SSO?',
+            okText: 'Logout',
+            okButtonProps: { danger: true },
+            cancelText: 'Batal',
+            onOk: () => {
+                dispatch(clearAuth());
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/auth/logout';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
     };
 
     const userMenu: MenuProps['items'] = [
@@ -305,9 +301,18 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
         return addBadges(menus);
     }, [user, notifications, isSsoSuperAdmin]);
 
+    if (sessionLoadingSso || isChecking) {
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#020617' }}>
+                <Image src="/images/ansei-white.png" alt="ANSEI logo" width={180} height={90} priority style={{ marginBottom: '24px' }} />
+                <Spin size="large" />
+                <div style={{ marginTop: '16px', fontSize: '16px', color: '#cbd5e1' }}>Memeriksa sesi akun Vuteq Anda...</div>
+            </div>
+        );
+    }
+
     return (
         <>
-            {sessionLoadingSso && <LoadingOverlay/>}
             <Layout style={{minHeight: '100vh', display: 'flex'}}>
                 {/* Sidebar - Original Theme */}
                 <Sider
