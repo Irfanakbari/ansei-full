@@ -8,7 +8,7 @@ const APP_VERSION = '1.5.3';
 
 export default function LoginPage() {
     const router = useRouter();
-    const {authenticated, loading} = useVuteqSso();
+    const {authenticated, loading, signIn} = useVuteqSso();
 
     useEffect(() => {
         if (loading) return;
@@ -17,8 +17,8 @@ export default function LoginPage() {
             return;
         }
 
-        window.location.replace('/ansei/auth/login');
-    }, [authenticated, loading, router]);
+        signIn();
+    }, [authenticated, loading, router, signIn]);
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-slate-950 text-white">

@@ -8,8 +8,6 @@ import apiKeysReducer from './features/apiKeys/apiKeysSlice';
 import systemLogReducer from './features/system-log/systemLogSlice';
 import stockTransactionLogReducer from './features/system-administration/stockTransactionLogSlice';
 
-import sessionReducer from './features/auth/sessionSlice';
-
 // Master Data slices
 import satuanReducer from './features/master/satuanSlice';
 import supplierReducer from './features/master/supplierSlice';
@@ -57,8 +55,6 @@ export const store = configureStore({
 
         systemLog: systemLogReducer,
         stockTransactionLog: stockTransactionLogReducer,
-
-        sessions: sessionReducer,
 
         // Master Data
         satuan: satuanReducer,

@@ -47,7 +47,14 @@ async function handler(
             body,
             redirect: 'manual',
         });
-    } catch {
+    } catch (error: any) {
+        if (error?.name === 'VuteqAuthenticationError') {
+            return NextResponse.json(
+                { message: 'Authentication required' },
+                { status: 401 }
+            );
+        }
+
         process.stderr.write(`${JSON.stringify({
             level: 'error',
             event: 'api_proxy_backend_unavailable',
@@ -55,6 +62,7 @@ async function handler(
             method: request.method,
             path: `/${segments.join('/')}`,
             backendHost: backendUrl.host,
+            error: error?.message || 'Unknown error',
         })}\n`);
 
         return NextResponse.json(

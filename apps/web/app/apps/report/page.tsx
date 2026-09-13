@@ -18,7 +18,6 @@ import {
 } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
-import { getTokenFromCookie } from '@/app/api/auth/_lib/token-client';
 import dayjs, { Dayjs } from 'dayjs';
 
 const { RangePicker } = DatePicker;
@@ -134,12 +133,6 @@ const ReportPage: React.FC = () => {
         try {
             setDownloading(report.key);
 
-            const token = await getTokenFromCookie();
-            if (!token) {
-                message.error('Session expired. Please login again.');
-                return;
-            }
-
             // Build query params
             const params = new URLSearchParams();
 
@@ -163,9 +156,6 @@ const ReportPage: React.FC = () => {
 
             const response = await fetch(url, {
                 method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
                 credentials: 'include',
             });
 

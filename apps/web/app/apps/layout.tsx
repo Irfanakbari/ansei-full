@@ -15,15 +15,13 @@ import {
 } from '@ant-design/icons';
 import type {MenuProps} from 'antd';
 import Image from 'next/image';
-import {Layout, Menu, Avatar, Space, Dropdown, Modal, Table, Tag, Badge, Button} from 'antd';
-import type {ColumnsType} from 'antd/es/table';
+import {Layout, Menu, Avatar, Space, Dropdown, Badge} from 'antd';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useVuteqSso} from '@vuteq/sso-client-react/react';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState, AppDispatch} from '@/store';
 import {setAuthData, clearAuth} from '@/store/features/auth/authSlice';
-import {fetchSessions, MTCUserSession} from '@/store/features/auth/sessionSlice';
 import {fetchNotifications} from '@/store/features/notifications/notificationsSlice';
 import '../batik.css';
 import {LockOutlined} from '@ant-design/icons';
@@ -166,68 +164,14 @@ const applyPermission = (
 
 const AppLayout = ({children}: { children: React.ReactNode }) => {
     const [collapsed, setCollapsed] = useState(false);
-    const [sessionModalVisible, setSessionModalVisible] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
     const {session, loading: sessionLoadingSso, signOut} = useVuteqSso();
     const ssoGlobalRoles = session?.globalRoles ?? [];
     const isSsoSuperAdmin = (session?.roles ?? []).includes('SUPER_ADMINISTRATOR') || ssoGlobalRoles.includes('SUPER_ADMINISTRATOR');
     const {user} = useSelector((state: RootState) => state.auth);
-    const {sessions, loading: sessionLoading} = useSelector((state: RootState) => state.sessions);
     const {data: notifications} = useSelector((state: RootState) => state.notifications);
     const [isChecking, setIsChecking] = useState(true);
-
-    const handleOpenSessionModal = () => {
-        dispatch(fetchSessions());
-        setSessionModalVisible(true);
-    };
-
-    const handleCloseSessionModal = () => {
-        setSessionModalVisible(false);
-    };
-
-    const sessionColumns: ColumnsType<MTCUserSession> = [
-        {
-            title: 'Session ID',
-            dataIndex: 'SessionId',
-            key: 'SessionId',
-            ellipsis: true,
-            render: (val: string) => <span style={{fontSize: 12}}>{val}</span>,
-        },
-        {
-            title: 'IP Address',
-            dataIndex: 'IpAddress',
-            key: 'IpAddress',
-        },
-        {
-            title: 'User Agent',
-            dataIndex: 'UserAgent',
-            key: 'UserAgent',
-            ellipsis: true,
-        },
-        {
-            title: 'Status',
-            dataIndex: 'IsActive',
-            key: 'IsActive',
-            render: (isActive: boolean) => (
-                <Tag color={isActive ? 'green' : 'red'}>
-                    {isActive ? 'Active' : 'Inactive'}
-                </Tag>
-            ),
-        },
-        {
-            title: 'Created At',
-            dataIndex: 'CreatedAt',
-            key: 'CreatedAt',
-            render: (val: string) => new Date(val).toLocaleString('id-ID'),
-        },
-        {
-            title: 'Expires At',
-            dataIndex: 'ExpiresAt',
-            key: 'ExpiresAt',
-            render: (val: string) => new Date(val).toLocaleString('id-ID'),
-        },
-    ];
 
     React.useEffect(() => {
         const checkAuth = async () => {
@@ -281,14 +225,6 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
     const userMenu: MenuProps['items'] = [
         {
             key: '1',
-            label: (
-                <span onClick={handleOpenSessionModal}>
-                    Session Management
-                </span>
-            ),
-        },
-        {
-            key: '2',
             label: (
                 <span onClick={handleLogout}>
                     Logout
@@ -537,32 +473,6 @@ Ansei Inventory & Production System
                     </Footer>
                 </Layout>
             </Layout>
-
-            {/* Session Management Modal */}
-            <Modal
-                title="Session Management"
-                open={sessionModalVisible}
-                centered={true}
-                onCancel={handleCloseSessionModal}
-                footer={[
-                    <Button key="close" onClick={handleCloseSessionModal}>
-                        Close
-                    </Button>,
-                    <Button key="refresh" type="primary" onClick={() => dispatch(fetchSessions())}>
-                        Refresh
-                    </Button>,
-                ]}
-                width={1000}
-            >
-                <Table
-                    columns={sessionColumns}
-                    dataSource={sessions}
-                    rowKey="SessionId"
-                    loading={sessionLoading}
-                    pagination={{pageSize: 20}}
-                    scroll={{x: 'max-content'}}
-                />
-            </Modal>
         </>
     );
 };

@@ -86,30 +86,3 @@ export async function fetchWithAuth(
 
     return response;
 }
-
-/**
- * Fetch with explicit token (for when you already have the token)
- */
-export async function fetchWithToken(
-    url: string,
-    token: string,
-    options?: RequestInit
-): Promise<Response> {
-    const response = await fetch(url, {
-        ...options,
-        headers: {
-            ...(options?.headers as Record<string, string>),
-            'Authorization': `Bearer ${token}`,
-        },
-        credentials: 'include',
-    });
-
-    if (response.status === 401) {
-        await clearAuthenticationState();
-        if (typeof window !== 'undefined') {
-            window.location.href = '/ansei/?sessionExpired=true';
-        }
-    }
-
-    return response;
-}
