@@ -9,6 +9,10 @@ export async function middleware(request: NextRequest) {
         request.cookies.has('ansei_sso') ||
         request.cookies.has('__Host-ansei_sso');
 
+    if (request.nextUrl.pathname === '/' && hasSessionCookie) {
+        return NextResponse.redirect(new URL('/apps', request.url));
+    }
+
     if (!hasSessionCookie) {
         // If it's a client-side navigation (RSC fetch), redirecting directly to a Route Handler
         // that returns an external 302 will cause the browser's fetch to follow the redirect
@@ -31,5 +35,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: "/apps/:path*",
+    matcher: ["/", "/apps/:path*"],
 };
