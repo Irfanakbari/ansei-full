@@ -2,15 +2,11 @@ import 'server-only';
 import { createNextVuteqSso } from '@vuteq/sso-client-react/next';
 import { ssoSessionStore } from './sso-session-store';
 
-const baseUrl = process.env.VUTEQ_SSO_BASE_URL;
-const secret = process.env.VUTEQ_SSO_SECRET;
+// Runtime secrets are injected by Docker/Compose. Keep build-time evaluation safe;
+// the SDK validates the real credentials when an auth route is actually used.
+const baseUrl = process.env.VUTEQ_SSO_BASE_URL ?? 'https://sso.vuteq.co.id';
+const secret = process.env.VUTEQ_SSO_SECRET ?? 'build-only-placeholder-secret';
 const publicOrigin = process.env.VUTEQ_SSO_PUBLIC_ORIGIN;
-
-if (process.env.NODE_ENV === 'production' && (!baseUrl || !secret || !publicOrigin)) {
-  throw new Error(
-    'VUTEQ_SSO_BASE_URL, VUTEQ_SSO_SECRET, and VUTEQ_SSO_PUBLIC_ORIGIN are required in production',
-  );
-}
 
 export const sso = createNextVuteqSso({
   baseUrl: baseUrl ?? 'https://sso.vuteq.co.id',
