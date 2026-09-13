@@ -30,9 +30,7 @@ export async function fetchWithAuth(
     // the authenticated BFF proxy instead of expecting the browser to provide
     // an Authorization header.
     const requestUrl = new URL(url, window.location.origin);
-    const pathWithoutBase = requestUrl.pathname.startsWith('/ansei/')
-        ? requestUrl.pathname.slice('/ansei'.length)
-        : requestUrl.pathname;
+    const pathWithoutBase = requestUrl.pathname;
     const preservedRoutePrefixes = [
         '/api/auth/',
         '/api/display',
@@ -48,8 +46,8 @@ export async function fetchWithAuth(
         !pathWithoutBase.startsWith('/api/proxy/') &&
         !preservedRoutePrefixes.some((prefix) => pathWithoutBase.startsWith(prefix));
     const targetUrl = isLegacyApiRoute
-        ? `/ansei/api/proxy/v1${pathWithoutBase.slice('/api'.length)}${requestUrl.search}`
-        : `/ansei${pathWithoutBase}${requestUrl.search}`;
+        ? `/api/proxy/v1${pathWithoutBase.slice('/api'.length)}${requestUrl.search}`
+        : `${pathWithoutBase}${requestUrl.search}`;
 
     const response = await fetch(targetUrl, {
         ...options,
@@ -80,7 +78,7 @@ export async function fetchWithAuth(
             }, 1000);
 
             // Navigate to login with sessionExpired flag
-            window.location.href = '/ansei/?sessionExpired=true';
+            window.location.href = '/?sessionExpired=true';
         }
     }
 

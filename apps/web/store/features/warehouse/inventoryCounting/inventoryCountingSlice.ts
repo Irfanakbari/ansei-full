@@ -316,7 +316,7 @@ export const downloadWorksheet = createAsyncThunk(
     'inventoryCounting/downloadWorksheet',
     async (inventoryCountingId: string, {rejectWithValue}) => {
         try {
-            const response = await fetch('/ansei/api/warehouse/inventory-counting/generate-ws', {
+            const response = await fetch('/api/warehouse/inventory-counting/generate-ws', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -355,7 +355,7 @@ export const downloadSnapshot = createAsyncThunk(
     'inventoryCounting/downloadSnapshot',
     async (inventoryCountingId: string, {rejectWithValue}) => {
         try {
-            const response = await fetch('/ansei/api/warehouse/inventory-counting/generate-snapshot', {
+            const response = await fetch('/api/warehouse/inventory-counting/generate-snapshot', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

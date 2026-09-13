@@ -43,7 +43,7 @@ const ExportStockTransactionModal: React.FC<Props> = ({ visible, onClose }) => {
                 payload.createdBy = values.createdBy;
             }
 
-            const response = await fetch('/ansei/api/system-administration/stock-transaction-log/export', {
+            const response = await fetch('/api/system-administration/stock-transaction-log/export', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

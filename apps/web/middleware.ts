@@ -20,11 +20,11 @@ export async function middleware(request: NextRequest) {
             request.nextUrl.searchParams.has('_rsc');
 
         if (isRsc) {
-            return NextResponse.redirect(new URL('/ansei', request.url));
+            return NextResponse.redirect(new URL('/', request.url));
         }
 
         // Redirect directly to login to provide a seamless auto-SSO experience
-        return NextResponse.redirect(new URL('/ansei/auth/login', request.url));
+        return NextResponse.redirect(new URL('/auth/login', request.url));
     }
 
     return NextResponse.next();

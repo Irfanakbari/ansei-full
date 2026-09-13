@@ -151,8 +151,8 @@ const ReportPage: React.FC = () => {
 
             const queryString = params.toString();
             const url = queryString
-                ? `/ansei/api/proxy/v1/report/${report.key}?${queryString}`
-                : `/ansei/api/proxy/v1/report/${report.key}`;
+                ? `/api/proxy/v1/report/${report.key}?${queryString}`
+                : `/api/proxy/v1/report/${report.key}`;
 
             const response = await fetch(url, {
                 method: 'GET',

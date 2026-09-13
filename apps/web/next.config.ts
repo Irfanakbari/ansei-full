@@ -4,7 +4,6 @@ import path from "node:path";
 const nextConfig: NextConfig = {
   output: 'standalone',
   outputFileTracingRoot: path.resolve(process.cwd(), '../..'),
-  basePath: '/ansei',
   turbopack: {
     root: path.resolve(process.cwd(), "../.."),
   },

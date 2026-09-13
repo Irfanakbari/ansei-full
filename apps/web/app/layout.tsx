@@ -28,9 +28,9 @@ export default function RootLayout({
         <html lang="en">
         <body className={`${inter.variable} antialiased`}>
         <VuteqSsoProvider
-            sessionEndpoint="/ansei/api/auth/session"
-            loginPath="/ansei/auth/login"
-            logoutPath="/ansei/auth/logout"
+            sessionEndpoint="/api/auth/session"
+            loginPath="/auth/login"
+            logoutPath="/auth/logout"
         >
             <ReduxProvider>
                 <ConfigProvider

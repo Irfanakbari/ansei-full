@@ -24,7 +24,7 @@ export const fetchActiveDisplayConfig = createAsyncThunk<
     { rejectValue: string }
 >('display/fetchActive', async (_, { rejectWithValue }) => {
     try {
-        const response = await fetch('/ansei/api/display', { cache: 'no-store' });
+        const response = await fetch('/api/display', { cache: 'no-store' });
         const data: unknown = await response.json();
 
         if (!response.ok) {

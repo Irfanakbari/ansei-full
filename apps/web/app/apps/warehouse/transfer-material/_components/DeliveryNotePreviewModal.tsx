@@ -31,7 +31,7 @@ const DeliveryNotePreviewModal: React.FC<Props> = ({
         setPdfUrl(null);
 
         try {
-            const response = await fetch(`/ansei/api/warehouse/transfer-material/${deliveryNoteId}/generate-dn`, {
+            const response = await fetch(`/api/warehouse/transfer-material/${deliveryNoteId}/generate-dn`, {
                 method: 'POST',
                 credentials: 'include',
             });
