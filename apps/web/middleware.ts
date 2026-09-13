@@ -2,20 +2,24 @@ import {NextResponse} from "next/server";
 import type {NextRequest} from "next/server";
 
 export async function middleware(request: NextRequest) {
+    const isRsc =
+        request.headers.get('RSC') === '1' ||
+        request.headers.get('x-middleware-prefetch') === '1' ||
+        request.nextUrl.searchParams.has('_rsc');
+
+    // Never allow Next.js client router to fetch /auth/login as an RSC request.
+    // That route returns a 302 to an external SSO provider, which causes browser fetch()
+    // to follow the redirect and fail with a CORS preflight error.
+    if (request.nextUrl.pathname.endsWith('/auth/login') && isRsc) {
+        return NextResponse.redirect(new URL('/ansei', request.url));
+    }
+
     // Check if the SSO session cookie exists.
     // The cookie name is 'ansei_sso' (or '__Host-ansei_sso' on HTTPS).
     // This avoids an expensive and potentially failing loopback fetch behind proxies.
     const hasSessionCookie = request.cookies.has('ansei_sso') || request.cookies.has('__Host-ansei_sso');
 
     if (!hasSessionCookie) {
-        // If it's a client-side navigation (RSC fetch), redirecting directly to a Route Handler
-        // that returns an external 302 will cause the browser's fetch to follow the redirect
-        // and fail with CORS. Redirect to the root page instead, which will do a window.location
-        // redirect to the login route on the client side.
-        const isRsc =
-            request.headers.get('RSC') === '1' ||
-            request.headers.get('x-middleware-prefetch') === '1';
-
         if (isRsc) {
             return NextResponse.redirect(new URL('/ansei', request.url));
         }
@@ -28,5 +32,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: "/apps/:path*",
+    matcher: ["/apps/:path*", "/auth/login", "/auth/callback"],
 };
