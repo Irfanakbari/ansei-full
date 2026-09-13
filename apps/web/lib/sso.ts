@@ -6,8 +6,9 @@ export const sso = createNextVuteqSso({
   baseUrl: process.env.VUTEQ_SSO_BASE_URL ?? 'https://sso.vuteq.co.id',
   secret: process.env.VUTEQ_SSO_SECRET ?? 'configure-vuteq-sso-secret',
   store: ssoSessionStore,
+  cookieName: 'ansei_sso',
   callbackPath: '/ansei/auth/callback',
   homePath: '/ansei/apps',
-  errorPath: '/ansei/',
+  errorPath: '/ansei/auth/error',
   trustProxy: process.env.VUTEQ_SSO_TRUST_PROXY === 'true',
 });
