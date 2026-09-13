@@ -1,6 +1,6 @@
 {
   "name": "@ansei/web",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
@@ -20,7 +20,7 @@
     "antd": "^6.4.3",
     "dayjs": "^1.11.21",
     "next": "16.2.7",
-    "@vuteq/sso-client-react": "file:../../vendor/vuteq-sso-client-react-0.1.2.tgz",
+    "@vuteq/sso-client-react": "file:../../vendor/vuteq-sso-client-react-0.2.0.tgz",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-redux": "^9.3.0",
