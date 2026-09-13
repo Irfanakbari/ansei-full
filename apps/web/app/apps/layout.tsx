@@ -323,7 +323,7 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
                     }}
                 >
                     <div className="text-center justify-center flex p-1">
-                        <Image src="/images/ansei.png" alt="ANSEI logo" width={200} height={100}
+                        <Image src="/images/ansei-white.png" alt="ANSEI logo" width={200} height={100}
                                priority/>
                     </div>
                     <Menu

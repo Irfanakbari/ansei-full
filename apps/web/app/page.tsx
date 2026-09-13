@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import {useEffect} from 'react';
 
 const APP_VERSION = '1.6.2';
@@ -15,6 +16,14 @@ export default function LoginPage() {
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-slate-950 text-white">
+            <Image
+                src="/images/ansei-white.png"
+                alt="ANSEI logo"
+                width={180}
+                height={90}
+                priority
+                className="mb-4"
+            />
             <p className="text-sm text-slate-300">Redirecting to Vuteq SSO...</p>
             <a
                 className="mt-4 rounded bg-indigo-600 px-4 py-2 text-sm hover:bg-indigo-500"
