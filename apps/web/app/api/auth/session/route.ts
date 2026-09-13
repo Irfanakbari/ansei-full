@@ -7,7 +7,18 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   const session = await sso.session(request);
   if (!session) {
-    return Response.json(null, { headers: { 'Cache-Control': 'no-store' } });
+    const headers = new Headers({ 'Cache-Control': 'no-store' });
+    // Backchannel logout runs server-to-server and cannot clear the browser
+    // cookie itself. Clear stale session cookies on the next browser request.
+    headers.append(
+      'Set-Cookie',
+      '__Host-ansei_sso=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0',
+    );
+    headers.append(
+      'Set-Cookie',
+      'ansei_sso=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0',
+    );
+    return Response.json(null, { headers });
   }
 
   const response = await sso.fetch(
