@@ -2,7 +2,7 @@
 
 import {useEffect} from 'react';
 
-const APP_VERSION = '1.6.1';
+const APP_VERSION = '1.6.2';
 
 export default function LoginPage() {
     useEffect(() => {

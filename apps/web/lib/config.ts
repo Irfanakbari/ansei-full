@@ -26,9 +26,6 @@ const validateBackendBaseUrl = (value: string): string => {
   if (url.username || url.password || url.search || url.hash) {
     throw new Error('API_URL must not contain credentials, query parameters, or fragments');
   }
-  if (process.env.NODE_ENV === 'production' && url.protocol !== 'https:') {
-    throw new Error('API_URL must use HTTPS in production');
-  }
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     throw new Error('API_URL must use HTTP or HTTPS');
   }
