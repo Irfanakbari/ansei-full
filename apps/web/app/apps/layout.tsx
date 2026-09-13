@@ -26,7 +26,7 @@ import {fetchNotifications} from '@/store/features/notifications/notificationsSl
 import '../batik.css';
 import {LockOutlined} from '@ant-design/icons';
 
-const APP_VERSION = '1.4.2';
+const APP_VERSION = '1.6.4';
 const {Header, Content, Footer, Sider} = Layout;
 
 const LoadingOverlay = () => (
@@ -166,7 +166,7 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
     const [collapsed, setCollapsed] = useState(false);
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
-    const {session, loading: sessionLoadingSso, signOut} = useVuteqSso();
+    const {session, loading: sessionLoadingSso} = useVuteqSso();
     const ssoGlobalRoles = session?.globalRoles ?? [];
     const isSsoSuperAdmin = (session?.roles ?? []).includes('SUPER_ADMINISTRATOR') || ssoGlobalRoles.includes('SUPER_ADMINISTRATOR');
     const {user} = useSelector((state: RootState) => state.auth);
@@ -218,8 +218,14 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
     }, [isChecking, dispatch]);
 
     const handleLogout = () => {
-        dispatch(clearAuth());
-        signOut();
+        if (window.confirm('Apakah Anda yakin ingin keluar dari aplikasi dan SSO?')) {
+            dispatch(clearAuth());
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/auth/logout';
+            document.body.appendChild(form);
+            form.submit();
+        }
     };
 
     const userMenu: MenuProps['items'] = [

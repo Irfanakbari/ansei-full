@@ -107,7 +107,7 @@ async function handleUnauthorized(notify = true): Promise<void> {
     ]);
     store.dispatch(clearAuth());
 
-    await fetch('/api/auth/logout', {
+    await fetch('/auth/logout', {
       method: 'POST',
       credentials: 'include',
       keepalive: true,

@@ -1,14 +1,13 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
 import { NextResponse } from 'next/server';
-
-const API_URL = process.env.API_URL || 'http://localhost:7500/v1';
+import { getApiUrl } from '@/lib/config';
 
 export async function GET(request: Request) {
     try {
         // Get token from cookie for logging purposes (optional)
         // This endpoint is public and does not require authentication
 
-        const response = await fetch(`${API_URL}/frontend/notifications`, {
+        const response = await fetch(`${getApiUrl('v1', request)}/frontend/notifications`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             // Do not forward Authorization header - endpoint is public
