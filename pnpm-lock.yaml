@@ -2945,7 +2945,7 @@ packages:
       rxjs: '>=7.8.0'
 
   '@vuteq/sso-client-react@file:vendor/vuteq-sso-client-react-0.2.0.tgz':
-    resolution: {integrity: sha512-yElYuaoOEOzX12c5s6HenOB0h+Eiy9m30T4NDwbE1+dVOe1Nxwddv5yADUzATi0ND5InUTAibY/jQu0fMBLRpg==, tarball: file:vendor/vuteq-sso-client-react-0.2.0.tgz}
+    resolution: {integrity: sha512-FtyWWKZiuAqvK47Q6gel1oNa/l5OGo3c8xpTwwHQWOS2kRJyQQh+Lx4khy6tZ79cucv0ygQp7WHTN73dQf9FbQ==, tarball: file:vendor/vuteq-sso-client-react-0.2.0.tgz}
     version: 0.2.0
     engines: {node: '>=20.11.0'}
     peerDependencies:
