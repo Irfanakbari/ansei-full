@@ -1,6 +1,6 @@
 {
   "name": "@ansei/api",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "",
   "author": "",
   "private": true,
@@ -19,6 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest --config ./test/jest-e2e.json --forceExit",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:permissions": "tsx prisma/seed-permissions.ts",
     "db:reset": "prisma migrate reset --force && pnpm run db:seed",
     "db:setup": "createdb ansei 2>/dev/null || true && prisma migrate deploy"
   },

@@ -171,197 +171,76 @@ async function main() {
   );
 
   // ============================================
-  // 2. Create all permissions
+  // 2. Create all permissions (aligned with the exact set enforced by
+  //    @Permission() on every controller in apps/api/src)
   // ============================================
   const allPermissions = [
-    // Master permissions
+    // Master data (also used by settings: printer, email, dashboard)
     { Action: 'IPCS.MASTER_READ', Description: 'Read master data' },
     { Action: 'IPCS.MASTER_CREATE', Description: 'Create master data' },
     { Action: 'IPCS.MASTER_UPDATE', Description: 'Update master data' },
     { Action: 'IPCS.MASTER_DELETE', Description: 'Delete master data' },
-    // Satuan permissions
-    { Action: 'IPCS.SATUAN_READ', Description: 'Read satuan' },
-    { Action: 'IPCS.SATUAN_CREATE', Description: 'Create satuan' },
-    { Action: 'IPCS.SATUAN_UPDATE', Description: 'Update satuan' },
-    { Action: 'IPCS.SATUAN_DELETE', Description: 'Delete satuan' },
-    // Supplier permissions
-    { Action: 'IPCS.SUPPLIER_READ', Description: 'Read supplier' },
-    { Action: 'IPCS.SUPPLIER_CREATE', Description: 'Create supplier' },
-    { Action: 'IPCS.SUPPLIER_UPDATE', Description: 'Update supplier' },
-    { Action: 'IPCS.SUPPLIER_DELETE', Description: 'Delete supplier' },
-    // Material permissions
-    { Action: 'IPCS.MATERIAL_READ', Description: 'Read material' },
-    { Action: 'IPCS.MATERIAL_CREATE', Description: 'Create material' },
-    { Action: 'IPCS.MATERIAL_UPDATE', Description: 'Update material' },
-    { Action: 'IPCS.MATERIAL_DELETE', Description: 'Delete material' },
-    // Finish Good permissions
-    { Action: 'IPCS.FINISHGOOD_READ', Description: 'Read finish good' },
-    { Action: 'IPCS.FINISHGOOD_CREATE', Description: 'Create finish good' },
-    { Action: 'IPCS.FINISHGOOD_UPDATE', Description: 'Update finish good' },
-    { Action: 'IPCS.FINISHGOOD_DELETE', Description: 'Delete finish good' },
-    // Box Qty permissions
-    { Action: 'IPCS.BOXQTY_READ', Description: 'Read box qty' },
-    { Action: 'IPCS.BOXQTY_CREATE', Description: 'Create box qty' },
-    { Action: 'IPCS.BOXQTY_UPDATE', Description: 'Update box qty' },
-    { Action: 'IPCS.BOXQTY_DELETE', Description: 'Delete box qty' },
-    // Bill of Materials permissions
-    {
-      Action: 'IPCS.BILLMATERIALS_READ',
-      Description: 'Read bill of materials',
-    },
-    {
-      Action: 'IPCS.BILLMATERIALS_CREATE',
-      Description: 'Create bill of materials',
-    },
-    {
-      Action: 'IPCS.BILLMATERIALS_UPDATE',
-      Description: 'Update bill of materials',
-    },
-    {
-      Action: 'IPCS.BILLMATERIALS_DELETE',
-      Description: 'Delete bill of materials',
-    },
-    // Man Power permissions
-    { Action: 'IPCS.MANPOWER_READ', Description: 'Read man power' },
-    { Action: 'IPCS.MANPOWER_CREATE', Description: 'Create man power' },
-    { Action: 'IPCS.MANPOWER_UPDATE', Description: 'Update man power' },
-    { Action: 'IPCS.MANPOWER_DELETE', Description: 'Delete man power' },
-    // Forecast permissions
+    // Incoming warehouse
+    { Action: 'IPCS.INCOMING_READ', Description: 'Read incoming material' },
+    { Action: 'IPCS.INCOMING_CREATE', Description: 'Create incoming material' },
+    { Action: 'IPCS.INCOMING_UPDATE', Description: 'Update incoming material' },
+    { Action: 'IPCS.INCOMING_DELETE', Description: 'Delete incoming material' },
+    // Transfer to rack
+    { Action: 'IPCS.TRANSFER_CREATE', Description: 'Create material transfer' },
+    // MRP (material run-out)
+    { Action: 'IPCS.MRP_READ', Description: 'Read material run-out' },
+    // Inventory counting
+    { Action: 'IPCS.INVENTORY_COUNTING_READ', Description: 'Read inventory counting' },
+    { Action: 'IPCS.INVENTORY_COUNTING_CREATE', Description: 'Create inventory counting' },
+    { Action: 'IPCS.INVENTORY_COUNTING_UPDATE', Description: 'Update inventory counting' },
+    { Action: 'IPCS.INVENTORY_COUNTING_DELETE', Description: 'Delete inventory counting' },
+    // Transfer material (material delivery note)
+    { Action: 'IPCS.TRANSFER_MATERIAL_READ', Description: 'Read material delivery note' },
+    { Action: 'IPCS.TRANSFER_MATERIAL_CREATE', Description: 'Create material delivery note' },
+    { Action: 'IPCS.TRANSFER_MATERIAL_UPDATE', Description: 'Update material delivery note' },
+    { Action: 'IPCS.TRANSFER_MATERIAL_DELETE', Description: 'Delete material delivery note' },
+    // Forecast
     { Action: 'IPCS.FORECAST_READ', Description: 'Read forecast' },
     { Action: 'IPCS.FORECAST_CREATE', Description: 'Create forecast' },
     { Action: 'IPCS.FORECAST_UPDATE', Description: 'Update forecast' },
     { Action: 'IPCS.FORECAST_DELETE', Description: 'Delete forecast' },
-    // Production Release permissions
-    {
-      Action: 'IPCS.PRODUCTION_RELEASE_READ',
-      Description: 'Read production release',
-    },
-    {
-      Action: 'IPCS.PRODUCTION_RELEASE_CREATE',
-      Description: 'Create production release',
-    },
-    {
-      Action: 'IPCS.PRODUCTION_RELEASE_UPDATE',
-      Description: 'Update production release',
-    },
-    {
-      Action: 'IPCS.PRODUCTION_RELEASE_DELETE',
-      Description: 'Delete production release',
-    },
-    // Incoming permissions
-    { Action: 'IPCS.INCOMING_READ', Description: 'Read incoming' },
-    { Action: 'IPCS.INCOMING_CREATE', Description: 'Create incoming' },
-    { Action: 'IPCS.INCOMING_UPDATE', Description: 'Update incoming' },
-    { Action: 'IPCS.INCOMING_DELETE', Description: 'Delete incoming' },
-    // Shopping permissions
+    // Production release
+    { Action: 'IPCS.PRODUCTION_RELEASE_READ', Description: 'Read production release' },
+    { Action: 'IPCS.PRODUCTION_RELEASE_CREATE', Description: 'Create production release' },
+    { Action: 'IPCS.PRODUCTION_RELEASE_UPDATE', Description: 'Update production release' },
+    { Action: 'IPCS.PRODUCTION_RELEASE_DELETE', Description: 'Delete production release' },
+    // Shopping
     { Action: 'IPCS.SHOPPING_READ', Description: 'Read shopping' },
     { Action: 'IPCS.SHOPPING_CREATE', Description: 'Create shopping' },
-    { Action: 'IPCS.SHOPPING_UPDATE', Description: 'Update shopping' },
     { Action: 'IPCS.SHOPPING_DELETE', Description: 'Delete shopping' },
-    // Transfer permissions
-    { Action: 'IPCS.TRANSFER_READ', Description: 'Read transfer' },
-    { Action: 'IPCS.TRANSFER_CREATE', Description: 'Create transfer' },
-    { Action: 'IPCS.TRANSFER_UPDATE', Description: 'Update transfer' },
-    { Action: 'IPCS.TRANSFER_DELETE', Description: 'Delete transfer' },
-    // Transfer Material (Delivery Note) permissions
-    {
-      Action: 'IPCS.TRANSFER_MATERIAL_READ',
-      Description: 'Read transfer material delivery note',
-    },
-    {
-      Action: 'IPCS.TRANSFER_MATERIAL_CREATE',
-      Description: 'Create transfer material delivery note',
-    },
-    {
-      Action: 'IPCS.TRANSFER_MATERIAL_UPDATE',
-      Description: 'Update transfer material delivery note',
-    },
-    {
-      Action: 'IPCS.TRANSFER_MATERIAL_DELETE',
-      Description: 'Delete transfer material delivery note',
-    },
-    // User Management permissions
-    {
-      Action: 'IPCS.USER_MANAGEMENT',
-      Description: 'Full user management access',
-    },
-    // Dashboard permissions
-    {
-      Action: 'IPCS.DASHBOARDSETTING_READ',
-      Description: 'Read dashboard settings',
-    },
-    {
-      Action: 'IPCS.DASHBOARDSETTING_UPDATE',
-      Description: 'Update dashboard settings',
-    },
-    // Email permissions
-    {
-      Action: 'IPCS.EMAILNOTIFICATION_READ',
-      Description: 'Read email notifications',
-    },
-    {
-      Action: 'IPCS.EMAILNOTIFICATION_CREATE',
-      Description: 'Create email notifications',
-    },
-    {
-      Action: 'IPCS.EMAILNOTIFICATION_UPDATE',
-      Description: 'Update email notifications',
-    },
-    {
-      Action: 'IPCS.EMAILNOTIFICATION_DELETE',
-      Description: 'Delete email notifications',
-    },
-    // Inventory Counting permissions
-    {
-      Action: 'IPCS.INVENTORY_COUNTING_READ',
-      Description: 'Read inventory counting',
-    },
-    {
-      Action: 'IPCS.INVENTORY_COUNTING_CREATE',
-      Description: 'Create inventory counting',
-    },
-    {
-      Action: 'IPCS.INVENTORY_COUNTING_UPDATE',
-      Description: 'Update inventory counting',
-    },
-    {
-      Action: 'IPCS.INVENTORY_COUNTING_DELETE',
-      Description: 'Delete inventory counting',
-    },
-    // API Key permissions
-    {
-      Action: 'IPCS.API_KEY_READ',
-      Description: 'Read API keys',
-    },
-    {
-      Action: 'IPCS.API_KEY_CREATE',
-      Description: 'Create API keys',
-    },
-    {
-      Action: 'IPCS.API_KEY_UPDATE',
-      Description: 'Update/revoke/reactivate API keys',
-    },
-    {
-      Action: 'IPCS.API_KEY_DELETE',
-      Description: 'Delete API keys permanently',
-    },
-    // Display Config permissions
-    {
-      Action: 'DISPLAY_CONFIG_READ',
-      Description: 'Read display config',
-    },
-    {
-      Action: 'DISPLAY_CONFIG_CREATE',
-      Description: 'Create display config',
-    },
-    {
-      Action: 'DISPLAY_CONFIG_UPDATE',
-      Description: 'Update display config',
-    },
-    {
-      Action: 'DISPLAY_CONFIG_DELETE',
-      Description: 'Delete display config',
-    },
+    // Pre-delivery goods
+    { Action: 'IPCS.PRE_DELIVERY_READ', Description: 'Read pre-delivery goods' },
+    // Pokayoke validation
+    { Action: 'IPCS.POKAYOKE_READ', Description: 'Read Pokayoke validation' },
+    { Action: 'IPCS.POKAYOKE_CREATE', Description: 'Create Pokayoke validation' },
+    // Delivery
+    { Action: 'IPCS.DELIVERY_READ', Description: 'Read delivery' },
+    { Action: 'IPCS.DELIVERY_CREATE', Description: 'Create delivery' },
+    // Production report
+    { Action: 'IPCS.PRODUCTION_REPORT_READ', Description: 'Read production report' },
+    { Action: 'IPCS.PRODUCTION_REPORT_UPDATE', Description: 'Update production report' },
+    { Action: 'IPCS.PRODUCTION_REPORT_DELETE', Description: 'Delete production report' },
+    // Reports
+    { Action: 'IPCS.REPORT_READ', Description: 'Read reports' },
+    // System log
+    { Action: 'IPCS.SYSTEM_LOG_READ', Description: 'Read system logs' },
+    // API key management
+    { Action: 'IPCS.API_KEY_READ', Description: 'Read API keys' },
+    { Action: 'IPCS.API_KEY_CREATE', Description: 'Create API keys' },
+    { Action: 'IPCS.API_KEY_UPDATE', Description: 'Update API keys' },
+    { Action: 'IPCS.API_KEY_DELETE', Description: 'Delete API keys' },
+    // User management
+    { Action: 'IPCS.USER_MANAGEMENT', Description: 'Manage users, roles, and permissions' },
+    // Display configuration
+    { Action: 'DISPLAY_CONFIG_READ', Description: 'Read display configuration' },
+    { Action: 'DISPLAY_CONFIG_CREATE', Description: 'Create display configuration' },
+    { Action: 'DISPLAY_CONFIG_UPDATE', Description: 'Update display configuration' },
+    { Action: 'DISPLAY_CONFIG_DELETE', Description: 'Delete display configuration' },
   ];
 
   for (const perm of allPermissions) {
