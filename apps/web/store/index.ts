@@ -39,7 +39,7 @@ import notificationsReducer from './features/notifications/notificationsSlice';
 // Settings slices
 import printerSettingReducer from './features/settings/printerSettingSlice';
 import emailNotificationReducer from './features/settings/emailNotificationSlice';
-import displayConfigReducer from './features/system-administration/displayConfig/displayConfigSlice';
+import displayConfigReducer from './features/settings/displayConfig/displayConfigSlice';
 import displayReducer from './features/display/displaySlice';
 
 // Dashboard slice

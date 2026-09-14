@@ -8,7 +8,7 @@ import {
     updateDisplayConfig,
     DisplayConfigEntity,
     CreateDisplayConfigDto,
-} from '@/store/features/system-administration/displayConfig/displayConfigSlice';
+} from '@/store/features/settings/displayConfig/displayConfigSlice';
 import { store } from '@/store';
 
 interface Props {

@@ -12,7 +12,7 @@ import {
     fetchDisplayConfig,
     deleteDisplayConfig,
     DisplayConfigEntity,
-} from '@/store/features/system-administration/displayConfig/displayConfigSlice';
+} from '@/store/features/settings/displayConfig/displayConfigSlice';
 import CreateEditDisplayConfigModal from './_components/CreateEditDisplayConfigModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
 
