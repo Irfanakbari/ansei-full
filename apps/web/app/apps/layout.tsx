@@ -26,7 +26,7 @@ import {fetchNotifications} from '@/store/features/notifications/notificationsSl
 import '../batik.css';
 import {LockOutlined} from '@ant-design/icons';
 
-const APP_VERSION = '1.6.5';
+const APP_VERSION = '1.6.6';
 const {Header, Content, Footer, Sider} = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number] & {
@@ -165,12 +165,10 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
         const checkAuth = async () => {
             if (sessionLoadingSso) return;
 
-            const isProcessing401 = typeof window !== 'undefined' && sessionStorage.getItem('processing401') === 'true';
-            if (isProcessing401) {
-                return;
-            }
-
             if (session) {
+                if (typeof window !== 'undefined') {
+                    sessionStorage.removeItem('processing401');
+                }
                 dispatch(setAuthData({
                     user: {
                         UserId: session.user.sub,
@@ -189,6 +187,12 @@ const AppLayout = ({children}: { children: React.ReactNode }) => {
                 setIsChecking(false);
                 return;
             }
+
+            const isProcessing401 = typeof window !== 'undefined' && sessionStorage.getItem('processing401') === 'true';
+            if (isProcessing401) {
+                return;
+            }
+
             window.location.replace('/auth/login');
         };
 
