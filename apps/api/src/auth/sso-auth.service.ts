@@ -28,9 +28,16 @@ export class SsoAuthService implements OnModuleInit {
     }
 
     try {
+      const allowedClientIds = (
+        configService.get<string>('VUTEQ_SSO_ALLOWED_CLIENT_IDS') ?? ''
+      )
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean);
       this.service = new VuteqSsoService({
         baseUrl: configService.get<string>('VUTEQ_SSO_BASE_URL') ?? '',
         secret: configService.get<string>('VUTEQ_SSO_SECRET') ?? '',
+        allowedClientIds,
         global: false,
         resolveAuthorization: (identity) => this.resolveAuthorization(identity),
       });

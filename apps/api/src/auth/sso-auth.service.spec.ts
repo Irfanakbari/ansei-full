@@ -94,4 +94,47 @@ describe(SsoAuthService.name, () => {
 
     expect(authenticate).toHaveBeenCalledWith('Bearer token');
   });
+
+  it('parses and passes explicitly allowed SSO client IDs', () => {
+    jest
+      .mocked(VuteqSsoService)
+      .mockImplementationOnce(
+        () => ({ metadata: jest.fn() }) as unknown as VuteqSsoService,
+      );
+
+    new SsoAuthService(
+      config({
+        VUTEQ_SSO_BASE_URL: 'https://sso.example.test',
+        VUTEQ_SSO_SECRET: 'registered-secret-value',
+        VUTEQ_SSO_ALLOWED_CLIENT_IDS: ' ipcs-web, ipcs-app, ,',
+      }),
+      prisma,
+    );
+
+    expect(VuteqSsoService).toHaveBeenCalledWith(
+      expect.objectContaining({
+        allowedClientIds: ['ipcs-web', 'ipcs-app'],
+      }),
+    );
+  });
+
+  it('passes an empty allowlist when the environment is absent', () => {
+    jest
+      .mocked(VuteqSsoService)
+      .mockImplementationOnce(
+        () => ({ metadata: jest.fn() }) as unknown as VuteqSsoService,
+      );
+
+    new SsoAuthService(
+      config({
+        VUTEQ_SSO_BASE_URL: 'https://sso.example.test',
+        VUTEQ_SSO_SECRET: 'registered-secret-value',
+      }),
+      prisma,
+    );
+
+    expect(VuteqSsoService).toHaveBeenCalledWith(
+      expect.objectContaining({ allowedClientIds: [] }),
+    );
+  });
 });

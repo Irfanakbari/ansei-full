@@ -1,6 +1,6 @@
 {
   "name": "@ansei/api",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "",
   "author": "",
   "private": true,
@@ -39,7 +39,7 @@
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@types/multer": "^2.1.0",
-    "@vuteq/sso-client-nest": "file:../../vendor/vuteq-sso-client-nest-0.1.1.tgz",
+    "@vuteq/sso-client-nest": "file:../../vendor/vuteq-sso-client-nest-0.1.2.tgz",
     "amqp-connection-manager": "^5.0.0",
     "amqplib": "^2.0.1",
     "bwip-js": "^4.11.1",

@@ -56,8 +56,8 @@ importers:
         specifier: ^2.1.0
         version: 2.2.0
       '@vuteq/sso-client-nest':
-        specifier: file:../../vendor/vuteq-sso-client-nest-0.1.1.tgz
-        version: file:vendor/vuteq-sso-client-nest-0.1.1.tgz(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.2.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+        specifier: file:../../vendor/vuteq-sso-client-nest-0.1.2.tgz
+        version: file:vendor/vuteq-sso-client-nest-0.1.2.tgz(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.2.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       amqp-connection-manager:
         specifier: ^5.0.0
         version: 5.0.0(amqplib@2.0.1)
@@ -2934,9 +2934,9 @@ packages:
   '@visx/vendor@4.0.0-alpha.0':
     resolution: {integrity: sha512-6I+MuqXBcv9jnlcVowHoHKSdk9gXTWkHLKyqBwRWg7LY6A3Ei8SHfubpqGV5rBUSppxMq2RszPJUS6w+H0YgmQ==}
 
-  '@vuteq/sso-client-nest@file:vendor/vuteq-sso-client-nest-0.1.1.tgz':
-    resolution: {integrity: sha512-ifsG3LzxaAnR0mn6fKCCnbS3cHwl2wZHdpfpmtBFKmi9aQD/SfpVuRLw13oUnptprWnaH6SbVzy6mHtAuBO7PQ==, tarball: file:vendor/vuteq-sso-client-nest-0.1.1.tgz}
-    version: 0.1.1
+  '@vuteq/sso-client-nest@file:vendor/vuteq-sso-client-nest-0.1.2.tgz':
+    resolution: {integrity: sha512-0URxmr2TNRCkDKQLmKlNV2cthKMcvJqWtaVvk/OfNw4X5BaBtqw2+OYxwo8iQ4Co1OBdx5fB7bAROYZ8UWxCVQ==, tarball: file:vendor/vuteq-sso-client-nest-0.1.2.tgz}
+    version: 0.1.2
     engines: {node: '>=20.11.0'}
     peerDependencies:
       '@nestjs/common': '>=10 <13'
@@ -9610,7 +9610,7 @@ snapshots:
       d3-time-format: 4.1.0
       internmap: 2.0.3
 
-  '@vuteq/sso-client-nest@file:vendor/vuteq-sso-client-nest-0.1.1.tgz(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.2.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)':
+  '@vuteq/sso-client-nest@file:vendor/vuteq-sso-client-nest-0.1.2.tgz(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.2.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)':
     dependencies:
       '@nestjs/common': 11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.2.1(@nestjs/common@11.2.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/microservices@11.2.1)(@nestjs/platform-express@11.2.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
