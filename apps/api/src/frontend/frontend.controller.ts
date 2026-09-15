@@ -1,5 +1,6 @@
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
+import { DashboardQueryDto } from './dto/dashboard-query.dto';
 import { FrontendService } from './frontend.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { Permission } from '../auth/decorators/permission.decorator';
@@ -39,7 +40,9 @@ export class FrontendController {
     description:
       'Returns dashboard statistics including total materials, suppliers, finish goods, manpower, incoming/delivery totals, and daily statistics for the current month.',
   })
-  async getDashboard(): Promise<DashboardResponseEntity> {
-    return this.frontendService.getDashboard();
+  async getDashboard(
+    @Query() query: DashboardQueryDto,
+  ): Promise<DashboardResponseEntity> {
+    return this.frontendService.getDashboard(query);
   }
 }

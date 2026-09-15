@@ -2,8 +2,10 @@
 
 "use client";
 
-import React, { useEffect, useMemo } from "react";
-import { Card, Row, Col, Empty, Result } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { Card, Row, Col, Empty, Result, DatePicker } from "antd";
+import type { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import {
     ShoppingCart,
     Factory,
@@ -328,10 +330,16 @@ const DashboardSkeleton: React.FC = () => (
 export default function DashboardPage() {
     const dispatch = useDispatch<AppDispatch>();
     const { data, loading, error, errorStatus } = useSelector((state: RootState) => state.dashboard);
+    const [selectedPeriod, setSelectedPeriod] = useState<Dayjs>(dayjs());
 
     useEffect(() => {
-        dispatch(fetchDashboard());
-    }, [dispatch]);
+        void dispatch(
+            fetchDashboard({
+                month: selectedPeriod.month() + 1,
+                year: selectedPeriod.year(),
+            }),
+        );
+    }, [dispatch, selectedPeriod]);
 
     // Prepare chart data using useMemo to avoid recalculation
     const combinedChartData = useMemo(() => {
@@ -452,13 +460,7 @@ export default function DashboardPage() {
 
     return (
         // Scrollable container for dashboard content only
-        <div 
-            style={{ 
-                maxHeight: 'calc(100vh - 180px)', 
-                overflowY: 'auto',
-                paddingRight: 8,
-            }}
-        >
+        <div style={{ paddingRight: 8 }}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
@@ -472,28 +474,20 @@ export default function DashboardPage() {
                     >
                         Dashboard Overview
                     </h1>
-                    <p style={{ color: "#8c8c8c" }}>
-                        {getMonthName(data.currentMonth)} - Data harian dalam
-                        bulan ini
+                    <p
+                        style={{ color: "#8c8c8c", margin: 0 }}
+                    >
+                        {getMonthName(selectedPeriod.format("YYYY-MM"))} - Data
+                        harian dalam bulan ini
                     </p>
                 </div>
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        padding: "10px 18px",
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        borderRadius: 24,
-                        color: "white",
-                        fontSize: 13,
-                        fontWeight: 500,
-                        boxShadow: "0 4px 16px rgba(102, 126, 234, 0.35)",
-                    }}
-                >
-                    <Assessment fontSize="small" />
-                    <span>Live Data</span>
-                </div>
+                <DatePicker
+                    picker="month"
+                    value={selectedPeriod}
+                    onChange={(value) => value && setSelectedPeriod(value)}
+                    allowClear={false}
+                    format="MMMM YYYY"
+                />
             </div>
 
             {/* Summary Cards */}

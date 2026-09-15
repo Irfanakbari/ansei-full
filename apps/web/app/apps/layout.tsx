@@ -26,7 +26,7 @@ import { setAuthData, clearAuth } from '@/store/features/auth/authSlice';
 import { fetchNotifications } from '@/store/features/notifications/notificationsSlice';
 import '../batik.css';
 
-const APP_VERSION = '1.8.0';
+const APP_VERSION = '1.9.0';
 const { Header, Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number] & {

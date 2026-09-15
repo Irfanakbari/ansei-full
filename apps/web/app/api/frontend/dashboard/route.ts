@@ -8,7 +8,12 @@ export async function GET(request: Request) {
     try {
         const response = await sso.fetch(
             request,
-            new URL(`${getApiUrl('v1')}/frontend/dashboard`),
+            (() => {
+                const backendUrl = new URL(`${getApiUrl('v1')}/frontend/dashboard`);
+                const requestUrl = new URL(request.url);
+                requestUrl.searchParams.forEach((value, key) => backendUrl.searchParams.set(key, value));
+                return backendUrl;
+            })(),
             {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },

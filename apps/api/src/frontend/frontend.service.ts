@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProductionStatus, OpnameStatus } from '../generated/prisma/enums';
+import { DashboardQueryDto } from './dto/dashboard-query.dto';
 import {
   DashboardResponseEntity,
   DashboardSummaryEntity,
@@ -521,11 +522,13 @@ export class FrontendService {
     };
   }
 
-  async getDashboard(): Promise<DashboardResponseEntity> {
-    // Get current month date range
+  async getDashboard(
+    query: DashboardQueryDto = {},
+  ): Promise<DashboardResponseEntity> {
+    // Get month date range (defaults to current month when query is omitted)
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); // 0-indexed
+    const currentYear = query.year ?? now.getFullYear();
+    const currentMonth = (query.month ?? now.getMonth() + 1) - 1; // 0-indexed
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
     const startOfMonth = new Date(currentYear, currentMonth, 1, 0, 0, 0, 0);

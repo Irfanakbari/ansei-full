@@ -2,6 +2,11 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+export interface DashboardQuery {
+    month: number;
+    year: number;
+}
+
 // Interfaces
 export interface ForecastDailyStat {
     date: string;
@@ -55,9 +60,17 @@ const initialState: DashboardState = {
 // Fetch dashboard data
 export const fetchDashboard = createAsyncThunk(
     'dashboard/fetch',
-    async (_, { rejectWithValue }) => {
+    async (query: DashboardQuery | undefined, { rejectWithValue }) => {
         try {
-            const response = await fetch('/api/frontend/dashboard');
+            const searchParams = new URLSearchParams();
+            if (query) {
+                searchParams.set('month', String(query.month));
+                searchParams.set('year', String(query.year));
+            }
+            const queryString = searchParams.toString();
+            const response = await fetch(
+                `/api/frontend/dashboard${queryString ? `?${queryString}` : ''}`,
+            );
             const data = await response.json();
             if (!response.ok) {
                 return rejectWithValue({
