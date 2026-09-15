@@ -111,8 +111,8 @@ const bomSlice = createSlice({
             .addCase(fetchBOM.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchBOM.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchBOM.rejected, (state, action) => {
                 state.loading = false;

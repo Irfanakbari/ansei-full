@@ -27,6 +27,7 @@ export interface ForecastEntity {
     Status: string;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     PartData: FGData;
 }
 
@@ -189,8 +190,8 @@ const forecastSlice = createSlice({
             .addCase(fetchForecast.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchForecast.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchForecast.rejected, (state, action) => {
                 state.loading = false;

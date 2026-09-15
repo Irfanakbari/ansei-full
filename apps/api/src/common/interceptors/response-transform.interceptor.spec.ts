@@ -54,4 +54,42 @@ describe('ResponseTransformInterceptor', () => {
       lastValueFrom(interceptor.intercept(context(204), handler)),
     ).resolves.toBeUndefined();
   });
+
+  it('enriches audit fields with user display names when prisma is available', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      { UserId: 'admin', SsoObjectId: 'sso-1', Name: 'Administrator' },
+      { UserId: 'user1', SsoObjectId: 'sso-2', Name: 'User One' },
+    ]);
+    const mockPrisma = {
+      mTCUserManagement: { findMany },
+    } as any;
+
+    const enrichingInterceptor = new ResponseTransformInterceptor(mockPrisma);
+    const rawData = [
+      { id: 1, CreatedBy: 'admin', ReceivedBy: 'user1' },
+      { id: 2, createdBy: 'admin', updatedBy: 'user1' },
+    ];
+    const handler: CallHandler<typeof rawData> = { handle: () => of(rawData) };
+
+    const result = (await lastValueFrom(
+      enrichingInterceptor.intercept(context(), handler),
+    )) as any;
+
+    expect(result.data).toEqual([
+      {
+        id: 1,
+        CreatedBy: 'admin',
+        CreatedByName: 'Administrator',
+        ReceivedBy: 'user1',
+        ReceivedByName: 'User One',
+      },
+      {
+        id: 2,
+        createdBy: 'admin',
+        createdByName: 'Administrator',
+        updatedBy: 'user1',
+        updatedByName: 'User One',
+      },
+    ]);
+  });
 });

@@ -13,6 +13,7 @@ export interface MaterialEntity {
     PartName: string;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     UpdatedAt: string;
     Supplier: string | null;
     SatuanId: number | null;
@@ -125,8 +126,8 @@ const materialSlice = createSlice({
             .addCase(fetchMaterial.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchMaterial.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchMaterial.rejected, (state, action) => {
                 state.loading = false;

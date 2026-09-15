@@ -341,7 +341,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         {data?.Status || '-'}
                     </Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="Created By">{data?.CreatedBy || '-'}</Descriptions.Item>
+                <Descriptions.Item label="Created By">{data?.CreatedByName || '-'}</Descriptions.Item>
                 <Descriptions.Item label="Created At">
                     {data?.CreatedAt ? new Date(data.CreatedAt).toLocaleString('id-ID') : '-'}
                 </Descriptions.Item>

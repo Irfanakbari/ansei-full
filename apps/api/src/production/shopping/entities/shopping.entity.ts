@@ -75,6 +75,9 @@ export class ShoppingEntity {
   @ApiProperty({ description: 'User pembuat', example: 'operator1' })
   CreatedBy: string;
 
+  @ApiPropertyOptional({ description: 'Nama user pembuat' })
+  CreatedByName?: string;
+
   @ApiProperty({ description: 'Qty yang dipick', example: 50 })
   QtyPick: number;
 

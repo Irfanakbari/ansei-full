@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class PokayokeScanEntity {
   @ApiProperty({ description: 'Scan record ID' })
@@ -30,6 +30,9 @@ export class PokayokeScanEntity {
     example: 'OPERATOR',
   })
   createdBy: string;
+
+  @ApiPropertyOptional({ description: 'Display name of the scanner' })
+  createdByName?: string;
 }
 
 export class PokayokeScanResponseEntity {

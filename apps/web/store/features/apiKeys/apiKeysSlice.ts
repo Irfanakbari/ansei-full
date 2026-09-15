@@ -1,7 +1,6 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-20 */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { get, getApiErrorMessage, type PaginatedApiSuccessEnvelope, type PaginationMeta } from '../../utils/apiService';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope, type PaginationMeta } from '../../utils/apiService';
 
 export interface ApiKeyEntity {
     Id: string;
@@ -19,6 +18,7 @@ export interface ApiKeyEntity {
     LastUsedAt: string | null;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
 }
 
 export interface CreateApiKeyPayload {
@@ -58,84 +58,58 @@ export const fetchApiKeys = createAsyncThunk<PaginatedApiSuccessEnvelope<ApiKeyE
     }
 );
 
-export const fetchApiKeyById = createAsyncThunk(
+export const fetchApiKeyById = createAsyncThunk<ApiSuccessEnvelope<ApiKeyEntity>, string, { rejectValue: string }>(
     'apiKeys/fetchById',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/api-keys/${id}`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch API Key');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<ApiKeyEntity>>(`/api-keys/${id}`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch API Key'));
         }
     }
 );
 
-export const createApiKey = createAsyncThunk(
+export const createApiKey = createAsyncThunk<ApiSuccessEnvelope<{ ApiKey: string; KeyPrefix: string; Id: string; Name: string }>, CreateApiKeyPayload, { rejectValue: string }>(
     'apiKeys/create',
     async (payload: CreateApiKeyPayload, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/api-keys', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create API Key');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<{ ApiKey: string; KeyPrefix: string; Id: string; Name: string }>, CreateApiKeyPayload>('/api-keys', payload);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create API Key'));
         }
     }
 );
 
-export const deleteApiKey = createAsyncThunk(
+export const deleteApiKey = createAsyncThunk<string, string, { rejectValue: string }>(
     'apiKeys/delete',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/api-keys/${id}`, {
-                method: 'DELETE',
-            });
-            if (!response.ok) {
-                const data = await response.json().catch(() => ({}));
-                return rejectWithValue(data.message || 'Failed to delete API Key');
-            }
+            await del<ApiSuccessEnvelope<unknown>>(`/api-keys/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete API Key'));
         }
     }
 );
 
-export const revokeApiKey = createAsyncThunk(
+export const revokeApiKey = createAsyncThunk<ApiSuccessEnvelope<ApiKeyEntity>, string, { rejectValue: string }>(
     'apiKeys/revoke',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/api-keys/${id}/revoke`, {
-                method: 'PATCH',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to revoke API Key');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<ApiKeyEntity>>(`/api-keys/${id}/revoke`, {});
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to revoke API Key'));
         }
     }
 );
 
-export const reactivateApiKey = createAsyncThunk(
+export const reactivateApiKey = createAsyncThunk<ApiSuccessEnvelope<ApiKeyEntity>, string, { rejectValue: string }>(
     'apiKeys/reactivate',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/api-keys/${id}/reactivate`, {
-                method: 'PATCH',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to reactivate API Key');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<ApiKeyEntity>>(`/api-keys/${id}/reactivate`, {});
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to reactivate API Key'));
         }
     }
 );
@@ -157,8 +131,8 @@ const apiKeysSlice = createSlice({
             .addCase(fetchApiKeys.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchApiKeys.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchApiKeys.rejected, (state, action) => {
                 state.loading = false;
@@ -168,7 +142,7 @@ const apiKeysSlice = createSlice({
             .addCase(fetchApiKeyById.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchApiKeyById.fulfilled, (state, action) => {
                 state.loading = false;
-                state.singleData = action.payload;
+                state.singleData = action.payload.data;
             })
             .addCase(fetchApiKeyById.rejected, (state, action) => {
                 state.loading = false;
@@ -178,7 +152,7 @@ const apiKeysSlice = createSlice({
             .addCase(createApiKey.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(createApiKey.fulfilled, (state, action) => {
                 state.loading = false;
-                state.newApiKey = action.payload;
+                state.newApiKey = action.payload.data;
             })
             .addCase(createApiKey.rejected, (state, action) => {
                 state.loading = false;
@@ -198,9 +172,9 @@ const apiKeysSlice = createSlice({
             .addCase(revokeApiKey.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(revokeApiKey.fulfilled, (state, action) => {
                 state.loading = false;
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const index = state.data.findIndex(item => item.Id === action.payload.data.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = action.payload.data;
                 }
             })
             .addCase(revokeApiKey.rejected, (state, action) => {
@@ -211,9 +185,9 @@ const apiKeysSlice = createSlice({
             .addCase(reactivateApiKey.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(reactivateApiKey.fulfilled, (state, action) => {
                 state.loading = false;
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const index = state.data.findIndex(item => item.Id === action.payload.data.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = action.payload.data;
                 }
             })
             .addCase(reactivateApiKey.rejected, (state, action) => {

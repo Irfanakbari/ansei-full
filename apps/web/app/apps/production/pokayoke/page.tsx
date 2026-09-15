@@ -203,7 +203,7 @@ export default function PokayokePage() {
                     showTotal: (total: number) => `Total ${total} records`,
                 }}
                 rowKey="id"
-                scroll={{ x: 1000, y: 'calc(100vh - 360px)' }}
+                scroll={{ x: 1000, y: 'calc(100vh - 380px)' }}
                 className="small-table"
             />
 

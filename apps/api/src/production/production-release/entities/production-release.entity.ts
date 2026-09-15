@@ -85,6 +85,9 @@ export class ProductionReleaseEntity {
   @ApiProperty({ example: 'admin' })
   CreatedBy: string;
 
+  @ApiPropertyOptional({ example: 'Administrator' })
+  CreatedByName?: string;
+
   @ApiPropertyOptional({ example: '2026-07-20T10:00:00.000Z' })
   UpdatedAt?: Date;
 
@@ -135,9 +138,10 @@ export class ProductionReleaseDetailEntity extends ProductionReleaseEntity {
     Id: number;
     FileName: string;
     FilePath: string;
-    CreatedAt: Date;
-    CreatedBy: string;
-  }>;
+     CreatedAt: Date;
+     CreatedBy: string;
+     CreatedByName?: string;
+   }>;
 }
 
 export class AttachmentResponseEntity {
@@ -180,6 +184,9 @@ export class DeliveryAttachmentEntity {
 
   @ApiPropertyOptional({ example: 'admin' })
   CreatedBy?: string | null;
+
+  @ApiPropertyOptional({ example: 'Administrator' })
+  CreatedByName?: string | null;
 
   @ApiPropertyOptional({ example: '2026-07-20T10:00:00.000Z' })
   UpdatedAt?: Date | null;

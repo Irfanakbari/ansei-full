@@ -1,7 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '../../utils/apiService';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope } from '../../utils/apiService';
 
 export interface PermissionData {
     Id: number;
@@ -32,54 +31,36 @@ export const fetchPermissions = createAsyncThunk<ApiSuccessEnvelope<PermissionDa
     }
 );
 
-export const createPermission = createAsyncThunk(
+export const createPermission = createAsyncThunk<ApiSuccessEnvelope<PermissionData>, { Action: string; Description: string }, { rejectValue: string }>(
     'permissions/create',
     async (permissionData: { Action: string; Description: string }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/permissions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(permissionData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create permission');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<PermissionData>, typeof permissionData>('/permissions', permissionData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create permission'));
         }
     }
 );
 
-export const updatePermission = createAsyncThunk(
+export const updatePermission = createAsyncThunk<ApiSuccessEnvelope<PermissionData>, { id: number; permissionData: { Action: string; Description: string } }, { rejectValue: string }>(
     'permissions/update',
     async ({ id, permissionData }: { id: number; permissionData: { Action: string; Description: string } }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/permissions/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(permissionData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update permission');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<PermissionData>, typeof permissionData>(`/permissions/${id}`, permissionData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update permission'));
         }
     }
 );
 
-export const deletePermission = createAsyncThunk(
+export const deletePermission = createAsyncThunk<number, number, { rejectValue: string }>(
     'permissions/delete',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/permissions/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete permission');
+            await del<ApiSuccessEnvelope<unknown>>(`/permissions/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete permission'));
         }
     }
 );
@@ -93,7 +74,7 @@ const permissionsSlice = createSlice({
             .addCase(fetchPermissions.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchPermissions.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
             })
             .addCase(fetchPermissions.rejected, (state, action) => {
                 state.loading = false;

@@ -1,9 +1,10 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Table, Card, Breadcrumb, App, Input, Tag } from 'antd';
-import { EditOutlined, DeleteOutlined, ReloadOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useRef } from 'react';
+import { Table, Card, Breadcrumb, App, Input, Tag, Space, Button } from 'antd';
+import type { InputRef, TableProps } from 'antd';
+import { EditOutlined, DeleteOutlined, ReloadOutlined, ExclamationCircleOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -24,25 +25,56 @@ export default function UserAccountsPage() {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editData, setEditData] = useState<UserManagementEntity | null>(null);
 
+    const searchInput = useRef<InputRef>(null);
+
     useEffect(() => {
         dispatch(fetchUsers(query));
     }, [dispatch, query]);
+
+    const getColumnSearchProps = (dataIndex: string) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
+            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => confirm()}
+                    style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Space>
+                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+                        Search
+                    </Button>
+                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
+                        Reset
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        ),
+    });
 
     const columns = [
         {
             title: 'User ID',
             dataIndex: 'UserId',
             key: 'UserId',
+            ...getColumnSearchProps('UserId'),
         },
         {
             title: 'Name',
             dataIndex: 'Name',
             key: 'Name',
+            ...getColumnSearchProps('Name'),
         },
         {
             title: 'Email',
             dataIndex: 'Email',
             key: 'Email',
+            ...getColumnSearchProps('Email'),
         },
         {
             title: 'Is Active',
@@ -51,10 +83,10 @@ export default function UserAccountsPage() {
             render: (val: boolean) => <Tag color={val ? 'green' : 'red'}>{val ? 'Active' : 'Inactive'}</Tag>
         },
         {
-            title: 'Role ID',
+            title: 'Role',
             dataIndex: 'RoleId',
             key: 'RoleId',
-            render: (val: number | null) => val ?? '-'
+            render: (_: any, record: UserManagementEntity) => record.Role?.RoleName || record.RoleId || '-'
         },
         {
             title: 'Last Login',
@@ -63,6 +95,16 @@ export default function UserAccountsPage() {
             render: (val: string | null) => formatDateTime(val)
         }
     ];
+
+    const handleTableChange: TableProps<UserManagementEntity>['onChange'] = (pageConfig, filters) => {
+        const search = String(filters.UserId?.[0] ?? filters.Name?.[0] ?? filters.Email?.[0] ?? '');
+        setQuery((current) => ({
+            ...current,
+            page: search !== query.search ? 1 : (pageConfig.current ?? 1),
+            limit: pageConfig.pageSize ?? 50,
+            search,
+        }));
+    };
 
     const handleEdit = () => {
         if (selectedRowKeys.length === 1) {
@@ -76,17 +118,19 @@ export default function UserAccountsPage() {
 
     const handleDelete = () => {
         if (selectedRowKeys.length === 1) {
+            const selectedRecord = data.find(d => d.Id === selectedRowKeys[0]);
             modal.confirm({
                 title: 'Are you sure you want to delete this User?',
                 icon: <ExclamationCircleOutlined />,
-                content: `User Name: ${data.find(d => d.Id === selectedRowKeys[0])?.Name}`,
+                content: `User Name: ${selectedRecord?.Name}`,
                 okText: 'Yes, Delete',
                 okType: 'danger',
                 cancelText: 'Cancel',
                 centered: true,
                 onOk: async () => {
                     try {
-                        const result = await dispatch(deleteUser(selectedRowKeys[0] as string));
+                        const targetId = selectedRecord?.UserId || (selectedRowKeys[0] as string);
+                        const result = await dispatch(deleteUser(targetId));
 
                         if (deleteUser.rejected.match(result)) {
                             throw new Error((result.payload as string) || 'Failed to delete user');
@@ -112,7 +156,6 @@ export default function UserAccountsPage() {
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
             </ToolbarWrapper>
-            <Input.Search allowClear placeholder="Search user ID, name, email, or phone" style={{ width: 360, marginBottom: 12 }} onSearch={(search) => setQuery((current) => ({ ...current, page: 1, search }))} />
 
             <Table
                 rowSelection={{
@@ -134,9 +177,9 @@ export default function UserAccountsPage() {
                     hideOnSinglePage: true,
                     showTotal: (total) => `Total ${total} items`,
                 }}
-                onChange={(pageConfig) => setQuery((current) => ({ ...current, page: pageConfig.current ?? 1, limit: pageConfig.pageSize ?? 50 }))}
+                onChange={handleTableChange}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 360px)' }}
+                scroll={{ y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

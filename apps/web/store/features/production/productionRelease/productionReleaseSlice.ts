@@ -10,6 +10,7 @@ export interface AttachmentDelivery {
     FilePath: string;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     UpdatedAt: string;
     ProductionReleaseId: string;
 }
@@ -62,6 +63,7 @@ export interface ProductionAttachment {
     MimeType?: string;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     UpdatedAt: string;
 }
 
@@ -78,6 +80,7 @@ export interface ProductionReleaseEntity {
     TotalNgQty: number;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     UpdatedAt: string;
     Forecasts: ForecastItem[];
     Attachments?: ProductionAttachment[];
@@ -303,8 +306,17 @@ const productionReleaseSlice = createSlice({
             .addCase(fetchProductionRelease.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchProductionRelease.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data.data;
-                state.pagination = action.payload.data.meta;
+                const raw = action.payload as any;
+                if (Array.isArray(raw?.data)) {
+                    state.data = raw.data;
+                    state.pagination = raw.meta ?? initialState.pagination;
+                } else if (Array.isArray(raw?.data?.data)) {
+                    state.data = raw.data.data;
+                    state.pagination = raw.data.meta ?? initialState.pagination;
+                } else {
+                    state.data = [];
+                    state.pagination = initialState.pagination;
+                }
             })
             .addCase(fetchProductionRelease.rejected, (state, action) => {
                 state.loading = false;
@@ -314,7 +326,7 @@ const productionReleaseSlice = createSlice({
             .addCase(fetchProductionReleaseById.pending, (state) => { state.detailLoading = true; state.error = null; })
             .addCase(fetchProductionReleaseById.fulfilled, (state, action) => {
                 state.detailLoading = false;
-                state.detail = action.payload;
+                state.detail = (action.payload as any)?.data || action.payload;
             })
             .addCase(fetchProductionReleaseById.rejected, (state, action) => {
                 state.detailLoading = false;
@@ -324,7 +336,10 @@ const productionReleaseSlice = createSlice({
             .addCase(createProductionRelease.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(createProductionRelease.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data.unshift(action.payload);
+                const created = (action.payload as any)?.data || action.payload;
+                if (created && typeof created === 'object' && created.Id) {
+                    state.data.unshift(created);
+                }
             })
             .addCase(createProductionRelease.rejected, (state, action) => {
                 state.loading = false;
@@ -332,9 +347,12 @@ const productionReleaseSlice = createSlice({
             })
             // Update
             .addCase(updateProductionRelease.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
-                if (index !== -1) {
-                    state.data[index] = action.payload;
+                const updated = (action.payload as any)?.data || action.payload;
+                if (updated && updated.Id) {
+                    const index = state.data.findIndex(item => item.Id === updated.Id);
+                    if (index !== -1) {
+                        state.data[index] = updated;
+                    }
                 }
             })
             // Delete

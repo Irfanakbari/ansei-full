@@ -61,6 +61,9 @@ export class InventoryCountingEntity {
   @ApiProperty()
   CreatedBy: string;
 
+  @ApiPropertyOptional({ description: 'Nama user pembuat' })
+  CreatedByName?: string;
+
   @ApiPropertyOptional()
   StartedAt: Date | null;
 

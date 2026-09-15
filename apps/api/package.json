@@ -1,6 +1,6 @@
 {
   "name": "@ansei/api",
-  "version": "1.11.0",
+  "version": "1.12.4",
   "description": "",
   "author": "",
   "private": true,
@@ -21,6 +21,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:permissions": "tsx prisma/seed-permissions.ts",
     "db:seed:users": "tsx prisma/seed-users.ts",
+    "db:seed:dummy": "tsx prisma/seed-dummy.ts",
     "db:reset": "prisma migrate reset --force && pnpm run db:seed",
     "db:setup": "createdb ansei 2>/dev/null || true && prisma migrate deploy"
   },

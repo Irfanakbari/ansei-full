@@ -12,6 +12,7 @@ export interface AttachmentEntity {
     Description: string | null;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     UpdatedAt?: string;
 }
 
@@ -43,12 +44,15 @@ export interface IncomingEntity {
     PoId: string;
     SupplierId: number;
     ReceivedBy: string;
+    ReceivedByName?: string;
     Description: string | null;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     UpdatedAt: string;
     ApprovedAt: string | null;
     ApprovedBy: string | null;
+    ApprovedByName?: string | null;
     Closed: boolean;
     SupplierData: SupplierData;
     IncomingMaterial: IncomingMaterial[];
@@ -306,8 +310,8 @@ const incomingSlice = createSlice({
             .addCase(fetchIncoming.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchIncoming.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchIncoming.rejected, (state, action) => {
                 state.loading = false;

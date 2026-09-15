@@ -33,7 +33,7 @@ export default function BillOfMaterialsPage() {
     // Group data by Finish Good
     const groupedData = useMemo(() => {
         const groups: Record<number, BOMGrouped> = {};
-        data.forEach((item) => {
+        (Array.isArray(data) ? data : []).forEach((item) => {
             const fgId:any = item.FinishGoodId;
             if (!groups[fgId]) {
                 groups[fgId] = {
@@ -187,7 +187,7 @@ export default function BillOfMaterialsPage() {
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="FinishGoodId"
-                scroll={{ y: 'calc(100vh - 360px)' }}
+                scroll={{ y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

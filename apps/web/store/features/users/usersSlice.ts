@@ -1,7 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { get, getApiErrorMessage, type PaginatedApiSuccessEnvelope, type PaginationMeta } from '../../utils/apiService';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope, type PaginationMeta } from '../../utils/apiService';
 
 export interface UserManagementEntity {
     Id: string;
@@ -14,6 +13,27 @@ export interface UserManagementEntity {
     PhoneNumber: string | null;
     DeptPermission: string[];
     RoleId: number | null;
+    Role?: { Id: number; RoleName: string; Description?: string | null } | null;
+}
+
+export interface CreateUserPayload {
+    UserId: string;
+    SsoObjectId: string;
+    Name: string;
+    Email: string;
+    PhoneNumber?: string;
+    RoleId?: number;
+    IsActive?: boolean;
+    DeptPermission?: string[];
+}
+
+export interface UpdateUserPayload {
+    Name?: string;
+    Email?: string;
+    PhoneNumber?: string;
+    RoleId?: number | null;
+    IsActive?: boolean;
+    DeptPermission?: string[];
 }
 
 interface UserState {
@@ -43,54 +63,36 @@ export const fetchUsers = createAsyncThunk<PaginatedApiSuccessEnvelope<UserManag
     }
 );
 
-export const createUser = createAsyncThunk(
+export const createUser = createAsyncThunk<ApiSuccessEnvelope<UserManagementEntity>, CreateUserPayload, { rejectValue: string }>(
     'users/create',
-    async (userData: any, { rejectWithValue }) => {
+    async (userData, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create user');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<UserManagementEntity>, CreateUserPayload>('/users', userData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create user'));
         }
     }
 );
 
-export const updateUser = createAsyncThunk(
+export const updateUser = createAsyncThunk<ApiSuccessEnvelope<UserManagementEntity>, { id: string; userData: UpdateUserPayload }, { rejectValue: string }>(
     'users/update',
-    async ({ id, userData }: { id: string; userData: any }, { rejectWithValue }) => {
+    async ({ id, userData }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/users/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update user');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<UserManagementEntity>, UpdateUserPayload>(`/users/${id}`, userData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update user'));
         }
     }
 );
 
-export const deleteUser = createAsyncThunk(
+export const deleteUser = createAsyncThunk<string, string, { rejectValue: string }>(
     'users/delete',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/users/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete user');
+            await del<ApiSuccessEnvelope<unknown>>(`/users/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete user'));
         }
     }
 );
@@ -104,12 +106,15 @@ const usersSlice = createSlice({
             .addCase(fetchUsers.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchUsers.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchUsers.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
+            })
+            .addCase(deleteUser.fulfilled, (state, action) => {
+                state.data = state.data.filter(u => u.UserId !== action.payload && u.Id !== action.payload);
             });
     },
 });

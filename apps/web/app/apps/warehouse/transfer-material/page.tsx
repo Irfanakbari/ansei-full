@@ -306,6 +306,7 @@ export default function TransferMaterialPage() {
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
             width: 120,
+            render: (_: any, record: any) => record.CreatedByName || '-',
             ...getColumnSearchProps('CreatedBy'),
         },
         {
@@ -405,7 +406,7 @@ export default function TransferMaterialPage() {
                     showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total}`,
                 }}
                 rowKey="Id"
-                scroll={{ x: 1200, y: 'calc(100vh - 360px)' }}
+                scroll={{ x: 1200, y: 'calc(100vh - 380px)' }}
                 className="small-table"
             />
 

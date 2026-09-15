@@ -18,6 +18,9 @@ export class DeliveryEntity {
   @ApiProperty({ description: 'User who created the delivery' })
   createdBy: string;
 
+  @ApiPropertyOptional({ description: 'Display name of the creator' })
+  createdByName?: string;
+
   @ApiPropertyOptional({
     description: 'LabelData ID associated with this delivery',
   })

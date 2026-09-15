@@ -242,6 +242,7 @@ export default function StockTransactionLogPage() {
             key: 'createdBy',
             width: 100,
             filteredValue: filteredInfo.createdBy || null,
+            render: (_: any, record: any) => record.createdByName || '-',
             ...getColumnSearchProps('createdBy', 'Search Created By'),
         },
         {

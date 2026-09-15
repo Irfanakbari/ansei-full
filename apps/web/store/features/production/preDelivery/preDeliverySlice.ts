@@ -111,7 +111,7 @@ const preDeliverySlice = createSlice({
             })
             .addCase(fetchPreDelivery.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data || [];
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
                 state.pagination = {
                     page: action.payload.page || 1,
                     limit: action.payload.limit || 50,

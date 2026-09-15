@@ -72,7 +72,7 @@ const DetailShoppingModal: React.FC<Props> = ({ visible, onClose, data }) => {
                     {data.Description || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="Created By">
-                    {data.CreatedBy}
+                    {data.CreatedByName || '-'}
                 </Descriptions.Item>
             </Descriptions>
         </Modal>

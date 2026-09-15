@@ -221,7 +221,7 @@ const DetailProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data 
                     {data._count?.Forecasts || data.Forecasts?.length || 0}
                 </Descriptions.Item>
                 <Descriptions.Item label="Created By" span={2}>
-                    {data.CreatedBy}
+                    {data.CreatedByName || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="Notes" span={2}>
                     {data.Notes || '-'}

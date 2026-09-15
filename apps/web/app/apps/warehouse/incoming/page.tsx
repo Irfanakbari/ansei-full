@@ -197,6 +197,7 @@ export default function IncomingPage() {
             dataIndex: 'ReceivedBy',
             key: 'ReceivedBy',
             width: 120,
+            render: (_: any, record: any) => record.ReceivedByName || '-',
             ...getColumnSearchProps('ReceivedBy'),
         },
         {
@@ -267,7 +268,7 @@ export default function IncomingPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 360px)' }}
+                scroll={{ y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

@@ -1,7 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '../../utils/apiService';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope } from '../../utils/apiService';
 
 export interface RoleData {
     Id: number;
@@ -33,88 +32,58 @@ export const fetchRoles = createAsyncThunk<ApiSuccessEnvelope<RoleData[]>, void,
     }
 );
 
-export const createRole = createAsyncThunk(
+export const createRole = createAsyncThunk<ApiSuccessEnvelope<RoleData>, { RoleName: string; Description: string }, { rejectValue: string }>(
     'roles/create',
     async (roleData: { RoleName: string; Description: string }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/roles', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(roleData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create role');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<RoleData>, typeof roleData>('/roles', roleData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create role'));
         }
     }
 );
 
-export const updateRole = createAsyncThunk(
+export const updateRole = createAsyncThunk<ApiSuccessEnvelope<RoleData>, { id: number; roleData: { RoleName: string; Description: string } }, { rejectValue: string }>(
     'roles/update',
     async ({ id, roleData }: { id: number; roleData: { RoleName: string; Description: string } }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/roles/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(roleData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update role');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<RoleData>, typeof roleData>(`/roles/${id}`, roleData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update role'));
         }
     }
 );
 
-export const deleteRole = createAsyncThunk(
+export const deleteRole = createAsyncThunk<number, number, { rejectValue: string }>(
     'roles/delete',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/roles/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete role');
+            await del<ApiSuccessEnvelope<unknown>>(`/roles/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete role'));
         }
     }
 );
 
-export const assignPermissionToRole = createAsyncThunk(
+export const assignPermissionToRole = createAsyncThunk<ApiSuccessEnvelope<RoleData>, { roleId: number; permissionId: number }, { rejectValue: string }>(
     'roles/assignPermission',
     async ({ roleId, permissionId }: { roleId: number; permissionId: number }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/roles/${roleId}/permissions`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ permissionId }),
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to assign permission');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<RoleData>, { permissionId: number }>(`/roles/${roleId}/permissions`, { permissionId });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to assign permission'));
         }
     }
 );
 
-export const removePermissionFromRole = createAsyncThunk(
+export const removePermissionFromRole = createAsyncThunk<ApiSuccessEnvelope<RoleData>, { roleId: number; permissionId: number }, { rejectValue: string }>(
     'roles/removePermission',
     async ({ roleId, permissionId }: { roleId: number; permissionId: number }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/roles/${roleId}/permissions/${permissionId}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to remove permission');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await del<ApiSuccessEnvelope<RoleData>>(`/roles/${roleId}/permissions/${permissionId}`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to remove permission'));
         }
     }
 );
@@ -128,7 +97,7 @@ const rolesSlice = createSlice({
             .addCase(fetchRoles.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchRoles.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
             })
             .addCase(fetchRoles.rejected, (state, action) => {
                 state.loading = false;

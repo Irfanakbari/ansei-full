@@ -33,10 +33,13 @@ export interface MaterialDeliveryNoteEntity {
   Notes: string | null;
   CreatedAt: Date;
   CreatedBy: string;
+  CreatedByName?: string;
   ShippedAt: Date | null;
   ShippedBy: string | null;
+  ShippedByName?: string | null;
   ReceivedAt: Date | null;
   ReceivedBy: string | null;
+  ReceivedByName?: string | null;
   Details: MaterialDeliveryNoteDetailEntity[];
 }
 

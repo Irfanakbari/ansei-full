@@ -48,6 +48,7 @@ export interface StockTransactionLogEntity {
     qtyOut: number;
     balanceAfter: number;
     createdBy: string;
+    createdByName?: string;
     notes: string | null;
 }
 
@@ -161,12 +162,12 @@ const stockTransactionLogSlice = createSlice({
             })
             .addCase(fetchStockTransactionLog.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
                 state.pagination = {
-                    page: action.payload.meta.page,
-                    limit: action.payload.meta.limit,
-                    total: action.payload.meta.totalItems,
-                    totalPages: action.payload.meta.totalPages,
+                    page: action.payload?.meta?.page ?? 1,
+                    limit: action.payload?.meta?.limit ?? 50,
+                    total: action.payload?.meta?.totalItems ?? 0,
+                    totalPages: action.payload?.meta?.totalPages ?? 0,
                 };
             })
             .addCase(fetchStockTransactionLog.rejected, (state, action) => {

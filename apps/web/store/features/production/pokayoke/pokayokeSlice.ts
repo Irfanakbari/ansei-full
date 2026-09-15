@@ -13,6 +13,7 @@ export interface PokayokeScanEntity {
     status: 'SUKSES' | 'GAGAL';
     createdAt: string;
     createdBy: string;
+    createdByName?: string;
 }
 
 // Scan response interface
@@ -131,7 +132,7 @@ const pokayokeSlice = createSlice({
             })
             .addCase(fetchPokayoke.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
                 state.pagination = {
                     page: action.payload.page,
                     limit: action.payload.limit,

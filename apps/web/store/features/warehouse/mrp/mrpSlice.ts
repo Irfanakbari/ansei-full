@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-18*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { getApiErrorMessage, post, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 
 interface DailyDemand {
     date: string;
@@ -45,24 +45,16 @@ const initialState: MRPState = {
     error: null,
 };
 
-export const calculateMRP = createAsyncThunk(
+export const calculateMRP = createAsyncThunk<MRPResponse, void, { rejectValue: string }>(
     'mrp/calculate',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/warehouse/mrp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-            });
-
-            const data = await response.json();
-            if (!response.ok) {
-                return rejectWithValue(data.message || 'Gagal menghitung MRP');
-            }
-            return data as MRPResponse;
-        } catch (error: any) {
-            return rejectWithValue(error.message || 'Terjadi kesalahan');
+            const response = await post<ApiSuccessEnvelope<MRPResponse>>('/mrp/calculate', {});
+            return response.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Gagal menghitung MRP'));
         }
-    }
+    },
 );
 
 const mrpSlice = createSlice({

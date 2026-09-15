@@ -107,8 +107,8 @@ const displayConfigSlice = createSlice({
             })
             .addCase(fetchDisplayConfig.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchDisplayConfig.rejected, (state, action) => {
                 state.loading = false;

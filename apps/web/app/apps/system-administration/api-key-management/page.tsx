@@ -42,7 +42,7 @@ export default function ApiKeyManagementPage() {
             key: 'UserId',
             render: (_: any, record: ApiKeyEntity) => (
                 <Space orientation="vertical" size={0}>
-                    <span>{record.User?.Name || record.UserId}</span>
+                    <span>{record.User?.Name || '-'}</span>
                     <span style={{ fontSize: 11, color: '#888' }}>{record.User?.Email}</span>
                 </Space>
             ),

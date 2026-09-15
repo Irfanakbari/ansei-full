@@ -130,6 +130,7 @@ export default function PrinterConfigPage() {
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
             width: 120,
+            render: (_: any, record: any) => record.CreatedByName || '-',
             ...getColumnSearchProps('CreatedBy'),
         },
         {
@@ -172,7 +173,7 @@ export default function PrinterConfigPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 360px)' }}
+                scroll={{ y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

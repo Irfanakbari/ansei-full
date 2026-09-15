@@ -1,19 +1,44 @@
-/*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
+/*By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-15*/
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Modal, Form, Input, App, DatePicker, Table, Tag, InputRef } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Modal, Form, Input, App, DatePicker, Table, Tag } from 'antd';
+import type { InputRef, TablePaginationConfig } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { createProductionRelease } from '@/store/features/production/productionRelease/productionReleaseSlice';
-import { fetchForecast } from '@/store/features/production/forecast/forecastSlice';
+import { fetchForecast, ForecastEntity } from '@/store/features/production/forecast/forecastSlice';
+import { formatDate } from '@/lib/utils/dateTime';
 
 interface Props {
     visible: boolean;
     onClose: () => void;
     onSuccess?: () => void;
 }
+
+const isForecastOpen = (record: ForecastEntity): boolean => {
+    if (record.ProductionReleaseId) {
+        return false;
+    }
+    const status = record.Status?.toUpperCase();
+    if (status === 'RELEASED') {
+        return false;
+    }
+    if (status && status !== 'OPEN') {
+        return false;
+    }
+    return true;
+};
+
+const getForecastStatus = (record: ForecastEntity): string => {
+    if (record.ProductionReleaseId || record.Status?.toUpperCase() === 'RELEASED') {
+        return 'RELEASED';
+    }
+    if (record.Status && record.Status.toUpperCase() !== 'OPEN') {
+        return record.Status.toUpperCase();
+    }
+    return 'OPEN';
+};
 
 const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuccess }) => {
     const { message } = App.useApp();
@@ -22,33 +47,34 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
     const [loading, setLoading] = useState(false);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [searchText, setSearchText] = useState('');
+    const [query, setQuery] = useState({ page: 1, limit: 10, search: '' });
     const searchInput = React.useRef<InputRef>(null);
 
-    const { data: forecasts, loading: forecastLoading } = useSelector((state: RootState) => state.forecast);
-
-    // Filter forecasts yang belum di-release (ProductionReleaseId = null)
-    const availableForecasts = useMemo(() => {
-        return forecasts.filter(f => !f.ProductionReleaseId);
-    }, [forecasts]);
-
-    // Filter dengan search
-    const filteredForecasts = useMemo(() => {
-        if (!searchText) return availableForecasts;
-        const lower = searchText.toLowerCase();
-        return availableForecasts.filter(f =>
-            f.PoId?.toLowerCase().includes(lower) ||
-            f.PartData?.PartNumber?.toLowerCase().includes(lower) ||
-            f.VendorName?.toLowerCase().includes(lower)
-        );
-    }, [availableForecasts, searchText]);
+    const { data: forecasts, loading: forecastLoading, pagination } = useSelector((state: RootState) => state.forecast);
 
     useEffect(() => {
         if (visible) {
-            dispatch(fetchForecast());
-            setSelectedRowKeys([]);
+            const initialQuery = { page: 1, limit: 10, search: '' };
+            setQuery(initialQuery);
             setSearchText('');
+            setSelectedRowKeys([]);
+            dispatch(fetchForecast({ page: 1, limit: 10 }));
         }
     }, [visible, dispatch]);
+
+    const handleSearch = (value: string) => {
+        const trimmed = value.trim();
+        const newQuery = { ...query, page: 1, search: trimmed };
+        setQuery(newQuery);
+        dispatch(fetchForecast({ page: 1, limit: query.limit, search: trimmed || undefined }));
+    };
+
+    const handleTableChange = (tablePagination: TablePaginationConfig) => {
+        const newPage = tablePagination.current || 1;
+        const newLimit = tablePagination.pageSize || 10;
+        setQuery(prev => ({ ...prev, page: newPage, limit: newLimit }));
+        dispatch(fetchForecast({ page: newPage, limit: newLimit, search: query.search || undefined }));
+    };
 
     const handleOk = async () => {
         try {
@@ -57,6 +83,15 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
 
             if (selectedRowKeys.length === 0) {
                 message.warning('Please select at least 1 PO ID');
+                setLoading(false);
+                return;
+            }
+
+            const invalidSelection = forecasts.find(
+                (f) => selectedRowKeys.includes(f.PoId) && !isForecastOpen(f)
+            );
+            if (invalidSelection) {
+                message.warning(`PO ID ${invalidSelection.PoId} is already released or not open`);
                 setLoading(false);
                 return;
             }
@@ -71,11 +106,7 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
             const result = await dispatch(createProductionRelease(payload));
 
             if (createProductionRelease.rejected.match(result)) {
-
-
-                throw new Error((result.payload as string) || 'Failed to create/update/delete');
-
-
+                throw new Error((result.payload as string) || 'Failed to create production release');
             }
             message.success('Production release created successfully');
             form.resetFields();
@@ -103,7 +134,7 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
             title: 'PO ID',
             dataIndex: 'PoId',
             key: 'PoId',
-            width: 140,
+            width: 130,
             render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
         },
         {
@@ -114,18 +145,44 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
             render: (val: string) => val || '-',
         },
         {
+            title: 'Delivery Date',
+            dataIndex: 'DeliveryDate',
+            key: 'DeliveryDate',
+            width: 110,
+            render: (val: string) => formatDate(val),
+        },
+        {
             title: 'Qty',
             dataIndex: 'Qty',
             key: 'Qty',
             width: 60,
             align: 'right' as const,
         },
+        {
+            title: 'Status',
+            key: 'Status',
+            width: 80,
+            align: 'center' as const,
+            render: (_: any, record: ForecastEntity) => {
+                const isOpen = isForecastOpen(record);
+                const status = getForecastStatus(record);
+                return (
+                    <Tag color={isOpen ? 'blue' : 'default'}>
+                        {status}
+                    </Tag>
+                );
+            },
+        },
     ];
 
     const rowSelection = {
         selectedRowKeys,
         onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
- };
+        preserveSelectedRowKeys: true,
+        getCheckboxProps: (record: ForecastEntity) => ({
+            disabled: !isForecastOpen(record),
+        }),
+    };
 
     return (
         <Modal
@@ -135,7 +192,7 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
             centered={true}
             onCancel={handleCancel}
             confirmLoading={loading}
-            width={700}
+            width={720}
             zIndex={1050}
         >
             <Form form={form} layout="vertical">
@@ -150,28 +207,34 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
                 </Form.Item>
                 <Form.Item label="PO IDs" required>
                     <div style={{ marginBottom: 8 }}>
-                        <Input
+                        <Input.Search
                             ref={searchInput}
                             placeholder="Search PO ID / Part Number / Vendor"
-                            prefix={<SearchOutlined />}
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
-                            style={{ width: '100%' }}
+                            onSearch={handleSearch}
+                            enterButton
                             allowClear
+                            loading={forecastLoading}
+                            style={{ width: '100%' }}
                         />
                     </div>
                     <Table
                         rowSelection={rowSelection}
                         columns={columns}
-                        dataSource={filteredForecasts}
+                        dataSource={forecasts}
                         size="small"
                         loading={forecastLoading}
                         rowKey="PoId"
+                        onChange={handleTableChange}
                         pagination={{
                             size: 'small',
-                            pageSize: 10,
-                            showSizeChanger: false,
-                            showTotal: (total) => `${total} items`,
+                            current: pagination.page,
+                            pageSize: pagination.limit,
+                            total: pagination.totalItems,
+                            showSizeChanger: true,
+                            pageSizeOptions: ['10', '20', '50'],
+                            showTotal: (total) => `Total ${total} items`,
                         }}
                         scroll={{ y: 300 }}
                         className="small-table"

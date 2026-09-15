@@ -135,7 +135,7 @@ export default function SatuanPage() {
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 360px)' }}
+                scroll={{ y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

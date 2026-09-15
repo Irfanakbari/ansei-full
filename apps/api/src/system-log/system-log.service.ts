@@ -8,6 +8,10 @@ import {
 } from './dto/system-log-response.dto';
 import { InventoryLedgerDto } from './dto/inventory-ledger-response.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  getUserDisplayName,
+  getUserDisplayNameMap,
+} from '../common/helpers/user-lookup.helper';
 import ExcelJS from 'exceljs';
 import type {
   ApiResult,
@@ -344,6 +348,11 @@ export class SystemLogService {
         Notes: true,
       },
     });
+
+    const displayNames = await getUserDisplayNameMap(
+      data.map((item) => item.CreatedBy),
+      this.prisma,
+    );
 
     // Create workbook
     const workbook = new ExcelJS.Workbook();
@@ -740,7 +749,7 @@ export class SystemLogService {
 
       // Created By
       const createdByCell = worksheet.getCell(rowNum, 12);
-      createdByCell.value = item.CreatedBy || '-';
+      createdByCell.value = getUserDisplayName(item.CreatedBy, displayNames);
       createdByCell.font = { name: 'Arial', size: 9 };
       createdByCell.alignment = { horizontal: 'left', vertical: 'middle' };
       createdByCell.fill = {

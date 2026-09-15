@@ -285,6 +285,7 @@ export default function InventoryCountingPage() {
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
             width: 100,
+            render: (_: any, record: any) => record.CreatedByName || '-',
         },
     ];
 
@@ -373,7 +374,7 @@ export default function InventoryCountingPage() {
                     showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total}`,
                 }}
                 rowKey="Id"
-                scroll={{ x: 1000, y: 'calc(100vh - 360px)' }}
+                scroll={{ x: 1000, y: 'calc(100vh - 380px)' }}
                 className="small-table"
             />
 

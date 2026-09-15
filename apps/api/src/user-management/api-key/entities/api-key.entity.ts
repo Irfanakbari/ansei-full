@@ -47,6 +47,9 @@ export class ApiKeyEntity {
 
   @ApiProperty({ example: 'admin' })
   CreatedBy: string;
+
+  @ApiPropertyOptional({ example: 'Administrator' })
+  CreatedByName?: string;
 }
 
 export class CreateApiKeyResponseEntity {
@@ -73,4 +76,7 @@ export class CreateApiKeyResponseEntity {
 
   @ApiProperty({ example: 'admin' })
   CreatedBy: string;
+
+  @ApiPropertyOptional({ example: 'Administrator' })
+  CreatedByName?: string;
 }

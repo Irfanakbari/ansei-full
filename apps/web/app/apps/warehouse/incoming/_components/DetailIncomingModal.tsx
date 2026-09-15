@@ -82,7 +82,7 @@ const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
                     {data.SupplierData?.Name}
                 </Descriptions.Item>
                 <Descriptions.Item label="Received By">
-                    {data.ReceivedBy}
+                    {data.ReceivedByName || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="Description" span={2}>
                     {data.Description || '-'}
@@ -91,7 +91,7 @@ const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
                     {formatDT(data.CreatedAt)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Created By">
-                    {data.CreatedBy}
+                    {data.CreatedByName || '-'}
                 </Descriptions.Item>
             </Descriptions>
 

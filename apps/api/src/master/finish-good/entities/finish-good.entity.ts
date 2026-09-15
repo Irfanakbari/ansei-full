@@ -29,6 +29,9 @@ export class FinishGoodEntity {
   @ApiProperty({ description: 'Dibuat oleh', example: 'admin' })
   CreatedBy: string;
 
+  @ApiPropertyOptional({ description: 'Nama user pembuat' })
+  CreatedByName?: string;
+
   @ApiProperty({
     description: 'Tanggal update',
     example: '2026-06-14T09:00:00.000Z',

@@ -44,7 +44,7 @@ export default function ProductionReleasePage() {
         dispatch(fetchProductionRelease(query));
     }, [dispatch, query]);
 
-    const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
+    const selectedRecord = Array.isArray(data) ? data.find((item) => item.Id === selectedRowKeys[0]) : undefined;
 
     const handleViewDetail = () => {
         if (selectedRecord) {
@@ -153,8 +153,9 @@ export default function ProductionReleasePage() {
             width: 180,
             ellipsis: true,
             render: (val: string) => <Tooltip title={val}><code style={{ fontSize: 11 }}>{val}</code></Tooltip>,
-            ...getColumnSearchProps('ReleaseNumber'),
-        },
+             ...getColumnSearchProps('ReleaseNumber'),
+             filteredValue: query.search ? [query.search] : null,
+         },
         {
             title: 'Plan Date',
             dataIndex: 'PlanDate',
@@ -220,6 +221,7 @@ export default function ProductionReleasePage() {
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
             width: 100,
+            render: (_: any, record: any) => record.CreatedByName || '-',
         },
     ];
 
@@ -255,8 +257,8 @@ export default function ProductionReleasePage() {
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} records`,
                 }}
-                rowKey="Id"
-                scroll={{ y: 'calc(100vh - 360px)' }}
+                rowKey={(record) => record.Id || record.ReleaseNumber || String(Math.random())}
+                scroll={{ y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

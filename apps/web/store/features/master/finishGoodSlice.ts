@@ -9,6 +9,7 @@ export interface FinishGoodEntity {
     Price: number | null;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     UpdatedAt: string;
     Qty: number;
 }
@@ -97,8 +98,8 @@ const finishGoodSlice = createSlice({
             .addCase(fetchFinishGood.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchFinishGood.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchFinishGood.rejected, (state, action) => {
                 state.loading = false;

@@ -33,6 +33,15 @@ export class UserManagementService {
       this.prisma.mTCUserManagement.count({ where }),
       this.prisma.mTCUserManagement.findMany({
         where,
+        include: {
+          Role: {
+            select: {
+              Id: true,
+              RoleName: true,
+              Description: true,
+            },
+          },
+        },
         orderBy: { Name: 'asc' },
         skip: (query.page - 1) * query.limit,
         take: query.limit,

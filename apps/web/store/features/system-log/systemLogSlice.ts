@@ -112,11 +112,11 @@ const systemLogSlice = createSlice({
             })
             .addCase(fetchSystemLogs.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.total = action.payload.meta.totalItems;
-                state.page = action.payload.meta.page;
-                state.limit = action.payload.meta.limit;
-                state.totalPages = action.payload.meta.totalPages;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.total = action.payload?.meta?.totalItems ?? 0;
+                state.page = action.payload?.meta?.page ?? 1;
+                state.limit = action.payload?.meta?.limit ?? 50;
+                state.totalPages = action.payload?.meta?.totalPages ?? 0;
             })
             .addCase(fetchSystemLogs.rejected, (state, action) => {
                 state.loading = false;

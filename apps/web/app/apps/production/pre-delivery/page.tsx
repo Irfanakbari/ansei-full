@@ -250,7 +250,7 @@ export default function PreDeliveryPage() {
                     showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total}`,
                 }}
                 rowKey="id"
-                scroll={{ x: 1200, y: 'calc(100vh - 360px)' }}
+                scroll={{ x: 1200, y: 'calc(100vh - 380px)' }}
                 className="small-table"
             />
         </Card>

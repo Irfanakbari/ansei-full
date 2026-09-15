@@ -26,9 +26,11 @@ export interface InventoryCountingEntity {
     Status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     StartedAt: string | null;
     CompletedAt: string | null;
     CompletedBy: string | null;
+    CompletedByName?: string | null;
     Notes: string | null;
     Details?: InventoryCountingDetailEntity[];
     TotalItems?: number;
@@ -408,12 +410,13 @@ const inventoryCountingSlice = createSlice({
             })
             .addCase(fetchInventoryCounting.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data.data || [];
+                const inner = action.payload?.data;
+                state.data = Array.isArray(inner?.data) ? inner.data : [];
                 state.pagination = {
-                    page: action.payload.data.page || 1,
-                    limit: action.payload.data.limit || 50,
-                    total: action.payload.data.total || 0,
-                    totalPages: action.payload.data.totalPages || 0,
+                    page: inner?.page || 1,
+                    limit: inner?.limit || 50,
+                    total: inner?.total || 0,
+                    totalPages: inner?.totalPages || 0,
                 };
             })
             .addCase(fetchInventoryCounting.rejected, (state, action) => {

@@ -13,8 +13,10 @@ export interface EmailNotificationEntity {
     Type: NotificationType;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     UpdatedAt: string;
     UpdatedBy: string | null;
+    UpdatedByName?: string | null;
 }
 
 // EmailNotification state
@@ -94,8 +96,8 @@ const emailNotificationSlice = createSlice({
             .addCase(fetchEmailNotifications.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchEmailNotifications.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchEmailNotifications.rejected, (state, action) => {
                 state.loading = false;

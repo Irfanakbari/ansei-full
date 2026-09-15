@@ -38,9 +38,11 @@ export interface IncomingEntity {
   CreatedAt: Date;
   UpdatedAt: Date;
   ReceivedBy: string;
+  ReceivedByName?: string;
   ApprovedAt: Date | null;
   Closed: boolean;
   ApprovedBy: string | null;
+  ApprovedByName?: string | null;
   SupplierId: number;
   SupplierData: SupplierEntity;
   IncomingMaterial: IncomingMaterialEntity[];

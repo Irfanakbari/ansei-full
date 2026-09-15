@@ -38,6 +38,7 @@ export interface ShoppingEntity {
     CreatedAt: string;
     UpdatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     MaterialData: MaterialData;
     ForecastData: ForecastData;
 }
@@ -225,8 +226,8 @@ const shoppingSlice = createSlice({
             .addCase(fetchShopping.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchShopping.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchShopping.rejected, (state, action) => {
                 state.loading = false;

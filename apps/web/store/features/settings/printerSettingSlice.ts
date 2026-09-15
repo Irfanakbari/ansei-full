@@ -9,8 +9,10 @@ export interface PrinterSettingEntity {
     IpAddress: string;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     UpdatedAt: string;
     UpdatedBy: string | null;
+    UpdatedByName?: string | null;
 }
 
 // PrinterSetting state
@@ -90,8 +92,8 @@ const printerSettingSlice = createSlice({
             .addCase(fetchPrinterSettings.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchPrinterSettings.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data;
-                state.pagination = action.payload.meta;
+                state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.pagination = action.payload.meta ?? initialState.pagination;
             })
             .addCase(fetchPrinterSettings.rejected, (state, action) => {
                 state.loading = false;

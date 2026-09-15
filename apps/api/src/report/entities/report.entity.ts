@@ -115,6 +115,9 @@ export class TransferMaterialReportEntity {
   @ApiProperty({ example: 'John Doe' })
   createdBy: string;
 
+  @ApiPropertyOptional({ example: 'John Doe' })
+  createdByName?: string;
+
   @ApiPropertyOptional({ example: '2026-07-01T14:00:00Z' })
   shippedAt: string;
 
@@ -168,6 +171,9 @@ export class ProductionReleaseReportEntity {
   @ApiProperty({ example: 'John Doe' })
   createdBy: string;
 
+  @ApiPropertyOptional({ example: 'John Doe' })
+  createdByName?: string;
+
   @ApiPropertyOptional({ example: 'PO-2026-001' })
   forecastPoId: string;
 
@@ -208,6 +214,9 @@ export class PokayokeScanReportEntity {
 
   @ApiProperty({ example: 'John Doe' })
   createdBy: string;
+
+  @ApiPropertyOptional({ example: 'John Doe' })
+  createdByName?: string;
 }
 
 /**
@@ -237,6 +246,9 @@ export class DeliveryHistoryReportEntity {
 
   @ApiProperty({ example: 'John Doe' })
   createdBy: string;
+
+  @ApiPropertyOptional({ example: 'John Doe' })
+  createdByName?: string;
 }
 
 /**
@@ -316,6 +328,9 @@ export class ShoppingHistoryReportEntity {
 
   @ApiProperty({ example: 'John Doe' })
   createdBy: string;
+
+  @ApiPropertyOptional({ example: 'John Doe' })
+  createdByName?: string;
 }
 
 /**
@@ -342,6 +357,9 @@ export class MaterialNgReportEntity {
 
   @ApiProperty({ example: 'John Doe' })
   createdBy: string;
+
+  @ApiPropertyOptional({ example: 'John Doe' })
+  createdByName?: string;
 }
 
 /**
@@ -389,6 +407,9 @@ export class InventoryLedgerReportEntity {
 
   @ApiProperty({ example: 'John Doe' })
   createdBy: string;
+
+  @ApiPropertyOptional({ example: 'John Doe' })
+  createdByName?: string;
 }
 
 /**

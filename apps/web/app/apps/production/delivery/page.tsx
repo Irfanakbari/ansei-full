@@ -118,6 +118,7 @@ export default function DeliveryPage() {
             dataIndex: 'createdBy',
             key: 'createdBy',
             width: 120,
+            render: (_: any, record: any) => record.createdByName || '-',
             ...getColumnSearchProps('createdBy'),
         },
         {
@@ -171,7 +172,7 @@ export default function DeliveryPage() {
                     showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total}`,
                 }}
                 rowKey="id"
-                scroll={{ x: 800, y: 'calc(100vh - 360px)' }}
+                scroll={{ x: 800, y: 'calc(100vh - 380px)' }}
                 className="small-table"
             />
 

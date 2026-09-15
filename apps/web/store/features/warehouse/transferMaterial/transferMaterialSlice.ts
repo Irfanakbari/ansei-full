@@ -28,10 +28,13 @@ export interface TransferMaterialEntity {
     Notes: string | null;
     CreatedAt: string;
     CreatedBy: string;
+    CreatedByName?: string;
     ShippedAt: string | null;
     ShippedBy: string | null;
+    ShippedByName?: string | null;
     ReceivedAt: string | null;
     ReceivedBy: string | null;
+    ReceivedByName?: string | null;
     Details?: TransferMaterialDetailEntity[];
 }
 
@@ -308,12 +311,13 @@ const transferMaterialSlice = createSlice({
             })
             .addCase(fetchTransferMaterial.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data.data || [];
+                const inner = action.payload?.data;
+                state.data = Array.isArray(inner?.data) ? inner.data : [];
                 state.pagination = {
-                    page: action.payload.data.meta.page || 1,
-                    limit: action.payload.data.meta.limit || 50,
-                    totalItems: action.payload.data.meta.totalItems || 0,
-                    totalPages: action.payload.data.meta.totalPages || 0,
+                    page: inner?.meta?.page || 1,
+                    limit: inner?.meta?.limit || 50,
+                    totalItems: inner?.meta?.totalItems || 0,
+                    totalPages: inner?.meta?.totalPages || 0,
                 };
             })
             .addCase(fetchTransferMaterial.rejected, (state, action) => {
