@@ -30,6 +30,7 @@ describe('SatuanService', () => {
 
   let prismaService: {
     satuan: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findUnique: jest.Mock;
       create: jest.Mock;
@@ -47,6 +48,7 @@ describe('SatuanService', () => {
   beforeEach(async () => {
     prismaService = {
       satuan: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         create: jest.fn(),
@@ -86,22 +88,30 @@ describe('SatuanService', () => {
   describe('findAll', () => {
     it('should return all satuans', async () => {
       const expectedSatuans = [mockSatuan];
+      prismaService.satuan.count.mockResolvedValue(1);
       prismaService.satuan.findMany.mockResolvedValue(expectedSatuans);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expectedSatuans);
+      expect(result).toEqual({
+        data: expectedSatuans,
+        meta: { page: 1, limit: 50, totalItems: 1, totalPages: 1 },
+      });
       expect(prismaService.satuan.findMany).toHaveBeenCalledWith({
         orderBy: { Id: 'asc' },
+        skip: 0,
+        take: 50,
+        where: {},
       });
     });
 
     it('should return empty array when no satuans exist', async () => {
+      prismaService.satuan.count.mockResolvedValue(0);
       prismaService.satuan.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 

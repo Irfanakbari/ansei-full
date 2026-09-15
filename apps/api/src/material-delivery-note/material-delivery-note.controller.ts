@@ -7,17 +7,9 @@ import {
   Body,
   Param,
   Query,
-  UseGuards,
   Res,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { MaterialDeliveryNoteService } from './material-delivery-note.service';
 import {
@@ -33,11 +25,11 @@ import {
   PickMaterialResponseDto,
   ShipMaterialDeliveryNoteResponseDto,
   ReceiveMaterialDeliveryNoteResponseDto,
+  MaterialDeliveryNoteQueryDto,
 } from './dto';
 import { Permission } from '../auth/decorators/permission.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
-import { DeliveryNoteStatus } from '../generated/prisma/enums';
 
 @ApiTags('Material Delivery Note')
 @Controller('transfer-material')
@@ -60,31 +52,9 @@ export class MaterialDeliveryNoteController {
   @Get()
   @Permission('IPCS.TRANSFER_MATERIAL_READ')
   @ApiOperation({ summary: 'List all delivery notes (paginated)' })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Items per page',
-  })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: DeliveryNoteStatus,
-    description: 'Filter by status',
-  })
   @ApiResponse({ status: 200, type: PaginatedMaterialDeliveryNoteResponseDto })
-  async findAll(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('status') status?: DeliveryNoteStatus,
-  ) {
-    return this.materialDeliveryNoteService.findAll({ page, limit, status });
+  async findAll(@Query() query: MaterialDeliveryNoteQueryDto) {
+    return this.materialDeliveryNoteService.findAll(query);
   }
 
   @Get(':id')

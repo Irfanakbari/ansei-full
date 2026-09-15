@@ -1,4 +1,4 @@
-import { ApiConsumes, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -19,6 +19,7 @@ import {
   CreateProductionReleaseDto,
   UpdateProductionReleaseDto,
   UploadProductionAttachmentDto,
+  ProductionReleaseQueryDto,
 } from './dto';
 import {
   AttachmentResponseEntity,
@@ -28,11 +29,11 @@ import {
   LabelDataEntity,
   ProductionReleaseDetailEntity,
   ProductionReleaseEntity,
+  PaginatedProductionReleaseEntity,
 } from './entities';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
-import { ProductionStatus } from '../../generated/prisma/enums';
 
 @ApiTags('Production Release')
 @Controller('production/production-release')
@@ -43,18 +44,12 @@ export class ProductionReleaseController {
 
   @Get()
   @Permission('IPCS.PRODUCTION_RELEASE_READ')
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: ProductionStatus,
-    description: 'Filter by status',
-  })
-  @ApiResponse({ status: 200, type: [ProductionReleaseEntity] })
+  @ApiResponse({ status: 200, type: PaginatedProductionReleaseEntity })
   async findAll(
     @CurrentUser() _user: ICurrentUser,
-    @Query('status') status?: ProductionStatus,
+    @Query() query: ProductionReleaseQueryDto,
   ) {
-    return this.productionReleaseService.findAll(status);
+    return this.productionReleaseService.findAll(query);
   }
 
   @Get('release-number/:releaseNumber')

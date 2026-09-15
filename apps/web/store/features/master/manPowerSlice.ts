@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
 
 export interface ManPowerEntity {
     Uid: string;
@@ -15,24 +15,26 @@ interface ManPowerState {
     data: ManPowerEntity[];
     loading: boolean;
     error: string | null;
+    query: ManPowerQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface ManPowerQuery { page?: number; limit?: number; search?: string }
 
 const initialState: ManPowerState = {
     data: [],
     loading: false,
     error: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
-export const fetchManPower = createAsyncThunk(
+export const fetchManPower = createAsyncThunk<PaginatedApiSuccessEnvelope<ManPowerEntity>, ManPowerQuery | undefined, { rejectValue: string }>(
     'manPower/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/master/man-power');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch man power data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<ManPowerEntity>>('/master/man-power', { params: { page: query.page, limit: query.limit, search: query.search } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch man power data'));
         }
     }
 );
@@ -46,16 +48,9 @@ export const createManPower = createAsyncThunk(
         status?: boolean;
     }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/master/man-power', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(manPowerData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create man power');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<ManPowerEntity>, typeof manPowerData>('/master/man-power', manPowerData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create man power'));
         }
     }
 );
@@ -72,16 +67,9 @@ export const updateManPower = createAsyncThunk(
         }
     }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/man-power/${uid}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updateData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update man power');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<ManPowerEntity>, typeof updateData>(`/master/man-power/${uid}`, updateData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update man power'));
         }
     }
 );
@@ -90,14 +78,10 @@ export const deleteManPower = createAsyncThunk(
     'manPower/delete',
     async (uid: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/man-power/${uid}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete man power');
+            await del<ApiSuccessEnvelope<unknown>>(`/master/man-power/${uid}`);
             return uid;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete man power'));
         }
     }
 );
@@ -105,13 +89,14 @@ export const deleteManPower = createAsyncThunk(
 const manPowerSlice = createSlice({
     name: 'manPower',
     initialState,
-    reducers: {},
+    reducers: { setManPowerQuery: (state, action: { payload: ManPowerQuery }) => { state.query = { ...state.query, ...action.payload }; } },
     extraReducers: (builder) => {
         builder
             .addCase(fetchManPower.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchManPower.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchManPower.rejected, (state, action) => {
                 state.loading = false;
@@ -120,4 +105,5 @@ const manPowerSlice = createSlice({
     },
 });
 
+export const { setManPowerQuery } = manPowerSlice.actions;
 export default manPowerSlice.reducer;

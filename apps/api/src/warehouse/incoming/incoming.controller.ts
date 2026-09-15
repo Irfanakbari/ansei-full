@@ -36,6 +36,7 @@ import {
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @ApiTags('Incoming')
 @Controller('warehouse/incoming')
@@ -57,10 +58,11 @@ export class IncomingController {
     type: [IncomingResponseDto],
   })
   async findAll(
+    @Query() query: SearchPaginationQueryDto,
     @CurrentUser() user: ICurrentUser,
     @Query('open') open?: string,
   ) {
-    return this.incomingService.findAll(open);
+    return this.incomingService.findAll(query, open);
   }
 
   @Get('po/:poId')

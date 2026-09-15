@@ -11,18 +11,43 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
+import type { Prisma } from '../generated/prisma/client';
+import { SearchPaginationQueryDto } from '../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class UserManagementService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllUsers() {
-    const users = await this.prisma.mTCUserManagement.findMany({
-      orderBy: { Name: 'asc' },
-    });
+  async findAllUsers(query: SearchPaginationQueryDto) {
+    const where: Prisma.MTCUserManagementWhereInput = query.search
+      ? {
+          OR: [
+            { UserId: { contains: query.search, mode: 'insensitive' } },
+            { Name: { contains: query.search, mode: 'insensitive' } },
+            { Email: { contains: query.search, mode: 'insensitive' } },
+            { PhoneNumber: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.mTCUserManagement.count({ where }),
+      this.prisma.mTCUserManagement.findMany({
+        where,
+        orderBy: { Name: 'asc' },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
 
-    if (users.length === 0) return [];
-    return users;
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async createUser(createUserDto: CreateUserDto) {

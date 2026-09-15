@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { DisplayConfigService } from './display-config.service';
 import { CreateDisplayConfigDto, UpdateDisplayConfigDto } from './dto';
@@ -16,6 +17,7 @@ import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
 import { Public } from '../../auth/decorators/public.decorator';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @ApiTags('DisplayConfig')
 @ApiBearerAuth()
@@ -41,8 +43,11 @@ export class DisplayConfigController {
     description: 'List semua display config',
     type: [DisplayConfigEntity],
   })
-  async findAll(@CurrentUser() _user: ICurrentUser) {
-    return this.displayConfigService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.displayConfigService.findAll(query);
   }
 
   @Post()

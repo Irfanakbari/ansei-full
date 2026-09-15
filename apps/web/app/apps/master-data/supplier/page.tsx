@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { SupplierEntity, fetchSupplier, deleteSupplier } from '@/store/features/master/supplierSlice';
+import { SupplierEntity, fetchSupplier, deleteSupplier, setSupplierQuery } from '@/store/features/master/supplierSlice';
 import CreateSupplierModal from './_components/CreateSupplierModal';
 import EditSupplierModal from './_components/EditSupplierModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
@@ -17,7 +17,7 @@ import { formatDateTime } from '@/lib/utils/dateTime';
 export default function SupplierPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.supplier);
+    const { data, loading, pagination, query } = useSelector((state: RootState) => state.supplier);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -25,8 +25,8 @@ export default function SupplierPage() {
     const [editData, setEditData] = useState<SupplierEntity | null>(null);
 
     useEffect(() => {
-        dispatch(fetchSupplier());
-    }, [dispatch]);
+        dispatch(fetchSupplier(query));
+    }, [dispatch, query]);
 
     const searchInput = useRef<InputRef>(null);
 
@@ -54,11 +54,7 @@ export default function SupplierPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value: any, record: any) =>
-            record[dataIndex]
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
+        filteredValue: query.search ? [query.search] : null,
     });
 
     const columns = [
@@ -105,7 +101,7 @@ export default function SupplierPage() {
                         }
                         message.success('Supplier deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchSupplier());
+                        dispatch(fetchSupplier(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete supplier');
@@ -119,7 +115,7 @@ export default function SupplierPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Master Data' }, { title: 'Supplier' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchSupplier()); }} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchSupplier(query)); }} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
@@ -136,11 +132,13 @@ export default function SupplierPage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
+                onChange={(pageInfo, tableFilters) => dispatch(setSupplierQuery({ page: tableFilters.Name ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.Name?.[0] ?? '') }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 100,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
-                    hideOnSinglePage: true,
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"

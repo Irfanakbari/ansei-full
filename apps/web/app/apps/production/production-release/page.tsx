@@ -26,7 +26,7 @@ const STATUS_COLORS: Record<string, string> = {
 export default function ProductionReleasePage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.productionRelease);
+    const { data, loading, pagination } = useSelector((state: RootState) => state.productionRelease);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -36,12 +36,13 @@ export default function ProductionReleasePage() {
     const [detailData, setDetailData] = useState<ProductionReleaseEntity | null>(null);
     const [editData, setEditData] = useState<ProductionReleaseEntity | null>(null);
     const [sortedInfo, setSortedInfo] = useState<any>({});
+    const [query, setQuery] = useState({ page: 1, limit: 50, search: undefined as string | undefined, status: undefined as string | undefined });
 
     const searchInput = useRef<InputRef>(null);
 
     useEffect(() => {
-        dispatch(fetchProductionRelease());
-    }, [dispatch]);
+        dispatch(fetchProductionRelease(query));
+    }, [dispatch, query]);
 
     const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
 
@@ -101,7 +102,7 @@ export default function ProductionReleasePage() {
                         }
                         message.success('Production release deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchProductionRelease());
+                        dispatch(fetchProductionRelease(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete production release');
@@ -111,8 +112,11 @@ export default function ProductionReleasePage() {
         }
     };
 
-    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    const handleTableChange = (tablePagination: any, filters: any, sorter: any) => {
         setSortedInfo(sorter);
+        const search = String(filters.ReleaseNumber?.[0] ?? '') || undefined;
+        const status = String(filters.Status?.[0] ?? '') || undefined;
+        setQuery({ page: search !== query.search || status !== query.status ? 1 : tablePagination.current ?? 1, limit: tablePagination.pageSize ?? 50, search, status });
     };
 
     const getColumnSearchProps = (dataIndex: string) => ({
@@ -139,9 +143,6 @@ export default function ProductionReleasePage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value: any, record: any) => {
-            return record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase());
-        },
     });
 
     const columns = [
@@ -173,8 +174,16 @@ export default function ProductionReleasePage() {
         },
         {
             title: 'Status',
+            dataIndex: 'Status',
             key: 'Status',
             width: 150,
+            filters: [
+                { text: 'DRAFT', value: 'DRAFT' },
+                { text: 'RELEASED', value: 'RELEASED' },
+                { text: 'COMPLETED', value: 'COMPLETED' },
+                { text: 'CANCELLED', value: 'CANCELLED' },
+            ],
+            filteredValue: query.status ? [query.status] : null,
             render: (_: any, record: ProductionReleaseEntity) => (
                 <div>
                     <Tag color={STATUS_COLORS[record.Status] || 'default'} style={{ marginBottom: 4 }}>
@@ -218,7 +227,7 @@ export default function ProductionReleasePage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Production' }, { title: 'Production Release' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchProductionRelease())} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchProductionRelease(query))} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
@@ -240,7 +249,9 @@ export default function ProductionReleasePage() {
                 onChange={handleTableChange}
                 pagination={{
                     size: 'small',
-                    pageSize: 50,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} records`,
                 }}
@@ -261,7 +272,7 @@ export default function ProductionReleasePage() {
             <CreateProductionReleaseModal
                 visible={isCreateModalVisible}
                 onClose={() => setIsCreateModalVisible(false)}
-                onSuccess={() => dispatch(fetchProductionRelease())}
+                onSuccess={() => dispatch(fetchProductionRelease(query))}
             />
 
             {editData && (
@@ -269,7 +280,7 @@ export default function ProductionReleasePage() {
                     visible={isEditModalVisible}
                     onClose={handleCloseEditModal}
                     data={editData}
-                    onSuccess={() => dispatch(fetchProductionRelease())}
+                    onSuccess={() => dispatch(fetchProductionRelease(query))}
                 />
             )}
 
@@ -278,7 +289,7 @@ export default function ProductionReleasePage() {
                     visible={isAttachmentModalVisible}
                     onClose={handleCloseAttachmentModal}
                     data={editData}
-                    onSuccess={() => dispatch(fetchProductionRelease())}
+                    onSuccess={() => dispatch(fetchProductionRelease(query))}
                 />
             )}
         </Card>

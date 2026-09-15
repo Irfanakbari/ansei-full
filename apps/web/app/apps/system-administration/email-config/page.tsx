@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { EmailNotificationEntity, fetchEmailNotifications, deleteEmailNotification, NotificationType } from '@/store/features/settings/emailNotificationSlice';
+import { EmailNotificationEntity, fetchEmailNotifications, deleteEmailNotification, NotificationType, setEmailNotificationQuery } from '@/store/features/settings/emailNotificationSlice';
 import CreateEmailNotificationModal from './_components/CreateEmailNotificationModal';
 import EditEmailNotificationModal from './_components/EditEmailNotificationModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
@@ -25,7 +25,7 @@ const TYPE_COLORS: Record<string, string> = {
 export default function EmailConfigPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.emailNotification);
+    const { data, loading, query, pagination } = useSelector((state: RootState) => state.emailNotification);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -35,8 +35,8 @@ export default function EmailConfigPage() {
     const searchInput = useRef<InputRef>(null);
 
     useEffect(() => {
-        dispatch(fetchEmailNotifications());
-    }, [dispatch]);
+        dispatch(fetchEmailNotifications(query));
+    }, [dispatch, query]);
 
     const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
 
@@ -66,7 +66,7 @@ export default function EmailConfigPage() {
                         }
                         message.success('Email notification deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchEmailNotifications());
+                        dispatch(fetchEmailNotifications(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete email notification');
@@ -168,7 +168,7 @@ export default function EmailConfigPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'System Administration' }, { title: 'Email Config' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchEmailNotifications())} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchEmailNotifications(query))} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
@@ -185,9 +185,12 @@ export default function EmailConfigPage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
+                onChange={(p, filters) => dispatch(setEmailNotificationQuery({ page: p.current, limit: p.pageSize, search: Object.values(filters).flat().find((value) => typeof value === 'string') as string | undefined }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 50,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} records`,
                 }}
@@ -200,7 +203,7 @@ export default function EmailConfigPage() {
             <CreateEmailNotificationModal
                 visible={isCreateModalVisible}
                 onClose={() => setIsCreateModalVisible(false)}
-                onSuccess={() => dispatch(fetchEmailNotifications())}
+                onSuccess={() => dispatch(fetchEmailNotifications(query))}
             />
 
             {editData && (
@@ -208,7 +211,7 @@ export default function EmailConfigPage() {
                     visible={isEditModalVisible}
                     onClose={() => setIsEditModalVisible(false)}
                     data={editData}
-                    onSuccess={() => dispatch(fetchEmailNotifications())}
+                    onSuccess={() => dispatch(fetchEmailNotifications(query))}
                 />
             )}
         </Card>

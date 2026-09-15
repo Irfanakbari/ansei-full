@@ -6,6 +6,7 @@ import {
   Patch,
   Delete,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,6 +22,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { SearchPaginationQueryDto } from '../common/dto/search-pagination-query.dto';
 import {
   UserManagementEntity,
   RoleEntity,
@@ -39,8 +41,8 @@ export class UserManagementController {
   @ApiResponse({ status: 200, type: [UserManagementEntity] })
   @Get('users')
   @Permission('IPCS.USER_MANAGEMENT')
-  async getUsers() {
-    return this.userManagementService.findAllUsers();
+  async getUsers(@Query() query: SearchPaginationQueryDto) {
+    return this.userManagementService.findAllUsers(query);
   }
 
   @ApiOperation({ summary: 'Create user' })

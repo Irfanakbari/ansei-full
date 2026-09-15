@@ -5,14 +5,15 @@ import { InventoryLedgerExportDto } from './dto/inventory-ledger-export.dto';
 import {
   LogProcessDetailResponseDto,
   LogProcessDto,
-  PaginatedLogProcessDto,
 } from './dto/system-log-response.dto';
-import {
-  InventoryLedgerDto,
-  PaginatedInventoryLedgerDto,
-} from './dto/inventory-ledger-response.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { InventoryLedgerDto } from './dto/inventory-ledger-response.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import ExcelJS from 'exceljs';
+import type {
+  ApiResult,
+  PaginationMeta,
+} from '../common/interceptors/api-response.interface';
+import type { Prisma } from '../generated/prisma/client';
 
 @Injectable()
 export class SystemLogService {
@@ -22,12 +23,23 @@ export class SystemLogService {
    * GET /system-log
    * Returns paginated list of LogProcess records (newest first, default 50 per page).
    */
-  async findAll(query: SystemLogQueryDto): Promise<PaginatedLogProcessDto> {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 50;
+  async findAll(
+    query: SystemLogQueryDto,
+  ): Promise<ApiResult<LogProcessDto[], PaginationMeta>> {
+    const { page, limit } = query;
     const offset = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.LogProcessWhereInput = {};
+
+    if (query.search) {
+      where.OR = [
+        { ProcessId: { contains: query.search, mode: 'insensitive' } },
+        { FunctionId: { contains: query.search, mode: 'insensitive' } },
+        { FunctionName: { contains: query.search, mode: 'insensitive' } },
+        { ProcessStatus: { contains: query.search, mode: 'insensitive' } },
+        { CreatedBy: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
 
     if (query.functionId) {
       where.FunctionId = query.functionId;
@@ -68,10 +80,12 @@ export class SystemLogService {
         processEnd: item.ProcessEnd,
         createdAt: item.CreatedAt,
       })),
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      meta: {
+        totalItems: total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -133,12 +147,21 @@ export class SystemLogService {
    */
   async findAllInventoryLedger(
     query: InventoryLedgerQueryDto,
-  ): Promise<PaginatedInventoryLedgerDto> {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 50;
+  ): Promise<ApiResult<InventoryLedgerDto[], PaginationMeta>> {
+    const { page, limit } = query;
     const offset = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.InventoryLedgerWhereInput = {};
+
+    if (query.search) {
+      where.OR = [
+        { MaterialId: { contains: query.search, mode: 'insensitive' } },
+        { FinishGoodId: { contains: query.search, mode: 'insensitive' } },
+        { ReferenceDoc: { contains: query.search, mode: 'insensitive' } },
+        { CreatedBy: { contains: query.search, mode: 'insensitive' } },
+        { Notes: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
 
     // Filter by TransactionDate range
     if (query.transactionDateFrom || query.transactionDateTo) {
@@ -232,10 +255,12 @@ export class SystemLogService {
         createdBy: item.CreatedBy,
         notes: item.Notes,
       })),
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      meta: {
+        totalItems: total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -247,7 +272,7 @@ export class SystemLogService {
     query: InventoryLedgerExportDto,
   ): Promise<{ buffer: Buffer; filename: string }> {
     // Build where clause
-    const where: any = {};
+    const where: Prisma.InventoryLedgerWhereInput = {};
 
     // Filter by TransactionDate range
     if (query.transactionDateFrom || query.transactionDateTo) {

@@ -53,6 +53,17 @@ export interface ApiSuccessEnvelope<T> {
   path: string;
 }
 
+export interface PaginationMeta extends Record<string, unknown> {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface PaginatedApiSuccessEnvelope<T> extends ApiSuccessEnvelope<T[]> {
+  meta: PaginationMeta;
+}
+
 export function getApiErrorMessage(
   error: unknown,
   fallback = 'Unexpected error'

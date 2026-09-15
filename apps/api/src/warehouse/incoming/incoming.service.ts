@@ -24,6 +24,8 @@ import type {
   IncomingEntity,
   IncomingMaterialEntity,
 } from './entities/incoming.entity';
+import type { Prisma } from '../../generated/prisma/client';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 // Allowed file extensions and max size
 const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -37,8 +39,16 @@ export class IncomingService {
     private readonly nasUploadService: NasUploadService,
   ) {}
 
-  async findAll(open?: string): Promise<IncomingEntity[]> {
-    const where: Record<string, unknown> = {};
+  async findAll(query: SearchPaginationQueryDto, open?: string) {
+    const where: Prisma.IncomingWhereInput = query.search
+      ? {
+          OR: [
+            { PoId: { contains: query.search, mode: 'insensitive' } },
+            { Description: { contains: query.search, mode: 'insensitive' } },
+            { ReceivedBy: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
 
     // Filter by Closed status if open parameter is provided
     if (open !== undefined && open !== '') {
@@ -46,22 +56,33 @@ export class IncomingService {
       where.Closed = !isOpen; // If open=true, Closed=false (open records); if open=false, Closed=true (closed records)
     }
 
-    const results = await this.prisma.incoming.findMany({
-      where,
-      include: {
-        SupplierData: true,
-        IncomingMaterial: {
-          include: {
-            MaterialData: true,
+    const [totalItems, results] = await Promise.all([
+      this.prisma.incoming.count({ where }),
+      this.prisma.incoming.findMany({
+        where,
+        include: {
+          SupplierData: true,
+          IncomingMaterial: {
+            include: {
+              MaterialData: true,
+            },
           },
         },
-      },
-      orderBy: {
-        CreatedAt: 'desc',
-      },
-    });
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
 
-    return results.map((item) => this.mapToIncomingEntity(item));
+    return {
+      data: results.map((item) => this.mapToIncomingEntity(item)),
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async findOne(id: string): Promise<IncomingEntity> {

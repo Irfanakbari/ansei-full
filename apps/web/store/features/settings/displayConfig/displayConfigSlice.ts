@@ -1,7 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-21 */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 export interface DisplayConfigEntity {
     Id: number;
@@ -31,26 +31,26 @@ interface DisplayConfigState {
     data: DisplayConfigEntity[];
     loading: boolean;
     error: string | null;
+    query: DisplayConfigQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface DisplayConfigQuery { page?: number; limit?: number; search?: string }
 
 const initialState: DisplayConfigState = {
     data: [],
     loading: false,
     error: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
-export const fetchDisplayConfig = createAsyncThunk(
+export const fetchDisplayConfig = createAsyncThunk<PaginatedApiSuccessEnvelope<DisplayConfigEntity>, DisplayConfigQuery | undefined, { rejectValue: string }>(
     'displayConfig/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/settings/display-config');
-            const data = await response.json();
-            if (!response.ok) {
-                return rejectWithValue(data?.message || 'Failed to fetch display configs');
-            }
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<DisplayConfigEntity>>('/settings/display-config', { params: { ...query } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch display configs'));
         }
     }
 );
@@ -59,20 +59,9 @@ export const createDisplayConfig = createAsyncThunk(
     'displayConfig/create',
     async (payload: CreateDisplayConfigDto, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/settings/display-config', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                return rejectWithValue(data?.message || 'Failed to create display config');
-            }
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<DisplayConfigEntity>, CreateDisplayConfigDto>('/settings/display-config', payload);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create display config'));
         }
     }
 );
@@ -81,20 +70,9 @@ export const updateDisplayConfig = createAsyncThunk(
     'displayConfig/update',
     async ({ id, data: payload }: { id: number; data: UpdateDisplayConfigDto }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/settings/display-config/${id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                return rejectWithValue(data?.message || 'Failed to update display config');
-            }
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<DisplayConfigEntity>, UpdateDisplayConfigDto>(`/settings/display-config/${id}`, payload);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update display config'));
         }
     }
 );
@@ -103,16 +81,10 @@ export const deleteDisplayConfig = createAsyncThunk(
     'displayConfig/delete',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/settings/display-config/${id}`, {
-                method: 'DELETE',
-            });
-            if (!response.ok) {
-                const data = await response.json().catch(() => ({}));
-                return rejectWithValue(data?.message || 'Failed to delete display config');
-            }
+            await del<ApiSuccessEnvelope<unknown>>(`/settings/display-config/${id}`);
             return { Id: id };
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete display config'));
         }
     }
 );
@@ -124,6 +96,7 @@ const displayConfigSlice = createSlice({
         clearError: (state) => {
             state.error = null;
         },
+        setDisplayConfigQuery: (state, action: { payload: DisplayConfigQuery }) => { state.query = { ...state.query, ...action.payload }; },
     },
     extraReducers: (builder) => {
         builder
@@ -134,14 +107,8 @@ const displayConfigSlice = createSlice({
             })
             .addCase(fetchDisplayConfig.fulfilled, (state, action) => {
                 state.loading = false;
-                const payload = action.payload;
-                if (Array.isArray(payload)) {
-                    state.data = payload;
-                } else if (payload && typeof payload === 'object' && 'data' in payload) {
-                    state.data = (payload as any).data || [];
-                } else {
-                    state.data = [];
-                }
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchDisplayConfig.rejected, (state, action) => {
                 state.loading = false;
@@ -187,5 +154,5 @@ const displayConfigSlice = createSlice({
     },
 });
 
-export const { clearError } = displayConfigSlice.actions;
+export const { clearError, setDisplayConfigQuery } = displayConfigSlice.actions;
 export default displayConfigSlice.reducer;

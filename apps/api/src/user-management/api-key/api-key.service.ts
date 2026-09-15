@@ -6,6 +6,8 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateApiKeyDto } from './dto/create-api-key.dto';
 import * as crypto from 'crypto';
+import type { Prisma } from '../../generated/prisma/client';
+import { ApiKeyQueryDto } from './dto/api-key-query.dto';
 
 @Injectable()
 export class ApiKeyService {
@@ -65,25 +67,65 @@ export class ApiKeyService {
   /**
    * List all API Keys with optional filters
    */
-  findAll(filter?: { userId?: string; isActive?: boolean }) {
-    const where: Record<string, string | boolean> = {};
-    if (filter?.userId) where.UserId = filter.userId;
-    if (filter?.isActive !== undefined) where.IsActive = filter.isActive;
-
-    return this.prisma.apiKey.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      include: {
-        User: {
-          select: {
-            UserId: true,
-            Name: true,
-            Email: true,
-            IsActive: true,
+  async findAll(query: ApiKeyQueryDto) {
+    const where: Prisma.ApiKeyWhereInput = {
+      ...(query.userId ? { UserId: query.userId } : {}),
+      ...(query.isActive !== undefined ? { IsActive: query.isActive } : {}),
+      ...(query.search
+        ? {
+            OR: [
+              { Name: { contains: query.search, mode: 'insensitive' } },
+              { Description: { contains: query.search, mode: 'insensitive' } },
+              { UserId: { contains: query.search, mode: 'insensitive' } },
+              { CreatedBy: { contains: query.search, mode: 'insensitive' } },
+              {
+                User: {
+                  is: {
+                    OR: [
+                      { Name: { contains: query.search, mode: 'insensitive' } },
+                      {
+                        Email: {
+                          contains: query.search,
+                          mode: 'insensitive',
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          }
+        : {}),
+    };
+    const [totalItems, data] = await Promise.all([
+      this.prisma.apiKey.count({ where }),
+      this.prisma.apiKey.findMany({
+        where,
+        include: {
+          User: {
+            select: {
+              UserId: true,
+              Name: true,
+              Email: true,
+              IsActive: true,
+            },
           },
         },
+        orderBy: { CreatedAt: 'desc' },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
       },
-      orderBy: { CreatedAt: 'desc' },
-    });
+    };
   }
 
   /**

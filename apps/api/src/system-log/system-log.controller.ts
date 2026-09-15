@@ -13,11 +13,15 @@ import { InventoryLedgerQueryDto } from './dto/inventory-ledger-query.dto';
 import { InventoryLedgerExportDto } from './dto/inventory-ledger-export.dto';
 import {
   LogProcessDetailResponseDto,
-  PaginatedLogProcessDto,
+  LogProcessDto,
 } from './dto/system-log-response.dto';
-import { PaginatedInventoryLedgerDto } from './dto/inventory-ledger-response.dto';
-import { Permission } from 'src/auth/decorators/permission.decorator';
-import { Public } from '../auth/decorators/public.decorator';
+import { InventoryLedgerDto } from './dto/inventory-ledger-response.dto';
+import { Permission } from '../auth/decorators/permission.decorator';
+import { ApiSuccessEnvelope } from '../common/interceptors/api-response.swagger';
+import type {
+  ApiResult,
+  PaginationMeta,
+} from '../common/interceptors/api-response.interface';
 
 /**
  * Irfan Akbari Vuteq Indonesia
@@ -33,10 +37,15 @@ export class SystemLogController {
     summary:
       'Get all process logs (paginated, newest first, default 50 per page)',
   })
-  @ApiResponse({ status: 200, type: PaginatedLogProcessDto })
+  @ApiSuccessEnvelope({
+    status: 200,
+    type: LogProcessDto,
+    isArray: true,
+    paginated: true,
+  })
   async findAll(
     @Query() query: SystemLogQueryDto,
-  ): Promise<PaginatedLogProcessDto> {
+  ): Promise<ApiResult<LogProcessDto[], PaginationMeta>> {
     return this.systemLogService.findAll(query);
   }
 
@@ -45,16 +54,20 @@ export class SystemLogController {
   @ApiOperation({
     summary: 'Get all inventory ledger records (paginated, newest first)',
   })
-  @ApiResponse({ status: 200, type: PaginatedInventoryLedgerDto })
+  @ApiSuccessEnvelope({
+    status: 200,
+    type: InventoryLedgerDto,
+    isArray: true,
+    paginated: true,
+  })
   async findAllInventoryLedger(
     @Query() query: InventoryLedgerQueryDto,
-  ): Promise<PaginatedInventoryLedgerDto> {
+  ): Promise<ApiResult<InventoryLedgerDto[], PaginationMeta>> {
     return this.systemLogService.findAllInventoryLedger(query);
   }
 
   @Post('inventory-ledger/export')
-  // @Permission('IPCS.SYSTEM_LOG_READ')
-  @Public()
+  @Permission('IPCS.SYSTEM_LOG_READ')
   @ApiOperation({
     summary: 'Export inventory ledger to Excel with date range filter',
   })
@@ -84,7 +97,7 @@ export class SystemLogController {
   @ApiOperation({
     summary: 'Get one process log by ProcessId (includes all detail messages)',
   })
-  @ApiResponse({ status: 200, type: LogProcessDetailResponseDto })
+  @ApiSuccessEnvelope({ status: 200, type: LogProcessDetailResponseDto })
   async findOne(@Param('id') id: string): Promise<LogProcessDetailResponseDto> {
     return this.systemLogService.findOne(id);
   }

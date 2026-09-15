@@ -3,13 +3,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Table, Card, Breadcrumb, App, Input, Button, Space, Tag, Tooltip } from 'antd';
-import type { InputRef } from 'antd';
+import type { InputRef, TableProps } from 'antd';
 import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, CheckOutlined, CheckCircleOutlined, DeleteOutlined, PaperClipOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { IncomingEntity, fetchIncoming, deleteIncoming, receiveIncoming, clearDetail } from '@/store/features/warehouse/incoming/incomingSlice';
+import { IncomingEntity, fetchIncoming, deleteIncoming, receiveIncoming, clearDetail, setIncomingQuery } from '@/store/features/warehouse/incoming/incomingSlice';
 import DetailIncomingModal from './_components/DetailIncomingModal';
 import CreateIncomingModal from './_components/CreateIncomingModal';
 import UploadAttachmentModal from './_components/UploadAttachmentModal';
@@ -19,7 +19,7 @@ import { formatDateTime } from '@/lib/utils/dateTime';
 export default function IncomingPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.incoming);
+    const { data, loading, pagination, query } = useSelector((state: RootState) => state.incoming);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -32,8 +32,8 @@ export default function IncomingPage() {
     const searchInput = useRef<InputRef>(null);
 
     useEffect(() => {
-        dispatch(fetchIncoming());
-    }, [dispatch]);
+        dispatch(fetchIncoming(query));
+    }, [dispatch, query]);
 
     const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
 
@@ -67,7 +67,7 @@ export default function IncomingPage() {
                             throw new Error((result.payload as string) || 'Failed to receive incoming');
                         }
                         message.success('Incoming received successfully');
-                        dispatch(fetchIncoming());
+                        dispatch(fetchIncoming(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to receive incoming');
@@ -96,7 +96,7 @@ export default function IncomingPage() {
                         }
                         message.success('Incoming deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchIncoming());
+                        dispatch(fetchIncoming(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete incoming');
@@ -117,7 +117,7 @@ export default function IncomingPage() {
     };
 
     const handleUploadSuccess = () => {
-        dispatch(fetchIncoming());
+        dispatch(fetchIncoming(query));
     };
 
     const handleChecking = () => {
@@ -131,11 +131,13 @@ export default function IncomingPage() {
     };
 
     const handleCheckingSuccess = () => {
-        dispatch(fetchIncoming());
+        dispatch(fetchIncoming(query));
     };
 
-    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    const handleTableChange: TableProps<IncomingEntity>['onChange'] = (pageInfo, filters, sorter) => {
         setSortedInfo(sorter);
+        const search = String(filters.Id?.[0] ?? filters.PoId?.[0] ?? filters.SupplierName?.[0] ?? filters.ReceivedBy?.[0] ?? '');
+        dispatch(setIncomingQuery({ page: search ? 1 : pageInfo.current, limit: pageInfo.pageSize, search }));
     };
 
     const getColumnSearchProps = (dataIndex: string) => ({
@@ -162,12 +164,7 @@ export default function IncomingPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value: any, record: any) => {
-            const fieldValue = dataIndex.includes('.')
-                ? dataIndex.split('.').reduce((obj, key) => obj?.[key], record)
-                : record[dataIndex];
-            return fieldValue?.toString().toLowerCase().includes((value as string).toLowerCase());
-        },
+        filteredValue: query.search ? [query.search] : null,
     });
 
     const columns = [
@@ -240,7 +237,7 @@ export default function IncomingPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Warehouse' }, { title: 'Incoming' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchIncoming())} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchIncoming(query))} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Receive" icon={<CheckOutlined />} onClick={handleReceive} enable={selectedRowKeys.length === 1 && !selectedRecord?.Closed} />
@@ -263,7 +260,9 @@ export default function IncomingPage() {
                 onChange={handleTableChange}
                 pagination={{
                     size: 'small',
-                    pageSize: 50,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} records`,
                 }}
@@ -285,7 +284,7 @@ export default function IncomingPage() {
                 visible={isCreateModalVisible}
                 onClose={() => setIsCreateModalVisible(false)}
                 onSuccess={() => {
-                    dispatch(fetchIncoming());
+                    dispatch(fetchIncoming(query));
                 }}
             />
 

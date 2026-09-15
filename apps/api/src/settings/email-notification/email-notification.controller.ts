@@ -8,12 +8,14 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { EmailNotificationService } from './email-notification.service';
 import { CreateEmailNotificationDto, UpdateEmailNotificationDto } from './dto';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @ApiTags('EmailNotification')
 @Controller('settings/email-notification')
@@ -24,8 +26,11 @@ export class EmailNotificationController {
 
   @Get()
   @Permission('IPCS.MASTER_READ')
-  async findAll(@CurrentUser() _user: ICurrentUser) {
-    return this.emailNotificationService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.emailNotificationService.findAll(query);
   }
 
   @Get(':id')

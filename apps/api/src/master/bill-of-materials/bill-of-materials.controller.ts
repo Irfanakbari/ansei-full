@@ -13,6 +13,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { BillOfMaterialsService } from './bill-of-materials.service';
 import { CreateBillOfMaterialsDto, UpdateBillOfMaterialsDto } from './dto';
@@ -20,6 +21,8 @@ import { BillOfMaterialsEntity } from './entities/bill-of-materials.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
 @ApiTags('BillOfMaterials')
 @Controller('master/bill-of-materials')
@@ -29,11 +32,19 @@ export class BillOfMaterialsController {
   ) {}
 
   @ApiOperation({ summary: 'Get all bill of materials' })
-  @ApiResponse({ status: 200, type: [BillOfMaterialsEntity] })
+  @ApiSuccessEnvelope({
+    status: 200,
+    type: BillOfMaterialsEntity,
+    isArray: true,
+    paginated: true,
+  })
   @Get()
   @Permission('IPCS.MASTER_READ')
-  async findAll(@CurrentUser() _user: ICurrentUser) {
-    return this.billOfMaterialsService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.billOfMaterialsService.findAll(query);
   }
 
   // IMPORTANT: Specific routes MUST come before parameterized routes

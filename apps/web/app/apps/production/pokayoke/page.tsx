@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { fetchPokayoke, PokayokeScanEntity } from '@/store/features/production/pokayoke/pokayokeSlice';
+import { fetchPokayoke, PokayokeScanEntity, setFilters } from '@/store/features/production/pokayoke/pokayokeSlice';
 import ScanPokayokeModal from './_components/ScanPokayokeModal';
 
 const formatDateTime = (val: string | null | undefined) => {
@@ -32,13 +32,13 @@ const STATUS_COLORS: Record<string, string> = {
 export default function PokayokePage() {
     const { message: antMessage } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.pokayoke);
+    const { data, loading, pagination, filters } = useSelector((state: RootState) => state.pokayoke);
     const searchInput = useRef<InputRef>(null);
     const [isScanModalVisible, setIsScanModalVisible] = React.useState(false);
 
     useEffect(() => {
-        dispatch(fetchPokayoke());
-    }, [dispatch]);
+        dispatch(fetchPokayoke(filters));
+    }, [dispatch, filters]);
 
     // Column search filter
     const getColumnSearchProps = (dataIndex: string) => ({
@@ -160,7 +160,7 @@ export default function PokayokePage() {
 
     const handleScanSuccess = () => {
         antMessage.success('Pokayoke scan successful');
-        dispatch(fetchPokayoke());
+        dispatch(fetchPokayoke(filters));
     };
 
     return (
@@ -179,7 +179,7 @@ export default function PokayokePage() {
                 <ButtonToolbar
                     title="Refresh"
                     icon={<ReloadOutlined />}
-                    onClick={() => dispatch(fetchPokayoke())}
+                    onClick={() => dispatch(fetchPokayoke(filters))}
                 />
                 <ButtonToolbar
                     title="Scan"
@@ -193,9 +193,12 @@ export default function PokayokePage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
+                onChange={(page) => dispatch(setFilters({ page: page.current, limit: page.pageSize }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 50,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.total,
                     showSizeChanger: true,
                     showTotal: (total: number) => `Total ${total} records`,
                 }}

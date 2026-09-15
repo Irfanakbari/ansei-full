@@ -10,6 +10,12 @@ import type {
   LogProcessModel,
   ManPowerModel,
 } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
+import type {
+  ApiResult,
+  PaginationMeta,
+} from '../../common/interceptors/api-response.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class ManPowerService {
@@ -18,10 +24,36 @@ export class ManPowerService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<ManPowerModel[]> {
-    return this.prisma.manPower.findMany({
-      orderBy: { CreatedAt: 'desc' },
-    });
+  async findAll(
+    query: SearchPaginationQueryDto,
+  ): Promise<ApiResult<ManPowerModel[], PaginationMeta>> {
+    const where: Prisma.ManPowerWhereInput = query.search
+      ? {
+          OR: [
+            { Uid: { contains: query.search, mode: 'insensitive' } },
+            { Nik: { contains: query.search, mode: 'insensitive' } },
+            { Name: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.manPower.count({ where }),
+      this.prisma.manPower.findMany({
+        where,
+        orderBy: [{ CreatedAt: 'desc' }, { Uid: 'asc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async findOne(uid: string): Promise<ManPowerModel> {

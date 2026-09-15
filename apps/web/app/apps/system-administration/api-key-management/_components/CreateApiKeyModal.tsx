@@ -25,7 +25,7 @@ const CreateApiKeyModal: React.FC<Props> = ({ visible, onClose }) => {
     useEffect(() => {
         if (visible) {
             form.resetFields();
-            dispatch(fetchUsers());
+            dispatch(fetchUsers({ limit: 100 }));
         }
     }, [visible, form, dispatch]);
 

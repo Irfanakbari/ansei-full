@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // PreDelivery entity interface
 export interface PreDeliveryEntity {
@@ -68,29 +68,16 @@ const initialState: PreDeliveryState = {
 };
 
 // Fetch all pre delivery goods
-export const fetchPreDelivery = createAsyncThunk(
+export const fetchPreDelivery = createAsyncThunk<PaginatedPreDelivery, PreDeliveryQuery, { rejectValue: string }>(
     'preDelivery/fetchAll',
     async (filters: PreDeliveryQuery, { rejectWithValue }) => {
         try {
-            // Build query string
-            const params = new URLSearchParams();
-            if (filters.page) params.append('page', String(filters.page));
-            if (filters.limit) params.append('limit', String(filters.limit));
-            if (filters.productionReleaseId) params.append('productionReleaseId', filters.productionReleaseId);
-            if (filters.forecastId) params.append('forecastId', filters.forecastId);
-            if (filters.finishGoodId) params.append('finishGoodId', filters.finishGoodId);
-            if (filters.labelNumber) params.append('labelNumber', filters.labelNumber);
-            if (filters.scanned !== undefined) params.append('scanned', String(filters.scanned));
-
-            const queryString = params.toString();
-            const url = `/api/production/pre-delivery${queryString ? `?${queryString}` : ''}`;
-
-            const response = await fetchWithAuth(url);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch pre delivery goods');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const response = await get<ApiSuccessEnvelope<PaginatedPreDelivery>>('/production/pre-delivery', {
+                params: { ...filters, page: filters.page ?? 1, limit: filters.limit ?? 50 },
+            });
+            return response.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch pre delivery goods'));
         }
     }
 );

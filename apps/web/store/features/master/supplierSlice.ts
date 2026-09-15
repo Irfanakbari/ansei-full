@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
 
 export interface SupplierEntity {
     Id: number;
@@ -12,24 +12,26 @@ interface SupplierState {
     data: SupplierEntity[];
     loading: boolean;
     error: string | null;
+    query: SupplierQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface SupplierQuery { page?: number; limit?: number; search?: string }
 
 const initialState: SupplierState = {
     data: [],
     loading: false,
     error: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
-export const fetchSupplier = createAsyncThunk(
+export const fetchSupplier = createAsyncThunk<PaginatedApiSuccessEnvelope<SupplierEntity>, SupplierQuery | undefined, { rejectValue: string }>(
     'supplier/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/master/supplier');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch supplier data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<SupplierEntity>>('/master/supplier', { params: { page: query.page, limit: query.limit, search: query.search } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch supplier data'));
         }
     }
 );
@@ -38,16 +40,9 @@ export const createSupplier = createAsyncThunk(
     'supplier/create',
     async (supplierData: { name: string }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/master/supplier', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(supplierData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create supplier');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<SupplierEntity>, typeof supplierData>('/master/supplier', supplierData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create supplier'));
         }
     }
 );
@@ -56,16 +51,9 @@ export const updateSupplier = createAsyncThunk(
     'supplier/update',
     async ({ id, data: updateData }: { id: number; data: { name?: string } }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/supplier/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updateData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update supplier');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<SupplierEntity>, typeof updateData>(`/master/supplier/${id}`, updateData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update supplier'));
         }
     }
 );
@@ -74,14 +62,10 @@ export const deleteSupplier = createAsyncThunk(
     'supplier/delete',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/supplier/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete supplier');
+            await del<ApiSuccessEnvelope<unknown>>(`/master/supplier/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete supplier'));
         }
     }
 );
@@ -89,13 +73,18 @@ export const deleteSupplier = createAsyncThunk(
 const supplierSlice = createSlice({
     name: 'supplier',
     initialState,
-    reducers: {},
+    reducers: {
+        setSupplierQuery: (state, action: { payload: SupplierQuery }) => {
+            state.query = { ...state.query, ...action.payload };
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchSupplier.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchSupplier.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchSupplier.rejected, (state, action) => {
                 state.loading = false;
@@ -104,4 +93,5 @@ const supplierSlice = createSlice({
     },
 });
 
+export const { setSupplierQuery } = supplierSlice.actions;
 export default supplierSlice.reducer;

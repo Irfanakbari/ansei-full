@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
 
 export interface SatuanEntity {
     Id: number;
@@ -11,25 +11,26 @@ interface SatuanState {
     data: SatuanEntity[];
     loading: boolean;
     error: string | null;
+    query: SatuanQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface SatuanQuery { page?: number; limit?: number; search?: string }
 
 const initialState: SatuanState = {
     data: [],
     loading: false,
     error: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
-export const fetchSatuan = createAsyncThunk(
+export const fetchSatuan = createAsyncThunk<PaginatedApiSuccessEnvelope<SatuanEntity>, SatuanQuery | undefined, { rejectValue: string }>(
     'satuan/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            // Token is now automatically read from httpOnly cookie by fetchWithAuth
-            const response = await fetchWithAuth('/api/master/satuan');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch satuan data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<SatuanEntity>>('/master/satuan', { params: { page: query.page, limit: query.limit, search: query.search } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch satuan data'));
         }
     }
 );
@@ -38,16 +39,9 @@ export const createSatuan = createAsyncThunk(
     'satuan/create',
     async (satuanData: { name: string }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/master/satuan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(satuanData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create satuan');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<SatuanEntity>, typeof satuanData>('/master/satuan', satuanData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create satuan'));
         }
     }
 );
@@ -56,16 +50,9 @@ export const updateSatuan = createAsyncThunk(
     'satuan/update',
     async ({ id, data: updateData }: { id: number; data: { name?: string } }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/satuan/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updateData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update satuan');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<SatuanEntity>, typeof updateData>(`/master/satuan/${id}`, updateData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update satuan'));
         }
     }
 );
@@ -74,14 +61,10 @@ export const deleteSatuan = createAsyncThunk(
     'satuan/delete',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/satuan/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete satuan');
+            await del<ApiSuccessEnvelope<unknown>>(`/master/satuan/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete satuan'));
         }
     }
 );
@@ -89,13 +72,18 @@ export const deleteSatuan = createAsyncThunk(
 const satuanSlice = createSlice({
     name: 'satuan',
     initialState,
-    reducers: {},
+    reducers: {
+        setSatuanQuery: (state, action: { payload: SatuanQuery }) => {
+            state.query = { ...state.query, ...action.payload };
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchSatuan.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchSatuan.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchSatuan.rejected, (state, action) => {
                 state.loading = false;
@@ -104,4 +92,5 @@ const satuanSlice = createSlice({
     },
 });
 
+export const { setSatuanQuery } = satuanSlice.actions;
 export default satuanSlice.reducer;

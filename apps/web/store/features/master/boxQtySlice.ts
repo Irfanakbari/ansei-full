@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
 
 export interface PartData {
     PartNumber: string;
@@ -18,24 +18,26 @@ interface BoxQTYState {
     data: BoxQTYEntity[];
     loading: boolean;
     error: string | null;
+    query: BoxQTYQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface BoxQTYQuery { page?: number; limit?: number; search?: string }
 
 const initialState: BoxQTYState = {
     data: [],
     loading: false,
     error: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
-export const fetchBoxQTY = createAsyncThunk(
+export const fetchBoxQTY = createAsyncThunk<PaginatedApiSuccessEnvelope<BoxQTYEntity>, BoxQTYQuery | undefined, { rejectValue: string }>(
     'boxQTY/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/master/box-qty');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch box QTY data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<BoxQTYEntity>>('/master/box-qty', { params: { page: query.page, limit: query.limit, search: query.search } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch box QTY data'));
         }
     }
 );
@@ -47,16 +49,9 @@ export const createBoxQTY = createAsyncThunk(
         qty: number;
     }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/master/box-qty', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(boxQTYData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create box QTY');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<BoxQTYEntity>, typeof boxQTYData>('/master/box-qty', boxQTYData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create box QTY'));
         }
     }
 );
@@ -71,16 +66,9 @@ export const updateBoxQTY = createAsyncThunk(
         }
     }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/box-qty/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updateData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update box QTY');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<BoxQTYEntity>, typeof updateData>(`/master/box-qty/${id}`, updateData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update box QTY'));
         }
     }
 );
@@ -89,14 +77,10 @@ export const deleteBoxQTY = createAsyncThunk(
     'boxQTY/delete',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/box-qty/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete box QTY');
+            await del<ApiSuccessEnvelope<unknown>>(`/master/box-qty/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete box QTY'));
         }
     }
 );
@@ -104,13 +88,14 @@ export const deleteBoxQTY = createAsyncThunk(
 const boxQTYSlice = createSlice({
     name: 'boxQTY',
     initialState,
-    reducers: {},
+    reducers: { setBoxQTYQuery: (state, action: { payload: BoxQTYQuery }) => { state.query = { ...state.query, ...action.payload }; } },
     extraReducers: (builder) => {
         builder
             .addCase(fetchBoxQTY.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchBoxQTY.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchBoxQTY.rejected, (state, action) => {
                 state.loading = false;
@@ -119,4 +104,5 @@ const boxQTYSlice = createSlice({
     },
 });
 
+export const { setBoxQTYQuery } = boxQTYSlice.actions;
 export default boxQTYSlice.reducer;

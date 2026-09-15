@@ -7,6 +7,7 @@ import {
 } from './dto/pokayoke-scan.dto';
 import type { LogProcessModel } from '../../generated/prisma/models';
 import { PokayokeCompareStatus } from '../../generated/prisma/enums';
+import type { Prisma } from '../../generated/prisma/client';
 import { PaginatedPokayokeScanEntity } from './entities/pokayoke.entity';
 import { ShoppingService } from '../shopping/shopping.service';
 
@@ -307,7 +308,7 @@ export class PokayokeService {
     const limit = query.limit ?? 50;
     const offset = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.PokayokeScanHistoryWhereInput = {};
 
     if (query.labelNumber) {
       where.LabelNumber = {
@@ -335,7 +336,7 @@ export class PokayokeService {
       this.prisma.pokayokeScanHistory.count({ where }),
       this.prisma.pokayokeScanHistory.findMany({
         where,
-        orderBy: { CreatedAt: 'desc' },
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
         skip: offset,
         take: limit,
       }),
@@ -352,10 +353,12 @@ export class PokayokeService {
         createdAt: item.CreatedAt,
         createdBy: item.CreatedBy,
       })),
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      meta: {
+        page,
+        limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 }

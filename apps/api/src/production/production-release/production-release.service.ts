@@ -11,9 +11,11 @@ import {
   CreateProductionReleaseDto,
   UpdateProductionReleaseDto,
   UploadProductionAttachmentDto,
+  ProductionReleaseQueryDto,
 } from './dto';
 import type { LogProcessModel } from '../../generated/prisma/models';
 import { ProductionStatus } from '../../generated/prisma/enums';
+import type { Prisma } from '../../generated/prisma/client';
 
 // Allowed file extensions and max size
 const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -27,56 +29,72 @@ export class ProductionReleaseService {
     private readonly nasUploadService: NasUploadService,
   ) {}
 
-  async findAll(status?: ProductionStatus) {
-    const where = status ? { Status: status } : undefined;
+  async findAll(query: ProductionReleaseQueryDto) {
+    const where: Prisma.ProductionReleaseWhereInput = {
+      ...(query.status ? { Status: query.status } : {}),
+      ...(query.search
+        ? {
+            OR: [
+              {
+                ReleaseNumber: { contains: query.search, mode: 'insensitive' },
+              },
+              { Notes: { contains: query.search, mode: 'insensitive' } },
+              { CreatedBy: { contains: query.search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
 
-    const releases = await this.prisma.productionRelease.findMany({
-      where,
-      include: {
-        Forecasts: {
-          select: {
-            PoId: true,
-            FinishGoodId: true,
-            Qty: true,
-            DeliveryDate: true,
-            AttachmentDelivery: true,
-            PartData: {
-              select: {
-                PartNumber: true,
-                PartName: true,
+    const [totalItems, releases] = await Promise.all([
+      this.prisma.productionRelease.count({ where }),
+      this.prisma.productionRelease.findMany({
+        where,
+        include: {
+          Forecasts: {
+            select: {
+              PoId: true,
+              FinishGoodId: true,
+              Qty: true,
+              DeliveryDate: true,
+              AttachmentDelivery: true,
+              PartData: {
+                select: {
+                  PartNumber: true,
+                  PartName: true,
+                },
               },
-            },
-            Shopping: {
-              select: {
-                QtyPick: true,
+              Shopping: {
+                select: {
+                  QtyPick: true,
+                },
               },
             },
           },
-        },
-        _count: {
-          select: {
-            LabelDatas: true,
-            Forecasts: true,
-            DeliveryAttachment: true,
+          _count: {
+            select: {
+              LabelDatas: true,
+              Forecasts: true,
+              DeliveryAttachment: true,
+            },
           },
+          // DeliveryAttachment: {
+          //   select: {
+          //     id: true,
+          //     FileName: true,
+          //     FilePath: true,
+          //     CreatedAt: true,
+          //     CreatedBy: true,
+          //   },
+          //   orderBy: {
+          //     CreatedAt: 'desc',
+          //   },
+          // },
         },
-        // DeliveryAttachment: {
-        //   select: {
-        //     id: true,
-        //     FileName: true,
-        //     FilePath: true,
-        //     CreatedAt: true,
-        //     CreatedBy: true,
-        //   },
-        //   orderBy: {
-        //     CreatedAt: 'desc',
-        //   },
-        // },
-      },
-      orderBy: {
-        PlanDate: 'desc',
-      },
-    });
+        orderBy: [{ PlanDate: 'desc' }, { Id: 'desc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
 
     // Get all unique FinishGoodIds (PartNumber) from all releases
     const allFinishGoodPartNumbers = [
@@ -247,7 +265,15 @@ export class ProductionReleaseService {
       };
     });
 
-    return releasesWithProgress;
+    return {
+      data: releasesWithProgress,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async findOne(id: string) {

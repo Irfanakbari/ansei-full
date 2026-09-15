@@ -6,6 +6,12 @@ import type {
   LogProcessModel,
   SatuanModel,
 } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
+import type {
+  ApiResult,
+  PaginationMeta,
+} from '../../common/interceptors/api-response.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class SatuanService {
@@ -14,10 +20,30 @@ export class SatuanService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<SatuanModel[]> {
-    return this.prisma.satuan.findMany({
-      orderBy: { Id: 'asc' },
-    });
+  async findAll(
+    query: SearchPaginationQueryDto,
+  ): Promise<ApiResult<SatuanModel[], PaginationMeta>> {
+    const where: Prisma.SatuanWhereInput = query.search
+      ? { Name: { contains: query.search, mode: 'insensitive' } }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.satuan.count({ where }),
+      this.prisma.satuan.findMany({
+        where,
+        orderBy: { Id: 'asc' },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async findOne(id: number): Promise<SatuanModel> {

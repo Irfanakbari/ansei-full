@@ -6,12 +6,14 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { DashboardSettingService } from './dashboard-setting.service';
 import { UpdateDashboardSettingDto } from './dto';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 @ApiTags('DashboardSetting')
 @Controller('settings/dashboard-setting')
@@ -22,8 +24,11 @@ export class DashboardSettingController {
 
   @Get()
   @Permission('IPCS.MASTER_READ')
-  async findAll(@CurrentUser() _user: ICurrentUser) {
-    return this.dashboardSettingService.findAll();
+  async findAll(
+    @Query() query: PaginationQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.dashboardSettingService.findAll(query);
   }
 
   @Get('latest')

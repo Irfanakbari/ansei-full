@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import {fetchWithAuth} from "@/store/utils/fetchWithAuth";
+import { del, get, getApiErrorMessage, patch, post, postFormData, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // FG Data interface
 export interface FGData {
@@ -37,7 +37,11 @@ interface ForecastState {
     loading: boolean;
     detailLoading: boolean;
     error: string | null;
+    query: ForecastQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+
+export interface ForecastQuery { page?: number; limit?: number; search?: string }
 
 const initialState: ForecastState = {
     data: [],
@@ -45,19 +49,18 @@ const initialState: ForecastState = {
     loading: false,
     detailLoading: false,
     error: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
 // Fetch all forecasts
-export const fetchForecast = createAsyncThunk(
+export const fetchForecast = createAsyncThunk<PaginatedApiSuccessEnvelope<ForecastEntity>, ForecastQuery | undefined, { rejectValue: string }>(
     'forecast/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/production/forecast');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch forecast data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<ForecastEntity>>('/production/forecast', { params: { ...query } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch forecast data'));
         }
     }
 );
@@ -67,12 +70,9 @@ export const fetchForecastById = createAsyncThunk(
     'forecast/fetchById',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/production/forecast/${id}`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch forecast detail');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<ForecastEntity>>(`/production/forecast/${id}`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch forecast detail'));
         }
     }
 );
@@ -95,16 +95,9 @@ export const createForecast = createAsyncThunk(
         finishGoodId: string;
     }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/production/forecast', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(forecastData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create forecast');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<ForecastEntity>, typeof forecastData>('/production/forecast', forecastData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create forecast'));
         }
     }
 );
@@ -131,16 +124,9 @@ export const updateForecast = createAsyncThunk(
         }
     }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/production/forecast/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updateData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update forecast');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<ForecastEntity>, typeof updateData>(`/production/forecast/${id}`, updateData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update forecast'));
         }
     }
 );
@@ -150,14 +136,10 @@ export const deleteForecast = createAsyncThunk(
     'forecast/delete',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/production/forecast/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete forecast');
+            await del<ApiSuccessEnvelope<unknown>>(`/production/forecast/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete forecast'));
         }
     }
 );
@@ -173,15 +155,9 @@ export const importForecast = createAsyncThunk(
     'forecast/import',
     async (formData: FormData, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/production/forecast/import', {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to import forecast');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await postFormData<ApiSuccessEnvelope<unknown>>('/production/forecast/import', formData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to import forecast'));
         }
     }
 );
@@ -191,14 +167,9 @@ export const printForecastTag = createAsyncThunk(
     'forecast/printTag',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/production/forecast/${id}/print-tag`, {
-                method: 'POST',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to print tag');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<{ message: string }>, undefined>(`/production/forecast/${id}/print-tag`, undefined);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to print tag'));
         }
     }
 );
@@ -210,6 +181,7 @@ const forecastSlice = createSlice({
         clearDetail: (state) => {
             state.detail = null;
         },
+        setForecastQuery: (state, action: { payload: ForecastQuery }) => { state.query = { ...state.query, ...action.payload }; },
     },
     extraReducers: (builder) => {
         builder
@@ -217,7 +189,8 @@ const forecastSlice = createSlice({
             .addCase(fetchForecast.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchForecast.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchForecast.rejected, (state, action) => {
                 state.loading = false;
@@ -227,7 +200,7 @@ const forecastSlice = createSlice({
             .addCase(fetchForecastById.pending, (state) => { state.detailLoading = true; state.error = null; })
             .addCase(fetchForecastById.fulfilled, (state, action) => {
                 state.detailLoading = false;
-                state.detail = action.payload;
+                state.detail = action.payload.data;
             })
             .addCase(fetchForecastById.rejected, (state, action) => {
                 state.detailLoading = false;
@@ -237,7 +210,7 @@ const forecastSlice = createSlice({
             .addCase(createForecast.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(createForecast.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data.unshift(action.payload);
+                state.data.unshift(action.payload.data);
             })
             .addCase(createForecast.rejected, (state, action) => {
                 state.loading = false;
@@ -245,9 +218,9 @@ const forecastSlice = createSlice({
             })
             // Update
             .addCase(updateForecast.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const index = state.data.findIndex(item => item.Id === action.payload.data.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = action.payload.data;
                 }
             })
             // Delete
@@ -256,7 +229,7 @@ const forecastSlice = createSlice({
             })
             // Import
             .addCase(importForecast.pending, (state) => { state.loading = true; state.error = null; })
-            .addCase(importForecast.fulfilled, (state, action) => {
+            .addCase(importForecast.fulfilled, (state) => {
                 state.loading = false;
                 // Refresh data after import
             })
@@ -271,5 +244,5 @@ const forecastSlice = createSlice({
     },
 });
 
-export const { clearDetail } = forecastSlice.actions;
+export const { clearDetail, setForecastQuery } = forecastSlice.actions;
 export default forecastSlice.reducer;

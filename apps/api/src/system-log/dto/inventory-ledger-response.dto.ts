@@ -3,7 +3,7 @@ import {
   ItemCategory,
   TransactionType,
   LocationType,
-} from 'src/generated/prisma/enums';
+} from '../../generated/prisma/enums';
 
 export class InventoryLedgerDto {
   @ApiProperty() id: string;
@@ -20,14 +20,4 @@ export class InventoryLedgerDto {
   @ApiProperty() balanceAfter: number;
   @ApiProperty() createdBy: string;
   @ApiPropertyOptional() notes: string | null;
-}
-
-export class PaginatedInventoryLedgerDto {
-  @ApiProperty({ type: [InventoryLedgerDto] })
-  data: InventoryLedgerDto[];
-
-  @ApiProperty() total: number;
-  @ApiProperty() page: number;
-  @ApiProperty() limit: number;
-  @ApiProperty() totalPages: number;
 }

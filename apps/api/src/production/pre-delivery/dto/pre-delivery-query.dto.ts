@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min, IsBoolean } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min, Max } from 'class-validator';
 
 export class PreDeliveryQueryDto {
   @ApiPropertyOptional({ description: 'Page number (1-based)', example: 1 })
@@ -18,6 +18,7 @@ export class PreDeliveryQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(100)
   limit?: number = 50;
 
   @ApiPropertyOptional({ description: 'Filter by ProductionRelease ID (UUID)' })

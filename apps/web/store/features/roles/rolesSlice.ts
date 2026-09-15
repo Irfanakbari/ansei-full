@@ -1,5 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '../../utils/apiService';
 import { fetchWithAuth } from '../../utils/fetchWithAuth';
 
 export interface RoleData {
@@ -21,16 +22,13 @@ const initialState: RolesState = {
     error: null,
 };
 
-export const fetchRoles = createAsyncThunk(
+export const fetchRoles = createAsyncThunk<ApiSuccessEnvelope<RoleData[]>, void, { rejectValue: string }>(
     'roles/fetchAll',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/roles');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch roles');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<RoleData[]>>('/roles');
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch roles'));
         }
     }
 );
@@ -130,7 +128,7 @@ const rolesSlice = createSlice({
             .addCase(fetchRoles.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchRoles.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
             })
             .addCase(fetchRoles.rejected, (state, action) => {
                 state.loading = false;

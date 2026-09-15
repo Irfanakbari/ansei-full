@@ -11,6 +11,7 @@ import {
   ProductionReportQueryDto,
 } from './dto';
 import type { LogProcessModel } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
 
 @Injectable()
 export class ProductionReportService {
@@ -24,7 +25,7 @@ export class ProductionReportService {
     const limit = query.limit ?? 50;
     const offset = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.ProductionReportWhereInput = {};
 
     if (query.date) {
       where.Date = query.date;
@@ -69,7 +70,7 @@ export class ProductionReportService {
             },
           },
         },
-        orderBy: { ProductionStamp: 'desc' },
+        orderBy: [{ ProductionStamp: 'desc' }, { Id: 'desc' }],
         skip: offset,
         take: limit,
       }),
@@ -112,10 +113,12 @@ export class ProductionReportService {
         manPowerData: item.ManPowerData,
         fgData: item.FGData,
       })),
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      meta: {
+        page,
+        limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 

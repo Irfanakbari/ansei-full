@@ -1,6 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-11 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Entity interfaces
 export interface TransferMaterialDetailEntity {
@@ -58,17 +59,13 @@ export interface TransferMaterialQuery {
     page?: number;
     limit?: number;
     status?: string;
-    destination?: string;
-    createdBy?: string;
+    search?: string;
 }
 
 // Paginated response
 export interface PaginatedTransferMaterial {
     data: TransferMaterialEntity[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
+    meta: { totalItems: number; page: number; limit: number; totalPages: number };
 }
 
 // State interface
@@ -81,7 +78,7 @@ interface TransferMaterialState {
     pagination: {
         page: number;
         limit: number;
-        total: number;
+        totalItems: number;
         totalPages: number;
     };
 }
@@ -96,32 +93,21 @@ const initialState: TransferMaterialState = {
     pagination: {
         page: 1,
         limit: 50,
-        total: 0,
+        totalItems: 0,
         totalPages: 0,
     },
 };
 
 // Fetch all transfer material
-export const fetchTransferMaterial = createAsyncThunk(
+export const fetchTransferMaterial = createAsyncThunk<ApiSuccessEnvelope<PaginatedTransferMaterial>, TransferMaterialQuery, { rejectValue: string }>(
     'transferMaterial/fetchAll',
     async (filters: TransferMaterialQuery, { rejectWithValue }) => {
         try {
-            const params = new URLSearchParams();
-            if (filters.page) params.append('page', String(filters.page));
-            if (filters.limit) params.append('limit', String(filters.limit));
-            if (filters.status) params.append('status', filters.status);
-            if (filters.destination) params.append('destination', filters.destination);
-            if (filters.createdBy) params.append('createdBy', filters.createdBy);
-
-            const queryString = params.toString();
-            const url = `/api/warehouse/transfer-material${queryString ? `?${queryString}` : ''}`;
-
-            const response = await fetchWithAuth(url);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch transfer material data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<PaginatedTransferMaterial>>('/transfer-material', {
+                params: { page: filters.page, limit: filters.limit, search: filters.search, status: filters.status },
+            });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch transfer material data'));
         }
     }
 );
@@ -322,12 +308,12 @@ const transferMaterialSlice = createSlice({
             })
             .addCase(fetchTransferMaterial.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data || [];
+                state.data = action.payload.data.data || [];
                 state.pagination = {
-                    page: action.payload.page || 1,
-                    limit: action.payload.limit || 50,
-                    total: action.payload.total || 0,
-                    totalPages: action.payload.totalPages || 0,
+                    page: action.payload.data.meta.page || 1,
+                    limit: action.payload.data.meta.limit || 50,
+                    totalItems: action.payload.data.meta.totalItems || 0,
+                    totalPages: action.payload.data.meta.totalPages || 0,
                 };
             })
             .addCase(fetchTransferMaterial.rejected, (state, action) => {

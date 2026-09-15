@@ -7,6 +7,10 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { OriginalErrorFileLogService } from '../logging/original-error-file-log.service';
+import {
+  createErrorResponse,
+  getRequestPath,
+} from '../interceptors/response.factory';
 
 type ErrorRequest = Request & { requestId?: string };
 
@@ -26,10 +30,20 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message =
+    const exceptionResponse =
       exception instanceof HttpException
         ? exception.getResponse()
         : 'Internal server error';
+
+    const responseBody = this.isRecord(exceptionResponse)
+      ? exceptionResponse
+      : undefined;
+    const rawMessage = responseBody?.message ?? exceptionResponse;
+    const message = Array.isArray(rawMessage)
+      ? 'Request validation failed'
+      : typeof rawMessage === 'string'
+        ? rawMessage
+        : 'Request failed';
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
       await this.originalErrorFileLogService.write(exception, {
@@ -39,24 +53,24 @@ export class AllExceptionsFilter implements ExceptionFilter {
       });
     }
 
-    // Log the exception for debugging
-    // console.error('Exception caught by AllExceptionsFilter:', exception);
-    const errorResponse = {
-      success: false,
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      message:
-        typeof message === 'object' && message !== null
-          ? (message as any).message || message
-          : message,
-    };
+    response.status(status).json(
+      createErrorResponse({
+        statusCode: status,
+        message:
+          status === HttpStatus.INTERNAL_SERVER_ERROR
+            ? 'Internal server error'
+            : message,
+        path: getRequestPath(request),
+        error:
+          typeof responseBody?.error === 'string'
+            ? responseBody.error
+            : undefined,
+        details: Array.isArray(rawMessage) ? rawMessage : undefined,
+      }),
+    );
+  }
 
-    // In production, don't leak detailed error messages for 500 errors
-    if (process.env.PRODUCTION && status === HttpStatus.INTERNAL_SERVER_ERROR) {
-      errorResponse.message = 'Internal server error';
-    }
-
-    response.status(status).json(errorResponse);
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
   }
 }

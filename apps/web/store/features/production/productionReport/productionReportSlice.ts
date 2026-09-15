@@ -1,6 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Part type enum
 export type PartType = 'ONE' | 'TWO' | 'THREE' | 'FOUR';
@@ -99,29 +100,16 @@ const initialState: ProductionReportState = {
 };
 
 // Fetch all production reports
-export const fetchProductionReport = createAsyncThunk(
+export const fetchProductionReport = createAsyncThunk<PaginatedProductionReport, ProductionReportQuery, { rejectValue: string }>(
     'productionReport/fetchAll',
     async (filters: ProductionReportQuery, { rejectWithValue }) => {
         try {
-            // Build query string
-            const params = new URLSearchParams();
-            if (filters.page) params.append('page', String(filters.page));
-            if (filters.limit) params.append('limit', String(filters.limit));
-            if (filters.date) params.append('date', filters.date);
-            if (filters.manPowerUid) params.append('manPowerUid', filters.manPowerUid);
-            if (filters.finishGoodId) params.append('finishGoodId', filters.finishGoodId);
-            if (filters.recordType) params.append('recordType', filters.recordType);
-            if (filters.isValidated !== undefined) params.append('isValidated', String(filters.isValidated));
-
-            const queryString = params.toString();
-            const url = `/api/production/production-report${queryString ? `?${queryString}` : ''}`;
-
-            const response = await fetchWithAuth(url);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch production report');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const response = await get<ApiSuccessEnvelope<PaginatedProductionReport>>('/production/production-report', {
+                params: { ...filters, page: filters.page ?? 1, limit: filters.limit ?? 50 },
+            });
+            return response.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch production report'));
         }
     }
 );

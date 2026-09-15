@@ -1,6 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-11 - Updated 2026-06-16*/
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import {fetchWithAuth} from '@/store/utils/fetchWithAuth';
+import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Entity interfaces - API returns PascalCase fields
 export interface InventoryCountingDetailEntity {
@@ -128,26 +129,13 @@ const initialState: InventoryCountingState = {
 };
 
 // Fetch all inventory counting
-export const fetchInventoryCounting = createAsyncThunk(
+export const fetchInventoryCounting = createAsyncThunk<ApiSuccessEnvelope<PaginatedInventoryCounting>, InventoryCountingQuery, { rejectValue: string }>(
     'inventoryCounting/fetchAll',
     async (filters: InventoryCountingQuery, {rejectWithValue}) => {
         try {
-            const params = new URLSearchParams();
-            if (filters.status) params.append('status', filters.status);
-            if (filters.category) params.append('category', filters.category);
-            if (filters.createdBy) params.append('createdBy', filters.createdBy);
-            if (filters.page) params.append('page', String(filters.page));
-            if (filters.limit) params.append('limit', String(filters.limit));
-
-            const queryString = params.toString();
-            const url = `/api/warehouse/inventory-counting${queryString ? `?${queryString}` : ''}`;
-
-            const response = await fetchWithAuth(url);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch inventory counting data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<PaginatedInventoryCounting>>('/inventory-counting', { params: { page: filters.page, limit: filters.limit, status: filters.status, category: filters.category, createdBy: filters.createdBy } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch inventory counting data'));
         }
     }
 );
@@ -420,12 +408,12 @@ const inventoryCountingSlice = createSlice({
             })
             .addCase(fetchInventoryCounting.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data || [];
+                state.data = action.payload.data.data || [];
                 state.pagination = {
-                    page: action.payload.page || 1,
-                    limit: action.payload.limit || 50,
-                    total: action.payload.total || 0,
-                    totalPages: action.payload.totalPages || 0,
+                    page: action.payload.data.page || 1,
+                    limit: action.payload.data.limit || 50,
+                    total: action.payload.data.total || 0,
+                    totalPages: action.payload.data.totalPages || 0,
                 };
             })
             .addCase(fetchInventoryCounting.rejected, (state, action) => {

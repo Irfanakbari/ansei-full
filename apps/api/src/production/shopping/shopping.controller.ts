@@ -4,7 +4,15 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ShoppingService } from './shopping.service';
 import { CreateShoppingDto } from './dto';
 import {
@@ -15,6 +23,7 @@ import {
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @ApiTags('Shopping')
 @Controller('production/shopping')
@@ -25,8 +34,11 @@ export class ShoppingController {
   @ApiResponse({ status: 200, type: [ShoppingEntity] })
   @Get()
   @Permission('IPCS.SHOPPING_READ')
-  async findAll(@CurrentUser() user: ICurrentUser) {
-    return this.shoppingService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.shoppingService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Get shopping pick record by ID' })

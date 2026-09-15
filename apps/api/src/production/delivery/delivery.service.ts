@@ -9,6 +9,7 @@ import { CreateDeliveryDto, DeliveryQueryDto } from './dto/create-delivery.dto';
 import { DeliveryDto, PaginatedDeliveryDto } from './dto/delivery-response.dto';
 import type { LogProcessModel } from '../../generated/prisma/models';
 import { LocationType, TransactionType } from '../../generated/prisma/enums';
+import type { Prisma } from '../../generated/prisma/client';
 
 @Injectable()
 export class DeliveryService {
@@ -441,7 +442,7 @@ export class DeliveryService {
     const limit = query.limit ?? 50;
     const offset = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.DeliveryHistoryWhereInput = {};
 
     if (query.forecastId) {
       where.ForecastId = query.forecastId;
@@ -458,7 +459,7 @@ export class DeliveryService {
       this.prisma.deliveryHistory.count({ where }),
       this.prisma.deliveryHistory.findMany({
         where,
-        orderBy: { CreatedAt: 'desc' },
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
         skip: offset,
         take: limit,
       }),
@@ -473,10 +474,12 @@ export class DeliveryService {
         createdBy: item.CreatedBy,
         labelDataId: item.LabelDataId,
       })),
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      meta: {
+        page,
+        limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 }

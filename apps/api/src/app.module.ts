@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -37,6 +37,7 @@ import { LoggingModule } from './common/logging/logging.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter';
 import { RequestCorrelationMiddleware } from './common/middleware/request-correlation.middleware';
+import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
 
 @Module({
   imports: [
@@ -98,6 +99,10 @@ import { RequestCorrelationMiddleware } from './common/middleware/request-correl
     {
       provide: APP_GUARD,
       useClass: DualAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseTransformInterceptor,
     },
     {
       provide: APP_FILTER,

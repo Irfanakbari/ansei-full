@@ -22,6 +22,7 @@ describe('ProductionReleaseService', () => {
         findMany: jest.fn(),
         findUnique: jest.fn(),
         findFirst: jest.fn(),
+        count: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
@@ -102,14 +103,21 @@ describe('ProductionReleaseService', () => {
       ];
 
       prismaService.productionRelease.findMany.mockResolvedValue(mockReleases);
+      prismaService.productionRelease.count.mockResolvedValue(1);
       prismaService.billOfMaterials.findMany.mockResolvedValue([]);
       prismaService.finishGood.findMany.mockResolvedValue([]);
       prismaService.labelData.findMany.mockResolvedValue([]);
       prismaService.deliveryHistory.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(Array.isArray(result)).toBe(true);
+      expect(result.data).toEqual(expect.any(Array));
+      expect(result.meta).toEqual({
+        page: 1,
+        limit: 50,
+        totalItems: 1,
+        totalPages: 1,
+      });
       expect(prismaService.productionRelease.findMany).toHaveBeenCalled();
     });
   });

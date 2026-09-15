@@ -68,14 +68,10 @@ export class PaginatedPokayokeScanEntity {
     description: 'Total number of records matching filter',
     example: 150,
   })
-  total: number;
-
-  @ApiProperty({ description: 'Current page number', example: 1 })
-  page: number;
-
-  @ApiProperty({ description: 'Number of records per page', example: 50 })
-  limit: number;
-
-  @ApiProperty({ description: 'Total number of pages', example: 3 })
-  totalPages: number;
+  meta: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+  };
 }

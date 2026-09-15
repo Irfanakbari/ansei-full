@@ -1,31 +1,15 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import {
-  IsInt,
-  IsOptional,
-  IsString,
-  Min,
-  IsDateString,
-} from 'class-validator';
-import { ItemCategory, TransactionType } from 'src/generated/prisma/enums';
+import { IsEnum, IsOptional, IsString, IsDateString } from 'class-validator';
+import { ItemCategory, TransactionType } from '../../generated/prisma/enums';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
-export class InventoryLedgerQueryDto {
-  @ApiPropertyOptional({ description: 'Page number (1-based)', example: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page?: number = 1;
-
+export class InventoryLedgerQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
-    description: 'Number of records per page',
-    example: 50,
+    description: 'Search item, reference, creator, or notes',
   })
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  limit?: number = 50;
+  @IsString()
+  search?: string;
 
   @ApiPropertyOptional({
     description: 'Filter by transaction date (start date, YYYY-MM-DD)',
@@ -48,7 +32,7 @@ export class InventoryLedgerQueryDto {
     enum: ItemCategory,
   })
   @IsOptional()
-  @IsString()
+  @IsEnum(ItemCategory)
   itemCategory?: ItemCategory;
 
   @ApiPropertyOptional({
@@ -56,7 +40,7 @@ export class InventoryLedgerQueryDto {
     enum: TransactionType,
   })
   @IsOptional()
-  @IsString()
+  @IsEnum(TransactionType)
   transactionType?: TransactionType;
 
   @ApiPropertyOptional({

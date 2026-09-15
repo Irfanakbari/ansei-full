@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { PreDeliveryEntity, fetchPreDelivery } from '@/store/features/production/preDelivery/preDeliverySlice';
+import { PreDeliveryEntity, fetchPreDelivery, setFilters } from '@/store/features/production/preDelivery/preDeliverySlice';
 import { fetchProductionRelease, ProductionReleaseEntity } from '@/store/features/production/productionRelease/productionReleaseSlice';
 
 const formatDate = (val: string | null | undefined) => {
@@ -32,7 +32,7 @@ export default function PreDeliveryPage() {
     }, [dispatch]);
 
     const handleTableChange = (pag: any) => {
-        dispatch(fetchPreDelivery({ ...filters, page: pag.current, limit: pag.pageSize }));
+        dispatch(setFilters({ page: pag.current, limit: pag.pageSize }));
     };
 
     // Column search filter

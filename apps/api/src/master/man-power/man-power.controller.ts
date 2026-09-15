@@ -12,6 +12,7 @@ import {
   Param,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ManPowerService } from './man-power.service';
 import { CreateManPowerDto, UpdateManPowerDto } from './dto';
@@ -19,6 +20,8 @@ import { ManPowerEntity } from './entities/man-power.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
 @ApiTags('ManPower')
 @Controller('master/man-power')
@@ -26,11 +29,19 @@ export class ManPowerController {
   constructor(private readonly manPowerService: ManPowerService) {}
 
   @ApiOperation({ summary: 'Get all man power' })
-  @ApiResponse({ status: 200, type: [ManPowerEntity] })
+  @ApiSuccessEnvelope({
+    status: 200,
+    type: ManPowerEntity,
+    isArray: true,
+    paginated: true,
+  })
   @Get()
   @Permission('IPCS.MASTER_READ')
-  async findAll(@CurrentUser() _user: ICurrentUser) {
-    return this.manPowerService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.manPowerService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Get man power by UID' })

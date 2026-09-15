@@ -1,5 +1,6 @@
-import { IsOptional, IsString, IsEnum, IsInt, Min } from 'class-validator';
-import { OpnameStatus } from '../../generated/prisma/enums';
+import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ItemCategory, OpnameStatus } from '../../generated/prisma/enums';
 
 export class InventoryCountingQueryDto {
   @IsOptional()
@@ -8,7 +9,7 @@ export class InventoryCountingQueryDto {
 
   @IsOptional()
   @IsString()
-  category?: string;
+  category?: ItemCategory;
 
   @IsOptional()
   @IsString()
@@ -17,10 +18,13 @@ export class InventoryCountingQueryDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  page?: number;
+  @Type(() => Number)
+  page = 1;
 
   @IsOptional()
   @IsInt()
   @Min(1)
-  limit?: number;
+  @Max(100)
+  @Type(() => Number)
+  limit = 50;
 }

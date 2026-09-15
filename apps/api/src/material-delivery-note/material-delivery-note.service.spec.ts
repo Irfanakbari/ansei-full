@@ -120,7 +120,7 @@ describe('MaterialDeliveryNoteService', () => {
       const result = await service.findAll({ page: 1, limit: 20 });
 
       expect(result.data).toEqual(mockData);
-      expect(result.meta.total).toBe(1);
+      expect(result.meta.totalItems).toBe(1);
       expect(prismaService.materialDeliveryNote.findMany).toHaveBeenCalled();
     });
 

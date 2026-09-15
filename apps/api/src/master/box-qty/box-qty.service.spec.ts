@@ -60,6 +60,7 @@ describe('BoxQtyService', () => {
 
   let prismaService: {
     boxQTY: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findUnique: jest.Mock;
       create: jest.Mock;
@@ -80,6 +81,7 @@ describe('BoxQtyService', () => {
   beforeEach(async () => {
     prismaService = {
       boxQTY: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         create: jest.fn(),
@@ -122,23 +124,28 @@ describe('BoxQtyService', () => {
   describe('findAll', () => {
     it('should return all box qty records', async () => {
       const expected = [mockBoxQty];
+      prismaService.boxQTY.count.mockResolvedValue(1);
       prismaService.boxQTY.findMany.mockResolvedValue(expected);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expected);
+      expect(result.data).toEqual(expected);
       expect(prismaService.boxQTY.findMany).toHaveBeenCalledWith({
         include: { PartData: true },
-        orderBy: { Id: 'asc' },
+        orderBy: [{ Id: 'asc' }],
+        skip: 0,
+        take: 50,
+        where: {},
       });
     });
 
     it('should return empty array when no records exist', async () => {
       prismaService.boxQTY.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      prismaService.boxQTY.count.mockResolvedValue(0);
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 

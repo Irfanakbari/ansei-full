@@ -1,5 +1,6 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-20 */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { get, getApiErrorMessage, type PaginatedApiSuccessEnvelope, type PaginationMeta } from '../../utils/apiService';
 import { fetchWithAuth } from '../../utils/fetchWithAuth';
 
 export interface ApiKeyEntity {
@@ -32,6 +33,7 @@ interface ApiKeyState {
     newApiKey: { ApiKey: string; KeyPrefix: string; Id: string; Name: string } | null;
     loading: boolean;
     error: string | null;
+    pagination: PaginationMeta;
 }
 
 const initialState: ApiKeyState = {
@@ -40,24 +42,18 @@ const initialState: ApiKeyState = {
     newApiKey: null,
     loading: false,
     error: null,
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
-export const fetchApiKeys = createAsyncThunk(
-    'apiKeys/fetchAll',
-    async (params: { userId?: string; isActive?: string } | undefined, { rejectWithValue }) => {
-        try {
-            let url = '/api/api-keys';
-            const queryParams = new URLSearchParams();
-            if (params?.userId) queryParams.append('userId', params.userId);
-            if (params?.isActive) queryParams.append('isActive', params.isActive);
-            if (queryParams.toString()) url += `?${queryParams.toString()}`;
+export interface ApiKeyQuery { page?: number; limit?: number; search?: string; userId?: string; isActive?: boolean }
 
-            const response = await fetchWithAuth(url);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch API Keys');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+export const fetchApiKeys = createAsyncThunk<PaginatedApiSuccessEnvelope<ApiKeyEntity>, ApiKeyQuery | undefined, { rejectValue: string }>(
+    'apiKeys/fetchAll',
+    async (params = {}, { rejectWithValue }) => {
+        try {
+            return await get<PaginatedApiSuccessEnvelope<ApiKeyEntity>>('/api-keys', { params: { ...params } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch API Keys'));
         }
     }
 );
@@ -161,7 +157,8 @@ const apiKeysSlice = createSlice({
             .addCase(fetchApiKeys.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchApiKeys.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload || [];
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchApiKeys.rejected, (state, action) => {
                 state.loading = false;

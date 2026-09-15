@@ -1,6 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-10 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Delivery entity interface
 export interface DeliveryEntity {
@@ -77,26 +78,16 @@ const initialState: DeliveryState = {
 };
 
 // Fetch all deliveries
-export const fetchDelivery = createAsyncThunk(
+export const fetchDelivery = createAsyncThunk<PaginatedDelivery, DeliveryQuery, { rejectValue: string }>(
     'delivery/fetchAll',
     async (filters: DeliveryQuery, { rejectWithValue }) => {
         try {
-            // Build query string
-            const params = new URLSearchParams();
-            if (filters.page) params.append('page', String(filters.page));
-            if (filters.limit) params.append('limit', String(filters.limit));
-            if (filters.forecastId) params.append('forecastId', filters.forecastId);
-            if (filters.createdBy) params.append('createdBy', filters.createdBy);
-
-            const queryString = params.toString();
-            const url = `/api/production/delivery${queryString ? `?${queryString}` : ''}`;
-
-            const response = await fetchWithAuth(url);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch delivery data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const response = await get<ApiSuccessEnvelope<PaginatedDelivery>>('/production/delivery', {
+                params: { page: filters.page ?? 1, limit: filters.limit ?? 50, forecastId: filters.forecastId, createdBy: filters.createdBy },
+            });
+            return response.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch delivery data'));
         }
     }
 );
@@ -156,7 +147,7 @@ const deliverySlice = createSlice({
             })
             .addCase(fetchDelivery.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload.data || [];
+                state.data = action.payload.data;
                 state.pagination = {
                     page: action.payload.page || 1,
                     limit: action.payload.limit || 50,

@@ -6,6 +6,8 @@ import type {
   LogProcessModel,
   DisplayConfigModel,
 } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class DisplayConfigService {
@@ -14,10 +16,33 @@ export class DisplayConfigService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<DisplayConfigModel[]> {
-    return this.prisma.displayConfig.findMany({
-      orderBy: { CreatedAt: 'desc' },
-    });
+  async findAll(query: SearchPaginationQueryDto) {
+    const where: Prisma.DisplayConfigWhereInput = query.search
+      ? {
+          OR: [
+            { Description: { contains: query.search, mode: 'insensitive' } },
+            { Url: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.displayConfig.count({ where }),
+      this.prisma.displayConfig.findMany({
+        where,
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async findActive(): Promise<DisplayConfigModel | null> {

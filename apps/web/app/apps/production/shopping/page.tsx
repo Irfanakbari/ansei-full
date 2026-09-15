@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { ShoppingEntity, fetchShopping, deleteShopping, clearDetail } from '@/store/features/production/shopping/shoppingSlice';
+import { ShoppingEntity, fetchShopping, deleteShopping, clearDetail, setShoppingQuery } from '@/store/features/production/shopping/shoppingSlice';
 import DetailShoppingModal from './_components/DetailShoppingModal';
 import CreateShoppingModal from './_components/CreateShoppingModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
@@ -22,7 +22,7 @@ const TYPE_COLORS: Record<string, string> = {
 export default function ShoppingPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.shopping);
+    const { data, loading, query, pagination } = useSelector((state: RootState) => state.shopping);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
@@ -33,8 +33,8 @@ export default function ShoppingPage() {
     const searchInput = useRef<InputRef>(null);
 
     useEffect(() => {
-        dispatch(fetchShopping());
-    }, [dispatch]);
+        dispatch(fetchShopping(query));
+    }, [dispatch, query]);
 
     const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
 
@@ -70,7 +70,7 @@ export default function ShoppingPage() {
                         }
                         message.success('Shopping deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchShopping());
+                        dispatch(fetchShopping(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete shopping');
@@ -80,8 +80,10 @@ export default function ShoppingPage() {
         }
     };
 
-    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    const handleTableChange = (tablePagination: any, filters: any, sorter: any) => {
         setSortedInfo(sorter);
+        const search = Object.values(filters).flat().find((value) => typeof value === 'string') as string | undefined;
+        dispatch(setShoppingQuery({ page: tablePagination.current, limit: tablePagination.pageSize, search }));
     };
 
     const getColumnSearchProps = (dataIndex: string) => ({
@@ -183,7 +185,7 @@ export default function ShoppingPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Production' }, { title: 'Shopping' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchShopping())} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchShopping(query))} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
@@ -203,7 +205,9 @@ export default function ShoppingPage() {
                 onChange={handleTableChange}
                 pagination={{
                     size: 'small',
-                    pageSize: 50,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} records`,
                 }}
@@ -224,7 +228,7 @@ export default function ShoppingPage() {
             <CreateShoppingModal
                 visible={isCreateModalVisible}
                 onClose={() => setIsCreateModalVisible(false)}
-                onSuccess={() => dispatch(fetchShopping())}
+                onSuccess={() => dispatch(fetchShopping(query))}
             />
         </Card>
     );

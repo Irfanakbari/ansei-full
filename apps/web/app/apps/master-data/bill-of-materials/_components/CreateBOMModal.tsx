@@ -23,8 +23,8 @@ const CreateBOMModal: React.FC<Props> = ({ visible, onClose }) => {
 
     useEffect(() => {
         if (visible) {
-            dispatch(fetchMaterial());
-            dispatch(fetchFinishGood());
+            dispatch(fetchMaterial({ page: 1, limit: 100 }));
+            dispatch(fetchFinishGood({ page: 1, limit: 100 }));
         }
     }, [visible, dispatch]);
 

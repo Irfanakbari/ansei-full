@@ -1,5 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsInt,
+  IsOptional,
+  Max,
+  Min,
+  IsEnum,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { PokayokeCompareStatus } from '../../../generated/prisma/enums';
 
 export class CreatePokayokeScanDto {
   @ApiProperty({
@@ -20,12 +30,17 @@ export class CreatePokayokeScanDto {
 }
 
 export class PokayokeScanQueryDto {
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @IsOptional()
-  page?: number = 1;
-  @IsNumber()
+  @Type(() => Number)
+  page = 1;
+  @IsInt()
+  @Min(1)
+  @Max(100)
   @IsOptional()
-  limit?: number = 50;
+  @Type(() => Number)
+  limit = 50;
   @IsString()
   @IsOptional()
   labelNumber?: string;
@@ -33,7 +48,8 @@ export class PokayokeScanQueryDto {
   @IsOptional()
   poId?: string;
   @IsOptional()
-  status?: string;
+  @IsEnum(PokayokeCompareStatus)
+  status?: PokayokeCompareStatus;
   @IsOptional()
   createdBy?: string;
 }

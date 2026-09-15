@@ -14,6 +14,8 @@ import type {
   LogProcessModel,
 } from '../../generated/prisma/models';
 import { ProductionStatus } from '../../generated/prisma/enums';
+import type { Prisma } from '../../generated/prisma/client';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 interface ForecastExcelRow {
   [columnPosition: number]: string | number | Date | undefined;
@@ -58,20 +60,42 @@ export class ForecastService {
     PART_NO: 11,
   };
 
-  async findAll() {
-    return this.prisma.forecast.findMany({
-      include: {
-        PartData: {
-          select: {
-            PartNumber: true,
-            PartName: true,
+  async findAll(query: SearchPaginationQueryDto) {
+    const where: Prisma.ForecastWhereInput = query.search
+      ? {
+          OR: [
+            { PoId: { contains: query.search, mode: 'insensitive' } },
+            { FinishGoodId: { contains: query.search, mode: 'insensitive' } },
+            { VendorName: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.forecast.count({ where }),
+      this.prisma.forecast.findMany({
+        where,
+        include: {
+          PartData: {
+            select: {
+              PartNumber: true,
+              PartName: true,
+            },
           },
         },
+        orderBy: [{ DeliveryDate: 'desc' }, { Id: 'desc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
       },
-      orderBy: {
-        DeliveryDate: 'desc',
-      },
-    });
+    };
   }
 
   async findOne(id: string) {

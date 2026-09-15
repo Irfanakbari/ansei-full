@@ -13,6 +13,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { MaterialService } from './material.service';
 import {
@@ -24,6 +25,8 @@ import { MaterialEntity } from './entities/material.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
 @ApiTags('Material')
 @Controller('master/material')
@@ -31,15 +34,20 @@ export class MaterialController {
   constructor(private readonly materialService: MaterialService) {}
 
   @ApiOperation({ summary: 'Get all materials' })
-  @ApiResponse({
+  @ApiSuccessEnvelope({
     status: 200,
-    type: [MaterialEntity],
-    description: 'Daftar semua material',
+    type: MaterialEntity,
+    isArray: true,
+    paginated: true,
+    description: 'Daftar material',
   })
   @Get()
   @Permission('IPCS.MASTER_READ')
-  async findAll(@CurrentUser() _user: ICurrentUser) {
-    return this.materialService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.materialService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Get material by ID' })

@@ -35,6 +35,7 @@ describe('ManPowerService', () => {
 
   let prismaService: {
     manPower: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findUnique: jest.Mock;
       create: jest.Mock;
@@ -52,6 +53,7 @@ describe('ManPowerService', () => {
   beforeEach(async () => {
     prismaService = {
       manPower: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         create: jest.fn(),
@@ -91,22 +93,27 @@ describe('ManPowerService', () => {
   describe('findAll', () => {
     it('should return all man power records', async () => {
       const expected = [mockManPower];
+      prismaService.manPower.count.mockResolvedValue(1);
       prismaService.manPower.findMany.mockResolvedValue(expected);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expected);
+      expect(result.data).toEqual(expected);
       expect(prismaService.manPower.findMany).toHaveBeenCalledWith({
-        orderBy: { CreatedAt: 'desc' },
+        orderBy: [{ CreatedAt: 'desc' }, { Uid: 'asc' }],
+        skip: 0,
+        take: 50,
+        where: {},
       });
     });
 
     it('should return empty array when no records exist', async () => {
       prismaService.manPower.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      prismaService.manPower.count.mockResolvedValue(0);
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 

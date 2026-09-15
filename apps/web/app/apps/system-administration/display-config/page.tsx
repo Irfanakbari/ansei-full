@@ -12,13 +12,14 @@ import {
     fetchDisplayConfig,
     deleteDisplayConfig,
     DisplayConfigEntity,
+    setDisplayConfigQuery,
 } from '@/store/features/settings/displayConfig/displayConfigSlice';
 import CreateEditDisplayConfigModal from './_components/CreateEditDisplayConfigModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
 
 const DisplayConfigPage: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.displayConfig);
+    const { data, loading, query, pagination } = useSelector((state: RootState) => state.displayConfig);
     const { message, modal } = App.useApp();
 
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -26,8 +27,8 @@ const DisplayConfigPage: React.FC = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     useEffect(() => {
-        dispatch(fetchDisplayConfig());
-    }, [dispatch]);
+        dispatch(fetchDisplayConfig(query));
+    }, [dispatch, query]);
 
     const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
 
@@ -62,7 +63,7 @@ const DisplayConfigPage: React.FC = () => {
                         }
                         message.success('Display config deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchDisplayConfig());
+                        dispatch(fetchDisplayConfig(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete display config');
@@ -137,7 +138,7 @@ const DisplayConfigPage: React.FC = () => {
                 ]}
             />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchDisplayConfig())} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchDisplayConfig(query))} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={handleCreate} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
@@ -154,9 +155,12 @@ const DisplayConfigPage: React.FC = () => {
                 dataSource={data}
                 size="small"
                 loading={loading}
+                onChange={(p) => dispatch(setDisplayConfigQuery({ page: p.current, limit: p.pageSize }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 50,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} records`,
                 }}
@@ -169,7 +173,7 @@ const DisplayConfigPage: React.FC = () => {
             <CreateEditDisplayConfigModal
                 visible={isModalVisible}
                 onClose={() => setIsModalVisible(false)}
-                onSuccess={() => dispatch(fetchDisplayConfig())}
+                onSuccess={() => dispatch(fetchDisplayConfig(query))}
                 data={editingData}
             />
         </Card>

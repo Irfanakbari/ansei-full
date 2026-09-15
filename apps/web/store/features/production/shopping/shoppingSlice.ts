@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import {fetchWithAuth} from "@/store/utils/fetchWithAuth";
+import { del, get, getApiErrorMessage, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Material data interface
 export interface MaterialData {
@@ -108,7 +108,10 @@ interface ShoppingState {
     checkLoading: boolean;
     error: string | null;
     checkRequirement: CheckRequirementResponse | null;
+    query: ShoppingQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface ShoppingQuery { page?: number; limit?: number; search?: string }
 
 const initialState: ShoppingState = {
     data: [],
@@ -118,19 +121,18 @@ const initialState: ShoppingState = {
     checkLoading: false,
     error: null,
     checkRequirement: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
 // Fetch all shopping
-export const fetchShopping = createAsyncThunk(
+export const fetchShopping = createAsyncThunk<PaginatedApiSuccessEnvelope<ShoppingEntity>, ShoppingQuery | undefined, { rejectValue: string }>(
     'shopping/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/production/shopping');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch shopping data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<ShoppingEntity>>('/production/shopping', { params: { ...query } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch shopping data'));
         }
     }
 );
@@ -140,12 +142,9 @@ export const fetchShoppingById = createAsyncThunk(
     'shopping/fetchById',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/production/shopping/${id}`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch shopping detail');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<ShoppingEntity>>(`/production/shopping/${id}`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch shopping detail'));
         }
     }
 );
@@ -161,16 +160,9 @@ export const createShopping = createAsyncThunk(
         description?: string;
     }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/production/shopping', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(shoppingData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create shopping');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<ShoppingEntity>, typeof shoppingData>('/production/shopping', shoppingData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create shopping'));
         }
     }
 );
@@ -180,14 +172,10 @@ export const deleteShopping = createAsyncThunk(
     'shopping/delete',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/production/shopping/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete shopping');
+            await del<ApiSuccessEnvelope<unknown>>(`/production/shopping/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete shopping'));
         }
     }
 );
@@ -203,12 +191,9 @@ export const fetchShoppingStatus = createAsyncThunk(
     'shopping/fetchStatus',
     async (forecastId: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/production/shopping/forecast/${forecastId}/status`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch shopping status');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<ShoppingStatusResponse>>(`/production/shopping/forecast/${forecastId}/status`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch shopping status'));
         }
     }
 );
@@ -218,12 +203,9 @@ export const fetchCheckRequirement = createAsyncThunk(
     'shopping/fetchCheckRequirement',
     async (forecastId: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/production/shopping/check-requirement/${forecastId}`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch check requirement');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<CheckRequirementResponse>>(`/production/shopping/check-requirement/${forecastId}`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch check requirement'));
         }
     }
 );
@@ -235,6 +217,7 @@ const shoppingSlice = createSlice({
         clearDetail: (state) => {
             state.detail = null;
         },
+        setShoppingQuery: (state, action: { payload: ShoppingQuery }) => { state.query = { ...state.query, ...action.payload }; },
     },
     extraReducers: (builder) => {
         builder
@@ -242,7 +225,8 @@ const shoppingSlice = createSlice({
             .addCase(fetchShopping.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchShopping.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchShopping.rejected, (state, action) => {
                 state.loading = false;
@@ -252,7 +236,7 @@ const shoppingSlice = createSlice({
             .addCase(fetchShoppingById.pending, (state) => { state.detailLoading = true; state.error = null; })
             .addCase(fetchShoppingById.fulfilled, (state, action) => {
                 state.detailLoading = false;
-                state.detail = action.payload;
+                state.detail = action.payload.data;
             })
             .addCase(fetchShoppingById.rejected, (state, action) => {
                 state.detailLoading = false;
@@ -262,7 +246,7 @@ const shoppingSlice = createSlice({
             .addCase(createShopping.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(createShopping.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data.unshift(action.payload);
+                state.data.unshift(action.payload.data);
             })
             .addCase(createShopping.rejected, (state, action) => {
                 state.loading = false;
@@ -283,7 +267,7 @@ const shoppingSlice = createSlice({
             })
             .addCase(fetchCheckRequirement.fulfilled, (state, action) => {
                 state.checkLoading = false;
-                state.checkRequirement = action.payload;
+                state.checkRequirement = action.payload.data;
             })
             .addCase(fetchCheckRequirement.rejected, (state, action) => {
                 state.checkLoading = false;
@@ -293,5 +277,5 @@ const shoppingSlice = createSlice({
     },
 });
 
-export const { clearDetail } = shoppingSlice.actions;
+export const { clearDetail, setShoppingQuery } = shoppingSlice.actions;
 export default shoppingSlice.reducer;

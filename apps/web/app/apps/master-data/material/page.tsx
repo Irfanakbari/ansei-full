@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { MaterialEntity, fetchMaterial, deleteMaterial } from '@/store/features/master/materialSlice';
+import { MaterialEntity, fetchMaterial, deleteMaterial, setMaterialQuery } from '@/store/features/master/materialSlice';
 import CreateMaterialModal from './_components/CreateMaterialModal';
 import EditMaterialModal from './_components/EditMaterialModal';
 import DiscontinueMaterialModal from './_components/DiscontinueMaterialModal';
@@ -18,7 +18,7 @@ import { formatDateTime } from '@/lib/utils/dateTime';
 export default function MaterialPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.material);
+    const { data, loading, pagination, query } = useSelector((state: RootState) => state.material);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -28,8 +28,8 @@ export default function MaterialPage() {
     const [discontinueData, setDiscontinueData] = useState<MaterialEntity | null>(null);
 
     useEffect(() => {
-        dispatch(fetchMaterial());
-    }, [dispatch]);
+        dispatch(fetchMaterial(query));
+    }, [dispatch, query]);
 
     const searchInput = useRef<InputRef>(null);
 
@@ -57,11 +57,7 @@ export default function MaterialPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value: any, record: any) =>
-            record[dataIndex]
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
+        filteredValue: query.search ? [query.search] : null,
     });
 
     const columns = [
@@ -154,7 +150,7 @@ export default function MaterialPage() {
                         }
                         message.success('Material deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchMaterial());
+                        dispatch(fetchMaterial(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete material');
@@ -179,7 +175,7 @@ export default function MaterialPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Master Data' }, { title: 'Material' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchMaterial()); }} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchMaterial(query)); }} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Discontinue" icon={<StopOutlined />} onClick={handleDiscontinue} enable={selectedRowKeys.length === 1} />
@@ -197,11 +193,13 @@ export default function MaterialPage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
+                onChange={(pageInfo, tableFilters) => dispatch(setMaterialQuery({ page: tableFilters.PartNumber || tableFilters.PartName ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? '') }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 100,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
-                    hideOnSinglePage: true,
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"

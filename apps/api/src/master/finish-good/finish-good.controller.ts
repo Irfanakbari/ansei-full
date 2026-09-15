@@ -13,6 +13,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { FinishGoodService } from './finish-good.service';
 import { CreateFinishGoodDto, UpdateFinishGoodDto } from './dto';
@@ -20,6 +21,8 @@ import { FinishGoodEntity } from './entities/finish-good.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
 @ApiTags('FinishGood')
 @Controller('master/finish-good')
@@ -27,11 +30,19 @@ export class FinishGoodController {
   constructor(private readonly finishGoodService: FinishGoodService) {}
 
   @ApiOperation({ summary: 'Get all finish goods' })
-  @ApiResponse({ status: 200, type: [FinishGoodEntity] })
+  @ApiSuccessEnvelope({
+    status: 200,
+    type: FinishGoodEntity,
+    isArray: true,
+    paginated: true,
+  })
   @Get()
   @Permission('IPCS.MASTER_READ')
-  async findAll(@CurrentUser() _user: ICurrentUser) {
-    return this.finishGoodService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.finishGoodService.findAll(query);
   }
 
   // IMPORTANT: Specific routes MUST come before parameterized routes

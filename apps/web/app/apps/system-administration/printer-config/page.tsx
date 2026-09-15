@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { PrinterSettingEntity, fetchPrinterSettings, deletePrinterSetting } from '@/store/features/settings/printerSettingSlice';
+import { PrinterSettingEntity, fetchPrinterSettings, deletePrinterSetting, setPrinterSettingQuery } from '@/store/features/settings/printerSettingSlice';
 import CreatePrinterSettingModal from './_components/CreatePrinterSettingModal';
 import EditPrinterSettingModal from './_components/EditPrinterSettingModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
@@ -17,7 +17,7 @@ import { formatDateTime } from '@/lib/utils/dateTime';
 export default function PrinterConfigPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.printerSetting);
+    const { data, loading, query, pagination } = useSelector((state: RootState) => state.printerSetting);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -27,8 +27,8 @@ export default function PrinterConfigPage() {
     const searchInput = useRef<InputRef>(null);
 
     useEffect(() => {
-        dispatch(fetchPrinterSettings());
-    }, [dispatch]);
+        dispatch(fetchPrinterSettings(query));
+    }, [dispatch, query]);
 
     const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
 
@@ -58,7 +58,7 @@ export default function PrinterConfigPage() {
                         }
                         message.success('Printer setting deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchPrinterSettings());
+                        dispatch(fetchPrinterSettings(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete printer setting');
@@ -145,7 +145,7 @@ export default function PrinterConfigPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'System Administration' }, { title: 'Printer Config' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchPrinterSettings())} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchPrinterSettings(query))} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
@@ -162,9 +162,12 @@ export default function PrinterConfigPage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
+                onChange={(p, filters) => dispatch(setPrinterSettingQuery({ page: p.current, limit: p.pageSize, search: Object.values(filters).flat().find((value) => typeof value === 'string') as string | undefined }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 50,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} records`,
                 }}
@@ -177,7 +180,7 @@ export default function PrinterConfigPage() {
             <CreatePrinterSettingModal
                 visible={isCreateModalVisible}
                 onClose={() => setIsCreateModalVisible(false)}
-                onSuccess={() => dispatch(fetchPrinterSettings())}
+                onSuccess={() => dispatch(fetchPrinterSettings(query))}
             />
 
             {editData && (
@@ -185,7 +188,7 @@ export default function PrinterConfigPage() {
                     visible={isEditModalVisible}
                     onClose={() => setIsEditModalVisible(false)}
                     data={editData}
-                    onSuccess={() => dispatch(fetchPrinterSettings())}
+                    onSuccess={() => dispatch(fetchPrinterSettings(query))}
                 />
             )}
         </Card>

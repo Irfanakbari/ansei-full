@@ -10,6 +10,12 @@ import type {
   LogProcessModel,
   BoxQTYModel,
 } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
+import type {
+  ApiResult,
+  PaginationMeta,
+} from '../../common/interceptors/api-response.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class BoxQtyService {
@@ -18,13 +24,42 @@ export class BoxQtyService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<BoxQTYModel[]> {
-    return this.prisma.boxQTY.findMany({
-      include: {
-        PartData: true,
+  async findAll(
+    query: SearchPaginationQueryDto,
+  ): Promise<ApiResult<BoxQTYModel[], PaginationMeta>> {
+    const where: Prisma.BoxQTYWhereInput = query.search
+      ? {
+          OR: [
+            { PartNumber: { contains: query.search, mode: 'insensitive' } },
+            {
+              PartData: {
+                PartName: { contains: query.search, mode: 'insensitive' },
+              },
+            },
+          ],
+        }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.boxQTY.count({ where }),
+      this.prisma.boxQTY.findMany({
+        where,
+        include: {
+          PartData: true,
+        },
+        orderBy: [{ Id: 'asc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
       },
-      orderBy: { Id: 'asc' },
-    });
+    };
   }
 
   async findOne(id: number): Promise<BoxQTYModel> {

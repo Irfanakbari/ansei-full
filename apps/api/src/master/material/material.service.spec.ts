@@ -56,6 +56,7 @@ describe('MaterialService', () => {
 
   let prismaService: {
     material: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findUnique: jest.Mock;
       create: jest.Mock;
@@ -73,6 +74,7 @@ describe('MaterialService', () => {
   beforeEach(async () => {
     prismaService = {
       material: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         create: jest.fn(),
@@ -111,24 +113,29 @@ describe('MaterialService', () => {
 
   describe('findAll', () => {
     it('should return all materials with SatuanData', async () => {
+      prismaService.material.count.mockResolvedValue(1);
       const expectedMaterials = [mockMaterial];
       prismaService.material.findMany.mockResolvedValue(expectedMaterials);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expectedMaterials);
+      expect(result.data).toEqual(expectedMaterials);
       expect(prismaService.material.findMany).toHaveBeenCalledWith({
         include: { SatuanData: true },
-        orderBy: { Id: 'asc' },
+        orderBy: [{ Id: 'asc' }],
+        skip: 0,
+        take: 50,
+        where: {},
       });
     });
 
     it('should return empty array when no materials exist', async () => {
+      prismaService.material.count.mockResolvedValue(0);
       prismaService.material.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 

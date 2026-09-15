@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { BOMEntity, BOMGrouped, fetchBOM, deleteBOM } from '@/store/features/master/bomSlice';
+import { BOMEntity, BOMGrouped, fetchBOM, deleteBOM, setBOMQuery } from '@/store/features/master/bomSlice';
 import CreateBOMModal from './_components/CreateBOMModal';
 import EditBOMModal from './_components/EditBOMModal';
 import DetailBOMModal from './_components/DetailBOMModal';
@@ -17,7 +17,7 @@ import DetailBOMModal from './_components/DetailBOMModal';
 export default function BillOfMaterialsPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.bom);
+    const { data, loading, pagination, query } = useSelector((state: RootState) => state.bom);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -27,8 +27,8 @@ export default function BillOfMaterialsPage() {
     const [detailData, setDetailData] = useState<BOMGrouped | null>(null);
 
     useEffect(() => {
-        dispatch(fetchBOM());
-    }, [dispatch]);
+        dispatch(fetchBOM(query));
+    }, [dispatch, query]);
 
     // Group data by Finish Good
     const groupedData = useMemo(() => {
@@ -73,11 +73,7 @@ export default function BillOfMaterialsPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value: any, record: any) =>
-            record.FGData?.PartNumber
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
+        filteredValue: query.search ? [query.search] : null,
     });
 
     const columns = [
@@ -148,7 +144,7 @@ export default function BillOfMaterialsPage() {
                         }
                         message.success('BOM deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchBOM());
+                        dispatch(fetchBOM(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete BOM');
@@ -163,7 +159,7 @@ export default function BillOfMaterialsPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Master Data' }, { title: 'Bill of Materials' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchBOM()); }} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchBOM(query)); }} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleDetail} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
@@ -181,11 +177,13 @@ export default function BillOfMaterialsPage() {
                 dataSource={groupedData}
                 size="small"
                 loading={loading}
+                onChange={(pageInfo, tableFilters) => dispatch(setBOMQuery({ page: tableFilters.FGData ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.FGData?.[0] ?? '') }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 100,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
-                    hideOnSinglePage: true,
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="FinishGoodId"

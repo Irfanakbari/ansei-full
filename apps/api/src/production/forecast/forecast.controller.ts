@@ -14,6 +14,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ForecastService } from './forecast.service';
@@ -25,6 +26,7 @@ import {
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @ApiTags('Forecast')
 @Controller('production/forecast')
@@ -39,8 +41,11 @@ export class ForecastController {
   })
   @Get()
   @Permission('IPCS.FORECAST_READ')
-  async findAll(@CurrentUser() user: ICurrentUser) {
-    return this.forecastService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.forecastService.findAll(query);
   }
 
   @ApiOperation({

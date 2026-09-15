@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
 import type { LogProcessModel } from '../generated/prisma/models';
+import type { Prisma } from '../generated/prisma/client';
 import {
   CreateInventoryCountingDto,
   UpdateInventoryCountingDto,
@@ -135,7 +136,7 @@ export class InventoryCountingService {
     const limit = query.limit ?? 50;
     const offset = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Prisma.StockOpnameWhereInput = {};
 
     if (query.status) {
       where.Status = query.status;
@@ -156,7 +157,7 @@ export class InventoryCountingService {
       this.prisma.stockOpname.count({ where }),
       this.prisma.stockOpname.findMany({
         where,
-        orderBy: { CreatedAt: 'desc' },
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
         skip: offset,
         take: limit,
         include: {
@@ -196,10 +197,12 @@ export class InventoryCountingService {
         TotalItems: item.Details.length,
         CompletedItems: item.Details.filter((d) => d.ActualQty !== null).length,
       })),
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      meta: {
+        page,
+        limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 

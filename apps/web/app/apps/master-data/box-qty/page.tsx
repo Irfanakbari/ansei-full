@@ -9,14 +9,14 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { BoxQTYEntity, fetchBoxQTY, deleteBoxQTY } from '@/store/features/master/boxQtySlice';
+import { BoxQTYEntity, fetchBoxQTY, deleteBoxQTY, setBoxQTYQuery } from '@/store/features/master/boxQtySlice';
 import CreateBoxQTYModal from './_components/CreateBoxQTYModal';
 import EditBoxQTYModal from './_components/EditBoxQTYModal';
 
 export default function BoxQTYPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.boxQTY);
+    const { data, loading, pagination, query } = useSelector((state: RootState) => state.boxQTY);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -24,8 +24,8 @@ export default function BoxQTYPage() {
     const [editData, setEditData] = useState<BoxQTYEntity | null>(null);
 
     useEffect(() => {
-        dispatch(fetchBoxQTY());
-    }, [dispatch]);
+        dispatch(fetchBoxQTY(query));
+    }, [dispatch, query]);
 
     const searchInput = useRef<InputRef>(null);
 
@@ -53,11 +53,7 @@ export default function BoxQTYPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value: any, record: any) =>
-            record[dataIndex]
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
+        filteredValue: query.search ? [query.search] : null,
     });
 
     const columns = [
@@ -112,7 +108,7 @@ export default function BoxQTYPage() {
                         }
                         message.success('Box QTY deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchBoxQTY());
+                        dispatch(fetchBoxQTY(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete box QTY');
@@ -126,7 +122,7 @@ export default function BoxQTYPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Master Data' }, { title: 'Box QTY' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchBoxQTY()); }} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchBoxQTY(query)); }} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
@@ -143,11 +139,13 @@ export default function BoxQTYPage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
+                onChange={(pageInfo, tableFilters) => dispatch(setBoxQTYQuery({ page: tableFilters.PartNumber ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.PartNumber?.[0] ?? '') }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 100,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
-                    hideOnSinglePage: true,
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"

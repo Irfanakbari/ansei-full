@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { ManPowerEntity, fetchManPower, deleteManPower } from '@/store/features/master/manPowerSlice';
+import { ManPowerEntity, fetchManPower, deleteManPower, setManPowerQuery } from '@/store/features/master/manPowerSlice';
 import CreateManPowerModal from './_components/CreateManPowerModal';
 import EditManPowerModal from './_components/EditManPowerModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
@@ -17,7 +17,7 @@ import { formatDateTime } from '@/lib/utils/dateTime';
 export default function ManPowerPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.manPower);
+    const { data, loading, pagination, query } = useSelector((state: RootState) => state.manPower);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -25,8 +25,8 @@ export default function ManPowerPage() {
     const [editData, setEditData] = useState<ManPowerEntity | null>(null);
 
     useEffect(() => {
-        dispatch(fetchManPower());
-    }, [dispatch]);
+        dispatch(fetchManPower(query));
+    }, [dispatch, query]);
 
     const searchInput = useRef<InputRef>(null);
 
@@ -54,11 +54,7 @@ export default function ManPowerPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value: any, record: any) =>
-            record[dataIndex]
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
+        filteredValue: query.search ? [query.search] : null,
     });
 
     const columns = [
@@ -127,7 +123,7 @@ export default function ManPowerPage() {
                         }
                         message.success('Man power deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchManPower());
+                        dispatch(fetchManPower(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete man power');
@@ -141,7 +137,7 @@ export default function ManPowerPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Master Data' }, { title: 'Man Power' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchManPower()); }} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchManPower(query)); }} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
@@ -158,11 +154,13 @@ export default function ManPowerPage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
+                onChange={(pageInfo, tableFilters) => dispatch(setManPowerQuery({ page: tableFilters.Nik || tableFilters.Name ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.Nik?.[0] ?? tableFilters.Name?.[0] ?? '') }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 100,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
-                    hideOnSinglePage: true,
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Uid"

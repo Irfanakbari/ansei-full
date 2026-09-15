@@ -10,6 +10,8 @@ import type {
   LogProcessModel,
   PrinterSettingModel,
 } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class PrinterSettingService {
@@ -18,10 +20,33 @@ export class PrinterSettingService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<PrinterSettingModel[]> {
-    return this.prisma.printerSetting.findMany({
-      orderBy: { CreatedAt: 'desc' },
-    });
+  async findAll(query: SearchPaginationQueryDto) {
+    const where: Prisma.PrinterSettingWhereInput = query.search
+      ? {
+          OR: [
+            { Name: { contains: query.search, mode: 'insensitive' } },
+            { IpAddress: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.printerSetting.count({ where }),
+      this.prisma.printerSetting.findMany({
+        where,
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async findOne(id: string): Promise<PrinterSettingModel> {

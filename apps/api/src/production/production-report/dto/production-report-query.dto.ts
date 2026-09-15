@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   Min,
+  Max,
   IsDateString,
   IsEnum,
 } from 'class-validator';
@@ -26,6 +27,7 @@ export class ProductionReportQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(100)
   limit?: number = 50;
 
   @ApiPropertyOptional({ description: 'Filter by date (YYYY-MM-DD)' })

@@ -31,6 +31,7 @@ describe('SupplierService', () => {
 
   let prismaService: {
     supplier: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findUnique: jest.Mock;
       create: jest.Mock;
@@ -48,6 +49,7 @@ describe('SupplierService', () => {
   beforeEach(async () => {
     prismaService = {
       supplier: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         create: jest.fn(),
@@ -87,22 +89,27 @@ describe('SupplierService', () => {
   describe('findAll', () => {
     it('should return all suppliers', async () => {
       const expectedSuppliers = [mockSupplier];
+      prismaService.supplier.count.mockResolvedValue(1);
       prismaService.supplier.findMany.mockResolvedValue(expectedSuppliers);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expectedSuppliers);
+      expect(result.data).toEqual(expectedSuppliers);
       expect(prismaService.supplier.findMany).toHaveBeenCalledWith({
-        orderBy: { Id: 'asc' },
+        orderBy: [{ Id: 'asc' }],
+        skip: 0,
+        take: 50,
+        where: {},
       });
     });
 
     it('should return empty array when no suppliers exist', async () => {
+      prismaService.supplier.count.mockResolvedValue(0);
       prismaService.supplier.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 

@@ -1,10 +1,10 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
-import { Table, Card, Breadcrumb, Input, Button, Space, Tag, App, Progress, Tooltip } from 'antd';
-import type { InputRef } from 'antd';
-import { ReloadOutlined, SearchOutlined, PlusOutlined, EyeOutlined, DeleteOutlined, PlayCircleOutlined, StopOutlined, FileExcelOutlined, CameraOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Table, Card, Breadcrumb, Tag, App, Progress, Tooltip } from 'antd';
+import type { TableProps } from 'antd';
+import { ReloadOutlined, PlusOutlined, EyeOutlined, DeleteOutlined, PlayCircleOutlined, StopOutlined, FileExcelOutlined, CameraOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,6 +14,7 @@ import {
     deleteInventoryCounting,
     startInventoryCounting,
     closeInventoryCounting,
+    setFilters,
     downloadWorksheet,
     downloadSnapshot,
     InventoryCountingEntity,
@@ -46,7 +47,6 @@ export default function InventoryCountingPage() {
     const [detailData, setDetailData] = useState<InventoryCountingEntity | null>(null);
     const [downloadingWs, setDownloadingWs] = useState(false);
     const [downloadingSnapshot, setDownloadingSnapshot] = useState(false);
-    const searchInput = useRef<InputRef>(null);
 
     useEffect(() => {
         dispatch(fetchInventoryCounting(filters));
@@ -54,13 +54,16 @@ export default function InventoryCountingPage() {
 
     const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
 
-    const handleTableChange = (pagination: any, filters: any) => {
+    const handleTableChange: TableProps<InventoryCountingEntity>['onChange'] = (pagination, tableFilters) => {
         const newFilters: InventoryCountingQuery = {
             ...filters,
-            page: pagination.current,
+            page: tableFilters.OpnameNumber || tableFilters.Category || tableFilters.Status ? 1 : pagination.current,
             limit: pagination.pageSize,
+            createdBy: filters.createdBy,
+            category: String(tableFilters.Category?.[0] ?? ''),
+            status: String(tableFilters.Status?.[0] ?? ''),
         };
-        dispatch(fetchInventoryCounting(newFilters));
+        dispatch(setFilters(newFilters));
     };
 
     const handleRefresh = () => {
@@ -199,35 +202,6 @@ export default function InventoryCountingPage() {
         }
     };
 
-    const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-                <Input
-                    ref={searchInput as any}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => confirm()}
-                    style={{ marginBottom: 8, display: 'block' }}
-                />
-                <Space>
-                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 80 }}>
-                        Search
-                    </Button>
-                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 80 }}>
-                        Reset
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-        ),
-        onFilter: (value: any, record: any) => {
-            return record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase());
-        },
-    });
-
     const columns = [
         {
             title: 'Opname Number',
@@ -236,7 +210,6 @@ export default function InventoryCountingPage() {
             width: 180,
             ellipsis: true,
             render: (val: string) => <Tooltip title={val || '-'}><code style={{ fontSize: 11 }}>{val || '-'}</code></Tooltip>,
-            ...getColumnSearchProps('OpnameNumber'),
         },
         {
             title: 'Category',
@@ -252,7 +225,7 @@ export default function InventoryCountingPage() {
                 { text: 'MATERIAL', value: 'MATERIAL' },
                 { text: 'FINISH_GOOD', value: 'FINISH_GOOD' },
             ],
-            onFilter: (value: any, record: any) => record.Category === value,
+            filteredValue: filters.category ? [filters.category] : null,
         },
         {
             title: 'Status',
@@ -279,7 +252,7 @@ export default function InventoryCountingPage() {
                 { text: 'COMPLETED', value: 'COMPLETED' },
                 { text: 'CANCELLED', value: 'CANCELLED' },
             ],
-            onFilter: (value: any, record: any) => record.Status === value,
+            filteredValue: filters.status ? [filters.status] : null,
         },
         {
             title: 'Items',

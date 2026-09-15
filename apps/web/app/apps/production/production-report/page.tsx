@@ -16,6 +16,7 @@ import {
     unvalidateProductionReport,
     deleteProductionReport,
     PartType,
+    setFilters,
 } from '@/store/features/production/productionReport/productionReportSlice';
 import CreateProductionReportModal from './_components/CreateProductionReportModal';
 
@@ -34,7 +35,7 @@ const RECORD_TYPE_COLORS: Record<string, string> = {
 export default function ProductionReportPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, pagination } = useSelector((state: RootState) => state.productionReport);
+    const { data, loading, pagination, filters } = useSelector((state: RootState) => state.productionReport);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -42,8 +43,8 @@ export default function ProductionReportPage() {
     const searchInput = useRef<InputRef>(null);
 
     useEffect(() => {
-        dispatch(fetchProductionReport({ page: 1, limit: 50 }));
-    }, [dispatch]);
+        dispatch(fetchProductionReport(filters));
+    }, [dispatch, filters]);
 
     const selectedRow = data.find(item => item.id === selectedRowKeys[0]);
 
@@ -204,7 +205,7 @@ export default function ProductionReportPage() {
     ];
 
     const handleTableChange = (pagination: any) => {
-        dispatch(fetchProductionReport({ page: pagination.current, limit: pagination.pageSize }));
+        dispatch(setFilters({ page: pagination.current, limit: pagination.pageSize }));
     };
 
     const handleValidate = () => {

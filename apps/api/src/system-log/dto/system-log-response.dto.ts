@@ -26,13 +26,3 @@ export class LogProcessDetailResponseDto extends LogProcessDto {
   @ApiProperty({ type: [LogProcessDetailDto] })
   details: LogProcessDetailDto[];
 }
-
-export class PaginatedLogProcessDto {
-  @ApiProperty({ type: [LogProcessDto] })
-  data: LogProcessDto[];
-
-  @ApiProperty() total: number;
-  @ApiProperty() page: number;
-  @ApiProperty() limit: number;
-  @ApiProperty() totalPages: number;
-}

@@ -1,5 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 import {fetchWithAuth} from "@/store/utils/fetchWithAuth";
 
 // Forecast item interface
@@ -98,6 +99,7 @@ interface ProductionReleaseState {
     detailLoading: boolean;
     attachmentLoading: boolean;
     error: string | null;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
 
 const initialState: ProductionReleaseState = {
@@ -108,19 +110,31 @@ const initialState: ProductionReleaseState = {
     detailLoading: false,
     attachmentLoading: false,
     error: null,
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
+export interface ProductionReleaseQuery {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+}
+
+interface PaginatedProductionRelease {
+    data: ProductionReleaseEntity[];
+    meta: { page: number; limit: number; totalItems: number; totalPages: number };
+}
+
 // Fetch all production releases
-export const fetchProductionRelease = createAsyncThunk(
+export const fetchProductionRelease = createAsyncThunk<ApiSuccessEnvelope<PaginatedProductionRelease>, ProductionReleaseQuery | undefined, { rejectValue: string }>(
     'productionRelease/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/production/production-release');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch production release data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<PaginatedProductionRelease>>('/production/production-release', {
+                params: { page: query.page, limit: query.limit, search: query.search, status: query.status },
+            });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch production release data'));
         }
     }
 );
@@ -289,7 +303,8 @@ const productionReleaseSlice = createSlice({
             .addCase(fetchProductionRelease.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchProductionRelease.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data.data;
+                state.pagination = action.payload.data.meta;
             })
             .addCase(fetchProductionRelease.rejected, (state, action) => {
                 state.loading = false;

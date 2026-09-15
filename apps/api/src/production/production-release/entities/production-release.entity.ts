@@ -104,6 +104,21 @@ export class ProductionReleaseEntity {
   Forecasts?: ForecastItemEntity[];
 }
 
+export class PaginatedProductionReleaseEntity {
+  @ApiProperty({ type: () => ProductionReleaseEntity, isArray: true })
+  data: ProductionReleaseEntity[];
+
+  @ApiProperty({
+    example: { page: 1, limit: 50, totalItems: 100, totalPages: 2 },
+  })
+  meta: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
+
 export class ProductionReleaseDetailEntity extends ProductionReleaseEntity {
   @ApiPropertyOptional({ type: () => Object, isArray: true })
   LabelDatas?: Array<{

@@ -13,6 +13,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { SupplierService } from './supplier.service';
 import { CreateSupplierDto, UpdateSupplierDto } from './dto';
@@ -20,6 +21,8 @@ import { SupplierEntity } from './entities/supplier.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
 @ApiTags('Supplier')
 @Controller('master/supplier')
@@ -27,11 +30,19 @@ export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
   @ApiOperation({ summary: 'Get all suppliers' })
-  @ApiResponse({ status: 200, type: [SupplierEntity] })
+  @ApiSuccessEnvelope({
+    status: 200,
+    type: SupplierEntity,
+    isArray: true,
+    paginated: true,
+  })
   @Get()
   @Permission('IPCS.MASTER_READ')
-  async findAll(@CurrentUser() _user: ICurrentUser) {
-    return this.supplierService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.supplierService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Get supplier by ID' })

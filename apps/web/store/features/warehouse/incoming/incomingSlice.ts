@@ -1,6 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-07-14*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import {fetchWithAuth} from "@/store/utils/fetchWithAuth";
+import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { get, getApiErrorMessage, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Attachment entity interface
 export interface AttachmentEntity {
@@ -64,7 +65,10 @@ interface IncomingState {
     error: string | null;
     attachments: Record<string, AttachmentEntity[]>; // key = incomingId
     attachmentLoading: boolean;
+    query: IncomingQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface IncomingQuery { page?: number; limit?: number; search?: string; open?: boolean }
 
 const initialState: IncomingState = {
     data: [],
@@ -74,19 +78,18 @@ const initialState: IncomingState = {
     error: null,
     attachments: {},
     attachmentLoading: false,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
 // Fetch all incoming
-export const fetchIncoming = createAsyncThunk(
+export const fetchIncoming = createAsyncThunk<PaginatedApiSuccessEnvelope<IncomingEntity>, IncomingQuery | undefined, { rejectValue: string }>(
     'incoming/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/warehouse/incoming');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch incoming data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<IncomingEntity>>('/warehouse/incoming', { params: { page: query.page, limit: query.limit, search: query.search, open: query.open } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch incoming data'));
         }
     }
 );
@@ -295,6 +298,7 @@ const incomingSlice = createSlice({
         clearDetail: (state) => {
             state.detail = null;
         },
+        setIncomingQuery: (state, action: { payload: IncomingQuery }) => { state.query = { ...state.query, ...action.payload }; },
     },
     extraReducers: (builder) => {
         builder
@@ -302,7 +306,8 @@ const incomingSlice = createSlice({
             .addCase(fetchIncoming.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchIncoming.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchIncoming.rejected, (state, action) => {
                 state.loading = false;
@@ -387,5 +392,5 @@ const incomingSlice = createSlice({
     },
 });
 
-export const { clearDetail } = incomingSlice.actions;
+export const { clearDetail, setIncomingQuery } = incomingSlice.actions;
 export default incomingSlice.reducer;

@@ -9,7 +9,7 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { fetchDelivery } from '@/store/features/production/delivery/deliverySlice';
+import { fetchDelivery, setFilters } from '@/store/features/production/delivery/deliverySlice';
 import { fetchPreDelivery } from '@/store/features/production/preDelivery/preDeliverySlice';
 import CreateDeliveryModal from './_components/CreateDeliveryModal';
 
@@ -44,7 +44,7 @@ export default function DeliveryPage() {
     };
 
     const handleTableChange = (pag: any) => {
-        dispatch(fetchDelivery({ ...filters, page: pag.current, limit: pag.pageSize }));
+        dispatch(setFilters({ page: pag.current, limit: pag.pageSize }));
     };
 
     const handleCreateSuccess = () => {

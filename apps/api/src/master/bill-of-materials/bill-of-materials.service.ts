@@ -10,6 +10,12 @@ import type {
   LogProcessModel,
   BillOfMaterialsModel,
 } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
+import type {
+  ApiResult,
+  PaginationMeta,
+} from '../../common/interceptors/api-response.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class BillOfMaterialsService {
@@ -18,14 +24,57 @@ export class BillOfMaterialsService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<BillOfMaterialsModel[]> {
-    return this.prisma.billOfMaterials.findMany({
-      include: {
-        FGData: true,
-        MaterialData: true,
+  async findAll(
+    query: SearchPaginationQueryDto,
+  ): Promise<ApiResult<BillOfMaterialsModel[], PaginationMeta>> {
+    const where: Prisma.BillOfMaterialsWhereInput = query.search
+      ? {
+          OR: [
+            {
+              FGData: {
+                PartNumber: { contains: query.search, mode: 'insensitive' },
+              },
+            },
+            {
+              FGData: {
+                PartName: { contains: query.search, mode: 'insensitive' },
+              },
+            },
+            {
+              MaterialData: {
+                PartNumber: { contains: query.search, mode: 'insensitive' },
+              },
+            },
+            {
+              MaterialData: {
+                PartName: { contains: query.search, mode: 'insensitive' },
+              },
+            },
+          ],
+        }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.billOfMaterials.count({ where }),
+      this.prisma.billOfMaterials.findMany({
+        where,
+        include: {
+          FGData: true,
+          MaterialData: true,
+        },
+        orderBy: [{ Id: 'asc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
       },
-      orderBy: { Id: 'asc' },
-    });
+    };
   }
 
   async findByFinishGoodId(

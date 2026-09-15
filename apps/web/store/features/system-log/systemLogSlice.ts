@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import { get, getApiErrorMessage, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
 
 export interface LogProcessDto {
     processId: string;
@@ -30,10 +30,12 @@ export interface LogProcessDetailResponseDto extends LogProcessDto {
 
 export interface PaginatedLogProcessDto {
     data: LogProcessDto[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
+    meta: {
+        totalItems: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
 }
 
 export interface FetchSystemLogsParams {
@@ -41,6 +43,7 @@ export interface FetchSystemLogsParams {
     limit?: number;
     functionId?: string;
     processStatus?: string;
+    search?: string;
 }
 
 interface SystemLogState {
@@ -69,34 +72,22 @@ const initialState: SystemLogState = {
 
 export const fetchSystemLogs = createAsyncThunk(
     'systemLog/fetchAll',
-    async (params: FetchSystemLogsParams = {}, { rejectWithValue }) => {
+    async (params: FetchSystemLogsParams = {}, {rejectWithValue}) => {
         try {
-            const query = new URLSearchParams();
-            if (params.page) query.set('page', String(params.page));
-            if (params.limit) query.set('limit', String(params.limit));
-            if (params.functionId) query.set('functionId', params.functionId);
-            if (params.processStatus) query.set('processStatus', params.processStatus);
-
-            const response = await fetchWithAuth(`/api/system-log?${query.toString()}`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch system logs');
-            return data as PaginatedLogProcessDto;
-        } catch (error: any) {
-            return rejectWithValue(error.message || 'Failed to fetch system logs');
+            return await get<PaginatedApiSuccessEnvelope<LogProcessDto>>('/system-log', { params: { ...params } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch system logs'));
         }
     }
 );
 
 export const fetchSystemLogDetail = createAsyncThunk(
     'systemLog/fetchDetail',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
-            const response = await fetchWithAuth(`/api/system-log/${id}`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch detail');
-            return data as LogProcessDetailResponseDto;
-        } catch (error: any) {
-            return rejectWithValue(error.message || 'Failed to fetch detail');
+            return await get<ApiSuccessEnvelope<LogProcessDetailResponseDto>>(`/system-log/${id}`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch detail'));
         }
     }
 );
@@ -119,13 +110,13 @@ const systemLogSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(fetchSystemLogs.fulfilled, (state, action: PayloadAction<PaginatedLogProcessDto>) => {
+            .addCase(fetchSystemLogs.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = action.payload.data;
-                state.total = action.payload.total;
-                state.page = action.payload.page;
-                state.limit = action.payload.limit;
-                state.totalPages = action.payload.totalPages;
+                state.total = action.payload.meta.totalItems;
+                state.page = action.payload.meta.page;
+                state.limit = action.payload.meta.limit;
+                state.totalPages = action.payload.meta.totalPages;
             })
             .addCase(fetchSystemLogs.rejected, (state, action) => {
                 state.loading = false;
@@ -136,9 +127,9 @@ const systemLogSlice = createSlice({
                 state.detailLoading = true;
                 state.error = null;
             })
-            .addCase(fetchSystemLogDetail.fulfilled, (state, action: PayloadAction<LogProcessDetailResponseDto>) => {
+            .addCase(fetchSystemLogDetail.fulfilled, (state, action) => {
                 state.detailLoading = false;
-                state.detail = action.payload;
+                state.detail = action.payload.data;
             })
             .addCase(fetchSystemLogDetail.rejected, (state, action) => {
                 state.detailLoading = false;
@@ -147,5 +138,5 @@ const systemLogSlice = createSlice({
     },
 });
 
-export const { clearDetail, clearError } = systemLogSlice.actions;
+export const {clearDetail, clearError} = systemLogSlice.actions;
 export default systemLogSlice.reducer;

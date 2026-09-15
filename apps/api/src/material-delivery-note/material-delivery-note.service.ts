@@ -11,6 +11,7 @@ import {
   PickMaterialDto,
   UpdateMaterialDeliveryNoteDto,
   SendDeliveryNoteEmailDto,
+  MaterialDeliveryNoteQueryDto,
 } from './dto';
 import {
   DeliveryNoteStatus,
@@ -199,18 +200,22 @@ export class MaterialDeliveryNoteService {
   }
 
   // List all delivery notes with pagination
-  async findAll(params: {
-    page?: number;
-    limit?: number;
-    status?: DeliveryNoteStatus;
-  }) {
-    const page = params.page || 1;
-    const limit = params.limit || 20;
+  async findAll(params: MaterialDeliveryNoteQueryDto) {
+    const page = params.page;
+    const limit = params.limit;
     const skip = (page - 1) * limit;
 
     const where: Prisma.MaterialDeliveryNoteWhereInput = {};
     if (params.status) {
       where.Status = params.status;
+    }
+    if (params.search) {
+      where.OR = [
+        { DeliveryNoteNum: { contains: params.search, mode: 'insensitive' } },
+        { Destination: { contains: params.search, mode: 'insensitive' } },
+        { Notes: { contains: params.search, mode: 'insensitive' } },
+        { CreatedBy: { contains: params.search, mode: 'insensitive' } },
+      ];
     }
 
     const [data, total] = await Promise.all([
@@ -227,7 +232,7 @@ export class MaterialDeliveryNoteService {
             },
           },
         },
-        orderBy: { CreatedAt: 'desc' },
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
         skip,
         take: limit,
       }),
@@ -237,9 +242,9 @@ export class MaterialDeliveryNoteService {
     return {
       data,
       meta: {
-        total,
         page,
         limit,
+        totalItems: total,
         totalPages: Math.ceil(total / limit),
       },
     };

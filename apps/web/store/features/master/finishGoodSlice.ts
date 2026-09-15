@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '../../utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
 
 export interface FinishGoodEntity {
     Id: number;
@@ -17,24 +17,26 @@ interface FinishGoodState {
     data: FinishGoodEntity[];
     loading: boolean;
     error: string | null;
+    query: FinishGoodQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface FinishGoodQuery { page?: number; limit?: number; search?: string }
 
 const initialState: FinishGoodState = {
     data: [],
     loading: false,
     error: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
-export const fetchFinishGood = createAsyncThunk(
+export const fetchFinishGood = createAsyncThunk<PaginatedApiSuccessEnvelope<FinishGoodEntity>, FinishGoodQuery | undefined, { rejectValue: string }>(
     'finishGood/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/master/finish-good');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch finish good data');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<FinishGoodEntity>>('/master/finish-good', { params: { page: query.page, limit: query.limit, search: query.search } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch finish good data'));
         }
     }
 );
@@ -48,16 +50,9 @@ export const createFinishGood = createAsyncThunk(
         qty?: number;
     }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/master/finish-good', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(finishGoodData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create finish good');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<FinishGoodEntity>, typeof finishGoodData>('/master/finish-good', finishGoodData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create finish good'));
         }
     }
 );
@@ -74,16 +69,9 @@ export const updateFinishGood = createAsyncThunk(
         }
     }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/finish-good/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updateData),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update finish good');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<FinishGoodEntity>, typeof updateData>(`/master/finish-good/${id}`, updateData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update finish good'));
         }
     }
 );
@@ -92,14 +80,10 @@ export const deleteFinishGood = createAsyncThunk(
     'finishGood/delete',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/master/finish-good/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete finish good');
+            await del<ApiSuccessEnvelope<unknown>>(`/master/finish-good/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete finish good'));
         }
     }
 );
@@ -107,13 +91,14 @@ export const deleteFinishGood = createAsyncThunk(
 const finishGoodSlice = createSlice({
     name: 'finishGood',
     initialState,
-    reducers: {},
+    reducers: { setFinishGoodQuery: (state, action: { payload: FinishGoodQuery }) => { state.query = { ...state.query, ...action.payload }; } },
     extraReducers: (builder) => {
         builder
             .addCase(fetchFinishGood.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchFinishGood.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchFinishGood.rejected, (state, action) => {
                 state.loading = false;
@@ -122,4 +107,5 @@ const finishGoodSlice = createSlice({
     },
 });
 
+export const { setFinishGoodQuery } = finishGoodSlice.actions;
 export default finishGoodSlice.reducer;

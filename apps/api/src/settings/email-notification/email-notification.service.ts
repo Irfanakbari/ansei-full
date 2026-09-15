@@ -10,6 +10,8 @@ import type {
   LogProcessModel,
   EmailNotificationModel,
 } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class EmailNotificationService {
@@ -18,10 +20,28 @@ export class EmailNotificationService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<EmailNotificationModel[]> {
-    return this.prisma.emailNotification.findMany({
-      orderBy: { Id: 'asc' },
-    });
+  async findAll(query: SearchPaginationQueryDto) {
+    const where: Prisma.EmailNotificationWhereInput = query.search
+      ? { Email: { contains: query.search, mode: 'insensitive' } }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.emailNotification.count({ where }),
+      this.prisma.emailNotification.findMany({
+        where,
+        orderBy: { Id: 'asc' },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async findOne(id: number): Promise<EmailNotificationModel> {

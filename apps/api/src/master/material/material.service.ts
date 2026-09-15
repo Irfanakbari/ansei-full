@@ -11,6 +11,12 @@ import type {
   LogProcessModel,
   MaterialModel,
 } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
+import type {
+  ApiResult,
+  PaginationMeta,
+} from '../../common/interceptors/api-response.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class MaterialService {
@@ -19,13 +25,40 @@ export class MaterialService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<MaterialModel[]> {
-    return this.prisma.material.findMany({
-      include: {
-        SatuanData: true,
+  async findAll(
+    query: SearchPaginationQueryDto,
+  ): Promise<ApiResult<MaterialModel[], PaginationMeta>> {
+    const where: Prisma.MaterialWhereInput = query.search
+      ? {
+          OR: [
+            { PartNumber: { contains: query.search, mode: 'insensitive' } },
+            { PartName: { contains: query.search, mode: 'insensitive' } },
+            { Supplier: { contains: query.search, mode: 'insensitive' } },
+            { RackLocation: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.material.count({ where }),
+      this.prisma.material.findMany({
+        where,
+        include: {
+          SatuanData: true,
+        },
+        orderBy: [{ Id: 'asc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
       },
-      orderBy: { Id: 'asc' },
-    });
+    };
   }
 
   async findOne(id: number): Promise<MaterialModel> {

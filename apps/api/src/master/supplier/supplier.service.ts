@@ -6,6 +6,12 @@ import type {
   LogProcessModel,
   SupplierModel,
 } from '../../generated/prisma/models';
+import type { Prisma } from '../../generated/prisma/client';
+import type {
+  ApiResult,
+  PaginationMeta,
+} from '../../common/interceptors/api-response.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @Injectable()
 export class SupplierService {
@@ -14,10 +20,30 @@ export class SupplierService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<SupplierModel[]> {
-    return this.prisma.supplier.findMany({
-      orderBy: { Id: 'asc' },
-    });
+  async findAll(
+    query: SearchPaginationQueryDto,
+  ): Promise<ApiResult<SupplierModel[], PaginationMeta>> {
+    const where: Prisma.SupplierWhereInput = query.search
+      ? { Name: { contains: query.search, mode: 'insensitive' } }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.supplier.count({ where }),
+      this.prisma.supplier.findMany({
+        where,
+        orderBy: [{ Id: 'asc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async findOne(id: number): Promise<SupplierModel> {

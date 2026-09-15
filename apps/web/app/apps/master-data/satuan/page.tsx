@@ -9,14 +9,14 @@ import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { SatuanEntity, fetchSatuan, deleteSatuan } from '@/store/features/master/satuanSlice';
+import { SatuanEntity, fetchSatuan, deleteSatuan, setSatuanQuery } from '@/store/features/master/satuanSlice';
 import CreateSatuanModal from './_components/CreateSatuanModal';
 import EditSatuanModal from './_components/EditSatuanModal';
 
 export default function SatuanPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading } = useSelector((state: RootState) => state.satuan);
+    const { data, loading, pagination, query } = useSelector((state: RootState) => state.satuan);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -24,8 +24,8 @@ export default function SatuanPage() {
     const [editData, setEditData] = useState<SatuanEntity | null>(null);
 
     useEffect(() => {
-        dispatch(fetchSatuan());
-    }, [dispatch]);
+        dispatch(fetchSatuan(query));
+    }, [dispatch, query]);
 
     const searchInput = useRef<InputRef>(null);
 
@@ -53,11 +53,7 @@ export default function SatuanPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value: any, record: any) =>
-            record[dataIndex]
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase()),
+        filteredValue: query.search ? [query.search] : null,
     });
 
     const columns = [
@@ -98,7 +94,7 @@ export default function SatuanPage() {
                         }
                         message.success('Unit deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchSatuan());
+                        dispatch(fetchSatuan(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || String(error) || 'Failed to delete unit');
@@ -112,7 +108,7 @@ export default function SatuanPage() {
         <Card variant="borderless" styles={{ body: { padding: 0 } }}>
             <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Master Data' }, { title: 'Unit' }]} />
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchSatuan()); }} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchSatuan(query)); }} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
@@ -129,11 +125,13 @@ export default function SatuanPage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
+                onChange={(pageInfo, tableFilters) => dispatch(setSatuanQuery({ page: tableFilters.Name ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.Name?.[0] ?? '') }))}
                 pagination={{
                     size: 'small',
-                    pageSize: 100,
+                    current: pagination.page,
+                    pageSize: pagination.limit,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
-                    hideOnSinglePage: true,
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"

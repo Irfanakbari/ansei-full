@@ -53,6 +53,7 @@ describe('FinishGoodService', () => {
 
   let prismaService: {
     finishGood: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findUnique: jest.Mock;
       create: jest.Mock;
@@ -70,6 +71,7 @@ describe('FinishGoodService', () => {
   beforeEach(async () => {
     prismaService = {
       finishGood: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         create: jest.fn(),
@@ -109,22 +111,27 @@ describe('FinishGoodService', () => {
   describe('findAll', () => {
     it('should return all finish goods', async () => {
       const expectedFinishGoods = [mockFinishGood];
+      prismaService.finishGood.count.mockResolvedValue(1);
       prismaService.finishGood.findMany.mockResolvedValue(expectedFinishGoods);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expectedFinishGoods);
+      expect(result.data).toEqual(expectedFinishGoods);
       expect(prismaService.finishGood.findMany).toHaveBeenCalledWith({
-        orderBy: { Id: 'asc' },
+        orderBy: [{ Id: 'asc' }],
+        skip: 0,
+        take: 50,
+        where: {},
       });
     });
 
     it('should return empty array when no finish goods exist', async () => {
+      prismaService.finishGood.count.mockResolvedValue(0);
       prismaService.finishGood.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 

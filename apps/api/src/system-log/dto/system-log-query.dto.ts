@@ -1,24 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
-export class SystemLogQueryDto {
-  @ApiPropertyOptional({ description: 'Page number (1-based)', example: 1 })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page?: number = 1;
-
+export class SystemLogQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
-    description: 'Number of records per page',
-    example: 50,
+    description: 'Search process, function, status, or creator',
   })
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  limit?: number = 50;
+  @IsString()
+  search?: string;
 
   @ApiPropertyOptional({ description: 'Filter by FunctionId' })
   @IsOptional()

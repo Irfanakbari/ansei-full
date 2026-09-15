@@ -36,7 +36,7 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
     // Fetch materials when modal opens
     useEffect(() => {
         if (visible) {
-            dispatch(fetchMaterial());
+            dispatch(fetchMaterial({ page: 1, limit: 100 }));
         }
     }, [visible, dispatch]);
 

@@ -83,9 +83,11 @@ export class PaginatedMaterialDeliveryNoteResponseDto {
   @ApiProperty({ type: [MaterialDeliveryNoteResponseDto] })
   data: MaterialDeliveryNoteResponseDto[];
 
-  @ApiProperty({ example: { total: 100, page: 1, limit: 10, totalPages: 10 } })
+  @ApiProperty({
+    example: { totalItems: 100, page: 1, limit: 50, totalPages: 2 },
+  })
   meta: {
-    total: number;
+    totalItems: number;
     page: number;
     limit: number;
     totalPages: number;

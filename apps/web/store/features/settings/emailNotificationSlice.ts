@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-14*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // NotificationType enum
 export type NotificationType = 'DEFAULT' | 'INCOMING' | 'OUTGOING' | 'PRODUCTION' | 'TRANSFER';
@@ -22,26 +22,27 @@ interface EmailNotificationState {
     data: EmailNotificationEntity[];
     loading: boolean;
     error: string | null;
+    query: EmailNotificationQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface EmailNotificationQuery { page?: number; limit?: number; search?: string }
 
 const initialState: EmailNotificationState = {
     data: [],
     loading: false,
     error: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
 // Fetch all email notifications
-export const fetchEmailNotifications = createAsyncThunk(
+export const fetchEmailNotifications = createAsyncThunk<PaginatedApiSuccessEnvelope<EmailNotificationEntity>, EmailNotificationQuery | undefined, { rejectValue: string }>(
     'emailNotification/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/settings/email-notification');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch email notifications');
-            return Array.isArray(data) ? data : (data.data || []);
-            return Array.isArray(data) ? data : (data.data || []);
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<EmailNotificationEntity>>('/settings/email-notification', { params: { ...query } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch email notifications'));
         }
     }
 );
@@ -51,16 +52,9 @@ export const createEmailNotification = createAsyncThunk(
     'emailNotification/create',
     async (data: { name: string; email: string; type?: NotificationType }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/settings/email-notification', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            const result = await response.json();
-            if (!response.ok) return rejectWithValue(result.message || 'Failed to create email notification');
-            return result;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<EmailNotificationEntity>, typeof data>('/settings/email-notification', data);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create email notification'));
         }
     }
 );
@@ -70,16 +64,9 @@ export const updateEmailNotification = createAsyncThunk(
     'emailNotification/update',
     async ({ id, data }: { id: number; data: { name?: string; email?: string; type?: NotificationType } }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/settings/email-notification/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            const result = await response.json();
-            if (!response.ok) return rejectWithValue(result.message || 'Failed to update email notification');
-            return result;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<EmailNotificationEntity>, typeof data>(`/settings/email-notification/${id}`, data);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update email notification'));
         }
     }
 );
@@ -89,14 +76,10 @@ export const deleteEmailNotification = createAsyncThunk(
     'emailNotification/delete',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/settings/email-notification/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete email notification');
+            await del<ApiSuccessEnvelope<unknown>>(`/settings/email-notification/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete email notification'));
         }
     }
 );
@@ -104,14 +87,15 @@ export const deleteEmailNotification = createAsyncThunk(
 const emailNotificationSlice = createSlice({
     name: 'emailNotification',
     initialState,
-    reducers: {},
+    reducers: { setEmailNotificationQuery: (state, action: { payload: EmailNotificationQuery }) => { state.query = { ...state.query, ...action.payload }; } },
     extraReducers: (builder) => {
         builder
             // Fetch all
             .addCase(fetchEmailNotifications.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchEmailNotifications.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload;
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchEmailNotifications.rejected, (state, action) => {
                 state.loading = false;
@@ -121,7 +105,7 @@ const emailNotificationSlice = createSlice({
             .addCase(createEmailNotification.pending, (state) => { state.loading = true; })
             .addCase(createEmailNotification.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data.unshift(action.payload);
+                state.data.unshift(action.payload.data);
             })
             .addCase(createEmailNotification.rejected, (state, action) => {
                 state.loading = false;
@@ -129,9 +113,9 @@ const emailNotificationSlice = createSlice({
             })
             // Update
             .addCase(updateEmailNotification.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const index = state.data.findIndex(item => item.Id === action.payload.data.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = action.payload.data;
                 }
             })
             // Delete
@@ -141,4 +125,5 @@ const emailNotificationSlice = createSlice({
     },
 });
 
+export const { setEmailNotificationQuery } = emailNotificationSlice.actions;
 export default emailNotificationSlice.reducer;

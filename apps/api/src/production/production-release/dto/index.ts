@@ -12,3 +12,4 @@ export {
   CreateDeliveryAttachmentDto,
   UploadProductionAttachmentDto,
 };
+export { ProductionReleaseQueryDto } from './production-release-query.dto';

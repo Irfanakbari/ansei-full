@@ -6,6 +6,7 @@ import type {
   LogProcessModel,
   DashboardSettingModel,
 } from '../../generated/prisma/models';
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
 @Injectable()
 export class DashboardSettingService {
@@ -14,10 +15,24 @@ export class DashboardSettingService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(): Promise<DashboardSettingModel[]> {
-    return this.prisma.dashboardSetting.findMany({
-      orderBy: { Id: 'asc' },
-    });
+  async findAll(query: PaginationQueryDto) {
+    const [totalItems, data] = await Promise.all([
+      this.prisma.dashboardSetting.count(),
+      this.prisma.dashboardSetting.findMany({
+        orderBy: { Id: 'asc' },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
   }
 
   async findOne(id: number): Promise<DashboardSettingModel> {

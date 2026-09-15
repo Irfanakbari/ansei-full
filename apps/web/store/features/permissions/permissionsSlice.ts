@@ -1,5 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '../../utils/apiService';
 import { fetchWithAuth } from '../../utils/fetchWithAuth';
 
 export interface PermissionData {
@@ -20,16 +21,13 @@ const initialState: PermissionsState = {
     error: null,
 };
 
-export const fetchPermissions = createAsyncThunk(
+export const fetchPermissions = createAsyncThunk<ApiSuccessEnvelope<PermissionData[]>, void, { rejectValue: string }>(
     'permissions/fetchAll',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/permissions');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch permissions');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<ApiSuccessEnvelope<PermissionData[]>>('/permissions');
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch permissions'));
         }
     }
 );
@@ -95,7 +93,7 @@ const permissionsSlice = createSlice({
             .addCase(fetchPermissions.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchPermissions.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = Array.isArray(action.payload) ? action.payload : (action.payload?.data || []);
+                state.data = action.payload.data;
             })
             .addCase(fetchPermissions.rejected, (state, action) => {
                 state.loading = false;

@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-14*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // PrinterSetting entity interface
 export interface PrinterSettingEntity {
@@ -18,26 +18,27 @@ interface PrinterSettingState {
     data: PrinterSettingEntity[];
     loading: boolean;
     error: string | null;
+    query: SettingsQuery;
+    pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
+export interface SettingsQuery { page?: number; limit?: number; search?: string }
 
 const initialState: PrinterSettingState = {
     data: [],
     loading: false,
     error: null,
+    query: { page: 1, limit: 50 },
+    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
 // Fetch all printer settings
-export const fetchPrinterSettings = createAsyncThunk(
+export const fetchPrinterSettings = createAsyncThunk<PaginatedApiSuccessEnvelope<PrinterSettingEntity>, SettingsQuery | undefined, { rejectValue: string }>(
     'printerSetting/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (query = {}, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/settings/printer-setting');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch printer settings');
-            return Array.isArray(data) ? data : (data.data || []);
-            return Array.isArray(data) ? data : (data.data || []);
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<PaginatedApiSuccessEnvelope<PrinterSettingEntity>>('/settings/printer-setting', { params: { ...query } });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch printer settings'));
         }
     }
 );
@@ -47,16 +48,9 @@ export const createPrinterSetting = createAsyncThunk(
     'printerSetting/create',
     async (data: { name?: string; ipAddress: string }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/settings/printer-setting', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            const result = await response.json();
-            if (!response.ok) return rejectWithValue(result.message || 'Failed to create printer setting');
-            return result;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<ApiSuccessEnvelope<PrinterSettingEntity>, typeof data>('/settings/printer-setting', data);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create printer setting'));
         }
     }
 );
@@ -66,16 +60,9 @@ export const updatePrinterSetting = createAsyncThunk(
     'printerSetting/update',
     async ({ id, data }: { id: string; data: { name?: string; ipAddress?: string } }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/settings/printer-setting/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-            const result = await response.json();
-            if (!response.ok) return rejectWithValue(result.message || 'Failed to update printer setting');
-            return result;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<ApiSuccessEnvelope<PrinterSettingEntity>, typeof data>(`/settings/printer-setting/${id}`, data);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update printer setting'));
         }
     }
 );
@@ -85,14 +72,10 @@ export const deletePrinterSetting = createAsyncThunk(
     'printerSetting/delete',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/settings/printer-setting/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete printer setting');
+            await del<ApiSuccessEnvelope<unknown>>(`/settings/printer-setting/${id}`);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete printer setting'));
         }
     }
 );
@@ -100,14 +83,15 @@ export const deletePrinterSetting = createAsyncThunk(
 const printerSettingSlice = createSlice({
     name: 'printerSetting',
     initialState,
-    reducers: {},
+    reducers: { setPrinterSettingQuery: (state, action: { payload: SettingsQuery }) => { state.query = { ...state.query, ...action.payload }; } },
     extraReducers: (builder) => {
         builder
             // Fetch all
             .addCase(fetchPrinterSettings.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchPrinterSettings.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload;
+                state.data = action.payload.data;
+                state.pagination = action.payload.meta;
             })
             .addCase(fetchPrinterSettings.rejected, (state, action) => {
                 state.loading = false;
@@ -117,7 +101,7 @@ const printerSettingSlice = createSlice({
             .addCase(createPrinterSetting.pending, (state) => { state.loading = true; })
             .addCase(createPrinterSetting.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data.unshift(action.payload);
+                state.data.unshift(action.payload.data);
             })
             .addCase(createPrinterSetting.rejected, (state, action) => {
                 state.loading = false;
@@ -125,9 +109,9 @@ const printerSettingSlice = createSlice({
             })
             // Update
             .addCase(updatePrinterSetting.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const index = state.data.findIndex(item => item.Id === action.payload.data.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = action.payload.data;
                 }
             })
             // Delete
@@ -137,4 +121,5 @@ const printerSettingSlice = createSlice({
     },
 });
 
+export const { setPrinterSettingQuery } = printerSettingSlice.actions;
 export default printerSettingSlice.reducer;

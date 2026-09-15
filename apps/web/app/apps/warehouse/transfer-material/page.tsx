@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { Table, Card, Breadcrumb, App, Input, Button, Space, Tag, Tooltip } from 'antd';
-import type { InputRef } from 'antd';
+import type { InputRef, TableProps } from 'antd';
 import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, DeleteOutlined, SendOutlined, CheckCircleOutlined, CloseCircleOutlined, FilePdfOutlined, MailOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
@@ -43,12 +43,13 @@ export default function TransferMaterialPage() {
     const [detailData, setDetailData] = useState<TransferMaterialEntity | null>(null);
     const [sortedInfo, setSortedInfo] = useState<any>({});
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const [query, setQuery] = useState({ page: 1, limit: 50, status: undefined as string | undefined, search: undefined as string | undefined });
 
     const searchInput = useRef<InputRef>(null);
 
     useEffect(() => {
-        dispatch(fetchTransferMaterial({ page: 1, limit: 50 }));
-    }, [dispatch]);
+        dispatch(fetchTransferMaterial(query));
+    }, [dispatch, query]);
 
     const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
 
@@ -83,7 +84,7 @@ export default function TransferMaterialPage() {
                             throw new Error((result.payload as string) || 'Failed to ship transfer material');
                         }
                         message.success('Transfer material shipped successfully');
-                        dispatch(fetchTransferMaterial({ page: 1, limit: 50 }));
+                        dispatch(fetchTransferMaterial(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || 'Failed to ship transfer material');
@@ -114,7 +115,7 @@ export default function TransferMaterialPage() {
                             throw new Error((result.payload as string) || 'Failed to receive transfer material');
                         }
                         message.success('Transfer material received successfully');
-                        dispatch(fetchTransferMaterial({ page: 1, limit: 50 }));
+                        dispatch(fetchTransferMaterial(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || 'Failed to receive transfer material');
@@ -145,7 +146,7 @@ export default function TransferMaterialPage() {
                             throw new Error((result.payload as string) || 'Failed to cancel transfer material');
                         }
                         message.success('Transfer material cancelled');
-                        dispatch(fetchTransferMaterial({ page: 1, limit: 50 }));
+                        dispatch(fetchTransferMaterial(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || 'Failed to cancel transfer material');
@@ -177,7 +178,7 @@ export default function TransferMaterialPage() {
                         }
                         message.success('Transfer material deleted successfully');
                         setSelectedRowKeys([]);
-                        dispatch(fetchTransferMaterial({ page: 1, limit: 50 }));
+                        dispatch(fetchTransferMaterial(query));
                     } catch (error: unknown) {
                         const err = error as Error;
                         message.error(err?.message || 'Failed to delete transfer material');
@@ -205,8 +206,10 @@ export default function TransferMaterialPage() {
         setIsEmailModalVisible(true);
     };
 
-    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    const handleTableChange: TableProps<TransferMaterialEntity>['onChange'] = (pagination, filters, sorter) => {
         setSortedInfo(sorter);
+        const search = String(filters.DeliveryNoteNum?.[0] ?? filters.Destination?.[0] ?? filters.CreatedBy?.[0] ?? '') || undefined;
+        setQuery({ page: search !== query.search || filters.Status ? 1 : pagination.current ?? 1, limit: pagination.pageSize ?? 50, status: String(filters.Status?.[0] ?? '') || undefined, search });
     };
 
     const getColumnSearchProps = (dataIndex: string) => ({
@@ -233,12 +236,6 @@ export default function TransferMaterialPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
-        onFilter: (value: any, record: any) => {
-            const fieldValue = dataIndex.includes('.')
-                ? dataIndex.split('.').reduce((obj, key) => obj?.[key], record)
-                : record[dataIndex];
-            return fieldValue?.toString().toLowerCase().includes((value as string).toLowerCase());
-        },
     });
 
     const columns = [
@@ -271,7 +268,7 @@ export default function TransferMaterialPage() {
                 { text: 'RECEIVED', value: 'RECEIVED' },
                 { text: 'CANCELLED', value: 'CANCELLED' },
             ],
-            onFilter: (value: any, record: any) => record.Status === value,
+            filteredValue: query.status ? [query.status] : null,
         },
         {
             title: 'Items',
@@ -330,7 +327,7 @@ export default function TransferMaterialPage() {
                 <ButtonToolbar
                     title="Refresh"
                     icon={<ReloadOutlined />}
-                    onClick={() => dispatch(fetchTransferMaterial({ page: 1, limit: 50 }))}
+                    onClick={() => dispatch(fetchTransferMaterial(query))}
                 />
                 <ButtonToolbar
                     title="Create"
@@ -401,7 +398,7 @@ export default function TransferMaterialPage() {
                     size: 'small',
                     current: pagination.page,
                     pageSize: pagination.limit,
-                    total: pagination.total,
+                    total: pagination.totalItems,
                     showSizeChanger: true,
                     showQuickJumper: true,
                     pageSizeOptions: ['20', '50', '100'],
@@ -417,7 +414,7 @@ export default function TransferMaterialPage() {
                     visible={isDetailModalVisible}
                     onClose={handleCloseDetailModal}
                     data={detailData}
-                    onRefresh={() => dispatch(fetchTransferMaterial({ page: 1, limit: 50 }))}
+                    onRefresh={() => dispatch(fetchTransferMaterial(query))}
                 />
             )}
 
@@ -425,7 +422,7 @@ export default function TransferMaterialPage() {
                 visible={isCreateModalVisible}
                 onClose={() => setIsCreateModalVisible(false)}
                 onSuccess={() => {
-                    dispatch(fetchTransferMaterial({ page: 1, limit: 50 }));
+                    dispatch(fetchTransferMaterial(query));
                 }}
             />
 

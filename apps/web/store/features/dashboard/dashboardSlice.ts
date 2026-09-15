@@ -1,6 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-20 */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import type { ApiSuccessEnvelope } from '@/store/utils/apiService';
 
 export interface DashboardQuery {
     month: number;
@@ -58,7 +59,11 @@ const initialState: DashboardState = {
 };
 
 // Fetch dashboard data
-export const fetchDashboard = createAsyncThunk(
+export const fetchDashboard = createAsyncThunk<
+    DashboardData,
+    DashboardQuery | undefined,
+    { rejectValue: { message: string; status: number | null } }
+>(
     'dashboard/fetch',
     async (query: DashboardQuery | undefined, { rejectWithValue }) => {
         try {
@@ -71,13 +76,23 @@ export const fetchDashboard = createAsyncThunk(
             const response = await fetch(
                 `/api/frontend/dashboard${queryString ? `?${queryString}` : ''}`,
             );
-            const data = await response.json();
+            const envelope = (await response.json()) as
+                | ApiSuccessEnvelope<DashboardData>
+                | DashboardData
+                | { message?: string };
             if (!response.ok) {
                 return rejectWithValue({
-                    message: data.message || 'Gagal mengambil data dashboard',
+                    message: envelope && 'message' in envelope && envelope.message
+                        ? envelope.message
+                        : 'Gagal mengambil data dashboard',
                     status: response.status,
                 });
             }
+            // Unwrap the global success envelope: { success, data, ... }
+            const data =
+                typeof envelope === 'object' && envelope !== null && 'success' in envelope
+                    ? (envelope as ApiSuccessEnvelope<DashboardData>).data
+                    : (envelope as DashboardData);
             return data;
         } catch (error: unknown) {
             return rejectWithValue({

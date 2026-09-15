@@ -37,8 +37,8 @@ const CreateIncomingModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
 
     useEffect(() => {
         if (visible) {
-            dispatch(fetchSupplier());
-            dispatch(fetchMaterial());
+            dispatch(fetchSupplier({ page: 1, limit: 100 }));
+            dispatch(fetchMaterial({ page: 1, limit: 100 }));
             setMaterials([]);
             setSelectedMaterialId(undefined);
             setSelectedQty(undefined);

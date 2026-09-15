@@ -13,6 +13,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { SatuanService } from './satuan.service';
 import { CreateSatuanDto, UpdateSatuanDto } from './dto';
@@ -20,6 +21,8 @@ import { SatuanEntity } from './entities/satuan.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
 @ApiTags('Satuan')
 @Controller('master/satuan')
@@ -27,11 +30,19 @@ export class SatuanController {
   constructor(private readonly satuanService: SatuanService) {}
 
   @ApiOperation({ summary: 'Get all satuan' })
-  @ApiResponse({ status: 200, type: [SatuanEntity] })
+  @ApiSuccessEnvelope({
+    status: 200,
+    type: SatuanEntity,
+    isArray: true,
+    paginated: true,
+  })
   @Get()
   @Permission('IPCS.MASTER_READ')
-  async findAll(@CurrentUser() _user: ICurrentUser) {
-    return this.satuanService.findAll();
+  async findAll(
+    @Query() query: SearchPaginationQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.satuanService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Get satuan by ID' })

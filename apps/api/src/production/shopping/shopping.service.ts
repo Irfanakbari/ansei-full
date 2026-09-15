@@ -19,6 +19,8 @@ import {
   TypeShopping,
   ProductionStatus,
 } from '../../generated/prisma/enums';
+import type { Prisma } from '../../generated/prisma/client';
+import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 /**
  * Interface for BOM summary response
@@ -88,16 +90,37 @@ export class ShoppingService {
     private readonly printerService: PrinterService,
   ) {}
 
-  async findAll() {
-    return this.prisma.shopping.findMany({
-      include: {
-        MaterialData: true,
-        ForecastData: true,
+  async findAll(query: SearchPaginationQueryDto) {
+    const where: Prisma.ShoppingWhereInput = query.search
+      ? {
+          OR: [
+            { ForecastId: { contains: query.search, mode: 'insensitive' } },
+            { MaterialId: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+    const [totalItems, data] = await Promise.all([
+      this.prisma.shopping.count({ where }),
+      this.prisma.shopping.findMany({
+        where,
+        include: {
+          MaterialData: true,
+          ForecastData: true,
+        },
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
       },
-      orderBy: {
-        CreatedAt: 'desc',
-      },
-    });
+    };
   }
 
   async findOne(id: string) {

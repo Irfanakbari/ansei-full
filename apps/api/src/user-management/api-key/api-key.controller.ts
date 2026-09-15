@@ -23,6 +23,7 @@ import {
   ApiKeyEntity,
   CreateApiKeyResponseEntity,
 } from './entities/api-key.entity';
+import { ApiKeyQueryDto } from './dto/api-key-query.dto';
 
 @ApiTags('API Key Management')
 @Controller('api-keys')
@@ -48,14 +49,8 @@ export class ApiKeyController {
   @ApiResponse({ status: 200, type: [ApiKeyEntity] })
   @Get()
   @Permission('IPCS.API_KEY_READ')
-  async findAll(
-    @Query('userId') userId?: string,
-    @Query('isActive') isActive?: string,
-  ) {
-    const filter: { userId?: string; isActive?: boolean } = {};
-    if (userId) filter.userId = userId;
-    if (isActive !== undefined) filter.isActive = isActive === 'true';
-    return this.apiKeyService.findAll(filter);
+  async findAll(@Query() query: ApiKeyQueryDto) {
+    return this.apiKeyService.findAll(query);
   }
 
   @ApiOperation({ summary: 'Get a single API Key by ID' })

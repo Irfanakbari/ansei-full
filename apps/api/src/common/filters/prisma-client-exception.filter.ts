@@ -7,6 +7,10 @@ import {
 import { Prisma } from '../../generated/prisma/client';
 import type { Request, Response } from 'express';
 import { OriginalErrorFileLogService } from '../logging/original-error-file-log.service';
+import {
+  createErrorResponse,
+  getRequestPath,
+} from '../interceptors/response.factory';
 
 type ErrorRequest = Request & { requestId?: string };
 
@@ -25,19 +29,39 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<ErrorRequest>();
     switch (exception.code) {
       case 'P2000': // Input Value too long
-        this.catchValueTooLong(exception, response);
+        this.send(
+          response,
+          request,
+          HttpStatus.BAD_REQUEST,
+          `The value provided for '${this.extractField(exception)}' is too long.`,
+        );
         break;
       case 'P2002': // Unique constraint failed
-        this.catchUniqueConstraint(exception, response);
+        this.send(
+          response,
+          request,
+          HttpStatus.CONFLICT,
+          `The value for '${this.extractField(exception)}' already exists. Please use a unique value.`,
+        );
         break;
       case 'P2003': // Foreign key constraint failed
-        this.catchForeignKeyConstraint(exception, response);
+        this.send(
+          response,
+          request,
+          HttpStatus.BAD_REQUEST,
+          `Invalid reference. The referenced record for '${this.extractField(exception)}' does not exist.`,
+        );
         break;
       case 'P2025': // Record not found
-        this.catchNotFound(exception, response);
+        this.send(
+          response,
+          request,
+          HttpStatus.NOT_FOUND,
+          'The requested record was not found.',
+        );
         break;
       case 'P2028': // Transaction timeout
-        this.catchTransactionTimeout(exception, response);
+        this.catchTransactionTimeout(exception, response, request);
         break;
       default:
         await this.originalErrorFileLogService.write(exception, {
@@ -45,79 +69,20 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
           method: request.method,
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         });
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Internal server error',
-          timestamp: new Date().toISOString(),
-          path: request.url,
-        });
+        this.send(
+          response,
+          request,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          'Internal server error',
+        );
         break;
     }
-  }
-
-  private catchValueTooLong(
-    exception: Prisma.PrismaClientKnownRequestError,
-    response: Response,
-  ) {
-    const status = HttpStatus.BAD_REQUEST;
-    const field = this.extractField(exception);
-    response.status(status).json({
-      success: false,
-      statusCode: status,
-      message: `The value provided for '${field}' is too long.`,
-      error: 'Bad Request',
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  private catchUniqueConstraint(
-    exception: Prisma.PrismaClientKnownRequestError,
-    response: Response,
-  ) {
-    const status = HttpStatus.CONFLICT;
-    const field = this.extractField(exception);
-    response.status(status).json({
-      success: false,
-      statusCode: status,
-      message: `The value for '${field}' already exists. Please use a unique value.`,
-      error: 'Conflict',
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  private catchForeignKeyConstraint(
-    exception: Prisma.PrismaClientKnownRequestError,
-    response: Response,
-  ) {
-    const status = HttpStatus.BAD_REQUEST;
-    const field = this.extractField(exception);
-    response.status(status).json({
-      success: false,
-      statusCode: status,
-      message: `Invalid reference. The referenced record for '${field}' does not exist.`,
-      error: 'Bad Request',
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  private catchNotFound(
-    exception: Prisma.PrismaClientKnownRequestError,
-    response: Response,
-  ) {
-    const status = HttpStatus.NOT_FOUND;
-    response.status(status).json({
-      success: false,
-      statusCode: status,
-      message: `The requested record was not found.`,
-      error: 'Not Found',
-      timestamp: new Date().toISOString(),
-    });
   }
 
   private catchTransactionTimeout(
     exception: Prisma.PrismaClientKnownRequestError,
     response: Response,
+    request: ErrorRequest,
   ) {
     const status = HttpStatus.GATEWAY_TIMEOUT;
     const meta = exception.meta as
@@ -125,20 +90,37 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
     const timeout = meta?.timeout ?? 5000;
     const timeTaken = meta?.timeTaken ?? 'unknown';
 
-    response.status(status).json({
-      success: false,
-      statusCode: status,
-      message: `Transaction timeout: The operation took too long to complete. Please try again with a smaller batch size or contact support if the problem persists.`,
-      error: 'Gateway Timeout',
-      details: {
-        prismaCode: 'P2028',
-        timeoutMs: timeout,
-        timeTakenMs: timeTaken,
-        suggestion:
-          'Consider increasing the interactive transaction timeout or doing less work in the transaction.',
-      },
-      timestamp: new Date().toISOString(),
-    });
+    response.status(status).json(
+      createErrorResponse({
+        statusCode: status,
+        message:
+          'Transaction timeout: The operation took too long to complete. Please try again with a smaller batch size or contact support if the problem persists.',
+        path: getRequestPath(request),
+        code: 'P2028',
+        details: {
+          prismaCode: 'P2028',
+          timeoutMs: timeout,
+          timeTakenMs: timeTaken,
+          suggestion:
+            'Consider increasing the interactive transaction timeout or doing less work in the transaction.',
+        },
+      }),
+    );
+  }
+
+  private send(
+    response: Response,
+    request: ErrorRequest,
+    statusCode: number,
+    message: string,
+  ): void {
+    response.status(statusCode).json(
+      createErrorResponse({
+        statusCode,
+        message,
+        path: getRequestPath(request),
+      }),
+    );
   }
 
   private extractField(
