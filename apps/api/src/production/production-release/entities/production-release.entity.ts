@@ -138,10 +138,10 @@ export class ProductionReleaseDetailEntity extends ProductionReleaseEntity {
     Id: number;
     FileName: string;
     FilePath: string;
-     CreatedAt: Date;
-     CreatedBy: string;
-     CreatedByName?: string;
-   }>;
+    CreatedAt: Date;
+    CreatedBy: string;
+    CreatedByName?: string;
+  }>;
 }
 
 export class AttachmentResponseEntity {

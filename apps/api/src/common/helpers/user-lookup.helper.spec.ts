@@ -36,13 +36,17 @@ describe('user lookup helper', () => {
   it('returns safe display fallbacks when the lookup is unavailable', async () => {
     const prisma = {
       mTCUserManagement: {
-        findMany: jest.fn().mockRejectedValue(new Error('database unavailable')),
+        findMany: jest
+          .fn()
+          .mockRejectedValue(new Error('database unavailable')),
       },
     } as unknown as PrismaService;
 
     const names = await getUserDisplayNameMap(['unresolved-user'], prisma);
 
-    expect(getUserDisplayName('unresolved-user', names)).toBe('unresolved-user');
+    expect(getUserDisplayName('unresolved-user', names)).toBe(
+      'unresolved-user',
+    );
     expect(getUserDisplayName('SYSTEM', names)).toBe('System');
   });
 
