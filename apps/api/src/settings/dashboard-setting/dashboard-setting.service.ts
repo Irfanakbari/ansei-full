@@ -15,22 +15,24 @@ export class DashboardSettingService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(query: PaginationQueryDto) {
+  async findAll(query: PaginationQueryDto = { page: 1, limit: 50 }) {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 50;
     const [totalItems, data] = await Promise.all([
       this.prisma.dashboardSetting.count(),
       this.prisma.dashboardSetting.findMany({
         orderBy: { Id: 'asc' },
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
+        skip: (page - 1) * limit,
+        take: limit,
       }),
     ]);
     return {
       data,
       meta: {
-        page: query.page,
-        limit: query.limit,
+        page,
+        limit,
         totalItems,
-        totalPages: Math.ceil(totalItems / query.limit),
+        totalPages: Math.ceil(totalItems / limit),
       },
     };
   }

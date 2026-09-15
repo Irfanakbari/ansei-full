@@ -79,10 +79,10 @@ describe('ProductionReportService', () => {
 
       const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result.total).toBe(1);
+      expect(result.meta.totalItems).toBe(1);
       expect(result.data).toHaveLength(1);
-      expect(result.page).toBe(1);
-      expect(result.limit).toBe(50);
+      expect(result.meta.page).toBe(1);
+      expect(result.meta.limit).toBe(50);
     });
 
     it('should filter by date', async () => {

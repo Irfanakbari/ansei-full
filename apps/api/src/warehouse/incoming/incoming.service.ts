@@ -39,8 +39,13 @@ export class IncomingService {
     private readonly nasUploadService: NasUploadService,
   ) {}
 
-  async findAll(query: SearchPaginationQueryDto, open?: string) {
-    const where: Prisma.IncomingWhereInput = query.search
+  async findAll(
+    query: SearchPaginationQueryDto = { page: 1, limit: 50 },
+    open?: string,
+  ) {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 50;
+    const where: Prisma.IncomingWhereInput = query?.search
       ? {
           OR: [
             { PoId: { contains: query.search, mode: 'insensitive' } },
@@ -69,18 +74,18 @@ export class IncomingService {
           },
         },
         orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
+        skip: (page - 1) * limit,
+        take: limit,
       }),
     ]);
 
     return {
       data: results.map((item) => this.mapToIncomingEntity(item)),
       meta: {
-        page: query.page,
-        limit: query.limit,
+        page,
+        limit,
         totalItems,
-        totalPages: Math.ceil(totalItems / query.limit),
+        totalPages: Math.ceil(totalItems / limit),
       },
     };
   }

@@ -139,7 +139,7 @@ describe('PokayokeService', () => {
 
       const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result.total).toBe(2);
+      expect(result.meta.totalItems).toBe(2);
       expect(result.data).toHaveLength(2);
     });
 

@@ -302,30 +302,30 @@ export class PokayokeService {
   }
 
   async findAll(
-    query: PokayokeScanQueryDto,
+    query: PokayokeScanQueryDto = { page: 1, limit: 50 },
   ): Promise<PaginatedPokayokeScanEntity> {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 50;
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 50;
     const offset = (page - 1) * limit;
 
     const where: Prisma.PokayokeScanHistoryWhereInput = {};
 
-    if (query.labelNumber) {
+    if (query?.labelNumber) {
       where.LabelNumber = {
         contains: query.labelNumber,
         mode: 'insensitive',
       };
     }
 
-    if (query.poId) {
+    if (query?.poId) {
       where.PoId = query.poId;
     }
 
-    if (query.status) {
+    if (query?.status) {
       where.Status = query.status;
     }
 
-    if (query.createdBy) {
+    if (query?.createdBy) {
       where.CreatedBy = {
         contains: query.createdBy,
         mode: 'insensitive',

@@ -34,6 +34,7 @@ describe('IncomingService', () => {
   beforeEach(async () => {
     prismaService = {
       incoming: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         findFirst: jest.fn(),
@@ -99,11 +100,13 @@ describe('IncomingService', () => {
           IncomingMaterial: [],
         },
       ];
+      prismaService.incoming.count.mockResolvedValue(1);
       prismaService.incoming.findMany.mockResolvedValue(mockIncomings);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(mockIncomings);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].Id).toBe('uuid-1');
       expect(prismaService.incoming.findMany).toHaveBeenCalled();
     });
   });

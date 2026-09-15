@@ -108,14 +108,15 @@ describe('MaterialDeliveryNoteController', () => {
       };
       service.findAll.mockResolvedValue(paginatedResult);
 
-      const result = await controller.findAll();
-
-      expect(result).toEqual(paginatedResult);
-      expect(service.findAll).toHaveBeenCalledWith({
+      const query = {
         page: undefined,
         limit: undefined,
         status: undefined,
-      });
+      };
+      const result = await controller.findAll(query);
+
+      expect(result).toEqual(paginatedResult);
+      expect(service.findAll).toHaveBeenCalledWith(query);
     });
 
     it('should filter by status', async () => {
@@ -125,14 +126,15 @@ describe('MaterialDeliveryNoteController', () => {
       };
       service.findAll.mockResolvedValue(paginatedResult);
 
-      const result = await controller.findAll(undefined, undefined, 'DRAFT');
-
-      expect(result).toEqual(paginatedResult);
-      expect(service.findAll).toHaveBeenCalledWith({
+      const query = {
         page: undefined,
         limit: undefined,
         status: 'DRAFT',
-      });
+      };
+      const result = await controller.findAll(query);
+
+      expect(result).toEqual(paginatedResult);
+      expect(service.findAll).toHaveBeenCalledWith(query);
     });
   });
 

@@ -35,6 +35,7 @@ describe('DisplayConfigService', () => {
 
   let prismaService: {
     displayConfig: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findFirst: jest.Mock;
       create: jest.Mock;
@@ -52,6 +53,7 @@ describe('DisplayConfigService', () => {
   beforeEach(async () => {
     prismaService = {
       displayConfig: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findFirst: jest.fn(),
         create: jest.fn(),
@@ -91,22 +93,27 @@ describe('DisplayConfigService', () => {
   describe('findAll', () => {
     it('should return all display configs', async () => {
       const expected = [mockDisplayConfig];
+      prismaService.displayConfig.count.mockResolvedValue(1);
       prismaService.displayConfig.findMany.mockResolvedValue(expected);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expected);
+      expect(result.data).toEqual(expected);
       expect(prismaService.displayConfig.findMany).toHaveBeenCalledWith({
-        orderBy: { CreatedAt: 'desc' },
+        where: {},
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
+        skip: 0,
+        take: 50,
       });
     });
 
     it('should return empty array when no display configs exist', async () => {
+      prismaService.displayConfig.count.mockResolvedValue(0);
       prismaService.displayConfig.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 

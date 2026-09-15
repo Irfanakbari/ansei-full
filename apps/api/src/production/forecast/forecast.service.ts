@@ -60,8 +60,10 @@ export class ForecastService {
     PART_NO: 11,
   };
 
-  async findAll(query: SearchPaginationQueryDto) {
-    const where: Prisma.ForecastWhereInput = query.search
+  async findAll(query: SearchPaginationQueryDto = { page: 1, limit: 50 }) {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 50;
+    const where: Prisma.ForecastWhereInput = query?.search
       ? {
           OR: [
             { PoId: { contains: query.search, mode: 'insensitive' } },
@@ -83,17 +85,17 @@ export class ForecastService {
           },
         },
         orderBy: [{ DeliveryDate: 'desc' }, { Id: 'desc' }],
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
+        skip: (page - 1) * limit,
+        take: limit,
       }),
     ]);
     return {
       data,
       meta: {
-        page: query.page,
-        limit: query.limit,
+        page,
+        limit,
         totalItems,
-        totalPages: Math.ceil(totalItems / query.limit),
+        totalPages: Math.ceil(totalItems / limit),
       },
     };
   }

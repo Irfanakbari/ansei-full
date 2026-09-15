@@ -33,6 +33,7 @@ describe('PrinterSettingService', () => {
 
   let prismaService: {
     printerSetting: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findUnique: jest.Mock;
       create: jest.Mock;
@@ -50,6 +51,7 @@ describe('PrinterSettingService', () => {
   beforeEach(async () => {
     prismaService = {
       printerSetting: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         create: jest.fn(),
@@ -89,22 +91,27 @@ describe('PrinterSettingService', () => {
   describe('findAll', () => {
     it('should return all printer settings', async () => {
       const expected = [mockPrinterSetting];
+      prismaService.printerSetting.count.mockResolvedValue(1);
       prismaService.printerSetting.findMany.mockResolvedValue(expected);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expected);
+      expect(result.data).toEqual(expected);
       expect(prismaService.printerSetting.findMany).toHaveBeenCalledWith({
-        orderBy: { CreatedAt: 'desc' },
+        where: {},
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
+        skip: 0,
+        take: 50,
       });
     });
 
     it('should return empty array when no printer settings exist', async () => {
+      prismaService.printerSetting.count.mockResolvedValue(0);
       prismaService.printerSetting.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 

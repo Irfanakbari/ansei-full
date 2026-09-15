@@ -31,6 +31,7 @@ describe('EmailNotificationService', () => {
 
   let prismaService: {
     emailNotification: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findUnique: jest.Mock;
       findFirst: jest.Mock;
@@ -49,6 +50,7 @@ describe('EmailNotificationService', () => {
   beforeEach(async () => {
     prismaService = {
       emailNotification: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         findFirst: jest.fn(),
@@ -89,22 +91,27 @@ describe('EmailNotificationService', () => {
   describe('findAll', () => {
     it('should return all email notifications', async () => {
       const expected = [mockEmailNotification];
+      prismaService.emailNotification.count.mockResolvedValue(1);
       prismaService.emailNotification.findMany.mockResolvedValue(expected);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expected);
+      expect(result.data).toEqual(expected);
       expect(prismaService.emailNotification.findMany).toHaveBeenCalledWith({
+        where: {},
         orderBy: { Id: 'asc' },
+        skip: 0,
+        take: 50,
       });
     });
 
     it('should return empty array when no records', async () => {
+      prismaService.emailNotification.count.mockResolvedValue(0);
       prismaService.emailNotification.findMany.mockResolvedValue([]);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual([]);
+      expect(result.data).toEqual([]);
     });
   });
 

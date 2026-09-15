@@ -32,6 +32,7 @@ describe('DashboardSettingService', () => {
 
   let prismaService: {
     dashboardSetting: {
+      count: jest.Mock;
       findMany: jest.Mock;
       findUnique: jest.Mock;
       findFirst: jest.Mock;
@@ -48,6 +49,7 @@ describe('DashboardSettingService', () => {
   beforeEach(async () => {
     prismaService = {
       dashboardSetting: {
+        count: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         findFirst: jest.fn(),
@@ -86,13 +88,16 @@ describe('DashboardSettingService', () => {
   describe('findAll', () => {
     it('should return all dashboard settings', async () => {
       const expected = [mockDashboardSetting];
+      prismaService.dashboardSetting.count.mockResolvedValue(1);
       prismaService.dashboardSetting.findMany.mockResolvedValue(expected);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(expected);
+      expect(result.data).toEqual(expected);
       expect(prismaService.dashboardSetting.findMany).toHaveBeenCalledWith({
         orderBy: { Id: 'asc' },
+        skip: 0,
+        take: 50,
       });
     });
   });

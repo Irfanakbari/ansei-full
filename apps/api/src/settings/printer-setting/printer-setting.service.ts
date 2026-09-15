@@ -20,8 +20,10 @@ export class PrinterSettingService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(query: SearchPaginationQueryDto) {
-    const where: Prisma.PrinterSettingWhereInput = query.search
+  async findAll(query: SearchPaginationQueryDto = { page: 1, limit: 50 }) {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 50;
+    const where: Prisma.PrinterSettingWhereInput = query?.search
       ? {
           OR: [
             { Name: { contains: query.search, mode: 'insensitive' } },
@@ -34,17 +36,17 @@ export class PrinterSettingService {
       this.prisma.printerSetting.findMany({
         where,
         orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
+        skip: (page - 1) * limit,
+        take: limit,
       }),
     ]);
     return {
       data,
       meta: {
-        page: query.page,
-        limit: query.limit,
+        page,
+        limit,
         totalItems,
-        totalPages: Math.ceil(totalItems / query.limit),
+        totalPages: Math.ceil(totalItems / limit),
       },
     };
   }

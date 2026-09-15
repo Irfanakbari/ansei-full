@@ -158,7 +158,7 @@ describe('InventoryCountingService', () => {
 
       const result = await service.findAll({});
 
-      expect(result.total).toBe(1);
+      expect(result.meta.totalItems).toBe(1);
       expect(result.data).toHaveLength(1);
       expect(result.data[0].TotalItems).toBe(0);
       expect(result.data[0].CompletedItems).toBe(0);

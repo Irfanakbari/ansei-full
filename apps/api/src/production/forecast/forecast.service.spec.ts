@@ -79,11 +79,12 @@ describe('ForecastService', () => {
   describe('findAll', () => {
     it('should return all forecasts', async () => {
       const mockForecasts = [{ Id: 1, PoId: 'PO-001', Qty: 100 }];
+      prismaService.forecast.count.mockResolvedValue(1);
       prismaService.forecast.findMany.mockResolvedValue(mockForecasts);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result).toEqual(mockForecasts);
+      expect(result.data).toEqual(mockForecasts);
     });
   });
 
