@@ -42,12 +42,14 @@ interface DashboardState {
     data: DashboardData | null;
     loading: boolean;
     error: string | null;
+    errorStatus: number | null;
 }
 
 const initialState: DashboardState = {
     data: null,
     loading: false,
     error: null,
+    errorStatus: null,
 };
 
 // Fetch dashboard data
@@ -57,10 +59,18 @@ export const fetchDashboard = createAsyncThunk(
         try {
             const response = await fetch('/api/frontend/dashboard');
             const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Gagal mengambil data dashboard');
+            if (!response.ok) {
+                return rejectWithValue({
+                    message: data.message || 'Gagal mengambil data dashboard',
+                    status: response.status,
+                });
+            }
             return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue({
+                message: error instanceof Error ? error.message : 'Gagal mengambil data dashboard',
+                status: null,
+            });
         }
     }
 );
@@ -77,11 +87,15 @@ const dashboardSlice = createSlice({
             })
             .addCase(fetchDashboard.fulfilled, (state, action) => {
                 state.loading = false;
+                state.error = null;
+                state.errorStatus = null;
                 state.data = action.payload;
             })
             .addCase(fetchDashboard.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                const payload = action.payload as { message?: string; status?: number | null } | undefined;
+                state.error = payload?.message || 'Gagal mengambil data dashboard';
+                state.errorStatus = payload?.status ?? null;
             });
     },
 });

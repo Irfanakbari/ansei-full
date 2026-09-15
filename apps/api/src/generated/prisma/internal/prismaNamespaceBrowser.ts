@@ -577,6 +577,7 @@ export const MaterialDeliveryNoteDetailScalarFieldEnum = {
   Id: 'Id',
   DeliveryNoteId: 'DeliveryNoteId',
   MaterialId: 'MaterialId',
+  FinishGoodPartTemp: 'FinishGoodPartTemp',
   QtyRequested: 'QtyRequested',
   QtyPicking: 'QtyPicking',
   QtyReceived: 'QtyReceived'

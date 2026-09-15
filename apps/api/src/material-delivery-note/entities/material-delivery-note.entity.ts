@@ -15,6 +15,7 @@ export interface MaterialDeliveryNoteDetailEntity {
   Id: number;
   DeliveryNoteId: string;
   MaterialId: string;
+  FinishGoodPartTemp: string | null;
   QtyRequested: number;
   QtyPicking: number;
   QtyReceived: number | null;

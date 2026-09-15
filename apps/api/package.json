@@ -1,6 +1,6 @@
 {
   "name": "@ansei/api",
-  "version": "1.8.1",
+  "version": "1.8.3",
   "description": "",
   "author": "",
   "private": true,
@@ -20,6 +20,7 @@
     "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest --config ./test/jest-e2e.json --forceExit",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:permissions": "tsx prisma/seed-permissions.ts",
+    "db:seed:users": "tsx prisma/seed-users.ts",
     "db:reset": "prisma migrate reset --force && pnpm run db:seed",
     "db:setup": "createdb ansei 2>/dev/null || true && prisma migrate deploy"
   },

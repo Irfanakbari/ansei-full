@@ -153,6 +153,13 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
             ),
         },
         {
+            title: 'Finish Good Part',
+            dataIndex: 'FinishGoodPartTemp',
+            key: 'transfer-finish-good-part-col',
+            width: 150,
+            render: (value: string | null) => value || '-',
+        },
+        {
             title: 'Qty Requested',
             dataIndex: 'QtyRequested',
             key: 'transfer-qty-requested-col',

@@ -2,6 +2,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Controller, Get } from '@nestjs/common';
 import { FrontendService } from './frontend.service';
 import { Public } from '../auth/decorators/public.decorator';
+import { Permission } from '../auth/decorators/permission.decorator';
 import { DashboardResponseEntity } from './entities/dashboard-response.entity';
 
 @ApiTags('Frontend')
@@ -32,7 +33,7 @@ export class FrontendController {
   }
 
   @Get('dashboard')
-  @Public()
+  @Permission('DASHBOARD_VIEW')
   @ApiOperation({
     summary: 'Get dashboard statistics',
     description:

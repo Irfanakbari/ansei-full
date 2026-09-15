@@ -165,6 +165,7 @@ export class MaterialDeliveryNoteService {
           data: dto.items.map((item) => ({
             DeliveryNoteId: header.Id,
             MaterialId: item.materialId,
+            FinishGoodPartTemp: item.FinishGoodPartTemp ?? null,
             QtyRequested: item.qtyRequested,
             QtyPicking: 0, // Initially 0, will be picked later
           })),
@@ -219,6 +220,7 @@ export class MaterialDeliveryNoteService {
           Details: {
             select: {
               MaterialId: true,
+              FinishGoodPartTemp: true,
               QtyRequested: true,
               QtyPicking: true,
               QtyReceived: true,

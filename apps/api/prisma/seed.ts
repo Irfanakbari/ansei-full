@@ -127,17 +127,25 @@ async function main() {
     console.log('✅ Database is ready');
   }
 
-  // Clear all data before seeding (except user management tables)
-  await clearAllData();
+  // Upsert-only mode: never clears data or runs migrations.
+  // Usage: SEED_MODE=upsert pnpm --filter @ansei/api exec ts-node prisma/seed.ts
+  const upsertOnly = process.env.SEED_MODE === 'upsert';
 
-  // Run migrations
-  console.log('📦 Running migrations...');
-  const { execSync } = require('child_process');
-  try {
-    execSync('pnpm prisma migrate deploy', { stdio: 'inherit' });
-    console.log('✅ Migrations applied successfully');
-  } catch (error) {
-    console.log('⚠️  Migration warning (tables may already exist)');
+  if (!upsertOnly) {
+    // Clear all data before seeding (except user management tables)
+    await clearAllData();
+
+    // Run migrations
+    console.log('📦 Running migrations...');
+    const { execSync } = require('child_process');
+    try {
+      execSync('pnpm prisma migrate deploy', { stdio: 'inherit' });
+      console.log('✅ Migrations applied successfully');
+    } catch (error) {
+      console.log('⚠️  Migration warning (tables may already exist)');
+    }
+  } else {
+    console.log('♻️  SEED_MODE=upsert: skipping data clear and migrations');
   }
 
   // ============================================
@@ -175,6 +183,8 @@ async function main() {
   //    @Permission() on every controller in apps/api/src)
   // ============================================
   const allPermissions = [
+    // Dashboard
+    { Action: 'DASHBOARD_VIEW', Description: 'View dashboard' },
     // Master data (also used by settings: printer, email, dashboard)
     { Action: 'IPCS.MASTER_READ', Description: 'Read master data' },
     { Action: 'IPCS.MASTER_CREATE', Description: 'Create master data' },
@@ -267,7 +277,9 @@ async function main() {
   // 2b. Assign READ-only permissions to READONLY role
   // ============================================
   const readonlyPermissions = allPermissions.filter(
-    (p) => p.Action.endsWith('_READ') && !p.Action.includes('DASHBOARDSETTING'),
+    (p) =>
+      (p.Action.endsWith('_READ') && !p.Action.includes('DASHBOARDSETTING')) ||
+      p.Action === 'DASHBOARD_VIEW',
   );
   await prisma.mTCRole.update({
     where: { Id: readonlyRole.Id },

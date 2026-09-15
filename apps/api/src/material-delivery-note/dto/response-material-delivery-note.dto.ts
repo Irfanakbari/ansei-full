@@ -25,6 +25,9 @@ export class MaterialDeliveryNoteDetailResponseDto {
   @ApiProperty({ example: 'PN-001' })
   MaterialId: string;
 
+  @ApiProperty({ example: 'FG-001', nullable: true })
+  FinishGoodPartTemp: string | null;
+
   @ApiProperty({ example: 100 })
   QtyRequested: number;
 

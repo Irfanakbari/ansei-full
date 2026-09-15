@@ -44,6 +44,7 @@ export type MaterialDeliveryNoteDetailMinAggregateOutputType = {
   Id: number | null
   DeliveryNoteId: string | null
   MaterialId: string | null
+  FinishGoodPartTemp: string | null
   QtyRequested: number | null
   QtyPicking: number | null
   QtyReceived: number | null
@@ -53,6 +54,7 @@ export type MaterialDeliveryNoteDetailMaxAggregateOutputType = {
   Id: number | null
   DeliveryNoteId: string | null
   MaterialId: string | null
+  FinishGoodPartTemp: string | null
   QtyRequested: number | null
   QtyPicking: number | null
   QtyReceived: number | null
@@ -62,6 +64,7 @@ export type MaterialDeliveryNoteDetailCountAggregateOutputType = {
   Id: number
   DeliveryNoteId: number
   MaterialId: number
+  FinishGoodPartTemp: number
   QtyRequested: number
   QtyPicking: number
   QtyReceived: number
@@ -87,6 +90,7 @@ export type MaterialDeliveryNoteDetailMinAggregateInputType = {
   Id?: true
   DeliveryNoteId?: true
   MaterialId?: true
+  FinishGoodPartTemp?: true
   QtyRequested?: true
   QtyPicking?: true
   QtyReceived?: true
@@ -96,6 +100,7 @@ export type MaterialDeliveryNoteDetailMaxAggregateInputType = {
   Id?: true
   DeliveryNoteId?: true
   MaterialId?: true
+  FinishGoodPartTemp?: true
   QtyRequested?: true
   QtyPicking?: true
   QtyReceived?: true
@@ -105,6 +110,7 @@ export type MaterialDeliveryNoteDetailCountAggregateInputType = {
   Id?: true
   DeliveryNoteId?: true
   MaterialId?: true
+  FinishGoodPartTemp?: true
   QtyRequested?: true
   QtyPicking?: true
   QtyReceived?: true
@@ -201,6 +207,7 @@ export type MaterialDeliveryNoteDetailGroupByOutputType = {
   Id: number
   DeliveryNoteId: string
   MaterialId: string
+  FinishGoodPartTemp: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived: number | null
@@ -233,6 +240,7 @@ export type MaterialDeliveryNoteDetailWhereInput = {
   Id?: Prisma.IntFilter<"MaterialDeliveryNoteDetail"> | number
   DeliveryNoteId?: Prisma.StringFilter<"MaterialDeliveryNoteDetail"> | string
   MaterialId?: Prisma.StringFilter<"MaterialDeliveryNoteDetail"> | string
+  FinishGoodPartTemp?: Prisma.StringNullableFilter<"MaterialDeliveryNoteDetail"> | string | null
   QtyRequested?: Prisma.IntFilter<"MaterialDeliveryNoteDetail"> | number
   QtyPicking?: Prisma.IntFilter<"MaterialDeliveryNoteDetail"> | number
   QtyReceived?: Prisma.IntNullableFilter<"MaterialDeliveryNoteDetail"> | number | null
@@ -244,6 +252,7 @@ export type MaterialDeliveryNoteDetailOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
   DeliveryNoteId?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
+  FinishGoodPartTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   QtyRequested?: Prisma.SortOrder
   QtyPicking?: Prisma.SortOrder
   QtyReceived?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -259,6 +268,7 @@ export type MaterialDeliveryNoteDetailWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.MaterialDeliveryNoteDetailWhereInput | Prisma.MaterialDeliveryNoteDetailWhereInput[]
   DeliveryNoteId?: Prisma.StringFilter<"MaterialDeliveryNoteDetail"> | string
   MaterialId?: Prisma.StringFilter<"MaterialDeliveryNoteDetail"> | string
+  FinishGoodPartTemp?: Prisma.StringNullableFilter<"MaterialDeliveryNoteDetail"> | string | null
   QtyRequested?: Prisma.IntFilter<"MaterialDeliveryNoteDetail"> | number
   QtyPicking?: Prisma.IntFilter<"MaterialDeliveryNoteDetail"> | number
   QtyReceived?: Prisma.IntNullableFilter<"MaterialDeliveryNoteDetail"> | number | null
@@ -270,6 +280,7 @@ export type MaterialDeliveryNoteDetailOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
   DeliveryNoteId?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
+  FinishGoodPartTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   QtyRequested?: Prisma.SortOrder
   QtyPicking?: Prisma.SortOrder
   QtyReceived?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -287,12 +298,14 @@ export type MaterialDeliveryNoteDetailScalarWhereWithAggregatesInput = {
   Id?: Prisma.IntWithAggregatesFilter<"MaterialDeliveryNoteDetail"> | number
   DeliveryNoteId?: Prisma.StringWithAggregatesFilter<"MaterialDeliveryNoteDetail"> | string
   MaterialId?: Prisma.StringWithAggregatesFilter<"MaterialDeliveryNoteDetail"> | string
+  FinishGoodPartTemp?: Prisma.StringNullableWithAggregatesFilter<"MaterialDeliveryNoteDetail"> | string | null
   QtyRequested?: Prisma.IntWithAggregatesFilter<"MaterialDeliveryNoteDetail"> | number
   QtyPicking?: Prisma.IntWithAggregatesFilter<"MaterialDeliveryNoteDetail"> | number
   QtyReceived?: Prisma.IntNullableWithAggregatesFilter<"MaterialDeliveryNoteDetail"> | number | null
 }
 
 export type MaterialDeliveryNoteDetailCreateInput = {
+  FinishGoodPartTemp?: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived?: number | null
@@ -304,12 +317,14 @@ export type MaterialDeliveryNoteDetailUncheckedCreateInput = {
   Id?: number
   DeliveryNoteId: string
   MaterialId: string
+  FinishGoodPartTemp?: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived?: number | null
 }
 
 export type MaterialDeliveryNoteDetailUpdateInput = {
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -321,6 +336,7 @@ export type MaterialDeliveryNoteDetailUncheckedUpdateInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   DeliveryNoteId?: Prisma.StringFieldUpdateOperationsInput | string
   MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -330,12 +346,14 @@ export type MaterialDeliveryNoteDetailCreateManyInput = {
   Id?: number
   DeliveryNoteId: string
   MaterialId: string
+  FinishGoodPartTemp?: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived?: number | null
 }
 
 export type MaterialDeliveryNoteDetailUpdateManyMutationInput = {
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -345,6 +363,7 @@ export type MaterialDeliveryNoteDetailUncheckedUpdateManyInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   DeliveryNoteId?: Prisma.StringFieldUpdateOperationsInput | string
   MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -369,6 +388,7 @@ export type MaterialDeliveryNoteDetailCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   DeliveryNoteId?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
+  FinishGoodPartTemp?: Prisma.SortOrder
   QtyRequested?: Prisma.SortOrder
   QtyPicking?: Prisma.SortOrder
   QtyReceived?: Prisma.SortOrder
@@ -385,6 +405,7 @@ export type MaterialDeliveryNoteDetailMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   DeliveryNoteId?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
+  FinishGoodPartTemp?: Prisma.SortOrder
   QtyRequested?: Prisma.SortOrder
   QtyPicking?: Prisma.SortOrder
   QtyReceived?: Prisma.SortOrder
@@ -394,6 +415,7 @@ export type MaterialDeliveryNoteDetailMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   DeliveryNoteId?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
+  FinishGoodPartTemp?: Prisma.SortOrder
   QtyRequested?: Prisma.SortOrder
   QtyPicking?: Prisma.SortOrder
   QtyReceived?: Prisma.SortOrder
@@ -491,6 +513,7 @@ export type MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutDeliveryNoteData
 }
 
 export type MaterialDeliveryNoteDetailCreateWithoutMaterialDataInput = {
+  FinishGoodPartTemp?: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived?: number | null
@@ -500,6 +523,7 @@ export type MaterialDeliveryNoteDetailCreateWithoutMaterialDataInput = {
 export type MaterialDeliveryNoteDetailUncheckedCreateWithoutMaterialDataInput = {
   Id?: number
   DeliveryNoteId: string
+  FinishGoodPartTemp?: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived?: number | null
@@ -538,12 +562,14 @@ export type MaterialDeliveryNoteDetailScalarWhereInput = {
   Id?: Prisma.IntFilter<"MaterialDeliveryNoteDetail"> | number
   DeliveryNoteId?: Prisma.StringFilter<"MaterialDeliveryNoteDetail"> | string
   MaterialId?: Prisma.StringFilter<"MaterialDeliveryNoteDetail"> | string
+  FinishGoodPartTemp?: Prisma.StringNullableFilter<"MaterialDeliveryNoteDetail"> | string | null
   QtyRequested?: Prisma.IntFilter<"MaterialDeliveryNoteDetail"> | number
   QtyPicking?: Prisma.IntFilter<"MaterialDeliveryNoteDetail"> | number
   QtyReceived?: Prisma.IntNullableFilter<"MaterialDeliveryNoteDetail"> | number | null
 }
 
 export type MaterialDeliveryNoteDetailCreateWithoutDeliveryNoteDataInput = {
+  FinishGoodPartTemp?: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived?: number | null
@@ -553,6 +579,7 @@ export type MaterialDeliveryNoteDetailCreateWithoutDeliveryNoteDataInput = {
 export type MaterialDeliveryNoteDetailUncheckedCreateWithoutDeliveryNoteDataInput = {
   Id?: number
   MaterialId: string
+  FinishGoodPartTemp?: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived?: number | null
@@ -587,12 +614,14 @@ export type MaterialDeliveryNoteDetailUpdateManyWithWhereWithoutDeliveryNoteData
 export type MaterialDeliveryNoteDetailCreateManyMaterialDataInput = {
   Id?: number
   DeliveryNoteId: string
+  FinishGoodPartTemp?: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived?: number | null
 }
 
 export type MaterialDeliveryNoteDetailUpdateWithoutMaterialDataInput = {
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -602,6 +631,7 @@ export type MaterialDeliveryNoteDetailUpdateWithoutMaterialDataInput = {
 export type MaterialDeliveryNoteDetailUncheckedUpdateWithoutMaterialDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   DeliveryNoteId?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -610,6 +640,7 @@ export type MaterialDeliveryNoteDetailUncheckedUpdateWithoutMaterialDataInput = 
 export type MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   DeliveryNoteId?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -618,12 +649,14 @@ export type MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataInpu
 export type MaterialDeliveryNoteDetailCreateManyDeliveryNoteDataInput = {
   Id?: number
   MaterialId: string
+  FinishGoodPartTemp?: string | null
   QtyRequested: number
   QtyPicking: number
   QtyReceived?: number | null
 }
 
 export type MaterialDeliveryNoteDetailUpdateWithoutDeliveryNoteDataInput = {
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -633,6 +666,7 @@ export type MaterialDeliveryNoteDetailUpdateWithoutDeliveryNoteDataInput = {
 export type MaterialDeliveryNoteDetailUncheckedUpdateWithoutDeliveryNoteDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -641,6 +675,7 @@ export type MaterialDeliveryNoteDetailUncheckedUpdateWithoutDeliveryNoteDataInpu
 export type MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutDeliveryNoteDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartTemp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRequested?: Prisma.IntFieldUpdateOperationsInput | number
   QtyPicking?: Prisma.IntFieldUpdateOperationsInput | number
   QtyReceived?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -652,6 +687,7 @@ export type MaterialDeliveryNoteDetailSelect<ExtArgs extends runtime.Types.Exten
   Id?: boolean
   DeliveryNoteId?: boolean
   MaterialId?: boolean
+  FinishGoodPartTemp?: boolean
   QtyRequested?: boolean
   QtyPicking?: boolean
   QtyReceived?: boolean
@@ -663,6 +699,7 @@ export type MaterialDeliveryNoteDetailSelectCreateManyAndReturn<ExtArgs extends 
   Id?: boolean
   DeliveryNoteId?: boolean
   MaterialId?: boolean
+  FinishGoodPartTemp?: boolean
   QtyRequested?: boolean
   QtyPicking?: boolean
   QtyReceived?: boolean
@@ -674,6 +711,7 @@ export type MaterialDeliveryNoteDetailSelectUpdateManyAndReturn<ExtArgs extends 
   Id?: boolean
   DeliveryNoteId?: boolean
   MaterialId?: boolean
+  FinishGoodPartTemp?: boolean
   QtyRequested?: boolean
   QtyPicking?: boolean
   QtyReceived?: boolean
@@ -685,12 +723,13 @@ export type MaterialDeliveryNoteDetailSelectScalar = {
   Id?: boolean
   DeliveryNoteId?: boolean
   MaterialId?: boolean
+  FinishGoodPartTemp?: boolean
   QtyRequested?: boolean
   QtyPicking?: boolean
   QtyReceived?: boolean
 }
 
-export type MaterialDeliveryNoteDetailOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "DeliveryNoteId" | "MaterialId" | "QtyRequested" | "QtyPicking" | "QtyReceived", ExtArgs["result"]["materialDeliveryNoteDetail"]>
+export type MaterialDeliveryNoteDetailOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "DeliveryNoteId" | "MaterialId" | "FinishGoodPartTemp" | "QtyRequested" | "QtyPicking" | "QtyReceived", ExtArgs["result"]["materialDeliveryNoteDetail"]>
 export type MaterialDeliveryNoteDetailInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   DeliveryNoteData?: boolean | Prisma.MaterialDeliveryNoteDefaultArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
@@ -714,6 +753,7 @@ export type $MaterialDeliveryNoteDetailPayload<ExtArgs extends runtime.Types.Ext
     Id: number
     DeliveryNoteId: string
     MaterialId: string
+    FinishGoodPartTemp: string | null
     QtyRequested: number
     QtyPicking: number
     QtyReceived: number | null
@@ -1145,6 +1185,7 @@ export interface MaterialDeliveryNoteDetailFieldRefs {
   readonly Id: Prisma.FieldRef<"MaterialDeliveryNoteDetail", 'Int'>
   readonly DeliveryNoteId: Prisma.FieldRef<"MaterialDeliveryNoteDetail", 'String'>
   readonly MaterialId: Prisma.FieldRef<"MaterialDeliveryNoteDetail", 'String'>
+  readonly FinishGoodPartTemp: Prisma.FieldRef<"MaterialDeliveryNoteDetail", 'String'>
   readonly QtyRequested: Prisma.FieldRef<"MaterialDeliveryNoteDetail", 'Int'>
   readonly QtyPicking: Prisma.FieldRef<"MaterialDeliveryNoteDetail", 'Int'>
   readonly QtyReceived: Prisma.FieldRef<"MaterialDeliveryNoteDetail", 'Int'>

@@ -1,11 +1,7 @@
-/* By Irfan Akbari Vuteq Indonesia - 2026-09-14 */
-
 import { config } from 'dotenv';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
-
-import type { MTCPermissionModel } from '../src/generated/prisma/models/MTCPermission.js';
 
 config();
 
@@ -18,111 +14,111 @@ if (!connectionString) {
 const pool = new Pool({ connectionString });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
-const permissions = [
-  ['IPCS.MASTER_READ', 'Read master data'],
-  ['IPCS.MASTER_CREATE', 'Create master data'],
-  ['IPCS.MASTER_UPDATE', 'Update master data'],
-  ['IPCS.MASTER_DELETE', 'Delete master data'],
-  ['IPCS.INCOMING_READ', 'Read incoming material'],
-  ['IPCS.INCOMING_CREATE', 'Create incoming material'],
-  ['IPCS.INCOMING_UPDATE', 'Update incoming material'],
-  ['IPCS.INCOMING_DELETE', 'Delete incoming material'],
-  ['IPCS.TRANSFER_CREATE', 'Create material transfer'],
-  ['IPCS.MRP_READ', 'Read material run-out'],
-  ['IPCS.INVENTORY_COUNTING_READ', 'Read inventory counting'],
-  ['IPCS.INVENTORY_COUNTING_CREATE', 'Create inventory counting'],
-  ['IPCS.INVENTORY_COUNTING_UPDATE', 'Update inventory counting'],
-  ['IPCS.INVENTORY_COUNTING_DELETE', 'Delete inventory counting'],
-  ['IPCS.TRANSFER_MATERIAL_READ', 'Read material delivery note'],
-  ['IPCS.TRANSFER_MATERIAL_CREATE', 'Create material delivery note'],
-  ['IPCS.TRANSFER_MATERIAL_UPDATE', 'Update material delivery note'],
-  ['IPCS.TRANSFER_MATERIAL_DELETE', 'Delete material delivery note'],
-  ['IPCS.FORECAST_READ', 'Read forecast'],
-  ['IPCS.FORECAST_CREATE', 'Create forecast'],
-  ['IPCS.FORECAST_UPDATE', 'Update forecast'],
-  ['IPCS.FORECAST_DELETE', 'Delete forecast'],
-  ['IPCS.PRODUCTION_RELEASE_READ', 'Read production release'],
-  ['IPCS.PRODUCTION_RELEASE_CREATE', 'Create production release'],
-  ['IPCS.PRODUCTION_RELEASE_UPDATE', 'Update production release'],
-  ['IPCS.PRODUCTION_RELEASE_DELETE', 'Delete production release'],
-  ['IPCS.SHOPPING_READ', 'Read shopping'],
-  ['IPCS.SHOPPING_CREATE', 'Create shopping'],
-  ['IPCS.SHOPPING_DELETE', 'Delete shopping'],
-  ['IPCS.PRE_DELIVERY_READ', 'Read pre-delivery goods'],
-  ['IPCS.POKAYOKE_READ', 'Read Pokayoke validation'],
-  ['IPCS.POKAYOKE_CREATE', 'Create Pokayoke validation'],
-  ['IPCS.DELIVERY_READ', 'Read delivery'],
-  ['IPCS.DELIVERY_CREATE', 'Create delivery'],
-  ['IPCS.PRODUCTION_REPORT_READ', 'Read production report'],
-  ['IPCS.PRODUCTION_REPORT_UPDATE', 'Update production report'],
-  ['IPCS.PRODUCTION_REPORT_DELETE', 'Delete production report'],
-  ['IPCS.REPORT_READ', 'Read reports'],
-  ['IPCS.SYSTEM_LOG_READ', 'Read system logs'],
-  ['IPCS.API_KEY_READ', 'Read API keys'],
-  ['IPCS.API_KEY_CREATE', 'Create API keys'],
-  ['IPCS.API_KEY_UPDATE', 'Update API keys'],
-  ['IPCS.API_KEY_DELETE', 'Delete API keys'],
-  ['IPCS.USER_MANAGEMENT', 'Manage users, roles, and permissions'],
-  ['DISPLAY_CONFIG_READ', 'Read display configuration'],
-  ['DISPLAY_CONFIG_CREATE', 'Create display configuration'],
-  ['DISPLAY_CONFIG_UPDATE', 'Update display configuration'],
-  ['DISPLAY_CONFIG_DELETE', 'Delete display configuration'],
+const allPermissions = [
+  { Action: 'DASHBOARD_VIEW', Description: 'View dashboard' },
+  { Action: 'IPCS.MASTER_READ', Description: 'Read master data' },
+  { Action: 'IPCS.MASTER_CREATE', Description: 'Create master data' },
+  { Action: 'IPCS.MASTER_UPDATE', Description: 'Update master data' },
+  { Action: 'IPCS.MASTER_DELETE', Description: 'Delete master data' },
+  { Action: 'IPCS.INCOMING_READ', Description: 'Read incoming material' },
+  { Action: 'IPCS.INCOMING_CREATE', Description: 'Create incoming material' },
+  { Action: 'IPCS.INCOMING_UPDATE', Description: 'Update incoming material' },
+  { Action: 'IPCS.INCOMING_DELETE', Description: 'Delete incoming material' },
+  { Action: 'IPCS.TRANSFER_CREATE', Description: 'Create material transfer' },
+  { Action: 'IPCS.MRP_READ', Description: 'Read material run-out' },
+  { Action: 'IPCS.INVENTORY_COUNTING_READ', Description: 'Read inventory counting' },
+  { Action: 'IPCS.INVENTORY_COUNTING_CREATE', Description: 'Create inventory counting' },
+  { Action: 'IPCS.INVENTORY_COUNTING_UPDATE', Description: 'Update inventory counting' },
+  { Action: 'IPCS.INVENTORY_COUNTING_DELETE', Description: 'Delete inventory counting' },
+  { Action: 'IPCS.TRANSFER_MATERIAL_READ', Description: 'Read material delivery note' },
+  { Action: 'IPCS.TRANSFER_MATERIAL_CREATE', Description: 'Create material delivery note' },
+  { Action: 'IPCS.TRANSFER_MATERIAL_UPDATE', Description: 'Update material delivery note' },
+  { Action: 'IPCS.TRANSFER_MATERIAL_DELETE', Description: 'Delete material delivery note' },
+  { Action: 'IPCS.FORECAST_READ', Description: 'Read forecast' },
+  { Action: 'IPCS.FORECAST_CREATE', Description: 'Create forecast' },
+  { Action: 'IPCS.FORECAST_UPDATE', Description: 'Update forecast' },
+  { Action: 'IPCS.FORECAST_DELETE', Description: 'Delete forecast' },
+  { Action: 'IPCS.PRODUCTION_RELEASE_READ', Description: 'Read production release' },
+  { Action: 'IPCS.PRODUCTION_RELEASE_CREATE', Description: 'Create production release' },
+  { Action: 'IPCS.PRODUCTION_RELEASE_UPDATE', Description: 'Update production release' },
+  { Action: 'IPCS.PRODUCTION_RELEASE_DELETE', Description: 'Delete production release' },
+  { Action: 'IPCS.SHOPPING_READ', Description: 'Read shopping' },
+  { Action: 'IPCS.SHOPPING_CREATE', Description: 'Create shopping' },
+  { Action: 'IPCS.SHOPPING_DELETE', Description: 'Delete shopping' },
+  { Action: 'IPCS.PRE_DELIVERY_READ', Description: 'Read pre-delivery goods' },
+  { Action: 'IPCS.POKAYOKE_READ', Description: 'Read Pokayoke validation' },
+  { Action: 'IPCS.POKAYOKE_CREATE', Description: 'Create Pokayoke validation' },
+  { Action: 'IPCS.DELIVERY_READ', Description: 'Read delivery' },
+  { Action: 'IPCS.DELIVERY_CREATE', Description: 'Create delivery' },
+  { Action: 'IPCS.PRODUCTION_REPORT_READ', Description: 'Read production report' },
+  { Action: 'IPCS.PRODUCTION_REPORT_UPDATE', Description: 'Update production report' },
+  { Action: 'IPCS.PRODUCTION_REPORT_DELETE', Description: 'Delete production report' },
+  { Action: 'IPCS.REPORT_READ', Description: 'Read reports' },
+  { Action: 'IPCS.SYSTEM_LOG_READ', Description: 'Read system logs' },
+  { Action: 'IPCS.API_KEY_READ', Description: 'Read API keys' },
+  { Action: 'IPCS.API_KEY_CREATE', Description: 'Create API keys' },
+  { Action: 'IPCS.API_KEY_UPDATE', Description: 'Update API keys' },
+  { Action: 'IPCS.API_KEY_DELETE', Description: 'Delete API keys' },
+  { Action: 'IPCS.USER_MANAGEMENT', Description: 'Manage users, roles, and permissions' },
+  { Action: 'DISPLAY_CONFIG_READ', Description: 'Read display configuration' },
+  { Action: 'DISPLAY_CONFIG_CREATE', Description: 'Create display configuration' },
+  { Action: 'DISPLAY_CONFIG_UPDATE', Description: 'Update display configuration' },
+  { Action: 'DISPLAY_CONFIG_DELETE', Description: 'Delete display configuration' },
 ] as const;
 
 async function main(): Promise<void> {
-  const permissionRecords: MTCPermissionModel[] = [];
-
-  for (const [action, description] of permissions) {
-    const permission = await prisma.mTCPermission.upsert({
-      where: { Action: action },
-      update: { Description: description },
-      create: { Action: action, Description: description, CreateBy: 'SYSTEM' },
-    });
-    permissionRecords.push(permission);
-  }
-
-  const readonlyPermissions = permissionRecords.filter(({ Action }) =>
-    Action.endsWith('_READ'),
-  );
-
   const superRole = await prisma.mTCRole.upsert({
     where: { RoleName: 'SUPER' },
-    update: {
-      Description: 'Super administrator with full access',
-      UpdateBy: 'SYSTEM',
-      Permission: { set: permissionRecords.map(({ Action }) => ({ Action })) },
-    },
+    update: {},
     create: {
       RoleName: 'SUPER',
-      Description: 'Super administrator with full access',
-      CreateBy: 'SYSTEM',
-      Permission: { connect: permissionRecords.map(({ Action }) => ({ Action })) },
+      Description: 'Super Administrator with full access',
     },
   });
-
   const readonlyRole = await prisma.mTCRole.upsert({
     where: { RoleName: 'READONLY' },
-    update: {
-      Description: 'Read-only access',
-      UpdateBy: 'SYSTEM',
-      Permission: { set: readonlyPermissions.map(({ Action }) => ({ Action })) },
-    },
+    update: {},
     create: {
       RoleName: 'READONLY',
-      Description: 'Read-only access',
-      CreateBy: 'SYSTEM',
-      Permission: { connect: readonlyPermissions.map(({ Action }) => ({ Action })) },
+      Description: 'Read-only access - can view data but cannot modify',
     },
   });
 
-  console.log(`Initialized ${permissionRecords.length} permissions`);
-  console.log(`Synchronized roles: ${superRole.RoleName}, ${readonlyRole.RoleName}`);
-  console.log('No operational data was deleted or modified.');
+  for (const permission of allPermissions) {
+    await prisma.mTCPermission.upsert({
+      where: { Action: permission.Action },
+      update: { Description: permission.Description },
+      create: permission,
+    });
+  }
+
+  await prisma.mTCRole.update({
+    where: { Id: superRole.Id },
+    data: {
+      Permission: { connect: allPermissions.map(({ Action }) => ({ Action })) },
+    },
+  });
+
+  const readonlyPermissions = allPermissions.filter(
+    ({ Action }) =>
+      (Action.endsWith('_READ') && !Action.includes('DASHBOARDSETTING')) ||
+      Action === 'DASHBOARD_VIEW',
+  );
+  await prisma.mTCRole.update({
+    where: { Id: readonlyRole.Id },
+    data: {
+      Permission: {
+        connect: readonlyPermissions.map(({ Action }) => ({ Action })),
+      },
+    },
+  });
+
+  console.log(`Upserted ${allPermissions.length} permissions and role assignments`);
 }
 
 main()
   .catch((error: unknown) => {
-    console.error('Permission seeding failed:', error);
+    console.error('Permission seed failed:', error);
     process.exitCode = 1;
   })
   .finally(async () => {

@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useEffect, useMemo } from "react";
-import { Card, Row, Col, Empty } from "antd";
+import { Card, Row, Col, Empty, Result } from "antd";
 import {
     ShoppingCart,
     Factory,
@@ -327,7 +327,7 @@ const DashboardSkeleton: React.FC = () => (
 // Main Dashboard Component
 export default function DashboardPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
+    const { data, loading, error, errorStatus } = useSelector((state: RootState) => state.dashboard);
 
     useEffect(() => {
         dispatch(fetchDashboard());
@@ -414,14 +414,33 @@ export default function DashboardPage() {
     }
 
     if (error) {
+        const isAccessError = errorStatus === 401 || errorStatus === 403;
         return (
-            <Empty
-                description={
-                    <span style={{ color: "#ff4d4f" }}>
-                        Gagal memuat data dashboard: {error}
-                    </span>
-                }
-            />
+            <div
+                style={{
+                    minHeight: "calc(100vh - 180px)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                {isAccessError ? (
+                    <div style={{ textAlign: "center" }}>
+                        <h2 style={{ color: "#1a1a2e", marginBottom: 8 }}>
+                            Akses Dashboard Ditolak
+                        </h2>
+                        <p style={{ color: "#8c8c8c", margin: 0 }}>
+                            Anda tidak memiliki permission DASHBOARD_VIEW untuk melihat dashboard.
+                        </p>
+                    </div>
+                ) : (
+                    <Result
+                        status="error"
+                        title="Dashboard Tidak Dapat Dimuat"
+                        subTitle={`Gagal memuat data dashboard: ${error}`}
+                    />
+                )}
+            </div>
         );
     }
 

@@ -668,6 +668,8 @@ model MaterialDeliveryNoteDetail {
   DeliveryNoteId String
   MaterialId     String
 
+  FinishGoodPartTemp String?
+
   QtyRequested Int // Jumlah yang direncanakan/diminta dikeluarkan
   QtyPicking   Int //jumlah yg sudah di prepare siap kirim, harus = qtyRequested
   QtyReceived  Int? // Jumlah aktual yang diterima di tujuan (bisa jadi ada selisih dijalan)

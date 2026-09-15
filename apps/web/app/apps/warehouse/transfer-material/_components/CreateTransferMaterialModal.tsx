@@ -19,6 +19,7 @@ interface ItemRow {
     key: string;
     materialId: string;
     qtyRequested: number;
+    FinishGoodPartTemp?: string;
 }
 
 const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSuccess }) => {
@@ -74,6 +75,9 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
                 items: validItems.map(item => ({
                     materialId: item.materialId,
                     qtyRequested: item.qtyRequested,
+                    ...(item.FinishGoodPartTemp?.trim()
+                        ? { FinishGoodPartTemp: item.FinishGoodPartTemp.trim() }
+                        : {}),
                 })),
             };
 
@@ -124,6 +128,19 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
                     filterOption={(input, option) =>
                         (option?.label?.props?.children?.[0]?.props?.children || '').toLowerCase().includes(input.toLowerCase())
                     }
+                />
+            ),
+        },
+        {
+            title: 'Finish Good Part (Optional)',
+            dataIndex: 'FinishGoodPartTemp',
+            key: 'FinishGoodPartTemp',
+            width: 180,
+            render: (_: unknown, record: ItemRow) => (
+                <Input
+                    placeholder="FG part number"
+                    value={record.FinishGoodPartTemp}
+                    onChange={(event) => handleItemChange(record.key, 'FinishGoodPartTemp', event.target.value)}
                 />
             ),
         },

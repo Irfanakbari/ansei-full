@@ -7,6 +7,7 @@ export interface TransferMaterialDetailEntity {
     Id: number;
     DeliveryNoteId: string;
     MaterialId: string;
+    FinishGoodPartTemp: string | null;
     QtyRequested: number;
     QtyPicking: number;
     QtyReceived: number | null;
@@ -40,6 +41,7 @@ export interface CreateTransferMaterialDto {
     items: Array<{
         materialId: string;
         qtyRequested: number;
+        FinishGoodPartTemp?: string;
     }>;
 }
 

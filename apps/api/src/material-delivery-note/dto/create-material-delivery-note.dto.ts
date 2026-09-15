@@ -18,6 +18,15 @@ export class CreateMaterialDeliveryNoteItemDto {
   @IsNumber()
   @Min(1)
   qtyRequested: number;
+
+  @ApiPropertyOptional({
+    description: 'Temporary finish good part number reference',
+    example: 'FG-001',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  FinishGoodPartTemp?: string;
 }
 
 export class CreateMaterialDeliveryNoteDto {
