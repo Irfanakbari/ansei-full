@@ -1,7 +1,17 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { chmodSync, mkdirSync } from "node:fs";
 import { createLogger, format, Logger as WinstonLogger } from "winston";
-import DailyRotateFile from "winston-daily-rotate-file";
+import type { transport as WinstonTransport } from "winston";
+// winston-daily-rotate-file is CommonJS and exports the transport constructor directly.
+const DailyRotateFile = require("winston-daily-rotate-file") as new (options: {
+  dirname: string;
+  filename: string;
+  datePattern: string;
+  zippedArchive: boolean;
+  maxFiles: string;
+  maxSize: string;
+  options: { flags: string };
+}) => WinstonTransport;
 
 export interface PrinterErrorLogContext {
   jobId?: string;
