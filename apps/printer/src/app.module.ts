@@ -5,6 +5,7 @@ import { PrinterProcessor } from "./printer.processor";
 import { PartTagPdfService } from "./part-tag-pdf.service";
 import { IpPrinterService } from "./ip-printer.service";
 import { PrinterSettingService } from "./printer-setting.service";
+import { PrinterErrorFileLogService } from "./printer-error-file-log.service";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { PrinterSettingService } from "./printer-setting.service";
     PartTagPdfService,
     IpPrinterService,
     PrinterSettingService,
+    PrinterErrorFileLogService,
   ],
 })
 export class AppModule {}

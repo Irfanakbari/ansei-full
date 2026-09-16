@@ -34,7 +34,7 @@ RUN pnpm run build
 
 WORKDIR /workspace
 RUN mkdir -p /api-runtime/apps/api /api-runtime/apps/printer /api-runtime/vendor \
-    && cp package.json pnpm-lock.yaml pnpm-workspace.yaml /api-untime/ \
+    && cp package.json pnpm-lock.yaml pnpm-workspace.yaml /api-runtime/ \
     && cp apps/api/package.json /api-runtime/apps/api/package.json \
     && cp apps/printer/package.json /api-runtime/apps/printer/package.json \
     && cp vendor/* /api-runtime/vendor/ \

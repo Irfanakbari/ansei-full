@@ -3,6 +3,7 @@ import { PrinterProcessor } from "./printer.processor";
 import { PartTagPdfService } from "./part-tag-pdf.service";
 import { IpPrinterService } from "./ip-printer.service";
 import { PrinterSettingService } from "./printer-setting.service";
+import { PrinterErrorFileLogService } from "./printer-error-file-log.service";
 import type { Job } from "bullmq";
 
 describe("PrinterProcessor", () => {
@@ -10,6 +11,7 @@ describe("PrinterProcessor", () => {
   let pdfService: Pick<PartTagPdfService, "generatePartTagPdf">;
   let printerService: Pick<IpPrinterService, "printPdf">;
   let settingService: Pick<PrinterSettingService, "getActivePrinterIp">;
+  let fileLogger: Pick<PrinterErrorFileLogService, "write">;
 
   beforeEach(async () => {
     pdfService = {
@@ -21,6 +23,9 @@ describe("PrinterProcessor", () => {
     settingService = {
       getActivePrinterIp: jest.fn().mockResolvedValue("192.168.1.50"),
     };
+    fileLogger = {
+      write: jest.fn().mockResolvedValue(undefined),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -28,6 +33,7 @@ describe("PrinterProcessor", () => {
         { provide: PartTagPdfService, useValue: pdfService },
         { provide: IpPrinterService, useValue: printerService },
         { provide: PrinterSettingService, useValue: settingService },
+        { provide: PrinterErrorFileLogService, useValue: fileLogger },
       ],
     }).compile();
 
