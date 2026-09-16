@@ -28,6 +28,10 @@ import sharp from 'sharp';
 import { excelToPdf } from '../common/utils/document-converter.util';
 import * as fs from 'fs';
 import * as path from 'path';
+import {
+  getUserDisplayNameMap,
+  getUserDisplayName,
+} from '../common/helpers/user-lookup.helper';
 
 @Injectable()
 export class MaterialDeliveryNoteService {
@@ -166,7 +170,8 @@ export class MaterialDeliveryNoteService {
           data: dto.items.map((item) => ({
             DeliveryNoteId: header.Id,
             MaterialId: item.materialId,
-            FinishGoodPartTemp: item.FinishGoodPartTemp ?? null,
+            FinishGoodPartTemp:
+              item.FinishGoodPartTemp ?? dto.FinishGoodPartTemp ?? null,
             QtyRequested: item.qtyRequested,
             QtyPicking: 0, // Initially 0, will be picked later
           })),
@@ -1048,10 +1053,45 @@ export class MaterialDeliveryNoteService {
         });
       }
 
+      // Resolve user display names from MTCUserManagement
+      const userNames = await getUserDisplayNameMap(
+        [dn.CreatedBy, dn.ShippedBy, dn.ReceivedBy],
+        this.prisma,
+      );
+
+      const createdByName = getUserDisplayName(dn.CreatedBy, userNames);
+      const shippedByName = dn.ShippedBy
+        ? getUserDisplayName(dn.ShippedBy, userNames)
+        : '';
+      const receivedByName = dn.ReceivedBy
+        ? getUserDisplayName(dn.ReceivedBy, userNames)
+        : '';
+
       const stampCells = [
-        { cell: 'I4', name: dn.CreatedBy || '-', hasName: true },
-        { cell: 'J4', name: dn.ShippedBy || '', hasName: !!dn.ShippedBy },
-        { cell: 'K4', name: dn.ReceivedBy || '', hasName: !!dn.ReceivedBy },
+        {
+          cell: 'I4',
+          name:
+            createdByName && createdByName !== '-'
+              ? createdByName
+              : dn.CreatedBy || '-',
+          hasName: true,
+        },
+        {
+          cell: 'J4',
+          name:
+            shippedByName && shippedByName !== '-'
+              ? shippedByName
+              : dn.ShippedBy || '',
+          hasName: Boolean(dn.ShippedBy && shippedByName !== '-'),
+        },
+        {
+          cell: 'K4',
+          name:
+            receivedByName && receivedByName !== '-'
+              ? receivedByName
+              : dn.ReceivedBy || '',
+          hasName: Boolean(dn.ReceivedBy && receivedByName !== '-'),
+        },
         { cell: 'L4', name: '', hasName: false },
       ];
 

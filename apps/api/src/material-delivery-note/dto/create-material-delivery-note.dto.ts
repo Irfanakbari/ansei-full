@@ -45,12 +45,29 @@ export class CreateMaterialDeliveryNoteDto {
   @IsString()
   notes?: string;
 
+  @ApiPropertyOptional({
+    description: 'Temporary finish good part number reference for all items',
+    example: 'FG-001',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  FinishGoodPartTemp?: string;
+
   @ApiProperty({
     description: 'List of materials to deliver',
     type: [CreateMaterialDeliveryNoteItemDto],
     example: [
-      { materialId: 'MAT-001', qtyRequested: 100 },
-      { materialId: 'MAT-002', qtyRequested: 50 },
+      {
+        materialId: 'MAT-001',
+        qtyRequested: 100,
+        FinishGoodPartTemp: 'FG-001',
+      },
+      {
+        materialId: 'MAT-002',
+        qtyRequested: 50,
+        FinishGoodPartTemp: 'FG-002',
+      },
     ],
   })
   @IsArray()
