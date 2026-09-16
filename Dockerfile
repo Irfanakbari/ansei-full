@@ -9,6 +9,7 @@ RUN corepack enable && corepack prepare pnpm@10.0.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json apps/web/package.json
 COPY apps/api/package.json apps/api/package.json
+COPY apps/printer/package.json apps/printer/package.json
 COPY vendor vendor
 RUN pnpm install --frozen-lockfile
 
@@ -25,16 +26,20 @@ ENV NEXT_PUBLIC_CALLBACK_AUTH_URL=${NEXT_PUBLIC_CALLBACK_AUTH_URL}
 WORKDIR /workspace/apps/api
 RUN pnpm exec prisma generate && pnpm run build
 
+WORKDIR /workspace/apps/printer
+RUN pnpm run build
+
 WORKDIR /workspace/apps/web
 RUN pnpm run build
 
 WORKDIR /workspace
-RUN mkdir -p /api-runtime/apps/api /api-runtime/vendor \
-    && cp package.json pnpm-lock.yaml pnpm-workspace.yaml /api-runtime/ \
+RUN mkdir -p /api-runtime/apps/api /api-runtime/apps/printer /api-runtime/vendor \
+    && cp package.json pnpm-lock.yaml pnpm-workspace.yaml /api-untime/ \
     && cp apps/api/package.json /api-runtime/apps/api/package.json \
+    && cp apps/printer/package.json /api-runtime/apps/printer/package.json \
     && cp vendor/* /api-runtime/vendor/ \
     && cd /api-runtime \
-    && pnpm install --prod --frozen-lockfile --filter @ansei/api
+    && pnpm install --prod --frozen-lockfile --filter @ansei/api --filter @ansei/printer
 
 FROM node:22-bookworm-slim AS runtime
 
@@ -58,12 +63,17 @@ RUN apt-get update \
 
 COPY --from=build --chown=node:node /api-runtime/node_modules ./node_modules
 COPY --from=build --chown=node:node /api-runtime/apps/api/node_modules ./apps/api/node_modules
+COPY --from=build --chown=node:node /api-runtime/apps/printer/node_modules ./apps/printer/node_modules
 COPY --from=build --chown=node:node /workspace/apps/api/package.json ./apps/api/package.json
 COPY --from=build --chown=node:node /workspace/apps/api/dist ./apps/api/dist
 COPY --from=build --chown=node:node /workspace/apps/api/prisma ./apps/api/prisma
+COPY --from=build --chown=node:node /workspace/apps/printer/package.json ./apps/printer/package.json
+COPY --from=build --chown=node:node /workspace/apps/printer/dist ./apps/printer/dist
 COPY --from=build --chown=node:node /workspace/apps/web/.next/standalone ./web-runtime
 COPY --from=build --chown=node:node /workspace/apps/web/.next/static ./web-runtime/apps/web/.next/static
 COPY --from=build --chown=node:node /workspace/apps/web/public ./web-runtime/apps/web/public
+COPY --chown=node:node start.sh ./start.sh
+RUN chmod +x ./start.sh
 RUN mkdir -p /app/storage/error-logs \
     && chown -R node:node /app/storage \
     && chmod 700 /app/storage/error-logs \
@@ -75,5 +85,5 @@ VOLUME ["/app/storage/error-logs"]
 EXPOSE 7500
 EXPOSE 3005
 
-ENTRYPOINT ["dumb-init", "--"]
-CMD ["node", "apps/api/dist/src/main.js"]
+ENTRYPOINT ["dumb-init", "--", "./start.sh"]
+CMD ["api"]

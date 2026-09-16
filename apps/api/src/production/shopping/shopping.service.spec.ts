@@ -156,7 +156,9 @@ describe('ShoppingService', () => {
       prismaService.forecast.findUnique.mockResolvedValue(forecast);
       prismaService.finishGood.findUnique.mockResolvedValue(finishGood);
       prismaService.boxQTY.findUnique.mockResolvedValue(null);
-      printerService.printPartTagAnsei.mockRejectedValue(new Error('RMQ'));
+      printerService.printPartTagAnsei.mockRejectedValue(
+        new Error('Queue error'),
+      );
 
       await expect(
         service['emitPartTag']('PO-001', 'FG-001', 'PR123'),

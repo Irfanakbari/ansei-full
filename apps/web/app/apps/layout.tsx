@@ -23,10 +23,10 @@ import { useVuteqSso } from '@vuteq/sso-client-react/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { setAuthData, clearAuth } from '@/store/features/auth/authSlice';
-import { fetchNotifications } from '@/store/features/notifications/notificationsSlice';
+import { fetchNotifications, NotificationsEntity } from '@/store/features/notifications/notificationsSlice';
 import '../batik.css';
 
-const APP_VERSION = '1.9.0';
+const APP_VERSION = '1.13.0';
 const { Header, Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number] & {
@@ -248,6 +248,21 @@ const getMenuKeyFromPath = (path: string): string => {
     return 'dashboard';
 };
 
+const getNotificationHref = (menu: string): string => {
+    switch (menu) {
+        case 'INCOMING':
+            return '/apps/warehouse/incoming';
+        case 'PRODUCTION_PLAN':
+            return '/apps/production/production-release';
+        case 'STOCK_OPNAME':
+            return '/apps/warehouse/inventory-counting';
+        case 'POKAYOKE':
+            return '/apps/production/pokayoke';
+        default:
+            return '/apps';
+    }
+};
+
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
     const { modal } = App.useApp();
     const [collapsed, setCollapsed] = useState(false);
@@ -260,7 +275,14 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         (session?.roles ?? []).includes('SUPER_ADMINISTRATOR') ||
         ssoGlobalRoles.includes('SUPER_ADMINISTRATOR');
     const { user } = useSelector((state: RootState) => state.auth);
-    const { data: notifications } = useSelector((state: RootState) => state.notifications);
+    const { data: rawNotifications } = useSelector((state: RootState) => state.notifications);
+    const notifications = useMemo(() => {
+        if (!rawNotifications) return null;
+        if (typeof rawNotifications === 'object' && 'data' in rawNotifications && (rawNotifications as any).data) {
+            return (rawNotifications as any).data as NotificationsEntity;
+        }
+        return rawNotifications as NotificationsEntity;
+    }, [rawNotifications]);
     const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
@@ -356,8 +378,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
                 if (!m.disabled && m.key === 'wh-incoming' && notifications?.totalIncomingNotClosed && notifications.totalIncomingNotClosed > 0) {
                     label = (
-                        <Space>
-                            {m.label}
+                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                            <span>{m.label}</span>
                             <Badge count={notifications.totalIncomingNotClosed} size="small" />
                         </Space>
                     );
@@ -365,8 +387,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
                 if (!m.disabled && m.key === 'prod-release' && notifications?.totalPOWithoutAttachment && notifications.totalPOWithoutAttachment > 0) {
                     label = (
-                        <Space>
-                            {m.label}
+                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                            <span>{m.label}</span>
                             <Badge count={notifications.totalPOWithoutAttachment} size="small" />
                         </Space>
                     );
@@ -374,8 +396,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
                 if (!m.disabled && m.key === 'wh-inventory-counting' && notifications?.totalStockOpnameInProgress && notifications.totalStockOpnameInProgress > 0) {
                     label = (
-                        <Space>
-                            {m.label}
+                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                            <span>{m.label}</span>
                             <Badge count={notifications.totalStockOpnameInProgress} size="small" />
                         </Space>
                     );
@@ -383,9 +405,29 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
                 if (!m.disabled && m.key === 'prod-pre-delivery' && notifications?.totalLabelDataNotScanned && notifications.totalLabelDataNotScanned > 0) {
                     label = (
-                        <Space>
-                            {m.label}
+                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                            <span>{m.label}</span>
                             <Badge count={notifications.totalLabelDataNotScanned} size="small" />
+                        </Space>
+                    );
+                }
+
+                const warehouseCount = (notifications?.totalIncomingNotClosed || 0) + (notifications?.totalStockOpnameInProgress || 0);
+                if (!m.disabled && m.key === 'warehouse' && warehouseCount > 0) {
+                    label = (
+                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                            <span>{extractLabelText(m.label)}</span>
+                            <Badge count={warehouseCount} size="small" />
+                        </Space>
+                    );
+                }
+
+                const prodCount = (notifications?.totalPOWithoutAttachment || 0) + (notifications?.totalLabelDataNotScanned || 0);
+                if (!m.disabled && m.key === 'production' && prodCount > 0) {
+                    label = (
+                        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                            <span>{extractLabelText(m.label)}</span>
+                            <Badge count={prodCount} size="small" />
                         </Space>
                     );
                 }
@@ -504,17 +546,22 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                                     items:
                                         (notifications?.messages?.length ?? 0) > 0
                                             ? [
-                                                  { type: 'divider' as const },
+                                                  { key: 'divider-top', type: 'divider' as const },
                                                   ...(notifications?.messages ?? []).map((msg: any, index: number) => ({
-                                                      key: index,
+                                                      key: `notif-${index}`,
                                                       label: (
-                                                          <div style={{ padding: '4px 0', maxWidth: 350 }}>
-                                                              <div style={{ fontSize: 11, color: '#888' }}>{msg.menu}</div>
-                                                              <div style={{ fontSize: 12 }}>{msg.message}</div>
-                                                          </div>
+                                                          <Link
+                                                              href={getNotificationHref(msg.menu)}
+                                                              style={{ display: 'block', padding: '4px 0', maxWidth: 350, color: 'inherit' }}
+                                                          >
+                                                              <div style={{ fontSize: 11, color: '#1890ff', fontWeight: 600 }}>{msg.menu}</div>
+                                                              <div style={{ fontSize: 12, color: '#334155', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                                                  {msg.message}
+                                                              </div>
+                                                          </Link>
                                                       ),
                                                   })),
-                                                  { type: 'divider' as const },
+                                                  { key: 'divider-bottom', type: 'divider' as const },
                                               ]
                                             : [
                                                   {

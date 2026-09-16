@@ -1,0 +1,82 @@
+version: "3.8"
+
+services:
+  # 1. API Container (Backend HTTP API on port 7500)
+  ansei-api:
+    image: ansei-app:latest
+    container_name: ansei-api
+    command: ["api"] # or environment: SERVICE_ROLE=api
+    restart: unless-stopped
+    ports:
+      - "7500:7500"
+    environment:
+      - NODE_ENV=production
+      - PORT=7500
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/ansei
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+    depends_on:
+      - redis
+      - postgres
+
+  # 2. Web Container (Frontend Next.js UI on port 3005)
+  ansei-web:
+    image: ansei-app:latest
+    container_name: ansei-web
+    command: ["web"] # or environment: SERVICE_ROLE=web
+    restart: unless-stopped
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - HOSTNAME=0.0.0.0
+      - API_URL=http://ansei-api:7500
+    depends_on:
+      - ansei-api
+
+  # 3. Printer Worker Container (BullMQ Async Worker)
+  ansei-printer:
+    image: ansei-app:latest
+    container_name: ansei-printer
+    command: ["printer"] # or environment: SERVICE_ROLE=printer
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/ansei
+      - PRINTER_DEFAULT_IP=192.168.1.100
+    depends_on:
+      - redis
+      - postgres
+
+  # Message Broker for BullMQ
+  redis:
+    image: redis:7-alpine
+    container_name: ansei-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: ansei-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=ansei
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  redis-data:
+  postgres-data:

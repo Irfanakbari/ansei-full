@@ -57,6 +57,15 @@ jobs:
       - name: Build API
         run: pnpm build:api
 
+      - name: Lint printer
+        run: pnpm lint:printer
+
+      - name: Test printer
+        run: pnpm test:printer
+
+      - name: Build printer
+        run: pnpm build:printer
+
       - name: Lint web
         run: pnpm lint:web
 

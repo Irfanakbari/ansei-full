@@ -7,31 +7,42 @@ export interface IncomingNotClosed {
     poId: string;
     description: string;
     receivedBy: string;
-    supplierName: string;
+    supplierName?: string;
     createdAt: string;
+}
+
+// Forecast without attachment interface
+export interface ForecastWithoutAttachment {
+    poId: string;
+    poNumber: string;
+    partNumber?: string | null;
+    partName?: string | null;
+    qty: number;
+    deliveryDate: string;
 }
 
 // Production release without attachment interface
 export interface ProductionReleaseWithoutAttachment {
-    Id: string;
-    ReleaseNumber: string;
-    PlanDate: string;
-    totalPOCount: number;
+    releaseId: string;
+    releaseNumber: string;
+    status: string;
+    count: number;
+    forecasts: ForecastWithoutAttachment[];
 }
 
 // Notifications response interface
 export interface StockOpnameInProgress {
     id: string;
     opnameNumber: string;
-    status: string;
-    createdAt: string;
+    category?: string;
+    startedAt?: string;
 }
 
 export interface LabelDataNotScanned {
     id: number;
     labelNumber: string;
-    releaseId: string;
-    releaseNumber: string;
+    releaseId?: string;
+    releaseNumber?: string;
 }
 
 export interface NotificationMessage {
@@ -52,7 +63,7 @@ export interface NotificationsEntity {
 }
 
 // Notifications state
-interface NotificationsState {
+export interface NotificationsState {
     data: NotificationsEntity | null;
     loading: boolean;
     error: string | null;
@@ -65,16 +76,25 @@ const initialState: NotificationsState = {
 };
 
 // Fetch notifications (public endpoint - goes through proxy, no auth required)
-export const fetchNotifications = createAsyncThunk(
+export const fetchNotifications = createAsyncThunk<
+    NotificationsEntity,
+    void,
+    { rejectValue: string }
+>(
     'notifications/fetch',
     async (_, { rejectWithValue }) => {
         try {
             const response = await fetch('/api/frontend/notifications');
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Gagal mengambil data notifications');
+            const result = await response.json();
+            if (!response.ok) return rejectWithValue(result?.message || 'Gagal mengambil data notifications');
+            // Backend returns ApiSuccessEnvelope: { success: true, statusCode: 200, message: "...", data: NotificationsEntity }
+            const data: NotificationsEntity =
+                result && typeof result === 'object' && 'data' in result && result.data
+                    ? result.data
+                    : result;
             return data;
         } catch (error: any) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error?.message || 'Gagal mengambil data notifications');
         }
     }
 );
@@ -82,7 +102,12 @@ export const fetchNotifications = createAsyncThunk(
 const notificationsSlice = createSlice({
     name: 'notifications',
     initialState,
-    reducers: {},
+    reducers: {
+        clearNotifications: (state) => {
+            state.data = null;
+            state.error = null;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchNotifications.pending, (state) => {
@@ -91,13 +116,18 @@ const notificationsSlice = createSlice({
             })
             .addCase(fetchNotifications.fulfilled, (state, action) => {
                 state.loading = false;
-                state.data = action.payload;
+                const payload = action.payload as any;
+                state.data =
+                    payload && typeof payload === 'object' && 'data' in payload && payload.data
+                        ? payload.data
+                        : payload;
             })
             .addCase(fetchNotifications.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                state.error = (action.payload as string) || 'Gagal mengambil data notifications';
             });
     },
 });
 
+export const { clearNotifications } = notificationsSlice.actions;
 export default notificationsSlice.reducer;

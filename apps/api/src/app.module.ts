@@ -3,7 +3,7 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import { AuthModule } from './auth/auth.module';
 import { UserManagementModule } from './user-management/user-management.module';
@@ -51,12 +51,20 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
       serveRoot: '/assets',
       exclude: ['/api*'],
     }),
-    BullModule.forRoot({
-      connection: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: Number(process.env.REDIS_PORT) || 6379,
-        password: process.env.REDIS_PASSWORD || undefined,
-      },
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: Number(configService.get<number>('REDIS_PORT', 6379)),
+          password: configService.get<string>('REDIS_PASSWORD') || undefined,
+          maxRetriesPerRequest: null,
+          retryStrategy(times: number) {
+            return Math.min(times * 1000, 15000);
+          },
+        },
+      }),
+      inject: [ConfigService],
     }),
     ThrottlerModule.forRoot({
       throttlers: [

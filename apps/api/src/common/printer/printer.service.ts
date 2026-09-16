@@ -1,17 +1,37 @@
-import { Inject, Injectable } from '@nestjs/common';
-import type { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom } from 'rxjs';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import {
   PRINT_PART_TAG_ANSEI,
-  PRINTER_SERVICE,
   type PartTagAnseiPayload,
 } from './printer.types';
 
 @Injectable()
 export class PrinterService {
-  constructor(@Inject(PRINTER_SERVICE) private readonly client: ClientProxy) {}
+  private readonly logger = new Logger(PrinterService.name);
+
+  constructor(
+    @InjectQueue('printer_queue') private readonly printerQueue: Queue,
+  ) {}
 
   async printPartTagAnsei(payload: PartTagAnseiPayload): Promise<void> {
-    await lastValueFrom(this.client.emit(PRINT_PART_TAG_ANSEI, payload));
+    try {
+      await this.printerQueue.add(PRINT_PART_TAG_ANSEI, payload, {
+        removeOnComplete: true,
+        removeOnFail: false,
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 5000,
+        },
+      });
+      this.logger.log(
+        `Enqueued async print job ${PRINT_PART_TAG_ANSEI} for PO ${payload.poNumber}`,
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to enqueue print job: ${message}`);
+      throw error;
+    }
   }
 }

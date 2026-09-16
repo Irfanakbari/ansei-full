@@ -1,4 +1,3 @@
-export const PRINTER_SERVICE = 'PRINTER_SERVICE';
 export const PRINT_PART_TAG_ANSEI = 'printPartTagAnsei';
 
 export interface PartTagAnseiPayload {
