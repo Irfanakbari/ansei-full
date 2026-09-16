@@ -1,7 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-11 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
-import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
+import { get, post, patch, del, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Entity interfaces
 export interface TransferMaterialDetailEntity {
@@ -120,12 +119,10 @@ export const fetchTransferMaterialById = createAsyncThunk(
     'transferMaterial/fetchById',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/transfer-material/${id}`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch transfer material detail');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const res = await get<ApiSuccessEnvelope<TransferMaterialEntity>>(`/transfer-material/${id}`);
+            return res.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch transfer material details'));
         }
     }
 );
@@ -135,16 +132,10 @@ export const createTransferMaterial = createAsyncThunk(
     'transferMaterial/create',
     async (dto: CreateTransferMaterialDto, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/warehouse/transfer-material', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dto),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create transfer material');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const res = await post<ApiSuccessEnvelope<TransferMaterialEntity>>('/transfer-material', dto);
+            return res.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create transfer material'));
         }
     }
 );
@@ -154,16 +145,10 @@ export const updateTransferMaterial = createAsyncThunk(
     'transferMaterial/update',
     async ({ id, dto }: { id: string; dto: Partial<CreateTransferMaterialDto> }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/transfer-material/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dto),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update transfer material');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const res = await patch<ApiSuccessEnvelope<TransferMaterialEntity>>(`/transfer-material/${id}`, dto);
+            return res.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update transfer material'));
         }
     }
 );
@@ -173,14 +158,10 @@ export const deleteTransferMaterial = createAsyncThunk(
     'transferMaterial/delete',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/transfer-material/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete transfer material');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const res = await del<ApiSuccessEnvelope<{ deleted: boolean; id: string }>>(`/transfer-material/${id}`);
+            return res.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete transfer material'));
         }
     }
 );
@@ -190,16 +171,10 @@ export const pickTransferMaterial = createAsyncThunk(
     'transferMaterial/pick',
     async ({ id, dto }: { id: string; dto: PickMaterialDto }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/transfer-material/${id}/pick`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dto),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to pick material');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const res = await patch<ApiSuccessEnvelope<TransferMaterialEntity>>(`/transfer-material/${id}/pick`, dto);
+            return res.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to pick material'));
         }
     }
 );
@@ -209,14 +184,10 @@ export const shipTransferMaterial = createAsyncThunk(
     'transferMaterial/ship',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/transfer-material/${id}/ship`, {
-                method: 'POST',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to ship transfer material');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const res = await post<ApiSuccessEnvelope<TransferMaterialEntity>>(`/transfer-material/${id}/ship`, {});
+            return res.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to ship transfer material'));
         }
     }
 );
@@ -226,14 +197,10 @@ export const receiveTransferMaterial = createAsyncThunk(
     'transferMaterial/receive',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/transfer-material/${id}/receive`, {
-                method: 'POST',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to receive transfer material');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const res = await post<ApiSuccessEnvelope<TransferMaterialEntity>>(`/transfer-material/${id}/receive`, {});
+            return res.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to receive transfer material'));
         }
     }
 );
@@ -243,14 +210,10 @@ export const cancelTransferMaterial = createAsyncThunk(
     'transferMaterial/cancel',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/transfer-material/${id}/cancel`, {
-                method: 'POST',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to cancel transfer material');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const res = await post<ApiSuccessEnvelope<TransferMaterialEntity>>(`/transfer-material/${id}/cancel`, {});
+            return res.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to cancel transfer material'));
         }
     }
 );
@@ -258,7 +221,7 @@ export const cancelTransferMaterial = createAsyncThunk(
 // Download DN (Delivery Note)
 export const downloadDN = createAsyncThunk(
     'transferMaterial/downloadDN',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string) => {
         // Return just the URL - download handled client-side
         return { id };
     }
@@ -276,16 +239,10 @@ export const sendDN = createAsyncThunk(
     'transferMaterial/sendDN',
     async ({ id, dto }: { id: string; dto: SendDNDto }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/transfer-material/send-dn`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, ...dto }),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to send delivery note');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const res = await post<ApiSuccessEnvelope<unknown>>(`/transfer-material/${id}/send-dn`, dto);
+            return res.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to send delivery note'));
         }
     }
 );
@@ -311,14 +268,27 @@ const transferMaterialSlice = createSlice({
             })
             .addCase(fetchTransferMaterial.fulfilled, (state, action) => {
                 state.loading = false;
-                const inner = action.payload?.data;
-                state.data = Array.isArray(inner?.data) ? inner.data : [];
-                state.pagination = {
-                    page: inner?.meta?.page || 1,
-                    limit: inner?.meta?.limit || 50,
-                    totalItems: inner?.meta?.totalItems || 0,
-                    totalPages: inner?.meta?.totalPages || 0,
-                };
+                const raw = action.payload as any;
+                if (Array.isArray(raw?.data)) {
+                    state.data = raw.data;
+                    state.pagination = {
+                        page: raw.meta?.page || 1,
+                        limit: raw.meta?.limit || 50,
+                        totalItems: raw.meta?.totalItems || 0,
+                        totalPages: raw.meta?.totalPages || 0,
+                    };
+                } else if (Array.isArray(raw?.data?.data)) {
+                    state.data = raw.data.data;
+                    state.pagination = {
+                        page: raw.data.meta?.page || 1,
+                        limit: raw.data.meta?.limit || 50,
+                        totalItems: raw.data.meta?.totalItems || 0,
+                        totalPages: raw.data.meta?.totalPages || 0,
+                    };
+                } else {
+                    state.data = [];
+                    state.pagination = initialState.pagination;
+                }
             })
             .addCase(fetchTransferMaterial.rejected, (state, action) => {
                 state.loading = false;
@@ -331,7 +301,7 @@ const transferMaterialSlice = createSlice({
             })
             .addCase(fetchTransferMaterialById.fulfilled, (state, action) => {
                 state.loading = false;
-                state.currentItem = action.payload;
+                state.currentItem = (action.payload as any)?.data || action.payload;
             })
             .addCase(fetchTransferMaterialById.rejected, (state, action) => {
                 state.loading = false;
@@ -351,56 +321,66 @@ const transferMaterialSlice = createSlice({
             })
             // Update
             .addCase(updateTransferMaterial.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const item = (action.payload as any)?.data || action.payload;
+                const index = state.data.findIndex(d => d.Id === item?.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = item;
                 }
-                if (state.currentItem?.Id === action.payload.Id) {
-                    state.currentItem = action.payload;
+                if (state.currentItem?.Id === item?.Id) {
+                    state.currentItem = item;
                 }
             })
             // Delete
             .addCase(deleteTransferMaterial.fulfilled, (state, action) => {
-                state.data = state.data.filter(item => item.Id !== action.payload?.Id);
+                const payload = action.payload as any;
+                const deletedId = payload?.id || payload?.data?.id || payload;
+                state.data = state.data.filter(item => item.Id !== deletedId);
+                if (state.currentItem?.Id === deletedId) {
+                    state.currentItem = null;
+                }
             })
             // Pick
             .addCase(pickTransferMaterial.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const item = (action.payload as any)?.data || action.payload;
+                const index = state.data.findIndex(d => d.Id === item?.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = item;
                 }
-                if (state.currentItem?.Id === action.payload.Id) {
-                    state.currentItem = action.payload;
+                if (state.currentItem?.Id === item?.Id) {
+                    state.currentItem = item;
                 }
             })
             // Ship
             .addCase(shipTransferMaterial.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const item = (action.payload as any)?.data || action.payload;
+                const index = state.data.findIndex(d => d.Id === item?.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = item;
                 }
-                if (state.currentItem?.Id === action.payload.Id) {
-                    state.currentItem = action.payload;
+                if (state.currentItem?.Id === item?.Id) {
+                    state.currentItem = item;
                 }
             })
             // Receive
             .addCase(receiveTransferMaterial.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const item = (action.payload as any)?.data || action.payload;
+                const index = state.data.findIndex(d => d.Id === item?.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = item;
                 }
-                if (state.currentItem?.Id === action.payload.Id) {
-                    state.currentItem = action.payload;
+                if (state.currentItem?.Id === item?.Id) {
+                    state.currentItem = item;
                 }
             })
             // Cancel
             .addCase(cancelTransferMaterial.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
+                const item = (action.payload as any)?.data || action.payload;
+                const index = state.data.findIndex(d => d.Id === item?.Id);
                 if (index !== -1) {
-                    state.data[index] = action.payload;
+                    state.data[index] = item;
                 }
-                if (state.currentItem?.Id === action.payload.Id) {
-                    state.currentItem = action.payload;
+                if (state.currentItem?.Id === item?.Id) {
+                    state.currentItem = item;
                 }
             });
     },

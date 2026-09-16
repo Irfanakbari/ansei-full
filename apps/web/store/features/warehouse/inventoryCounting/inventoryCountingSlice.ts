@@ -410,14 +410,27 @@ const inventoryCountingSlice = createSlice({
             })
             .addCase(fetchInventoryCounting.fulfilled, (state, action) => {
                 state.loading = false;
-                const inner = action.payload?.data;
-                state.data = Array.isArray(inner?.data) ? inner.data : [];
-                state.pagination = {
-                    page: inner?.page || 1,
-                    limit: inner?.limit || 50,
-                    total: inner?.total || 0,
-                    totalPages: inner?.totalPages || 0,
-                };
+                const raw = action.payload as any;
+                if (Array.isArray(raw?.data)) {
+                    state.data = raw.data;
+                    state.pagination = {
+                        page: raw.meta?.page || 1,
+                        limit: raw.meta?.limit || 50,
+                        total: raw.meta?.totalItems ?? raw.meta?.total ?? 0,
+                        totalPages: raw.meta?.totalPages || 0,
+                    };
+                } else if (Array.isArray(raw?.data?.data)) {
+                    state.data = raw.data.data;
+                    state.pagination = {
+                        page: raw.data.meta?.page || raw.data.page || 1,
+                        limit: raw.data.meta?.limit || raw.data.limit || 50,
+                        total: raw.data.meta?.totalItems ?? raw.data.total ?? 0,
+                        totalPages: raw.data.meta?.totalPages || raw.data.totalPages || 0,
+                    };
+                } else {
+                    state.data = [];
+                    state.pagination = { page: 1, limit: 50, total: 0, totalPages: 0 };
+                }
             })
             .addCase(fetchInventoryCounting.rejected, (state, action) => {
                 state.loading = false;
