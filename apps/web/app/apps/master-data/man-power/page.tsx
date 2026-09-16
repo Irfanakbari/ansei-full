@@ -2,9 +2,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Table, Card, Breadcrumb, App, Input, Space, Button, Tag } from 'antd';
+import { Table, Card, Breadcrumb, App, Input, Space, Button, Tag, Avatar, Image } from 'antd';
 import type { InputRef } from 'antd';
-import { EditOutlined, DeleteOutlined, ReloadOutlined, ExclamationCircleOutlined, SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, ReloadOutlined, ExclamationCircleOutlined, SearchOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -58,6 +58,29 @@ export default function ManPowerPage() {
     });
 
     const columns = [
+        {
+            title: 'Photo',
+            dataIndex: 'PicturePath',
+            key: 'PicturePath',
+            width: 70,
+            align: 'center' as const,
+            render: (val: string | null, record: ManPowerEntity) => {
+                if (val) {
+                    return (
+                        <Image
+                            src={val}
+                            alt={record.Name}
+                            width={32}
+                            height={32}
+                            style={{ objectFit: 'cover', borderRadius: 4 }}
+                            preview={{ src: val }}
+                            fallback="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E"
+                        />
+                    );
+                }
+                return <Avatar icon={<UserOutlined />} size={32} shape="square" />;
+            },
+        },
         {
             title: 'NIK',
             dataIndex: 'Nik',

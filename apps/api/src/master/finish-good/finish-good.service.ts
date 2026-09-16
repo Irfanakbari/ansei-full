@@ -32,6 +32,7 @@ export class FinishGoodService {
           OR: [
             { PartNumber: { contains: query.search, mode: 'insensitive' } },
             { PartName: { contains: query.search, mode: 'insensitive' } },
+            { Alias: { contains: query.search, mode: 'insensitive' } },
           ],
         }
       : {};
@@ -116,6 +117,7 @@ export class FinishGoodService {
         data: {
           PartNumber: dto.partNumber,
           PartName: dto.partName,
+          Alias: dto.alias,
           Price: dto.price ?? 0,
           Qty: dto.qty ?? 0,
           CreatedBy: createdBy,
@@ -193,6 +195,7 @@ export class FinishGoodService {
         data: {
           PartNumber: dto.partNumber,
           PartName: dto.partName,
+          Alias: dto.alias,
           Price: dto.price,
           Qty: dto.qty,
         },

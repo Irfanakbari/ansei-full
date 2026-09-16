@@ -3195,6 +3195,7 @@ export const FinishGoodScalarFieldEnum = {
   Id: 'Id',
   PartNumber: 'PartNumber',
   PartName: 'PartName',
+  Alias: 'Alias',
   Price: 'Price',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
@@ -3227,6 +3228,7 @@ export type BillOfMaterialsScalarFieldEnum = (typeof BillOfMaterialsScalarFieldE
 export const ManPowerScalarFieldEnum = {
   Uid: 'Uid',
   Nik: 'Nik',
+  PicturePath: 'PicturePath',
   Name: 'Name',
   CreatedAt: 'CreatedAt',
   Status: 'Status',

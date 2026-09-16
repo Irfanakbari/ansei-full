@@ -122,6 +122,9 @@ model FinishGood {
   Id         Int      @id @default(autoincrement())
   PartNumber String   @unique
   PartName   String
+
+  Alias String?
+
   Price      Float?   @default(0)
   CreatedAt  DateTime @default(now())
   CreatedBy  String
@@ -163,6 +166,7 @@ model BillOfMaterials {
 model ManPower {
   Uid              String             @id @default(uuid(4))
   Nik              String             @unique
+  PicturePath String?
   Name             String
   CreatedAt        DateTime           @default(now())
   Status           Boolean            @default(true)

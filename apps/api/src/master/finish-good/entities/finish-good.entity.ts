@@ -14,6 +14,13 @@ export class FinishGoodEntity {
   PartName: string;
 
   @ApiPropertyOptional({
+    description: 'Alias part finish good',
+    nullable: true,
+    example: 'C-ASM-A',
+  })
+  Alias: string | null;
+
+  @ApiPropertyOptional({
     description: 'Harga per unit',
     nullable: true,
     example: 15000,

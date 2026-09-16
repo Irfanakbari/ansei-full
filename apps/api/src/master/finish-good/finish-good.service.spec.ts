@@ -15,6 +15,7 @@ describe('FinishGoodService', () => {
     Id: 1,
     PartNumber: 'FG-001',
     PartName: 'Product A',
+    Alias: 'PRD-A',
     Price: 10000,
     CreatedAt: new Date(),
     CreatedBy: 'admin',

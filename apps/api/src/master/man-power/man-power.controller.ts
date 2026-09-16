@@ -3,6 +3,7 @@ import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import {
   Controller,
@@ -13,7 +14,12 @@ import {
   Patch,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ManPowerService } from './man-power.service';
 import { CreateManPowerDto, UpdateManPowerDto } from './dto';
 import { ManPowerEntity } from './entities/man-power.entity';
@@ -24,6 +30,7 @@ import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-que
 import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
 @ApiTags('ManPower')
+@ApiBearerAuth()
 @Controller('master/man-power')
 export class ManPowerController {
   constructor(private readonly manPowerService: ManPowerService) {}
@@ -73,7 +80,7 @@ export class ManPowerController {
     @Body() createManPowerDto: CreateManPowerDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.manPowerService.create(createManPowerDto);
+    return this.manPowerService.create(createManPowerDto, user?.username);
   }
 
   @ApiOperation({ summary: 'Update man power' })
@@ -86,7 +93,7 @@ export class ManPowerController {
     @Body() updateManPowerDto: UpdateManPowerDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.manPowerService.update(uid, updateManPowerDto);
+    return this.manPowerService.update(uid, updateManPowerDto, user?.username);
   }
 
   @ApiOperation({ summary: 'Delete man power' })
@@ -95,6 +102,45 @@ export class ManPowerController {
   @Delete(':uid')
   @Permission('IPCS.MASTER_DELETE')
   async remove(@Param('uid') uid: string, @CurrentUser() user: ICurrentUser) {
-    return this.manPowerService.remove(uid);
+    return this.manPowerService.remove(uid, user?.username);
+  }
+
+  @ApiOperation({
+    summary: 'Upload picture for man power (max 5MB, png/jpg/jpeg/gif/webp)',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 200, type: ManPowerEntity })
+  @ApiResponse({
+    status: 400,
+    description: 'File tidak valid atau melebihi 5MB',
+  })
+  @ApiResponse({ status: 404, description: 'Man power tidak ditemukan' })
+  @Post(':uid/picture')
+  @Permission('IPCS.MASTER_UPDATE')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadPicture(
+    @Param('uid') uid: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.manPowerService.uploadPicture(uid, file, user?.username);
+  }
+
+  @ApiOperation({ summary: 'Delete picture for man power' })
+  @ApiResponse({ status: 200, type: ManPowerEntity })
+  @ApiResponse({ status: 404, description: 'Man power tidak ditemukan' })
+  @Delete(':uid/picture')
+  @Permission('IPCS.MASTER_UPDATE')
+  async deletePicture(
+    @Param('uid') uid: string,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.manPowerService.deletePicture(uid, user?.username);
   }
 }

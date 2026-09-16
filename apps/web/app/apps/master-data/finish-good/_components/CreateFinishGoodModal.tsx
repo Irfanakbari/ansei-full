@@ -24,6 +24,7 @@ const CreateFinishGoodModal: React.FC<Props> = ({ visible, onClose }) => {
             const payload = {
                 partNumber: values.partNumber,
                 partName: values.partName,
+                alias: values.alias,
                 price: values.price,
                 qty: values.qty || 0,
             };
@@ -72,6 +73,9 @@ const CreateFinishGoodModal: React.FC<Props> = ({ visible, onClose }) => {
                 </Form.Item>
                 <Form.Item name="partName" label="Part Name" rules={[{ required: true, message: 'Please enter part name' }]}>
                     <Input placeholder="Enter part name" />
+                </Form.Item>
+                <Form.Item name="alias" label="Alias">
+                    <Input placeholder="Enter alias (optional)" />
                 </Form.Item>
                 <Form.Item name="price" label="Price">
                     <InputNumber placeholder="0" min={0} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />

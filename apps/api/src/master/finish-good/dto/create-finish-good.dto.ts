@@ -20,6 +20,14 @@ export class CreateFinishGoodDto {
   @IsNotEmpty()
   partName: string;
 
+  @ApiPropertyOptional({
+    description: 'Alias part finish good',
+    example: 'C-ASM-A',
+  })
+  @IsString()
+  @IsOptional()
+  alias?: string;
+
   @ApiPropertyOptional({ description: 'Harga per unit', example: 15000 })
   @IsNumber()
   @IsOptional()

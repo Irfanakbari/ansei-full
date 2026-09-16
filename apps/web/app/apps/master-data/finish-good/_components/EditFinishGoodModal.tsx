@@ -25,6 +25,7 @@ const EditFinishGoodModal: React.FC<Props> = ({ visible, onClose, data }) => {
             const payload = {
                 partNumber: values.partNumber,
                 partName: values.partName,
+                alias: values.alias,
                 price: values.price,
                 qty: values.qty,
             };
@@ -65,6 +66,7 @@ const EditFinishGoodModal: React.FC<Props> = ({ visible, onClose, data }) => {
             <Form form={form} layout="vertical" initialValues={{
                 partNumber: data.PartNumber,
                 partName: data.PartName,
+                alias: data.Alias,
                 price: data.Price,
                 qty: data.Qty,
             }}>
@@ -73,6 +75,9 @@ const EditFinishGoodModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 </Form.Item>
                 <Form.Item name="partName" label="Part Name" rules={[{ required: true, message: 'Please enter part name' }]}>
                     <Input placeholder="Enter part name" />
+                </Form.Item>
+                <Form.Item name="alias" label="Alias">
+                    <Input placeholder="Enter alias (optional)" />
                 </Form.Item>
                 <Form.Item name="price" label="Price">
                     <InputNumber placeholder="0" min={0} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />

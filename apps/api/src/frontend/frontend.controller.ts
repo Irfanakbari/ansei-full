@@ -1,10 +1,17 @@
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { Controller, Get, Query } from '@nestjs/common';
 import { DashboardQueryDto } from './dto/dashboard-query.dto';
 import { FrontendService } from './frontend.service';
 import { Public } from '../auth/decorators/public.decorator';
 import { Permission } from '../auth/decorators/permission.decorator';
 import { DashboardResponseEntity } from './entities/dashboard-response.entity';
+import { FrontendFinishGoodEntity } from './entities/finish-good-list.entity';
+import { FrontendManPowerEntity } from './entities/man-power-list.entity';
 
 @ApiTags('Frontend')
 @ApiBearerAuth()
@@ -31,6 +38,41 @@ export class FrontendController {
   })
   async getNotifications() {
     return this.frontendService.getNotifications();
+  }
+
+  @Get('finish-goods')
+  @Public()
+  @ApiOperation({
+    summary: 'Get finish goods list (PartNumber, PartName, Alias)',
+    description:
+      'Public endpoint to get list of finish goods containing only PartNumber, PartName, and Alias.',
+  })
+  @ApiResponse({ status: 200, type: [FrontendFinishGoodEntity] })
+  async getFinishGoods(): Promise<FrontendFinishGoodEntity[]> {
+    return this.frontendService.getFinishGoodsList();
+  }
+
+  @Get('man-power')
+  @Public()
+  @ApiOperation({
+    summary: 'Get man power list (Nik, Name, PicturePath, Line)',
+    description:
+      'Public endpoint to get list of active man power containing only Nik, Name, PicturePath, and Line.',
+  })
+  @ApiResponse({ status: 200, type: [FrontendManPowerEntity] })
+  async getManPower(): Promise<FrontendManPowerEntity[]> {
+    return this.frontendService.getManPowerList();
+  }
+
+  @Get('manpower')
+  @Public()
+  @ApiOperation({
+    summary:
+      'Get man power list (Nik, Name, PicturePath, Line) - alias for man-power',
+  })
+  @ApiResponse({ status: 200, type: [FrontendManPowerEntity] })
+  async getManpowerAlias(): Promise<FrontendManPowerEntity[]> {
+    return this.frontendService.getManPowerList();
   }
 
   @Get('dashboard')

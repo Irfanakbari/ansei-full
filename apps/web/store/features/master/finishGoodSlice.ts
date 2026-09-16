@@ -6,6 +6,7 @@ export interface FinishGoodEntity {
     Id: number;
     PartNumber: string;
     PartName: string;
+    Alias: string | null;
     Price: number | null;
     CreatedAt: string;
     CreatedBy: string;
@@ -47,6 +48,7 @@ export const createFinishGood = createAsyncThunk(
     async (finishGoodData: {
         partNumber: string;
         partName: string;
+        alias?: string;
         price?: number;
         qty?: number;
     }, { rejectWithValue }) => {
@@ -65,6 +67,7 @@ export const updateFinishGood = createAsyncThunk(
         data: {
             partNumber?: string;
             partName?: string;
+            alias?: string;
             price?: number;
             qty?: number;
         }

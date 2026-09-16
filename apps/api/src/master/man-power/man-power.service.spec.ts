@@ -1,12 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+  UnsupportedMediaTypeException,
+} from '@nestjs/common';
 import { ManPowerService } from './man-power.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
+import { NasUploadService } from '../../common/utils/nas-upload.service';
 
 // Mock the PrismaService
 jest.mock('../../prisma/prisma.service');
 jest.mock('../../common/log-process/log-process.service');
+jest.mock('../../common/utils/nas-upload.service');
 
 describe('ManPowerService', () => {
   let service: ManPowerService;
@@ -50,6 +57,11 @@ describe('ManPowerService', () => {
     completeProcess: jest.Mock;
   };
 
+  let nasUploadService: {
+    uploadFile: jest.Mock;
+    deleteFile: jest.Mock;
+  };
+
   beforeEach(async () => {
     prismaService = {
       manPower: {
@@ -68,11 +80,19 @@ describe('ManPowerService', () => {
       completeProcess: jest.fn(),
     };
 
+    nasUploadService = {
+      uploadFile: jest.fn(),
+      deleteFile: jest.fn(),
+    };
+
     (PrismaService as unknown as jest.Mock).mockImplementation(
       () => prismaService,
     );
     (LogProcessService as unknown as jest.Mock).mockImplementation(
       () => logService,
+    );
+    (NasUploadService as unknown as jest.Mock).mockImplementation(
+      () => nasUploadService,
     );
 
     const module: TestingModule = await Test.createTestingModule({
@@ -80,6 +100,7 @@ describe('ManPowerService', () => {
         ManPowerService,
         { provide: PrismaService, useValue: prismaService },
         { provide: LogProcessService, useValue: logService },
+        { provide: NasUploadService, useValue: nasUploadService },
       ],
     }).compile();
 
@@ -254,12 +275,190 @@ describe('ManPowerService', () => {
       );
     });
 
+    it('should delete picture from NAS if PicturePath exists when removing', async () => {
+      const manPowerWithPic = {
+        ...mockManPower,
+        PicturePath: 'http://192.168.1.15:8080/Ansei_Asset/manpower/EMP001.jpg',
+      };
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({} as any);
+      logService.completeProcess.mockResolvedValue(undefined);
+      nasUploadService.deleteFile.mockResolvedValue(undefined);
+      prismaService.manPower.findUnique.mockResolvedValue(manPowerWithPic);
+      prismaService.manPower.delete.mockResolvedValue(manPowerWithPic);
+
+      const result = await service.remove(manPowerWithPic.Uid);
+
+      expect(result).toEqual({ deleted: true, uid: manPowerWithPic.Uid });
+      expect(nasUploadService.deleteFile).toHaveBeenCalledWith(
+        manPowerWithPic.PicturePath,
+      );
+    });
+
     it('should throw NotFoundException when deleting non-existent record', async () => {
       logService.startProcess.mockResolvedValue(mockLogProcess);
       prismaService.manPower.findUnique.mockResolvedValue(null);
 
       await expect(service.remove('non-existent-uid')).rejects.toThrow(
         NotFoundException,
+      );
+    });
+  });
+
+  describe('uploadPicture', () => {
+    const mockFile: Express.Multer.File = {
+      fieldname: 'file',
+      originalname: 'profile.png',
+      encoding: '7bit',
+      mimetype: 'image/png',
+      size: 1024 * 1024, // 1MB
+      buffer: Buffer.from('fake image content'),
+      stream: null as any,
+      destination: '',
+      filename: '',
+      path: '',
+    };
+
+    it('should upload picture to NAS and update PicturePath', async () => {
+      const expectedUrl =
+        'http://192.168.1.15:8080/Ansei_Asset/manpower/EMP001_123.png';
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({} as any);
+      logService.completeProcess.mockResolvedValue(undefined);
+      prismaService.manPower.findUnique.mockResolvedValue(mockManPower);
+      nasUploadService.uploadFile.mockResolvedValue(expectedUrl);
+      prismaService.manPower.update.mockResolvedValue({
+        ...mockManPower,
+        PicturePath: expectedUrl,
+      });
+
+      const result = await service.uploadPicture(
+        mockManPower.Uid,
+        mockFile,
+        'admin',
+      );
+
+      expect(result.PicturePath).toBe(expectedUrl);
+      expect(nasUploadService.uploadFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subFolder: 'manpower',
+          fileBuffer: mockFile.buffer,
+        }),
+      );
+      expect(prismaService.manPower.update).toHaveBeenCalledWith({
+        where: { Uid: mockManPower.Uid },
+        data: { PicturePath: expectedUrl },
+      });
+    });
+
+    it('should delete old picture from NAS if one already exists', async () => {
+      const oldPicUrl =
+        'http://192.168.1.15:8080/Ansei_Asset/manpower/EMP001_old.jpg';
+      const existingWithPic = { ...mockManPower, PicturePath: oldPicUrl };
+      const newPicUrl =
+        'http://192.168.1.15:8080/Ansei_Asset/manpower/EMP001_new.png';
+
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({} as any);
+      logService.completeProcess.mockResolvedValue(undefined);
+      prismaService.manPower.findUnique.mockResolvedValue(existingWithPic);
+      nasUploadService.deleteFile.mockResolvedValue(undefined);
+      nasUploadService.uploadFile.mockResolvedValue(newPicUrl);
+      prismaService.manPower.update.mockResolvedValue({
+        ...existingWithPic,
+        PicturePath: newPicUrl,
+      });
+
+      const result = await service.uploadPicture(
+        existingWithPic.Uid,
+        mockFile,
+        'admin',
+      );
+
+      expect(nasUploadService.deleteFile).toHaveBeenCalledWith(oldPicUrl);
+      expect(result.PicturePath).toBe(newPicUrl);
+    });
+
+    it('should throw UnsupportedMediaTypeException for invalid file extension', async () => {
+      const invalidFile = {
+        ...mockFile,
+        originalname: 'script.exe',
+      };
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({} as any);
+      logService.completeProcess.mockResolvedValue(undefined);
+
+      await expect(
+        service.uploadPicture(mockManPower.Uid, invalidFile),
+      ).rejects.toThrow(UnsupportedMediaTypeException);
+    });
+
+    it('should throw BadRequestException when file size exceeds 5MB', async () => {
+      const largeFile = {
+        ...mockFile,
+        size: 6 * 1024 * 1024, // 6MB
+      };
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({} as any);
+      logService.completeProcess.mockResolvedValue(undefined);
+
+      await expect(
+        service.uploadPicture(mockManPower.Uid, largeFile),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw NotFoundException when man power does not exist', async () => {
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({} as any);
+      logService.completeProcess.mockResolvedValue(undefined);
+      prismaService.manPower.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.uploadPicture('non-existent-uid', mockFile),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('deletePicture', () => {
+    it('should delete picture from NAS and set PicturePath to null', async () => {
+      const picUrl = 'http://192.168.1.15:8080/Ansei_Asset/manpower/EMP001.jpg';
+      const manPowerWithPic = { ...mockManPower, PicturePath: picUrl };
+
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({} as any);
+      logService.completeProcess.mockResolvedValue(undefined);
+      prismaService.manPower.findUnique.mockResolvedValue(manPowerWithPic);
+      nasUploadService.deleteFile.mockResolvedValue(undefined);
+      prismaService.manPower.update.mockResolvedValue({
+        ...manPowerWithPic,
+        PicturePath: null,
+      });
+
+      const result = await service.deletePicture(manPowerWithPic.Uid, 'admin');
+
+      expect(result.PicturePath).toBeNull();
+      expect(nasUploadService.deleteFile).toHaveBeenCalledWith(picUrl);
+      expect(prismaService.manPower.update).toHaveBeenCalledWith({
+        where: { Uid: manPowerWithPic.Uid },
+        data: { PicturePath: null },
+      });
+    });
+
+    it('should throw NotFoundException when man power does not exist', async () => {
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      prismaService.manPower.findUnique.mockResolvedValue(null);
+
+      await expect(service.deletePicture('non-existent-uid')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw BadRequestException when man power has no picture', async () => {
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      prismaService.manPower.findUnique.mockResolvedValue(mockManPower); // PicturePath is null/undefined
+
+      await expect(service.deletePicture(mockManPower.Uid)).rejects.toThrow(
+        BadRequestException,
       );
     });
   });

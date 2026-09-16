@@ -1,9 +1,20 @@
-/*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
-import React, { useState } from 'react';
-import { Modal, Form, Input, App, Switch } from 'antd';
+/*By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-16*/
+import React, { useState, useEffect } from 'react';
+import { Modal, Form, Input, App, Switch, Upload, Button, Space, Typography, Avatar } from 'antd';
+import { UploadOutlined, DeleteOutlined, PictureOutlined, UserOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
-import { updateManPower, fetchManPower, ManPowerEntity } from '@/store/features/master/manPowerSlice';
+import {
+    updateManPower,
+    uploadManPowerPicture,
+    deleteManPowerPicture,
+    fetchManPower,
+    ManPowerEntity,
+} from '@/store/features/master/manPowerSlice';
+
+const { Text } = Typography;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 interface Props {
     visible: boolean;
@@ -16,6 +27,65 @@ const EditManPowerModal: React.FC<Props> = ({ visible, onClose, data }) => {
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [removeExistingPicture, setRemoveExistingPicture] = useState(false);
+
+    // Reset local state ONLY when modal opens or target record changes
+    useEffect(() => {
+        if (visible) {
+            setSelectedFile(null);
+            setPreviewUrl(null);
+            setRemoveExistingPicture(false);
+            form.setFieldsValue({
+                nik: data.Nik,
+                name: data.Name,
+                line: data.Line,
+                status: data.Status,
+            });
+        }
+    }, [visible, data.Uid, data.Nik, data.Name, data.Line, data.Status, form]);
+
+    const handleFileChange = (file: File) => {
+        const fileExt = file.name.split('.').pop()?.toLowerCase();
+        const isValidExt = ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(fileExt || '');
+        const isValidType = ALLOWED_TYPES.includes(file.type) || isValidExt;
+
+        if (!isValidType) {
+            message.error('Format file tidak didukung. Harap upload gambar (PNG, JPG, JPEG, GIF, WEBP).');
+            return false;
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+            message.error('Ukuran file terlalu besar. Maksimal 5MB.');
+            return false;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            setPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+        setSelectedFile(file);
+        setRemoveExistingPicture(false);
+        return false;
+    };
+
+    const handleRemoveSelectedFile = () => {
+        setSelectedFile(null);
+        setPreviewUrl(null);
+    };
+
+    const handleRemoveExistingPicture = () => {
+        setRemoveExistingPicture(true);
+        handleRemoveSelectedFile();
+    };
+
+    const handleCleanup = () => {
+        handleRemoveSelectedFile();
+        setRemoveExistingPicture(false);
+        form.resetFields();
+    };
 
     const handleOk = async () => {
         try {
@@ -29,13 +99,27 @@ const EditManPowerModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 status: values.status,
             };
 
-            const result = await dispatch(updateManPower({ uid: data.Uid, data: payload }));
-            if (updateManPower.rejected.match(result)) {
-                throw new Error((result.payload as string) || 'Failed to update man power');
+            await dispatch(updateManPower({ uid: data.Uid, data: payload })).unwrap();
+
+            if (selectedFile) {
+                try {
+                    await dispatch(uploadManPowerPicture({ uid: data.Uid, file: selectedFile })).unwrap();
+                } catch (uploadError: unknown) {
+                    const uploadErr = uploadError as Error;
+                    message.warning(`Data diperbarui, tetapi gagal mengunggah foto: ${uploadErr?.message || String(uploadError)}`);
+                }
+            } else if (removeExistingPicture && data.PicturePath) {
+                try {
+                    await dispatch(deleteManPowerPicture(data.Uid)).unwrap();
+                } catch (deleteError: unknown) {
+                    const delErr = deleteError as Error;
+                    message.warning(`Data diperbarui, tetapi gagal menghapus foto lama: ${delErr?.message || String(deleteError)}`);
+                }
             }
+
             message.success('Man power updated successfully');
             dispatch(fetchManPower());
-            form.resetFields();
+            handleCleanup();
             onClose();
         } catch (error: unknown) {
             const err = error as Error;
@@ -46,6 +130,8 @@ const EditManPowerModal: React.FC<Props> = ({ visible, onClose, data }) => {
         }
     };
 
+    const currentDisplayPicture = previewUrl || (!removeExistingPicture ? data.PicturePath : null);
+
     return (
         <Modal
             title="Edit Man Power"
@@ -53,7 +139,7 @@ const EditManPowerModal: React.FC<Props> = ({ visible, onClose, data }) => {
             onOk={handleOk}
             centered={true}
             onCancel={() => {
-                form.resetFields();
+                handleCleanup();
                 onClose();
             }}
             confirmLoading={loading}
@@ -62,12 +148,16 @@ const EditManPowerModal: React.FC<Props> = ({ visible, onClose, data }) => {
             width={500}
             zIndex={1050}
         >
-            <Form form={form} layout="vertical" initialValues={{
-                nik: data.Nik,
-                name: data.Name,
-                line: data.Line,
-                status: data.Status,
-            }}>
+            <Form
+                form={form}
+                layout="vertical"
+                initialValues={{
+                    nik: data.Nik,
+                    name: data.Name,
+                    line: data.Line,
+                    status: data.Status,
+                }}
+            >
                 <Form.Item name="nik" label="NIK" rules={[{ required: true, message: 'Please enter NIK' }]}>
                     <Input placeholder="Enter NIK" />
                 </Form.Item>
@@ -76,6 +166,62 @@ const EditManPowerModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 </Form.Item>
                 <Form.Item name="line" label="Line">
                     <Input placeholder="Enter production line" />
+                </Form.Item>
+                <Form.Item label="Foto Karyawan (Max 5MB)">
+                    {currentDisplayPicture ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={currentDisplayPicture}
+                                alt="Foto Manpower"
+                                style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6, border: '1px solid #d9d9d9' }}
+                            />
+                            <Space orientation="vertical" size={2}>
+                                {selectedFile ? (
+                                    <Text ellipsis style={{ maxWidth: 220 }}>{selectedFile.name}</Text>
+                                ) : (
+                                    <Text type="secondary" style={{ fontSize: '12px' }}>Foto saat ini</Text>
+                                )}
+                                <Space>
+                                    <Upload
+                                        beforeUpload={handleFileChange}
+                                        maxCount={1}
+                                        showUploadList={false}
+                                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                                    >
+                                        <Button size="small" icon={<UploadOutlined />}>Ganti</Button>
+                                    </Upload>
+                                    <Button
+                                        type="text"
+                                        danger
+                                        size="small"
+                                        icon={<DeleteOutlined />}
+                                        onClick={selectedFile ? handleRemoveSelectedFile : handleRemoveExistingPicture}
+                                    >
+                                        Hapus
+                                    </Button>
+                                </Space>
+                            </Space>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <Avatar icon={<UserOutlined />} size={64} shape="square" />
+                            <Upload
+                                beforeUpload={handleFileChange}
+                                maxCount={1}
+                                showUploadList={false}
+                                accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                            >
+                                <Button icon={<UploadOutlined />}>Upload Foto</Button>
+                            </Upload>
+                        </div>
+                    )}
+                    <div style={{ marginTop: 4 }}>
+                        <Text type="secondary" style={{ fontSize: '11px' }}>
+                            <PictureOutlined style={{ marginRight: 4 }} />
+                            Format yang didukung: PNG, JPG, JPEG, GIF, WEBP (maks. 5MB)
+                        </Text>
+                    </div>
                 </Form.Item>
                 <Form.Item name="status" label="Active Status" valuePropName="checked">
                     <Switch />

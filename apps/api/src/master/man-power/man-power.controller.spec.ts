@@ -42,6 +42,8 @@ describe('ManPowerController', () => {
       create: jest.fn(),
       update: jest.fn(),
       remove: jest.fn(),
+      uploadPicture: jest.fn(),
+      deletePicture: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -112,7 +114,7 @@ describe('ManPowerController', () => {
       const result = await controller.create(createDto, mockUser);
 
       expect(result).toEqual(created);
-      expect(service.create).toHaveBeenCalledWith(createDto);
+      expect(service.create).toHaveBeenCalledWith(createDto, mockUser.username);
     });
 
     it('should throw ConflictException when nik already exists', async () => {
@@ -138,7 +140,11 @@ describe('ManPowerController', () => {
       );
 
       expect(result).toEqual(updated);
-      expect(service.update).toHaveBeenCalledWith(mockManPower.Uid, updateDto);
+      expect(service.update).toHaveBeenCalledWith(
+        mockManPower.Uid,
+        updateDto,
+        mockUser.username,
+      );
     });
   });
 
@@ -152,7 +158,64 @@ describe('ManPowerController', () => {
       const result = await controller.remove(mockManPower.Uid, mockUser);
 
       expect(result).toEqual({ deleted: true, uid: mockManPower.Uid });
-      expect(service.remove).toHaveBeenCalledWith(mockManPower.Uid);
+      expect(service.remove).toHaveBeenCalledWith(
+        mockManPower.Uid,
+        mockUser.username,
+      );
+    });
+  });
+
+  describe('uploadPicture', () => {
+    const mockFile: Express.Multer.File = {
+      fieldname: 'file',
+      originalname: 'profile.jpg',
+      encoding: '7bit',
+      mimetype: 'image/jpeg',
+      size: 1024 * 500,
+      buffer: Buffer.from('image content'),
+      stream: null as any,
+      destination: '',
+      filename: '',
+      path: '',
+    };
+
+    it('should upload a picture for man power', async () => {
+      const updated = {
+        ...mockManPower,
+        PicturePath: 'http://192.168.1.15:8080/Ansei_Asset/manpower/EMP001.jpg',
+      };
+      service.uploadPicture.mockResolvedValue(updated);
+
+      const result = await controller.uploadPicture(
+        mockManPower.Uid,
+        mockFile,
+        mockUser,
+      );
+
+      expect(result).toEqual(updated);
+      expect(service.uploadPicture).toHaveBeenCalledWith(
+        mockManPower.Uid,
+        mockFile,
+        mockUser.username,
+      );
+    });
+  });
+
+  describe('deletePicture', () => {
+    it('should delete picture for man power', async () => {
+      const updated = {
+        ...mockManPower,
+        PicturePath: null,
+      };
+      service.deletePicture.mockResolvedValue(updated);
+
+      const result = await controller.deletePicture(mockManPower.Uid, mockUser);
+
+      expect(result).toEqual(updated);
+      expect(service.deletePicture).toHaveBeenCalledWith(
+        mockManPower.Uid,
+        mockUser.username,
+      );
     });
   });
 });

@@ -9,6 +9,8 @@ import {
   DailyIncomingStatEntity,
   DailyDeliveryStatEntity,
 } from './entities/dashboard-response.entity';
+import { FrontendFinishGoodEntity } from './entities/finish-good-list.entity';
+import { FrontendManPowerEntity } from './entities/man-power-list.entity';
 
 @Injectable()
 export class FrontendService {
@@ -734,5 +736,35 @@ export class FrontendService {
       currentMonth: currentMonthStr,
       daysInMonth,
     };
+  }
+
+  /**
+   * Get list of finish goods (PartNumber, PartName, Alias)
+   */
+  async getFinishGoodsList(): Promise<FrontendFinishGoodEntity[]> {
+    return this.prisma.finishGood.findMany({
+      select: {
+        PartNumber: true,
+        PartName: true,
+        Alias: true,
+      },
+      orderBy: { PartNumber: 'asc' },
+    });
+  }
+
+  /**
+   * Get list of active manpower (Nik, Name, PicturePath, Line)
+   */
+  async getManPowerList(): Promise<FrontendManPowerEntity[]> {
+    return this.prisma.manPower.findMany({
+      where: { Status: true },
+      select: {
+        Nik: true,
+        Name: true,
+        PicturePath: true,
+        Line: true,
+      },
+      orderBy: { Nik: 'asc' },
+    });
   }
 }

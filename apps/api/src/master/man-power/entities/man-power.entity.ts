@@ -28,4 +28,12 @@ export class ManPowerEntity {
     example: 'LINE-A',
   })
   Line: string | null;
+
+  @ApiPropertyOptional({
+    description: 'URL foto karyawan di NAS',
+    nullable: true,
+    example:
+      'http://192.168.1.15:8080/Ansei_Asset/manpower/12345678_1720000000.jpg',
+  })
+  PicturePath: string | null;
 }

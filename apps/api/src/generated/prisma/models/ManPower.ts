@@ -27,6 +27,7 @@ export type AggregateManPower = {
 export type ManPowerMinAggregateOutputType = {
   Uid: string | null
   Nik: string | null
+  PicturePath: string | null
   Name: string | null
   CreatedAt: Date | null
   Status: boolean | null
@@ -36,6 +37,7 @@ export type ManPowerMinAggregateOutputType = {
 export type ManPowerMaxAggregateOutputType = {
   Uid: string | null
   Nik: string | null
+  PicturePath: string | null
   Name: string | null
   CreatedAt: Date | null
   Status: boolean | null
@@ -45,6 +47,7 @@ export type ManPowerMaxAggregateOutputType = {
 export type ManPowerCountAggregateOutputType = {
   Uid: number
   Nik: number
+  PicturePath: number
   Name: number
   CreatedAt: number
   Status: number
@@ -56,6 +59,7 @@ export type ManPowerCountAggregateOutputType = {
 export type ManPowerMinAggregateInputType = {
   Uid?: true
   Nik?: true
+  PicturePath?: true
   Name?: true
   CreatedAt?: true
   Status?: true
@@ -65,6 +69,7 @@ export type ManPowerMinAggregateInputType = {
 export type ManPowerMaxAggregateInputType = {
   Uid?: true
   Nik?: true
+  PicturePath?: true
   Name?: true
   CreatedAt?: true
   Status?: true
@@ -74,6 +79,7 @@ export type ManPowerMaxAggregateInputType = {
 export type ManPowerCountAggregateInputType = {
   Uid?: true
   Nik?: true
+  PicturePath?: true
   Name?: true
   CreatedAt?: true
   Status?: true
@@ -156,6 +162,7 @@ export type ManPowerGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type ManPowerGroupByOutputType = {
   Uid: string
   Nik: string
+  PicturePath: string | null
   Name: string
   CreatedAt: Date
   Status: boolean
@@ -186,6 +193,7 @@ export type ManPowerWhereInput = {
   NOT?: Prisma.ManPowerWhereInput | Prisma.ManPowerWhereInput[]
   Uid?: Prisma.StringFilter<"ManPower"> | string
   Nik?: Prisma.StringFilter<"ManPower"> | string
+  PicturePath?: Prisma.StringNullableFilter<"ManPower"> | string | null
   Name?: Prisma.StringFilter<"ManPower"> | string
   CreatedAt?: Prisma.DateTimeFilter<"ManPower"> | Date | string
   Status?: Prisma.BoolFilter<"ManPower"> | boolean
@@ -196,6 +204,7 @@ export type ManPowerWhereInput = {
 export type ManPowerOrderByWithRelationInput = {
   Uid?: Prisma.SortOrder
   Nik?: Prisma.SortOrder
+  PicturePath?: Prisma.SortOrderInput | Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   Status?: Prisma.SortOrder
@@ -209,6 +218,7 @@ export type ManPowerWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ManPowerWhereInput | Prisma.ManPowerWhereInput[]
   OR?: Prisma.ManPowerWhereInput[]
   NOT?: Prisma.ManPowerWhereInput | Prisma.ManPowerWhereInput[]
+  PicturePath?: Prisma.StringNullableFilter<"ManPower"> | string | null
   Name?: Prisma.StringFilter<"ManPower"> | string
   CreatedAt?: Prisma.DateTimeFilter<"ManPower"> | Date | string
   Status?: Prisma.BoolFilter<"ManPower"> | boolean
@@ -219,6 +229,7 @@ export type ManPowerWhereUniqueInput = Prisma.AtLeast<{
 export type ManPowerOrderByWithAggregationInput = {
   Uid?: Prisma.SortOrder
   Nik?: Prisma.SortOrder
+  PicturePath?: Prisma.SortOrderInput | Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   Status?: Prisma.SortOrder
@@ -234,6 +245,7 @@ export type ManPowerScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ManPowerScalarWhereWithAggregatesInput | Prisma.ManPowerScalarWhereWithAggregatesInput[]
   Uid?: Prisma.StringWithAggregatesFilter<"ManPower"> | string
   Nik?: Prisma.StringWithAggregatesFilter<"ManPower"> | string
+  PicturePath?: Prisma.StringNullableWithAggregatesFilter<"ManPower"> | string | null
   Name?: Prisma.StringWithAggregatesFilter<"ManPower"> | string
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"ManPower"> | Date | string
   Status?: Prisma.BoolWithAggregatesFilter<"ManPower"> | boolean
@@ -243,6 +255,7 @@ export type ManPowerScalarWhereWithAggregatesInput = {
 export type ManPowerCreateInput = {
   Uid?: string
   Nik: string
+  PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
   Status?: boolean
@@ -253,6 +266,7 @@ export type ManPowerCreateInput = {
 export type ManPowerUncheckedCreateInput = {
   Uid?: string
   Nik: string
+  PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
   Status?: boolean
@@ -263,6 +277,7 @@ export type ManPowerUncheckedCreateInput = {
 export type ManPowerUpdateInput = {
   Uid?: Prisma.StringFieldUpdateOperationsInput | string
   Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -273,6 +288,7 @@ export type ManPowerUpdateInput = {
 export type ManPowerUncheckedUpdateInput = {
   Uid?: Prisma.StringFieldUpdateOperationsInput | string
   Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -283,6 +299,7 @@ export type ManPowerUncheckedUpdateInput = {
 export type ManPowerCreateManyInput = {
   Uid?: string
   Nik: string
+  PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
   Status?: boolean
@@ -292,6 +309,7 @@ export type ManPowerCreateManyInput = {
 export type ManPowerUpdateManyMutationInput = {
   Uid?: Prisma.StringFieldUpdateOperationsInput | string
   Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -301,6 +319,7 @@ export type ManPowerUpdateManyMutationInput = {
 export type ManPowerUncheckedUpdateManyInput = {
   Uid?: Prisma.StringFieldUpdateOperationsInput | string
   Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -310,6 +329,7 @@ export type ManPowerUncheckedUpdateManyInput = {
 export type ManPowerCountOrderByAggregateInput = {
   Uid?: Prisma.SortOrder
   Nik?: Prisma.SortOrder
+  PicturePath?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   Status?: Prisma.SortOrder
@@ -319,6 +339,7 @@ export type ManPowerCountOrderByAggregateInput = {
 export type ManPowerMaxOrderByAggregateInput = {
   Uid?: Prisma.SortOrder
   Nik?: Prisma.SortOrder
+  PicturePath?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   Status?: Prisma.SortOrder
@@ -328,6 +349,7 @@ export type ManPowerMaxOrderByAggregateInput = {
 export type ManPowerMinOrderByAggregateInput = {
   Uid?: Prisma.SortOrder
   Nik?: Prisma.SortOrder
+  PicturePath?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   Status?: Prisma.SortOrder
@@ -356,6 +378,7 @@ export type ManPowerUpdateOneRequiredWithoutProductionReportNestedInput = {
 export type ManPowerCreateWithoutProductionReportInput = {
   Uid?: string
   Nik: string
+  PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
   Status?: boolean
@@ -365,6 +388,7 @@ export type ManPowerCreateWithoutProductionReportInput = {
 export type ManPowerUncheckedCreateWithoutProductionReportInput = {
   Uid?: string
   Nik: string
+  PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
   Status?: boolean
@@ -390,6 +414,7 @@ export type ManPowerUpdateToOneWithWhereWithoutProductionReportInput = {
 export type ManPowerUpdateWithoutProductionReportInput = {
   Uid?: Prisma.StringFieldUpdateOperationsInput | string
   Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -399,6 +424,7 @@ export type ManPowerUpdateWithoutProductionReportInput = {
 export type ManPowerUncheckedUpdateWithoutProductionReportInput = {
   Uid?: Prisma.StringFieldUpdateOperationsInput | string
   Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -439,6 +465,7 @@ export type ManPowerCountOutputTypeCountProductionReportArgs<ExtArgs extends run
 export type ManPowerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Uid?: boolean
   Nik?: boolean
+  PicturePath?: boolean
   Name?: boolean
   CreatedAt?: boolean
   Status?: boolean
@@ -450,6 +477,7 @@ export type ManPowerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type ManPowerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Uid?: boolean
   Nik?: boolean
+  PicturePath?: boolean
   Name?: boolean
   CreatedAt?: boolean
   Status?: boolean
@@ -459,6 +487,7 @@ export type ManPowerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type ManPowerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Uid?: boolean
   Nik?: boolean
+  PicturePath?: boolean
   Name?: boolean
   CreatedAt?: boolean
   Status?: boolean
@@ -468,13 +497,14 @@ export type ManPowerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type ManPowerSelectScalar = {
   Uid?: boolean
   Nik?: boolean
+  PicturePath?: boolean
   Name?: boolean
   CreatedAt?: boolean
   Status?: boolean
   Line?: boolean
 }
 
-export type ManPowerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Uid" | "Nik" | "Name" | "CreatedAt" | "Status" | "Line", ExtArgs["result"]["manPower"]>
+export type ManPowerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Uid" | "Nik" | "PicturePath" | "Name" | "CreatedAt" | "Status" | "Line", ExtArgs["result"]["manPower"]>
 export type ManPowerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ProductionReport?: boolean | Prisma.ManPower$ProductionReportArgs<ExtArgs>
   _count?: boolean | Prisma.ManPowerCountOutputTypeDefaultArgs<ExtArgs>
@@ -490,6 +520,7 @@ export type $ManPowerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Uid: string
     Nik: string
+    PicturePath: string | null
     Name: string
     CreatedAt: Date
     Status: boolean
@@ -920,6 +951,7 @@ export interface Prisma__ManPowerClient<T, Null = never, ExtArgs extends runtime
 export interface ManPowerFieldRefs {
   readonly Uid: Prisma.FieldRef<"ManPower", 'String'>
   readonly Nik: Prisma.FieldRef<"ManPower", 'String'>
+  readonly PicturePath: Prisma.FieldRef<"ManPower", 'String'>
   readonly Name: Prisma.FieldRef<"ManPower", 'String'>
   readonly CreatedAt: Prisma.FieldRef<"ManPower", 'DateTime'>
   readonly Status: Prisma.FieldRef<"ManPower", 'Boolean'>

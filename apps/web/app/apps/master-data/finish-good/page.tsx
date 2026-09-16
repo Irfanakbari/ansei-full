@@ -72,6 +72,14 @@ export default function FinishGoodPage() {
             ...getColumnSearchProps('PartName')
         },
         {
+            title: 'Alias',
+            dataIndex: 'Alias',
+            key: 'Alias',
+            width: 140,
+            render: (val: string | null) => val || '-',
+            ...getColumnSearchProps('Alias')
+        },
+        {
             title: 'Price',
             dataIndex: 'Price',
             key: 'Price',
@@ -162,7 +170,7 @@ export default function FinishGoodPage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
-                onChange={(pageInfo, tableFilters) => dispatch(setFinishGoodQuery({ page: tableFilters.PartNumber || tableFilters.PartName ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? '') }))}
+                onChange={(pageInfo, tableFilters) => dispatch(setFinishGoodQuery({ page: tableFilters.PartNumber || tableFilters.PartName || tableFilters.Alias ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? tableFilters.Alias?.[0] ?? '') }))}
                 pagination={{
                     size: 'small',
                     current: pagination.page,

@@ -1,6 +1,6 @@
-/*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-06-16*/
+/*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-09-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
+import { del, get, getApiErrorMessage, patch, post, postFormData, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
 
 export interface ManPowerEntity {
     Uid: string;
@@ -9,6 +9,7 @@ export interface ManPowerEntity {
     CreatedAt: string;
     Status: boolean;
     Line: string | null;
+    PicturePath?: string | null;
 }
 
 interface ManPowerState {
@@ -86,6 +87,31 @@ export const deleteManPower = createAsyncThunk(
     }
 );
 
+export const uploadManPowerPicture = createAsyncThunk(
+    'manPower/uploadPicture',
+    async ({ uid, file }: { uid: string; file: File }, { rejectWithValue }) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            return await postFormData<ApiSuccessEnvelope<ManPowerEntity>>(`/master/man-power/${uid}/picture`, formData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to upload picture'));
+        }
+    }
+);
+
+export const deleteManPowerPicture = createAsyncThunk(
+    'manPower/deletePicture',
+    async (uid: string, { rejectWithValue }) => {
+        try {
+            const result = await del<ApiSuccessEnvelope<ManPowerEntity>>(`/master/man-power/${uid}/picture`);
+            return { uid, data: result?.data };
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete picture'));
+        }
+    }
+);
+
 const manPowerSlice = createSlice({
     name: 'manPower',
     initialState,
@@ -101,6 +127,24 @@ const manPowerSlice = createSlice({
             .addCase(fetchManPower.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
+            })
+            .addCase(uploadManPowerPicture.fulfilled, (state, action) => {
+                const updated = action.payload?.data;
+                if (updated) {
+                    const idx = state.data.findIndex((m) => m.Uid === updated.Uid);
+                    if (idx !== -1) {
+                        state.data[idx] = updated;
+                    }
+                }
+            })
+            .addCase(deleteManPowerPicture.fulfilled, (state, action) => {
+                const uid = action.payload?.uid;
+                if (uid) {
+                    const idx = state.data.findIndex((m) => m.Uid === uid);
+                    if (idx !== -1) {
+                        state.data[idx].PicturePath = null;
+                    }
+                }
             });
     },
 });

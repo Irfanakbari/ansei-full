@@ -42,6 +42,7 @@ export type FinishGoodMinAggregateOutputType = {
   Id: number | null
   PartNumber: string | null
   PartName: string | null
+  Alias: string | null
   Price: number | null
   CreatedAt: Date | null
   CreatedBy: string | null
@@ -53,6 +54,7 @@ export type FinishGoodMaxAggregateOutputType = {
   Id: number | null
   PartNumber: string | null
   PartName: string | null
+  Alias: string | null
   Price: number | null
   CreatedAt: Date | null
   CreatedBy: string | null
@@ -64,6 +66,7 @@ export type FinishGoodCountAggregateOutputType = {
   Id: number
   PartNumber: number
   PartName: number
+  Alias: number
   Price: number
   CreatedAt: number
   CreatedBy: number
@@ -89,6 +92,7 @@ export type FinishGoodMinAggregateInputType = {
   Id?: true
   PartNumber?: true
   PartName?: true
+  Alias?: true
   Price?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -100,6 +104,7 @@ export type FinishGoodMaxAggregateInputType = {
   Id?: true
   PartNumber?: true
   PartName?: true
+  Alias?: true
   Price?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -111,6 +116,7 @@ export type FinishGoodCountAggregateInputType = {
   Id?: true
   PartNumber?: true
   PartName?: true
+  Alias?: true
   Price?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -209,6 +215,7 @@ export type FinishGoodGroupByOutputType = {
   Id: number
   PartNumber: string
   PartName: string
+  Alias: string | null
   Price: number | null
   CreatedAt: Date
   CreatedBy: string
@@ -243,6 +250,7 @@ export type FinishGoodWhereInput = {
   Id?: Prisma.IntFilter<"FinishGood"> | number
   PartNumber?: Prisma.StringFilter<"FinishGood"> | string
   PartName?: Prisma.StringFilter<"FinishGood"> | string
+  Alias?: Prisma.StringNullableFilter<"FinishGood"> | string | null
   Price?: Prisma.FloatNullableFilter<"FinishGood"> | number | null
   CreatedAt?: Prisma.DateTimeFilter<"FinishGood"> | Date | string
   CreatedBy?: Prisma.StringFilter<"FinishGood"> | string
@@ -262,6 +270,7 @@ export type FinishGoodOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
+  Alias?: Prisma.SortOrderInput | Prisma.SortOrder
   Price?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -284,6 +293,7 @@ export type FinishGoodWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinishGoodWhereInput[]
   NOT?: Prisma.FinishGoodWhereInput | Prisma.FinishGoodWhereInput[]
   PartName?: Prisma.StringFilter<"FinishGood"> | string
+  Alias?: Prisma.StringNullableFilter<"FinishGood"> | string | null
   Price?: Prisma.FloatNullableFilter<"FinishGood"> | number | null
   CreatedAt?: Prisma.DateTimeFilter<"FinishGood"> | Date | string
   CreatedBy?: Prisma.StringFilter<"FinishGood"> | string
@@ -303,6 +313,7 @@ export type FinishGoodOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
+  Alias?: Prisma.SortOrderInput | Prisma.SortOrder
   Price?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -322,6 +333,7 @@ export type FinishGoodScalarWhereWithAggregatesInput = {
   Id?: Prisma.IntWithAggregatesFilter<"FinishGood"> | number
   PartNumber?: Prisma.StringWithAggregatesFilter<"FinishGood"> | string
   PartName?: Prisma.StringWithAggregatesFilter<"FinishGood"> | string
+  Alias?: Prisma.StringNullableWithAggregatesFilter<"FinishGood"> | string | null
   Price?: Prisma.FloatNullableWithAggregatesFilter<"FinishGood"> | number | null
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinishGood"> | Date | string
   CreatedBy?: Prisma.StringWithAggregatesFilter<"FinishGood"> | string
@@ -332,6 +344,7 @@ export type FinishGoodScalarWhereWithAggregatesInput = {
 export type FinishGoodCreateInput = {
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -351,6 +364,7 @@ export type FinishGoodUncheckedCreateInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -369,6 +383,7 @@ export type FinishGoodUncheckedCreateInput = {
 export type FinishGoodUpdateInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -388,6 +403,7 @@ export type FinishGoodUncheckedUpdateInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -407,6 +423,7 @@ export type FinishGoodCreateManyInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -417,6 +434,7 @@ export type FinishGoodCreateManyInput = {
 export type FinishGoodUpdateManyMutationInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -428,6 +446,7 @@ export type FinishGoodUncheckedUpdateManyInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -439,6 +458,7 @@ export type FinishGoodCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
+  Alias?: Prisma.SortOrder
   Price?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -456,6 +476,7 @@ export type FinishGoodMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
+  Alias?: Prisma.SortOrder
   Price?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -467,6 +488,7 @@ export type FinishGoodMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
+  Alias?: Prisma.SortOrder
   Price?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -617,6 +639,7 @@ export type FinishGoodUpdateOneRequiredWithoutLineStatusNestedInput = {
 export type FinishGoodCreateWithoutBoxQTYInput = {
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -635,6 +658,7 @@ export type FinishGoodUncheckedCreateWithoutBoxQTYInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -668,6 +692,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutBoxQTYInput = {
 export type FinishGoodUpdateWithoutBoxQTYInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -686,6 +711,7 @@ export type FinishGoodUncheckedUpdateWithoutBoxQTYInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -703,6 +729,7 @@ export type FinishGoodUncheckedUpdateWithoutBoxQTYInput = {
 export type FinishGoodCreateWithoutBillOfMaterialsInput = {
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -721,6 +748,7 @@ export type FinishGoodUncheckedCreateWithoutBillOfMaterialsInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -754,6 +782,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutBillOfMaterialsInput = {
 export type FinishGoodUpdateWithoutBillOfMaterialsInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -772,6 +801,7 @@ export type FinishGoodUncheckedUpdateWithoutBillOfMaterialsInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -789,6 +819,7 @@ export type FinishGoodUncheckedUpdateWithoutBillOfMaterialsInput = {
 export type FinishGoodCreateWithoutInventoryLedgerInput = {
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -807,6 +838,7 @@ export type FinishGoodUncheckedCreateWithoutInventoryLedgerInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -840,6 +872,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutInventoryLedgerInput = {
 export type FinishGoodUpdateWithoutInventoryLedgerInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -858,6 +891,7 @@ export type FinishGoodUncheckedUpdateWithoutInventoryLedgerInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -875,6 +909,7 @@ export type FinishGoodUncheckedUpdateWithoutInventoryLedgerInput = {
 export type FinishGoodCreateWithoutStockOpnameDetailInput = {
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -893,6 +928,7 @@ export type FinishGoodUncheckedCreateWithoutStockOpnameDetailInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -926,6 +962,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutStockOpnameDetailInput = {
 export type FinishGoodUpdateWithoutStockOpnameDetailInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -944,6 +981,7 @@ export type FinishGoodUncheckedUpdateWithoutStockOpnameDetailInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -961,6 +999,7 @@ export type FinishGoodUncheckedUpdateWithoutStockOpnameDetailInput = {
 export type FinishGoodCreateWithoutForecastInput = {
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -979,6 +1018,7 @@ export type FinishGoodUncheckedCreateWithoutForecastInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1012,6 +1052,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutForecastInput = {
 export type FinishGoodUpdateWithoutForecastInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1030,6 +1071,7 @@ export type FinishGoodUncheckedUpdateWithoutForecastInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1047,6 +1089,7 @@ export type FinishGoodUncheckedUpdateWithoutForecastInput = {
 export type FinishGoodCreateWithoutProductionReportInput = {
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1065,6 +1108,7 @@ export type FinishGoodUncheckedCreateWithoutProductionReportInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1098,6 +1142,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutProductionReportInput = {
 export type FinishGoodUpdateWithoutProductionReportInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1116,6 +1161,7 @@ export type FinishGoodUncheckedUpdateWithoutProductionReportInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1133,6 +1179,7 @@ export type FinishGoodUncheckedUpdateWithoutProductionReportInput = {
 export type FinishGoodCreateWithoutLabelDataInput = {
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1151,6 +1198,7 @@ export type FinishGoodUncheckedCreateWithoutLabelDataInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1184,6 +1232,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutLabelDataInput = {
 export type FinishGoodUpdateWithoutLabelDataInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1202,6 +1251,7 @@ export type FinishGoodUncheckedUpdateWithoutLabelDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1219,6 +1269,7 @@ export type FinishGoodUncheckedUpdateWithoutLabelDataInput = {
 export type FinishGoodCreateWithoutLineStatusInput = {
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1237,6 +1288,7 @@ export type FinishGoodUncheckedCreateWithoutLineStatusInput = {
   Id?: number
   PartNumber: string
   PartName: string
+  Alias?: string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1270,6 +1322,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutLineStatusInput = {
 export type FinishGoodUpdateWithoutLineStatusInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1288,6 +1341,7 @@ export type FinishGoodUncheckedUpdateWithoutLineStatusInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1391,6 +1445,7 @@ export type FinishGoodSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   Id?: boolean
   PartNumber?: boolean
   PartName?: boolean
+  Alias?: boolean
   Price?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -1411,6 +1466,7 @@ export type FinishGoodSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   Id?: boolean
   PartNumber?: boolean
   PartName?: boolean
+  Alias?: boolean
   Price?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -1422,6 +1478,7 @@ export type FinishGoodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   Id?: boolean
   PartNumber?: boolean
   PartName?: boolean
+  Alias?: boolean
   Price?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -1433,6 +1490,7 @@ export type FinishGoodSelectScalar = {
   Id?: boolean
   PartNumber?: boolean
   PartName?: boolean
+  Alias?: boolean
   Price?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -1440,7 +1498,7 @@ export type FinishGoodSelectScalar = {
   Qty?: boolean
 }
 
-export type FinishGoodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "PartName" | "Price" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "Qty", ExtArgs["result"]["finishGood"]>
+export type FinishGoodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "PartName" | "Alias" | "Price" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "Qty", ExtArgs["result"]["finishGood"]>
 export type FinishGoodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   BillOfMaterials?: boolean | Prisma.FinishGood$BillOfMaterialsArgs<ExtArgs>
   BoxQTY?: boolean | Prisma.FinishGood$BoxQTYArgs<ExtArgs>
@@ -1471,6 +1529,7 @@ export type $FinishGoodPayload<ExtArgs extends runtime.Types.Extensions.Internal
     Id: number
     PartNumber: string
     PartName: string
+    Alias: string | null
     Price: number | null
     CreatedAt: Date
     CreatedBy: string
@@ -1910,6 +1969,7 @@ export interface FinishGoodFieldRefs {
   readonly Id: Prisma.FieldRef<"FinishGood", 'Int'>
   readonly PartNumber: Prisma.FieldRef<"FinishGood", 'String'>
   readonly PartName: Prisma.FieldRef<"FinishGood", 'String'>
+  readonly Alias: Prisma.FieldRef<"FinishGood", 'String'>
   readonly Price: Prisma.FieldRef<"FinishGood", 'Float'>
   readonly CreatedAt: Prisma.FieldRef<"FinishGood", 'DateTime'>
   readonly CreatedBy: Prisma.FieldRef<"FinishGood", 'String'>
