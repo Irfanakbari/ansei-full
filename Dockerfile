@@ -66,7 +66,9 @@ COPY --from=build --chown=node:node /workspace/apps/web/.next/static ./web-runti
 COPY --from=build --chown=node:node /workspace/apps/web/public ./web-runtime/apps/web/public
 RUN mkdir -p /app/storage/error-logs \
     && chown -R node:node /app/storage \
-    && chmod 700 /app/storage/error-logs
+    && chmod 700 /app/storage/error-logs \
+    && WASM_SRC=$(find /app/node_modules /app/apps/api/node_modules -type d -path "*/@matbee/libreoffice-converter/wasm" 2>/dev/null | head -n 1) \
+    && if [ -n "$WASM_SRC" ]; then ln -s "$WASM_SRC" /app/wasm; fi
 USER node
 VOLUME ["/app/storage/error-logs"]
 

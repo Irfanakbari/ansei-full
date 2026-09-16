@@ -1009,17 +1009,21 @@ export class MaterialDeliveryNoteService {
       });
 
       // Row 4: Signature cells with stamp images
-      // Read signature image - use process.cwd() for reliable path
-      const assetsPath = process.cwd();
-      const signatureImagePath = path.join(
-        assetsPath,
-        'dist',
-        'assets',
-        'signed.png',
+      // Read signature image - search candidate paths across dev, dist, and docker environments
+      const signatureCandidates = [
+        path.join(__dirname, '..', '..', 'assets', 'signed.png'),
+        path.join(__dirname, '..', '..', '..', 'assets', 'signed.png'),
+        path.join(process.cwd(), 'apps', 'api', 'dist', 'assets', 'signed.png'),
+        path.join(process.cwd(), 'apps', 'api', 'assets', 'signed.png'),
+        path.join(process.cwd(), 'dist', 'assets', 'signed.png'),
+        path.join(process.cwd(), 'assets', 'signed.png'),
+      ];
+      const signatureImagePath = signatureCandidates.find((p) =>
+        fs.existsSync(p),
       );
       let signatureImage: Buffer | undefined;
       try {
-        if (fs.existsSync(signatureImagePath)) {
+        if (signatureImagePath) {
           signatureImage = fs.readFileSync(signatureImagePath);
           await this.logService.addLog({
             processId: logProcess.ProcessId,
@@ -1030,7 +1034,7 @@ export class MaterialDeliveryNoteService {
         } else {
           await this.logService.addLog({
             processId: logProcess.ProcessId,
-            message: `Signature image not found at: ${signatureImagePath}`,
+            message: `Signature image not found in candidate paths`,
             type: 'WARN',
             location: 'material-delivery-note.service.ts:1005',
           });

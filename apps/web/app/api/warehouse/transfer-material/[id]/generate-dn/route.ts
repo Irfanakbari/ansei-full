@@ -16,13 +16,25 @@ export async function POST(request: NextRequest, {params}: RouteParams) {
             method: 'POST',
         });
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = 'Failed to generate Delivery Note PDF';
+            try {
+                const errorJson = JSON.parse(errorText);
+                errorMessage = errorJson.message || errorJson.error || errorMessage;
+            } catch {
+                if (errorText) errorMessage = errorText;
+            }
+            return NextResponse.json({message: errorMessage}, {status: response.status});
+        }
+
         // Return as PDF blob
         const blob = await response.blob();
         return new NextResponse(blob, {
             status: 200,
             headers: {
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': `attachment; filename="DN-${id}.pdf`,
+                'Content-Disposition': `attachment; filename="DN-${id}.pdf"`,
             },
         });
     } catch (error: any) {
