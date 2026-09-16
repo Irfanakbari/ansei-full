@@ -30,6 +30,7 @@ const allPermissions = [
   { Action: 'IPCS.INVENTORY_COUNTING_CREATE', Description: 'Create inventory counting' },
   { Action: 'IPCS.INVENTORY_COUNTING_UPDATE', Description: 'Update inventory counting' },
   { Action: 'IPCS.INVENTORY_COUNTING_DELETE', Description: 'Delete inventory counting' },
+  { Action: 'IPCS.INVENTORY_COUNTING_APPROVE', Description: 'Approve inventory counting' },
   { Action: 'IPCS.TRANSFER_MATERIAL_READ', Description: 'Read material delivery note' },
   { Action: 'IPCS.TRANSFER_MATERIAL_CREATE', Description: 'Create material delivery note' },
   { Action: 'IPCS.TRANSFER_MATERIAL_UPDATE', Description: 'Update material delivery note' },

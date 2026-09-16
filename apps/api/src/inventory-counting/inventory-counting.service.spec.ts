@@ -561,6 +561,12 @@ describe('InventoryCountingService', () => {
       expect(prismaService.$transaction).toHaveBeenCalled();
     });
 
+    it('should throw BadRequestException when confirmedCheck is false', async () => {
+      await expect(
+        service.close({ id: '123', confirmedCheck: false }, 'test'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('should throw BadRequestException when items have null ActualQty', async () => {
       const mockExisting = {
         Id: '123',

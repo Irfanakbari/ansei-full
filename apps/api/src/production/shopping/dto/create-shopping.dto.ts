@@ -13,14 +13,15 @@ export class CreateShoppingDto {
   /**
    * Forecast ID (PO ID) - WAJIB untuk REGULER, TIDAK WAJIB untuk ADDITIONAL
    */
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Forecast ID (PO ID) - wajib untuk REGULER',
     example: 'PO-001',
   })
   @ValidateIf((o) => o.type === 'REGULER')
   @IsString()
   @IsNotEmpty({ message: 'forecastId is required for REGULER shopping' })
-  forecastId: string;
+  @IsOptional()
+  forecastId?: string;
 
   @ApiProperty({ description: 'ID material yang diambil', example: '1' })
   @IsString()

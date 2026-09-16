@@ -195,7 +195,7 @@ const CreateShoppingModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
                 setCurrentIndex(i + 1);
 
                 const payload = {
-                    forecastId: shoppingType === 'ADDITIONAL' ? 'ADDITIONAL' : (selectedForecastItem?.PoId || ''),
+                    forecastId: shoppingType === 'ADDITIONAL' ? undefined : (selectedForecastItem?.PoId || ''),
                     materialId: material.partNumber,
                     qtyPick: material.qtyPick,
                     type: shoppingType,

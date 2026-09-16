@@ -20,6 +20,7 @@ import {
   ProductionStatus,
 } from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
+import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 
 @Injectable()
 export class ProductionReportService {
@@ -197,6 +198,13 @@ export class ProductionReportService {
         type: 'INFO',
         location: 'production-report.service.ts:120',
       });
+
+      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        undefined,
+        'Production Report',
+      );
 
       // POKAYOKE 1: Validate ManPower exists
       await this.validateManPowerExists(dto.manPowerUid, logProcess.ProcessId);

@@ -28,6 +28,7 @@ import sharp from 'sharp';
 import { excelToPdf } from '../common/utils/document-converter.util';
 import * as fs from 'fs';
 import * as path from 'path';
+import { assertNoActiveInventoryCounting } from '../common/helpers/inventory-counting-check.helper';
 import {
   getUserDisplayNameMap,
   getUserDisplayName,
@@ -86,6 +87,13 @@ export class MaterialDeliveryNoteService {
         type: 'INFO',
         location: 'material-delivery-note.service.ts:55',
       });
+
+      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        'Material Delivery Note',
+      );
 
       // Validate materials exist and are active
       const materialIds = dto.items.map((i) => i.materialId);
@@ -581,6 +589,13 @@ export class MaterialDeliveryNoteService {
         throw new NotFoundException(`Delivery note not found: ${id}`);
       }
 
+      // POKAYOKE: Tolak pengiriman jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        'Ship Material Delivery Note',
+      );
+
       // POKAYOKE: Check status is DRAFT
       if (dn.Status !== DeliveryNoteStatus.DRAFT) {
         await this.logService.addLog({
@@ -793,6 +808,13 @@ export class MaterialDeliveryNoteService {
       if (!dn) {
         throw new NotFoundException(`Delivery note not found: ${id}`);
       }
+
+      // POKAYOKE: Tolak penerimaan jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        'Receive Material Delivery Note',
+      );
 
       // POKAYOKE: Check status is SHIPPED
       if (dn.Status !== DeliveryNoteStatus.SHIPPED) {

@@ -1,17 +1,23 @@
-/* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
+/* By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-16 */
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Modal, Table, Tag, Button, Space, Input, Descriptions, Statistic, Card, Row, Col, App, Tabs, Popconfirm } from 'antd';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
 import {
     updateActualStock,
     fetchInventoryCountingDetails,
     InventoryCountingEntity,
     InventoryCountingDetailEntity,
 } from '@/store/features/warehouse/inventoryCounting/inventoryCountingSlice';
-import { InboxOutlined, SaveOutlined, SyncOutlined } from '@ant-design/icons';
+import { InboxOutlined, SaveOutlined, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import ReviewApprovalModal from './ReviewApprovalModal';
+
+export interface MergedCountingDetail extends InventoryCountingDetailEntity {
+    warehouseDetailId?: number;
+    rackDetailId?: number;
+}
 
 interface Props {
     visible: boolean;
@@ -30,14 +36,23 @@ const STATUS_COLORS: Record<string, string> = {
 const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data, onRefresh }) => {
     const { message: antMessage } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
+    const { user } = useSelector((state: RootState) => state.auth);
 
-    const [details, setDetails] = useState<InventoryCountingDetailEntity[]>([]);
+    const [details, setDetails] = useState<MergedCountingDetail[]>([]);
     const [editingKey, setEditingKey] = useState<number | null>(null);
     const [editingWarehouse, setEditingWarehouse] = useState<number | null>(null);
     const [editingRack, setEditingRack] = useState<number | null>(null);
     const [updatingId, setUpdatingId] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<string>('all');
     const [loading, setLoading] = useState(false);
+    const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
+
+    const canApprove = Boolean(
+        user?.RoleName === 'SUPER' ||
+        user?.Permission?.includes('SUPER') ||
+        user?.Permission?.includes('*') ||
+        user?.Permission?.includes('IPCS.INVENTORY_COUNTING_APPROVE')
+    );
 
     // Fetch details when modal opens
     useEffect(() => {
@@ -49,36 +64,52 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                     if (fetchInventoryCountingDetails.fulfilled.match(result)) {
                         const fetchedDetails = Array.isArray(result.payload) ? result.payload : (result.payload as any)?.data || [];
 
-                        // Group by MaterialId/FinishGoodId
-                        // API returns 2 rows per material: one with SystemQty (warehouse), one with SystemQtyRack (rack)
-                        const materialMap = new Map<string, InventoryCountingDetailEntity>();
+                        if (data.Category === 'MATERIAL') {
+                            // Group by MaterialId for dual warehouse & rack display
+                            const materialMap = new Map<string, MergedCountingDetail>();
 
-                        fetchedDetails.forEach((d: InventoryCountingDetailEntity) => {
-                            const key = d.MaterialId || d.FinishGoodId || `unknown_${d.Id}`;
+                            fetchedDetails.forEach((d: InventoryCountingDetailEntity) => {
+                                const key = d.MaterialId || `detail_${d.Id}`;
 
-                            if (materialMap.has(key)) {
-                                // Merge rack data into existing record
-                                const existing = materialMap.get(key)!;
-                                // Rack values come from row where SystemQty=0
-                                if (d.SystemQty === 0 && d.SystemQtyRack > 0) {
-                                    existing.SystemQtyRack = d.SystemQtyRack;
-                                    existing.ActualQtyRack = d.ActualQtyRack;
-                                    existing.DiffQtyRack = d.DiffQtyRack;
+                                if (!materialMap.has(key)) {
+                                    materialMap.set(key, {
+                                        ...d,
+                                        warehouseDetailId: d.Location === 'WAREHOUSE' ? d.Id : undefined,
+                                        rackDetailId: d.Location === 'RACK' ? d.Id : undefined,
+                                        SystemQty: d.Location === 'WAREHOUSE' ? d.SystemQty : 0,
+                                        SystemQtyRack: d.Location === 'RACK' ? (d.SystemQtyRack || d.SystemQty) : 0,
+                                        ActualQty: d.Location === 'WAREHOUSE' ? d.ActualQty : null,
+                                        ActualQtyRack: d.Location === 'RACK' ? (d.ActualQtyRack ?? d.ActualQty) : null,
+                                        DiffQty: d.Location === 'WAREHOUSE' ? d.DiffQty : null,
+                                        DiffQtyRack: d.Location === 'RACK' ? (d.DiffQtyRack ?? d.DiffQty) : null,
+                                    });
+                                } else {
+                                    const existing = materialMap.get(key)!;
+                                    if (d.Location === 'RACK') {
+                                        existing.rackDetailId = d.Id;
+                                        existing.SystemQtyRack = d.SystemQtyRack || d.SystemQty;
+                                        existing.ActualQtyRack = d.ActualQtyRack ?? d.ActualQty;
+                                        existing.DiffQtyRack = d.DiffQtyRack ?? d.DiffQty;
+                                    } else if (d.Location === 'WAREHOUSE') {
+                                        existing.warehouseDetailId = d.Id;
+                                        existing.SystemQty = d.SystemQty;
+                                        existing.ActualQty = d.ActualQty;
+                                        existing.DiffQty = d.DiffQty;
+                                        existing.Notes = d.Notes || existing.Notes;
+                                    }
                                 }
-                                // Warehouse values come from row where SystemQtyRack=0
-                                if (d.SystemQtyRack === 0 && d.SystemQty > 0) {
-                                    existing.SystemQty = d.SystemQty;
-                                    existing.ActualQty = d.ActualQty;
-                                    existing.DiffQty = d.DiffQty;
-                                    existing.Notes = d.Notes;
-                                    existing.Location = d.Location;
-                                }
-                            } else {
-                                materialMap.set(key, { ...d });
-                            }
-                        });
+                            });
 
-                        setDetails(Array.from(materialMap.values()));
+                            setDetails(Array.from(materialMap.values()));
+                        } else {
+                            // FINISH_GOOD: each row is independent
+                            setDetails(
+                                fetchedDetails.map((d: InventoryCountingDetailEntity) => ({
+                                    ...d,
+                                    warehouseDetailId: d.Id,
+                                }))
+                            );
+                        }
                     }
                 } catch {
                     antMessage.error('Failed to load details');
@@ -88,7 +119,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
             };
             loadDetails();
         }
-    }, [visible, data?.Id, dispatch, antMessage]);
+    }, [visible, data?.Id, data?.Category, dispatch, antMessage]);
 
     // Get unique locations
     const locations = useMemo(() => {
@@ -96,34 +127,42 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
         return locs.sort();
     }, [details]);
 
-    // Filter by location only (data already has 1 row per material with both warehouse & rack)
+    // Filter by location only
     const filteredDetails = useMemo(() => {
         if (activeTab === 'all') return details;
         return details.filter(d => d.Location === activeTab);
     }, [details, activeTab]);
 
-    // Completed count: both warehouse and rack actual qty set
-    const completedItems = details.filter(d => d.ActualQty !== null && d.ActualQtyRack !== null).length;
+    // Completed count
+    const completedItems = useMemo(() => {
+        return details.filter(d => {
+            if (data?.Category === 'MATERIAL') {
+                return d.ActualQty !== null && (d.ActualQtyRack !== null || d.rackDetailId === undefined);
+            }
+            return d.ActualQty !== null;
+        }).length;
+    }, [details, data?.Category]);
+
     const totalItems = details.length;
     const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
-    const handleStartEditWarehouse = (record: InventoryCountingDetailEntity) => {
+    const handleStartEditWarehouse = (record: MergedCountingDetail) => {
         setEditingKey(record.Id);
         setEditingWarehouse(record.ActualQty ?? 0);
         setEditingRack(record.ActualQtyRack ?? 0);
     };
 
-    const handleStartEditRack = (record: InventoryCountingDetailEntity) => {
+    const handleStartEditRack = (record: MergedCountingDetail) => {
         setEditingKey(record.Id);
         setEditingWarehouse(record.ActualQty ?? 0);
         setEditingRack(record.ActualQtyRack ?? 0);
     };
 
-    const handleSaveEdit = async (record: InventoryCountingDetailEntity) => {
+    const handleSaveEdit = async (record: MergedCountingDetail) => {
         const warehouseVal = editingWarehouse ?? record.ActualQty ?? 0;
         const rackVal = editingRack ?? record.ActualQtyRack ?? 0;
 
-        if (warehouseVal < 0 || rackVal < 0) {
+        if (warehouseVal < 0 || (data?.Category === 'MATERIAL' && rackVal < 0)) {
             antMessage.error('Qty must be >= 0');
             return;
         }
@@ -131,13 +170,19 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
         try {
             setUpdatingId(record.Id);
 
-            // Update both warehouse and rack in one request
-            const result = await dispatch(updateActualStock({
-                detailId: record.Id,
-                dto: {
+            const detailIdToUpdate = record.warehouseDetailId || record.rackDetailId || record.Id;
+            const dto = data?.Category === 'MATERIAL'
+                ? {
                     actualQty: warehouseVal,
                     actualQtyRack: rackVal,
                 }
+                : {
+                    actualQty: warehouseVal,
+                };
+
+            const result = await dispatch(updateActualStock({
+                detailId: detailIdToUpdate,
+                dto,
             }));
 
             if (updateActualStock.rejected.match(result)) {
@@ -153,9 +198,9 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         ? {
                             ...d,
                             ActualQty: warehouseVal,
-                            ActualQtyRack: rackVal,
+                            ActualQtyRack: data?.Category === 'MATERIAL' ? rackVal : null,
                             DiffQty: warehouseVal - d.SystemQty,
-                            DiffQtyRack: rackVal - d.SystemQtyRack,
+                            DiffQtyRack: data?.Category === 'MATERIAL' ? rackVal - d.SystemQtyRack : null,
                         }
                         : d
                 )
@@ -177,46 +222,51 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
         setEditingRack(null);
     };
 
-    const isEditing = (record: InventoryCountingDetailEntity) => editingKey === record.Id;
+    const isEditing = useCallback((record: MergedCountingDetail) => editingKey === record.Id, [editingKey]);
 
-    const columns = [
-        {
-            title: 'Material/FG ID',
-            key: 'itemId',
-            width: 150,
-            fixed: 'left' as const,
-            render: (_: any, record: InventoryCountingDetailEntity) => (
-                <code style={{ fontSize: 11 }}>
-                    {record.MaterialId || record.FinishGoodId || '-'}
-                </code>
-            ),
-        },
-        {
-            title: 'Notes',
-            dataIndex: 'Notes',
-            key: 'Notes',
-            width: 150,
-            ellipsis: true,
-        },
-        {
-            title: 'Warehouse',
-            key: 'warehouseQty',
-            align: 'center' as const,
-            children: [
+    const columns = useMemo(() => {
+        if (data?.Category === 'FINISH_GOOD') {
+            return [
                 {
-                    title: 'System',
+                    title: 'Finish Good Part Number',
+                    key: 'itemId',
+                    width: 180,
+                    fixed: 'left' as const,
+                    render: (_: unknown, record: MergedCountingDetail) => (
+                        <code style={{ fontSize: 11 }}>
+                            {record.FinishGoodId || record.MaterialId || '-'}
+                        </code>
+                    ),
+                },
+                {
+                    title: 'Part Name',
+                    dataIndex: 'Notes',
+                    key: 'Notes',
+                    width: 200,
+                    ellipsis: true,
+                    render: (val: string | null) => val || '-',
+                },
+                {
+                    title: 'Location',
+                    dataIndex: 'Location',
+                    key: 'Location',
+                    width: 140,
+                    render: (val: string) => <Tag color="purple">{val || 'FINISH_GOOD_AREA'}</Tag>,
+                },
+                {
+                    title: 'System Qty',
                     dataIndex: 'SystemQty',
                     key: 'SystemQty',
-                    width: 80,
+                    width: 100,
                     align: 'center' as const,
                 },
                 {
-                    title: 'Actual',
+                    title: 'Actual Qty',
                     dataIndex: 'ActualQty',
                     key: 'ActualQty',
-                    width: 100,
+                    width: 120,
                     align: 'center' as const,
-                    render: (val: number | null, record: InventoryCountingDetailEntity) => {
+                    render: (val: number | null, record: MergedCountingDetail) => {
                         if (data?.Status !== 'IN_PROGRESS') {
                             return val ?? '-';
                         }
@@ -226,87 +276,163 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                                     type="number"
                                     value={editingWarehouse ?? val ?? 0}
                                     onChange={(e) => setEditingWarehouse(Number(e.target.value) || 0)}
-                                    style={{ width: 60 }}
+                                    style={{ width: 80 }}
                                     min={0}
                                 />
                             );
                         }
                         return (
                             <a onClick={() => handleStartEditWarehouse(record)} style={{ cursor: 'pointer' }}>
-                                {val ?? <Tag color="orange">Not Set</Tag>}
+                                {val !== null && val !== undefined ? val : <Tag color="orange">Not Set</Tag>}
                             </a>
                         );
                     },
                 },
                 {
-                    title: 'Diff',
+                    title: 'Diff Qty',
                     dataIndex: 'DiffQty',
                     key: 'DiffQty',
-                    width: 70,
-                    align: 'center' as const,
-                    render: (val: number | null) => {
-                        if (val === null) return '-';
-                        const color = val > 0 ? 'green' : val < 0 ? 'red' : 'default';
-                        return <Tag color={color}>{val > 0 ? '+' : ''}{val}</Tag>;
-                    },
-                },
-            ],
-        },
-        {
-            title: 'Rack',
-            key: 'rackQty',
-            align: 'center' as const,
-            children: [
-                {
-                    title: 'System',
-                    dataIndex: 'SystemQtyRack',
-                    key: 'SystemQtyRack',
-                    width: 80,
-                    align: 'center' as const,
-                },
-                {
-                    title: 'Actual',
-                    dataIndex: 'ActualQtyRack',
-                    key: 'ActualQtyRack',
                     width: 100,
                     align: 'center' as const,
-                    render: (val: number | null, record: InventoryCountingDetailEntity) => {
-                        if (data?.Status !== 'IN_PROGRESS') {
-                            return val ?? '-';
-                        }
-                        if (isEditing(record)) {
-                            return (
-                                <Input
-                                    type="number"
-                                    value={editingRack ?? val ?? 0}
-                                    onChange={(e) => setEditingRack(Number(e.target.value) || 0)}
-                                    style={{ width: 60 }}
-                                    min={0}
-                                />
-                            );
-                        }
-                        return (
-                            <a onClick={() => handleStartEditRack(record)} style={{ cursor: 'pointer' }}>
-                                {val ?? <Tag color="orange">Not Set</Tag>}
-                            </a>
-                        );
-                    },
-                },
-                {
-                    title: 'Diff',
-                    dataIndex: 'DiffQtyRack',
-                    key: 'DiffQtyRack',
-                    width: 70,
-                    align: 'center' as const,
                     render: (val: number | null) => {
-                        if (val === null) return '-';
+                        if (val === null || val === undefined) return '-';
                         const color = val > 0 ? 'green' : val < 0 ? 'red' : 'default';
-                        return <Tag color={color}>{val > 0 ? '+' : ''}{val}</Tag>;
+                        return <Tag color={color}>{val > 0 ? `+${val}` : val}</Tag>;
                     },
                 },
-            ],
-        },
-    ];
+            ];
+        }
+
+        return [
+            {
+                title: 'Material Part Number',
+                key: 'itemId',
+                width: 150,
+                fixed: 'left' as const,
+                render: (_: unknown, record: MergedCountingDetail) => (
+                    <code style={{ fontSize: 11 }}>
+                        {record.MaterialId || record.FinishGoodId || '-'}
+                    </code>
+                ),
+            },
+            {
+                title: 'Part Name',
+                dataIndex: 'Notes',
+                key: 'Notes',
+                width: 150,
+                ellipsis: true,
+                render: (val: string | null) => val || '-',
+            },
+            {
+                title: 'Warehouse',
+                key: 'warehouseQty',
+                align: 'center' as const,
+                children: [
+                    {
+                        title: 'System',
+                        dataIndex: 'SystemQty',
+                        key: 'SystemQty',
+                        width: 80,
+                        align: 'center' as const,
+                    },
+                    {
+                        title: 'Actual',
+                        dataIndex: 'ActualQty',
+                        key: 'ActualQty',
+                        width: 100,
+                        align: 'center' as const,
+                        render: (val: number | null, record: MergedCountingDetail) => {
+                            if (data?.Status !== 'IN_PROGRESS') {
+                                return val ?? '-';
+                            }
+                            if (isEditing(record)) {
+                                return (
+                                    <Input
+                                        type="number"
+                                        value={editingWarehouse ?? val ?? 0}
+                                        onChange={(e) => setEditingWarehouse(Number(e.target.value) || 0)}
+                                        style={{ width: 60 }}
+                                        min={0}
+                                    />
+                                );
+                            }
+                            return (
+                                <a onClick={() => handleStartEditWarehouse(record)} style={{ cursor: 'pointer' }}>
+                                    {val !== null && val !== undefined ? val : <Tag color="orange">Not Set</Tag>}
+                                </a>
+                            );
+                        },
+                    },
+                    {
+                        title: 'Diff',
+                        dataIndex: 'DiffQty',
+                        key: 'DiffQty',
+                        width: 70,
+                        align: 'center' as const,
+                        render: (val: number | null) => {
+                            if (val === null || val === undefined) return '-';
+                            const color = val > 0 ? 'green' : val < 0 ? 'red' : 'default';
+                            return <Tag color={color}>{val > 0 ? `+${val}` : val}</Tag>;
+                        },
+                    },
+                ],
+            },
+            {
+                title: 'Rack',
+                key: 'rackQty',
+                align: 'center' as const,
+                children: [
+                    {
+                        title: 'System',
+                        dataIndex: 'SystemQtyRack',
+                        key: 'SystemQtyRack',
+                        width: 80,
+                        align: 'center' as const,
+                    },
+                    {
+                        title: 'Actual',
+                        dataIndex: 'ActualQtyRack',
+                        key: 'ActualQtyRack',
+                        width: 100,
+                        align: 'center' as const,
+                        render: (val: number | null, record: MergedCountingDetail) => {
+                            if (data?.Status !== 'IN_PROGRESS') {
+                                return val ?? '-';
+                            }
+                            if (isEditing(record)) {
+                                return (
+                                    <Input
+                                        type="number"
+                                        value={editingRack ?? val ?? 0}
+                                        onChange={(e) => setEditingRack(Number(e.target.value) || 0)}
+                                        style={{ width: 60 }}
+                                        min={0}
+                                    />
+                                );
+                            }
+                            return (
+                                <a onClick={() => handleStartEditRack(record)} style={{ cursor: 'pointer' }}>
+                                    {val !== null && val !== undefined ? val : <Tag color="orange">Not Set</Tag>}
+                                </a>
+                            );
+                        },
+                    },
+                    {
+                        title: 'Diff',
+                        dataIndex: 'DiffQtyRack',
+                        key: 'DiffQtyRack',
+                        width: 70,
+                        align: 'center' as const,
+                        render: (val: number | null) => {
+                            if (val === null || val === undefined) return '-';
+                            const color = val > 0 ? 'green' : val < 0 ? 'red' : 'default';
+                            return <Tag color={color}>{val > 0 ? `+${val}` : val}</Tag>;
+                        },
+                    },
+                ],
+            },
+        ];
+    }, [data?.Category, data?.Status, editingWarehouse, editingRack, isEditing]);
 
     // Tab items
     const tabItems = [
@@ -325,7 +451,27 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
             title={`Inventory Counting: ${data?.OpnameNumber || '-'}`}
             open={visible}
             onCancel={onClose}
-            footer={null}
+            footer={
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontSize: 12, color: '#888' }}>
+                        {data?.Status === 'IN_PROGRESS' && !canApprove && (
+                            <span>* Approving counting session requires <code>IPCS.INVENTORY_COUNTING_APPROVE</code> permission</span>
+                        )}
+                    </div>
+                    <Space>
+                        <Button onClick={onClose}>Close</Button>
+                        {data?.Status === 'IN_PROGRESS' && canApprove && (
+                            <Button
+                                type="primary"
+                                icon={<CheckCircleOutlined />}
+                                onClick={() => setIsReviewModalVisible(true)}
+                            >
+                                Review & Approval
+                            </Button>
+                        )}
+                    </Space>
+                </div>
+            }
             centered
             width={950}
             zIndex={1050}
@@ -341,7 +487,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         {data?.Status || '-'}
                     </Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="Created By">{data?.CreatedByName || '-'}</Descriptions.Item>
+                <Descriptions.Item label="Created By">{data?.CreatedByName || data?.CreatedBy || '-'}</Descriptions.Item>
                 <Descriptions.Item label="Created At">
                     {data?.CreatedAt ? new Date(data.CreatedAt).toLocaleString('id-ID') : '-'}
                 </Descriptions.Item>
@@ -425,6 +571,17 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                     scroll={{ x: 750, y: 400 }}
                 />
             </div>
+
+            <ReviewApprovalModal
+                visible={isReviewModalVisible}
+                onClose={() => setIsReviewModalVisible(false)}
+                data={data}
+                onSuccess={() => {
+                    setIsReviewModalVisible(false);
+                    onClose();
+                    onRefresh?.();
+                }}
+            />
         </Modal>
     );
 };

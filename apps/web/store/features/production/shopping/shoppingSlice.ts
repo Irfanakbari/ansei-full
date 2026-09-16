@@ -154,7 +154,7 @@ export const fetchShoppingById = createAsyncThunk(
 export const createShopping = createAsyncThunk(
     'shopping/create',
     async (shoppingData: {
-        forecastId: string;
+        forecastId?: string | null;
         materialId: string;
         qtyPick: number;
         type: 'REGULER' | 'ADDITIONAL';

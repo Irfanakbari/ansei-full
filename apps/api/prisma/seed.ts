@@ -204,6 +204,7 @@ async function main() {
     { Action: 'IPCS.INVENTORY_COUNTING_CREATE', Description: 'Create inventory counting' },
     { Action: 'IPCS.INVENTORY_COUNTING_UPDATE', Description: 'Update inventory counting' },
     { Action: 'IPCS.INVENTORY_COUNTING_DELETE', Description: 'Delete inventory counting' },
+    { Action: 'IPCS.INVENTORY_COUNTING_APPROVE', Description: 'Approve inventory counting' },
     // Transfer material (material delivery note)
     { Action: 'IPCS.TRANSFER_MATERIAL_READ', Description: 'Read material delivery note' },
     { Action: 'IPCS.TRANSFER_MATERIAL_CREATE', Description: 'Create material delivery note' },

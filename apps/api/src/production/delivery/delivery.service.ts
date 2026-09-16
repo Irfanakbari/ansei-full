@@ -8,8 +8,13 @@ import { LogProcessService } from '../../common/log-process/log-process.service'
 import { CreateDeliveryDto, DeliveryQueryDto } from './dto/create-delivery.dto';
 import { DeliveryDto, PaginatedDeliveryDto } from './dto/delivery-response.dto';
 import type { LogProcessModel } from '../../generated/prisma/models';
-import { LocationType, TransactionType } from '../../generated/prisma/enums';
+import {
+  LocationType,
+  TransactionType,
+  ItemCategory,
+} from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
+import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 
 @Injectable()
 export class DeliveryService {
@@ -34,6 +39,13 @@ export class DeliveryService {
         type: 'INFO',
         location: 'delivery.service.ts:30',
       });
+
+      // POKAYOKE: Tolak pengiriman jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        ItemCategory.FINISH_GOOD,
+        'Delivery Finish Good',
+      );
 
       // ========== POKAYOKE 1: Validate LabelData exists ==========
       const labelData = await this.prisma.labelData.findUnique({

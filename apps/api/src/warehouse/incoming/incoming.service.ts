@@ -19,13 +19,18 @@ import type {
   LogProcessModel,
   MaterialModel,
 } from '../../generated/prisma/models';
-import { LocationType, TransactionType } from '../../generated/prisma/enums';
+import {
+  LocationType,
+  TransactionType,
+  ItemCategory,
+} from '../../generated/prisma/enums';
 import type {
   IncomingEntity,
   IncomingMaterialEntity,
 } from './entities/incoming.entity';
 import type { Prisma } from '../../generated/prisma/client';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 
 // Allowed file extensions and max size
 const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -126,6 +131,13 @@ export class IncomingService {
         type: 'INFO',
         location: 'incoming.service.ts:45',
       });
+
+      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        'Incoming Material',
+      );
 
       // POKAYOKE: Validate all material PartNumbers exist in Material master
       await this.validateMaterialsExist(dto.materials, logProcess.ProcessId);
@@ -397,6 +409,13 @@ export class IncomingService {
       if (!existing) {
         throw new NotFoundException(`Incoming with id ${id} not found`);
       }
+
+      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        'Receive Incoming',
+      );
 
       // Cannot receive if already closed and approved
       if (existing.Closed && existing.ApprovedAt) {

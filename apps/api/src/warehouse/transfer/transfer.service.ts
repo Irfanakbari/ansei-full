@@ -2,7 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
 import type { LogProcessModel } from '../../generated/prisma/models';
-import { LocationType, TransactionType } from '../../generated/prisma/enums';
+import {
+  LocationType,
+  TransactionType,
+  ItemCategory,
+} from '../../generated/prisma/enums';
+import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 
 export interface TransferResult {
   partNumber: string;
@@ -40,6 +45,13 @@ export class TransferService {
         type: 'INFO',
         location: 'transfer.service.ts:35',
       });
+
+      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        'Transfer to Rack',
+      );
 
       // POKAYOKE: Validate material exists
       await this.validateMaterialExists(partNumber, logProcess.ProcessId);

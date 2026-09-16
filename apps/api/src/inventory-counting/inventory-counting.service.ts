@@ -11,6 +11,7 @@ import {
   CreateInventoryCountingDto,
   UpdateInventoryCountingDto,
   UpdateActualStockDto,
+  CloseInventoryCountingDto,
   GenerateCutOffDto,
   InventoryCountingQueryDto,
 } from './dto';
@@ -1119,6 +1120,58 @@ export class InventoryCountingService {
         data: updateData,
       });
 
+      // Synchronize paired row for MATERIAL so that both locations are updated
+      if (detail.MaterialId) {
+        if (
+          detail.Location === LocationType.WAREHOUSE &&
+          dto.actualQtyRack !== undefined &&
+          dto.actualQtyRack !== null
+        ) {
+          const rackDetail = await this.prisma.stockOpnameDetail.findFirst({
+            where: {
+              OpnameId: detail.OpnameId,
+              MaterialId: detail.MaterialId,
+              Location: LocationType.RACK,
+            },
+          });
+          if (rackDetail) {
+            await this.prisma.stockOpnameDetail.update({
+              where: { Id: rackDetail.Id },
+              data: {
+                ActualQty: dto.actualQtyRack,
+                ActualQtyRack: dto.actualQtyRack,
+                DiffQtyRack:
+                  dto.actualQtyRack - (rackDetail.SystemQtyRack ?? 0),
+                DiffQty: dto.actualQtyRack - (rackDetail.SystemQty ?? 0),
+              },
+            });
+          }
+        } else if (
+          detail.Location === LocationType.RACK &&
+          dto.actualQty !== undefined &&
+          dto.actualQty !== null
+        ) {
+          const warehouseDetail = await this.prisma.stockOpnameDetail.findFirst(
+            {
+              where: {
+                OpnameId: detail.OpnameId,
+                MaterialId: detail.MaterialId,
+                Location: LocationType.WAREHOUSE,
+              },
+            },
+          );
+          if (warehouseDetail) {
+            await this.prisma.stockOpnameDetail.update({
+              where: { Id: warehouseDetail.Id },
+              data: {
+                ActualQty: dto.actualQty,
+                DiffQty: dto.actualQty - (warehouseDetail.SystemQty ?? 0),
+              },
+            });
+          }
+        }
+      }
+
       await this.logService.addLog({
         processId: logProcess.ProcessId,
         message:
@@ -1151,7 +1204,18 @@ export class InventoryCountingService {
     }
   }
 
-  async close(id: string, closedBy: string) {
+  async close(dtoOrId: string | CloseInventoryCountingDto, closedBy: string) {
+    const id = typeof dtoOrId === 'string' ? dtoOrId : dtoOrId.id;
+    const confirmedCheck =
+      typeof dtoOrId === 'string' ? true : dtoOrId.confirmedCheck;
+    const notes = typeof dtoOrId === 'string' ? undefined : dtoOrId.notes;
+
+    if (!confirmedCheck) {
+      throw new BadRequestException(
+        'Approval denied: Approver must inspect and confirm the physical counting results and stock discrepancies before approving and closing the session.',
+      );
+    }
+
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -1163,7 +1227,7 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Closing inventory counting: ID=${id}`,
+        message: `Closing inventory counting with approval: ID=${id}, Approver=${closedBy}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:736',
       });
@@ -1436,12 +1500,19 @@ export class InventoryCountingService {
         });
 
         // STEP 5: Update status to COMPLETED
+        const approvalNotes = notes?.trim()
+          ? inventoryCounting.Notes
+            ? `${inventoryCounting.Notes} | [APPROVED by ${closedBy}]: ${notes.trim()}`
+            : `[APPROVED by ${closedBy}]: ${notes.trim()}`
+          : inventoryCounting.Notes;
+
         await tx.stockOpname.update({
           where: { Id: id },
           data: {
             Status: OpnameStatus.COMPLETED,
             CompletedAt: new Date(),
             CompletedBy: closedBy,
+            Notes: approvalNotes,
           },
         });
 

@@ -41,7 +41,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
 
 @ApiTags('Inventory Counting')
-@Controller('inventory-counting')
+@Controller(['inventory-counting', 'warehouse/inventory-counting'])
 export class InventoryCountingController {
   constructor(
     private readonly inventoryCountingService: InventoryCountingService,
@@ -150,14 +150,25 @@ export class InventoryCountingController {
   }
 
   @Post('close')
-  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
-  @ApiOperation({ summary: 'Close inventory counting session' })
+  @Permission('IPCS.INVENTORY_COUNTING_APPROVE')
+  @ApiOperation({ summary: 'Approve and close inventory counting session' })
   @ApiResponse({ status: 200, type: InventoryCountingResponseEntity })
   async close(
     @Body() dto: CloseInventoryCountingDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.inventoryCountingService.close(dto.id, user.username);
+    return this.inventoryCountingService.close(dto, user.username);
+  }
+
+  @Post('approve')
+  @Permission('IPCS.INVENTORY_COUNTING_APPROVE')
+  @ApiOperation({ summary: 'Approve and close inventory counting session' })
+  @ApiResponse({ status: 200, type: InventoryCountingResponseEntity })
+  async approve(
+    @Body() dto: CloseInventoryCountingDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.inventoryCountingService.close(dto, user.username);
   }
 
   @Post('generate-ws')

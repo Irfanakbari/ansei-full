@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ShoppingService } from './shopping.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrinterService } from '../../common/printer/printer.service';
 
 describe('ShoppingService', () => {
@@ -23,7 +23,11 @@ describe('ShoppingService', () => {
         create: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
         delete: jest.fn(),
+      },
+      stockOpname: {
+        findFirst: jest.fn().mockResolvedValue(null),
       },
       inventoryLedger: { create: jest.fn() },
       $transaction: jest.fn((cb) => cb(prismaService)),
@@ -181,6 +185,93 @@ describe('ShoppingService', () => {
         service['emitPartTag']('PO-001', 'FG-001', 'PR123'),
       ).resolves.toBeUndefined();
       expect(printerService.printPartTagAnsei).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('create ADDITIONAL shopping', () => {
+    it('sets ForecastId to null and allows free picking without foreign key error', async () => {
+      const mockMaterial = {
+        Id: 1,
+        PartNumber: 'MAT-001',
+        PartName: 'Material A',
+        QtyRack: 10,
+        IsActive: true,
+      };
+
+      const mockCreatedShopping = {
+        Id: 'SHP-20260916-0001',
+        ForecastId: null,
+        MaterialId: 'MAT-001',
+        QtyPick: 2,
+        Type: 'ADDITIONAL',
+        Description: '',
+        CreatedBy: 'test',
+        CreatedAt: new Date(),
+        UpdatedAt: new Date(),
+        MaterialData: mockMaterial,
+        ForecastData: null,
+      };
+
+      prismaService.material.findUnique.mockResolvedValue(mockMaterial);
+      prismaService.material.update = jest.fn().mockResolvedValue({
+        ...mockMaterial,
+        QtyRack: 8,
+      });
+      prismaService.shopping.findMany = jest.fn().mockResolvedValue([]);
+      prismaService.shopping.create = jest
+        .fn()
+        .mockResolvedValue(mockCreatedShopping);
+
+      const result = await service.create(
+        {
+          materialId: 'MAT-001',
+          qtyPick: 2,
+          type: 'ADDITIONAL',
+          forecastId: 'ADDITIONAL',
+          description: '',
+        },
+        'test',
+      );
+
+      expect(result).toBeDefined();
+      expect(result.ForecastId).toBeNull();
+      expect(prismaService.shopping.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            ForecastId: null,
+            MaterialId: 'MAT-001',
+            QtyPick: 2,
+            Type: 'ADDITIONAL',
+          }),
+        }),
+      );
+    });
+
+    it('should throw BadRequestException if active inventory counting is in progress', async () => {
+      prismaService.stockOpname.findFirst.mockResolvedValueOnce({
+        Id: 'opname-1',
+        OpnameNumber: 'IC-2026-001',
+        Category: 'MATERIAL',
+        Status: 'IN_PROGRESS',
+      });
+
+      let caughtError: unknown;
+      try {
+        await service.create(
+          {
+            materialId: 'MAT-001',
+            qtyPick: 2,
+            type: 'ADDITIONAL',
+            forecastId: 'ADDITIONAL',
+            description: '',
+          },
+          'test',
+        );
+      } catch (err) {
+        caughtError = err;
+      }
+
+      expect(caughtError).toBeInstanceOf(BadRequestException);
     });
   });
 });

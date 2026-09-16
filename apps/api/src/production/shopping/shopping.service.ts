@@ -18,9 +18,11 @@ import {
   TransactionType,
   TypeShopping,
   ProductionStatus,
+  ItemCategory,
 } from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 
 /**
  * Interface for BOM summary response
@@ -299,6 +301,13 @@ export class ShoppingService {
         location: 'shopping.service.ts:155',
       });
 
+      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        'Shopping Material',
+      );
+
       // POKAYOKE: Validate Material exists
       await this.validateMaterialExists(dto.materialId, logProcess.ProcessId);
 
@@ -333,11 +342,15 @@ export class ShoppingService {
   ): Promise<ShoppingModel> {
     const processId = logProcess.ProcessId;
 
+    if (!dto.forecastId) {
+      throw new BadRequestException(
+        'forecastId is required for REGULER shopping',
+      );
+    }
+    const forecastId = dto.forecastId;
+
     // STEP 1: POKAYOKE - Forecast harus ada
-    const forecast = await this.validateAndGetForecast(
-      dto.forecastId,
-      processId,
-    );
+    const forecast = await this.validateAndGetForecast(forecastId, processId);
 
     // STEP 2: POKAYOKE - Forecast harus RELEASED
     await this.validateForecastReleased(forecast, processId);
@@ -354,7 +367,7 @@ export class ShoppingService {
 
     // STEP 5: CEK berapa yang sudah di-pick sebelumnya
     const alreadyPicked = await this.getTotalPickedForMaterial(
-      dto.forecastId,
+      forecastId,
       dto.materialId,
       processId,
     );
@@ -407,7 +420,7 @@ export class ShoppingService {
     // STEP 10: CHECK if ALL BOM materials for this forecast's FinishGood are complete
     // Include the current pick in the calculation (since it hasn't been committed yet)
     const shouldIncrementFinishGood = await this.checkAllBomsComplete(
-      dto.forecastId,
+      forecastId,
       forecast.FinishGoodId,
       dto.materialId,
       dto.qtyPick,
@@ -434,7 +447,7 @@ export class ShoppingService {
     );
 
     if (shouldIncrementFinishGood) {
-      await this.emitPartTag(dto.forecastId, forecast.FinishGoodId, processId);
+      await this.emitPartTag(forecastId, forecast.FinishGoodId, processId);
     }
 
     return shopping;
@@ -646,7 +659,7 @@ export class ShoppingService {
     // Execute with NO FINISH GOOD increment (ADDITIONAL shopping)
     const dtoForAdditional: CreateShoppingDto = {
       ...dto,
-      forecastId: dto.forecastId || 'ADDITIONAL',
+      forecastId: undefined,
     };
 
     return this.executeShoppingTransaction(
@@ -694,6 +707,12 @@ export class ShoppingService {
       const balanceBefore = material?.QtyRack || 0;
       const balanceAfter = balanceBefore - dto.qtyPick;
 
+      const isAdditional =
+        dto.type === TypeShopping.ADDITIONAL ||
+        dto.forecastId === 'ADDITIONAL' ||
+        !dto.forecastId;
+      const validForecastId = isAdditional ? null : dto.forecastId;
+
       // Create InventoryLedger entry
       await tx.inventoryLedger.create({
         data: {
@@ -709,7 +728,7 @@ export class ShoppingService {
           QtyOut: dto.qtyPick,
           BalanceAfter: balanceAfter,
           CreatedBy: createdBy,
-          Notes: `${dto.type === TypeShopping.REGULER ? 'REGULER' : 'ADDITIONAL'} shopping pick for PO: ${dto.forecastId}`,
+          Notes: `${dto.type === TypeShopping.REGULER ? 'REGULER' : 'ADDITIONAL'} shopping pick${validForecastId ? ` for PO: ${validForecastId}` : ''}`,
         },
       });
 
@@ -737,7 +756,7 @@ export class ShoppingService {
       const shopping = await tx.shopping.create({
         data: {
           Id: shoppingId,
-          ForecastId: dto.forecastId,
+          ForecastId: validForecastId,
           MaterialId: dto.materialId,
           QtyPick: dto.qtyPick,
           Type: dto.type,

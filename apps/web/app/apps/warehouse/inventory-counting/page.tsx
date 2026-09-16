@@ -13,7 +13,6 @@ import {
     fetchInventoryCounting,
     deleteInventoryCounting,
     startInventoryCounting,
-    closeInventoryCounting,
     setFilters,
     downloadWorksheet,
     downloadSnapshot,
@@ -22,6 +21,7 @@ import {
 } from '@/store/features/warehouse/inventoryCounting/inventoryCountingSlice';
 import CreateInventoryCountingModal from './_components/CreateInventoryCountingModal';
 import DetailInventoryCountingModal from './_components/DetailInventoryCountingModal';
+import ReviewApprovalModal from './_components/ReviewApprovalModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -40,13 +40,22 @@ export default function InventoryCountingPage() {
     const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const { data, loading, pagination, filters } = useSelector((state: RootState) => state.inventoryCounting);
+    const { user } = useSelector((state: RootState) => state.auth);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+    const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
     const [detailData, setDetailData] = useState<InventoryCountingEntity | null>(null);
     const [downloadingWs, setDownloadingWs] = useState(false);
     const [downloadingSnapshot, setDownloadingSnapshot] = useState(false);
+
+    const canApprove = Boolean(
+        user?.RoleName === 'SUPER' ||
+        user?.Permission?.includes('SUPER') ||
+        user?.Permission?.includes('*') ||
+        user?.Permission?.includes('IPCS.INVENTORY_COUNTING_APPROVE')
+    );
 
     useEffect(() => {
         dispatch(fetchInventoryCounting(filters));
@@ -175,30 +184,9 @@ export default function InventoryCountingPage() {
         }
     };
 
-    const handleClose = () => {
+    const handleOpenApproval = () => {
         if (selectedRecord) {
-            modal.confirm({
-                title: 'Close Inventory Counting?',
-                icon: <StopOutlined />,
-                content: `Close ${selectedRecord.OpnameNumber}? All stock will be adjusted according to counting results.`,
-                okText: 'Close',
-                okType: 'primary',
-                cancelText: 'Cancel',
-                centered: true,
-                onOk: async () => {
-                    try {
-                        const result = await dispatch(closeInventoryCounting({ id: selectedRecord.Id }));
-                        if (closeInventoryCounting.rejected.match(result)) {
-                            throw new Error((result.payload as string) || 'Failed to close inventory counting');
-                        }
-                        message.success('Inventory counting closed');
-                        dispatch(fetchInventoryCounting(filters));
-                    } catch (error: unknown) {
-                        const err = error as Error;
-                        message.error(err?.message || String(error) || 'Failed to close inventory counting');
-                    }
-                },
-            });
+            setIsReviewModalVisible(true);
         }
     };
 
@@ -324,10 +312,10 @@ export default function InventoryCountingPage() {
                     enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'}
                 />
                 <ButtonToolbar
-                    title="Close"
+                    title="Approve & Close"
                     icon={<StopOutlined />}
-                    onClick={handleClose}
-                    enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'IN_PROGRESS'}
+                    onClick={handleOpenApproval}
+                    enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'IN_PROGRESS' && canApprove}
                 />
                 <ButtonToolbar
                     title="Delete"
@@ -397,6 +385,16 @@ export default function InventoryCountingPage() {
                     onRefresh={() => dispatch(fetchInventoryCounting(filters))}
                 />
             )}
+
+            <ReviewApprovalModal
+                visible={isReviewModalVisible}
+                onClose={() => setIsReviewModalVisible(false)}
+                data={selectedRecord || null}
+                onSuccess={() => {
+                    setSelectedRowKeys([]);
+                    dispatch(fetchInventoryCounting(filters));
+                }}
+            />
         </Card>
     );
 }

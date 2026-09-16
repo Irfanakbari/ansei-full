@@ -323,6 +323,7 @@ describe('InventoryCountingController', () => {
     it('should close inventory counting', async () => {
       const mockDto = {
         id: '123',
+        confirmedCheck: true,
       };
 
       const mockResult = {
@@ -350,7 +351,41 @@ describe('InventoryCountingController', () => {
       const result = await controller.close(mockDto, mockUser);
 
       expect(result).toEqual(mockResult);
-      expect(service.close).toHaveBeenCalledWith('123', mockUser.username);
+      expect(service.close).toHaveBeenCalledWith(mockDto, mockUser.username);
+    });
+
+    it('should approve inventory counting via approve alias', async () => {
+      const mockDto = {
+        id: '123',
+        confirmedCheck: true,
+      };
+
+      const mockResult = {
+        success: true,
+        processId: mockProcessId,
+        data: {
+          Id: '123',
+          OpnameNumber: 'INV-001',
+          Category: ItemCategory.MATERIAL,
+          Status: OpnameStatus.COMPLETED,
+          CreatedAt: new Date(),
+          CreatedBy: 'testuser',
+          Notes: null,
+          StartedAt: new Date(),
+          CompletedAt: new Date(),
+          CompletedBy: 'testuser',
+          Details: [],
+          totalItems: 10,
+          completedItems: 10,
+        },
+      };
+
+      service.close.mockResolvedValue(mockResult);
+
+      const result = await controller.approve(mockDto, mockUser);
+
+      expect(result).toEqual(mockResult);
+      expect(service.close).toHaveBeenCalledWith(mockDto, mockUser.username);
     });
   });
 });

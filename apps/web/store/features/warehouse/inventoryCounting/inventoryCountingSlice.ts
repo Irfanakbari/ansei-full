@@ -1,7 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-11 - Updated 2026-06-16*/
-import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import {fetchWithAuth} from '@/store/utils/fetchWithAuth';
-import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { del, get, getApiErrorMessage, patch, post, postBlob } from '@/store/utils/apiService';
 
 // Entity interfaces - API returns PascalCase fields
 export interface InventoryCountingDetailEntity {
@@ -17,6 +16,14 @@ export interface InventoryCountingDetailEntity {
     DiffQty: number | null;
     DiffQtyRack: number | null;
     Notes: string | null;
+    MaterialData?: {
+        PartNumber?: string;
+        PartName?: string;
+    } | null;
+    FGData?: {
+        PartNumber?: string;
+        PartName?: string;
+    } | null;
 }
 
 export interface InventoryCountingEntity {
@@ -91,6 +98,8 @@ export interface UpdateActualStockDto {
 // Close DTO
 export interface CloseInventoryCountingDto {
     id: string;
+    confirmedCheck: boolean;
+    notes?: string;
 }
 
 // State interface
@@ -131,11 +140,23 @@ const initialState: InventoryCountingState = {
 };
 
 // Fetch all inventory counting
-export const fetchInventoryCounting = createAsyncThunk<ApiSuccessEnvelope<PaginatedInventoryCounting>, InventoryCountingQuery, { rejectValue: string }>(
+export const fetchInventoryCounting = createAsyncThunk<
+    PaginatedInventoryCounting,
+    InventoryCountingQuery,
+    { rejectValue: string }
+>(
     'inventoryCounting/fetchAll',
-    async (filters: InventoryCountingQuery, {rejectWithValue}) => {
+    async (filters: InventoryCountingQuery, { rejectWithValue }) => {
         try {
-            return await get<ApiSuccessEnvelope<PaginatedInventoryCounting>>('/inventory-counting', { params: { page: filters.page, limit: filters.limit, status: filters.status, category: filters.category, createdBy: filters.createdBy } });
+            return await get<PaginatedInventoryCounting>('/inventory-counting', {
+                params: {
+                    page: filters.page,
+                    limit: filters.limit,
+                    status: filters.status || undefined,
+                    category: filters.category || undefined,
+                    createdBy: filters.createdBy || undefined,
+                },
+            });
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch inventory counting data'));
         }
@@ -143,185 +164,164 @@ export const fetchInventoryCounting = createAsyncThunk<ApiSuccessEnvelope<Pagina
 );
 
 // Fetch single inventory counting
-export const fetchInventoryCountingById = createAsyncThunk(
+export const fetchInventoryCountingById = createAsyncThunk<
+    InventoryCountingEntity,
+    string,
+    { rejectValue: string }
+>(
     'inventoryCounting/fetchById',
-    async (id: string, {rejectWithValue}) => {
+    async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch inventory counting detail');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<InventoryCountingEntity>(`/inventory-counting/${id}`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch inventory counting detail'));
         }
     }
 );
 
 // Fetch details for inventory counting
-export const fetchInventoryCountingDetails = createAsyncThunk(
+export const fetchInventoryCountingDetails = createAsyncThunk<
+    InventoryCountingDetailEntity[],
+    string,
+    { rejectValue: string }
+>(
     'inventoryCounting/fetchDetails',
-    async (id: string, {rejectWithValue}) => {
+    async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}/details`);
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to fetch detail items');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await get<InventoryCountingDetailEntity[]>(`/inventory-counting/${id}/details`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch detail items'));
         }
     }
 );
 
 // Create inventory counting
-export const createInventoryCounting = createAsyncThunk(
+export const createInventoryCounting = createAsyncThunk<
+    InventoryCountingResponse,
+    CreateInventoryCountingDto,
+    { rejectValue: string }
+>(
     'inventoryCounting/create',
-    async (dto: CreateInventoryCountingDto, {rejectWithValue}) => {
+    async (dto: CreateInventoryCountingDto, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/warehouse/inventory-counting', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dto),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to create inventory counting');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<InventoryCountingResponse>('/inventory-counting', dto);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create inventory counting'));
         }
     }
 );
 
 // Update inventory counting (notes)
-export const updateInventoryCounting = createAsyncThunk(
+export const updateInventoryCounting = createAsyncThunk<
+    InventoryCountingResponse,
+    { id: string; dto: UpdateInventoryCountingDto },
+    { rejectValue: string }
+>(
     'inventoryCounting/update',
-    async ({id, dto}: { id: string; dto: UpdateInventoryCountingDto }, {rejectWithValue}) => {
+    async ({ id, dto }: { id: string; dto: UpdateInventoryCountingDto }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}`, {
-                method: 'PATCH',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dto),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update inventory counting');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<InventoryCountingResponse>(`/inventory-counting/${id}`, dto);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update inventory counting'));
         }
     }
 );
 
 // Delete inventory counting
-export const deleteInventoryCounting = createAsyncThunk(
+export const deleteInventoryCounting = createAsyncThunk<
+    { success: boolean; id: string },
+    string,
+    { rejectValue: string }
+>(
     'inventoryCounting/delete',
-    async (id: string, {rejectWithValue}) => {
+    async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}`, {
-                method: 'DELETE',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to delete inventory counting');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            await del<{ success: boolean; message: string }>(`/inventory-counting/${id}`);
+            return { success: true, id };
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete inventory counting'));
         }
     }
 );
 
 // Start inventory counting
-export const startInventoryCounting = createAsyncThunk(
+export const startInventoryCounting = createAsyncThunk<
+    InventoryCountingResponse,
+    string,
+    { rejectValue: string }
+>(
     'inventoryCounting/start',
-    async (id: string, {rejectWithValue}) => {
+    async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/inventory-counting/${id}/start`, {
-                method: 'POST',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to start inventory counting');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<InventoryCountingResponse>(`/inventory-counting/${id}/start`, {});
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to start inventory counting'));
         }
     }
 );
 
 // Generate cutoff items
-export const generateCutOff = createAsyncThunk(
+export const generateCutOff = createAsyncThunk<
+    { success: boolean; count: number },
+    GenerateCutOffDto,
+    { rejectValue: string }
+>(
     'inventoryCounting/generateCutOff',
-    async (dto: GenerateCutOffDto, {rejectWithValue}) => {
+    async (dto: GenerateCutOffDto, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/warehouse/inventory-counting/generate-cutoff', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dto),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to generate cutoff items');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<{ success: boolean; count: number }>('/inventory-counting/generate-cutoff', dto);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to generate cutoff items'));
         }
     }
 );
 
 // Update actual stock
-export const updateActualStock = createAsyncThunk(
+export const updateActualStock = createAsyncThunk<
+    { success: boolean; data: InventoryCountingDetailEntity },
+    { detailId: number; dto: UpdateActualStockDto },
+    { rejectValue: string }
+>(
     'inventoryCounting/updateActualStock',
-    async ({detailId, dto}: { detailId: number; dto: UpdateActualStockDto }, {rejectWithValue}) => {
+    async ({ detailId, dto }: { detailId: number; dto: UpdateActualStockDto }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/inventory-counting/details/${detailId}`, {
-                method: 'PATCH',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dto),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update actual stock');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await patch<{ success: boolean; data: InventoryCountingDetailEntity }>(
+                `/inventory-counting/details/${detailId}`,
+                dto
+            );
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update actual stock'));
         }
     }
 );
 
 // Close inventory counting
-export const closeInventoryCounting = createAsyncThunk(
+export const closeInventoryCounting = createAsyncThunk<
+    InventoryCountingResponse,
+    CloseInventoryCountingDto,
+    { rejectValue: string }
+>(
     'inventoryCounting/close',
-    async (dto: CloseInventoryCountingDto, {rejectWithValue}) => {
+    async (dto: CloseInventoryCountingDto, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/warehouse/inventory-counting/close', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dto),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to close inventory counting');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<InventoryCountingResponse>('/inventory-counting/close', dto);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to close inventory counting'));
         }
     }
 );
 
 // Download Worksheet Excel - returns blob directly for download
-export const downloadWorksheet = createAsyncThunk(
+export const downloadWorksheet = createAsyncThunk<
+    { success: boolean; filename: string },
+    string,
+    { rejectValue: string }
+>(
     'inventoryCounting/downloadWorksheet',
-    async (inventoryCountingId: string, {rejectWithValue}) => {
+    async (inventoryCountingId: string, { rejectWithValue }) => {
         try {
-            const response = await fetch('/api/warehouse/inventory-counting/generate-ws', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({id: inventoryCountingId}),
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                const data = await response.json();
-                return rejectWithValue(data.message || 'Failed to download worksheet');
-            }
-
-            const blob = await response.blob();
-            const filename = `worksheet-${inventoryCountingId}.xlsx`;
+            const blob = await postBlob('/inventory-counting/generate-ws', { id: inventoryCountingId });
+            const filename = `Inventory_Worksheet_${inventoryCountingId}.xlsx`;
 
             // Trigger download directly
             const url = window.URL.createObjectURL(blob);
@@ -333,34 +333,24 @@ export const downloadWorksheet = createAsyncThunk(
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            return {success: true, filename};
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return { success: true, filename };
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to download worksheet'));
         }
     }
 );
 
 // Download Snapshot Excel
-export const downloadSnapshot = createAsyncThunk(
+export const downloadSnapshot = createAsyncThunk<
+    { success: boolean; filename: string },
+    string,
+    { rejectValue: string }
+>(
     'inventoryCounting/downloadSnapshot',
-    async (inventoryCountingId: string, {rejectWithValue}) => {
+    async (inventoryCountingId: string, { rejectWithValue }) => {
         try {
-            const response = await fetch('/api/warehouse/inventory-counting/generate-snapshot', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({id: inventoryCountingId}),
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                const data = await response.json();
-                return rejectWithValue(data.message || 'Failed to download snapshot');
-            }
-
-            const blob = await response.blob();
-            const filename = `snapshot-${inventoryCountingId}.xlsx`;
+            const blob = await postBlob('/inventory-counting/generate-snapshot', { id: inventoryCountingId });
+            const filename = `Inventory_Snapshot_${inventoryCountingId}.xlsx`;
 
             // Trigger download directly
             const url = window.URL.createObjectURL(blob);
@@ -372,9 +362,9 @@ export const downloadSnapshot = createAsyncThunk(
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            return {success: true, filename};
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return { success: true, filename };
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to download snapshot'));
         }
     }
 );
@@ -479,7 +469,7 @@ const inventoryCountingSlice = createSlice({
             })
             // Delete
             .addCase(deleteInventoryCounting.fulfilled, (state, action) => {
-                state.data = state.data.filter(item => item.Id !== action.payload.data?.Id);
+                state.data = state.data.filter(item => item.Id !== action.payload.id);
             })
             // Start
             .addCase(startInventoryCounting.fulfilled, (state, action) => {
@@ -492,7 +482,7 @@ const inventoryCountingSlice = createSlice({
                 }
             })
             // Generate cutoff
-            .addCase(generateCutOff.fulfilled, (state, action) => {
+            .addCase(generateCutOff.fulfilled, () => {
                 // Refresh current item details after generating
             })
             // Update actual stock

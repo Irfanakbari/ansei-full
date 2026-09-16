@@ -16,6 +16,7 @@ import {
 import type { LogProcessModel } from '../../generated/prisma/models';
 import { ProductionStatus } from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
+import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 
 // Allowed file extensions and max size
 const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -342,6 +343,13 @@ export class ProductionReleaseService {
         location: 'production-release.service.ts:60',
       });
 
+      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        undefined,
+        'Production Release',
+      );
+
       // Check if there's already a RELEASED release (only one RELEASED allowed at a time)
       const existingReleased = await this.prisma.productionRelease.findFirst({
         where: {
@@ -474,6 +482,13 @@ export class ProductionReleaseService {
         dto.status === ProductionStatus.RELEASED &&
         existing.Status !== ProductionStatus.RELEASED
       ) {
+        // POKAYOKE: Tolak rilis jika sesi Inventory Counting sedang aktif
+        await assertNoActiveInventoryCounting(
+          this.prisma,
+          undefined,
+          'Release Production',
+        );
+
         // Check if there's already another RELEASED release (only one RELEASED allowed at a time)
         const existingReleased = await this.prisma.productionRelease.findFirst({
           where: {
