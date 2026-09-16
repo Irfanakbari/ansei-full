@@ -196,8 +196,8 @@ export default function IncomingPage() {
             title: 'Received By',
             dataIndex: 'ReceivedBy',
             key: 'ReceivedBy',
-            width: 120,
-            render: (_: any, record: any) => record.ReceivedByName || '-',
+            width: 140,
+            render: (_: any, record: any) => record.ReceivedByName || record.receivedByName || '-',
             ...getColumnSearchProps('ReceivedBy'),
         },
         {

@@ -237,6 +237,7 @@ export default function ForecastPage() {
                     type: 'radio',
                 }}
                 columns={columns}
+                tableLayout="fixed"
                 dataSource={data}
                 size="small"
                 loading={loading}

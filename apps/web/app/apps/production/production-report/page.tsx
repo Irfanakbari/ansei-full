@@ -328,6 +328,7 @@ export default function ProductionReportPage() {
                     type: 'radio',
                 }}
                 columns={columns}
+                tableLayout="fixed"
                 dataSource={data}
                 size="small"
                 loading={loading}

@@ -33,6 +33,7 @@ import { ReportModule } from './report/report.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { DualAuthGuard } from './auth/guards/dual-auth.guard';
 import { join } from 'path';
+import { PrismaModule } from './prisma/prisma.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter';
@@ -65,6 +66,7 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
         },
       ],
     }),
+    PrismaModule,
     AuthModule,
     LoggingModule,
     UserManagementModule,

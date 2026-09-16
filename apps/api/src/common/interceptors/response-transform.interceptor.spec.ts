@@ -1,5 +1,7 @@
 import type { CallHandler, ExecutionContext } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 import { lastValueFrom, of } from 'rxjs';
+import { PrismaService } from '../../prisma/prisma.service';
 import { ResponseTransformInterceptor } from './response-transform.interceptor';
 
 describe('ResponseTransformInterceptor', () => {
@@ -59,6 +61,12 @@ describe('ResponseTransformInterceptor', () => {
     const findMany = jest.fn().mockResolvedValue([
       { UserId: 'admin', SsoObjectId: 'sso-1', Name: 'Administrator' },
       { UserId: 'user1', SsoObjectId: 'sso-2', Name: 'User One' },
+      {
+        Id: 'a08f7a91-c49c-4969-aba0-b5d51fabbeaa',
+        UserId: 'a08f7a91-c49c-4969-aba0-b5d51fabbeaa',
+        SsoObjectId: 'a08f7a91-c49c-4969-aba0-b5d51fabbeaa',
+        Name: 'Irfan Akbari',
+      },
     ]);
     const mockPrisma = {
       mTCUserManagement: { findMany },
@@ -68,6 +76,14 @@ describe('ResponseTransformInterceptor', () => {
     const rawData = [
       { id: 1, CreatedBy: 'admin', ReceivedBy: 'user1' },
       { id: 2, createdBy: 'admin', updatedBy: 'user1' },
+      {
+        id: 3,
+        CreatedBy: 'a08f7a91-c49c-4969-aba0-b5d51fabbeaa',
+      },
+      {
+        id: 4,
+        CreatedBy: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+      },
     ];
     const handler: CallHandler<typeof rawData> = { handle: () => of(rawData) };
 
@@ -90,6 +106,37 @@ describe('ResponseTransformInterceptor', () => {
         updatedBy: 'user1',
         updatedByName: 'User One',
       },
+      {
+        id: 3,
+        CreatedBy: 'a08f7a91-c49c-4969-aba0-b5d51fabbeaa',
+        CreatedByName: 'Irfan Akbari',
+      },
+      {
+        id: 4,
+        CreatedBy: 'ffffffff-ffff-ffff-ffff-ffffffffffff',
+        CreatedByName: '-',
+      },
     ]);
+  });
+
+  it('can be instantiated via NestJS dependency injection with PrismaService', async () => {
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        ResponseTransformInterceptor,
+        {
+          provide: PrismaService,
+          useValue: {
+            mTCUserManagement: {
+              findMany: jest.fn().mockResolvedValue([]),
+            },
+          },
+        },
+      ],
+    }).compile();
+
+    const resolved = moduleRef.get(ResponseTransformInterceptor);
+    expect(resolved).toBeDefined();
+    // Verify prisma property is indeed injected
+    expect((resolved as any).prisma).toBeDefined();
   });
 });

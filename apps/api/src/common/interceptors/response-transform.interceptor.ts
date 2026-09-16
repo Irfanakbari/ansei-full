@@ -1,6 +1,7 @@
 import {
   CallHandler,
   ExecutionContext,
+  Inject,
   Injectable,
   NestInterceptor,
   Optional,
@@ -10,7 +11,7 @@ import type { Request, Response } from 'express';
 import { Stream } from 'node:stream';
 import type { Observable } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
-import type { PrismaService } from '../../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import {
   getUserDisplayName,
   getUserDisplayNameMap,
@@ -25,6 +26,7 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<
 > {
   constructor(
     @Optional()
+    @Inject(PrismaService)
     private readonly prisma?: PrismaService,
   ) {}
 
@@ -123,16 +125,23 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<
   private visitRecords(
     value: unknown,
     visitor: (record: Record<string, unknown>) => void,
+    seen = new Set<unknown>(),
   ): void {
+    if (!value || typeof value !== 'object' || value instanceof Date) return;
+    if (seen.has(value)) return;
+    seen.add(value);
+
     if (Array.isArray(value)) {
-      value.forEach((item) => this.visitRecords(item, visitor));
+      value.forEach((item) => this.visitRecords(item, visitor, seen));
       return;
     }
 
-    if (!this.isRecord(value)) return;
-
-    visitor(value);
-    Object.values(value).forEach((item) => this.visitRecords(item, visitor));
+    if (this.isRecord(value)) {
+      visitor(value);
+      Object.values(value).forEach((item) =>
+        this.visitRecords(item, visitor, seen),
+      );
+    }
   }
 
   private shouldBypass(response: Response, result: T): boolean {

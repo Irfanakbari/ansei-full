@@ -240,9 +240,9 @@ export default function StockTransactionLogPage() {
             title: 'Created By',
             dataIndex: 'createdBy',
             key: 'createdBy',
-            width: 100,
+            width: 140,
             filteredValue: filteredInfo.createdBy || null,
-            render: (_: any, record: any) => record.createdByName || '-',
+            render: (_: any, record: any) => record.createdByName || record.CreatedByName || '-',
             ...getColumnSearchProps('createdBy', 'Search Created By'),
         },
         {

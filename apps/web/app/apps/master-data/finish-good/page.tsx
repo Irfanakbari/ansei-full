@@ -62,7 +62,7 @@ export default function FinishGoodPage() {
             title: 'Part Number',
             dataIndex: 'PartNumber',
             key: 'PartNumber',
-            width: 150,
+            width: 160,
             ...getColumnSearchProps('PartNumber')
         },
         {
@@ -75,7 +75,7 @@ export default function FinishGoodPage() {
             title: 'Price',
             dataIndex: 'Price',
             key: 'Price',
-            width: 120,
+            width: 140,
             align: 'right' as const,
             render: (val: number | null) => val ? `Rp ${val.toLocaleString('id-ID')}` : '-'
         },
@@ -83,21 +83,21 @@ export default function FinishGoodPage() {
             title: 'Qty',
             dataIndex: 'Qty',
             key: 'Qty',
-            width: 80,
+            width: 100,
             align: 'right' as const
         },
         {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 120,
-            render: (_: any, record: any) => record.CreatedByName || '-'
+            width: 140,
+            render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-'
         },
         {
             title: 'Created Date',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 150,
+            width: 160,
             render: (val: string) => formatDateTime(val)
         }
     ];

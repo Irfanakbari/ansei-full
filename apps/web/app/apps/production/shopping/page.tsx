@@ -199,6 +199,7 @@ export default function ShoppingPage() {
                     type: 'radio',
                 }}
                 columns={columns}
+                tableLayout="fixed"
                 dataSource={data}
                 size="small"
                 loading={loading}

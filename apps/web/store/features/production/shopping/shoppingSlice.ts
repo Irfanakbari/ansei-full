@@ -188,11 +188,12 @@ export const clearShoppingDetail = createAsyncThunk(
 );
 
 // Fetch shopping status by forecast ID
-export const fetchShoppingStatus = createAsyncThunk(
+export const fetchShoppingStatus = createAsyncThunk<ShoppingStatusResponse, string, { rejectValue: string }>(
     'shopping/fetchStatus',
     async (forecastId: string, { rejectWithValue }) => {
         try {
-            return await get<ApiSuccessEnvelope<ShoppingStatusResponse>>(`/production/shopping/forecast/${forecastId}/status`);
+            const response = await get<ApiSuccessEnvelope<ShoppingStatusResponse>>(`/production/shopping/forecast/${forecastId}/status`);
+            return response.data;
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch shopping status'));
         }

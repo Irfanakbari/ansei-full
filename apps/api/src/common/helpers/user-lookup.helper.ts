@@ -36,15 +36,20 @@ export const getUserName = async (
   }
 };
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export const getUserDisplayNameMap = async (
   userIds: Iterable<string | null | undefined>,
   prisma: PrismaService,
 ): Promise<Map<string, string>> => {
   const ids = [
     ...new Set(
-      [...userIds].filter(
-        (userId): userId is string => Boolean(userId) && userId !== 'SYSTEM',
-      ),
+      [...userIds]
+        .map((id) => (typeof id === 'string' ? id.trim() : ''))
+        .filter(
+          (userId): userId is string => Boolean(userId) && userId !== 'SYSTEM',
+        ),
     ),
   ];
   const names = new Map<string, string>([['SYSTEM', 'System']]);
@@ -57,14 +62,22 @@ export const getUserDisplayNameMap = async (
           { UserId: { in: ids } },
           { SsoObjectId: { in: ids } },
           { Id: { in: ids } },
+          { Email: { in: ids } },
         ],
       },
-      select: { Id: true, UserId: true, SsoObjectId: true, Name: true },
+      select: {
+        Id: true,
+        UserId: true,
+        SsoObjectId: true,
+        Email: true,
+        Name: true,
+      },
     });
     for (const user of users) {
-      names.set(user.UserId, user.Name);
+      if (user.UserId) names.set(user.UserId, user.Name);
       if (user.SsoObjectId) names.set(user.SsoObjectId, user.Name);
       if (user.Id) names.set(user.Id, user.Name);
+      if (user.Email) names.set(user.Email, user.Name);
     }
   } catch {
     logger.warn('User display-name lookup failed');
@@ -75,9 +88,15 @@ export const getUserDisplayNameMap = async (
 export const getUserDisplayName = (
   userId: string | null | undefined,
   names: ReadonlyMap<string, string>,
-): string =>
-  (userId ? names.get(userId) : undefined) ??
-  (userId === 'SYSTEM' || !userId ? 'System' : userId);
+): string => {
+  if (!userId) return 'System';
+  if (userId === 'SYSTEM') return 'System';
+  const trimmed = userId.trim();
+  const found = names.get(trimmed) ?? names.get(userId);
+  if (found) return found;
+  if (UUID_REGEX.test(trimmed)) return '-';
+  return trimmed;
+};
 
 export const getUserPhone = async (
   userId: string,

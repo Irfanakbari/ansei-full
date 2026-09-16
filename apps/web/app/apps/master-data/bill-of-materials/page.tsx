@@ -78,23 +78,28 @@ export default function BillOfMaterialsPage() {
 
     const columns = [
         {
-            title: 'Finish Good',
+            title: 'FG Part Number',
             dataIndex: ['FGData', 'PartNumber'],
-            key: 'FGData',
-            // width: 200,
+            key: 'FGPartNumber',
+            width: 200,
             render: (_: any, record: BOMGrouped) => (
-                <span>
-                    <strong>{record.FGData.PartNumber}</strong> - {record.FGData.PartName}
-                </span>
+                <strong>{record.FGData?.PartNumber}</strong>
             ),
             ...getColumnSearchProps('FGData.PartNumber')
         },
         {
+            title: 'FG Part Name',
+            dataIndex: ['FGData', 'PartName'],
+            key: 'FGPartName',
+            render: (_: any, record: BOMGrouped) => record.FGData?.PartName || '-',
+            ...getColumnSearchProps('FGData.PartName')
+        },
+        {
             title: 'Materials',
             key: 'MaterialCount',
-            // width: 100,
+            width: 120,
             align: 'center' as const,
-            render: (_: any, record: BOMGrouped) => <Tag color="blue">{record.materials.length}</Tag>,
+            render: (_: any, record: BOMGrouped) => <Tag color="blue">{record.materials?.length || 0}</Tag>,
         },
     ];
 
@@ -177,7 +182,7 @@ export default function BillOfMaterialsPage() {
                 dataSource={groupedData}
                 size="small"
                 loading={loading}
-                onChange={(pageInfo, tableFilters) => dispatch(setBOMQuery({ page: tableFilters.FGData ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.FGData?.[0] ?? '') }))}
+                onChange={(pageInfo, tableFilters) => dispatch(setBOMQuery({ page: tableFilters.FGPartNumber || tableFilters.FGPartName || tableFilters.FGData ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.FGPartNumber?.[0] ?? tableFilters.FGPartName?.[0] ?? tableFilters.FGData?.[0] ?? '') }))}
                 pagination={{
                     size: 'small',
                     current: pagination.page,

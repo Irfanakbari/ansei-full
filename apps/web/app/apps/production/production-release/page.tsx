@@ -220,8 +220,8 @@ export default function ProductionReleasePage() {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 100,
-            render: (_: any, record: any) => record.CreatedByName || '-',
+            width: 140,
+            render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-',
         },
     ];
 
@@ -245,6 +245,7 @@ export default function ProductionReleasePage() {
                     type: 'radio',
                 }}
                 columns={columns}
+                tableLayout="fixed"
                 dataSource={data}
                 size="small"
                 loading={loading}

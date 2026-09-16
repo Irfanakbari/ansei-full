@@ -117,8 +117,8 @@ export default function DeliveryPage() {
             title: 'Created By',
             dataIndex: 'createdBy',
             key: 'createdBy',
-            width: 120,
-            render: (_: any, record: any) => record.createdByName || '-',
+            width: 140,
+            render: (_: any, record: any) => record.createdByName || record.CreatedByName || '-',
             ...getColumnSearchProps('createdBy'),
         },
         {

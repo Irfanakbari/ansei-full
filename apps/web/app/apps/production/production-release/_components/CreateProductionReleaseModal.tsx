@@ -222,6 +222,7 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
                     <Table
                         rowSelection={rowSelection}
                         columns={columns}
+                        tableLayout="fixed"
                         dataSource={forecasts}
                         size="small"
                         loading={forecastLoading}

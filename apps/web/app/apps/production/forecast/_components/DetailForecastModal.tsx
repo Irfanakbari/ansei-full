@@ -7,27 +7,16 @@ import { EyeOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
 import { ForecastEntity } from '@/store/features/production/forecast/forecastSlice';
-import {fetchShoppingStatus, ShoppingStatusResponse} from "@/store/features/production/shopping/shoppingSlice";
+import { fetchShoppingStatus, ShoppingStatusResponse } from '@/store/features/production/shopping/shoppingSlice';
+import { formatDateTime } from '@/lib/utils/dateTime';
 
 const { Title, Text } = Typography;
 
 interface Props {
     visible: boolean;
     onClose: () => void;
-    data: ForecastEntity;
+    data: ForecastEntity | null;
 }
-
-const formatDT = (val: string | null | undefined) => {
-    if (!val) return '-';
-    return new Date(val).toLocaleString('id-ID', {
-        timeZone: 'Asia/Jakarta',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-};
 
 const STATUS_COLORS: Record<string, string> = {
     PENDING: 'warning',
@@ -43,14 +32,16 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
     const [loadingStatus, setLoadingStatus] = useState(false);
 
     useEffect(() => {
-        if (visible && data.ProductionReleaseId) {
+        if (visible && data?.ProductionReleaseId && data?.PoId) {
             setLoadingStatus(true);
             dispatch(fetchShoppingStatus(data.PoId))
                 .then((result: any) => {
                     if (fetchShoppingStatus.rejected.match(result)) {
                         throw new Error((result.payload as string) || 'Failed to fetch shopping status');
                     }
-                    setShoppingStatus(result.payload as ShoppingStatusResponse);
+                    const payload = result.payload as any;
+                    const statusData = payload?.data ?? payload;
+                    setShoppingStatus(statusData as ShoppingStatusResponse);
                 })
                 .catch(() => {
                     setShoppingStatus(null);
@@ -61,7 +52,9 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
         } else {
             setShoppingStatus(null);
         }
-    }, [visible, data.PoId, data.ProductionReleaseId, dispatch]);
+    }, [visible, data?.PoId, data?.ProductionReleaseId, dispatch]);
+
+    if (!data) return null;
 
     const derivedStatus = data.ProductionReleaseId ? 'RELEASED' : 'DRAFT';
 
@@ -71,7 +64,7 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
             key: 'material',
             render: (_: any, record: ShoppingStatusResponse['bomSummary'][0]) => (
                 <span>
-                    <code style={{ fontSize: 10 }}>{record.materialId}</code> - {record.materialName}
+                    <code style={{ fontSize: 10 }}>{record?.materialId || '-'}</code> - {record?.materialName || '-'}
                 </span>
             ),
         },
@@ -103,8 +96,8 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
             width: 80,
             align: 'right' as const,
             render: (val: number, record: ShoppingStatusResponse['bomSummary'][0]) => (
-                <Text type={record.isCompleted ? 'success' : 'warning'} strong={!record.isCompleted}>
-                    {val}
+                <Text type={record?.isCompleted ? 'success' : 'warning'} strong={!record?.isCompleted}>
+                    {val ?? 0}
                 </Text>
             ),
         },
@@ -144,34 +137,34 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
                     <Tag color={STATUS_COLORS[derivedStatus] || 'default'}>{derivedStatus}</Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label="Finish Good">
-                    {data.PartData?.PartNumber} - {data.PartData?.PartName}
+                    {data.PartData?.PartNumber || '-'} - {data.PartData?.PartName || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="Qty">
                     <strong>{data.Qty}</strong>
                 </Descriptions.Item>
                 <Descriptions.Item label="Vendor Code">
-                    {data.VendorCode}
+                    {data.VendorCode || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="Vendor Name">
-                    {data.VendorName}
+                    {data.VendorName || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="Receiving Area">
-                    {data.ReceivingArea}
+                    {data.ReceivingArea || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="Classification">
-                    {data.Classification}
+                    {data.Classification || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="PO Number">
-                    {data.PoNumber}
+                    {data.PoNumber || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="Item">
                     {data.Item}
                 </Descriptions.Item>
                 <Descriptions.Item label="Date">
-                    {formatDT(data.Date)}
+                    {formatDateTime(data.Date)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Delivery Date">
-                    {formatDT(data.DeliveryDate)}
+                    {formatDateTime(data.DeliveryDate)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Delivery Period">
                     {data.DeliveryPeriod}
@@ -187,29 +180,31 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
                     <Descriptions bordered size="small" column={3} style={{ marginBottom: 16 }}>
                         <Descriptions.Item label="Status" span={2}>
                             <Tag color={STATUS_COLORS[shoppingStatus.status] || 'default'}>
-                                {shoppingStatus.status}
+                                {shoppingStatus.status || '-'}
                             </Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="Forecast Qty">
-                            {shoppingStatus.forecastQty}
+                            {shoppingStatus.forecastQty ?? '-'}
                         </Descriptions.Item>
                     </Descriptions>
 
-                    <div style={{ marginBottom: 8 }}>
-                        <Text strong>Progress: </Text>
-                        <Text>{shoppingStatus.progress.completedMaterials}/{shoppingStatus.progress.totalMaterials} materials completed</Text>
-                        <Progress
-                            percent={shoppingStatus.progress.totalPickedPercent}
-                            size="small"
-                            status={shoppingStatus.progress.completedMaterials === shoppingStatus.progress.totalMaterials ? 'success' : 'active'}
-                            style={{ marginTop: 4 }}
-                        />
-                    </div>
+                    {shoppingStatus.progress && (
+                        <div style={{ marginBottom: 8 }}>
+                            <Text strong>Progress: </Text>
+                            <Text>{shoppingStatus.progress.completedMaterials ?? 0}/{shoppingStatus.progress.totalMaterials ?? 0} materials completed</Text>
+                            <Progress
+                                percent={shoppingStatus.progress.totalPickedPercent ?? 0}
+                                size="small"
+                                status={shoppingStatus.progress.completedMaterials === shoppingStatus.progress.totalMaterials ? 'success' : 'active'}
+                                style={{ marginTop: 4 }}
+                            />
+                        </div>
+                    )}
 
                     <Table
-                        title={() => <strong>BOM Summary ({shoppingStatus.bomSummary.length})</strong>}
+                        title={() => <strong>BOM Summary ({shoppingStatus.bomSummary?.length ?? 0})</strong>}
                         columns={bomColumns}
-                        dataSource={shoppingStatus.bomSummary}
+                        dataSource={shoppingStatus.bomSummary ?? []}
                         size="small"
                         rowKey="materialId"
                         pagination={false}

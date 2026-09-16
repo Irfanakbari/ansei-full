@@ -30,6 +30,8 @@ const DetailBOMModal: React.FC<Props> = ({ visible, onClose, data }) => {
             title: 'Part Name',
             dataIndex: ['MaterialData', 'PartName'],
             key: 'PartName',
+            width: 250,
+            ellipsis: true,
         },
         {
             title: 'Qty',

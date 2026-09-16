@@ -284,8 +284,8 @@ export default function InventoryCountingPage() {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 100,
-            render: (_: any, record: any) => record.CreatedByName || '-',
+            width: 140,
+            render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-',
         },
     ];
 

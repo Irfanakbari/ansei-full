@@ -129,8 +129,8 @@ export default function PrinterConfigPage() {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 120,
-            render: (_: any, record: any) => record.CreatedByName || '-',
+            width: 140,
+            render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-',
             ...getColumnSearchProps('CreatedBy'),
         },
         {
