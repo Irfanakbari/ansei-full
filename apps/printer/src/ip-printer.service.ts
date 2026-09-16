@@ -2,6 +2,22 @@ import { Injectable, Logger } from "@nestjs/common";
 import * as ipp from "ipp";
 import * as net from "net";
 
+// node-lpr does not currently provide TypeScript declarations.
+const LprClient = require("node-lpr") as new (options: {
+  ip: string;
+  port: number;
+  queue: string;
+}) => {
+  socket: net.Socket;
+  connect(callback: (error?: Error) => void): void;
+  createJob(options: { name: string; data: Buffer }): {
+    send(callback: (error?: Error) => void): void;
+  };
+  disconnect(): void;
+};
+
+const PRINTER_TIMEOUT_MS = 10000;
+
 @Injectable()
 export class IpPrinterService {
   private readonly logger = new Logger(IpPrinterService.name);
@@ -13,7 +29,6 @@ export class IpPrinterService {
   ): Promise<void> {
     this.logger.log(`Preparing to print ${jobName} to ${printerIpOrUrl}`);
 
-    // Check if it's an HTTP/IPP URL
     if (
       printerIpOrUrl.startsWith("http://") ||
       printerIpOrUrl.startsWith("https://") ||
@@ -22,7 +37,13 @@ export class IpPrinterService {
       return this.printViaIpp(pdfBuffer, printerIpOrUrl, jobName);
     }
 
-    // Otherwise try TCP raw printing on port 9100 (standard raw printing port)
+    if (
+      printerIpOrUrl.startsWith("lpr://") ||
+      printerIpOrUrl.startsWith("lpd://")
+    ) {
+      return this.printViaLpr(pdfBuffer, printerIpOrUrl, jobName);
+    }
+
     return this.printViaRawTcp(pdfBuffer, printerIpOrUrl);
   }
 
@@ -62,6 +83,86 @@ export class IpPrinterService {
           );
         }
         resolve();
+      });
+    });
+  }
+
+  private printViaLpr(
+    buffer: Buffer,
+    printerUrl: string,
+    jobName: string,
+  ): Promise<void> {
+    let parsed: URL;
+    try {
+      parsed = new URL(printerUrl);
+    } catch {
+      return Promise.reject(
+        new Error(`[LPR URL Error] URL printer tidak valid: ${printerUrl}`),
+      );
+    }
+
+    const host = parsed.hostname;
+    const port = Number(parsed.port || 515);
+    const queue = decodeURIComponent(parsed.pathname.replace(/^\//, ""));
+    if (
+      !host ||
+      !queue ||
+      !Number.isInteger(port) ||
+      port < 1 ||
+      port > 65535
+    ) {
+      return Promise.reject(
+        new Error(
+          `[LPR Configuration Error] URL LPR harus memiliki host dan queue, contoh lpr://192.168.1.10:515/printer`,
+        ),
+      );
+    }
+
+    return new Promise((resolve, reject) => {
+      const printer = new LprClient({ ip: host, port, queue });
+      const timeout = setTimeout(() => {
+        printer.disconnect();
+        reject(
+          new Error(
+            `[LPR Timeout] Print server ${host}:${port}/${queue} tidak merespons`,
+          ),
+        );
+      }, 10000);
+      printer.socket.once("error", (error: Error) => {
+        clearTimeout(timeout);
+        printer.disconnect();
+        reject(
+          new Error(
+            `[LPR Socket Error] Gagal terhubung ke ${host}:${port}: ${error.message}`,
+          ),
+        );
+      });
+      printer.connect((connectError?: Error) => {
+        if (connectError) {
+          clearTimeout(timeout);
+          printer.disconnect();
+          return reject(
+            new Error(
+              `[LPR Connection Error] Gagal terhubung ke ${host}:${port}/${queue}: ${connectError.message}`,
+            ),
+          );
+        }
+        const job = printer.createJob({ name: jobName, data: buffer });
+        job.send((sendError?: Error) => {
+          clearTimeout(timeout);
+          printer.disconnect();
+          if (sendError) {
+            return reject(
+              new Error(
+                `[LPR Send Error] Print server menolak queue ${queue}: ${sendError.message}`,
+              ),
+            );
+          }
+          this.logger.log(
+            `LPR PDF print job submitted successfully to ${host}:${port}/${queue}`,
+          );
+          resolve();
+        });
       });
     });
   }

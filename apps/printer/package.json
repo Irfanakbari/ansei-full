@@ -25,6 +25,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "bullmq": "^5.41.0",
     "ipp": "^2.0.1",
+    "node-lpr": "^0.0.1",
     "pdf-lib": "^1.17.1",
     "pdfmake": "^0.2.18",
     "pg": "^8.21.0",

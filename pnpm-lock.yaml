@@ -218,6 +218,9 @@ importers:
       ipp:
         specifier: ^2.0.1
         version: 2.0.1
+      node-lpr:
+        specifier: ^0.0.1
+        version: 0.0.1
       pdf-lib:
         specifier: ^1.17.1
         version: 1.17.1
@@ -5570,6 +5573,9 @@ packages:
 
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
+
+  node-lpr@0.0.1:
+    resolution: {integrity: sha512-xnEkBkNDxg8HUeKRsLNrcza2wF1Eb61tUP6GoCdiEKTXcIDxgje6tzG0SnZyPzgRX3Gc7yGCVbb1gywypNQmFw==}
 
   node-releases@2.0.53:
     resolution: {integrity: sha512-D9UOmYG3UH1V+ENW56t5QXBwJw1YEY18ruVeus89Rw+SyIgjPkCO84bRzO3uNIYosJbNwiabWVn48o3uJLjxFQ==}
@@ -12836,6 +12842,8 @@ snapshots:
     optional: true
 
   node-int64@0.4.0: {}
+
+  node-lpr@0.0.1: {}
 
   node-releases@2.0.53: {}
 
