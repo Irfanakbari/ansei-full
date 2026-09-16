@@ -324,6 +324,7 @@ model Forecast {
   Shopping           Shopping[]
   ProductionRelease  ProductionRelease?  @relation(fields: [ProductionReleaseId], references: [Id])
   AttachmentDelivery DeliveryAttachment? @relation(fields: [AttachmentDeliveryId], references: [id])
+  ProductionReport   ProductionReport[]
 
   @@index([FinishGoodId], map: "Forecast_finishGoodId_fkey")
   @@index([DeliveryDate])
@@ -433,11 +434,14 @@ model ProductionReport {
   Qty             Int       @default(0)
   ManPowerUid     String
   FinishGoodId    String
+  ForecastId      String?
 
   ManPowerData ManPower   @relation(fields: [ManPowerUid], references: [Uid])
   FGData       FinishGood @relation(fields: [FinishGoodId], references: [PartNumber])
+  ForecastData Forecast?  @relation(fields: [ForecastId], references: [PoId])
 
   @@unique([Date, ManPowerUid, FinishGoodId, CreatedAt])
+  @@index([ForecastId])
 }
 
 model LabelData {

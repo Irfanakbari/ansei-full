@@ -10,7 +10,15 @@ import {
   UpdateProductionReportDto,
   ProductionReportQueryDto,
 } from './dto';
-import type { LogProcessModel } from '../../generated/prisma/models';
+import type {
+  LogProcessModel,
+  ForecastModel,
+  ProductionReleaseModel,
+} from '../../generated/prisma/models';
+import {
+  PokayokeCompareStatus,
+  ProductionStatus,
+} from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
 
 @Injectable()
@@ -35,8 +43,16 @@ export class ProductionReportService {
       where.ManPowerUid = query.manPowerUid;
     }
 
+    if (query.nik) {
+      where.ManPowerData = { Nik: query.nik };
+    }
+
     if (query.finishGoodId) {
       where.FinishGoodId = query.finishGoodId;
+    }
+
+    if (query.forecastId) {
+      where.ForecastId = query.forecastId;
     }
 
     if (query.recordType) {
@@ -67,6 +83,13 @@ export class ProductionReportService {
             select: {
               PartNumber: true,
               PartName: true,
+            },
+          },
+          ForecastData: {
+            select: {
+              PoId: true,
+              PoNumber: true,
+              VendorName: true,
             },
           },
         },
@@ -110,8 +133,10 @@ export class ProductionReportService {
         qty: item.Qty,
         manPowerUid: item.ManPowerUid,
         finishGoodId: item.FinishGoodId,
+        forecastId: item.ForecastId,
         manPowerData: item.ManPowerData,
         fgData: item.FGData,
+        forecastData: item.ForecastData,
       })),
       meta: {
         page,
@@ -137,6 +162,13 @@ export class ProductionReportService {
           select: {
             PartNumber: true,
             PartName: true,
+          },
+        },
+        ForecastData: {
+          select: {
+            PoId: true,
+            PoNumber: true,
+            VendorName: true,
           },
         },
       },
@@ -178,18 +210,28 @@ export class ProductionReportService {
       // POKAYOKE 3: Validate record doesn't already exist (unique constraint)
       await this.validateRecordNotExists(dto, logProcess.ProcessId);
 
-      // POKAYOKE 4: Validate FinishGood is in a RELEASED ProductionRelease
-      await this.validateFinishGoodInReleasedProduction(
-        dto.finishGoodId,
-        logProcess.ProcessId,
-      );
+      // POKAYOKE 4: Validate Forecast / ProductionRelease / PokayokeScanHistory
+      const forecastPoId = dto.forecastId || dto.poId;
+      if (forecastPoId) {
+        await this.validateForecastForProductionReport(
+          forecastPoId,
+          dto.finishGoodId,
+          logProcess.ProcessId,
+        );
+      } else {
+        // Fallback: Validate FinishGood is in a RELEASED ProductionRelease
+        await this.validateFinishGoodInReleasedProduction(
+          dto.finishGoodId,
+          logProcess.ProcessId,
+        );
+      }
 
       // Build data for creation
       const createData = this.buildCreateData(dto);
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Creating production report with data: Date=${dto.date}, RecordType=${dto.recordType}`,
+        message: `Creating production report with data: Date=${dto.date}, RecordType=${dto.recordType}, ForecastId=${createData.ForecastId ?? '-'}`,
         type: 'INFO',
         location: 'production-report.service.ts:145',
       });
@@ -208,6 +250,13 @@ export class ProductionReportService {
             select: {
               PartNumber: true,
               PartName: true,
+            },
+          },
+          ForecastData: {
+            select: {
+              PoId: true,
+              PoNumber: true,
+              VendorName: true,
             },
           },
         },
@@ -651,24 +700,34 @@ export class ProductionReportService {
     dto: CreateProductionReportDto,
     processId: string,
   ): Promise<void> {
-    // Check for duplicate record based on unique constraint: Date, ManPowerUid, FinishGoodId, CreatedAt
+    // Note: Multiple operators can work on the same PoId ("kadang 1 poid bsa dikerjakan oleh 2 org jdi jgn kunci unik")
+    if (!dto.date) {
+      return;
+    }
+
+    const where: Prisma.ProductionReportWhereInput = {
+      Date: dto.date,
+      ManPowerUid: dto.manPowerUid,
+      FinishGoodId: dto.finishGoodId,
+    };
+
+    if (dto.time) {
+      where.Time = dto.time;
+    }
+
     const existing = await this.prisma.productionReport.findFirst({
-      where: {
-        Date: dto.date,
-        ManPowerUid: dto.manPowerUid,
-        FinishGoodId: dto.finishGoodId,
-      },
+      where,
     });
 
     if (existing) {
       await this.logService.addLog({
         processId,
-        message: `POKAYOKE FAILED: Duplicate record found for Date=${dto.date}, ManPower=${dto.manPowerUid}, FinishGood=${dto.finishGoodId}`,
+        message: `POKAYOKE FAILED: Duplicate record found for Date=${dto.date}, Time=${dto.time}, ManPower=${dto.manPowerUid}, FinishGood=${dto.finishGoodId}`,
         type: 'ERROR',
-        location: 'production-report.service.ts:560',
+        location: 'production-report.service.ts:validateRecordNotExists',
       });
       throw new BadRequestException(
-        `POKAYOKE: Production report already exists for Date=${dto.date}, ManPower=${dto.manPowerUid}, FinishGood=${dto.finishGoodId}. Duplicate not allowed.`,
+        `POKAYOKE: Production report already exists for Date=${dto.date}${dto.time ? ` Time=${dto.time}` : ''}, ManPower=${dto.manPowerUid}, FinishGood=${dto.finishGoodId}. Duplicate not allowed.`,
       );
     }
 
@@ -676,7 +735,103 @@ export class ProductionReportService {
       processId,
       message: `POKAYOKE: No duplicate record found`,
       type: 'INFO',
-      location: 'production-report.service.ts:572',
+      location: 'production-report.service.ts:validateRecordNotExists',
+    });
+  }
+
+  private async validateForecastForProductionReport(
+    forecastPoId: string,
+    finishGoodId: string,
+    processId: string,
+  ): Promise<void> {
+    const forecast = await this.prisma.forecast.findUnique({
+      where: { PoId: forecastPoId },
+      include: {
+        ProductionRelease: true,
+      },
+    });
+
+    if (!forecast) {
+      await this.logService.addLog({
+        processId,
+        message: `POKAYOKE FAILED: Forecast with PoId ${forecastPoId} not found`,
+        type: 'ERROR',
+        location:
+          'production-report.service.ts:validateForecastForProductionReport',
+      });
+      throw new BadRequestException(
+        `POKAYOKE: Forecast dengan PO ID "${forecastPoId}" tidak ditemukan. Data tidak dapat diterima.`,
+      );
+    }
+
+    // Condition 1: Must already exist in PokayokeScanHistory (with Status SUKSES)
+    const pokayokeScan = await this.prisma.pokayokeScanHistory.findFirst({
+      where: {
+        PoId: forecast.PoId,
+        Status: PokayokeCompareStatus.SUKSES,
+      },
+    });
+
+    if (!pokayokeScan) {
+      await this.logService.addLog({
+        processId,
+        message: `POKAYOKE FAILED: Forecast ${forecastPoId} has no SUKSES PokayokeScanHistory`,
+        type: 'ERROR',
+        location:
+          'production-report.service.ts:validateForecastForProductionReport',
+      });
+      throw new BadRequestException(
+        `POKAYOKE: Forecast dengan PO ID "${forecastPoId}" belum dilakukan scan Pokayoke (SUKSES). Data tidak dapat diterima.`,
+      );
+    }
+
+    // Condition 2: ProductionRelease must exist and must NOT be closed (Status must be RELEASED)
+    if (!forecast.ProductionRelease) {
+      await this.logService.addLog({
+        processId,
+        message: `POKAYOKE FAILED: Forecast ${forecastPoId} is not linked to any ProductionRelease`,
+        type: 'ERROR',
+        location:
+          'production-report.service.ts:validateForecastForProductionReport',
+      });
+      throw new BadRequestException(
+        `POKAYOKE: Forecast dengan PO ID "${forecastPoId}" belum dijadwalkan dalam Production Release. Data tidak dapat diterima.`,
+      );
+    }
+
+    if (forecast.ProductionRelease.Status !== ProductionStatus.RELEASED) {
+      await this.logService.addLog({
+        processId,
+        message: `POKAYOKE FAILED: ProductionRelease ${forecast.ProductionRelease.ReleaseNumber} status is ${forecast.ProductionRelease.Status} (closed or not RELEASED)`,
+        type: 'ERROR',
+        location:
+          'production-report.service.ts:validateForecastForProductionReport',
+      });
+      throw new BadRequestException(
+        `POKAYOKE: Production Release (${forecast.ProductionRelease.ReleaseNumber}) berstatus ${forecast.ProductionRelease.Status} (sudah close atau tidak aktif). Data tidak dapat diterima.`,
+      );
+    }
+
+    // Check finishGoodId matches forecast's finishGoodId if provided
+    if (finishGoodId && forecast.FinishGoodId !== finishGoodId) {
+      await this.logService.addLog({
+        processId,
+        message: `POKAYOKE FAILED: FinishGood mismatch. DTO=${finishGoodId}, Forecast=${forecast.FinishGoodId}`,
+        type: 'ERROR',
+        location:
+          'production-report.service.ts:validateForecastForProductionReport',
+      });
+      throw new BadRequestException(
+        `POKAYOKE: Finish Good "${finishGoodId}" tidak sesuai dengan Finish Good pada Forecast "${forecast.FinishGoodId}".`,
+      );
+    }
+
+    await this.logService.addLog({
+      processId,
+      message: `POKAYOKE: Forecast ${forecastPoId} validated (Pokayoke SUKSES confirmed, ProductionRelease ${forecast.ProductionRelease.ReleaseNumber} is RELEASED)`,
+      type: 'INFO',
+      location:
+        'production-report.service.ts:validateForecastForProductionReport',
     });
   }
 
@@ -722,6 +877,7 @@ export class ProductionReportService {
 
   // ========== HELPER METHODS ==========
   private buildCreateData(dto: CreateProductionReportDto) {
+    const forecastPoId = dto.forecastId || dto.poId;
     return {
       Date: dto.date,
       Time: dto.time,
@@ -745,11 +901,12 @@ export class ProductionReportService {
       ActuatorDate: dto.actuatorDate,
       BackPlateDate: dto.backPlateDate,
       StampDate: dto.stampDate,
-      PoNumber: dto.poNumber,
+      PoNumber: dto.poNumber || forecastPoId || null,
       RecordType: dto.recordType,
       Qty: dto.qty,
       ManPowerUid: dto.manPowerUid,
       FinishGoodId: dto.finishGoodId,
+      ForecastId: forecastPoId || null,
     };
   }
 
@@ -784,8 +941,139 @@ export class ProductionReportService {
     if (dto.poNumber !== undefined) data.PoNumber = dto.poNumber;
     if (dto.recordType !== undefined) data.RecordType = dto.recordType;
     if (dto.qty !== undefined) data.Qty = dto.qty;
+    if (dto.forecastId !== undefined) data.ForecastId = dto.forecastId;
 
     return data;
+  }
+
+  // ========== OPERATOR DISPLAY PUBLIC HELPERS ==========
+  async findByOperatorNik(nik: string, date?: string, limit: number = 20) {
+    const manPower = await this.prisma.manPower.findFirst({
+      where: {
+        OR: [{ Nik: nik }, { Uid: nik }],
+      },
+      select: { Uid: true, Nik: true, Name: true, Line: true },
+    });
+
+    if (!manPower) {
+      return {
+        operator: null,
+        data: [],
+      };
+    }
+
+    const where: Prisma.ProductionReportWhereInput = {
+      ManPowerUid: manPower.Uid,
+    };
+
+    if (date) {
+      where.Date = date;
+    }
+
+    const reports = await this.prisma.productionReport.findMany({
+      where,
+      include: {
+        FGData: {
+          select: {
+            PartNumber: true,
+            PartName: true,
+          },
+        },
+        ForecastData: {
+          select: {
+            PoId: true,
+            PoNumber: true,
+            VendorName: true,
+          },
+        },
+      },
+      orderBy: [{ ProductionStamp: 'desc' }, { Id: 'desc' }],
+      take: limit,
+    });
+
+    return {
+      operator: manPower,
+      data: reports.map((item) => ({
+        id: item.Id,
+        date: item.Date,
+        time: item.Time,
+        productionStamp: item.ProductionStamp,
+        qty: item.Qty,
+        ngQty: item.NgQty,
+        recordType: item.RecordType,
+        finishGoodId: item.FinishGoodId,
+        partName: item.FGData?.PartName ?? '-',
+        forecastId: item.ForecastId,
+        poNumber: item.PoNumber,
+        vendorName: item.ForecastData?.VendorName ?? null,
+        validatedAt: item.ValidatedAt,
+        validatedBy: item.ValidatedBy,
+        createdAt: item.CreatedAt,
+        startTime: item.StartTime,
+        endTime: item.EndTime,
+        stopMinute: item.StopMinute,
+      })),
+    };
+  }
+
+  async getActiveForecasts(finishGoodId?: string) {
+    const where: Prisma.ForecastWhereInput = {
+      ProductionRelease: {
+        Status: ProductionStatus.RELEASED,
+      },
+      ...(finishGoodId ? { FinishGoodId: finishGoodId } : {}),
+    };
+
+    const candidates = await this.prisma.forecast.findMany({
+      where,
+      include: {
+        ProductionRelease: {
+          select: {
+            Id: true,
+            ReleaseNumber: true,
+            PlanDate: true,
+            Status: true,
+          },
+        },
+        PartData: {
+          select: {
+            PartNumber: true,
+            PartName: true,
+          },
+        },
+      },
+      orderBy: { DeliveryDate: 'asc' },
+    });
+
+    if (candidates.length === 0) {
+      return [];
+    }
+
+    const poIds = candidates.map((c) => c.PoId);
+    const pokayokeScans = await this.prisma.pokayokeScanHistory.findMany({
+      where: {
+        PoId: { in: poIds },
+        Status: PokayokeCompareStatus.SUKSES,
+      },
+      select: {
+        PoId: true,
+      },
+    });
+
+    const scannedPoIdSet = new Set(pokayokeScans.map((p) => p.PoId));
+
+    return candidates
+      .filter((c) => scannedPoIdSet.has(c.PoId))
+      .map((c) => ({
+        poId: c.PoId,
+        poNumber: c.PoNumber,
+        finishGoodId: c.FinishGoodId,
+        partName: c.PartData?.PartName ?? '',
+        deliveryDate: c.DeliveryDate,
+        qty: c.Qty,
+        vendorName: c.VendorName,
+        releaseNumber: c.ProductionRelease?.ReleaseNumber ?? '',
+      }));
   }
 
   private async updateProductionReleaseTotals(

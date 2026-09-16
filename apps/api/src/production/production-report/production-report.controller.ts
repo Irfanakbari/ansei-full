@@ -47,6 +47,34 @@ export class ProductionReportController {
     return this.productionReportService.findAll(query);
   }
 
+  @Get('operator-history/:nik')
+  @Public()
+  @ApiOperation({
+    summary:
+      'Get production report history by operator NIK (Public - for Operator Station)',
+  })
+  async getOperatorHistory(
+    @Param('nik') nik: string,
+    @Query('date') date?: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.productionReportService.findByOperatorNik(
+      nik,
+      date,
+      limit ? Number(limit) : undefined,
+    );
+  }
+
+  @Get('active-forecasts')
+  @Public()
+  @ApiOperation({
+    summary:
+      'Get active forecasts with Pokayoke Scan History (Public - for Operator Station)',
+  })
+  async getActiveForecasts(@Query('finishGoodId') finishGoodId?: string) {
+    return this.productionReportService.getActiveForecasts(finishGoodId);
+  }
+
   @Get(':id')
   @Permission('IPCS.PRODUCTION_REPORT_READ')
   @ApiOperation({

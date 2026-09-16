@@ -40,10 +40,20 @@ export class ProductionReportQueryDto {
   @IsString()
   manPowerUid?: string;
 
+  @ApiPropertyOptional({ description: 'Filter by ManPower NIK' })
+  @IsOptional()
+  @IsString()
+  nik?: string;
+
   @ApiPropertyOptional({ description: 'Filter by FinishGood PartNumber' })
   @IsOptional()
   @IsString()
   finishGoodId?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by Forecast PO ID (PoId)' })
+  @IsOptional()
+  @IsString()
+  forecastId?: string;
 
   @ApiPropertyOptional({ description: 'Filter by RecordType', enum: PartType })
   @IsOptional()

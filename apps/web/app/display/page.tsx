@@ -10,11 +10,14 @@ import {
     UserOutlined,
     ReloadOutlined,
     CheckCircleOutlined,
+    FormOutlined,
+    HistoryOutlined,
 } from '@ant-design/icons';
 import { Button, Modal, Form, Select, App, Spin, Tag, Avatar } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import { fetchActiveDisplayConfig } from '@/store/features/display/displaySlice';
+import OperatorReportModal from './_components/OperatorReportModal';
 
 export interface DisplayManPower {
     Nik: string;
@@ -106,6 +109,8 @@ export default function DisplayPage() {
 
     // Modal and options state
     const [isConfigOpen, setIsConfigOpen] = useState(false);
+    const [isReportOpen, setIsReportOpen] = useState(false);
+    const [reportInitialTab, setReportInitialTab] = useState<'form' | 'history'>('form');
     const [manPowerList, setManPowerList] = useState<DisplayManPower[]>([]);
     const [finishGoodsList, setFinishGoodsList] = useState<DisplayFinishGood[]>([]);
     const [loadingOptions, setLoadingOptions] = useState(false);
@@ -273,6 +278,11 @@ export default function DisplayPage() {
         await displayRef.current?.requestFullscreen();
     }, []);
 
+    const handleOpenReportModal = (tab: 'form' | 'history' = 'form') => {
+        setReportInitialTab(tab);
+        setIsReportOpen(true);
+    };
+
     const handleOpenConfig = () => {
         setIsConfigOpen(true);
         setLoadingOptions(true);
@@ -367,7 +377,23 @@ export default function DisplayPage() {
                         </span>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <Button
+                        type="primary"
+                        icon={<FormOutlined />}
+                        onClick={() => handleOpenReportModal('form')}
+                        className="bg-blue-600 hover:bg-blue-500 font-semibold shadow-xs"
+                    >
+                        Input Laporan
+                    </Button>
+                    <Button
+                        type="default"
+                        icon={<HistoryOutlined />}
+                        onClick={() => handleOpenReportModal('history')}
+                        className="border-slate-300 text-slate-700 hover:text-blue-600 hover:border-blue-500 font-medium"
+                    >
+                        Riwayat
+                    </Button>
                     <Button
                         type="default"
                         icon={<SettingOutlined />}
@@ -668,6 +694,17 @@ export default function DisplayPage() {
                     </Spin>
                 </div>
             </Modal>
+
+            {/* Operator Report & History Modal */}
+            <OperatorReportModal
+                open={isReportOpen}
+                onClose={() => setIsReportOpen(false)}
+                activeNik={stationConfig.selectedNik ?? stationConfig.manpower?.Nik ?? null}
+                activePartNumber={stationConfig.selectedPartNumber ?? stationConfig.finishGood?.PartNumber ?? null}
+                manPowerName={activeManPower?.Name}
+                finishGoodName={activeFinishGood?.PartName}
+                initialTab={reportInitialTab}
+            />
         </main>
     );
 }

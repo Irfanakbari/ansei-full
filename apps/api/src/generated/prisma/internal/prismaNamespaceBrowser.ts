@@ -383,7 +383,8 @@ export const ProductionReportScalarFieldEnum = {
   RecordType: 'RecordType',
   Qty: 'Qty',
   ManPowerUid: 'ManPowerUid',
-  FinishGoodId: 'FinishGoodId'
+  FinishGoodId: 'FinishGoodId',
+  ForecastId: 'ForecastId'
 } as const
 
 export type ProductionReportScalarFieldEnum = (typeof ProductionReportScalarFieldEnum)[keyof typeof ProductionReportScalarFieldEnum]

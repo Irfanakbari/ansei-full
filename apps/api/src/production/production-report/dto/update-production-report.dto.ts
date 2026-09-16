@@ -144,4 +144,9 @@ export class UpdateProductionReportDto {
   @IsOptional()
   @IsString()
   finishGoodId?: string;
+
+  @ApiPropertyOptional({ description: 'Forecast PO ID (PoId)' })
+  @IsOptional()
+  @IsString()
+  forecastId?: string;
 }

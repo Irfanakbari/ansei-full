@@ -43,10 +43,17 @@ export interface ProductionReportEntity {
     qty: number;
     manPowerUid: string;
     finishGoodId: string;
+    forecastId?: string | null;
+    poNumber?: string | null;
     validatedAt: string | null;
     validatedBy: string | null;
     manPowerData: ManPowerData | null;
     fgData: FGData | null;
+    forecastData?: {
+        PoId: string;
+        PoNumber: string;
+        VendorName: string;
+    } | null;
 }
 
 // Query params interface
@@ -56,6 +63,7 @@ export interface ProductionReportQuery {
     date?: string;
     manPowerUid?: string;
     finishGoodId?: string;
+    forecastId?: string;
     recordType?: PartType;
     isValidated?: boolean;
 }

@@ -71,6 +71,8 @@ const CreateProductionReportModal: React.FC<Props> = ({ visible, onClose, onSucc
                 backPlateDate: values.backPlateDate?.format('YYYY-MM-DD') || undefined,
                 stampDate: values.stampDate?.format('YYYY-MM-DD') || undefined,
                 poNumber: values.poNumber || undefined,
+                forecastId: values.poNumber || undefined,
+                poId: values.poNumber || undefined,
                 recordType: values.recordType,
                 qty: values.qty,
                 manPowerUid: values.manPowerUid,

@@ -146,4 +146,14 @@ export class CreateProductionReportDto {
   @ApiProperty({ description: 'FinishGood PartNumber' })
   @IsString()
   finishGoodId: string;
+
+  @ApiPropertyOptional({ description: 'Forecast PO ID (PoId)' })
+  @IsOptional()
+  @IsString()
+  forecastId?: string;
+
+  @ApiPropertyOptional({ description: 'Alias for Forecast PO ID (PoId)' })
+  @IsOptional()
+  @IsString()
+  poId?: string;
 }

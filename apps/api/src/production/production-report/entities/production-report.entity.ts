@@ -34,6 +34,7 @@ export class ProductionReportEntity {
   @ApiProperty() qty: number;
   @ApiProperty() manPowerUid: string;
   @ApiProperty() finishGoodId: string;
+  @ApiPropertyOptional() forecastId?: string | null;
 
   // Relations
   @ApiPropertyOptional() manPowerData?: {
@@ -44,6 +45,11 @@ export class ProductionReportEntity {
   @ApiPropertyOptional() fgData?: {
     PartNumber: string;
     PartName: string;
+  };
+  @ApiPropertyOptional() forecastData?: {
+    PoId: string;
+    PoNumber: string;
+    VendorName: string;
   };
 }
 
