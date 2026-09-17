@@ -125,7 +125,7 @@ describe('MaterialService', () => {
 
       expect(result.data).toEqual(expectedMaterials);
       expect(prismaService.material.findMany).toHaveBeenCalledWith({
-        include: { SatuanData: true },
+        include: { SatuanData: true, SupplierData: true },
         orderBy: [{ Id: 'asc' }],
         skip: 0,
         take: 50,
@@ -152,7 +152,7 @@ describe('MaterialService', () => {
       expect(result).toEqual(mockMaterial);
       expect(prismaService.material.findUnique).toHaveBeenCalledWith({
         where: { Id: 1 },
-        include: { SatuanData: true },
+        include: { SatuanData: true, SupplierData: true },
       });
     });
 
@@ -172,7 +172,7 @@ describe('MaterialService', () => {
       expect(result).toEqual(mockMaterial);
       expect(prismaService.material.findUnique).toHaveBeenCalledWith({
         where: { PartNumber: 'MAT-001' },
-        include: { SatuanData: true },
+        include: { SatuanData: true, SupplierData: true },
       });
     });
 

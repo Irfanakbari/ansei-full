@@ -66,6 +66,7 @@ describe('MrpService', () => {
       FinishGoodId: 'FG-001',
       DeliveryDate: new Date(),
       Qty: 10,
+      DeliveryHistory: [],
     },
   ];
 
@@ -76,6 +77,12 @@ describe('MrpService', () => {
       },
       incomingMaterial: {
         groupBy: jest.fn(),
+      },
+      materialDeliveryNoteDetail: {
+        groupBy: jest.fn().mockResolvedValue([]),
+      },
+      shopping: {
+        groupBy: jest.fn().mockResolvedValue([]),
       },
       billOfMaterials: {
         findMany: jest.fn(),
@@ -312,6 +319,7 @@ describe('MrpService', () => {
           FinishGoodId: 'FG-001',
           DeliveryDate: today,
           Qty: 200,
+          DeliveryHistory: [],
         },
       ];
 
