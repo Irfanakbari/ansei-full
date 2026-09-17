@@ -340,6 +340,35 @@ export const downloadWorksheet = createAsyncThunk<
     }
 );
 
+// Generate Temporary Report
+export const generateTemporaryReport = createAsyncThunk<
+    { success: boolean; filename: string },
+    { inventoryCountingId: string; tolerance: number },
+    { rejectValue: string }
+>(
+    'inventoryCounting/generateTemporaryReport',
+    async ({ inventoryCountingId, tolerance }, { rejectWithValue }) => {
+        try {
+            const blob = await postBlob('/inventory-counting/generate-temporary-report', { id: inventoryCountingId, tolerance });
+            const filename = `Inventory_Temporary_Report_${inventoryCountingId}.xlsx`;
+
+            // Trigger download directly
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            return { success: true, filename };
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to download temporary report'));
+        }
+    }
+);
+
 // Download Snapshot Excel
 export const downloadSnapshot = createAsyncThunk<
     { success: boolean; filename: string },

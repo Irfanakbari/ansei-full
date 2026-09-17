@@ -2,16 +2,17 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Modal, Table, Tag, Button, Space, Input, Descriptions, Statistic, Card, Row, Col, App, Tabs, Popconfirm } from 'antd';
+import { Modal, Table, Tag, Button, Space, Input, Descriptions, Progress, App, Select, InputNumber } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import {
     updateActualStock,
     fetchInventoryCountingDetails,
+    generateTemporaryReport,
     InventoryCountingEntity,
     InventoryCountingDetailEntity,
 } from '@/store/features/warehouse/inventoryCounting/inventoryCountingSlice';
-import { InboxOutlined, SaveOutlined, SyncOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { SaveOutlined, CheckCircleOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import ReviewApprovalModal from './ReviewApprovalModal';
 
 export interface MergedCountingDetail extends InventoryCountingDetailEntity {
@@ -39,13 +40,19 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
     const { user } = useSelector((state: RootState) => state.auth);
 
     const [details, setDetails] = useState<MergedCountingDetail[]>([]);
-    const [editingKey, setEditingKey] = useState<number | null>(null);
-    const [editingWarehouse, setEditingWarehouse] = useState<number | null>(null);
-    const [editingRack, setEditingRack] = useState<number | null>(null);
-    const [updatingId, setUpdatingId] = useState<number | null>(null);
-    const [activeTab, setActiveTab] = useState<string>('all');
+    const [editedValues, setEditedValues] = useState<Record<number, { wh?: number, rack?: number }>>({});
+    const [updating, setUpdating] = useState(false);
+    
+    // Filters
+    const [searchText, setSearchText] = useState('');
+    const [locationFilter, setLocationFilter] = useState('all');
+
     const [loading, setLoading] = useState(false);
     const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
+    
+    // Tolerance state
+    const [tolerance, setTolerance] = useState<number>(5);
+    const [downloadingTemp, setDownloadingTemp] = useState(false);
 
     const canApprove = Boolean(
         user?.RoleName === 'SUPER' ||
@@ -60,12 +67,12 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
             const loadDetails = async () => {
                 try {
                     setLoading(true);
+                    setEditedValues({});
                     const result = await dispatch(fetchInventoryCountingDetails(data.Id));
                     if (fetchInventoryCountingDetails.fulfilled.match(result)) {
                         const fetchedDetails = Array.isArray(result.payload) ? result.payload : (result.payload as any)?.data || [];
 
                         if (data.Category === 'MATERIAL') {
-                            // Group by MaterialId for dual warehouse & rack display
                             const materialMap = new Map<string, MergedCountingDetail>();
 
                             fetchedDetails.forEach((d: InventoryCountingDetailEntity) => {
@@ -102,7 +109,6 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
 
                             setDetails(Array.from(materialMap.values()));
                         } else {
-                            // FINISH_GOOD: each row is independent
                             setDetails(
                                 fetchedDetails.map((d: InventoryCountingDetailEntity) => ({
                                     ...d,
@@ -121,17 +127,24 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
         }
     }, [visible, data?.Id, data?.Category, dispatch, antMessage]);
 
-    // Get unique locations
+    // Get unique locations for dropdown
     const locations = useMemo(() => {
         const locs = [...new Set(details.map(d => d.Location).filter(Boolean))];
         return locs.sort();
     }, [details]);
 
-    // Filter by location only
+    // Apply filters
     const filteredDetails = useMemo(() => {
-        if (activeTab === 'all') return details;
-        return details.filter(d => d.Location === activeTab);
-    }, [details, activeTab]);
+        return details.filter(d => {
+            const matchLoc = locationFilter === 'all' || d.Location === locationFilter;
+            const searchStr = searchText.toLowerCase();
+            const matchSearch = searchStr.length < 1 || 
+                (d.MaterialId?.toLowerCase().includes(searchStr)) || 
+                (d.FinishGoodId?.toLowerCase().includes(searchStr)) || 
+                (d.Notes?.toLowerCase().includes(searchStr));
+            return matchLoc && matchSearch;
+        });
+    }, [details, locationFilter, searchText]);
 
     // Completed count
     const completedItems = useMemo(() => {
@@ -146,83 +159,86 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
     const totalItems = details.length;
     const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
-    const handleStartEditWarehouse = (record: MergedCountingDetail) => {
-        setEditingKey(record.Id);
-        setEditingWarehouse(record.ActualQty ?? 0);
-        setEditingRack(record.ActualQtyRack ?? 0);
+    const handleActualChange = (recordId: number, type: 'wh' | 'rack', val: number | null) => {
+        setEditedValues(prev => ({
+            ...prev,
+            [recordId]: {
+                ...prev[recordId],
+                [type]: val
+            }
+        }));
     };
 
-    const handleStartEditRack = (record: MergedCountingDetail) => {
-        setEditingKey(record.Id);
-        setEditingWarehouse(record.ActualQty ?? 0);
-        setEditingRack(record.ActualQtyRack ?? 0);
-    };
-
-    const handleSaveEdit = async (record: MergedCountingDetail) => {
-        const warehouseVal = editingWarehouse ?? record.ActualQty ?? 0;
-        const rackVal = editingRack ?? record.ActualQtyRack ?? 0;
-
-        if (warehouseVal < 0 || (data?.Category === 'MATERIAL' && rackVal < 0)) {
-            antMessage.error('Qty must be >= 0');
+    const handleSavePageChanges = async () => {
+        const keys = Object.keys(editedValues).map(Number);
+        if (keys.length === 0) {
+            antMessage.info('No changes to save');
             return;
         }
 
+        setUpdating(true);
         try {
-            setUpdatingId(record.Id);
+            const promises = keys.map(async (recordId) => {
+                const record = details.find(d => d.Id === recordId);
+                if (!record) return;
 
-            const detailIdToUpdate = record.warehouseDetailId || record.rackDetailId || record.Id;
-            const dto = data?.Category === 'MATERIAL'
-                ? {
-                    actualQty: warehouseVal,
-                    actualQtyRack: rackVal,
+                const edits = editedValues[recordId];
+                const warehouseVal = edits.wh !== undefined ? edits.wh : (record.ActualQty ?? 0);
+                const rackVal = edits.rack !== undefined ? edits.rack : (record.ActualQtyRack ?? 0);
+
+                if (warehouseVal < 0 || (data?.Category === 'MATERIAL' && rackVal < 0)) {
+                    throw new Error('Qty must be >= 0');
                 }
-                : {
-                    actualQty: warehouseVal,
-                };
 
-            const result = await dispatch(updateActualStock({
-                detailId: detailIdToUpdate,
-                dto,
-            }));
+                const detailIdToUpdate = record.warehouseDetailId || record.rackDetailId || record.Id;
+                const dto = data?.Category === 'MATERIAL'
+                    ? { actualQty: warehouseVal, actualQtyRack: rackVal }
+                    : { actualQty: warehouseVal };
 
-            if (updateActualStock.rejected.match(result)) {
-                throw new Error((result.payload as string) || 'Failed to update stock');
-            }
+                const result = await dispatch(updateActualStock({
+                    detailId: detailIdToUpdate,
+                    dto,
+                }));
 
-            antMessage.success('Stock updated successfully');
+                if (updateActualStock.rejected.match(result)) {
+                    throw new Error((result.payload as string) || 'Failed to update stock');
+                }
 
-            // Update local state
-            setDetails(prevDetails =>
-                prevDetails.map(d =>
-                    d.Id === record.Id
-                        ? {
-                            ...d,
-                            ActualQty: warehouseVal,
-                            ActualQtyRack: data?.Category === 'MATERIAL' ? rackVal : null,
-                            DiffQty: warehouseVal - d.SystemQty,
-                            DiffQtyRack: data?.Category === 'MATERIAL' ? rackVal - d.SystemQtyRack : null,
-                        }
-                        : d
-                )
-            );
+                // Update local state for success
+                setDetails(prev => prev.map(d => d.Id === recordId ? {
+                    ...d,
+                    ActualQty: warehouseVal,
+                    ActualQtyRack: data?.Category === 'MATERIAL' ? rackVal : null,
+                    DiffQty: warehouseVal - d.SystemQty,
+                    DiffQtyRack: data?.Category === 'MATERIAL' ? rackVal - d.SystemQtyRack : null,
+                } : d));
+            });
 
-            handleCancelEdit();
+            await Promise.all(promises);
+            antMessage.success('Page changes saved successfully');
+            setEditedValues({});
             onRefresh?.();
-        } catch (error: unknown) {
-            const err = error as Error;
-            antMessage.error(err?.message || 'Failed to update stock');
+        } catch (error: any) {
+            antMessage.error(error?.message || 'Failed to save some changes');
         } finally {
-            setUpdatingId(null);
+            setUpdating(false);
         }
     };
 
-    const handleCancelEdit = () => {
-        setEditingKey(null);
-        setEditingWarehouse(null);
-        setEditingRack(null);
+    const handleDownloadTempReport = async () => {
+        setDownloadingTemp(true);
+        try {
+            const result = await dispatch(generateTemporaryReport({ inventoryCountingId: data.Id, tolerance }));
+            if (generateTemporaryReport.rejected.match(result)) {
+                throw new Error(result.payload as string);
+            }
+            antMessage.success('Temporary report downloaded');
+        } catch (error: any) {
+            antMessage.error(error?.message || 'Failed to download temporary report');
+        } finally {
+            setDownloadingTemp(false);
+        }
     };
-
-    const isEditing = useCallback((record: MergedCountingDetail) => editingKey === record.Id, [editingKey]);
 
     const columns = useMemo(() => {
         if (data?.Category === 'FINISH_GOOD') {
@@ -267,24 +283,15 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                     width: 120,
                     align: 'center' as const,
                     render: (val: number | null, record: MergedCountingDetail) => {
-                        if (data?.Status !== 'IN_PROGRESS') {
-                            return val ?? '-';
-                        }
-                        if (isEditing(record)) {
-                            return (
-                                <Input
-                                    type="number"
-                                    value={editingWarehouse ?? val ?? 0}
-                                    onChange={(e) => setEditingWarehouse(Number(e.target.value) || 0)}
-                                    style={{ width: 80 }}
-                                    min={0}
-                                />
-                            );
-                        }
+                        if (data?.Status !== 'IN_PROGRESS') return val ?? '-';
+                        const editVal = editedValues[record.Id]?.wh;
                         return (
-                            <a onClick={() => handleStartEditWarehouse(record)} style={{ cursor: 'pointer' }}>
-                                {val !== null && val !== undefined ? val : <Tag color="orange">Not Set</Tag>}
-                            </a>
+                            <InputNumber
+                                value={editVal !== undefined ? editVal : (val ?? 0)}
+                                onChange={(v) => handleActualChange(record.Id, 'wh', v)}
+                                style={{ width: 80 }}
+                                min={0}
+                            />
                         );
                     },
                 },
@@ -294,10 +301,15 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                     key: 'DiffQty',
                     width: 100,
                     align: 'center' as const,
-                    render: (val: number | null) => {
-                        if (val === null || val === undefined) return '-';
-                        const color = val > 0 ? 'green' : val < 0 ? 'red' : 'default';
-                        return <Tag color={color}>{val > 0 ? `+${val}` : val}</Tag>;
+                    render: (val: number | null, record: MergedCountingDetail) => {
+                        let displayVal = val;
+                        const editVal = editedValues[record.Id]?.wh;
+                        if (editVal !== undefined && editVal !== null) {
+                            displayVal = editVal - record.SystemQty;
+                        }
+                        if (displayVal === null || displayVal === undefined) return '-';
+                        const color = displayVal > 0 ? 'green' : displayVal < 0 ? 'red' : 'default';
+                        return <Tag color={color}>{displayVal > 0 ? `+${displayVal}` : displayVal}</Tag>;
                     },
                 },
             ];
@@ -342,24 +354,15 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         width: 100,
                         align: 'center' as const,
                         render: (val: number | null, record: MergedCountingDetail) => {
-                            if (data?.Status !== 'IN_PROGRESS') {
-                                return val ?? '-';
-                            }
-                            if (isEditing(record)) {
-                                return (
-                                    <Input
-                                        type="number"
-                                        value={editingWarehouse ?? val ?? 0}
-                                        onChange={(e) => setEditingWarehouse(Number(e.target.value) || 0)}
-                                        style={{ width: 60 }}
-                                        min={0}
-                                    />
-                                );
-                            }
+                            if (data?.Status !== 'IN_PROGRESS') return val ?? '-';
+                            const editVal = editedValues[record.Id]?.wh;
                             return (
-                                <a onClick={() => handleStartEditWarehouse(record)} style={{ cursor: 'pointer' }}>
-                                    {val !== null && val !== undefined ? val : <Tag color="orange">Not Set</Tag>}
-                                </a>
+                                <InputNumber
+                                    value={editVal !== undefined ? editVal : val}
+                                    onChange={(v) => handleActualChange(record.Id, 'wh', v)}
+                                    style={{ width: 80 }}
+                                    min={0}
+                                />
                             );
                         },
                     },
@@ -369,10 +372,15 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         key: 'DiffQty',
                         width: 70,
                         align: 'center' as const,
-                        render: (val: number | null) => {
-                            if (val === null || val === undefined) return '-';
-                            const color = val > 0 ? 'green' : val < 0 ? 'red' : 'default';
-                            return <Tag color={color}>{val > 0 ? `+${val}` : val}</Tag>;
+                        render: (val: number | null, record: MergedCountingDetail) => {
+                            let displayVal = val;
+                            const editVal = editedValues[record.Id]?.wh;
+                            if (editVal !== undefined && editVal !== null) {
+                                displayVal = editVal - record.SystemQty;
+                            }
+                            if (displayVal === null || displayVal === undefined) return '-';
+                            const color = displayVal > 0 ? 'green' : displayVal < 0 ? 'red' : 'default';
+                            return <Tag color={color}>{displayVal > 0 ? `+${displayVal}` : displayVal}</Tag>;
                         },
                     },
                 ],
@@ -396,24 +404,15 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         width: 100,
                         align: 'center' as const,
                         render: (val: number | null, record: MergedCountingDetail) => {
-                            if (data?.Status !== 'IN_PROGRESS') {
-                                return val ?? '-';
-                            }
-                            if (isEditing(record)) {
-                                return (
-                                    <Input
-                                        type="number"
-                                        value={editingRack ?? val ?? 0}
-                                        onChange={(e) => setEditingRack(Number(e.target.value) || 0)}
-                                        style={{ width: 60 }}
-                                        min={0}
-                                    />
-                                );
-                            }
+                            if (data?.Status !== 'IN_PROGRESS') return val ?? '-';
+                            const editVal = editedValues[record.Id]?.rack;
                             return (
-                                <a onClick={() => handleStartEditRack(record)} style={{ cursor: 'pointer' }}>
-                                    {val !== null && val !== undefined ? val : <Tag color="orange">Not Set</Tag>}
-                                </a>
+                                <InputNumber
+                                    value={editVal !== undefined ? editVal : val}
+                                    onChange={(v) => handleActualChange(record.Id, 'rack', v)}
+                                    style={{ width: 80 }}
+                                    min={0}
+                                />
                             );
                         },
                     },
@@ -423,28 +422,21 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         key: 'DiffQtyRack',
                         width: 70,
                         align: 'center' as const,
-                        render: (val: number | null) => {
-                            if (val === null || val === undefined) return '-';
-                            const color = val > 0 ? 'green' : val < 0 ? 'red' : 'default';
-                            return <Tag color={color}>{val > 0 ? `+${val}` : val}</Tag>;
+                        render: (val: number | null, record: MergedCountingDetail) => {
+                            let displayVal = val;
+                            const editVal = editedValues[record.Id]?.rack;
+                            if (editVal !== undefined && editVal !== null) {
+                                displayVal = editVal - (record.SystemQtyRack ?? 0);
+                            }
+                            if (displayVal === null || displayVal === undefined) return '-';
+                            const color = displayVal > 0 ? 'green' : displayVal < 0 ? 'red' : 'default';
+                            return <Tag color={color}>{displayVal > 0 ? `+${displayVal}` : displayVal}</Tag>;
                         },
                     },
                 ],
             },
         ];
-    }, [data?.Category, data?.Status, editingWarehouse, editingRack, isEditing]);
-
-    // Tab items
-    const tabItems = [
-        {
-            key: 'all',
-            label: `All (${details.length})`,
-        },
-        ...locations.map((loc) => ({
-            key: loc,
-            label: `${loc} (${details.filter(d => d.Location === loc).length})`,
-        })),
-    ];
+    }, [data?.Category, data?.Status, editedValues]);
 
     return (
         <Modal
@@ -453,10 +445,28 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
             onCancel={onClose}
             footer={
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: 12, color: '#888' }}>
-                        {data?.Status === 'IN_PROGRESS' && !canApprove && (
+                    <div style={{ fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        {!canApprove && (
                             <span>* Approving counting session requires <code>IPCS.INVENTORY_COUNTING_APPROVE</code> permission</span>
                         )}
+                        <Space>
+                            <span style={{ marginLeft: 16 }}>Tolerance %:</span>
+                            <InputNumber 
+                                min={0} 
+                                max={100} 
+                                value={tolerance} 
+                                onChange={(v) => setTolerance(v || 0)} 
+                                style={{ width: 60 }} 
+                            />
+                            <Button 
+                                type="dashed" 
+                                icon={<DownloadOutlined />} 
+                                onClick={handleDownloadTempReport}
+                                loading={downloadingTemp}
+                            >
+                                Download Temporary Report
+                            </Button>
+                        </Space>
                     </div>
                     <Space>
                         <Button onClick={onClose}>Close</Button>
@@ -473,92 +483,69 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                 </div>
             }
             centered
-            width={950}
+            width={1100}
             zIndex={1050}
         >
-            <Descriptions size="small" column={4} style={{ marginBottom: 16 }}>
-                <Descriptions.Item label="Category">
-                    <Tag color={data?.Category === 'MATERIAL' ? 'blue' : 'purple'}>
-                        {data?.Category ? data.Category.replace('_', ' ') : '-'}
-                    </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="Status">
-                    <Tag color={STATUS_COLORS[data?.Status] || 'default'}>
-                        {data?.Status || '-'}
-                    </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="Created By">{data?.CreatedByName || data?.CreatedBy || '-'}</Descriptions.Item>
-                <Descriptions.Item label="Created At">
-                    {data?.CreatedAt ? new Date(data.CreatedAt).toLocaleString('id-ID') : '-'}
-                </Descriptions.Item>
-            </Descriptions>
-
-            <Row gutter={16} style={{ marginBottom: 16 }}>
-                <Col span={8}>
-                    <Card size="small">
-                        <Statistic
-                            title="Total Items"
-                            value={totalItems}
-                            prefix={<InboxOutlined />}
-                        />
-                    </Card>
-                </Col>
-                <Col span={8}>
-                    <Card size="small">
-                        <Statistic
-                            title="Completed"
-                            value={completedItems}
-                            styles={{ content: { color: '#3f8600' } }}
-                        />
-                    </Card>
-                </Col>
-                <Col span={8}>
-                    <Card size="small">
-                        <Statistic
-                            title="Progress"
-                            suffix="%"
-                            value={progressPercent}
-                            prefix={<SyncOutlined spin={data?.Status === 'IN_PROGRESS'} />}
-                        />
-                    </Card>
-                </Col>
-            </Row>
-
-            {/* Edit action bar */}
-            {editingKey !== null && (
-                <div style={{ marginBottom: 8, padding: 8, background: '#f0f0f0', borderRadius: 4 }}>
-                    <Space>
-                        <span>Editing row #{editingKey}</span>
-                        <Popconfirm
-                            title="Save changes?"
-                            onConfirm={() => {
-                                const record = details.find(d => d.Id === editingKey);
-                                if (record) handleSaveEdit(record);
-                            }}
-                            onCancel={handleCancelEdit}
-                            okText="Save"
-                            cancelText="Cancel"
-                        >
-                            <Button type="primary" size="small" icon={<SaveOutlined />} loading={updatingId !== null}>
-                                Save
-                            </Button>
-                        </Popconfirm>
-                        <Button size="small" onClick={handleCancelEdit}>
-                            Cancel
-                        </Button>
-                    </Space>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+                <Descriptions size="small" column={4} style={{ flex: 1 }}>
+                    <Descriptions.Item label="Category">
+                        <Tag color={data?.Category === 'MATERIAL' ? 'blue' : 'purple'}>
+                            {data?.Category ? data.Category.replace('_', ' ') : '-'}
+                        </Tag>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Status">
+                        <Tag color={STATUS_COLORS[data?.Status] || 'default'}>
+                            {data?.Status || '-'}
+                        </Tag>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Created By">{data?.CreatedByName || data?.CreatedBy || '-'}</Descriptions.Item>
+                    <Descriptions.Item label="Created At">
+                        {data?.CreatedAt ? new Date(data.CreatedAt).toLocaleString('id-ID') : '-'}
+                    </Descriptions.Item>
+                </Descriptions>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 12, color: '#888' }}>Progress</div>
+                        <div style={{ fontSize: 14, fontWeight: 'bold' }}>{completedItems} / {totalItems} Items</div>
+                    </div>
+                    <Progress type="circle" percent={progressPercent} size={40} />
                 </div>
-            )}
+            </div>
 
-            {locations.length > 1 && (
-                <Tabs
-                    activeKey={activeTab}
-                    onChange={setActiveTab}
-                    items={tabItems}
-                    style={{ marginBottom: 8 }}
-                    size="small"
-                />
-            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center' }}>
+                <Space>
+                    <Input
+                        placeholder="Search part..."
+                        value={searchText}
+                        onChange={e => setSearchText(e.target.value)}
+                        prefix={<SearchOutlined />}
+                        style={{ width: 200 }}
+                        allowClear
+                    />
+                    {locations.length > 1 && (
+                        <Select
+                            value={locationFilter}
+                            onChange={setLocationFilter}
+                            style={{ width: 120 }}
+                            options={[
+                                { value: 'all', label: 'All Locations' },
+                                ...locations.map(l => ({ value: l, label: l }))
+                            ]}
+                        />
+                    )}
+                </Space>
+                {data?.Status === 'IN_PROGRESS' && (
+                    <Button 
+                        type="primary" 
+                        icon={<SaveOutlined />} 
+                        onClick={handleSavePageChanges}
+                        loading={updating}
+                        disabled={Object.keys(editedValues).length === 0}
+                    >
+                        Apply / Save Changes in Page
+                    </Button>
+                )}
+            </div>
 
             <div style={{ maxHeight: 'calc(100vh - 340px)', overflow: 'auto' }}>
                 <Table
@@ -566,7 +553,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                     dataSource={filteredDetails}
                     rowKey="Id"
                     size="small"
-                    loading={loading}
+                    loading={loading || updating}
                     pagination={{ pageSize: 50, size: 'small' }}
                     scroll={{ x: 750, y: 400 }}
                 />

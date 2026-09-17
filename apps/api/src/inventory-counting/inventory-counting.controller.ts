@@ -210,4 +210,26 @@ export class InventoryCountingController {
 
     res.send(buffer);
   }
+
+  @Post('generate-temporary-report')
+  @Permission('IPCS.INVENTORY_COUNTING_READ')
+  @ApiOperation({
+    summary: 'Generate Temporary Report Excel file for inventory counting with tolerance',
+  })
+  @ApiResponse({ status: 200, description: 'Excel file download' })
+  async generateTemporaryReport(@Body() dto: GenerateExcelDto, @Res() res: Response) {
+    const buffer = await this.inventoryCountingService.generateTemporaryReport(
+      dto.id,
+      dto.tolerance ?? 0,
+    );
+
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename=Inventory_Temporary_Report_${dto.id}.xlsx`,
+      'Content-Length': buffer.length,
+    });
+
+    res.send(buffer);
+  }
 }
