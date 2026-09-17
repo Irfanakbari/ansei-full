@@ -2640,6 +2640,12 @@ export class InventoryCountingService {
 
       const dateStr = dayjs().format('DD-MM-YYYY HH:mm');
       const code = inventoryCounting.OpnameNumber;
+      const userNames = await getUserDisplayNameMap(
+        [inventoryCounting.CreatedBy, inventoryCounting.CompletedBy],
+        this.prisma,
+      );
+      const createdByName =
+        userNames.get(inventoryCounting.CreatedBy?.trim() ?? '') ?? '-';
 
       // Determine if MATERIAL category
       const isMaterial = inventoryCounting.Category === ItemCategory.MATERIAL;
@@ -2676,8 +2682,7 @@ export class InventoryCountingService {
         `: ${inventoryCounting.Tolerance ?? 0}%`;
 
       worksheet.getCell(`${rightLabelCol}7`).value = 'User ID';
-      worksheet.getCell(`${rightValCol}7`).value =
-        `: ${inventoryCounting.CreatedBy || '-'}`;
+      worksheet.getCell(`${rightValCol}7`).value = `: ${createdByName}`;
 
       // Sub-header
       worksheet.getCell(`A${subStartRow}`).value = 'Report Code';
