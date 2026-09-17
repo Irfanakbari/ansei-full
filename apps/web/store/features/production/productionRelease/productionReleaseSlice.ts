@@ -4,17 +4,6 @@ import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/
 import {fetchWithAuth} from "@/store/utils/fetchWithAuth";
 
 // Forecast item interface
-export interface AttachmentDelivery {
-    id: number;
-    FileName: string;
-    FilePath: string;
-    CreatedAt: string;
-    CreatedBy: string;
-    CreatedByName?: string;
-    UpdatedAt: string;
-    ProductionReleaseId: string;
-}
-
 export interface ForecastItem {
     PoId: string;
     PoNumber?: string;
@@ -28,7 +17,6 @@ export interface ForecastItem {
     Shopping: {
         QtyPick: number;
     }[];
-    AttachmentDelivery?: AttachmentDelivery;
 }
 
 // Progress interfaces
@@ -54,17 +42,17 @@ export interface ProgressPokayoke {
 
 // Attachment interface (from Prisma deliveryAttachment)
 export interface ProductionAttachment {
-    id: number;
+    Id: number;
     ProductionReleaseId: string;
-    ForecastId: string | null;
     FileName: string;
-    FilePath: string;
-    FileSize?: number;
-    MimeType?: string;
+    FileSize: number | null;
+    MimeType: string | null;
     CreatedAt: string;
-    CreatedBy: string;
+    CreatedBy: string | null;
     CreatedByName?: string;
     UpdatedAt: string;
+    UpdatedBy?: string | null;
+    UpdatedByName?: string;
 }
 
 // Production release entity interface
@@ -245,7 +233,7 @@ export const fetchAttachments = createAsyncThunk(
             const response = await fetchWithAuth(`/api/production/production-release/${productionReleaseId}/attachments`);
             const data = await response.json();
             if (!response.ok) return rejectWithValue(data.message || 'Gagal mengambil data lampiran');
-            return data;
+            return data.data as ProductionAttachment[];
         } catch (error: any) {
             return rejectWithValue(error.message);
         }
@@ -253,20 +241,15 @@ export const fetchAttachments = createAsyncThunk(
 );
 
 // Upload attachment for production release
-export const uploadAttachment = createAsyncThunk(
+export const uploadAttachments = createAsyncThunk(
     'productionRelease/uploadAttachment',
-    async ({ productionReleaseId, forecastId, file }: {
+    async ({ productionReleaseId, files }: {
         productionReleaseId: string;
-        forecastId?: string;
-        file: File;
+        files: File[];
     }, { rejectWithValue }) => {
         try {
             const formData = new FormData();
-            formData.append('file', file);
-            formData.append('productionReleaseId', productionReleaseId);
-            if (forecastId) {
-                formData.append('forecastId', forecastId);
-            }
+            files.forEach((file) => formData.append('files', file));
 
             const response = await fetchWithAuth(`/api/production/production-release/${productionReleaseId}/attachments`, {
                 method: 'POST',
@@ -275,9 +258,44 @@ export const uploadAttachment = createAsyncThunk(
 
             const data = await response.json();
             if (!response.ok) return rejectWithValue(data.message || 'Gagal upload lampiran');
-            return data;
+            return data.data as ProductionAttachment[];
         } catch (error: any) {
             return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const replaceAttachment = createAsyncThunk(
+    'productionRelease/replaceAttachment',
+    async ({ productionReleaseId, attachmentId, file }: { productionReleaseId: string; attachmentId: number; file: File }, { rejectWithValue }) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await fetchWithAuth(`/api/production/production-release/${productionReleaseId}/attachments/${attachmentId}`, { method: 'PATCH', body: formData });
+            const data = await response.json();
+            if (!response.ok) return rejectWithValue(data.message || 'Failed to replace attachment');
+            return data.data as ProductionAttachment;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to replace attachment'));
+        }
+    }
+);
+
+export const downloadAttachment = createAsyncThunk(
+    'productionRelease/downloadAttachment',
+    async ({ productionReleaseId, attachment }: { productionReleaseId: string; attachment: ProductionAttachment }, { rejectWithValue }) => {
+        try {
+            const response = await fetchWithAuth(`/api/production/production-release/${productionReleaseId}/attachments/${attachment.Id}/download`);
+            if (!response.ok) throw new Error('Failed to download attachment');
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = attachment.FileName;
+            link.click();
+            URL.revokeObjectURL(url);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to download attachment'));
         }
     }
 );
@@ -285,9 +303,9 @@ export const uploadAttachment = createAsyncThunk(
 // Delete attachment
 export const deleteAttachment = createAsyncThunk(
     'productionRelease/deleteAttachment',
-    async (attachmentId: number, { rejectWithValue }) => {
+    async ({ productionReleaseId, attachmentId }: { productionReleaseId: string; attachmentId: number }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/production/production-release/attachments/${attachmentId}`, {
+            const response = await fetchWithAuth(`/api/production/production-release/${productionReleaseId}/attachments/${attachmentId}`, {
                 method: 'DELETE',
             });
             const data = await response.json().catch(() => ({}));
@@ -383,20 +401,22 @@ const productionReleaseSlice = createSlice({
                 state.error = action.payload as string;
             })
             // Upload attachment
-            .addCase(uploadAttachment.pending, (state) => { state.attachmentLoading = true; })
-            .addCase(uploadAttachment.fulfilled, (state, action) => {
+            .addCase(uploadAttachments.pending, (state) => { state.attachmentLoading = true; })
+            .addCase(uploadAttachments.fulfilled, (state, action) => {
                 state.attachmentLoading = false;
-                if (Array.isArray(state.attachments)) {
-                    state.attachments.push(action.payload);
-                }
+                state.attachments.unshift(...action.payload);
             })
-            .addCase(uploadAttachment.rejected, (state, action) => {
+            .addCase(uploadAttachments.rejected, (state, action) => {
                 state.attachmentLoading = false;
                 state.error = action.payload as string;
             })
+            .addCase(replaceAttachment.fulfilled, (state, action) => {
+                const index = state.attachments.findIndex((item) => item.Id === action.payload.Id);
+                if (index >= 0) state.attachments[index] = action.payload;
+            })
             // Delete attachment
             .addCase(deleteAttachment.fulfilled, (state, action) => {
-                state.attachments = state.attachments.filter(item => item.id !== action.payload);
+                state.attachments = state.attachments.filter(item => item.Id !== action.payload);
             })
             // Clear detail
             .addCase(clearProductionReleaseDetail.fulfilled, (state) => {

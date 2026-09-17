@@ -56,6 +56,8 @@ describe('ProductionReleaseController', () => {
       uploadAttachment: jest.fn(),
       getAttachments: jest.fn(),
       deleteAttachment: jest.fn(),
+      replaceAttachment: jest.fn(),
+      downloadAttachment: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -210,15 +212,14 @@ describe('ProductionReleaseController', () => {
 
       const result = await controller.uploadAttachment(
         'uuid-1234',
-        uploadDto,
-        mockFile,
+        [mockFile],
         mockUser,
       );
 
       expect(result).toEqual(mockAttachment);
       expect(service.uploadAttachment).toHaveBeenCalledWith(
         { ...uploadDto, productionReleaseId: 'uuid-1234' },
-        mockFile,
+        [mockFile],
         mockUser.username,
       );
     });
@@ -242,10 +243,15 @@ describe('ProductionReleaseController', () => {
     it('should delete an attachment', async () => {
       service.deleteAttachment.mockResolvedValue({ deleted: true, id: 1 });
 
-      const result = await controller.deleteAttachment(1, mockUser);
+      const result = await controller.deleteAttachment(
+        'uuid-1234',
+        1,
+        mockUser,
+      );
 
       expect(result).toEqual({ deleted: true, id: 1 });
       expect(service.deleteAttachment).toHaveBeenCalledWith(
+        'uuid-1234',
         1,
         mockUser.username,
       );

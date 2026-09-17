@@ -31,7 +31,6 @@ export type ForecastAvgAggregateOutputType = {
   DeliveryPeriod: number | null
   Item: number | null
   Qty: number | null
-  AttachmentDeliveryId: number | null
 }
 
 export type ForecastSumAggregateOutputType = {
@@ -39,7 +38,6 @@ export type ForecastSumAggregateOutputType = {
   DeliveryPeriod: number | null
   Item: number | null
   Qty: number | null
-  AttachmentDeliveryId: number | null
 }
 
 export type ForecastMinAggregateOutputType = {
@@ -57,7 +55,6 @@ export type ForecastMinAggregateOutputType = {
   Qty: number | null
   FinishGoodId: string | null
   ProductionReleaseId: string | null
-  AttachmentDeliveryId: number | null
 }
 
 export type ForecastMaxAggregateOutputType = {
@@ -75,7 +72,6 @@ export type ForecastMaxAggregateOutputType = {
   Qty: number | null
   FinishGoodId: string | null
   ProductionReleaseId: string | null
-  AttachmentDeliveryId: number | null
 }
 
 export type ForecastCountAggregateOutputType = {
@@ -93,7 +89,6 @@ export type ForecastCountAggregateOutputType = {
   Qty: number
   FinishGoodId: number
   ProductionReleaseId: number
-  AttachmentDeliveryId: number
   _all: number
 }
 
@@ -103,7 +98,6 @@ export type ForecastAvgAggregateInputType = {
   DeliveryPeriod?: true
   Item?: true
   Qty?: true
-  AttachmentDeliveryId?: true
 }
 
 export type ForecastSumAggregateInputType = {
@@ -111,7 +105,6 @@ export type ForecastSumAggregateInputType = {
   DeliveryPeriod?: true
   Item?: true
   Qty?: true
-  AttachmentDeliveryId?: true
 }
 
 export type ForecastMinAggregateInputType = {
@@ -129,7 +122,6 @@ export type ForecastMinAggregateInputType = {
   Qty?: true
   FinishGoodId?: true
   ProductionReleaseId?: true
-  AttachmentDeliveryId?: true
 }
 
 export type ForecastMaxAggregateInputType = {
@@ -147,7 +139,6 @@ export type ForecastMaxAggregateInputType = {
   Qty?: true
   FinishGoodId?: true
   ProductionReleaseId?: true
-  AttachmentDeliveryId?: true
 }
 
 export type ForecastCountAggregateInputType = {
@@ -165,7 +156,6 @@ export type ForecastCountAggregateInputType = {
   Qty?: true
   FinishGoodId?: true
   ProductionReleaseId?: true
-  AttachmentDeliveryId?: true
   _all?: true
 }
 
@@ -270,7 +260,6 @@ export type ForecastGroupByOutputType = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId: string | null
-  AttachmentDeliveryId: number | null
   _count: ForecastCountAggregateOutputType | null
   _avg: ForecastAvgAggregateOutputType | null
   _sum: ForecastSumAggregateOutputType | null
@@ -311,13 +300,11 @@ export type ForecastWhereInput = {
   Qty?: Prisma.IntFilter<"Forecast"> | number
   FinishGoodId?: Prisma.StringFilter<"Forecast"> | string
   ProductionReleaseId?: Prisma.StringNullableFilter<"Forecast"> | string | null
-  AttachmentDeliveryId?: Prisma.IntNullableFilter<"Forecast"> | number | null
   DeliveryHistory?: Prisma.DeliveryHistoryListRelationFilter
   PartData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
   LabelData?: Prisma.LabelDataListRelationFilter
   Shopping?: Prisma.ShoppingListRelationFilter
   ProductionRelease?: Prisma.XOR<Prisma.ProductionReleaseNullableScalarRelationFilter, Prisma.ProductionReleaseWhereInput> | null
-  AttachmentDelivery?: Prisma.XOR<Prisma.DeliveryAttachmentNullableScalarRelationFilter, Prisma.DeliveryAttachmentWhereInput> | null
   ProductionReport?: Prisma.ProductionReportListRelationFilter
 }
 
@@ -336,13 +323,11 @@ export type ForecastOrderByWithRelationInput = {
   Qty?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
   ProductionReleaseId?: Prisma.SortOrderInput | Prisma.SortOrder
-  AttachmentDeliveryId?: Prisma.SortOrderInput | Prisma.SortOrder
   DeliveryHistory?: Prisma.DeliveryHistoryOrderByRelationAggregateInput
   PartData?: Prisma.FinishGoodOrderByWithRelationInput
   LabelData?: Prisma.LabelDataOrderByRelationAggregateInput
   Shopping?: Prisma.ShoppingOrderByRelationAggregateInput
   ProductionRelease?: Prisma.ProductionReleaseOrderByWithRelationInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentOrderByWithRelationInput
   ProductionReport?: Prisma.ProductionReportOrderByRelationAggregateInput
 }
 
@@ -364,13 +349,11 @@ export type ForecastWhereUniqueInput = Prisma.AtLeast<{
   Qty?: Prisma.IntFilter<"Forecast"> | number
   FinishGoodId?: Prisma.StringFilter<"Forecast"> | string
   ProductionReleaseId?: Prisma.StringNullableFilter<"Forecast"> | string | null
-  AttachmentDeliveryId?: Prisma.IntNullableFilter<"Forecast"> | number | null
   DeliveryHistory?: Prisma.DeliveryHistoryListRelationFilter
   PartData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
   LabelData?: Prisma.LabelDataListRelationFilter
   Shopping?: Prisma.ShoppingListRelationFilter
   ProductionRelease?: Prisma.XOR<Prisma.ProductionReleaseNullableScalarRelationFilter, Prisma.ProductionReleaseWhereInput> | null
-  AttachmentDelivery?: Prisma.XOR<Prisma.DeliveryAttachmentNullableScalarRelationFilter, Prisma.DeliveryAttachmentWhereInput> | null
   ProductionReport?: Prisma.ProductionReportListRelationFilter
 }, "Id" | "PoId">
 
@@ -389,7 +372,6 @@ export type ForecastOrderByWithAggregationInput = {
   Qty?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
   ProductionReleaseId?: Prisma.SortOrderInput | Prisma.SortOrder
-  AttachmentDeliveryId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ForecastCountOrderByAggregateInput
   _avg?: Prisma.ForecastAvgOrderByAggregateInput
   _max?: Prisma.ForecastMaxOrderByAggregateInput
@@ -415,7 +397,6 @@ export type ForecastScalarWhereWithAggregatesInput = {
   Qty?: Prisma.IntWithAggregatesFilter<"Forecast"> | number
   FinishGoodId?: Prisma.StringWithAggregatesFilter<"Forecast"> | string
   ProductionReleaseId?: Prisma.StringNullableWithAggregatesFilter<"Forecast"> | string | null
-  AttachmentDeliveryId?: Prisma.IntNullableWithAggregatesFilter<"Forecast"> | number | null
 }
 
 export type ForecastCreateInput = {
@@ -435,7 +416,6 @@ export type ForecastCreateInput = {
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
   ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentCreateNestedOneWithoutForecastInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
 }
 
@@ -454,7 +434,6 @@ export type ForecastUncheckedCreateInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  AttachmentDeliveryId?: number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
@@ -478,7 +457,6 @@ export type ForecastUpdateInput = {
   LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
   ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentUpdateOneWithoutForecastNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
 }
 
@@ -497,7 +475,6 @@ export type ForecastUncheckedUpdateInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
@@ -519,7 +496,6 @@ export type ForecastCreateManyInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  AttachmentDeliveryId?: number | null
 }
 
 export type ForecastUpdateManyMutationInput = {
@@ -551,7 +527,6 @@ export type ForecastUncheckedUpdateManyInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ForecastListRelationFilter = {
@@ -579,7 +554,6 @@ export type ForecastCountOrderByAggregateInput = {
   Qty?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
   ProductionReleaseId?: Prisma.SortOrder
-  AttachmentDeliveryId?: Prisma.SortOrder
 }
 
 export type ForecastAvgOrderByAggregateInput = {
@@ -587,7 +561,6 @@ export type ForecastAvgOrderByAggregateInput = {
   DeliveryPeriod?: Prisma.SortOrder
   Item?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
-  AttachmentDeliveryId?: Prisma.SortOrder
 }
 
 export type ForecastMaxOrderByAggregateInput = {
@@ -605,7 +578,6 @@ export type ForecastMaxOrderByAggregateInput = {
   Qty?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
   ProductionReleaseId?: Prisma.SortOrder
-  AttachmentDeliveryId?: Prisma.SortOrder
 }
 
 export type ForecastMinOrderByAggregateInput = {
@@ -623,7 +595,6 @@ export type ForecastMinOrderByAggregateInput = {
   Qty?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
   ProductionReleaseId?: Prisma.SortOrder
-  AttachmentDeliveryId?: Prisma.SortOrder
 }
 
 export type ForecastSumOrderByAggregateInput = {
@@ -631,7 +602,6 @@ export type ForecastSumOrderByAggregateInput = {
   DeliveryPeriod?: Prisma.SortOrder
   Item?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
-  AttachmentDeliveryId?: Prisma.SortOrder
 }
 
 export type ForecastNullableScalarRelationFilter = {
@@ -728,48 +698,6 @@ export type ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput = {
   deleteMany?: Prisma.ForecastScalarWhereInput | Prisma.ForecastScalarWhereInput[]
 }
 
-export type ForecastCreateNestedManyWithoutAttachmentDeliveryInput = {
-  create?: Prisma.XOR<Prisma.ForecastCreateWithoutAttachmentDeliveryInput, Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput> | Prisma.ForecastCreateWithoutAttachmentDeliveryInput[] | Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput[]
-  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutAttachmentDeliveryInput | Prisma.ForecastCreateOrConnectWithoutAttachmentDeliveryInput[]
-  createMany?: Prisma.ForecastCreateManyAttachmentDeliveryInputEnvelope
-  connect?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-}
-
-export type ForecastUncheckedCreateNestedManyWithoutAttachmentDeliveryInput = {
-  create?: Prisma.XOR<Prisma.ForecastCreateWithoutAttachmentDeliveryInput, Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput> | Prisma.ForecastCreateWithoutAttachmentDeliveryInput[] | Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput[]
-  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutAttachmentDeliveryInput | Prisma.ForecastCreateOrConnectWithoutAttachmentDeliveryInput[]
-  createMany?: Prisma.ForecastCreateManyAttachmentDeliveryInputEnvelope
-  connect?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-}
-
-export type ForecastUpdateManyWithoutAttachmentDeliveryNestedInput = {
-  create?: Prisma.XOR<Prisma.ForecastCreateWithoutAttachmentDeliveryInput, Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput> | Prisma.ForecastCreateWithoutAttachmentDeliveryInput[] | Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput[]
-  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutAttachmentDeliveryInput | Prisma.ForecastCreateOrConnectWithoutAttachmentDeliveryInput[]
-  upsert?: Prisma.ForecastUpsertWithWhereUniqueWithoutAttachmentDeliveryInput | Prisma.ForecastUpsertWithWhereUniqueWithoutAttachmentDeliveryInput[]
-  createMany?: Prisma.ForecastCreateManyAttachmentDeliveryInputEnvelope
-  set?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-  disconnect?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-  delete?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-  connect?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-  update?: Prisma.ForecastUpdateWithWhereUniqueWithoutAttachmentDeliveryInput | Prisma.ForecastUpdateWithWhereUniqueWithoutAttachmentDeliveryInput[]
-  updateMany?: Prisma.ForecastUpdateManyWithWhereWithoutAttachmentDeliveryInput | Prisma.ForecastUpdateManyWithWhereWithoutAttachmentDeliveryInput[]
-  deleteMany?: Prisma.ForecastScalarWhereInput | Prisma.ForecastScalarWhereInput[]
-}
-
-export type ForecastUncheckedUpdateManyWithoutAttachmentDeliveryNestedInput = {
-  create?: Prisma.XOR<Prisma.ForecastCreateWithoutAttachmentDeliveryInput, Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput> | Prisma.ForecastCreateWithoutAttachmentDeliveryInput[] | Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput[]
-  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutAttachmentDeliveryInput | Prisma.ForecastCreateOrConnectWithoutAttachmentDeliveryInput[]
-  upsert?: Prisma.ForecastUpsertWithWhereUniqueWithoutAttachmentDeliveryInput | Prisma.ForecastUpsertWithWhereUniqueWithoutAttachmentDeliveryInput[]
-  createMany?: Prisma.ForecastCreateManyAttachmentDeliveryInputEnvelope
-  set?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-  disconnect?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-  delete?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-  connect?: Prisma.ForecastWhereUniqueInput | Prisma.ForecastWhereUniqueInput[]
-  update?: Prisma.ForecastUpdateWithWhereUniqueWithoutAttachmentDeliveryInput | Prisma.ForecastUpdateWithWhereUniqueWithoutAttachmentDeliveryInput[]
-  updateMany?: Prisma.ForecastUpdateManyWithWhereWithoutAttachmentDeliveryInput | Prisma.ForecastUpdateManyWithWhereWithoutAttachmentDeliveryInput[]
-  deleteMany?: Prisma.ForecastScalarWhereInput | Prisma.ForecastScalarWhereInput[]
-}
-
 export type ForecastCreateNestedOneWithoutShoppingInput = {
   create?: Prisma.XOR<Prisma.ForecastCreateWithoutShoppingInput, Prisma.ForecastUncheckedCreateWithoutShoppingInput>
   connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutShoppingInput
@@ -846,7 +774,6 @@ export type ForecastCreateWithoutPartDataInput = {
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
   ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentCreateNestedOneWithoutForecastInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
 }
 
@@ -864,7 +791,6 @@ export type ForecastUncheckedCreateWithoutPartDataInput = {
   Item: number
   Qty: number
   ProductionReleaseId?: string | null
-  AttachmentDeliveryId?: number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
@@ -915,7 +841,6 @@ export type ForecastScalarWhereInput = {
   Qty?: Prisma.IntFilter<"Forecast"> | number
   FinishGoodId?: Prisma.StringFilter<"Forecast"> | string
   ProductionReleaseId?: Prisma.StringNullableFilter<"Forecast"> | string | null
-  AttachmentDeliveryId?: Prisma.IntNullableFilter<"Forecast"> | number | null
 }
 
 export type ForecastCreateWithoutProductionReleaseInput = {
@@ -934,7 +859,6 @@ export type ForecastCreateWithoutProductionReleaseInput = {
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentCreateNestedOneWithoutForecastInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
 }
 
@@ -952,7 +876,6 @@ export type ForecastUncheckedCreateWithoutProductionReleaseInput = {
   Item: number
   Qty: number
   FinishGoodId: string
-  AttachmentDeliveryId?: number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
@@ -985,73 +908,6 @@ export type ForecastUpdateManyWithWhereWithoutProductionReleaseInput = {
   data: Prisma.XOR<Prisma.ForecastUpdateManyMutationInput, Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseInput>
 }
 
-export type ForecastCreateWithoutAttachmentDeliveryInput = {
-  PoId: string
-  Date: Date | string
-  VendorCode: string
-  VendorName: string
-  ReceivingArea: string
-  DeliveryDate: Date | string
-  DeliveryPeriod: number
-  Classification: string
-  PoNumber: string
-  Item: number
-  Qty: number
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
-  PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
-}
-
-export type ForecastUncheckedCreateWithoutAttachmentDeliveryInput = {
-  Id?: number
-  PoId: string
-  Date: Date | string
-  VendorCode: string
-  VendorName: string
-  ReceivingArea: string
-  DeliveryDate: Date | string
-  DeliveryPeriod: number
-  Classification: string
-  PoNumber: string
-  Item: number
-  Qty: number
-  FinishGoodId: string
-  ProductionReleaseId?: string | null
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
-}
-
-export type ForecastCreateOrConnectWithoutAttachmentDeliveryInput = {
-  where: Prisma.ForecastWhereUniqueInput
-  create: Prisma.XOR<Prisma.ForecastCreateWithoutAttachmentDeliveryInput, Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput>
-}
-
-export type ForecastCreateManyAttachmentDeliveryInputEnvelope = {
-  data: Prisma.ForecastCreateManyAttachmentDeliveryInput | Prisma.ForecastCreateManyAttachmentDeliveryInput[]
-  skipDuplicates?: boolean
-}
-
-export type ForecastUpsertWithWhereUniqueWithoutAttachmentDeliveryInput = {
-  where: Prisma.ForecastWhereUniqueInput
-  update: Prisma.XOR<Prisma.ForecastUpdateWithoutAttachmentDeliveryInput, Prisma.ForecastUncheckedUpdateWithoutAttachmentDeliveryInput>
-  create: Prisma.XOR<Prisma.ForecastCreateWithoutAttachmentDeliveryInput, Prisma.ForecastUncheckedCreateWithoutAttachmentDeliveryInput>
-}
-
-export type ForecastUpdateWithWhereUniqueWithoutAttachmentDeliveryInput = {
-  where: Prisma.ForecastWhereUniqueInput
-  data: Prisma.XOR<Prisma.ForecastUpdateWithoutAttachmentDeliveryInput, Prisma.ForecastUncheckedUpdateWithoutAttachmentDeliveryInput>
-}
-
-export type ForecastUpdateManyWithWhereWithoutAttachmentDeliveryInput = {
-  where: Prisma.ForecastScalarWhereInput
-  data: Prisma.XOR<Prisma.ForecastUpdateManyMutationInput, Prisma.ForecastUncheckedUpdateManyWithoutAttachmentDeliveryInput>
-}
-
 export type ForecastCreateWithoutShoppingInput = {
   PoId: string
   Date: Date | string
@@ -1068,7 +924,6 @@ export type ForecastCreateWithoutShoppingInput = {
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
   ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentCreateNestedOneWithoutForecastInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
 }
 
@@ -1087,7 +942,6 @@ export type ForecastUncheckedCreateWithoutShoppingInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  AttachmentDeliveryId?: number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
@@ -1125,7 +979,6 @@ export type ForecastUpdateWithoutShoppingInput = {
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
   ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentUpdateOneWithoutForecastNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
 }
 
@@ -1144,7 +997,6 @@ export type ForecastUncheckedUpdateWithoutShoppingInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
@@ -1167,7 +1019,6 @@ export type ForecastCreateWithoutProductionReportInput = {
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
   ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentCreateNestedOneWithoutForecastInput
 }
 
 export type ForecastUncheckedCreateWithoutProductionReportInput = {
@@ -1185,7 +1036,6 @@ export type ForecastUncheckedCreateWithoutProductionReportInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  AttachmentDeliveryId?: number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
@@ -1224,7 +1074,6 @@ export type ForecastUpdateWithoutProductionReportInput = {
   LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
   ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentUpdateOneWithoutForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutProductionReportInput = {
@@ -1242,7 +1091,6 @@ export type ForecastUncheckedUpdateWithoutProductionReportInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
@@ -1264,7 +1112,6 @@ export type ForecastCreateWithoutLabelDataInput = {
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
   ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentCreateNestedOneWithoutForecastInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
 }
 
@@ -1283,7 +1130,6 @@ export type ForecastUncheckedCreateWithoutLabelDataInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  AttachmentDeliveryId?: number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
@@ -1321,7 +1167,6 @@ export type ForecastUpdateWithoutLabelDataInput = {
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
   ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentUpdateOneWithoutForecastNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
 }
 
@@ -1340,7 +1185,6 @@ export type ForecastUncheckedUpdateWithoutLabelDataInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
@@ -1362,7 +1206,6 @@ export type ForecastCreateWithoutDeliveryHistoryInput = {
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
   ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentCreateNestedOneWithoutForecastInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
 }
 
@@ -1381,7 +1224,6 @@ export type ForecastUncheckedCreateWithoutDeliveryHistoryInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  AttachmentDeliveryId?: number | null
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
@@ -1419,7 +1261,6 @@ export type ForecastUpdateWithoutDeliveryHistoryInput = {
   LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
   ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentUpdateOneWithoutForecastNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
 }
 
@@ -1438,7 +1279,6 @@ export type ForecastUncheckedUpdateWithoutDeliveryHistoryInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
@@ -1458,7 +1298,6 @@ export type ForecastCreateManyPartDataInput = {
   Item: number
   Qty: number
   ProductionReleaseId?: string | null
-  AttachmentDeliveryId?: number | null
 }
 
 export type ForecastUpdateWithoutPartDataInput = {
@@ -1477,7 +1316,6 @@ export type ForecastUpdateWithoutPartDataInput = {
   LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
   ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentUpdateOneWithoutForecastNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
 }
 
@@ -1495,7 +1333,6 @@ export type ForecastUncheckedUpdateWithoutPartDataInput = {
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
@@ -1516,7 +1353,6 @@ export type ForecastUncheckedUpdateManyWithoutPartDataInput = {
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ForecastCreateManyProductionReleaseInput = {
@@ -1533,7 +1369,6 @@ export type ForecastCreateManyProductionReleaseInput = {
   Item: number
   Qty: number
   FinishGoodId: string
-  AttachmentDeliveryId?: number | null
 }
 
 export type ForecastUpdateWithoutProductionReleaseInput = {
@@ -1552,7 +1387,6 @@ export type ForecastUpdateWithoutProductionReleaseInput = {
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  AttachmentDelivery?: Prisma.DeliveryAttachmentUpdateOneWithoutForecastNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
 }
 
@@ -1570,7 +1404,6 @@ export type ForecastUncheckedUpdateWithoutProductionReleaseInput = {
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
@@ -1591,82 +1424,6 @@ export type ForecastUncheckedUpdateManyWithoutProductionReleaseInput = {
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
-  AttachmentDeliveryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-}
-
-export type ForecastCreateManyAttachmentDeliveryInput = {
-  Id?: number
-  PoId: string
-  Date: Date | string
-  VendorCode: string
-  VendorName: string
-  ReceivingArea: string
-  DeliveryDate: Date | string
-  DeliveryPeriod: number
-  Classification: string
-  PoNumber: string
-  Item: number
-  Qty: number
-  FinishGoodId: string
-  ProductionReleaseId?: string | null
-}
-
-export type ForecastUpdateWithoutAttachmentDeliveryInput = {
-  PoId?: Prisma.StringFieldUpdateOperationsInput | string
-  Date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  VendorCode?: Prisma.StringFieldUpdateOperationsInput | string
-  VendorName?: Prisma.StringFieldUpdateOperationsInput | string
-  ReceivingArea?: Prisma.StringFieldUpdateOperationsInput | string
-  DeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  DeliveryPeriod?: Prisma.IntFieldUpdateOperationsInput | number
-  Classification?: Prisma.StringFieldUpdateOperationsInput | string
-  PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  Item?: Prisma.IntFieldUpdateOperationsInput | number
-  Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
-  PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
-}
-
-export type ForecastUncheckedUpdateWithoutAttachmentDeliveryInput = {
-  Id?: Prisma.IntFieldUpdateOperationsInput | number
-  PoId?: Prisma.StringFieldUpdateOperationsInput | string
-  Date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  VendorCode?: Prisma.StringFieldUpdateOperationsInput | string
-  VendorName?: Prisma.StringFieldUpdateOperationsInput | string
-  ReceivingArea?: Prisma.StringFieldUpdateOperationsInput | string
-  DeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  DeliveryPeriod?: Prisma.IntFieldUpdateOperationsInput | number
-  Classification?: Prisma.StringFieldUpdateOperationsInput | string
-  PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  Item?: Prisma.IntFieldUpdateOperationsInput | number
-  Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
-  ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
-}
-
-export type ForecastUncheckedUpdateManyWithoutAttachmentDeliveryInput = {
-  Id?: Prisma.IntFieldUpdateOperationsInput | number
-  PoId?: Prisma.StringFieldUpdateOperationsInput | string
-  Date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  VendorCode?: Prisma.StringFieldUpdateOperationsInput | string
-  VendorName?: Prisma.StringFieldUpdateOperationsInput | string
-  ReceivingArea?: Prisma.StringFieldUpdateOperationsInput | string
-  DeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  DeliveryPeriod?: Prisma.IntFieldUpdateOperationsInput | number
-  Classification?: Prisma.StringFieldUpdateOperationsInput | string
-  PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  Item?: Prisma.IntFieldUpdateOperationsInput | number
-  Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
-  ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1742,13 +1499,11 @@ export type ForecastSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Qty?: boolean
   FinishGoodId?: boolean
   ProductionReleaseId?: boolean
-  AttachmentDeliveryId?: boolean
   DeliveryHistory?: boolean | Prisma.Forecast$DeliveryHistoryArgs<ExtArgs>
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
   LabelData?: boolean | Prisma.Forecast$LabelDataArgs<ExtArgs>
   Shopping?: boolean | Prisma.Forecast$ShoppingArgs<ExtArgs>
   ProductionRelease?: boolean | Prisma.Forecast$ProductionReleaseArgs<ExtArgs>
-  AttachmentDelivery?: boolean | Prisma.Forecast$AttachmentDeliveryArgs<ExtArgs>
   ProductionReport?: boolean | Prisma.Forecast$ProductionReportArgs<ExtArgs>
   _count?: boolean | Prisma.ForecastCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["forecast"]>
@@ -1768,10 +1523,8 @@ export type ForecastSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   Qty?: boolean
   FinishGoodId?: boolean
   ProductionReleaseId?: boolean
-  AttachmentDeliveryId?: boolean
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
   ProductionRelease?: boolean | Prisma.Forecast$ProductionReleaseArgs<ExtArgs>
-  AttachmentDelivery?: boolean | Prisma.Forecast$AttachmentDeliveryArgs<ExtArgs>
 }, ExtArgs["result"]["forecast"]>
 
 export type ForecastSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1789,10 +1542,8 @@ export type ForecastSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   Qty?: boolean
   FinishGoodId?: boolean
   ProductionReleaseId?: boolean
-  AttachmentDeliveryId?: boolean
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
   ProductionRelease?: boolean | Prisma.Forecast$ProductionReleaseArgs<ExtArgs>
-  AttachmentDelivery?: boolean | Prisma.Forecast$AttachmentDeliveryArgs<ExtArgs>
 }, ExtArgs["result"]["forecast"]>
 
 export type ForecastSelectScalar = {
@@ -1810,29 +1561,25 @@ export type ForecastSelectScalar = {
   Qty?: boolean
   FinishGoodId?: boolean
   ProductionReleaseId?: boolean
-  AttachmentDeliveryId?: boolean
 }
 
-export type ForecastOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PoId" | "Date" | "VendorCode" | "VendorName" | "ReceivingArea" | "DeliveryDate" | "DeliveryPeriod" | "Classification" | "PoNumber" | "Item" | "Qty" | "FinishGoodId" | "ProductionReleaseId" | "AttachmentDeliveryId", ExtArgs["result"]["forecast"]>
+export type ForecastOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PoId" | "Date" | "VendorCode" | "VendorName" | "ReceivingArea" | "DeliveryDate" | "DeliveryPeriod" | "Classification" | "PoNumber" | "Item" | "Qty" | "FinishGoodId" | "ProductionReleaseId", ExtArgs["result"]["forecast"]>
 export type ForecastInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   DeliveryHistory?: boolean | Prisma.Forecast$DeliveryHistoryArgs<ExtArgs>
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
   LabelData?: boolean | Prisma.Forecast$LabelDataArgs<ExtArgs>
   Shopping?: boolean | Prisma.Forecast$ShoppingArgs<ExtArgs>
   ProductionRelease?: boolean | Prisma.Forecast$ProductionReleaseArgs<ExtArgs>
-  AttachmentDelivery?: boolean | Prisma.Forecast$AttachmentDeliveryArgs<ExtArgs>
   ProductionReport?: boolean | Prisma.Forecast$ProductionReportArgs<ExtArgs>
   _count?: boolean | Prisma.ForecastCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ForecastIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
   ProductionRelease?: boolean | Prisma.Forecast$ProductionReleaseArgs<ExtArgs>
-  AttachmentDelivery?: boolean | Prisma.Forecast$AttachmentDeliveryArgs<ExtArgs>
 }
 export type ForecastIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
   ProductionRelease?: boolean | Prisma.Forecast$ProductionReleaseArgs<ExtArgs>
-  AttachmentDelivery?: boolean | Prisma.Forecast$AttachmentDeliveryArgs<ExtArgs>
 }
 
 export type $ForecastPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1843,7 +1590,6 @@ export type $ForecastPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     LabelData: Prisma.$LabelDataPayload<ExtArgs>[]
     Shopping: Prisma.$ShoppingPayload<ExtArgs>[]
     ProductionRelease: Prisma.$ProductionReleasePayload<ExtArgs> | null
-    AttachmentDelivery: Prisma.$DeliveryAttachmentPayload<ExtArgs> | null
     ProductionReport: Prisma.$ProductionReportPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1861,7 +1607,6 @@ export type $ForecastPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Qty: number
     FinishGoodId: string
     ProductionReleaseId: string | null
-    AttachmentDeliveryId: number | null
   }, ExtArgs["result"]["forecast"]>
   composites: {}
 }
@@ -2261,7 +2006,6 @@ export interface Prisma__ForecastClient<T, Null = never, ExtArgs extends runtime
   LabelData<T extends Prisma.Forecast$LabelDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$LabelDataArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Shopping<T extends Prisma.Forecast$ShoppingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$ShoppingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShoppingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProductionRelease<T extends Prisma.Forecast$ProductionReleaseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$ProductionReleaseArgs<ExtArgs>>): Prisma.Prisma__ProductionReleaseClient<runtime.Types.Result.GetResult<Prisma.$ProductionReleasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  AttachmentDelivery<T extends Prisma.Forecast$AttachmentDeliveryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$AttachmentDeliveryArgs<ExtArgs>>): Prisma.Prisma__DeliveryAttachmentClient<runtime.Types.Result.GetResult<Prisma.$DeliveryAttachmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ProductionReport<T extends Prisma.Forecast$ProductionReportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$ProductionReportArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2306,7 +2050,6 @@ export interface ForecastFieldRefs {
   readonly Qty: Prisma.FieldRef<"Forecast", 'Int'>
   readonly FinishGoodId: Prisma.FieldRef<"Forecast", 'String'>
   readonly ProductionReleaseId: Prisma.FieldRef<"Forecast", 'String'>
-  readonly AttachmentDeliveryId: Prisma.FieldRef<"Forecast", 'Int'>
 }
     
 
@@ -2796,25 +2539,6 @@ export type Forecast$ProductionReleaseArgs<ExtArgs extends runtime.Types.Extensi
    */
   include?: Prisma.ProductionReleaseInclude<ExtArgs> | null
   where?: Prisma.ProductionReleaseWhereInput
-}
-
-/**
- * Forecast.AttachmentDelivery
- */
-export type Forecast$AttachmentDeliveryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the DeliveryAttachment
-   */
-  select?: Prisma.DeliveryAttachmentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the DeliveryAttachment
-   */
-  omit?: Prisma.DeliveryAttachmentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.DeliveryAttachmentInclude<ExtArgs> | null
-  where?: Prisma.DeliveryAttachmentWhereInput
 }
 
 /**

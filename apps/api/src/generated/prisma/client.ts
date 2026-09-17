@@ -120,10 +120,10 @@ export type Forecast = Prisma.ForecastModel
  */
 export type ProductionRelease = Prisma.ProductionReleaseModel
 /**
- * Model DeliveryAttachment
+ * Model ProductionReleaseAttachment
  * 
  */
-export type DeliveryAttachment = Prisma.DeliveryAttachmentModel
+export type ProductionReleaseAttachment = Prisma.ProductionReleaseAttachmentModel
 /**
  * Model Shopping
  * 

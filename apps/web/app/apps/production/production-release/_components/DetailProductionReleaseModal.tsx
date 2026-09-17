@@ -6,7 +6,7 @@ import { Modal, Descriptions, Tag, Space, Table, Progress, Typography, Button, P
 import { EyeOutlined, PaperClipOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { ProductionReleaseEntity, fetchAttachments, deleteAttachment } from '@/store/features/production/productionRelease/productionReleaseSlice';
+import { ProductionAttachment, ProductionReleaseEntity, downloadAttachment, fetchAttachments, deleteAttachment } from '@/store/features/production/productionRelease/productionReleaseSlice';
 
 const { Title, Text } = Typography;
 
@@ -57,7 +57,7 @@ const DetailProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data 
             centered: true,
             onOk: async () => {
                 try {
-                    const result = await dispatch(deleteAttachment(attachmentId));
+                    const result = await dispatch(deleteAttachment({ productionReleaseId: data.Id, attachmentId }));
 
                     if (deleteAttachment.rejected.match(result)) {
                         throw new Error((result.payload as string) || 'Failed to delete attachment');
@@ -149,19 +149,19 @@ const DetailProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data 
             key: 'action',
             width: 100,
             align: 'center' as const,
-            render: (_: any, record: { id: number; FileName: string; FilePath: string; FileSize?: number }) => (
+            render: (_: any, record: ProductionAttachment) => (
                 <Space size="small">
                     <Button
                         type="text"
                         size="small"
                         icon={<DownloadOutlined />}
-                        onClick={() => window.open(record.FilePath, '_blank')}
+                        onClick={() => void dispatch(downloadAttachment({ productionReleaseId: data.Id, attachment: record }))}
                         title="Download"
                     />
                     <Popconfirm
                         title="Delete Attachment?"
                         description={`Delete "${record.FileName}"?`}
-                        onConfirm={() => handleDeleteAttachment(record.id, record.FileName)}
+                        onConfirm={() => handleDeleteAttachment(record.Id, record.FileName)}
                         okText="Delete"
                         okType="danger"
                         cancelText="Cancel"
@@ -308,7 +308,7 @@ const DetailProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data 
                         columns={attachmentColumns}
                         dataSource={attachments}
                         size="small"
-                        rowKey={(record) => String(record.id)}
+                         rowKey={(record) => String(record.Id)}
                         pagination={false}
                         loading={attachmentLoading}
                         scroll={{ x: 'max-content', y: 250 }}

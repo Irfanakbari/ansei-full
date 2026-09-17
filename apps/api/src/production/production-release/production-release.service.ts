@@ -17,6 +17,7 @@ import type { LogProcessModel } from '../../generated/prisma/models';
 import { ProductionStatus } from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
+import { randomUUID } from 'node:crypto';
 
 // Allowed file extensions and max size
 const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -57,7 +58,6 @@ export class ProductionReleaseService {
               FinishGoodId: true,
               Qty: true,
               DeliveryDate: true,
-              AttachmentDelivery: true,
               PartData: {
                 select: {
                   PartNumber: true,
@@ -75,7 +75,7 @@ export class ProductionReleaseService {
             select: {
               LabelDatas: true,
               Forecasts: true,
-              DeliveryAttachment: true,
+              Attachments: true,
             },
           },
           // DeliveryAttachment: {
@@ -295,7 +295,6 @@ export class ProductionReleaseService {
                 QtyPick: true,
               },
             },
-            AttachmentDelivery: true,
           },
         },
         LabelDatas: {
@@ -311,7 +310,7 @@ export class ProductionReleaseService {
             LabelNumber: 'asc',
           },
         },
-        DeliveryAttachment: {
+        Attachments: {
           orderBy: {
             CreatedAt: 'desc',
           },
@@ -528,16 +527,22 @@ export class ProductionReleaseService {
         dto.status === ProductionStatus.COMPLETED &&
         existing.Status !== ProductionStatus.COMPLETED
       ) {
-        const [linkedForecasts, scannedLabels] = await Promise.all([
-          this.prisma.forecast.findMany({
-            where: { ProductionReleaseId: id },
-            select: { Qty: true },
-          }),
-          this.prisma.labelData.findMany({
-            where: { ProductionReleaseId: id, Scanned: true },
-            select: { QtyThisBox: true },
-          }),
-        ]);
+        const effectiveNoAttachment =
+          dto.isNoAttachment ?? existing.IsNoAttachment;
+        const [linkedForecasts, scannedLabels, attachmentCount] =
+          await Promise.all([
+            this.prisma.forecast.findMany({
+              where: { ProductionReleaseId: id },
+              select: { Qty: true },
+            }),
+            this.prisma.labelData.findMany({
+              where: { ProductionReleaseId: id, Scanned: true },
+              select: { QtyThisBox: true },
+            }),
+            this.prisma.productionReleaseAttachment.count({
+              where: { ProductionReleaseId: id },
+            }),
+          ]);
         const totalTargetQty = linkedForecasts.reduce(
           (sum, forecast) => sum + forecast.Qty,
           0,
@@ -550,6 +555,23 @@ export class ProductionReleaseService {
         if (totalGoodQty < totalTargetQty) {
           throw new BadRequestException(
             `Cannot complete production release. Scanned label quantity is ${totalGoodQty} of ${totalTargetQty}; remaining ${totalTargetQty - totalGoodQty}.`,
+          );
+        }
+        if (!effectiveNoAttachment && attachmentCount === 0) {
+          throw new BadRequestException(
+            'Cannot complete production release without an attachment. Upload at least one attachment or select No Attachment.',
+          );
+        }
+      }
+
+      if (dto.isNoAttachment === true) {
+        const attachmentCount =
+          await this.prisma.productionReleaseAttachment.count({
+            where: { ProductionReleaseId: id },
+          });
+        if (attachmentCount > 0) {
+          throw new BadRequestException(
+            'Cannot select No Attachment while attachments exist. Delete the attachments first.',
           );
         }
       }
@@ -924,16 +946,13 @@ export class ProductionReleaseService {
     });
   }
 
-  /**
-   * Upload attachment for production release
-   * Only accepts PDF or image files (jpg, jpeg, png, gif, webp), max 10MB
-   */
   async uploadAttachment(
     dto: UploadProductionAttachmentDto,
-    file: Express.Multer.File,
+    files: Express.Multer.File[],
     createdBy: string,
-  ): Promise<any[]> {
+  ) {
     let logProcess: LogProcessModel | undefined;
+    const uploadedPaths: string[] = [];
 
     try {
       logProcess = await this.logService.startProcess({
@@ -942,39 +961,10 @@ export class ProductionReleaseService {
         createdBy,
       });
 
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Starting attachment upload for production release: ${dto.productionReleaseId}`,
-        type: 'INFO',
-        location: 'production-release.service.ts:770',
-      });
-
-      // Validate file extension
-      const fileExtension = file.originalname.split('.').pop()?.toLowerCase();
-      if (!fileExtension || !ALLOWED_EXTENSIONS.includes(fileExtension)) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Invalid file extension: ${fileExtension}. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
-          type: 'ERROR',
-          location: 'production-release.service.ts:782',
-        });
-        throw new UnsupportedMediaTypeException(
-          `Invalid file extension. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
-        );
+      if (!files?.length || files.length > 10) {
+        throw new BadRequestException('Upload between 1 and 10 files.');
       }
-
-      // Validate file size
-      if (file.size > MAX_FILE_SIZE) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `File too large: ${file.size} bytes. Max: ${MAX_FILE_SIZE} bytes`,
-          type: 'ERROR',
-          location: 'production-release.service.ts:793',
-        });
-        throw new BadRequestException(`File too large. Maximum size is 10MB`);
-      }
-
-      // Check if production release exists
+      files.forEach((file) => this.validateAttachmentFile(file));
       const release = await this.prisma.productionRelease.findUnique({
         where: { Id: dto.productionReleaseId },
       });
@@ -985,166 +975,61 @@ export class ProductionReleaseService {
         );
       }
 
-      // POKAYOKE: Cannot upload attachment if IsNoAttachment is true
       if (release.IsNoAttachment) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `POKAYOKE FAILED: Cannot upload attachment - Production Release ${release.ReleaseNumber} is marked as IsNoAttachment`,
-          type: 'ERROR',
-          location: 'production-release.service.ts:813',
-        });
         throw new BadRequestException(
-          `Cannot upload attachment. Production Release ${release.ReleaseNumber} is marked as "Tanpa Lampiran" (IsNoAttachment). Please update the release to allow attachments first.`,
+          `Cannot upload attachments while ${release.ReleaseNumber} is marked No Attachment.`,
         );
       }
-
-      // POKAYOKE: Cannot upload attachment if status is not DRAFT or RELEASED
       if (
         release.Status !== ProductionStatus.DRAFT &&
         release.Status !== ProductionStatus.RELEASED
       ) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `POKAYOKE FAILED: Cannot upload attachment - Production Release status is ${release.Status}`,
-          type: 'ERROR',
-          location: 'production-release.service.ts:878',
-        });
         throw new BadRequestException(
-          `Cannot upload attachment. Production Release status is ${release.Status}. Attachments can only be uploaded when status is DRAFT or RELEASED.`,
+          `Attachments cannot be uploaded while status is ${release.Status}.`,
         );
       }
-
-      // Determine which forecasts to attach the file to and get PoNumber for filename
-      let forecastIdsToAttach: string[] = [];
-      let poNumberForFilename = '';
-
-      if (dto.forecastId) {
-        const forecast = await this.prisma.forecast.findUnique({
-          where: { PoId: dto.forecastId },
+      const attachments: ReturnType<
+        ProductionReleaseService['toAttachmentResponse']
+      >[] = [];
+      for (const file of files) {
+        const storedFileName = this.createStoredFileName(file.originalname);
+        const filePath = await this.nasUploadService.uploadFile({
+          fileName: storedFileName,
+          fileBuffer: file.buffer,
+          subFolder: dto.productionReleaseId,
         });
-
-        if (!forecast) {
-          await this.logService.addLog({
-            processId: logProcess.ProcessId,
-            message: `POKAYOKE FAILED: Forecast ${dto.forecastId} not found`,
-            type: 'ERROR',
-            location: 'production-release.service.ts:910',
-          });
-          throw new NotFoundException(
-            `Forecast with id ${dto.forecastId} not found`,
-          );
-        }
-
-        if (forecast.ProductionReleaseId !== dto.productionReleaseId) {
-          await this.logService.addLog({
-            processId: logProcess.ProcessId,
-            message: `POKAYOKE FAILED: Forecast ${dto.forecastId} is not linked to production release ${dto.productionReleaseId}`,
-            type: 'ERROR',
-            location: 'production-release.service.ts:922',
-          });
-          throw new BadRequestException(
-            `Forecast ${dto.forecastId} is not linked to this production release`,
-          );
-        }
-
-        poNumberForFilename = forecast.PoNumber;
-
-        const relatedForecasts = await this.prisma.forecast.findMany({
-          where: { PoNumber: forecast.PoNumber },
-          select: { PoId: true },
-        });
-
-        forecastIdsToAttach = relatedForecasts.map((f) => f.PoId);
-
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Found ${forecastIdsToAttach.length} forecasts with PoNumber ${forecast.PoNumber}`,
-          type: 'INFO',
-          location: 'production-release.service.ts:950',
-        });
+        uploadedPaths.push(filePath);
+        const attachment = await this.prisma.productionReleaseAttachment.create(
+          {
+            data: {
+              FileName: storedFileName,
+              FilePath: filePath,
+              OriginalFileName: file.originalname,
+              FileSize: file.size,
+              MimeType: file.mimetype,
+              ProductionReleaseId: dto.productionReleaseId,
+              CreatedBy: createdBy,
+            },
+          },
+        );
+        attachments.push(this.toAttachmentResponse(attachment));
       }
-
-      // Generate filename: PoNumber_ddMMyyyy.extension
-      const ext = file.originalname.split('.').pop()?.toLowerCase() || '';
-      const dateStr = new Date()
-        .toLocaleDateString('id-ID', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        })
-        .replace(/\//g, '');
-      const newFileName = poNumberForFilename
-        ? `${poNumberForFilename}_${dateStr}.${ext}`
-        : `${dateStr}.${ext}`;
-
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Uploading file as: ${newFileName}`,
+        message: `Uploaded ${attachments.length} attachment(s) for production release ${dto.productionReleaseId}`,
         type: 'INFO',
-        location: 'production-release.service.ts:965',
-      });
-
-      // Upload file to NAS with formatted filename
-      const fileUrl = await this.nasUploadService.uploadFile({
-        fileName: newFileName,
-        fileBuffer: file.buffer,
-        subFolder: dto.productionReleaseId,
-      });
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `File uploaded to NAS: ${fileUrl}`,
-        type: 'INFO',
-        location: 'production-release.service.ts:962',
-      });
-
-      // Create delivery attachments
-      // If forecastId provided: create ONE attachment per PoNumber (all forecasts with same PoNumber share this attachment)
-      // If no forecastId: create ONE attachment for production release only
-
-      let attachments: any[] = [];
-
-      // Create single attachment (point to same file for all)
-      const attachment = await this.prisma.deliveryAttachment.create({
-        data: {
-          FileName: newFileName,
-          FilePath: fileUrl,
-          ProductionReleaseId: dto.productionReleaseId,
-          CreatedBy: createdBy,
-        },
-      });
-
-      attachments = [attachment];
-
-      // Link all forecasts with same PoNumber to this attachment
-      if (forecastIdsToAttach.length > 0) {
-        await this.prisma.forecast.updateMany({
-          where: { PoId: { in: forecastIdsToAttach } },
-          data: { AttachmentDeliveryId: attachment.id },
-        });
-
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Linked ${forecastIdsToAttach.length} forecasts to attachment ${attachment.id}`,
-          type: 'INFO',
-          location: 'production-release.service.ts:1010',
-        });
-      }
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message:
-          forecastIdsToAttach.length > 0
-            ? `Created 1 delivery attachment for PoNumber group (${forecastIdsToAttach.length} forecasts share this attachment): ${fileUrl}`
-            : `Created delivery attachment with id: ${attachment.id} (production release only)`,
-        type: 'INFO',
-        location: 'production-release.service.ts:1020',
+        location: 'ProductionReleaseService.uploadAttachment',
       });
 
       await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
 
       return attachments;
     } catch (error) {
+      await Promise.all(
+        uploadedPaths.map((path) =>
+          this.nasUploadService.deleteFile(path).catch(() => undefined),
+        ),
+      );
       if (logProcess) {
         await this.logService.addLog({
           processId: logProcess.ProcessId,
@@ -1172,16 +1057,99 @@ export class ProductionReleaseService {
       );
     }
 
-    return this.prisma.deliveryAttachment.findMany({
+    const attachments = await this.prisma.productionReleaseAttachment.findMany({
       where: { ProductionReleaseId: productionReleaseId },
       orderBy: { CreatedAt: 'desc' },
     });
+    return attachments.map((attachment) =>
+      this.toAttachmentResponse(attachment),
+    );
+  }
+
+  async replaceAttachment(
+    productionReleaseId: string,
+    attachmentId: number,
+    file: Express.Multer.File,
+    updatedBy: string,
+  ) {
+    let logProcess: LogProcessModel | undefined;
+    let newPath: string | undefined;
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'PROD_RELEASE_ATTACH_003',
+        functionName: 'ProductionReleaseService.ReplaceAttachment',
+        createdBy: updatedBy,
+      });
+      this.validateAttachmentFile(file);
+      const attachment =
+        await this.prisma.productionReleaseAttachment.findFirst({
+          where: { id: attachmentId, ProductionReleaseId: productionReleaseId },
+        });
+      if (!attachment)
+        throw new NotFoundException(
+          `Attachment with id ${attachmentId} not found for production release ${productionReleaseId}`,
+        );
+      const storedFileName = this.createStoredFileName(file.originalname);
+      newPath = await this.nasUploadService.uploadFile({
+        fileName: storedFileName,
+        fileBuffer: file.buffer,
+        subFolder: productionReleaseId,
+      });
+      const updated = await this.prisma.productionReleaseAttachment.update({
+        where: { id: attachmentId },
+        data: {
+          FileName: storedFileName,
+          FilePath: newPath,
+          OriginalFileName: file.originalname,
+          FileSize: file.size,
+          MimeType: file.mimetype,
+          UpdatedBy: updatedBy,
+        },
+      });
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Replaced attachment ${attachmentId} for production release ${productionReleaseId}`,
+        type: 'INFO',
+        location: 'ProductionReleaseService.replaceAttachment',
+      });
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      if (attachment.FilePath)
+        await this.nasUploadService
+          .deleteFile(attachment.FilePath)
+          .catch(() => undefined);
+      return this.toAttachmentResponse(updated);
+    } catch (error) {
+      if (newPath)
+        await this.nasUploadService.deleteFile(newPath).catch(() => undefined);
+      if (logProcess)
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      throw error;
+    }
+  }
+
+  async downloadAttachment(productionReleaseId: string, attachmentId: number) {
+    const attachment = await this.prisma.productionReleaseAttachment.findFirst({
+      where: { id: attachmentId, ProductionReleaseId: productionReleaseId },
+    });
+    if (!attachment?.FilePath)
+      throw new NotFoundException(
+        `Attachment with id ${attachmentId} not found for production release ${productionReleaseId}`,
+      );
+    const download = await this.nasUploadService.downloadFile(
+      attachment.FilePath,
+    );
+    return {
+      ...download,
+      fileName:
+        attachment.OriginalFileName ?? attachment.FileName ?? download.fileName,
+    };
   }
 
   /**
    * Delete attachment
    */
   async deleteAttachment(
+    productionReleaseId: string,
     attachmentId: number,
     createdBy: string,
   ): Promise<{ deleted: boolean; id: number }> {
@@ -1194,14 +1162,32 @@ export class ProductionReleaseService {
         createdBy,
       });
 
-      const attachment = await this.prisma.deliveryAttachment.findUnique({
-        where: { id: attachmentId },
-      });
+      const attachment =
+        await this.prisma.productionReleaseAttachment.findFirst({
+          where: { id: attachmentId, ProductionReleaseId: productionReleaseId },
+        });
 
       if (!attachment) {
         throw new NotFoundException(
           `DeliveryAttachment with id ${attachmentId} not found`,
         );
+      }
+
+      const release = await this.prisma.productionRelease.findUnique({
+        where: { Id: productionReleaseId },
+      });
+      if (
+        release?.Status === ProductionStatus.COMPLETED &&
+        !release.IsNoAttachment
+      ) {
+        const attachmentCount =
+          await this.prisma.productionReleaseAttachment.count({
+            where: { ProductionReleaseId: productionReleaseId },
+          });
+        if (attachmentCount <= 1)
+          throw new BadRequestException(
+            'Cannot delete the final required attachment from a completed production release.',
+          );
       }
 
       await this.logService.addLog({
@@ -1232,7 +1218,7 @@ export class ProductionReleaseService {
       }
 
       // Delete record from database
-      await this.prisma.deliveryAttachment.delete({
+      await this.prisma.productionReleaseAttachment.delete({
         where: { id: attachmentId },
       });
 
@@ -1252,6 +1238,46 @@ export class ProductionReleaseService {
       }
       throw error;
     }
+  }
+
+  private validateAttachmentFile(file: Express.Multer.File): void {
+    const extension = file.originalname.split('.').pop()?.toLowerCase();
+    if (!extension || !ALLOWED_EXTENSIONS.includes(extension))
+      throw new UnsupportedMediaTypeException(
+        `Invalid file extension. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
+      );
+    if (file.size > MAX_FILE_SIZE)
+      throw new BadRequestException('File too large. Maximum size is 10MB');
+  }
+
+  private createStoredFileName(originalName: string): string {
+    const extension = originalName.split('.').pop()?.toLowerCase() ?? 'bin';
+    return `${Date.now()}-${randomUUID()}.${extension}`;
+  }
+
+  private toAttachmentResponse(attachment: {
+    id: number;
+    ProductionReleaseId: string | null;
+    OriginalFileName: string | null;
+    FileName: string | null;
+    FileSize: number | null;
+    MimeType: string | null;
+    CreatedAt: Date;
+    CreatedBy: string | null;
+    UpdatedAt: Date;
+    UpdatedBy: string | null;
+  }) {
+    return {
+      Id: attachment.id,
+      ProductionReleaseId: attachment.ProductionReleaseId,
+      FileName: attachment.OriginalFileName ?? attachment.FileName,
+      FileSize: attachment.FileSize,
+      MimeType: attachment.MimeType,
+      CreatedAt: attachment.CreatedAt,
+      CreatedBy: attachment.CreatedBy,
+      UpdatedAt: attachment.UpdatedAt,
+      UpdatedBy: attachment.UpdatedBy,
+    };
   }
 
   /**
@@ -1279,11 +1305,6 @@ export class ProductionReleaseService {
         FinishGoodId: true,
         Qty: true,
         DeliveryDate: true,
-        AttachmentDelivery: {
-          select: {
-            FileName: true,
-          },
-        },
         PartData: {
           select: {
             PartNumber: true,
@@ -1453,7 +1474,6 @@ export class ProductionReleaseService {
         Qty: forecast.Qty,
         QtyRequired: qtyRequired,
         DeliveryDate: forecast.DeliveryDate,
-        AttachmentDelivery: forecast.AttachmentDelivery?.FileName ?? null,
         PartData: forecast.PartData,
         Shopping: shoppingList,
       };

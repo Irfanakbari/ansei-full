@@ -334,14 +334,11 @@ model Forecast {
   // Relasi ke jadwal produksi. Jika null, berarti PO ini belum dijadwalkan oleh Leader.
   ProductionReleaseId String?
 
-  AttachmentDeliveryId Int?
-
   DeliveryHistory    DeliveryHistory[]
   PartData           FinishGood          @relation(fields: [FinishGoodId], references: [PartNumber], onDelete: Cascade)
   LabelData          LabelData[]
   Shopping           Shopping[]
   ProductionRelease  ProductionRelease?  @relation(fields: [ProductionReleaseId], references: [Id])
-  AttachmentDelivery DeliveryAttachment? @relation(fields: [AttachmentDeliveryId], references: [id])
   ProductionReport   ProductionReport[]
 
   @@index([FinishGoodId], map: "Forecast_finishGoodId_fkey")
@@ -380,25 +377,31 @@ model ProductionRelease {
   // 1 Jadwal rilis BANYAK PO (Forecast)
   Forecasts          Forecast[]
   LabelDatas         LabelData[]
-  DeliveryAttachment DeliveryAttachment[]
+  Attachments        ProductionReleaseAttachment[]
 
   @@index([PlanDate])
   @@index([Status])
 }
 
-model DeliveryAttachment {
+model ProductionReleaseAttachment {
   id Int @id @default(autoincrement())
 
   FileName String?
   FilePath String?
+  OriginalFileName String?
+  FileSize Int?
+  MimeType String?
 
   CreatedAt DateTime @default(now())
   CreatedBy String?
   UpdatedAt DateTime @updatedAt
+  UpdatedBy String?
 
   ProductionRelease   ProductionRelease? @relation(fields: [ProductionReleaseId], references: [Id])
   ProductionReleaseId String?
-  Forecast            Forecast[]
+
+  @@index([ProductionReleaseId])
+  @@map("DeliveryAttachment")
 }
 
 model Shopping {

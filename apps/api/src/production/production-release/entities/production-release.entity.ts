@@ -146,15 +146,16 @@ export class ProductionReleaseDetailEntity extends ProductionReleaseEntity {
 
 export class AttachmentResponseEntity {
   @ApiProperty({ example: 1 })
-  id: number;
+  Id: number;
 
-  @ApiProperty({ example: 'PR-2026-0001_delivery_20072026.pdf' })
-  fileName: string;
+  @ApiProperty({ example: 'delivery-note.pdf' })
+  FileName: string;
 
-  @ApiProperty({
-    example: '/production-release/PR-xxx/PR-2026-0001_delivery_20072026.pdf',
-  })
-  filePath: string;
+  @ApiProperty({ example: 2048 })
+  FileSize: number;
+
+  @ApiProperty({ example: 'application/pdf' })
+  MimeType: string;
 }
 
 export class DeleteAttachmentResponseDto {
@@ -169,15 +170,16 @@ export class DeleteAttachmentResponseDto {
 
 export class DeliveryAttachmentEntity {
   @ApiProperty({ example: 1 })
-  id: number;
+  Id: number;
 
   @ApiPropertyOptional({ example: 'PO-2026-001_20072026.pdf' })
   FileName?: string | null;
 
-  @ApiPropertyOptional({
-    example: '/production-release/xxx/PO-2026-001_20072026.pdf',
-  })
-  FilePath?: string | null;
+  @ApiPropertyOptional({ example: 2048 })
+  FileSize?: number | null;
+
+  @ApiPropertyOptional({ example: 'application/pdf' })
+  MimeType?: string | null;
 
   @ApiProperty({ example: '2026-07-20T08:00:00.000Z' })
   CreatedAt: Date;
@@ -190,6 +192,9 @@ export class DeliveryAttachmentEntity {
 
   @ApiPropertyOptional({ example: '2026-07-20T10:00:00.000Z' })
   UpdatedAt?: Date | null;
+
+  @ApiPropertyOptional({ example: 'admin' })
+  UpdatedBy?: string | null;
 }
 
 // ==================== LABEL DATA ENTITIES ====================

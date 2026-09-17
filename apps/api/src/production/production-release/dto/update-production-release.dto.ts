@@ -5,7 +5,9 @@ import {
   IsOptional,
   IsArray,
   IsBoolean,
+  IsEnum,
 } from 'class-validator';
+import { ProductionStatus } from '../../../generated/prisma/enums';
 
 export class UpdateProductionReleaseDto {
   @ApiPropertyOptional({
@@ -21,8 +23,8 @@ export class UpdateProductionReleaseDto {
     example: 'IN_PROGRESS',
   })
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsEnum(ProductionStatus)
+  status?: ProductionStatus;
 
   @ApiPropertyOptional({ description: 'Catatan', example: 'Updated schedule' })
   @IsOptional()

@@ -220,7 +220,7 @@ export type StockOpnameGroupByOutputType = {
   OpnameNumber: string
   Category: $Enums.ItemCategory
   Status: $Enums.OpnameStatus
-  Tolerance: number
+  Tolerance: number | null
   CreatedAt: Date
   CreatedBy: string
   StartedAt: Date | null
@@ -257,7 +257,7 @@ export type StockOpnameWhereInput = {
   OpnameNumber?: Prisma.StringFilter<"StockOpname"> | string
   Category?: Prisma.EnumItemCategoryFilter<"StockOpname"> | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFilter<"StockOpname"> | $Enums.OpnameStatus
-  Tolerance?: Prisma.FloatFilter<"StockOpname"> | number
+  Tolerance?: Prisma.FloatNullableFilter<"StockOpname"> | number | null
   CreatedAt?: Prisma.DateTimeFilter<"StockOpname"> | Date | string
   CreatedBy?: Prisma.StringFilter<"StockOpname"> | string
   StartedAt?: Prisma.DateTimeNullableFilter<"StockOpname"> | Date | string | null
@@ -272,7 +272,7 @@ export type StockOpnameOrderByWithRelationInput = {
   OpnameNumber?: Prisma.SortOrder
   Category?: Prisma.SortOrder
   Status?: Prisma.SortOrder
-  Tolerance?: Prisma.SortOrder
+  Tolerance?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   StartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -290,7 +290,7 @@ export type StockOpnameWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.StockOpnameWhereInput | Prisma.StockOpnameWhereInput[]
   Category?: Prisma.EnumItemCategoryFilter<"StockOpname"> | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFilter<"StockOpname"> | $Enums.OpnameStatus
-  Tolerance?: Prisma.FloatFilter<"StockOpname"> | number
+  Tolerance?: Prisma.FloatNullableFilter<"StockOpname"> | number | null
   CreatedAt?: Prisma.DateTimeFilter<"StockOpname"> | Date | string
   CreatedBy?: Prisma.StringFilter<"StockOpname"> | string
   StartedAt?: Prisma.DateTimeNullableFilter<"StockOpname"> | Date | string | null
@@ -305,7 +305,7 @@ export type StockOpnameOrderByWithAggregationInput = {
   OpnameNumber?: Prisma.SortOrder
   Category?: Prisma.SortOrder
   Status?: Prisma.SortOrder
-  Tolerance?: Prisma.SortOrder
+  Tolerance?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   StartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -327,7 +327,7 @@ export type StockOpnameScalarWhereWithAggregatesInput = {
   OpnameNumber?: Prisma.StringWithAggregatesFilter<"StockOpname"> | string
   Category?: Prisma.EnumItemCategoryWithAggregatesFilter<"StockOpname"> | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusWithAggregatesFilter<"StockOpname"> | $Enums.OpnameStatus
-  Tolerance?: Prisma.FloatWithAggregatesFilter<"StockOpname"> | number
+  Tolerance?: Prisma.FloatNullableWithAggregatesFilter<"StockOpname"> | number | null
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"StockOpname"> | Date | string
   CreatedBy?: Prisma.StringWithAggregatesFilter<"StockOpname"> | string
   StartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"StockOpname"> | Date | string | null
@@ -341,7 +341,7 @@ export type StockOpnameCreateInput = {
   OpnameNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
-  Tolerance?: number
+  Tolerance?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   StartedAt?: Date | string | null
@@ -356,7 +356,7 @@ export type StockOpnameUncheckedCreateInput = {
   OpnameNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
-  Tolerance?: number
+  Tolerance?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   StartedAt?: Date | string | null
@@ -371,7 +371,7 @@ export type StockOpnameUpdateInput = {
   OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
-  Tolerance?: Prisma.FloatFieldUpdateOperationsInput | number
+  Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   StartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -386,7 +386,7 @@ export type StockOpnameUncheckedUpdateInput = {
   OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
-  Tolerance?: Prisma.FloatFieldUpdateOperationsInput | number
+  Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   StartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -401,7 +401,7 @@ export type StockOpnameCreateManyInput = {
   OpnameNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
-  Tolerance?: number
+  Tolerance?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   StartedAt?: Date | string | null
@@ -415,7 +415,7 @@ export type StockOpnameUpdateManyMutationInput = {
   OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
-  Tolerance?: Prisma.FloatFieldUpdateOperationsInput | number
+  Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   StartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -429,7 +429,7 @@ export type StockOpnameUncheckedUpdateManyInput = {
   OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
-  Tolerance?: Prisma.FloatFieldUpdateOperationsInput | number
+  Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   StartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -497,14 +497,6 @@ export type EnumOpnameStatusFieldUpdateOperationsInput = {
   set?: $Enums.OpnameStatus
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type StockOpnameCreateNestedOneWithoutDetailsInput = {
   create?: Prisma.XOR<Prisma.StockOpnameCreateWithoutDetailsInput, Prisma.StockOpnameUncheckedCreateWithoutDetailsInput>
   connectOrCreate?: Prisma.StockOpnameCreateOrConnectWithoutDetailsInput
@@ -524,7 +516,7 @@ export type StockOpnameCreateWithoutDetailsInput = {
   OpnameNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
-  Tolerance?: number
+  Tolerance?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   StartedAt?: Date | string | null
@@ -538,7 +530,7 @@ export type StockOpnameUncheckedCreateWithoutDetailsInput = {
   OpnameNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
-  Tolerance?: number
+  Tolerance?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   StartedAt?: Date | string | null
@@ -568,7 +560,7 @@ export type StockOpnameUpdateWithoutDetailsInput = {
   OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
-  Tolerance?: Prisma.FloatFieldUpdateOperationsInput | number
+  Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   StartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -582,7 +574,7 @@ export type StockOpnameUncheckedUpdateWithoutDetailsInput = {
   OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
-  Tolerance?: Prisma.FloatFieldUpdateOperationsInput | number
+  Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   StartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -698,7 +690,7 @@ export type $StockOpnamePayload<ExtArgs extends runtime.Types.Extensions.Interna
     OpnameNumber: string
     Category: $Enums.ItemCategory
     Status: $Enums.OpnameStatus
-    Tolerance: number
+    Tolerance: number | null
     CreatedAt: Date
     CreatedBy: string
     StartedAt: Date | null

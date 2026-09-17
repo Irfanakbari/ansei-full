@@ -67,7 +67,7 @@ export const ModelName = {
   MaterialNG: 'MaterialNG',
   Forecast: 'Forecast',
   ProductionRelease: 'ProductionRelease',
-  DeliveryAttachment: 'DeliveryAttachment',
+  ProductionReleaseAttachment: 'ProductionReleaseAttachment',
   Shopping: 'Shopping',
   ProductionReport: 'ProductionReport',
   LabelData: 'LabelData',
@@ -313,8 +313,7 @@ export const ForecastScalarFieldEnum = {
   Item: 'Item',
   Qty: 'Qty',
   FinishGoodId: 'FinishGoodId',
-  ProductionReleaseId: 'ProductionReleaseId',
-  AttachmentDeliveryId: 'AttachmentDeliveryId'
+  ProductionReleaseId: 'ProductionReleaseId'
 } as const
 
 export type ForecastScalarFieldEnum = (typeof ForecastScalarFieldEnum)[keyof typeof ForecastScalarFieldEnum]
@@ -338,17 +337,21 @@ export const ProductionReleaseScalarFieldEnum = {
 export type ProductionReleaseScalarFieldEnum = (typeof ProductionReleaseScalarFieldEnum)[keyof typeof ProductionReleaseScalarFieldEnum]
 
 
-export const DeliveryAttachmentScalarFieldEnum = {
+export const ProductionReleaseAttachmentScalarFieldEnum = {
   id: 'id',
   FileName: 'FileName',
   FilePath: 'FilePath',
+  OriginalFileName: 'OriginalFileName',
+  FileSize: 'FileSize',
+  MimeType: 'MimeType',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy',
   ProductionReleaseId: 'ProductionReleaseId'
 } as const
 
-export type DeliveryAttachmentScalarFieldEnum = (typeof DeliveryAttachmentScalarFieldEnum)[keyof typeof DeliveryAttachmentScalarFieldEnum]
+export type ProductionReleaseAttachmentScalarFieldEnum = (typeof ProductionReleaseAttachmentScalarFieldEnum)[keyof typeof ProductionReleaseAttachmentScalarFieldEnum]
 
 
 export const ShoppingScalarFieldEnum = {

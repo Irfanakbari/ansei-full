@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Table, Card, Breadcrumb, App, Input, Button, Space, Tag, Tooltip, Progress } from 'antd';
 import type { InputRef } from 'antd';
-import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, PaperClipOutlined } from '@ant-design/icons';
+import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,7 +13,6 @@ import { ProductionReleaseEntity, fetchProductionRelease, deleteProductionReleas
 import DetailProductionReleaseModal from './_components/DetailProductionReleaseModal';
 import CreateProductionReleaseModal from './_components/CreateProductionReleaseModal';
 import EditProductionReleaseModal from './_components/EditProductionReleaseModal';
-import AttachmentModal from './_components/AttachmentModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -32,7 +31,6 @@ export default function ProductionReleasePage() {
     const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-    const [isAttachmentModalVisible, setIsAttachmentModalVisible] = useState(false);
     const [detailData, setDetailData] = useState<ProductionReleaseEntity | null>(null);
     const [editData, setEditData] = useState<ProductionReleaseEntity | null>(null);
     const [sortedInfo, setSortedInfo] = useState<any>({});
@@ -68,18 +66,6 @@ export default function ProductionReleasePage() {
 
     const handleCloseEditModal = () => {
         setIsEditModalVisible(false);
-        setEditData(null);
-    };
-
-    const handleAttachment = () => {
-        if (selectedRecord) {
-            setEditData(selectedRecord);
-            setIsAttachmentModalVisible(true);
-        }
-    };
-
-    const handleCloseAttachmentModal = () => {
-        setIsAttachmentModalVisible(false);
         setEditData(null);
     };
 
@@ -233,7 +219,6 @@ export default function ProductionReleasePage() {
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Attachment" icon={<PaperClipOutlined />} onClick={handleAttachment} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
             </ToolbarWrapper>
 
@@ -287,14 +272,6 @@ export default function ProductionReleasePage() {
                 />
             )}
 
-            {editData && (
-                <AttachmentModal
-                    visible={isAttachmentModalVisible}
-                    onClose={handleCloseAttachmentModal}
-                    data={editData}
-                    onSuccess={() => dispatch(fetchProductionRelease(query))}
-                />
-            )}
         </Card>
     );
 }

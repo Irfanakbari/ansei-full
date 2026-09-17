@@ -413,7 +413,7 @@ export const ModelName = {
   MaterialNG: 'MaterialNG',
   Forecast: 'Forecast',
   ProductionRelease: 'ProductionRelease',
-  DeliveryAttachment: 'DeliveryAttachment',
+  ProductionReleaseAttachment: 'ProductionReleaseAttachment',
   Shopping: 'Shopping',
   ProductionReport: 'ProductionReport',
   LabelData: 'LabelData',
@@ -449,7 +449,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "satuan" | "supplier" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "deliveryAttachment" | "shopping" | "productionReport" | "labelData" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig"
+    modelProps: "satuan" | "supplier" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "productionReport" | "labelData" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1637,77 +1637,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    DeliveryAttachment: {
-      payload: Prisma.$DeliveryAttachmentPayload<ExtArgs>
-      fields: Prisma.DeliveryAttachmentFieldRefs
+    ProductionReleaseAttachment: {
+      payload: Prisma.$ProductionReleaseAttachmentPayload<ExtArgs>
+      fields: Prisma.ProductionReleaseAttachmentFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.DeliveryAttachmentFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload> | null
+          args: Prisma.ProductionReleaseAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.DeliveryAttachmentFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload>
+          args: Prisma.ProductionReleaseAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload>
         }
         findFirst: {
-          args: Prisma.DeliveryAttachmentFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload> | null
+          args: Prisma.ProductionReleaseAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.DeliveryAttachmentFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload>
+          args: Prisma.ProductionReleaseAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload>
         }
         findMany: {
-          args: Prisma.DeliveryAttachmentFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload>[]
+          args: Prisma.ProductionReleaseAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload>[]
         }
         create: {
-          args: Prisma.DeliveryAttachmentCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload>
+          args: Prisma.ProductionReleaseAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload>
         }
         createMany: {
-          args: Prisma.DeliveryAttachmentCreateManyArgs<ExtArgs>
+          args: Prisma.ProductionReleaseAttachmentCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.DeliveryAttachmentCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload>[]
+          args: Prisma.ProductionReleaseAttachmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload>[]
         }
         delete: {
-          args: Prisma.DeliveryAttachmentDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload>
+          args: Prisma.ProductionReleaseAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload>
         }
         update: {
-          args: Prisma.DeliveryAttachmentUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload>
+          args: Prisma.ProductionReleaseAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload>
         }
         deleteMany: {
-          args: Prisma.DeliveryAttachmentDeleteManyArgs<ExtArgs>
+          args: Prisma.ProductionReleaseAttachmentDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.DeliveryAttachmentUpdateManyArgs<ExtArgs>
+          args: Prisma.ProductionReleaseAttachmentUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.DeliveryAttachmentUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload>[]
+          args: Prisma.ProductionReleaseAttachmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload>[]
         }
         upsert: {
-          args: Prisma.DeliveryAttachmentUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeliveryAttachmentPayload>
+          args: Prisma.ProductionReleaseAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseAttachmentPayload>
         }
         aggregate: {
-          args: Prisma.DeliveryAttachmentAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateDeliveryAttachment>
+          args: Prisma.ProductionReleaseAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductionReleaseAttachment>
         }
         groupBy: {
-          args: Prisma.DeliveryAttachmentGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DeliveryAttachmentGroupByOutputType>[]
+          args: Prisma.ProductionReleaseAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionReleaseAttachmentGroupByOutputType>[]
         }
         count: {
-          args: Prisma.DeliveryAttachmentCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.DeliveryAttachmentCountAggregateOutputType> | number
+          args: Prisma.ProductionReleaseAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionReleaseAttachmentCountAggregateOutputType> | number
         }
       }
     }
@@ -3437,8 +3437,7 @@ export const ForecastScalarFieldEnum = {
   Item: 'Item',
   Qty: 'Qty',
   FinishGoodId: 'FinishGoodId',
-  ProductionReleaseId: 'ProductionReleaseId',
-  AttachmentDeliveryId: 'AttachmentDeliveryId'
+  ProductionReleaseId: 'ProductionReleaseId'
 } as const
 
 export type ForecastScalarFieldEnum = (typeof ForecastScalarFieldEnum)[keyof typeof ForecastScalarFieldEnum]
@@ -3462,17 +3461,21 @@ export const ProductionReleaseScalarFieldEnum = {
 export type ProductionReleaseScalarFieldEnum = (typeof ProductionReleaseScalarFieldEnum)[keyof typeof ProductionReleaseScalarFieldEnum]
 
 
-export const DeliveryAttachmentScalarFieldEnum = {
+export const ProductionReleaseAttachmentScalarFieldEnum = {
   id: 'id',
   FileName: 'FileName',
   FilePath: 'FilePath',
+  OriginalFileName: 'OriginalFileName',
+  FileSize: 'FileSize',
+  MimeType: 'MimeType',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy',
   ProductionReleaseId: 'ProductionReleaseId'
 } as const
 
-export type DeliveryAttachmentScalarFieldEnum = (typeof DeliveryAttachmentScalarFieldEnum)[keyof typeof DeliveryAttachmentScalarFieldEnum]
+export type ProductionReleaseAttachmentScalarFieldEnum = (typeof ProductionReleaseAttachmentScalarFieldEnum)[keyof typeof ProductionReleaseAttachmentScalarFieldEnum]
 
 
 export const ShoppingScalarFieldEnum = {
@@ -4211,7 +4214,7 @@ export type GlobalOmitConfig = {
   materialNG?: Prisma.MaterialNGOmit
   forecast?: Prisma.ForecastOmit
   productionRelease?: Prisma.ProductionReleaseOmit
-  deliveryAttachment?: Prisma.DeliveryAttachmentOmit
+  productionReleaseAttachment?: Prisma.ProductionReleaseAttachmentOmit
   shopping?: Prisma.ShoppingOmit
   productionReport?: Prisma.ProductionReportOmit
   labelData?: Prisma.LabelDataOmit

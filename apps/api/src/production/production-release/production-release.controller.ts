@@ -1,4 +1,4 @@
-import { ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -11,9 +11,14 @@ import {
   Post,
   Query,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
+  ParseIntPipe,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import type { Response } from 'express';
 import { ProductionReleaseService } from './production-release.service';
 import {
   CreateProductionReleaseDto,
@@ -127,14 +132,51 @@ export class ProductionReleaseController {
   // ==================== ATTACHMENT ENDPOINTS ====================
 
   @Post(':id/attachments')
-  @Permission('IPCS.PRODUCTION_RELEASE_CREATE')
-  @UseInterceptors(FileInterceptor('file'))
+  @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
+  @UseInterceptors(FilesInterceptor('files', 10))
   @ApiConsumes('multipart/form-data')
-  @ApiResponse({ status: 201, type: AttachmentResponseEntity })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          maxItems: 10,
+          items: { type: 'string', format: 'binary' },
+        },
+      },
+      required: ['files'],
+    },
+  })
+  @ApiResponse({ status: 201, type: [AttachmentResponseEntity] })
   @ApiResponse({ status: 404, description: 'Release not found' })
   async uploadAttachment(
     @Param('id') id: string,
-    @Body() dto: UploadProductionAttachmentDto,
+    @UploadedFiles() files: Express.Multer.File[],
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.productionReleaseService.uploadAttachment(
+      { productionReleaseId: id },
+      files,
+      user.username,
+    );
+  }
+
+  @Patch(':id/attachments/:attachmentId')
+  @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+      required: ['file'],
+    },
+  })
+  @ApiResponse({ status: 200, type: AttachmentResponseEntity })
+  async replaceAttachment(
+    @Param('id') id: string,
+    @Param('attachmentId', ParseIntPipe) attachmentId: number,
     @UploadedFile(
       new ParseFilePipe({
         validators: [new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 })],
@@ -144,11 +186,31 @@ export class ProductionReleaseController {
     file: Express.Multer.File,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.productionReleaseService.uploadAttachment(
-      { ...dto, productionReleaseId: id },
+    return this.productionReleaseService.replaceAttachment(
+      id,
+      attachmentId,
       file,
       user.username,
     );
+  }
+
+  @Get(':id/attachments/:attachmentId/download')
+  @Permission('IPCS.PRODUCTION_RELEASE_READ')
+  async downloadAttachment(
+    @Param('id') id: string,
+    @Param('attachmentId', ParseIntPipe) attachmentId: number,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const download = await this.productionReleaseService.downloadAttachment(
+      id,
+      attachmentId,
+    );
+    response.setHeader('Content-Type', download.contentType);
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename*=UTF-8''${encodeURIComponent(download.fileName)}`,
+    );
+    return new StreamableFile(download.response.body as never);
   }
 
   @Get(':id/attachments')
@@ -162,15 +224,17 @@ export class ProductionReleaseController {
     return this.productionReleaseService.getAttachments(id);
   }
 
-  @Delete('attachments/:attachmentId')
+  @Delete(':id/attachments/:attachmentId')
   @Permission('IPCS.PRODUCTION_RELEASE_DELETE')
   @ApiResponse({ status: 200, type: DeleteAttachmentResponseDto })
   @ApiResponse({ status: 404, description: 'Attachment not found' })
   async deleteAttachment(
-    @Param('attachmentId', ParseFilePipe) attachmentId: number,
+    @Param('id') id: string,
+    @Param('attachmentId', ParseIntPipe) attachmentId: number,
     @CurrentUser() user: ICurrentUser,
   ) {
     return this.productionReleaseService.deleteAttachment(
+      id,
       attachmentId,
       user.username,
     );

@@ -290,10 +290,11 @@ export class FrontendService {
     // 2. Are linked to a Production Release with COMPLETED status
     const forecastsWithoutAttachment = await this.prisma.forecast.findMany({
       where: {
-        AttachmentDeliveryId: null,
         ProductionReleaseId: { not: null },
         ProductionRelease: {
           Status: ProductionStatus.RELEASED,
+          IsNoAttachment: false,
+          Attachments: { none: {} },
         },
       },
       select: {

@@ -49,10 +49,13 @@ describe('ProductionReleaseService', () => {
       deliveryHistory: {
         findMany: jest.fn(),
       },
-      deliveryAttachment: {
+      productionReleaseAttachment: {
         findMany: jest.fn(),
         create: jest.fn(),
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
+        update: jest.fn(),
+        count: jest.fn(),
         delete: jest.fn(),
       },
     };
@@ -357,7 +360,7 @@ describe('ProductionReleaseService', () => {
     it('should upload attachment successfully', async () => {
       prismaService.productionRelease.findUnique.mockResolvedValue(mockRelease);
       nasUploadService.uploadFile.mockResolvedValue('http://nas/file.pdf');
-      prismaService.deliveryAttachment.create.mockResolvedValue({
+      prismaService.productionReleaseAttachment.create.mockResolvedValue({
         id: 1,
         FileName: 'test.pdf',
         FilePath: 'http://nas/file.pdf',
@@ -366,7 +369,7 @@ describe('ProductionReleaseService', () => {
 
       const result = await service.uploadAttachment(
         { productionReleaseId: 'rel-1' },
-        mockFile,
+        [mockFile],
         'testuser',
       );
 
@@ -385,7 +388,7 @@ describe('ProductionReleaseService', () => {
       await expect(
         service.uploadAttachment(
           { productionReleaseId: 'rel-1' },
-          invalidFile,
+          [invalidFile],
           'testuser',
         ),
       ).rejects.toThrow(UnsupportedMediaTypeException);
@@ -400,7 +403,7 @@ describe('ProductionReleaseService', () => {
       await expect(
         service.uploadAttachment(
           { productionReleaseId: 'rel-1' },
-          largeFile,
+          [largeFile],
           'testuser',
         ),
       ).rejects.toThrow(BadRequestException);
@@ -418,7 +421,7 @@ describe('ProductionReleaseService', () => {
       await expect(
         service.uploadAttachment(
           { productionReleaseId: 'rel-1' },
-          mockFile,
+          [mockFile],
           'testuser',
         ),
       ).rejects.toThrow(BadRequestException);
@@ -430,7 +433,7 @@ describe('ProductionReleaseService', () => {
       await expect(
         service.uploadAttachment(
           { productionReleaseId: 'invalid-id' },
-          mockFile,
+          [mockFile],
           'testuser',
         ),
       ).rejects.toThrow(NotFoundException);
@@ -448,78 +451,37 @@ describe('ProductionReleaseService', () => {
       await expect(
         service.uploadAttachment(
           { productionReleaseId: 'rel-1' },
-          mockFile,
+          [mockFile],
           'testuser',
         ),
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should create one attachment per PoNumber group (all forecasts with same PoNumber share this attachment)', async () => {
+    it('should upload multiple attachments without updating forecasts', async () => {
       prismaService.productionRelease.findUnique.mockResolvedValue(mockRelease);
-      prismaService.forecast.findUnique.mockResolvedValue({
-        PoId: 'PO-001',
-        PoNumber: 'PO-2026-001',
-        ProductionReleaseId: 'rel-1',
-      });
-      prismaService.forecast.findMany.mockResolvedValue([
-        { PoId: 'PO-001' },
-        { PoId: 'PO-002' },
-        { PoId: 'PO-003' },
-      ]);
       nasUploadService.uploadFile.mockResolvedValue('http://nas/file.pdf');
-      prismaService.deliveryAttachment.create.mockResolvedValue({
-        id: 1,
-        FileName: 'test.pdf',
-        FilePath: 'http://nas/file.pdf',
-        ProductionReleaseId: 'rel-1',
-      });
-      prismaService.forecast.updateMany.mockResolvedValue({ count: 3 });
+      prismaService.productionReleaseAttachment.create.mockImplementation(
+        ({ data }) =>
+          Promise.resolve({
+            id: 1,
+            ...data,
+            CreatedAt: new Date(),
+            UpdatedAt: new Date(),
+            UpdatedBy: null,
+          }),
+      );
 
       const result = await service.uploadAttachment(
-        { productionReleaseId: 'rel-1', forecastId: 'PO-001' },
-        mockFile,
+        { productionReleaseId: 'rel-1' },
+        [mockFile, mockFile],
         'testuser',
       );
 
-      // Verify forecast was found by PoId
-      expect(prismaService.forecast.findUnique).toHaveBeenCalledWith({
-        where: { PoId: 'PO-001' },
-      });
-
-      // Verify all forecasts with same PoNumber were found
-      expect(prismaService.forecast.findMany).toHaveBeenCalledWith({
-        where: { PoNumber: 'PO-2026-001' },
-        select: { PoId: true },
-      });
-
-      // Verify ONLY ONE attachment was created (shared by all forecasts with same PoNumber)
-      expect(prismaService.deliveryAttachment.create).toHaveBeenCalledTimes(1);
-
-      // Verify all related forecasts were linked to this attachment
-      expect(prismaService.forecast.updateMany).toHaveBeenCalledWith({
-        where: { PoId: { in: ['PO-001', 'PO-002', 'PO-003'] } },
-        data: { AttachmentDeliveryId: 1 },
-      });
-
-      // Verify the single attachment points to the file
-      expect(result).toHaveLength(1);
-      expect(result[0].FilePath).toBe('http://nas/file.pdf');
-    });
-
-    it('should reject if forecastId is not linked to production release (Pokayoke)', async () => {
-      prismaService.productionRelease.findUnique.mockResolvedValue(mockRelease);
-      prismaService.forecast.findUnique.mockResolvedValue({
-        PoId: 'PO-001',
-        ProductionReleaseId: 'other-release',
-      });
-
-      await expect(
-        service.uploadAttachment(
-          { productionReleaseId: 'rel-1', forecastId: 'PO-001' },
-          mockFile,
-          'testuser',
-        ),
-      ).rejects.toThrow(BadRequestException);
+      expect(result).toHaveLength(2);
+      expect(
+        prismaService.productionReleaseAttachment.create,
+      ).toHaveBeenCalledTimes(2);
+      expect(prismaService.forecast.updateMany).not.toHaveBeenCalled();
     });
   });
 
@@ -533,14 +495,16 @@ describe('ProductionReleaseService', () => {
       prismaService.productionRelease.findUnique.mockResolvedValue({
         Id: 'rel-1',
       });
-      prismaService.deliveryAttachment.findMany.mockResolvedValue(
+      prismaService.productionReleaseAttachment.findMany.mockResolvedValue(
         mockAttachments,
       );
 
       const result = await service.getAttachments('rel-1');
 
       expect(result).toHaveLength(2);
-      expect(prismaService.deliveryAttachment.findMany).toHaveBeenCalledWith({
+      expect(
+        prismaService.productionReleaseAttachment.findMany,
+      ).toHaveBeenCalledWith({
         where: { ProductionReleaseId: 'rel-1' },
         orderBy: { CreatedAt: 'desc' },
       });
@@ -571,13 +535,19 @@ describe('ProductionReleaseService', () => {
         ProcessStatus: 'STARTED',
       });
 
-      prismaService.deliveryAttachment.findUnique.mockResolvedValue(
+      prismaService.productionReleaseAttachment.findFirst.mockResolvedValue(
         mockAttachment,
       );
       nasUploadService.deleteFile.mockResolvedValue(undefined);
-      prismaService.deliveryAttachment.delete.mockResolvedValue(mockAttachment);
+      prismaService.productionReleaseAttachment.delete.mockResolvedValue(
+        mockAttachment,
+      );
 
-      const result = await service.deleteAttachment(1, 'testuser');
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        Status: ProductionStatus.RELEASED,
+        IsNoAttachment: false,
+      });
+      const result = await service.deleteAttachment('rel-1', 1, 'testuser');
 
       expect(result).toEqual({ deleted: true, id: 1 });
       expect(nasUploadService.deleteFile).toHaveBeenCalledWith(
@@ -593,11 +563,13 @@ describe('ProductionReleaseService', () => {
         ProcessStatus: 'STARTED',
       });
 
-      prismaService.deliveryAttachment.findUnique.mockResolvedValue(null);
-
-      await expect(service.deleteAttachment(999, 'testuser')).rejects.toThrow(
-        NotFoundException,
+      prismaService.productionReleaseAttachment.findFirst.mockResolvedValue(
+        null,
       );
+
+      await expect(
+        service.deleteAttachment('rel-1', 999, 'testuser'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

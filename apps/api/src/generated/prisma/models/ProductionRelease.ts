@@ -282,7 +282,7 @@ export type ProductionReleaseWhereInput = {
   IsNoAttachment?: Prisma.BoolFilter<"ProductionRelease"> | boolean
   Forecasts?: Prisma.ForecastListRelationFilter
   LabelDatas?: Prisma.LabelDataListRelationFilter
-  DeliveryAttachment?: Prisma.DeliveryAttachmentListRelationFilter
+  Attachments?: Prisma.ProductionReleaseAttachmentListRelationFilter
 }
 
 export type ProductionReleaseOrderByWithRelationInput = {
@@ -300,7 +300,7 @@ export type ProductionReleaseOrderByWithRelationInput = {
   IsNoAttachment?: Prisma.SortOrder
   Forecasts?: Prisma.ForecastOrderByRelationAggregateInput
   LabelDatas?: Prisma.LabelDataOrderByRelationAggregateInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentOrderByRelationAggregateInput
+  Attachments?: Prisma.ProductionReleaseAttachmentOrderByRelationAggregateInput
 }
 
 export type ProductionReleaseWhereUniqueInput = Prisma.AtLeast<{
@@ -321,7 +321,7 @@ export type ProductionReleaseWhereUniqueInput = Prisma.AtLeast<{
   IsNoAttachment?: Prisma.BoolFilter<"ProductionRelease"> | boolean
   Forecasts?: Prisma.ForecastListRelationFilter
   LabelDatas?: Prisma.LabelDataListRelationFilter
-  DeliveryAttachment?: Prisma.DeliveryAttachmentListRelationFilter
+  Attachments?: Prisma.ProductionReleaseAttachmentListRelationFilter
 }, "Id" | "ReleaseNumber">
 
 export type ProductionReleaseOrderByWithAggregationInput = {
@@ -377,7 +377,7 @@ export type ProductionReleaseCreateInput = {
   IsNoAttachment?: boolean
   Forecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateInput = {
@@ -395,7 +395,7 @@ export type ProductionReleaseUncheckedCreateInput = {
   IsNoAttachment?: boolean
   Forecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUpdateInput = {
@@ -413,7 +413,7 @@ export type ProductionReleaseUpdateInput = {
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Forecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateInput = {
@@ -431,7 +431,7 @@ export type ProductionReleaseUncheckedUpdateInput = {
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Forecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseCreateManyInput = {
@@ -561,20 +561,20 @@ export type EnumProductionStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProductionStatus
 }
 
-export type ProductionReleaseCreateNestedOneWithoutDeliveryAttachmentInput = {
-  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutDeliveryAttachmentInput, Prisma.ProductionReleaseUncheckedCreateWithoutDeliveryAttachmentInput>
-  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutDeliveryAttachmentInput
+export type ProductionReleaseCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutAttachmentsInput, Prisma.ProductionReleaseUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutAttachmentsInput
   connect?: Prisma.ProductionReleaseWhereUniqueInput
 }
 
-export type ProductionReleaseUpdateOneWithoutDeliveryAttachmentNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutDeliveryAttachmentInput, Prisma.ProductionReleaseUncheckedCreateWithoutDeliveryAttachmentInput>
-  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutDeliveryAttachmentInput
-  upsert?: Prisma.ProductionReleaseUpsertWithoutDeliveryAttachmentInput
+export type ProductionReleaseUpdateOneWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutAttachmentsInput, Prisma.ProductionReleaseUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.ProductionReleaseUpsertWithoutAttachmentsInput
   disconnect?: Prisma.ProductionReleaseWhereInput | boolean
   delete?: Prisma.ProductionReleaseWhereInput | boolean
   connect?: Prisma.ProductionReleaseWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutDeliveryAttachmentInput, Prisma.ProductionReleaseUpdateWithoutDeliveryAttachmentInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutDeliveryAttachmentInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.ProductionReleaseUpdateWithoutAttachmentsInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutAttachmentsInput>
 }
 
 export type ProductionReleaseCreateNestedOneWithoutLabelDatasInput = {
@@ -607,7 +607,7 @@ export type ProductionReleaseCreateWithoutForecastsInput = {
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutForecastsInput = {
@@ -624,7 +624,7 @@ export type ProductionReleaseUncheckedCreateWithoutForecastsInput = {
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutForecastsInput = {
@@ -657,7 +657,7 @@ export type ProductionReleaseUpdateWithoutForecastsInput = {
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutForecastsInput = {
@@ -674,10 +674,10 @@ export type ProductionReleaseUncheckedUpdateWithoutForecastsInput = {
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
-export type ProductionReleaseCreateWithoutDeliveryAttachmentInput = {
+export type ProductionReleaseCreateWithoutAttachmentsInput = {
   Id?: string
   ReleaseNumber: string
   PlanDate: Date | string
@@ -694,7 +694,7 @@ export type ProductionReleaseCreateWithoutDeliveryAttachmentInput = {
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
 }
 
-export type ProductionReleaseUncheckedCreateWithoutDeliveryAttachmentInput = {
+export type ProductionReleaseUncheckedCreateWithoutAttachmentsInput = {
   Id?: string
   ReleaseNumber: string
   PlanDate: Date | string
@@ -711,23 +711,23 @@ export type ProductionReleaseUncheckedCreateWithoutDeliveryAttachmentInput = {
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
-export type ProductionReleaseCreateOrConnectWithoutDeliveryAttachmentInput = {
+export type ProductionReleaseCreateOrConnectWithoutAttachmentsInput = {
   where: Prisma.ProductionReleaseWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutDeliveryAttachmentInput, Prisma.ProductionReleaseUncheckedCreateWithoutDeliveryAttachmentInput>
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutAttachmentsInput, Prisma.ProductionReleaseUncheckedCreateWithoutAttachmentsInput>
 }
 
-export type ProductionReleaseUpsertWithoutDeliveryAttachmentInput = {
-  update: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutDeliveryAttachmentInput, Prisma.ProductionReleaseUncheckedUpdateWithoutDeliveryAttachmentInput>
-  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutDeliveryAttachmentInput, Prisma.ProductionReleaseUncheckedCreateWithoutDeliveryAttachmentInput>
+export type ProductionReleaseUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutAttachmentsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutAttachmentsInput, Prisma.ProductionReleaseUncheckedCreateWithoutAttachmentsInput>
   where?: Prisma.ProductionReleaseWhereInput
 }
 
-export type ProductionReleaseUpdateToOneWithWhereWithoutDeliveryAttachmentInput = {
+export type ProductionReleaseUpdateToOneWithWhereWithoutAttachmentsInput = {
   where?: Prisma.ProductionReleaseWhereInput
-  data: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutDeliveryAttachmentInput, Prisma.ProductionReleaseUncheckedUpdateWithoutDeliveryAttachmentInput>
+  data: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutAttachmentsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutAttachmentsInput>
 }
 
-export type ProductionReleaseUpdateWithoutDeliveryAttachmentInput = {
+export type ProductionReleaseUpdateWithoutAttachmentsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -744,7 +744,7 @@ export type ProductionReleaseUpdateWithoutDeliveryAttachmentInput = {
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
 }
 
-export type ProductionReleaseUncheckedUpdateWithoutDeliveryAttachmentInput = {
+export type ProductionReleaseUncheckedUpdateWithoutAttachmentsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -775,7 +775,7 @@ export type ProductionReleaseCreateWithoutLabelDatasInput = {
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
   Forecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutLabelDatasInput = {
@@ -792,7 +792,7 @@ export type ProductionReleaseUncheckedCreateWithoutLabelDatasInput = {
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
   Forecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutLabelDatasInput = {
@@ -825,7 +825,7 @@ export type ProductionReleaseUpdateWithoutLabelDatasInput = {
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Forecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutLabelDatasInput = {
@@ -842,7 +842,7 @@ export type ProductionReleaseUncheckedUpdateWithoutLabelDatasInput = {
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Forecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
-  DeliveryAttachment?: Prisma.DeliveryAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 
@@ -853,13 +853,13 @@ export type ProductionReleaseUncheckedUpdateWithoutLabelDatasInput = {
 export type ProductionReleaseCountOutputType = {
   Forecasts: number
   LabelDatas: number
-  DeliveryAttachment: number
+  Attachments: number
 }
 
 export type ProductionReleaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Forecasts?: boolean | ProductionReleaseCountOutputTypeCountForecastsArgs
   LabelDatas?: boolean | ProductionReleaseCountOutputTypeCountLabelDatasArgs
-  DeliveryAttachment?: boolean | ProductionReleaseCountOutputTypeCountDeliveryAttachmentArgs
+  Attachments?: boolean | ProductionReleaseCountOutputTypeCountAttachmentsArgs
 }
 
 /**
@@ -889,8 +889,8 @@ export type ProductionReleaseCountOutputTypeCountLabelDatasArgs<ExtArgs extends 
 /**
  * ProductionReleaseCountOutputType without action
  */
-export type ProductionReleaseCountOutputTypeCountDeliveryAttachmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.DeliveryAttachmentWhereInput
+export type ProductionReleaseCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionReleaseAttachmentWhereInput
 }
 
 
@@ -909,7 +909,7 @@ export type ProductionReleaseSelect<ExtArgs extends runtime.Types.Extensions.Int
   IsNoAttachment?: boolean
   Forecasts?: boolean | Prisma.ProductionRelease$ForecastsArgs<ExtArgs>
   LabelDatas?: boolean | Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>
-  DeliveryAttachment?: boolean | Prisma.ProductionRelease$DeliveryAttachmentArgs<ExtArgs>
+  Attachments?: boolean | Prisma.ProductionRelease$AttachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionReleaseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionRelease"]>
 
@@ -962,7 +962,7 @@ export type ProductionReleaseOmit<ExtArgs extends runtime.Types.Extensions.Inter
 export type ProductionReleaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Forecasts?: boolean | Prisma.ProductionRelease$ForecastsArgs<ExtArgs>
   LabelDatas?: boolean | Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>
-  DeliveryAttachment?: boolean | Prisma.ProductionRelease$DeliveryAttachmentArgs<ExtArgs>
+  Attachments?: boolean | Prisma.ProductionRelease$AttachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionReleaseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductionReleaseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -973,7 +973,7 @@ export type $ProductionReleasePayload<ExtArgs extends runtime.Types.Extensions.I
   objects: {
     Forecasts: Prisma.$ForecastPayload<ExtArgs>[]
     LabelDatas: Prisma.$LabelDataPayload<ExtArgs>[]
-    DeliveryAttachment: Prisma.$DeliveryAttachmentPayload<ExtArgs>[]
+    Attachments: Prisma.$ProductionReleaseAttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: string
@@ -1384,7 +1384,7 @@ export interface Prisma__ProductionReleaseClient<T, Null = never, ExtArgs extend
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Forecasts<T extends Prisma.ProductionRelease$ForecastsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$ForecastsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LabelDatas<T extends Prisma.ProductionRelease$LabelDatasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  DeliveryAttachment<T extends Prisma.ProductionRelease$DeliveryAttachmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$DeliveryAttachmentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DeliveryAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Attachments<T extends Prisma.ProductionRelease$AttachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$AttachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionReleaseAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1867,27 +1867,27 @@ export type ProductionRelease$LabelDatasArgs<ExtArgs extends runtime.Types.Exten
 }
 
 /**
- * ProductionRelease.DeliveryAttachment
+ * ProductionRelease.Attachments
  */
-export type ProductionRelease$DeliveryAttachmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ProductionRelease$AttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the DeliveryAttachment
+   * Select specific fields to fetch from the ProductionReleaseAttachment
    */
-  select?: Prisma.DeliveryAttachmentSelect<ExtArgs> | null
+  select?: Prisma.ProductionReleaseAttachmentSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the DeliveryAttachment
+   * Omit specific fields from the ProductionReleaseAttachment
    */
-  omit?: Prisma.DeliveryAttachmentOmit<ExtArgs> | null
+  omit?: Prisma.ProductionReleaseAttachmentOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.DeliveryAttachmentInclude<ExtArgs> | null
-  where?: Prisma.DeliveryAttachmentWhereInput
-  orderBy?: Prisma.DeliveryAttachmentOrderByWithRelationInput | Prisma.DeliveryAttachmentOrderByWithRelationInput[]
-  cursor?: Prisma.DeliveryAttachmentWhereUniqueInput
+  include?: Prisma.ProductionReleaseAttachmentInclude<ExtArgs> | null
+  where?: Prisma.ProductionReleaseAttachmentWhereInput
+  orderBy?: Prisma.ProductionReleaseAttachmentOrderByWithRelationInput | Prisma.ProductionReleaseAttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionReleaseAttachmentWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.DeliveryAttachmentScalarFieldEnum | Prisma.DeliveryAttachmentScalarFieldEnum[]
+  distinct?: Prisma.ProductionReleaseAttachmentScalarFieldEnum | Prisma.ProductionReleaseAttachmentScalarFieldEnum[]
 }
 
 /**
