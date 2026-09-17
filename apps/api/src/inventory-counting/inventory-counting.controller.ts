@@ -235,4 +235,32 @@ export class InventoryCountingController {
 
     res.send(buffer);
   }
+
+  @Post('generate-final-report')
+  @Permission('IPCS.INVENTORY_COUNTING_READ')
+  @ApiOperation({
+    summary: 'Generate approved Final Report Excel file for inventory counting',
+  })
+  @ApiResponse({ status: 200, description: 'Excel file download' })
+  @ApiResponse({
+    status: 400,
+    description: 'Inventory counting has not been closed and approved',
+  })
+  async generateFinalReport(
+    @Body() dto: GenerateExcelDto,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.inventoryCountingService.generateFinalReport(
+      dto.id,
+    );
+
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename=Inventory_Final_Report_${dto.id}.xlsx`,
+      'Content-Length': buffer.length,
+    });
+
+    res.send(buffer);
+  }
 }

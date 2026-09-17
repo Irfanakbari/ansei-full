@@ -34,6 +34,7 @@ describe('InventoryCountingController', () => {
       generateCutOff: jest.fn(),
       updateActualStock: jest.fn(),
       close: jest.fn(),
+      generateFinalReport: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -386,6 +387,29 @@ describe('InventoryCountingController', () => {
 
       expect(result).toEqual(mockResult);
       expect(service.close).toHaveBeenCalledWith(mockDto, mockUser.username);
+    });
+  });
+
+  describe('generateFinalReport', () => {
+    it('should send the approved final report as an Excel attachment', async () => {
+      const buffer = Buffer.from('final-report');
+      const response = {
+        set: jest.fn(),
+        send: jest.fn(),
+      };
+      service.generateFinalReport.mockResolvedValue(buffer);
+
+      await controller.generateFinalReport({ id: '123' }, response as never);
+
+      expect(service.generateFinalReport).toHaveBeenCalledWith('123');
+      expect(response.set).toHaveBeenCalledWith({
+        'Content-Type':
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition':
+          'attachment; filename=Inventory_Final_Report_123.xlsx',
+        'Content-Length': buffer.length,
+      });
+      expect(response.send).toHaveBeenCalledWith(buffer);
     });
   });
 });

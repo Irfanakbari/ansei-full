@@ -373,6 +373,33 @@ export const generateTemporaryReport = createAsyncThunk<
     }
 );
 
+// Generate Final Report
+export const generateFinalReport = createAsyncThunk<
+    { success: boolean; filename: string },
+    { inventoryCountingId: string },
+    { rejectValue: string }
+>(
+    'inventoryCounting/generateFinalReport',
+    async ({ inventoryCountingId }, { rejectWithValue }) => {
+        try {
+            const blob = await postBlob('/inventory-counting/generate-final-report', { id: inventoryCountingId });
+            const filename = `Inventory_Final_Report_${inventoryCountingId}.xlsx`;
+            const url = window.URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = filename;
+            document.body.appendChild(anchor);
+            anchor.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(anchor);
+
+            return { success: true, filename };
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to download final report'));
+        }
+    }
+);
+
 // Download Snapshot Excel
 export const downloadSnapshot = createAsyncThunk<
     { success: boolean; filename: string },

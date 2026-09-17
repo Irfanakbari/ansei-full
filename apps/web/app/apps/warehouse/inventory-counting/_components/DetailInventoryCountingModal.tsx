@@ -9,6 +9,7 @@ import {
     updateActualStock,
     fetchInventoryCountingDetails,
     generateTemporaryReport,
+    generateFinalReport,
     InventoryCountingEntity,
     InventoryCountingDetailEntity,
 } from '@/store/features/warehouse/inventoryCounting/inventoryCountingSlice';
@@ -52,6 +53,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
     
     // Tolerance state
     const [downloadingTemp, setDownloadingTemp] = useState(false);
+    const [downloadingFinal, setDownloadingFinal] = useState(false);
 
     const canApprove = Boolean(
         user?.RoleName === 'SUPER' ||
@@ -153,7 +155,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
             }
             return d.ActualQty !== null;
         }).length;
-    }, [details, data?.Category]);
+    }, [details, data.Category]);
 
     const totalItems = details.length;
     const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
@@ -236,6 +238,23 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
             antMessage.error(error?.message || 'Failed to download temporary report');
         } finally {
             setDownloadingTemp(false);
+        }
+    };
+
+    const handleDownloadFinalReport = async () => {
+        if (data.Status !== 'COMPLETED') {
+            antMessage.warning('Final report is available after review and approval');
+            return;
+        }
+
+        setDownloadingFinal(true);
+        try {
+            await dispatch(generateFinalReport({ inventoryCountingId: data.Id })).unwrap();
+            antMessage.success('Final report downloaded');
+        } catch (error: unknown) {
+            antMessage.error(typeof error === 'string' ? error : 'Failed to download final report');
+        } finally {
+            setDownloadingFinal(false);
         }
     };
 
@@ -458,6 +477,16 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         >
                             Temporary Report
                         </Button>
+                        {data?.Status === 'COMPLETED' && (
+                            <Button
+                                type="primary"
+                                icon={<DownloadOutlined />}
+                                onClick={handleDownloadFinalReport}
+                                loading={downloadingFinal}
+                            >
+                                Final Report
+                            </Button>
+                        )}
                         {data?.Status === 'IN_PROGRESS' && canApprove && (
                             <Button
                                 type="primary"
