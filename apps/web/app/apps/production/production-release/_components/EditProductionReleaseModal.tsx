@@ -5,7 +5,11 @@ import React, { useState } from 'react';
 import { Modal, Form, Input, App, Select, Switch } from 'antd';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
-import { updateProductionRelease, ProductionReleaseEntity } from '@/store/features/production/productionRelease/productionReleaseSlice';
+import {
+    updateProductionRelease,
+    ProductionReleaseEntity,
+    UpdateProductionReleasePayload,
+} from '@/store/features/production/productionRelease/productionReleaseSlice';
 
 interface Props {
     visible: boolean;
@@ -32,16 +36,13 @@ const EditProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data, o
             const values = await form.validateFields();
             setLoading(true);
 
-            const payload: any = {};
+            const payload: UpdateProductionReleasePayload = {};
 
             if (values.status) payload.status = values.status;
             if (values.notes !== undefined) payload.notes = values.notes;
             if (values.isNoAttachment !== undefined) payload.isNoAttachment = values.isNoAttachment;
 
-            const result = await dispatch(updateProductionRelease({ id: data.Id, data: payload }));
-            if (updateProductionRelease.rejected.match(result)) {
-                throw new Error((result.payload as string) || 'Failed to create/update/delete');
-            }
+            await dispatch(updateProductionRelease({ id: data.Id, data: payload })).unwrap();
             message.success('Production release updated successfully');
             form.resetFields();
             onClose();

@@ -27,6 +27,10 @@ describe('PokayokeService', () => {
       findUnique: jest.fn(),
       count: jest.fn(),
     },
+    productionRelease: {
+      update: jest.fn(),
+    },
+    $transaction: jest.fn(),
   };
 
   const mockLogService = {
@@ -62,6 +66,10 @@ describe('PokayokeService', () => {
       mockLogService.startProcess.mockResolvedValue(mockProcess as any);
       mockLogService.addLog.mockResolvedValue({} as any);
       mockLogService.completeProcess.mockResolvedValue(undefined);
+      mockPrismaService.$transaction.mockImplementation(
+        (callback: (tx: typeof mockPrismaService) => Promise<unknown>) =>
+          callback(mockPrismaService),
+      );
     });
 
     it('should successfully scan a valid label', async () => {
@@ -71,6 +79,8 @@ describe('PokayokeService', () => {
         LabelNumber: 'LBL001',
         ForecastId: 'PO-001',
         FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
+        QtyThisBox: 20,
         Scanned: false,
         PartData: { PartNumber: 'FG-001', PartName: 'Finish Good A' },
         POData: { PoId: 'PO-001', VendorName: 'Vendor A' },
@@ -101,6 +111,10 @@ describe('PokayokeService', () => {
       expect(result.success).toBe(true);
       expect(result.data.labelNumber).toBe('LBL001');
       expect(mockPrismaService.labelData.update).toHaveBeenCalled();
+      expect(mockPrismaService.productionRelease.update).toHaveBeenCalledWith({
+        where: { Id: 'release-1' },
+        data: { TotalGoodQty: { increment: 20 } },
+      });
     });
 
     it('should throw error when label not found', async () => {

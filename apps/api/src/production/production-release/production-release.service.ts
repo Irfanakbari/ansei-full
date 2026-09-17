@@ -323,7 +323,15 @@ export class ProductionReleaseService {
       throw new NotFoundException(`ProductionRelease with id ${id} not found`);
     }
 
-    return release;
+    const totalGoodQty = (release.LabelDatas ?? []).reduce(
+      (sum, label) => sum + (label.Scanned ? label.QtyThisBox : 0),
+      0,
+    );
+
+    return {
+      ...release,
+      TotalGoodQty: totalGoodQty,
+    };
   }
 
   async create(dto: CreateProductionReleaseDto, createdBy: string) {
@@ -503,6 +511,8 @@ export class ProductionReleaseService {
           );
         }
 
+        await this.validateBoxQtyForRelease(id);
+
         await this.logService.addLog({
           processId: logProcess.ProcessId,
           message:
@@ -512,6 +522,36 @@ export class ProductionReleaseService {
         });
 
         await this.generateLabelsForRelease(id, logProcess.ProcessId);
+      }
+
+      if (
+        dto.status === ProductionStatus.COMPLETED &&
+        existing.Status !== ProductionStatus.COMPLETED
+      ) {
+        const [linkedForecasts, scannedLabels] = await Promise.all([
+          this.prisma.forecast.findMany({
+            where: { ProductionReleaseId: id },
+            select: { Qty: true },
+          }),
+          this.prisma.labelData.findMany({
+            where: { ProductionReleaseId: id, Scanned: true },
+            select: { QtyThisBox: true },
+          }),
+        ]);
+        const totalTargetQty = linkedForecasts.reduce(
+          (sum, forecast) => sum + forecast.Qty,
+          0,
+        );
+        const totalGoodQty = scannedLabels.reduce(
+          (sum, label) => sum + label.QtyThisBox,
+          0,
+        );
+
+        if (totalGoodQty < totalTargetQty) {
+          throw new BadRequestException(
+            `Cannot complete production release. Scanned label quantity is ${totalGoodQty} of ${totalTargetQty}; remaining ${totalTargetQty - totalGoodQty}.`,
+          );
+        }
       }
 
       // Update forecast links if provided
@@ -570,6 +610,45 @@ export class ProductionReleaseService {
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }
       throw error;
+    }
+  }
+
+  private async validateBoxQtyForRelease(releaseId: string): Promise<void> {
+    const forecasts = await this.prisma.forecast.findMany({
+      where: { ProductionReleaseId: releaseId },
+      select: {
+        PoId: true,
+        FinishGoodId: true,
+        PartData: {
+          select: {
+            PartName: true,
+            BoxQTY: { select: { Qty: true } },
+          },
+        },
+      },
+    });
+
+    if (forecasts.length === 0) {
+      throw new BadRequestException(
+        'Cannot release production: no forecast/PO is linked to this release.',
+      );
+    }
+
+    const missingBoxQty = forecasts.filter(
+      (forecast) =>
+        !forecast.PartData?.BoxQTY || forecast.PartData.BoxQTY.Qty <= 0,
+    );
+
+    if (missingBoxQty.length > 0) {
+      const details = missingBoxQty
+        .map(
+          (forecast) =>
+            `${forecast.FinishGoodId} (${forecast.PartData?.PartName ?? '-'}, PO ${forecast.PoId})`,
+        )
+        .join(', ');
+      throw new BadRequestException(
+        `Cannot release production. Box Qty must be configured with a value greater than 0 for: ${details}.`,
+      );
     }
   }
 

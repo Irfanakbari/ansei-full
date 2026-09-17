@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsInt, Min } from 'class-validator';
 
 export class CreateMaterialDto {
   /** Part number material */
@@ -23,7 +23,7 @@ export class CreateMaterialDto {
   supplier?: string;
 
   @ApiPropertyOptional({ description: 'ID satuan', example: 1 })
-  @IsNumber()
+  @IsInt()
   @IsOptional()
   satuanId?: number;
 
@@ -35,13 +35,19 @@ export class CreateMaterialDto {
   @IsOptional()
   rackLocation?: string;
 
-  @ApiPropertyOptional({ description: 'Qty di rak', example: 100 })
-  @IsNumber()
+  @ApiPropertyOptional({ description: 'Minimum stock', example: 100 })
+  @IsInt()
+  @Min(0)
   @IsOptional()
-  qtyRack?: number;
+  minimumStock?: number;
 
-  @ApiPropertyOptional({ description: 'Qty di gudang', example: 500 })
-  @IsNumber()
+  @ApiPropertyOptional({
+    description: 'Maximum stock; 0 means not configured',
+    example: 500,
+    default: 0,
+  })
+  @IsInt()
+  @Min(0)
   @IsOptional()
-  qtyWarehouse?: number;
+  maximumStock?: number;
 }

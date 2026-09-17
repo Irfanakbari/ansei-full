@@ -182,6 +182,7 @@ export class FrontendService {
         LabelNumber: true,
         ProductionReleaseId: true,
         Scanned: true,
+        QtyThisBox: true,
       },
     });
 
@@ -199,6 +200,7 @@ export class FrontendService {
     // Group by ProductionReleaseId
     const deliveryMap = new Map<string, number>();
     const pokayokeScannedMap = new Map<string, number>();
+    const scannedQtyMap = new Map<string, number>();
     const totalLabelMap = new Map<string, number>();
 
     for (const label of allLabelData) {
@@ -220,6 +222,8 @@ export class FrontendService {
       if (label.Scanned) {
         const currentScanned = pokayokeScannedMap.get(releaseId) || 0;
         pokayokeScannedMap.set(releaseId, currentScanned + 1);
+        const currentScannedQty = scannedQtyMap.get(releaseId) || 0;
+        scannedQtyMap.set(releaseId, currentScannedQty + label.QtyThisBox);
       }
     }
 
@@ -246,7 +250,7 @@ export class FrontendService {
 
       return {
         ...release,
-        TotalGoodQty: release.Forecasts.reduce((sum, f) => sum + f.Qty, 0),
+        TotalGoodQty: scannedQtyMap.get(release.Id) || 0,
         progressShopping: {
           totalPicked: totalShoppingQty,
           totalTarget: totalMaterialNeeded,

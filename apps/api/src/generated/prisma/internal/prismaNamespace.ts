@@ -3260,7 +3260,9 @@ export const MaterialScalarFieldEnum = {
   IsActive: 'IsActive',
   DiscontinueDate: 'DiscontinueDate',
   QtyRack: 'QtyRack',
-  QtyWarehouse: 'QtyWarehouse'
+  QtyWarehouse: 'QtyWarehouse',
+  MinimumStock: 'MinimumStock',
+  MaximumStock: 'MaximumStock'
 } as const
 
 export type MaterialScalarFieldEnum = (typeof MaterialScalarFieldEnum)[keyof typeof MaterialScalarFieldEnum]

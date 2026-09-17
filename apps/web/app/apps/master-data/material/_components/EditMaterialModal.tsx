@@ -37,8 +37,8 @@ const EditMaterialModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 supplier: values.supplier,
                 satuanId: values.satuanId,
                 rackLocation: values.rackLocation,
-                qtyRack: values.qtyRack,
-                qtyWarehouse: values.qtyWarehouse,
+                minimumStock: values.minimumStock,
+                maximumStock: values.maximumStock,
             };
 
             const result = await dispatch(updateMaterial({ id: data.Id, data: payload }));
@@ -82,6 +82,8 @@ const EditMaterialModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 rackLocation: data.RackLocation,
                 qtyRack: data.QtyRack,
                 qtyWarehouse: data.QtyWarehouse,
+                minimumStock: data.MinimumStock,
+                maximumStock: data.MaximumStock,
             }}>
 <Form.Item name="partNumber" label="Part Number" rules={[{ required: true, message: 'Please enter part number' }]}>
                     <Input placeholder="Enter part number" />
@@ -102,11 +104,34 @@ const EditMaterialModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 <Form.Item name="rackLocation" label="Rack Location">
                     <Input placeholder="Enter rack location" />
                 </Form.Item>
-                <Form.Item name="qtyRack" label="Qty Rack">
-                    <InputNumber placeholder="0" min={0} style={{ width: '100%' }} />
+                <Form.Item
+                    name="qtyRack"
+                    label="Qty Rack"
+                    extra="Stock quantity is managed through inventory transactions"
+                >
+                    <InputNumber disabled style={{ width: '100%' }} />
                 </Form.Item>
-                <Form.Item name="qtyWarehouse" label="Qty Warehouse">
-                    <InputNumber placeholder="0" min={0} style={{ width: '100%' }} />
+                <Form.Item
+                    name="qtyWarehouse"
+                    label="Qty Warehouse"
+                    extra="Stock quantity is managed through inventory transactions"
+                >
+                    <InputNumber disabled style={{ width: '100%' }} />
+                </Form.Item>
+                <Form.Item
+                    name="minimumStock"
+                    label="Minimum Stock"
+                    rules={[{ type: 'number', min: 0, message: 'Minimum stock cannot be negative' }]}
+                >
+                    <InputNumber placeholder="0" min={0} precision={0} style={{ width: '100%' }} />
+                </Form.Item>
+                <Form.Item
+                    name="maximumStock"
+                    label="Maximum Stock"
+                    extra="Use 0 when maximum stock is not configured"
+                    rules={[{ type: 'number', min: 0, message: 'Maximum stock cannot be negative' }]}
+                >
+                    <InputNumber placeholder="0" min={0} precision={0} style={{ width: '100%' }} />
                 </Form.Item>
             </Form>
         </Modal>

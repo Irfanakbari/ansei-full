@@ -36,8 +36,8 @@ const CreateMaterialModal: React.FC<Props> = ({ visible, onClose }) => {
                 supplier: values.supplier,
                 satuanId: values.satuanId,
                 rackLocation: values.rackLocation,
-                qtyRack: values.qtyRack || 0,
-                qtyWarehouse: values.qtyWarehouse || 0,
+                minimumStock: values.minimumStock ?? 0,
+                maximumStock: values.maximumStock ?? 0,
             };
 
             const result = await dispatch(createMaterial(payload));
@@ -98,11 +98,22 @@ const CreateMaterialModal: React.FC<Props> = ({ visible, onClose }) => {
                 <Form.Item name="rackLocation" label="Rack Location">
                     <Input placeholder="Enter rack location" />
                 </Form.Item>
-                <Form.Item name="qtyRack" label="Qty Rack">
-                    <InputNumber placeholder="0" min={0} style={{ width: '100%' }} />
+                <Form.Item
+                    name="minimumStock"
+                    label="Minimum Stock"
+                    initialValue={0}
+                    rules={[{ type: 'number', min: 0, message: 'Minimum stock cannot be negative' }]}
+                >
+                    <InputNumber placeholder="0" min={0} precision={0} style={{ width: '100%' }} />
                 </Form.Item>
-                <Form.Item name="qtyWarehouse" label="Qty Warehouse">
-                    <InputNumber placeholder="0" min={0} style={{ width: '100%' }} />
+                <Form.Item
+                    name="maximumStock"
+                    label="Maximum Stock"
+                    initialValue={0}
+                    extra="Use 0 when maximum stock is not configured"
+                    rules={[{ type: 'number', min: 0, message: 'Maximum stock cannot be negative' }]}
+                >
+                    <InputNumber placeholder="0" min={0} precision={0} style={{ width: '100%' }} />
                 </Form.Item>
             </Form>
         </Modal>

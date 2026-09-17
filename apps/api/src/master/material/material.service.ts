@@ -131,8 +131,10 @@ export class MaterialService {
           Supplier: dto.supplier,
           SatuanId: dto.satuanId,
           RackLocation: dto.rackLocation,
-          QtyRack: dto.qtyRack ?? 0,
-          QtyWarehouse: dto.qtyWarehouse ?? 0,
+          QtyRack: 0,
+          QtyWarehouse: 0,
+          MinimumStock: dto.minimumStock ?? 0,
+          MaximumStock: dto.maximumStock ?? 0,
           CreatedBy: createdBy,
         },
         include: {
@@ -169,6 +171,16 @@ export class MaterialService {
     dto: UpdateMaterialDto,
     createdBy: string,
   ): Promise<MaterialModel> {
+    const rawDto = dto as UpdateMaterialDto & {
+      qtyRack?: number;
+      qtyWarehouse?: number;
+    };
+    if (rawDto.qtyRack !== undefined || rawDto.qtyWarehouse !== undefined) {
+      throw new BadRequestException(
+        'Direct modification of Qty Rack or Qty Warehouse is not allowed. Stock quantities must be updated through inventory transactions.',
+      );
+    }
+
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -214,8 +226,8 @@ export class MaterialService {
           Supplier: dto.supplier,
           SatuanId: dto.satuanId,
           RackLocation: dto.rackLocation,
-          QtyRack: dto.qtyRack,
-          QtyWarehouse: dto.qtyWarehouse,
+          MinimumStock: dto.minimumStock,
+          MaximumStock: dto.maximumStock,
         },
         include: {
           SatuanData: true,

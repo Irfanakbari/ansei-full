@@ -242,11 +242,23 @@ export class PokayokeService {
         location: 'pokayoke.service.ts:172',
       });
 
-      // STEP 7: Update LabelData.Scanned only if SUKSES
+      // STEP 7: Update scanned label and release cache atomically only if SUKSES.
+      // LabelData.Scanned + QtyThisBox remains the source of truth for actual output.
       if (dto.status === 'SUKSES') {
-        await this.prisma.labelData.update({
-          where: { Id: labelData.Id },
-          data: { Scanned: true },
+        await this.prisma.$transaction(async (tx) => {
+          await tx.labelData.update({
+            where: { Id: labelData.Id },
+            data: { Scanned: true },
+          });
+
+          if (labelData.ProductionReleaseId) {
+            await tx.productionRelease.update({
+              where: { Id: labelData.ProductionReleaseId },
+              data: {
+                TotalGoodQty: { increment: labelData.QtyThisBox },
+              },
+            });
+          }
         });
 
         await this.logService.addLog({

@@ -43,6 +43,9 @@ describe('ProductionReleaseService', () => {
         groupBy: jest.fn(),
         createMany: jest.fn(),
       },
+      boxQTY: {
+        findUnique: jest.fn(),
+      },
       deliveryHistory: {
         findMany: jest.fn(),
       },
@@ -185,21 +188,24 @@ describe('ProductionReleaseService', () => {
   });
 
   describe('update', () => {
-    it('should update isNoAttachment field', async () => {
-      const existingRelease = {
-        Id: 'rel-1',
-        ReleaseNumber: 'PR-001',
-        Status: ProductionStatus.DRAFT,
-        IsNoAttachment: false,
-      };
+    const existingRelease = {
+      Id: 'rel-1',
+      ReleaseNumber: 'PR-001',
+      Status: ProductionStatus.DRAFT,
+      IsNoAttachment: false,
+      TotalTargetQty: 10,
+    };
 
+    beforeEach(() => {
       logService.startProcess.mockResolvedValue({
         ProcessId: 'PR123456',
         FunctionId: 'PROD_RELEASE_002',
         FunctionName: 'ProductionReleaseService.Update',
         ProcessStatus: 'STARTED',
       });
+    });
 
+    it('should update isNoAttachment field', async () => {
       prismaService.productionRelease.findUnique.mockResolvedValue(
         existingRelease,
       );
@@ -215,6 +221,104 @@ describe('ProductionReleaseService', () => {
         where: { Id: 'rel-1' },
         data: expect.objectContaining({
           IsNoAttachment: true,
+        }),
+      });
+    });
+
+    it('should reject RELEASED when a linked finish good has no Box Qty', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue(
+        existingRelease,
+      );
+      prismaService.productionRelease.findFirst.mockResolvedValue(null);
+      prismaService.forecast.findMany.mockResolvedValue([
+        {
+          PoId: 'PO-001',
+          FinishGoodId: 'FG-001',
+          PartData: { PartName: 'Finish Good A', BoxQTY: null },
+        },
+      ]);
+
+      await expect(
+        service.update(
+          'rel-1',
+          { status: ProductionStatus.RELEASED },
+          'testuser',
+        ),
+      ).rejects.toThrow('Box Qty must be configured');
+      expect(prismaService.labelData.createMany).not.toHaveBeenCalled();
+      expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
+    });
+
+    it('should reject RELEASED when Box Qty is zero', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue(
+        existingRelease,
+      );
+      prismaService.productionRelease.findFirst.mockResolvedValue(null);
+      prismaService.forecast.findMany.mockResolvedValue([
+        {
+          PoId: 'PO-001',
+          FinishGoodId: 'FG-001',
+          PartData: { PartName: 'Finish Good A', BoxQTY: { Qty: 0 } },
+        },
+      ]);
+
+      await expect(
+        service.update(
+          'rel-1',
+          { status: ProductionStatus.RELEASED },
+          'testuser',
+        ),
+      ).rejects.toThrow(BadRequestException);
+      expect(prismaService.labelData.createMany).not.toHaveBeenCalled();
+    });
+
+    it('should reject COMPLETED while scanned label quantity is below target', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...existingRelease,
+        Status: ProductionStatus.RELEASED,
+      });
+      prismaService.forecast.findMany.mockResolvedValue([{ Qty: 100 }]);
+      prismaService.labelData.findMany.mockResolvedValue([{ QtyThisBox: 40 }]);
+
+      await expect(
+        service.update(
+          'rel-1',
+          { status: ProductionStatus.COMPLETED },
+          'testuser',
+        ),
+      ).rejects.toThrow('remaining 60');
+      expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
+    });
+
+    it('should allow COMPLETED when scanned label quantity reaches target', async () => {
+      const released = {
+        ...existingRelease,
+        Status: ProductionStatus.RELEASED,
+      };
+      prismaService.productionRelease.findUnique
+        .mockResolvedValueOnce(released)
+        .mockResolvedValueOnce({ ...released, LabelDatas: [] });
+      prismaService.forecast.findMany.mockResolvedValue([{ Qty: 100 }]);
+      prismaService.labelData.findMany.mockResolvedValue([
+        { QtyThisBox: 60 },
+        { QtyThisBox: 40 },
+      ]);
+      prismaService.productionRelease.update.mockResolvedValue({
+        ...released,
+        Status: ProductionStatus.COMPLETED,
+      });
+
+      await service.update(
+        'rel-1',
+        { status: ProductionStatus.COMPLETED },
+        'testuser',
+      );
+
+      expect(prismaService.productionRelease.update).toHaveBeenCalledWith({
+        where: { Id: 'rel-1' },
+        data: expect.objectContaining({
+          Status: ProductionStatus.COMPLETED,
+          TotalTargetQty: 100,
         }),
       });
     });

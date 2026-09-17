@@ -270,14 +270,6 @@ export class ProductionReportService {
         },
       });
 
-      // POKAYOKE 5: After creation, update ProductionRelease totals
-      await this.updateProductionReleaseTotals(
-        dto.finishGoodId,
-        dto.qty,
-        dto.ngQty ?? 0,
-        logProcess.ProcessId,
-      );
-
       await this.logService.addLog({
         processId: logProcess.ProcessId,
         message: `Production report created successfully: ID=${result.Id}, Qty=${result.Qty}, NgQty=${result.NgQty}`,
@@ -365,21 +357,6 @@ export class ProductionReportService {
         },
       });
 
-      // Update ProductionRelease totals if qty changed
-      if (dto.qty !== undefined || dto.ngQty !== undefined) {
-        const newQty = dto.qty ?? existing.Qty;
-        const newNgQty = dto.ngQty ?? existing.NgQty;
-        const oldQty = existing.Qty;
-        const oldNgQty = existing.NgQty;
-
-        await this.updateProductionReleaseTotalsWithDiff(
-          existing.FinishGoodId,
-          newQty - oldQty,
-          newNgQty - oldNgQty,
-          logProcess.ProcessId,
-        );
-      }
-
       await this.logService.addLog({
         processId: logProcess.ProcessId,
         message: `Production report updated: ID=${result.Id}, Qty=${result.Qty}, NgQty=${result.NgQty}`,
@@ -442,14 +419,6 @@ export class ProductionReportService {
         type: 'INFO',
         location: 'production-report.service.ts:298',
       });
-
-      // Update ProductionRelease totals before deletion
-      await this.updateProductionReleaseTotalsWithDiff(
-        existing.FinishGoodId,
-        -existing.Qty,
-        -existing.NgQty,
-        logProcess.ProcessId,
-      );
 
       await this.prisma.productionReport.delete({
         where: { Id: id },
@@ -1082,93 +1051,5 @@ export class ProductionReportService {
         vendorName: c.VendorName,
         releaseNumber: c.ProductionRelease?.ReleaseNumber ?? '',
       }));
-  }
-
-  private async updateProductionReleaseTotals(
-    finishGoodId: string,
-    goodQty: number,
-    ngQty: number,
-    processId: string,
-  ) {
-    // Find RELEASED ProductionRelease containing this FinishGood
-    const release = await this.prisma.productionRelease.findFirst({
-      where: {
-        Status: 'RELEASED',
-        Forecasts: {
-          some: {
-            FinishGoodId: finishGoodId,
-          },
-        },
-      },
-    });
-
-    if (!release) {
-      await this.logService.addLog({
-        processId,
-        message: `WARNING: No RELEASED ProductionRelease found for FinishGood ${finishGoodId}, skipping totals update`,
-        type: 'WARN',
-        location: 'production-report.service.ts:690',
-      });
-      return;
-    }
-
-    await this.prisma.productionRelease.update({
-      where: { Id: release.Id },
-      data: {
-        TotalGoodQty: { increment: goodQty },
-        TotalNgQty: { increment: ngQty },
-      },
-    });
-
-    await this.logService.addLog({
-      processId,
-      message: `Updated ProductionRelease ${release.ReleaseNumber} totals: +GoodQty=${goodQty}, +NgQty=${ngQty}`,
-      type: 'INFO',
-      location: 'production-report.service.ts:706',
-    });
-  }
-
-  private async updateProductionReleaseTotalsWithDiff(
-    finishGoodId: string,
-    goodQtyDiff: number,
-    ngQtyDiff: number,
-    processId: string,
-  ) {
-    // Find RELEASED ProductionRelease containing this FinishGood
-    const release = await this.prisma.productionRelease.findFirst({
-      where: {
-        Status: 'RELEASED',
-        Forecasts: {
-          some: {
-            FinishGoodId: finishGoodId,
-          },
-        },
-      },
-    });
-
-    if (!release) {
-      await this.logService.addLog({
-        processId,
-        message: `WARNING: No RELEASED ProductionRelease found for FinishGood ${finishGoodId}, skipping totals update`,
-        type: 'WARN',
-        location: 'production-report.service.ts:728',
-      });
-      return;
-    }
-
-    await this.prisma.productionRelease.update({
-      where: { Id: release.Id },
-      data: {
-        TotalGoodQty: { increment: goodQtyDiff },
-        TotalNgQty: { increment: ngQtyDiff },
-      },
-    });
-
-    await this.logService.addLog({
-      processId,
-      message: `Updated ProductionRelease ${release.ReleaseNumber} totals: GoodQty=${goodQtyDiff >= 0 ? '+' : ''}${goodQtyDiff}, NgQty=${ngQtyDiff >= 0 ? '+' : ''}${ngQtyDiff}`,
-      type: 'INFO',
-      location: 'production-report.service.ts:744',
-    });
   }
 }

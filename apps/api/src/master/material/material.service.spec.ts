@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { MaterialService } from './material.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -257,6 +261,16 @@ describe('MaterialService', () => {
   });
 
   describe('update', () => {
+    it('should reject direct Qty Rack or Qty Warehouse updates', async () => {
+      await expect(
+        service.update(1, { qtyRack: 999 } as never, 'admin'),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.update(1, { qtyWarehouse: 999 } as never, 'admin'),
+      ).rejects.toThrow(BadRequestException);
+      expect(prismaService.material.update).not.toHaveBeenCalled();
+    });
+
     it('should update an existing material', async () => {
       const updateDto = { partName: 'Baut M12 Updated' };
       const updatedMaterial = {

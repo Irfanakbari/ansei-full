@@ -62,6 +62,15 @@ export class MaterialEntity {
   @ApiProperty({ description: 'Qty di gudang', example: 500 })
   QtyWarehouse: number;
 
+  @ApiProperty({ description: 'Minimum stock', example: 100 })
+  MinimumStock: number;
+
+  @ApiProperty({
+    description: 'Maximum stock; 0 means not configured',
+    example: 500,
+  })
+  MaximumStock: number;
+
   @ApiProperty({ description: 'Status aktif material', example: true })
   IsActive: boolean;
 

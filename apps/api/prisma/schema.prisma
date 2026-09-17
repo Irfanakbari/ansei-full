@@ -103,6 +103,8 @@ model Material {
   // realnya (source of truth) tetep hitung dari ledger kalau mau divalidasi
   QtyRack      Int @default(0)
   QtyWarehouse Int @default(0)
+  MinimumStock Int @default(0)
+  MaximumStock Int @default(0) // 0 means maximum stock is not configured
 
   SatuanData Satuan? @relation(fields: [SatuanId], references: [Id])
 

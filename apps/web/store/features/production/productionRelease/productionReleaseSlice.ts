@@ -175,34 +175,47 @@ export const createProductionRelease = createAsyncThunk(
             const data = await response.json();
             if (!response.ok) return rejectWithValue(data.message || 'Failed to create production release');
             return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create production release'));
         }
     }
 );
 
+export interface UpdateProductionReleasePayload {
+    status?: 'DRAFT' | 'RELEASED' | 'COMPLETED' | 'CANCELLED';
+    notes?: string;
+    forecastIds?: string[];
+    isNoAttachment?: boolean;
+}
+
 // Update production release
-export const updateProductionRelease = createAsyncThunk(
+export const updateProductionRelease = createAsyncThunk<
+    unknown,
+    { id: string; data: UpdateProductionReleasePayload },
+    { rejectValue: string }
+>(
     'productionRelease/update',
-    async ({ id, data: updateData }: {
-        id: string;
-        data: {
-            status?: string;
-            notes?: string;
-            forecastIds?: string[];
-        }
-    }, { rejectWithValue }) => {
+    async ({ id, data: updateData }, { rejectWithValue }) => {
         try {
             const response = await fetchWithAuth(`/api/production/production-release/${id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updateData),
             });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to update production release');
+            const data: unknown = await response.json();
+            if (!response.ok) {
+                const message =
+                    typeof data === 'object' &&
+                    data !== null &&
+                    'message' in data &&
+                    typeof data.message === 'string'
+                        ? data.message
+                        : 'Failed to update production release';
+                return rejectWithValue(message);
+            }
             return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update production release'));
         }
     }
 );
