@@ -44,7 +44,7 @@ import { fetchNotifications, NotificationsEntity } from '@/store/features/notifi
 import CreditInformationModal from './_components/CreditInformationModal';
 import '../batik.css';
 
-const APP_VERSION = '1.19.1';
+const APP_VERSION = '1.19.2';
 const APP_YEAR = '2026';
 
 const LATEST_RELEASE_SUMMARY = [

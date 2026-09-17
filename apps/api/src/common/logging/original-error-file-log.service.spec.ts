@@ -28,11 +28,12 @@ describe(OriginalErrorFileLogService.name, () => {
     await service.write(exception, {
       requestId: 'request-123',
       method: 'POST',
+      path: '/v1/master/material?token=secret',
       statusCode: 500,
     });
 
-    const fileName = (await readdir(storagePath)).find((name) =>
-      name.startsWith('secure-error-'),
+    const fileName = (await readdir(storagePath)).find(
+      (name) => name.startsWith('secure-error-') && name.endsWith('.txt'),
     );
     expect(fileName).toBeDefined();
     const filePath = join(storagePath, fileName!);
@@ -42,6 +43,8 @@ describe(OriginalErrorFileLogService.name, () => {
     expect(content).toContain('"event":"ERROR_AUDIT"');
     expect(content).toContain('"errorCode":"P5001"');
     expect(content).toContain('"exceptionClass":"Error"');
+    expect(content).toContain('"path":"/v1/master/material"');
+    expect(content).toContain('"safeMessage"');
     expect(content).not.toContain('secret');
     expect(content).not.toContain('9000000');
     expect(content).not.toContain('abc');

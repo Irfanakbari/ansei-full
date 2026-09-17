@@ -49,6 +49,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       await this.originalErrorFileLogService.write(exception, {
         requestId: request.requestId,
         method: request.method,
+        path: getRequestPath(request),
         statusCode: status,
       });
     }

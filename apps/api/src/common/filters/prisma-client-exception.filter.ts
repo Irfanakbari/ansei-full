@@ -67,6 +67,7 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
         await this.originalErrorFileLogService.write(exception, {
           requestId: request.requestId,
           method: request.method,
+          path: getRequestPath(request),
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         });
         this.send(
