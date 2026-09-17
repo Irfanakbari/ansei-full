@@ -55,6 +55,9 @@ export class InventoryCountingEntity {
   @ApiProperty({ enum: OpnameStatus })
   Status: OpnameStatus;
 
+  @ApiPropertyOptional({ default: 0, nullable: true })
+  Tolerance: number | null;
+
   @ApiProperty()
   CreatedAt: Date;
 

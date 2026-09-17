@@ -108,6 +108,7 @@ describe('InventoryCountingService', () => {
           Category: createDto.category,
           Status: OpnameStatus.DRAFT,
           Notes: createDto.notes,
+          Tolerance: 0,
           CreatedBy: 'test',
         },
       });

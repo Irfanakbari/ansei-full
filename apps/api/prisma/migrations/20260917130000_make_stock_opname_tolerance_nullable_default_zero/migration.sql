@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "StockOpname"
+ADD COLUMN "Tolerance" DOUBLE PRECISION DEFAULT 0;

@@ -1,8 +1,8 @@
-/* By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-16 */
+/* By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-17 */
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Modal, Table, Tag, Button, Space, Input, Descriptions, Progress, App, Select, InputNumber } from 'antd';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Modal, Table, Tag, Button, Space, Input, Descriptions, Statistic, Card, Row, Col, App, Select, InputNumber } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import {
@@ -444,25 +444,20 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
             onCancel={onClose}
             footer={
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: 12, color: '#888', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        {!canApprove && (
+                    <div style={{ fontSize: 12, color: '#888' }}>
+                        {data?.Status === 'IN_PROGRESS' && !canApprove && (
                             <span>* Approving counting session requires <code>IPCS.INVENTORY_COUNTING_APPROVE</code> permission</span>
                         )}
-                        <Space>
-                            <span style={{ marginLeft: 16 }}>Tolerance %:</span>
-                            <span style={{ fontWeight: 'bold' }}>{data?.Tolerance ?? 5}%</span>
-                            <Button 
-                                type="dashed" 
-                                icon={<DownloadOutlined />} 
-                                onClick={handleDownloadTempReport}
-                                loading={downloadingTemp}
-                            >
-                                Download Temporary Report
-                            </Button>
-                        </Space>
                     </div>
                     <Space>
                         <Button onClick={onClose}>Close</Button>
+                        <Button
+                            icon={<DownloadOutlined />}
+                            onClick={handleDownloadTempReport}
+                            loading={downloadingTemp}
+                        >
+                            Temporary Report
+                        </Button>
                         {data?.Status === 'IN_PROGRESS' && canApprove && (
                             <Button
                                 type="primary"
@@ -476,34 +471,46 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                 </div>
             }
             centered
-            width={1100}
+            width={1050}
             zIndex={1050}
         >
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-                <Descriptions size="small" column={4} style={{ flex: 1 }}>
-                    <Descriptions.Item label="Category">
-                        <Tag color={data?.Category === 'MATERIAL' ? 'blue' : 'purple'}>
-                            {data?.Category ? data.Category.replace('_', ' ') : '-'}
-                        </Tag>
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Status">
-                        <Tag color={STATUS_COLORS[data?.Status] || 'default'}>
-                            {data?.Status || '-'}
-                        </Tag>
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Created By">{data?.CreatedByName || data?.CreatedBy || '-'}</Descriptions.Item>
-                    <Descriptions.Item label="Created At">
-                        {data?.CreatedAt ? new Date(data.CreatedAt).toLocaleString('id-ID') : '-'}
-                    </Descriptions.Item>
-                </Descriptions>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: 12, color: '#888' }}>Progress</div>
-                        <div style={{ fontSize: 14, fontWeight: 'bold' }}>{completedItems} / {totalItems} Items</div>
-                    </div>
-                    <Progress type="circle" percent={progressPercent} size={40} />
-                </div>
-            </div>
+            <Descriptions size="small" column={5} style={{ marginBottom: 16 }}>
+                <Descriptions.Item label="Category">
+                    <Tag color={data?.Category === 'MATERIAL' ? 'blue' : 'purple'}>
+                        {data?.Category ? data.Category.replace('_', ' ') : '-'}
+                    </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Status">
+                    <Tag color={STATUS_COLORS[data?.Status] || 'default'}>
+                        {data?.Status || '-'}
+                    </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Tolerance">
+                    <Tag color="blue">{data?.Tolerance ?? 0}%</Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Created By">{data?.CreatedByName || data?.CreatedBy || '-'}</Descriptions.Item>
+                <Descriptions.Item label="Created At">
+                    {data?.CreatedAt ? new Date(data.CreatedAt).toLocaleString('id-ID') : '-'}
+                </Descriptions.Item>
+            </Descriptions>
+
+            <Row gutter={12} style={{ marginBottom: 16 }}>
+                <Col span={8}>
+                    <Card size="small">
+                        <Statistic title="Total Items" value={totalItems} />
+                    </Card>
+                </Col>
+                <Col span={8}>
+                    <Card size="small">
+                        <Statistic title="Completed" value={completedItems} styles={{ content: { color: '#3f8600' } }} />
+                    </Card>
+                </Col>
+                <Col span={8}>
+                    <Card size="small">
+                        <Statistic title="Progress" value={progressPercent} suffix="%" />
+                    </Card>
+                </Col>
+            </Row>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center' }}>
                 <Space>

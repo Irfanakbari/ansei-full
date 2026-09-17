@@ -74,11 +74,13 @@ export interface InventoryCountingQuery {
 export interface CreateInventoryCountingDto {
     opnameNumber: string;
     category: 'MATERIAL' | 'FINISH_GOOD';
+    tolerance?: number;
     notes?: string;
 }
 
 // Update DTO
 export interface UpdateInventoryCountingDto {
+    tolerance?: number;
     notes?: string;
 }
 

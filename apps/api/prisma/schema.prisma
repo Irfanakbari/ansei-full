@@ -231,7 +231,7 @@ model StockOpname {
   OpnameNumber String       @unique
   Category     ItemCategory
   Status       OpnameStatus @default(DRAFT)
-  Tolerance    Float        @default(5)
+  Tolerance    Float?       @default(0)
 
   CreatedAt   DateTime  @default(now())
   CreatedBy   String

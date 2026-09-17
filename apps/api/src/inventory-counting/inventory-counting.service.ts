@@ -95,7 +95,7 @@ export class InventoryCountingService {
           Category: dto.category,
           Status: OpnameStatus.DRAFT,
           Notes: dto.notes,
-          Tolerance: dto.tolerance ?? 5,
+          Tolerance: dto.tolerance ?? 0,
           CreatedBy: createdBy,
         },
       });
@@ -189,6 +189,7 @@ export class InventoryCountingService {
         OpnameNumber: item.OpnameNumber,
         Category: item.Category,
         Status: item.Status,
+        Tolerance: item.Tolerance,
         CreatedAt: item.CreatedAt,
         CreatedBy: item.CreatedBy,
         StartedAt: item.StartedAt,
@@ -268,6 +269,7 @@ export class InventoryCountingService {
       OpnameNumber: result.OpnameNumber,
       Category: result.Category,
       Status: result.Status,
+      Tolerance: result.Tolerance,
       CreatedAt: result.CreatedAt,
       CreatedBy: result.CreatedBy,
       StartedAt: result.StartedAt,
@@ -335,10 +337,23 @@ export class InventoryCountingService {
         location: 'inventory-counting.service.ts:254',
       });
 
+      if (
+        dto.tolerance !== undefined &&
+        (existing.Status === OpnameStatus.COMPLETED ||
+          existing.Status === OpnameStatus.CANCELLED)
+      ) {
+        throw new BadRequestException(
+          `Cannot update tolerance when inventory counting is ${existing.Status}`,
+        );
+      }
+
       // STEP 2: Build update data
-      const updateData: any = {};
+      const updateData: Prisma.StockOpnameUpdateInput = {};
       if (dto.notes !== undefined) {
         updateData.Notes = dto.notes;
+      }
+      if (dto.tolerance !== undefined) {
+        updateData.Tolerance = dto.tolerance;
       }
 
       await this.logService.addLog({
@@ -581,36 +596,34 @@ export class InventoryCountingService {
               location: 'inventory-counting.service.ts:545',
             });
 
-          for (const m of materials) {
-            const safePartNumber = m.PartNumber && m.PartNumber.trim() !== '' ? m.PartNumber : `MAT-UNKNOWN-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-            cutOffEntries.push({
-              OpnameId: dto.inventoryCountingId,
-              MaterialId: safePartNumber,
-              FinishGoodId: null,
-              Location: loc,
-              SystemQty: 0,
-              SystemQtyRack: 0,
-              Notes: m.PartName || '',
-            });
-          }
+            for (const m of materials) {
+              cutOffEntries.push({
+                OpnameId: id,
+                MaterialId: m.PartNumber,
+                FinishGoodId: null,
+                Location: loc,
+                SystemQty: 0,
+                SystemQtyRack: 0,
+                Notes: m.PartName || '',
+              });
+            }
           } else {
             // FINISH_GOOD
             const finishGoods = await this.prisma.finishGood.findMany({
               select: { PartNumber: true, PartName: true },
             });
 
-          for (const fg of finishGoods) {
-            const safePartNumber = fg.PartNumber && fg.PartNumber.trim() !== '' ? fg.PartNumber : `FG-UNKNOWN-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
-            cutOffEntries.push({
-              OpnameId: dto.inventoryCountingId,
-              MaterialId: null,
-              FinishGoodId: safePartNumber,
-              Location: loc,
-              SystemQty: 0,
-              SystemQtyRack: 0,
-              Notes: fg.PartName || '',
-            });
-          }
+            for (const fg of finishGoods) {
+              cutOffEntries.push({
+                OpnameId: id,
+                MaterialId: null,
+                FinishGoodId: fg.PartNumber,
+                Location: loc,
+                SystemQty: 0,
+                SystemQtyRack: 0,
+                Notes: fg.PartName || '',
+              });
+            }
           }
         }
 
@@ -2023,22 +2036,10 @@ export class InventoryCountingService {
                 };
               }
               if (colNumber === 9) {
-                const statusVal = cell.value;
-                const isMemenuhi = statusVal === 'Memenuhi';
-                const diffVal = row.getCell(7).value;
-                const isMinus = typeof diffVal === 'number' && diffVal < 0;
-                
-                if (isMinus) {
-                    cell.font = { color: { argb: 'FFFF0000' }, bold: true };
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
-                } else if (isMemenuhi) {
-                    cell.font = { color: { argb: 'FF000000' }, bold: true };
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF90EE90' } };
-                } else {
-                    cell.font = { color: { argb: 'FF000000' }, bold: true };
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFC0CB' } };
-                }
-            },
+                cell.fill = {
+                  type: 'pattern',
+                  pattern: 'solid',
+                  fgColor: { argb: 'FFD3D3D3' },
                 };
               }
             } else if (isMaterial && isRack) {
@@ -2611,37 +2612,48 @@ export class InventoryCountingService {
       watermark.value = 'This document autogenerated by IPC System';
       watermark.font = { size: 8, italic: true, color: { argb: 'FF808080' } };
 
+      // Determine if MATERIAL category
+      const isMaterial = inventoryCounting.Category === ItemCategory.MATERIAL;
+      const lastCol = isMaterial ? 'M' : 'I';
+      const allCols = isMaterial
+        ? ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
+        : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+      const noteCols = isMaterial
+        ? ['E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
+        : ['E', 'F', 'G', 'H', 'I'];
+      const rightLabelCol = isMaterial ? 'L' : 'G';
+      const rightValCol = isMaterial ? 'M' : 'H';
+
       // Header Info
       worksheet.getCell('A5').value = 'Inventory Code';
       worksheet.getCell('C5').value = `: ${code}`;
-      worksheet.getCell('G5').value = 'Date';
-      worksheet.getCell('H5').value = `: ${dateStr}`;
-      
-      worksheet.getCell('G6').value = 'Tolerance %';
-      worksheet.getCell('H6').value = `: ${tolerance}%`;
+      worksheet.getCell(`${rightLabelCol}5`).value = 'Date';
+      worksheet.getCell(`${rightValCol}5`).value = `: ${dateStr}`;
 
-      worksheet.getCell('G7').value = 'User ID';
-      worksheet.getCell('H7').value = ': SYSTEM';
+      worksheet.getCell(`${rightLabelCol}6`).value = 'Tolerance';
+      worksheet.getCell(`${rightValCol}6`).value =
+        `: ${inventoryCounting.Tolerance ?? 0}%`;
+
+      worksheet.getCell(`${rightLabelCol}7`).value = 'User ID';
+      worksheet.getCell(`${rightValCol}7`).value = ': SYSTEM';
 
       // Title
-      worksheet.mergeCells('A8:I8');
+      worksheet.mergeCells(`A8:${lastCol}8`);
       const titleCell = worksheet.getCell('A8');
       titleCell.value = 'INVENTORY TEMPORARY REPORT';
       titleCell.style = {
         font: { bold: true, size: 14 },
         alignment: { horizontal: 'center' },
       };
-      ['A8', 'B8', 'C8', 'D8', 'E8', 'F8', 'G8', 'H8', 'I8'].forEach(
-        (cellRef) => {
-          const cell = worksheet.getCell(cellRef);
-          cell.border = {
-            top: { style: 'medium' },
-            bottom: { style: 'medium' },
-            left: { style: 'medium' },
-            right: { style: 'medium' },
-          };
-        },
-      );
+      allCols.forEach((col) => {
+        const cell = worksheet.getCell(`${col}8`);
+        cell.border = {
+          top: { style: 'medium' },
+          bottom: { style: 'medium' },
+          left: { style: 'medium' },
+          right: { style: 'medium' },
+        };
+      });
 
       // Sub-header
       worksheet.getCell(`A${subStartRow}`).value = 'Report Code';
@@ -2654,16 +2666,16 @@ export class InventoryCountingService {
         `: ${inventoryCounting.Status}`;
 
       // Note Box
-      worksheet.mergeCells(`E${subStartRow}:I${subStartRow + 2}`);
+      worksheet.mergeCells(`E${subStartRow}:${lastCol}${subStartRow + 2}`);
       const noteCell = worksheet.getCell(`E${subStartRow}`);
       noteCell.value =
-        'NOTE: System Qty is stock at snapshot time. Actual Qty is manual counting result. Diff = Actual - System. Memenuhi if Diff % <= Tolerance %';
+        'NOTE: Diff = Actual - System. Negative differences always do not meet tolerance. Positive differences meet tolerance only when Diff % is within the configured limit.';
       noteCell.style = {
         alignment: { vertical: 'middle', horizontal: 'center', wrapText: true },
         font: { italic: true, size: 9 },
       };
       for (let row = subStartRow; row <= subStartRow + 2; row++) {
-        ['E', 'F', 'G', 'H', 'I'].forEach((col) => {
+        noteCols.forEach((col) => {
           const cell = worksheet.getCell(`${col}${row}`);
           cell.border = {
             top: { style: 'thin' },
@@ -2673,9 +2685,6 @@ export class InventoryCountingService {
           };
         });
       }
-
-      // Determine if MATERIAL category
-      const isMaterial = inventoryCounting.Category === ItemCategory.MATERIAL;
 
       const headers = isMaterial
         ? [
@@ -2779,20 +2788,29 @@ export class InventoryCountingService {
         snapshotNameMap.set(fg.PartNumber, fg.PartName),
       );
 
-            const calculateDiffPctAndStatus = (sys: number, act: number) => {
-        const tolerance = inventoryCounting.Tolerance ?? 5;
-        const diff = act - sys;
+      const tolerance = inventoryCounting.Tolerance ?? 0;
+      const calculateDiffPctAndStatus = (
+        systemQty: number,
+        actualQty: number,
+      ) => {
+        const diff = actualQty - systemQty;
         if (diff < 0) {
-          return { diffPct: 'Minus', status: 'Tidak Memenuhi', isMinus: true };
+          return {
+            diffPct: `${((diff / Math.max(systemQty, 1)) * 100).toFixed(2)}%`,
+            status: 'Tidak Memenuhi',
+          };
         }
-        let diffPct = 0;
-        if (sys === 0) {
-          diffPct = act > 0 ? 100 : 0;
-        } else {
-          diffPct = (diff / sys) * 100;
-        }
-        const status = diffPct <= tolerance ? 'Memenuhi' : 'Tidak Memenuhi';
-        return { diffPct: diffPct.toFixed(2) + '%', status, isMinus: false };
+
+        const diffPct =
+          systemQty === 0
+            ? actualQty > 0
+              ? 100
+              : 0
+            : (diff / systemQty) * 100;
+        return {
+          diffPct: `${diffPct.toFixed(2)}%`,
+          status: diffPct <= tolerance ? 'Memenuhi' : 'Tidak Memenuhi',
+        };
       };
 
       if (isMaterial) {
@@ -2830,7 +2848,10 @@ export class InventoryCountingService {
           const rackSystemQty = rackDetail?.SystemQtyRack ?? 0;
           const rackActual = rackDetail?.ActualQtyRack ?? 0;
           const rackDiff = rackActual - rackSystemQty;
-          const rackResult = calculateDiffPctAndStatus(rackSystemQty, rackActual);
+          const rackResult = calculateDiffPctAndStatus(
+            rackSystemQty,
+            rackActual,
+          );
 
           const row = worksheet.addRow({
             no: rowIndex,
@@ -2865,27 +2886,26 @@ export class InventoryCountingService {
               };
             }
             if (colNumber === 8 || colNumber === 13) {
-                const statusVal = cell.value;
-                const isMemenuhi = statusVal === 'Memenuhi';
-                const diffVal = colNumber === 8 ? row.getCell(6).value : row.getCell(11).value;
-                const isMinus = typeof diffVal === 'number' && diffVal < 0;
-                
-                if (isMinus) {
-                    cell.font = { color: { argb: 'FFFF0000' }, bold: true };
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
-                } else if (isMemenuhi) {
-                    cell.font = { color: { argb: 'FF000000' }, bold: true };
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF90EE90' } };
-                } else {
-                    cell.font = { color: { argb: 'FF000000' }, bold: true };
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFC0CB' } };
-                }
-            }, bold: true };
-                cell.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: isMemenuhi ? 'FF90EE90' : 'FFFFC0CB' }, // Light Green vs Red/Pink
-                };
+              const isMemenuhi = cell.value === 'Memenuhi';
+              const diffValue =
+                colNumber === 8 ? row.getCell(6).value : row.getCell(11).value;
+              const isMinus = typeof diffValue === 'number' && diffValue < 0;
+
+              cell.font = {
+                bold: true,
+                color: { argb: isMinus ? 'FFFF0000' : 'FF000000' },
+              };
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: {
+                  argb: isMinus
+                    ? 'FFFFFFFF'
+                    : isMemenuhi
+                      ? 'FF90EE90'
+                      : 'FFFFC0CB',
+                },
+              };
             }
           });
         }
@@ -2929,13 +2949,25 @@ export class InventoryCountingService {
               };
             }
             if (colNumber === 9) {
-                const isMemenuhi = cell.value === 'Memenuhi';
-                cell.font = { color: { argb: isMemenuhi ? 'FF000000' : 'FF000000' }, bold: true };
-                cell.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: isMemenuhi ? 'FF90EE90' : 'FFFFC0CB' }, // Light Green vs Red/Pink
-                };
+              const isMemenuhi = cell.value === 'Memenuhi';
+              const diffValue = row.getCell(7).value;
+              const isMinus = typeof diffValue === 'number' && diffValue < 0;
+
+              cell.font = {
+                bold: true,
+                color: { argb: isMinus ? 'FFFF0000' : 'FF000000' },
+              };
+              cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: {
+                  argb: isMinus
+                    ? 'FFFFFFFF'
+                    : isMemenuhi
+                      ? 'FF90EE90'
+                      : 'FFFFC0CB',
+                },
+              };
             }
           });
         }
@@ -2964,5 +2996,4 @@ export class InventoryCountingService {
       throw error;
     }
   }
-
 }
