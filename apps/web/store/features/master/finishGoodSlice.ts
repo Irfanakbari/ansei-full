@@ -69,7 +69,6 @@ export const updateFinishGood = createAsyncThunk(
             partName?: string;
             alias?: string;
             price?: number;
-            qty?: number;
         }
     }, { rejectWithValue }) => {
         try {

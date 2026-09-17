@@ -53,6 +53,11 @@ export type BillOfMaterials = Prisma.BillOfMaterialsModel
  */
 export type ManPower = Prisma.ManPowerModel
 /**
+ * Model SkillMatrix
+ * 
+ */
+export type SkillMatrix = Prisma.SkillMatrixModel
+/**
  * Model InventoryLedger
  * 
  */

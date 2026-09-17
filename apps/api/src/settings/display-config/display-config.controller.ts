@@ -1,4 +1,10 @@
-import { ApiTags, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiResponse,
+  ApiOperation,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -9,7 +15,12 @@ import {
   Delete,
   ParseIntPipe,
   Query,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { DisplayConfigService } from './display-config.service';
 import { CreateDisplayConfigDto, UpdateDisplayConfigDto } from './dto';
 import { DisplayConfigEntity } from './entities/display-config.entity';
@@ -32,8 +43,8 @@ export class DisplayConfigController {
     description: 'Active display configuration, or null when none is active',
     type: DisplayConfigEntity,
   })
-  async findActive() {
-    return this.displayConfigService.findActive();
+  async findActive(@Query('line') line?: string) {
+    return this.displayConfigService.findActive(line);
   }
 
   @Get()
@@ -83,5 +94,38 @@ export class DisplayConfigController {
     @CurrentUser() user: ICurrentUser,
   ) {
     return this.displayConfigService.remove(id, user.username);
+  }
+
+  @ApiOperation({
+    summary: 'Upload media for display config (max 50MB, mp4/webm/ogg/png/jpg)',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({ status: 200, type: DisplayConfigEntity })
+  @Post(':id/media')
+  @Permission('DISPLAY_CONFIG_UPDATE')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadMedia(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 50 * 1024 * 1024 })],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.displayConfigService.uploadMedia(id, file, user?.username);
+  }
+
+  @ApiOperation({ summary: 'Delete media for display config' })
+  @ApiResponse({ status: 200, type: DisplayConfigEntity })
+  @Delete(':id/media')
+  @Permission('DISPLAY_CONFIG_UPDATE')
+  async deleteMedia(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.displayConfigService.deleteMedia(id, user?.username);
   }
 }

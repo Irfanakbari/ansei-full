@@ -763,6 +763,13 @@ export class FrontendService {
         Name: true,
         PicturePath: true,
         Line: true,
+        SkillMatrix: {
+          select: {
+            Id: true,
+            Label: true,
+            Point: true,
+          },
+        },
       },
       orderBy: { Nik: 'asc' },
     });

@@ -24,6 +24,7 @@ export interface DisplayManPower {
     Name: string;
     PicturePath: string | null;
     Line: string | null;
+    SkillMatrix?: { Id: number; Label: string; Point: number }[];
 }
 
 export interface DisplayFinishGood {
@@ -40,14 +41,7 @@ export interface DisplayStationConfig {
 }
 
 const STORAGE_KEY = 'display_config';
-
-const DUMMY_SKILL_MATRIX = [
-    { id: 1, label: 'Point 1', level: 4 },
-    { id: 2, label: 'Point 2', level: 3 },
-    { id: 3, label: 'Point 3', level: 4 },
-    { id: 4, label: 'Point 4', level: 2 },
-    { id: 5, label: 'Point 5', level: 1 },
-];
+const FALLBACK_MEDIA_URL = 'http://192.168.1.15:8080/Ansei_Asset/fallback.png';
 
 function SkillQuadrantCircle({ level, size = 48 }: { level: number; size?: number }) {
     const fillColor = '#2563eb';
@@ -96,8 +90,11 @@ export default function DisplayPage() {
     const { message } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const displayRef = useRef<HTMLElement>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const { config } = useSelector((state: RootState) => state.display);
+    const mediaSource = config?.FilePath || config?.Url || FALLBACK_MEDIA_URL;
+    const isImageMedia = mediaSource ? /\.(png|jpe?g|gif|webp)(?:\?.*)?$/i.test(mediaSource) : false;
 
     // Saved configuration (loaded initially from localStorage, then refreshed from API)
     const [stationConfig, setStationConfig] = useState<DisplayStationConfig>({
@@ -117,6 +114,13 @@ export default function DisplayPage() {
 
     // Live clock for Production Date & Time
     const [currentTime, setCurrentTime] = useState<Date | null>(null);
+
+    useEffect(() => {
+        if (mediaSource && !isImageMedia && videoRef.current) {
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(e => console.warn('Autoplay blocked:', e));
+        }
+    }, [mediaSource, isImageMedia]);
 
     useEffect(() => {
         setCurrentTime(new Date());
@@ -251,14 +255,15 @@ export default function DisplayPage() {
         }
     }, [isConfigOpen, stationConfig, form]);
 
-    // Fetch active video config on mount and refresh every 60s
+    // Fetch the active media config for the selected manpower line and refresh every 60s
     useEffect(() => {
-        void dispatch(fetchActiveDisplayConfig());
+        const line = stationConfig.manpower?.Line;
+        void dispatch(fetchActiveDisplayConfig(line));
         const videoInterval = setInterval(() => {
-            void dispatch(fetchActiveDisplayConfig());
+            void dispatch(fetchActiveDisplayConfig(line));
         }, 60000);
         return () => clearInterval(videoInterval);
-    }, [dispatch]);
+    }, [dispatch, stationConfig.manpower?.Line]);
 
     // Handle fullscreen
     useEffect(() => {
@@ -496,25 +501,31 @@ export default function DisplayPage() {
                                 SKILL MATRIX
                             </span>
                             <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200/80">
-                                5 Kompetensi
+                                {activeManPower?.SkillMatrix?.length || 0} Kompetensi
                             </span>
                         </div>
-                        <div className="w-full grid grid-cols-5 gap-1.5 sm:gap-2">
-                            {DUMMY_SKILL_MATRIX.map((skill) => (
-                                <div
-                                    key={skill.id}
-                                    className="bg-slate-50 border border-slate-200/80 rounded-xl py-2 px-1 flex flex-col items-center justify-center text-center shadow-2xs"
-                                >
-                                    <SkillQuadrantCircle level={skill.level} size={42} />
-                                    <span className="text-[11px] sm:text-xs font-extrabold text-slate-800 mt-1.5 leading-none">
-                                        {skill.label}
-                                    </span>
-                                    <span className="text-[10px] font-bold text-blue-600 mt-1">
-                                        Level {skill.level}/4
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
+                        {activeManPower?.SkillMatrix && activeManPower.SkillMatrix.length > 0 ? (
+                            <div className="w-full grid grid-cols-5 gap-1.5 sm:gap-2">
+                                {activeManPower.SkillMatrix.map((skill) => (
+                                    <div
+                                        key={skill.Id}
+                                        className="bg-slate-50 border border-slate-200/80 rounded-xl py-2 px-1 flex flex-col items-center justify-center text-center shadow-2xs"
+                                    >
+                                        <SkillQuadrantCircle level={skill.Point} size={42} />
+                                        <span className="text-[11px] sm:text-xs font-extrabold text-slate-800 mt-1.5 leading-none line-clamp-1" title={skill.Label}>
+                                            {skill.Label}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-blue-600 mt-1">
+                                            Level {skill.Point}/4
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center w-full h-24 bg-slate-50 border border-slate-200/80 rounded-xl">
+                                <span className="text-xs font-semibold text-slate-400">Belum ada Skill Matrix</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Bottom Card: Production Date & Live Clock (Compact & Proporsional) */}
@@ -541,17 +552,28 @@ export default function DisplayPage() {
 
                 {/* Right Column: Media Player */}
                 <div className="flex-1 h-full min-h-0 bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm relative flex items-center justify-center">
-                    {config?.Url ? (
-                        <video
-                            key={config.Id}
-                            autoPlay
-                            loop={config.Loop ?? true}
-                            muted
-                            playsInline
-                            className="h-full w-full object-contain bg-black"
-                        >
-                            <source src={config.Url} />
-                        </video>
+                    {mediaSource ? (
+                        isImageMedia ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                key={config?.Id}
+                                src={mediaSource}
+                                alt={config?.Line ? `Display media for ${config.Line}` : 'Display media'}
+                                className="h-full w-full object-contain bg-black"
+                            />
+                        ) : (
+                            <video
+                                ref={videoRef}
+                                key={`${config?.Id}-${mediaSource}`}
+                                autoPlay
+                                loop={config?.Loop ?? true}
+                                muted
+                                playsInline
+                                className="h-full w-full object-contain bg-black"
+                            >
+                                <source src={mediaSource} />
+                            </video>
+                        )
                     ) : (
                         <div className="flex flex-col items-center justify-center text-slate-400 gap-3">
                             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-widest uppercase text-slate-300">

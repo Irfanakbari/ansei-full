@@ -199,6 +199,7 @@ export type ManPowerWhereInput = {
   Status?: Prisma.BoolFilter<"ManPower"> | boolean
   Line?: Prisma.StringNullableFilter<"ManPower"> | string | null
   ProductionReport?: Prisma.ProductionReportListRelationFilter
+  SkillMatrix?: Prisma.SkillMatrixListRelationFilter
 }
 
 export type ManPowerOrderByWithRelationInput = {
@@ -210,6 +211,7 @@ export type ManPowerOrderByWithRelationInput = {
   Status?: Prisma.SortOrder
   Line?: Prisma.SortOrderInput | Prisma.SortOrder
   ProductionReport?: Prisma.ProductionReportOrderByRelationAggregateInput
+  SkillMatrix?: Prisma.SkillMatrixOrderByRelationAggregateInput
 }
 
 export type ManPowerWhereUniqueInput = Prisma.AtLeast<{
@@ -224,6 +226,7 @@ export type ManPowerWhereUniqueInput = Prisma.AtLeast<{
   Status?: Prisma.BoolFilter<"ManPower"> | boolean
   Line?: Prisma.StringNullableFilter<"ManPower"> | string | null
   ProductionReport?: Prisma.ProductionReportListRelationFilter
+  SkillMatrix?: Prisma.SkillMatrixListRelationFilter
 }, "Uid" | "Nik">
 
 export type ManPowerOrderByWithAggregationInput = {
@@ -261,6 +264,7 @@ export type ManPowerCreateInput = {
   Status?: boolean
   Line?: string | null
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutManPowerDataInput
+  SkillMatrix?: Prisma.SkillMatrixCreateNestedManyWithoutManPowerDataInput
 }
 
 export type ManPowerUncheckedCreateInput = {
@@ -272,6 +276,7 @@ export type ManPowerUncheckedCreateInput = {
   Status?: boolean
   Line?: string | null
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutManPowerDataInput
+  SkillMatrix?: Prisma.SkillMatrixUncheckedCreateNestedManyWithoutManPowerDataInput
 }
 
 export type ManPowerUpdateInput = {
@@ -283,6 +288,7 @@ export type ManPowerUpdateInput = {
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutManPowerDataNestedInput
+  SkillMatrix?: Prisma.SkillMatrixUpdateManyWithoutManPowerDataNestedInput
 }
 
 export type ManPowerUncheckedUpdateInput = {
@@ -294,6 +300,7 @@ export type ManPowerUncheckedUpdateInput = {
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutManPowerDataNestedInput
+  SkillMatrix?: Prisma.SkillMatrixUncheckedUpdateManyWithoutManPowerDataNestedInput
 }
 
 export type ManPowerCreateManyInput = {
@@ -361,6 +368,20 @@ export type ManPowerScalarRelationFilter = {
   isNot?: Prisma.ManPowerWhereInput
 }
 
+export type ManPowerCreateNestedOneWithoutSkillMatrixInput = {
+  create?: Prisma.XOR<Prisma.ManPowerCreateWithoutSkillMatrixInput, Prisma.ManPowerUncheckedCreateWithoutSkillMatrixInput>
+  connectOrCreate?: Prisma.ManPowerCreateOrConnectWithoutSkillMatrixInput
+  connect?: Prisma.ManPowerWhereUniqueInput
+}
+
+export type ManPowerUpdateOneRequiredWithoutSkillMatrixNestedInput = {
+  create?: Prisma.XOR<Prisma.ManPowerCreateWithoutSkillMatrixInput, Prisma.ManPowerUncheckedCreateWithoutSkillMatrixInput>
+  connectOrCreate?: Prisma.ManPowerCreateOrConnectWithoutSkillMatrixInput
+  upsert?: Prisma.ManPowerUpsertWithoutSkillMatrixInput
+  connect?: Prisma.ManPowerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ManPowerUpdateToOneWithWhereWithoutSkillMatrixInput, Prisma.ManPowerUpdateWithoutSkillMatrixInput>, Prisma.ManPowerUncheckedUpdateWithoutSkillMatrixInput>
+}
+
 export type ManPowerCreateNestedOneWithoutProductionReportInput = {
   create?: Prisma.XOR<Prisma.ManPowerCreateWithoutProductionReportInput, Prisma.ManPowerUncheckedCreateWithoutProductionReportInput>
   connectOrCreate?: Prisma.ManPowerCreateOrConnectWithoutProductionReportInput
@@ -375,6 +396,66 @@ export type ManPowerUpdateOneRequiredWithoutProductionReportNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ManPowerUpdateToOneWithWhereWithoutProductionReportInput, Prisma.ManPowerUpdateWithoutProductionReportInput>, Prisma.ManPowerUncheckedUpdateWithoutProductionReportInput>
 }
 
+export type ManPowerCreateWithoutSkillMatrixInput = {
+  Uid?: string
+  Nik: string
+  PicturePath?: string | null
+  Name: string
+  CreatedAt?: Date | string
+  Status?: boolean
+  Line?: string | null
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutManPowerDataInput
+}
+
+export type ManPowerUncheckedCreateWithoutSkillMatrixInput = {
+  Uid?: string
+  Nik: string
+  PicturePath?: string | null
+  Name: string
+  CreatedAt?: Date | string
+  Status?: boolean
+  Line?: string | null
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutManPowerDataInput
+}
+
+export type ManPowerCreateOrConnectWithoutSkillMatrixInput = {
+  where: Prisma.ManPowerWhereUniqueInput
+  create: Prisma.XOR<Prisma.ManPowerCreateWithoutSkillMatrixInput, Prisma.ManPowerUncheckedCreateWithoutSkillMatrixInput>
+}
+
+export type ManPowerUpsertWithoutSkillMatrixInput = {
+  update: Prisma.XOR<Prisma.ManPowerUpdateWithoutSkillMatrixInput, Prisma.ManPowerUncheckedUpdateWithoutSkillMatrixInput>
+  create: Prisma.XOR<Prisma.ManPowerCreateWithoutSkillMatrixInput, Prisma.ManPowerUncheckedCreateWithoutSkillMatrixInput>
+  where?: Prisma.ManPowerWhereInput
+}
+
+export type ManPowerUpdateToOneWithWhereWithoutSkillMatrixInput = {
+  where?: Prisma.ManPowerWhereInput
+  data: Prisma.XOR<Prisma.ManPowerUpdateWithoutSkillMatrixInput, Prisma.ManPowerUncheckedUpdateWithoutSkillMatrixInput>
+}
+
+export type ManPowerUpdateWithoutSkillMatrixInput = {
+  Uid?: Prisma.StringFieldUpdateOperationsInput | string
+  Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutManPowerDataNestedInput
+}
+
+export type ManPowerUncheckedUpdateWithoutSkillMatrixInput = {
+  Uid?: Prisma.StringFieldUpdateOperationsInput | string
+  Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutManPowerDataNestedInput
+}
+
 export type ManPowerCreateWithoutProductionReportInput = {
   Uid?: string
   Nik: string
@@ -383,6 +464,7 @@ export type ManPowerCreateWithoutProductionReportInput = {
   CreatedAt?: Date | string
   Status?: boolean
   Line?: string | null
+  SkillMatrix?: Prisma.SkillMatrixCreateNestedManyWithoutManPowerDataInput
 }
 
 export type ManPowerUncheckedCreateWithoutProductionReportInput = {
@@ -393,6 +475,7 @@ export type ManPowerUncheckedCreateWithoutProductionReportInput = {
   CreatedAt?: Date | string
   Status?: boolean
   Line?: string | null
+  SkillMatrix?: Prisma.SkillMatrixUncheckedCreateNestedManyWithoutManPowerDataInput
 }
 
 export type ManPowerCreateOrConnectWithoutProductionReportInput = {
@@ -419,6 +502,7 @@ export type ManPowerUpdateWithoutProductionReportInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SkillMatrix?: Prisma.SkillMatrixUpdateManyWithoutManPowerDataNestedInput
 }
 
 export type ManPowerUncheckedUpdateWithoutProductionReportInput = {
@@ -429,6 +513,7 @@ export type ManPowerUncheckedUpdateWithoutProductionReportInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SkillMatrix?: Prisma.SkillMatrixUncheckedUpdateManyWithoutManPowerDataNestedInput
 }
 
 
@@ -438,10 +523,12 @@ export type ManPowerUncheckedUpdateWithoutProductionReportInput = {
 
 export type ManPowerCountOutputType = {
   ProductionReport: number
+  SkillMatrix: number
 }
 
 export type ManPowerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ProductionReport?: boolean | ManPowerCountOutputTypeCountProductionReportArgs
+  SkillMatrix?: boolean | ManPowerCountOutputTypeCountSkillMatrixArgs
 }
 
 /**
@@ -461,6 +548,13 @@ export type ManPowerCountOutputTypeCountProductionReportArgs<ExtArgs extends run
   where?: Prisma.ProductionReportWhereInput
 }
 
+/**
+ * ManPowerCountOutputType without action
+ */
+export type ManPowerCountOutputTypeCountSkillMatrixArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SkillMatrixWhereInput
+}
+
 
 export type ManPowerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Uid?: boolean
@@ -471,6 +565,7 @@ export type ManPowerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Status?: boolean
   Line?: boolean
   ProductionReport?: boolean | Prisma.ManPower$ProductionReportArgs<ExtArgs>
+  SkillMatrix?: boolean | Prisma.ManPower$SkillMatrixArgs<ExtArgs>
   _count?: boolean | Prisma.ManPowerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["manPower"]>
 
@@ -507,6 +602,7 @@ export type ManPowerSelectScalar = {
 export type ManPowerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Uid" | "Nik" | "PicturePath" | "Name" | "CreatedAt" | "Status" | "Line", ExtArgs["result"]["manPower"]>
 export type ManPowerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ProductionReport?: boolean | Prisma.ManPower$ProductionReportArgs<ExtArgs>
+  SkillMatrix?: boolean | Prisma.ManPower$SkillMatrixArgs<ExtArgs>
   _count?: boolean | Prisma.ManPowerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ManPowerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -516,6 +612,7 @@ export type $ManPowerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   name: "ManPower"
   objects: {
     ProductionReport: Prisma.$ProductionReportPayload<ExtArgs>[]
+    SkillMatrix: Prisma.$SkillMatrixPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Uid: string
@@ -920,6 +1017,7 @@ readonly fields: ManPowerFieldRefs;
 export interface Prisma__ManPowerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   ProductionReport<T extends Prisma.ManPower$ProductionReportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ManPower$ProductionReportArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  SkillMatrix<T extends Prisma.ManPower$SkillMatrixArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ManPower$SkillMatrixArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SkillMatrixPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1370,6 +1468,30 @@ export type ManPower$ProductionReportArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.ProductionReportScalarFieldEnum | Prisma.ProductionReportScalarFieldEnum[]
+}
+
+/**
+ * ManPower.SkillMatrix
+ */
+export type ManPower$SkillMatrixArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SkillMatrix
+   */
+  select?: Prisma.SkillMatrixSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SkillMatrix
+   */
+  omit?: Prisma.SkillMatrixOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SkillMatrixInclude<ExtArgs> | null
+  where?: Prisma.SkillMatrixWhereInput
+  orderBy?: Prisma.SkillMatrixOrderByWithRelationInput | Prisma.SkillMatrixOrderByWithRelationInput[]
+  cursor?: Prisma.SkillMatrixWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SkillMatrixScalarFieldEnum | Prisma.SkillMatrixScalarFieldEnum[]
 }
 
 /**

@@ -13,8 +13,18 @@ export class DisplayConfigEntity {
   @ApiPropertyOptional({
     description: 'URL display',
     example: 'https://display.example.com/screen/1',
+    nullable: true,
   })
-  url: string;
+  url: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Uploaded NAS media URL',
+    nullable: true,
+  })
+  filePath: string | null;
+
+  @ApiPropertyOptional({ description: 'Production line', nullable: true })
+  line: string | null;
 
   @ApiProperty({ description: 'Status open/close', example: false })
   isOpen: boolean;

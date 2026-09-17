@@ -1,5 +1,29 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  IsArray,
+  ValidateNested,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class SkillMatrixDto {
+  @ApiProperty({ description: 'Label/nama skill', example: 'Assembly A' })
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+
+  @ApiProperty({ description: 'Poin skill (1-4)', example: 3 })
+  @IsInt()
+  @Min(1)
+  @Max(4)
+  point: number;
+}
 
 export class CreateManPowerDto {
   /** NIK karyawan */
@@ -32,4 +56,14 @@ export class CreateManPowerDto {
   @IsString()
   @IsOptional()
   picturePath?: string;
+
+  @ApiPropertyOptional({
+    description: 'Skill matrix array',
+    type: [SkillMatrixDto],
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => SkillMatrixDto)
+  skillMatrix?: SkillMatrixDto[];
 }

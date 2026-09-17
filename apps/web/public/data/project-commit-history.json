@@ -1,0 +1,395 @@
+{
+  "repository": {
+    "source": "combined-git-history",
+    "upstreamRepository": "https://github.com/Vuteq-Indonesia/api-ansei-revamp",
+    "generatedAt": "2026-09-17",
+    "commitCount": 48,
+    "format": "standardized-curated-commit-summaries"
+  },
+  "commits": [
+    {
+      "hash": "release-1.18.0",
+      "shortHash": "v1.18.0",
+      "author": "ANSEI Team",
+      "date": "2026-09-17T08:00:00+07:00",
+      "category": "Release",
+      "summary": "Version 1.18.0: Add Credits & Information modal, curated chronological Update Log, and system-specific Privacy Policy"
+    },
+    {
+      "hash": "ef36a02b92335f04c862c3927ed9a03aa04d7f0b",
+      "shortHash": "ef36a02",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-16T20:56:01+07:00",
+      "category": "Feature",
+      "summary": "Add inventory counting approval workflow and transaction freeze on active counting"
+    },
+    {
+      "hash": "693799d178554dadb1eae9dcd747658b57bda2fc",
+      "shortHash": "693799d",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-16T19:23:12+07:00",
+      "category": "Feature",
+      "summary": "Link production reporting to forecast with pokayoke validation and operator shift modal"
+    },
+    {
+      "hash": "8ef9be2c5363deec7656e8f4b41b21e01b235ace",
+      "shortHash": "8ef9be2",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-16T15:59:24+07:00",
+      "category": "Feature",
+      "summary": "Revamp production display with operator skill matrix, finish good aliases, and real-time refresh"
+    },
+    {
+      "hash": "9d5ce30d192c838a820ed95b4b8b623df9b88bdf",
+      "shortHash": "9d5ce30",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-16T14:19:14+07:00",
+      "category": "Feature",
+      "summary": "Support dynamic network LPR print queues and automated label dispatch"
+    },
+    {
+      "hash": "3453b804af81c5889ccb7e1e26b8abdfbe92f302",
+      "shortHash": "3453b80",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-16T13:34:22+07:00",
+      "category": "Feature",
+      "summary": "Migrate printer service to BullMQ queue architecture with standalone worker processing"
+    },
+    {
+      "hash": "696f6c83f1ff8cf8a3c13968985f9e9f3f6a2bcb",
+      "shortHash": "696f6c8",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-16T10:55:53+07:00",
+      "category": "Feature",
+      "summary": "Display signatory user names in Delivery Note templates and expose FinishGoodPartTemp"
+    },
+    {
+      "hash": "86387416ca3bb1659f5373ae5d704ee101db9cd5",
+      "shortHash": "8638741",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-16T10:19:04+07:00",
+      "category": "Fix",
+      "summary": "Implement server-side Delivery Note PDF generation with LibreOffice conversion fallback"
+    },
+    {
+      "hash": "f6ee349ec13b0c6e40befd1cc4a889dbdbe54d44",
+      "shortHash": "f6ee349",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-16T09:09:17+07:00",
+      "category": "Feature",
+      "summary": "Map CreatedBy fields to full employee names in data tables and audit views"
+    },
+    {
+      "hash": "ea4af9402872fedbca557af93ec5c72f60a11f33",
+      "shortHash": "ea4af94",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-15T18:29:08+07:00",
+      "category": "Refactor",
+      "summary": "Refactor user display names from UserId to full employee names across API and Web"
+    },
+    {
+      "hash": "519eb0fca8ade983cde0d847dc66e8228fc80fde",
+      "shortHash": "519eb0f",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-15T13:16:54+07:00",
+      "category": "Feature",
+      "summary": "Standardize global API response envelopes and server-side pagination across all master data"
+    },
+    {
+      "hash": "77e0d61739a72023d7b4ba43fbcddbb0d13874d1",
+      "shortHash": "77e0d61",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-15T10:49:54+07:00",
+      "category": "Feature",
+      "summary": "Add monthly period filter support to management dashboard charts"
+    },
+    {
+      "hash": "f64afb176c35a3b51766d04a3ab4efd44b330945",
+      "shortHash": "f64afb1",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-15T09:30:29+07:00",
+      "category": "Feature",
+      "summary": "Add DASHBOARD_VIEW permission, split seeders, and FinishGoodPartTemp tracking"
+    },
+    {
+      "hash": "f00ffcaac972843e085ebb410879015fff32afae",
+      "shortHash": "f00ffca",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-14T22:44:40+07:00",
+      "category": "Feature",
+      "summary": "Support dual SSO clients for confidential Web application and public Mobile (Flutter PKCE)"
+    },
+    {
+      "hash": "6daeb8ddc0791325782a752cea9274daf8c18504",
+      "shortHash": "6daeb8d",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-14T10:54:39+07:00",
+      "category": "Feature",
+      "summary": "Add idempotent permission seeders and initial role definitions"
+    },
+    {
+      "hash": "d29c66997f12b3fbf3040ea3a79e633280ef644c",
+      "shortHash": "d29c669",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-14T09:08:10+07:00",
+      "category": "Security",
+      "summary": "Implement permission-based sidebar navigation locking and RBAC view protection"
+    },
+    {
+      "hash": "e6307838cc8442b6ead39fb5fdfd120787cc4c76",
+      "shortHash": "e630783",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-13T22:25:57+07:00",
+      "category": "Feature",
+      "summary": "Enhance Ant Design logout dialog and streamline authentication states"
+    },
+    {
+      "hash": "c02619a136f54f2e71fd50078eeab13c3dd3fe6c",
+      "shortHash": "c02619a",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-13T21:39:05+07:00",
+      "category": "Feature",
+      "summary": "Add logout confirmation modal and improve session loading feedback"
+    },
+    {
+      "hash": "951aa21bec62be2484128964091d1b8604c66ab8",
+      "shortHash": "951aa21",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-13T20:06:47+07:00",
+      "category": "Security",
+      "summary": "Add backchannel OIDC logout diagnostics and automated session cookie invalidation"
+    },
+    {
+      "hash": "b5d6efff14526a236d493c7e3b031e2a0dfda065",
+      "shortHash": "b5d6eff",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-13T19:33:24+07:00",
+      "category": "Feature",
+      "summary": "Revamp ANSEI UI with white enterprise branding and traditional batik header"
+    },
+    {
+      "hash": "8fd683a5cad010aab9d13e1d0cf3bf2cc2a71db8",
+      "shortHash": "8fd683a",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-13T17:23:44+07:00",
+      "category": "Feature",
+      "summary": "Implement seamless background session check and automatic authentication refresh"
+    },
+    {
+      "hash": "dae773b8093585b575ed4dcb0007f1dfd8e7e87f",
+      "shortHash": "dae773b",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-13T12:44:19+07:00",
+      "category": "Refactor",
+      "summary": "Configure web frontend router to serve directly from domain root"
+    },
+    {
+      "hash": "2f24ae7216117db6e328f89c55080331eee446ac",
+      "shortHash": "2f24ae7",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-13T11:18:04+07:00",
+      "category": "Security",
+      "summary": "Establish Vuteq SSO as the centralized enterprise user authentication authority"
+    },
+    {
+      "hash": "dea80c5fd7e0f5d5a4dba21199311b59cdcee5fe",
+      "shortHash": "dea80c5",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-12T19:37:58+07:00",
+      "category": "Feature",
+      "summary": "Add graceful fallback handling when central SSO provider is unreachable"
+    },
+    {
+      "hash": "9d97dd3cedb8ade1e6b1e8f6ccd8daa7cfaff9ab",
+      "shortHash": "9d97dd3",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-12T18:47:22+07:00",
+      "category": "Performance",
+      "summary": "Optimize production multi-stage Docker images for web and API"
+    },
+    {
+      "hash": "4864b27e5b35dc2770901f047c0c9d9572982940",
+      "shortHash": "4864b27",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-12T18:24:35+07:00",
+      "category": "Feature",
+      "summary": "Add enterprise Winston structured logging and centralized error transport"
+    },
+    {
+      "hash": "dd99c1e4dbf1bd210d0225039467fa005a9db991",
+      "shortHash": "dd99c1e",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-12T13:26:15+07:00",
+      "category": "Feature",
+      "summary": "Consolidate web API proxy architecture and domain routing"
+    },
+    {
+      "hash": "068e279ad2d714d443d0f1c861b83f286fc73dfd",
+      "shortHash": "068e279",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-09-11T18:51:31+07:00",
+      "category": "Feature",
+      "summary": "Integrate central Vuteq SSO authentication and consolidated monorepo deployment"
+    },
+    {
+      "hash": "3369e196961da6610ea6b2cab1487facd9712564",
+      "shortHash": "3369e19",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-24T10:35:01+07:00",
+      "category": "Feature",
+      "summary": "Add comprehensive reporting generation endpoints, DTO/entity exports, and automated controller unit tests"
+    },
+    {
+      "hash": "7fe92708a717aa447c424c014a8a8e4a7ffe682f",
+      "shortHash": "7fe9270",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-22T03:51:02+07:00",
+      "category": "Feature",
+      "summary": "Add digital signature image capture on material delivery notes and detailed forecast release API"
+    },
+    {
+      "hash": "c5b9646f7162018505393085e19944957236ce82",
+      "shortHash": "c5b9646",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-21T10:52:18+07:00",
+      "category": "Feature",
+      "summary": "Implement Display Configuration module with CRUD, API integration, and Prisma schema migration"
+    },
+    {
+      "hash": "5c174d8430195aa72ec3ae0dcbeb81d6b77c5f92",
+      "shortHash": "5c174d8",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-21T08:16:55+07:00",
+      "category": "Feature",
+      "summary": "Enhance Pokayoke scanning validation with barcode comparison and shopping completeness checks"
+    },
+    {
+      "hash": "20cb57ad54169a75b6c1d31b31d67860f9e90804",
+      "shortHash": "20cb57a",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-21T04:34:53+07:00",
+      "category": "Refactor",
+      "summary": "Refactor inventory counting service to standardize property models and enhance data mapping"
+    },
+    {
+      "hash": "53c5fb2b5c836852ac4547b1526905b84ee183df",
+      "shortHash": "53c5fb2",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-21T03:01:34+07:00",
+      "category": "Maintenance",
+      "summary": "Add export for Production Release entity and comprehensive API technical documentation"
+    },
+    {
+      "hash": "ddd8bf352810178d6a2ffa0007c317fd436d87f6",
+      "shortHash": "ddd8bf3",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-20T14:49:12+07:00",
+      "category": "Feature",
+      "summary": "Add Dashboard statistics API with material, supplier, manpower, forecast, and delivery metrics"
+    },
+    {
+      "hash": "e564edcf016e6bd1e835d733133b51f3d9b31cea",
+      "shortHash": "e564edc",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-20T12:31:56+07:00",
+      "category": "Feature",
+      "summary": "Implement SMTP email notification service and automatic delivery note email dispatch"
+    },
+    {
+      "hash": "3eaf37c4c64cc295e50fb73e292a6428a13be206",
+      "shortHash": "3eaf37c",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-20T06:50:58+07:00",
+      "category": "Feature",
+      "summary": "Add API Key management module with dual authentication guard (JWT + API Key)"
+    },
+    {
+      "hash": "7d15222fc47e8d2cf086ed0b58edbb54971ac0fc",
+      "shortHash": "7d15222",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-16T02:18:19+07:00",
+      "category": "Feature",
+      "summary": "Implement Excel export functionality for inventory ledger and MRP run-out projections"
+    },
+    {
+      "hash": "c6c72354efb94f87f31491f665abb3a9b62d9ea4",
+      "shortHash": "c6c7235",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-15T08:36:22+07:00",
+      "category": "Feature",
+      "summary": "Add incoming material check-in workflow with QtyChecked tracking and validation logic"
+    },
+    {
+      "hash": "bcc6b4e48fb1197faafa61c949debb0cdb6ecf59",
+      "shortHash": "bcc6b4e",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-07-14T15:33:31+07:00",
+      "category": "Feature",
+      "summary": "Integrate printer setting module with CRUD functionalities and incoming attachment endpoints"
+    },
+    {
+      "hash": "2cb9580747c6ee771b124710147f3338202ac8f5",
+      "shortHash": "2cb9580",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-06-27T16:27:05+07:00",
+      "category": "Security",
+      "summary": "Standardize permission keys with IPCS prefix across all controllers and security guards"
+    },
+    {
+      "hash": "f00bcb05e647831b410c7185b91c9e4b3b9d42c5",
+      "shortHash": "f00bcb0",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-06-18T10:01:52+07:00",
+      "category": "Feature",
+      "summary": "Add Material Requirements Planning (MRP) calculation engine and run-out projections"
+    },
+    {
+      "hash": "626861de298ce92dd3113a977593e41564dbde53",
+      "shortHash": "626861d",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-06-17T14:21:36+07:00",
+      "category": "Feature",
+      "summary": "Implement real-time notification engine for warehouse and production pending tasks"
+    },
+    {
+      "hash": "fa4a79aeeb9b12846e29312f2cc54151e5456f17",
+      "shortHash": "fa4a79a",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-06-16T09:23:08+07:00",
+      "category": "Feature",
+      "summary": "Add dedicated frontend aggregated endpoints for notifications, dashboard metrics, and operator lookups"
+    },
+    {
+      "hash": "564b8f151e0206dce6411758590a5c70c4c72db6",
+      "shortHash": "564b8f1",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-06-15T04:05:41+07:00",
+      "category": "Feature",
+      "summary": "Add database seeder for initial view-only and read-only roles"
+    },
+    {
+      "hash": "c3292f23743e421969dba7fa8b01eac39591f972",
+      "shortHash": "c3292f2",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-06-14T10:23:08+07:00",
+      "category": "Documentation",
+      "summary": "Add Swagger OpenAPI documentation, metadata, and DTO validations across all endpoints"
+    },
+    {
+      "hash": "2a0af2cce7655a2d88ec862c7ee19d66810dc0d9",
+      "shortHash": "2a0af2c",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-06-14T14:38:51+07:00",
+      "category": "Maintenance",
+      "summary": "Add GitHub Actions CI/CD automated deployment pipeline for staging environment"
+    },
+    {
+      "hash": "c469eb74844e0eb9fa7e1c35df48e27034624f68",
+      "shortHash": "c469eb7",
+      "author": "Irfan Akbari Habibi",
+      "date": "2026-06-04T10:06:20+07:00",
+      "category": "Release",
+      "summary": "Initial project setup with Prisma schema, database migrations, and core architecture"
+    }
+  ]
+}

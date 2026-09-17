@@ -2,10 +2,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Switch, App } from 'antd';
+import { Modal, Form, Input, Switch, App, Upload, Button } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import {
     createDisplayConfig,
     updateDisplayConfig,
+    uploadDisplayMedia,
     DisplayConfigEntity,
     CreateDisplayConfigDto,
 } from '@/store/features/settings/displayConfig/displayConfigSlice';
@@ -27,6 +29,7 @@ const CreateEditDisplayConfigModal: React.FC<Props> = ({
     const [form] = Form.useForm();
     const { message } = App.useApp();
     const [loading, setLoading] = useState(false);
+    const [mediaFile, setMediaFile] = useState<File | null>(null);
 
     const isEdit = !!data;
 
@@ -36,6 +39,7 @@ const CreateEditDisplayConfigModal: React.FC<Props> = ({
                 form.setFieldsValue({
                     description: data.Description,
                     url: data.Url,
+                    line: data.Line,
                     isOpen: data.IsOpen,
                     loop: data.Loop,
                 });
@@ -56,7 +60,8 @@ const CreateEditDisplayConfigModal: React.FC<Props> = ({
 
             const payload: CreateDisplayConfigDto = {
                 description: values.description,
-                url: values.url,
+                url: values.url || undefined,
+                line: values.line || undefined,
                 isOpen: values.isOpen ?? false,
                 loop: values.loop ?? true,
             };
@@ -68,33 +73,44 @@ const CreateEditDisplayConfigModal: React.FC<Props> = ({
                 result = await store.dispatch(createDisplayConfig(payload));
             }
 
+            let savedId: number;
             if (isEdit && data) {
                 if (updateDisplayConfig.rejected.match(result)) {
                     throw new Error((result.payload as string) || 'Failed to update display config');
                 }
-                message.success('Display config updated successfully');
+                savedId = data.Id;
             } else {
                 if (createDisplayConfig.rejected.match(result)) {
                     throw new Error((result.payload as string) || 'Failed to create display config');
                 }
-                message.success('Display config created successfully');
+                const created = result.payload as { data?: DisplayConfigEntity };
+                savedId = created.data?.Id as number;
             }
 
+            if (mediaFile && savedId) {
+                const uploadResult = await store.dispatch(uploadDisplayMedia({ id: savedId, file: mediaFile }));
+                if (uploadDisplayMedia.rejected.match(uploadResult)) {
+                    throw new Error((uploadResult.payload as string) || 'Display config saved, but media upload failed');
+                }
+            }
+
+            message.success(`Display config ${isEdit ? 'updated' : 'created'} successfully`);
+            setMediaFile(null);
             form.resetFields();
             onClose();
             onSuccess?.();
         } catch (error: unknown) {
             const err = error as Error;
-            if (err?.message?.includes('validateFields')) {
-                setLoading(false);
-                return;
-            }
+            if (err?.message?.includes('validateFields')) return;
             message.error(err?.message || String(error) || 'Failed to save display config');
+        } finally {
             setLoading(false);
         }
     };
 
     const handleCancel = () => {
+        setLoading(false);
+        setMediaFile(null);
         form.resetFields();
         onClose();
     };
@@ -126,13 +142,32 @@ const CreateEditDisplayConfigModal: React.FC<Props> = ({
 
                 <Form.Item
                     name="url"
-                    label="URL"
-                    rules={[
-                        { required: true, message: 'URL is required' },
-                        { type: 'url', message: 'Invalid URL format' },
-                    ]}
+                    label="URL (Optional)"
+                    rules={[{ type: 'url', message: 'Invalid URL format' }]}
+                    extra="Uploaded media has priority over this URL"
                 >
-                    <Input placeholder="https://display.example.com/screen/1" />
+                    <Input placeholder="https://display.example.com/video.mp4" />
+                </Form.Item>
+
+                <Form.Item name="line" label="Production Line" extra="Leave empty for default display">
+                    <Input placeholder="e.g., LINE-A" />
+                </Form.Item>
+
+                <Form.Item label="Upload Media (Max 50MB)" extra={data?.FilePath ? `Current: ${data.FilePath}` : 'Video: MP4/WEBM/OGG. Image: PNG/JPG/GIF/WEBP'}>
+                    <Upload
+                        beforeUpload={(file) => {
+                            if (file.size > 50 * 1024 * 1024) {
+                                message.error('File size exceeds 50MB');
+                                return Upload.LIST_IGNORE;
+                            }
+                            setMediaFile(file);
+                            return false;
+                        }}
+                        maxCount={1}
+                        onRemove={() => setMediaFile(null)}
+                    >
+                        <Button icon={<UploadOutlined />}>Select Media</Button>
+                    </Upload>
                 </Form.Item>
 
                 <Form.Item

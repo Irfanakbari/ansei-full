@@ -58,6 +58,7 @@ export const ModelName = {
   BoxQTY: 'BoxQTY',
   BillOfMaterials: 'BillOfMaterials',
   ManPower: 'ManPower',
+  SkillMatrix: 'SkillMatrix',
   InventoryLedger: 'InventoryLedger',
   StockOpname: 'StockOpname',
   StockOpnameDetail: 'StockOpnameDetail',
@@ -186,6 +187,16 @@ export const ManPowerScalarFieldEnum = {
 } as const
 
 export type ManPowerScalarFieldEnum = (typeof ManPowerScalarFieldEnum)[keyof typeof ManPowerScalarFieldEnum]
+
+
+export const SkillMatrixScalarFieldEnum = {
+  Id: 'Id',
+  ManPowerUid: 'ManPowerUid',
+  Label: 'Label',
+  Point: 'Point'
+} as const
+
+export type SkillMatrixScalarFieldEnum = (typeof SkillMatrixScalarFieldEnum)[keyof typeof SkillMatrixScalarFieldEnum]
 
 
 export const InventoryLedgerScalarFieldEnum = {
@@ -623,7 +634,9 @@ export const DisplayConfigScalarFieldEnum = {
   UpdatedAt: 'UpdatedAt',
   IsOpen: 'IsOpen',
   Url: 'Url',
-  Loop: 'Loop'
+  Loop: 'Loop',
+  FilePath: 'FilePath',
+  Line: 'Line'
 } as const
 
 export type DisplayConfigScalarFieldEnum = (typeof DisplayConfigScalarFieldEnum)[keyof typeof DisplayConfigScalarFieldEnum]

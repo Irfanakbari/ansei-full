@@ -1,5 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+export class FrontendSkillMatrixEntity {
+  @ApiProperty({ example: 1 })
+  Id: number;
+
+  @ApiProperty({ example: 'Assembly A' })
+  Label: string;
+
+  @ApiProperty({ example: 3 })
+  Point: number;
+}
+
 export class FrontendManPowerEntity {
   @ApiProperty({ description: 'NIK karyawan', example: '12345678' })
   Nik: string;
@@ -21,4 +32,10 @@ export class FrontendManPowerEntity {
     example: 'LINE-A',
   })
   Line: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Skill Matrix',
+    type: [FrontendSkillMatrixEntity],
+  })
+  SkillMatrix?: FrontendSkillMatrixEntity[];
 }

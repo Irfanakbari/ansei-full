@@ -1,4 +1,4 @@
-/* By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-06-18 - Original Theme with Font Improvements */
+/* By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-17 - Credits & Information with Update Log */
 
 "use client";
 
@@ -7,7 +7,9 @@ import {
     BellOutlined,
     DatabaseOutlined,
     FileTextOutlined,
+    HistoryOutlined,
     InboxOutlined,
+    InfoCircleOutlined,
     LockOutlined,
     PieChartOutlined,
     SettingOutlined,
@@ -16,7 +18,22 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import Image from 'next/image';
-import { Layout, Menu, Avatar, Space, Dropdown, Badge, Spin, App } from 'antd';
+import {
+    Layout,
+    Menu,
+    Avatar,
+    Space,
+    Dropdown,
+    Badge,
+    Spin,
+    App,
+    Button,
+    Empty,
+    Modal,
+    Tag,
+    Tooltip,
+    Typography,
+} from 'antd';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useVuteqSso } from '@vuteq/sso-client-react/react';
@@ -24,10 +41,39 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { setAuthData, clearAuth } from '@/store/features/auth/authSlice';
 import { fetchNotifications, NotificationsEntity } from '@/store/features/notifications/notificationsSlice';
+import CreditInformationModal from './_components/CreditInformationModal';
 import '../batik.css';
 
-const APP_VERSION = '1.13.0';
+const APP_VERSION = '1.18.1';
+const APP_YEAR = '2026';
+
+const LATEST_RELEASE_SUMMARY = [
+    'Added approval workflow and transaction freeze on active inventory counting (stock opname).',
+    'Added production report validation against forecast and pokayoke with operator modal.',
+    'Revamped production display with skill matrix, finish good aliases, and real-time refresh.',
+    'Migrated printer service to BullMQ with independent worker and dynamic LPR queue support.',
+    'Integrated Credits & Information modal and chronological update log history.',
+];
+
 const { Header, Content, Footer, Sider } = Layout;
+const { Paragraph, Text, Title } = Typography;
+
+type ProjectCommit = {
+    hash: string;
+    shortHash: string;
+    author: string;
+    date: string;
+    category: string;
+    summary: string;
+};
+
+type ProjectCommitHistory = {
+    repository: {
+        commitCount: number;
+        generatedAt: string;
+    };
+    commits: ProjectCommit[];
+};
 
 type MenuItem = Required<MenuProps>['items'][number] & {
     permission?: string[];
@@ -266,6 +312,13 @@ const getNotificationHref = (menu: string): string => {
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
     const { modal } = App.useApp();
     const [collapsed, setCollapsed] = useState(false);
+    const [creditModalVisible, setCreditModalVisible] = useState(false);
+    const [privacyPolicyModalVisible, setPrivacyPolicyModalVisible] = useState(false);
+    const [isPrivacyPolicyEnglish, setIsPrivacyPolicyEnglish] = useState(true);
+    const [updateLogModalVisible, setUpdateLogModalVisible] = useState(false);
+    const [commitHistory, setCommitHistory] = useState<ProjectCommitHistory | null>(null);
+    const [commitHistoryLoading, setCommitHistoryLoading] = useState(false);
+    const [commitHistoryError, setCommitHistoryError] = useState<string | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const dispatch = useDispatch<AppDispatch>();
@@ -284,6 +337,28 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         return rawNotifications as NotificationsEntity;
     }, [rawNotifications]);
     const [isChecking, setIsChecking] = useState(true);
+
+    const loadCommitHistory = async () => {
+        setCommitHistoryLoading(true);
+        setCommitHistoryError(null);
+        try {
+            const response = await fetch('/data/project-commit-history.json');
+            if (!response.ok) {
+                throw new Error('Unable to load update history.');
+            }
+            const data: ProjectCommitHistory = await response.json();
+            setCommitHistory(data);
+        } catch {
+            setCommitHistoryError('Unable to load update history. Please try again.');
+        } finally {
+            setCommitHistoryLoading(false);
+        }
+    };
+
+    const handleOpenUpdateLogModal = () => {
+        setUpdateLogModalVisible(true);
+        void loadCommitHistory();
+    };
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -460,7 +535,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     }
 
     return (
-        <Layout style={{ minHeight: '100vh', display: 'flex' }}>
+        <>
+            <Layout style={{ minHeight: '100vh', display: 'flex' }}>
             {/* Sidebar - Original Theme */}
             <Sider
                 className="ansei-sider"
@@ -598,6 +674,25 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                                 </span>
                             </Dropdown>
 
+                            {/* Credits & Information Button */}
+                            <Tooltip title="Credits & Information">
+                                <Button
+                                    type="text"
+                                    aria-label="Open credits and information"
+                                    onClick={() => setCreditModalVisible(true)}
+                                    style={{
+                                        width: 32,
+                                        height: 32,
+                                        padding: 0,
+                                        lineHeight: 1,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                    icon={<InfoCircleOutlined style={{ fontSize: 20, color: 'white' }} />}
+                                />
+                            </Tooltip>
+
                             {/* User Info */}
                             <Dropdown menu={{ items: userMenu }} placement="bottomRight">
                                 <span
@@ -653,6 +748,303 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 </Footer>
             </Layout>
         </Layout>
+
+        {/* Privacy Policy Modal */}
+        <Modal
+            title={isPrivacyPolicyEnglish ? 'Privacy Policy' : 'Kebijakan Privasi'}
+            open={privacyPolicyModalVisible}
+            centered
+            onCancel={() => setPrivacyPolicyModalVisible(false)}
+            footer={[
+                <Button key="language" onClick={() => setIsPrivacyPolicyEnglish((current) => !current)}>
+                    {isPrivacyPolicyEnglish ? 'Bahasa Indonesia' : 'English'}
+                </Button>,
+                <Button key="close" type="primary" onClick={() => setPrivacyPolicyModalVisible(false)}>
+                    {isPrivacyPolicyEnglish ? 'Close' : 'Tutup'}
+                </Button>,
+            ]}
+            width={820}
+            styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
+        >
+            {isPrivacyPolicyEnglish ? (
+                <>
+                    <Title level={4}>Employee and Operational Data Protection Policy</Title>
+                    <Paragraph>
+                        <Text strong>Effective date: </Text>{APP_YEAR}. This Privacy Policy explains how ANSEI
+                        Inventory & Production System (&quot;ANSEI&quot;), operated for PT Vuteq Indonesia, processes
+                        and protects user, operator, inventory, and manufacturing execution data. It supports compliance
+                        with Indonesian personal data protection requirements, including Law No. 27 of 2022 on Personal
+                        Data Protection (PDP Law), and internal manufacturing governance.
+                    </Paragraph>
+                    <Title level={5}>1. User Identity and Operator Data We Process</Title>
+                    <Paragraph>
+                        <Text strong>System Users: </Text>User ID, full name, corporate email, SSO identifier, assigned
+                        roles and granular permissions (RBAC), active session tokens, login timestamps, and IP addresses.
+                    </Paragraph>
+                    <Paragraph>
+                        <Text strong>Shop Floor Manpower & Operators: </Text>Employee Identification Number (NIK), full
+                        name, department, assigned production line, work shift, Skill Matrix competency ratings, and
+                        operator profile pictures used on shop-floor digital displays.
+                    </Paragraph>
+                    <Paragraph>
+                        <Text strong>Signatures & Attributions: </Text>Digital signature images of delivery note
+                        receivers, approver identities on Stock Opname reconciliation forms, and actor usernames attached
+                        to every system transaction.
+                    </Paragraph>
+                    <Title level={5}>2. Manufacturing Execution and Warehouse Data</Title>
+                    <Paragraph>
+                        <Text strong>Warehouse & Inventory: </Text>Material and finish-good part numbers, supplier
+                        delivery orders (DO), physical stock opname counting entries, material transfer notes, and
+                        immutable ledger entries (<Text code>InventoryLedger</Text>) enforcing the invariant
+                        balance formula: <Text italic>BalanceAfter = BalanceBefore + QtyIn - QtyOut</Text>.
+                    </Paragraph>
+                    <Paragraph>
+                        <Text strong>Production & Quality (Poka-Yoke): </Text>Customer demand forecasts, work order
+                        production releases, Bill of Materials (BOM) formulas, shopping picking sheets, barcode/QR scan
+                        verification logs with comparison statuses (SUKSES/GAGAL), shift production outputs, and defect
+                        (NG/scrap) tallies.
+                    </Paragraph>
+                    <Title level={5}>3. Purposes of Data Processing</Title>
+                    <Paragraph>
+                        Data is collected and processed strictly to maintain accurate real-time inventory balances,
+                        generate Material Requirements Planning (MRP) calculations, prevent assembly line errors through
+                        automated Poka-Yoke error-proofing, generate delivery documentation, and maintain tamper-proof
+                        audit trails for internal and customer audits.
+                    </Paragraph>
+                    <Title level={5}>4. Security, Audit Logging, and Infrastructure</Title>
+                    <Paragraph>
+                        All records are stored on company-controlled infrastructure. The system maintains strict
+                        auditability through automated logging (<Text code>LogProcess</Text> and <Text code>LogProcessDetail</Text>),
+                        recording every state change with actor attribution, timestamp, and location. Access is enforced
+                        through role-based access control, least-privilege principles, encrypted transmission, and
+                        centralized Vuteq SSO.
+                    </Paragraph>
+                    <Title level={5}>5. Data Retention and Contact</Title>
+                    <Paragraph>
+                        Operational, inventory, and traceability logs are retained in accordance with automotive
+                        manufacturing standards and statutory retention periods. For questions regarding your personal
+                        data or operational records, please contact the IT Department or designated system administrators
+                        at PT Vuteq Indonesia.
+                    </Paragraph>
+                </>
+            ) : (
+                <>
+                    <Title level={4}>Kebijakan Perlindungan Data Pribadi dan Operasional</Title>
+                    <Paragraph>
+                        <Text strong>Tanggal berlaku: </Text>{APP_YEAR}. Kebijakan Privasi ini menjelaskan bagaimana
+                        ANSEI Inventory & Production System (&quot;ANSEI&quot;), yang dioperasikan untuk PT Vuteq
+                        Indonesia, memproses dan mengamankan data pengguna, tenaga kerja operator, mutasi inventaris,
+                        dan eksekusi manufaktur. Kebijakan ini mendukung kepatuhan terhadap Undang-Undang Nomor 27 Tahun
+                        2022 tentang Perlindungan Data Pribadi (UU PDP) serta standar tata kelola manufaktur internal.
+                    </Paragraph>
+                    <Title level={5}>1. Data Identitas Pengguna dan Operator yang Diproses</Title>
+                    <Paragraph>
+                        <Text strong>Pengguna Sistem: </Text>User ID, nama lengkap, email perusahaan, ID akun Vuteq SSO,
+                        peran serta hak akses terperinci (RBAC), token sesi aktif, catatan waktu login, dan alamat IP.
+                    </Paragraph>
+                    <Paragraph>
+                        <Text strong>Tenaga Kerja & Operator Produksi: </Text>Nomor Induk Karyawan (NIK), nama lengkap,
+                        departemen, lini produksi yang ditugaskan, jadwal shift kerja, penilaian matriks keahlian (Skill
+                        Matrix), dan foto profil operator untuk tampilan display digital lini produksi.
+                    </Paragraph>
+                    <Paragraph>
+                        <Text strong>Tanda Tangan & Otorisasi: </Text>Gambar tanda tangan digital penerima pada Surat
+                        Jalan (Material Delivery Note), identitas penyetujui berita acara Stock Opname, serta rekam jejak
+                        nama pengguna pada setiap transaksi sistem.
+                    </Paragraph>
+                    <Title level={5}>2. Data Operasional Manufaktur dan Pergudangan</Title>
+                    <Paragraph>
+                        <Text strong>Pergudangan & Inventaris: </Text>Nomor part material dan finish good, surat jalan
+                        supplier (DO), pencatatan fisik stock opname, transfer antar rak, serta buku besar inventaris
+                        (<Text code>InventoryLedger</Text>) yang menjaga rumus saldo mutlak: <Text italic>BalanceAfter =
+                        BalanceBefore + QtyIn - QtyOut</Text>.
+                    </Paragraph>
+                    <Paragraph>
+                        <Text strong>Produksi & Kualitas (Poka-Yoke): </Text>Peramalan kebutuhan (Forecast), rilis surat
+                        perintah kerja (Production Release), Bill of Materials (BOM), daftar shopping material, riwayat
+                        pemindaian barcode/QR Poka-Yoke dengan status perbandingan (SUKSES/GAGAL), hasil produksi shift,
+                        dan catatan produk cacat (NG/scrap).
+                    </Paragraph>
+                    <Title level={5}>3. Tujuan Pemrosesan Data</Title>
+                    <Paragraph>
+                        Data diproses semata-mata untuk mengelola akurasi stok material secara langsung (real-time),
+                        perhitungan kebutuhan material (MRP), pencegahan kesalahan perakitan melalui validasi Poka-Yoke
+                        otomatis, pembuatan dokumen surat jalan, serta penyediaan jejak audit yang tidak dapat dimanipulasi
+                        untuk audit mutu internal maupun pelanggan.
+                    </Paragraph>
+                    <Title level={5}>4. Keamanan, Pencatatan Audit, dan Infrastruktur</Title>
+                    <Paragraph>
+                        Seluruh data disimpan di infrastruktur internal yang dikendalikan oleh perusahaan. ANSEI
+                        menerapkan auditabilitas ketat melalui pencatatan log otomatis (<Text code>LogProcess</Text> dan{' '}
+                        <Text code>LogProcessDetail</Text>) yang mencatat setiap mutasi data bersama identitas aktor, waktu,
+                        dan modul terkait. Akses dilindungi dengan otorisasi berbasis peran, prinsip hak akses minimum,
+                        enkripsi saluran komunikasi, dan integrasi terpusat Vuteq SSO.
+                    </Paragraph>
+                    <Title level={5}>5. Retensi Data dan Hak Pengguna</Title>
+                    <Paragraph>
+                        Data operasional, mutasi inventaris, dan rekam jejak mutu disimpan sesuai standar retensi industri
+                        manufaktur otomotif. Untuk pertanyaan atau permintaan perbaikan data operasional Anda, silakan
+                        menghubungi Departemen IT atau administrator sistem di PT Vuteq Indonesia.
+                    </Paragraph>
+                </>
+            )}
+        </Modal>
+
+        {/* Update Log Modal */}
+        <Modal
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{
+                        display: 'inline-flex',
+                        padding: 8,
+                        borderRadius: 4,
+                        color: 'white',
+                        background: '#4C6A85',
+                    }}>
+                        <HistoryOutlined />
+                    </span>
+                    <div>
+                        <div style={{ lineHeight: 1.2 }}>Update Log</div>
+                        <div style={{ marginTop: 2, color: '#64748b', fontSize: 12, fontWeight: 400 }}>
+                            A chronological record of ANSEI improvements
+                        </div>
+                    </div>
+                </div>
+            }
+            open={updateLogModalVisible}
+            centered
+            onCancel={() => setUpdateLogModalVisible(false)}
+            footer={<Button type="primary" onClick={() => setUpdateLogModalVisible(false)}>Close</Button>}
+            width={860}
+            styles={{ body: { maxHeight: '64vh', overflowY: 'auto', paddingTop: 8 } }}
+        >
+            {commitHistoryLoading ? (
+                <div style={{ padding: 48, textAlign: 'center' }}>
+                    <Spin size="large" description="Loading update history..." />
+                </div>
+            ) : commitHistoryError ? (
+                <Empty description={commitHistoryError}>
+                    <Button type="primary" onClick={() => void loadCommitHistory()}>Reload</Button>
+                </Empty>
+            ) : commitHistory ? (
+                <div>
+                    <div style={{
+                        marginBottom: 16,
+                        padding: '16px',
+                        border: '1px solid #bfdbfe',
+                        borderRadius: 8,
+                        background: '#eff6ff',
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            gap: 12,
+                            alignItems: 'center',
+                        }}>
+                            <div style={{
+                                color: '#1e3a5f',
+                                fontSize: 16,
+                                fontWeight: 700,
+                            }}>Version {APP_VERSION}</div>
+                            <Tag color="blue">Latest release</Tag>
+                        </div>
+                        <div style={{ marginTop: 8, color: '#334155', fontSize: 13, lineHeight: 1.6 }}>
+                            This release combines the latest committed platform improvements with the current
+                            inventory & production system enhancements.
+                        </div>
+                        <ul style={{
+                            margin: '10px 0 0',
+                            paddingLeft: 20,
+                            color: '#334155',
+                            fontSize: 13,
+                            lineHeight: 1.65,
+                        }}>
+                            {LATEST_RELEASE_SUMMARY.map((item) => <li key={item}>{item}</li>)}
+                        </ul>
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: 16,
+                        marginBottom: 20,
+                        padding: '14px 16px',
+                        borderRadius: 6,
+                        color: '#4C6A85',
+                        background: '#EDF2F6',
+                    }}>
+                        <div>
+                            <strong>{commitHistory.repository.commitCount} recorded updates</strong>
+                            <div style={{ marginTop: 3, color: '#475569', fontSize: 12 }}>
+                                From the first project commit to the latest available update.
+                            </div>
+                        </div>
+                        <Button onClick={() => void loadCommitHistory()}>Reload</Button>
+                    </div>
+                    <div style={{ display: 'grid', gap: 12 }}>
+                        {commitHistory.commits.map((commit) => (
+                            <div key={commit.hash} style={{
+                                position: 'relative',
+                                padding: '14px 16px 14px 22px',
+                                borderRadius: 12,
+                                background: '#fff',
+                                boxShadow: '0 3px 10px rgba(0,0,0,0.03)',
+                            }}>
+                                <span style={{
+                                    position: 'absolute',
+                                    top: 20,
+                                    left: 9,
+                                    width: 6,
+                                    height: 6,
+                                    borderRadius: '50%',
+                                    background: commit.category === 'Fix' ? '#A34A4A' : '#4C6A85',
+                                }} />
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'flex-start',
+                                    gap: 12,
+                                }}>
+                                    <div style={{
+                                        color: '#1e293b',
+                                        fontWeight: 600,
+                                        lineHeight: 1.45,
+                                    }}>{commit.summary}</div>
+                                    <Tag
+                                        color={commit.category === 'Feature' ? 'green' : commit.category === 'Fix' ? 'red' : 'blue'}>
+                                        {commit.category}
+                                    </Tag>
+                                </div>
+                                <div style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: '6px 12px',
+                                    marginTop: 9,
+                                    color: '#64748b',
+                                    fontSize: 12,
+                                }}>
+                                    <span>#{commit.shortHash}</span>
+                                    <span>{commit.author}</span>
+                                    <span>{new Date(commit.date).toLocaleString('en-US', {
+                                        dateStyle: 'medium',
+                                        timeStyle: 'short',
+                                    })}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : null}
+        </Modal>
+
+        {/* Credit Information Modal */}
+        <CreditInformationModal
+            open={creditModalVisible}
+            onClose={() => setCreditModalVisible(false)}
+            onOpenUpdateLog={handleOpenUpdateLogModal}
+            onOpenPrivacyPolicy={() => setPrivacyPolicyModalVisible(true)}
+        />
+    </>
     );
 };
 

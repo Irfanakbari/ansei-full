@@ -588,4 +588,95 @@ describe('InventoryCountingService', () => {
       );
     });
   });
+
+  describe('generateWorksheet', () => {
+    it('should generate worksheet with printTitlesRow set to include table header row (1:18)', async () => {
+      const mockOpname = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Category: ItemCategory.MATERIAL,
+        Status: OpnameStatus.IN_PROGRESS,
+        CreatedAt: new Date(),
+        CreatedBy: 'test',
+        Details: [],
+      };
+      const mockDetails = [
+        {
+          Id: 1,
+          OpnameId: '123',
+          MaterialId: 'MAT-001',
+          FinishGoodId: null,
+          Location: 'RACK',
+          SystemQty: 0,
+          SystemQtyRack: 10,
+          ActualQty: null,
+          ActualQtyRack: null,
+        },
+      ];
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockOpname);
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue(mockDetails);
+      prismaService.material.findMany.mockResolvedValue([
+        { PartNumber: 'MAT-001', PartName: 'Bracket Part' },
+      ]);
+      prismaService.finishGood.findMany.mockResolvedValue([]);
+
+      const buffer = await service.generateWorksheet('123');
+      expect(buffer).toBeDefined();
+
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      await wb.xlsx.load(buffer);
+      const ws = wb.getWorksheet('RACK');
+      expect(ws).toBeDefined();
+      expect(ws.pageSetup.printTitlesRow).toBe('1:18');
+      expect(ws.getRow(18).values).toContain('Rack System Qty');
+      expect(ws.getRow(18).values).toContain('CHECK');
+    });
+  });
+
+  describe('generateSnapshot', () => {
+    it('should generate snapshot with printTitlesRow set to include table header row (1:14)', async () => {
+      const mockOpname = {
+        Id: '123',
+        OpnameNumber: 'INV-001',
+        Category: ItemCategory.MATERIAL,
+        Status: OpnameStatus.IN_PROGRESS,
+        CreatedAt: new Date(),
+        CreatedBy: 'test',
+        Details: [],
+      };
+      const mockDetails = [
+        {
+          Id: 1,
+          OpnameId: '123',
+          MaterialId: 'MAT-001',
+          FinishGoodId: null,
+          Location: 'RACK',
+          SystemQty: 0,
+          SystemQtyRack: 10,
+          ActualQty: null,
+          ActualQtyRack: null,
+        },
+      ];
+
+      prismaService.stockOpname.findUnique.mockResolvedValue(mockOpname);
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue(mockDetails);
+      prismaService.material.findMany.mockResolvedValue([
+        { PartNumber: 'MAT-001', PartName: 'Bracket Part' },
+      ]);
+      prismaService.finishGood.findMany.mockResolvedValue([]);
+
+      const buffer = await service.generateSnapshot('123');
+      expect(buffer).toBeDefined();
+
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      await wb.xlsx.load(buffer);
+      const ws = wb.getWorksheet('Snapshot');
+      expect(ws).toBeDefined();
+      expect(ws.pageSetup.printTitlesRow).toBe('1:14');
+      expect(ws.getRow(14).values).toContain('Rack Sys Qty');
+    });
+  });
 });

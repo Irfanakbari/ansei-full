@@ -42,6 +42,8 @@ export type DisplayConfigMinAggregateOutputType = {
   IsOpen: boolean | null
   Url: string | null
   Loop: boolean | null
+  FilePath: string | null
+  Line: string | null
 }
 
 export type DisplayConfigMaxAggregateOutputType = {
@@ -52,6 +54,8 @@ export type DisplayConfigMaxAggregateOutputType = {
   IsOpen: boolean | null
   Url: string | null
   Loop: boolean | null
+  FilePath: string | null
+  Line: string | null
 }
 
 export type DisplayConfigCountAggregateOutputType = {
@@ -62,6 +66,8 @@ export type DisplayConfigCountAggregateOutputType = {
   IsOpen: number
   Url: number
   Loop: number
+  FilePath: number
+  Line: number
   _all: number
 }
 
@@ -82,6 +88,8 @@ export type DisplayConfigMinAggregateInputType = {
   IsOpen?: true
   Url?: true
   Loop?: true
+  FilePath?: true
+  Line?: true
 }
 
 export type DisplayConfigMaxAggregateInputType = {
@@ -92,6 +100,8 @@ export type DisplayConfigMaxAggregateInputType = {
   IsOpen?: true
   Url?: true
   Loop?: true
+  FilePath?: true
+  Line?: true
 }
 
 export type DisplayConfigCountAggregateInputType = {
@@ -102,6 +112,8 @@ export type DisplayConfigCountAggregateInputType = {
   IsOpen?: true
   Url?: true
   Loop?: true
+  FilePath?: true
+  Line?: true
   _all?: true
 }
 
@@ -197,8 +209,10 @@ export type DisplayConfigGroupByOutputType = {
   CreatedAt: Date | null
   UpdatedAt: Date
   IsOpen: boolean
-  Url: string
+  Url: string | null
   Loop: boolean
+  FilePath: string | null
+  Line: string | null
   _count: DisplayConfigCountAggregateOutputType | null
   _avg: DisplayConfigAvgAggregateOutputType | null
   _sum: DisplayConfigSumAggregateOutputType | null
@@ -230,8 +244,10 @@ export type DisplayConfigWhereInput = {
   CreatedAt?: Prisma.DateTimeNullableFilter<"DisplayConfig"> | Date | string | null
   UpdatedAt?: Prisma.DateTimeFilter<"DisplayConfig"> | Date | string
   IsOpen?: Prisma.BoolFilter<"DisplayConfig"> | boolean
-  Url?: Prisma.StringFilter<"DisplayConfig"> | string
+  Url?: Prisma.StringNullableFilter<"DisplayConfig"> | string | null
   Loop?: Prisma.BoolFilter<"DisplayConfig"> | boolean
+  FilePath?: Prisma.StringNullableFilter<"DisplayConfig"> | string | null
+  Line?: Prisma.StringNullableFilter<"DisplayConfig"> | string | null
 }
 
 export type DisplayConfigOrderByWithRelationInput = {
@@ -240,8 +256,10 @@ export type DisplayConfigOrderByWithRelationInput = {
   CreatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   IsOpen?: Prisma.SortOrder
-  Url?: Prisma.SortOrder
+  Url?: Prisma.SortOrderInput | Prisma.SortOrder
   Loop?: Prisma.SortOrder
+  FilePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  Line?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type DisplayConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -253,8 +271,10 @@ export type DisplayConfigWhereUniqueInput = Prisma.AtLeast<{
   CreatedAt?: Prisma.DateTimeNullableFilter<"DisplayConfig"> | Date | string | null
   UpdatedAt?: Prisma.DateTimeFilter<"DisplayConfig"> | Date | string
   IsOpen?: Prisma.BoolFilter<"DisplayConfig"> | boolean
-  Url?: Prisma.StringFilter<"DisplayConfig"> | string
+  Url?: Prisma.StringNullableFilter<"DisplayConfig"> | string | null
   Loop?: Prisma.BoolFilter<"DisplayConfig"> | boolean
+  FilePath?: Prisma.StringNullableFilter<"DisplayConfig"> | string | null
+  Line?: Prisma.StringNullableFilter<"DisplayConfig"> | string | null
 }, "Id">
 
 export type DisplayConfigOrderByWithAggregationInput = {
@@ -263,8 +283,10 @@ export type DisplayConfigOrderByWithAggregationInput = {
   CreatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   IsOpen?: Prisma.SortOrder
-  Url?: Prisma.SortOrder
+  Url?: Prisma.SortOrderInput | Prisma.SortOrder
   Loop?: Prisma.SortOrder
+  FilePath?: Prisma.SortOrderInput | Prisma.SortOrder
+  Line?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.DisplayConfigCountOrderByAggregateInput
   _avg?: Prisma.DisplayConfigAvgOrderByAggregateInput
   _max?: Prisma.DisplayConfigMaxOrderByAggregateInput
@@ -281,8 +303,10 @@ export type DisplayConfigScalarWhereWithAggregatesInput = {
   CreatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DisplayConfig"> | Date | string | null
   UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"DisplayConfig"> | Date | string
   IsOpen?: Prisma.BoolWithAggregatesFilter<"DisplayConfig"> | boolean
-  Url?: Prisma.StringWithAggregatesFilter<"DisplayConfig"> | string
+  Url?: Prisma.StringNullableWithAggregatesFilter<"DisplayConfig"> | string | null
   Loop?: Prisma.BoolWithAggregatesFilter<"DisplayConfig"> | boolean
+  FilePath?: Prisma.StringNullableWithAggregatesFilter<"DisplayConfig"> | string | null
+  Line?: Prisma.StringNullableWithAggregatesFilter<"DisplayConfig"> | string | null
 }
 
 export type DisplayConfigCreateInput = {
@@ -290,8 +314,10 @@ export type DisplayConfigCreateInput = {
   CreatedAt?: Date | string | null
   UpdatedAt?: Date | string
   IsOpen?: boolean
-  Url: string
+  Url?: string | null
   Loop?: boolean
+  FilePath?: string | null
+  Line?: string | null
 }
 
 export type DisplayConfigUncheckedCreateInput = {
@@ -300,8 +326,10 @@ export type DisplayConfigUncheckedCreateInput = {
   CreatedAt?: Date | string | null
   UpdatedAt?: Date | string
   IsOpen?: boolean
-  Url: string
+  Url?: string | null
   Loop?: boolean
+  FilePath?: string | null
+  Line?: string | null
 }
 
 export type DisplayConfigUpdateInput = {
@@ -309,8 +337,10 @@ export type DisplayConfigUpdateInput = {
   CreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsOpen?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Url?: Prisma.StringFieldUpdateOperationsInput | string
+  Url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Loop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  FilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DisplayConfigUncheckedUpdateInput = {
@@ -319,8 +349,10 @@ export type DisplayConfigUncheckedUpdateInput = {
   CreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsOpen?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Url?: Prisma.StringFieldUpdateOperationsInput | string
+  Url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Loop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  FilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DisplayConfigCreateManyInput = {
@@ -329,8 +361,10 @@ export type DisplayConfigCreateManyInput = {
   CreatedAt?: Date | string | null
   UpdatedAt?: Date | string
   IsOpen?: boolean
-  Url: string
+  Url?: string | null
   Loop?: boolean
+  FilePath?: string | null
+  Line?: string | null
 }
 
 export type DisplayConfigUpdateManyMutationInput = {
@@ -338,8 +372,10 @@ export type DisplayConfigUpdateManyMutationInput = {
   CreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsOpen?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Url?: Prisma.StringFieldUpdateOperationsInput | string
+  Url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Loop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  FilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DisplayConfigUncheckedUpdateManyInput = {
@@ -348,8 +384,10 @@ export type DisplayConfigUncheckedUpdateManyInput = {
   CreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsOpen?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  Url?: Prisma.StringFieldUpdateOperationsInput | string
+  Url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Loop?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  FilePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type DisplayConfigCountOrderByAggregateInput = {
@@ -360,6 +398,8 @@ export type DisplayConfigCountOrderByAggregateInput = {
   IsOpen?: Prisma.SortOrder
   Url?: Prisma.SortOrder
   Loop?: Prisma.SortOrder
+  FilePath?: Prisma.SortOrder
+  Line?: Prisma.SortOrder
 }
 
 export type DisplayConfigAvgOrderByAggregateInput = {
@@ -374,6 +414,8 @@ export type DisplayConfigMaxOrderByAggregateInput = {
   IsOpen?: Prisma.SortOrder
   Url?: Prisma.SortOrder
   Loop?: Prisma.SortOrder
+  FilePath?: Prisma.SortOrder
+  Line?: Prisma.SortOrder
 }
 
 export type DisplayConfigMinOrderByAggregateInput = {
@@ -384,6 +426,8 @@ export type DisplayConfigMinOrderByAggregateInput = {
   IsOpen?: Prisma.SortOrder
   Url?: Prisma.SortOrder
   Loop?: Prisma.SortOrder
+  FilePath?: Prisma.SortOrder
+  Line?: Prisma.SortOrder
 }
 
 export type DisplayConfigSumOrderByAggregateInput = {
@@ -400,6 +444,8 @@ export type DisplayConfigSelect<ExtArgs extends runtime.Types.Extensions.Interna
   IsOpen?: boolean
   Url?: boolean
   Loop?: boolean
+  FilePath?: boolean
+  Line?: boolean
 }, ExtArgs["result"]["displayConfig"]>
 
 export type DisplayConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -410,6 +456,8 @@ export type DisplayConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   IsOpen?: boolean
   Url?: boolean
   Loop?: boolean
+  FilePath?: boolean
+  Line?: boolean
 }, ExtArgs["result"]["displayConfig"]>
 
 export type DisplayConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -420,6 +468,8 @@ export type DisplayConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   IsOpen?: boolean
   Url?: boolean
   Loop?: boolean
+  FilePath?: boolean
+  Line?: boolean
 }, ExtArgs["result"]["displayConfig"]>
 
 export type DisplayConfigSelectScalar = {
@@ -430,9 +480,11 @@ export type DisplayConfigSelectScalar = {
   IsOpen?: boolean
   Url?: boolean
   Loop?: boolean
+  FilePath?: boolean
+  Line?: boolean
 }
 
-export type DisplayConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Description" | "CreatedAt" | "UpdatedAt" | "IsOpen" | "Url" | "Loop", ExtArgs["result"]["displayConfig"]>
+export type DisplayConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Description" | "CreatedAt" | "UpdatedAt" | "IsOpen" | "Url" | "Loop" | "FilePath" | "Line", ExtArgs["result"]["displayConfig"]>
 
 export type $DisplayConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DisplayConfig"
@@ -443,8 +495,10 @@ export type $DisplayConfigPayload<ExtArgs extends runtime.Types.Extensions.Inter
     CreatedAt: Date | null
     UpdatedAt: Date
     IsOpen: boolean
-    Url: string
+    Url: string | null
     Loop: boolean
+    FilePath: string | null
+    Line: string | null
   }, ExtArgs["result"]["displayConfig"]>
   composites: {}
 }
@@ -875,6 +929,8 @@ export interface DisplayConfigFieldRefs {
   readonly IsOpen: Prisma.FieldRef<"DisplayConfig", 'Boolean'>
   readonly Url: Prisma.FieldRef<"DisplayConfig", 'String'>
   readonly Loop: Prisma.FieldRef<"DisplayConfig", 'Boolean'>
+  readonly FilePath: Prisma.FieldRef<"DisplayConfig", 'String'>
+  readonly Line: Prisma.FieldRef<"DisplayConfig", 'String'>
 }
     
 

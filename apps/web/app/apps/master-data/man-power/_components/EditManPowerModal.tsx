@@ -1,7 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-16*/
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, App, Switch, Upload, Button, Space, Typography, Avatar } from 'antd';
-import { UploadOutlined, DeleteOutlined, PictureOutlined, UserOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, InputNumber, App, Switch, Upload, Button, Space, Typography, Avatar } from 'antd';
+import { UploadOutlined, DeleteOutlined, PictureOutlined, UserOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
 import {
@@ -42,9 +42,10 @@ const EditManPowerModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 name: data.Name,
                 line: data.Line,
                 status: data.Status,
+                skillMatrix: data.SkillMatrix?.map(sm => ({ label: sm.Label, point: sm.Point })) || [],
             });
         }
-    }, [visible, data.Uid, data.Nik, data.Name, data.Line, data.Status, form]);
+    }, [visible, data, form]);
 
     const handleFileChange = (file: File) => {
         const fileExt = file.name.split('.').pop()?.toLowerCase();
@@ -97,6 +98,7 @@ const EditManPowerModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 name: values.name,
                 line: values.line,
                 status: values.status,
+                skillMatrix: values.skillMatrix || [],
             };
 
             await dispatch(updateManPower({ uid: data.Uid, data: payload })).unwrap();
@@ -223,6 +225,41 @@ const EditManPowerModal: React.FC<Props> = ({ visible, onClose, data }) => {
                         </Text>
                     </div>
                 </Form.Item>
+                <div style={{ marginBottom: 16 }}>
+                    <Text strong>Skill Matrix</Text>
+                    <Form.List name="skillMatrix">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, ...restField }) => (
+                                    <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'label']}
+                                            rules={[{ required: true, message: 'Missing skill name' }]}
+                                            style={{ margin: 0 }}
+                                        >
+                                            <Input placeholder="Skill Label (e.g. Assembly)" />
+                                        </Form.Item>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'point']}
+                                            rules={[{ required: true, message: 'Missing point' }]}
+                                            style={{ margin: 0 }}
+                                        >
+                                            <InputNumber min={1} max={4} placeholder="Poin 1-4" style={{ width: '100px' }} />
+                                        </Form.Item>
+                                        <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                                    </Space>
+                                ))}
+                                <Form.Item style={{ margin: 0, marginTop: 8 }}>
+                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                        Add Skill
+                                    </Button>
+                                </Form.Item>
+                            </>
+                        )}
+                    </Form.List>
+                </div>
                 <Form.Item name="status" label="Active Status" valuePropName="checked">
                     <Switch />
                 </Form.Item>

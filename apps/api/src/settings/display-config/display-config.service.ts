@@ -1,6 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  UnsupportedMediaTypeException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
+import { NasUploadService } from '../../common/utils/nas-upload.service';
 import { CreateDisplayConfigDto, UpdateDisplayConfigDto } from './dto';
 import type {
   LogProcessModel,
@@ -14,6 +20,7 @@ export class DisplayConfigService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
+    private readonly nasUploadService: NasUploadService,
   ) {}
 
   async findAll(query: SearchPaginationQueryDto = { page: 1, limit: 50 }) {
@@ -47,9 +54,16 @@ export class DisplayConfigService {
     };
   }
 
-  async findActive(): Promise<DisplayConfigModel | null> {
+  async findActive(line?: string): Promise<DisplayConfigModel | null> {
+    if (line) {
+      const lineConfig = await this.prisma.displayConfig.findFirst({
+        where: { IsOpen: true, Line: line },
+        orderBy: { CreatedAt: 'desc' },
+      });
+      if (lineConfig) return lineConfig;
+    }
     return this.prisma.displayConfig.findFirst({
-      where: { IsOpen: true },
+      where: { IsOpen: true, OR: [{ Line: null }, { Line: '' }] },
       orderBy: { CreatedAt: 'desc' },
     });
   }
@@ -76,15 +90,21 @@ export class DisplayConfigService {
 
       // If creating with isOpen = true, ensure no other display has isOpen = true
       if (dto.isOpen === true) {
-        await this.ensureOnlyOneOpenDisplay(logProcess.ProcessId, null);
+        await this.ensureOnlyOneOpenDisplay(
+          logProcess.ProcessId,
+          null,
+          dto.line || null,
+        );
       }
 
       const result = await this.prisma.displayConfig.create({
         data: {
           Description: dto.description,
-          Url: dto.url,
+          Url: dto.url ?? null,
           IsOpen: dto.isOpen ?? false,
           Loop: dto.loop ?? true,
+          Line: dto.line ?? null,
+          FilePath: dto.filePath ?? null,
         },
       });
 
@@ -143,7 +163,12 @@ export class DisplayConfigService {
 
       // If setting isOpen to true, ensure no other display has isOpen = true
       if (dto.isOpen === true && existing.IsOpen !== true) {
-        await this.ensureOnlyOneOpenDisplay(logProcess.ProcessId, id);
+        const targetLine = dto.line !== undefined ? dto.line : existing.Line;
+        await this.ensureOnlyOneOpenDisplay(
+          logProcess.ProcessId,
+          id,
+          targetLine || null,
+        );
       }
 
       const result = await this.prisma.displayConfig.update({
@@ -153,6 +178,8 @@ export class DisplayConfigService {
           Url: dto.url,
           IsOpen: dto.isOpen,
           Loop: dto.loop,
+          Line: dto.line,
+          FilePath: dto.filePath,
         },
       });
 
@@ -201,6 +228,14 @@ export class DisplayConfigService {
         throw new NotFoundException(`DisplayConfig with id ${id} not found`);
       }
 
+      if (existing.FilePath) {
+        try {
+          await this.nasUploadService.deleteFile(existing.FilePath);
+        } catch (_e) {
+          // ignore
+        }
+      }
+
       await this.logService.addLog({
         processId: logProcess.ProcessId,
         message: `Deleting display config id: ${id} (${existing.Description})`,
@@ -208,9 +243,7 @@ export class DisplayConfigService {
         location: 'display-config.service.ts:152',
       });
 
-      await this.prisma.displayConfig.delete({
-        where: { Id: id },
-      });
+      await this.prisma.displayConfig.delete({ where: { Id: id } });
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -243,19 +276,22 @@ export class DisplayConfigService {
   private async ensureOnlyOneOpenDisplay(
     processId: string,
     excludeId: number | null,
+    line: string | null = null,
   ): Promise<void> {
     await this.logService.addLog({
       processId,
-      message: 'Ensuring only one display is open (mutex logic)',
+      message:
+        'Ensuring only one display is open (mutex logic) for line: ' + line,
       type: 'DEBUG',
       location: 'display-config.service.ts:188',
     });
 
-    // Find any existing open display (excluding the one being updated)
-    const whereClause =
-      excludeId !== null
-        ? { IsOpen: true, Id: { not: excludeId } }
-        : { IsOpen: true };
+    // Find any existing open display for the SAME line
+    const whereClause: Prisma.DisplayConfigWhereInput = {
+      IsOpen: true,
+      ...(line ? { Line: line } : { OR: [{ Line: null }, { Line: '' }] }),
+      ...(excludeId !== null ? { Id: { not: excludeId } } : {}),
+    };
 
     const existingOpen = await this.prisma.displayConfig.findFirst({
       where: whereClause,
@@ -282,5 +318,86 @@ export class DisplayConfigService {
         location: 'display-config.service.ts:209',
       });
     }
+  }
+
+  async uploadMedia(
+    id: number,
+    file: Express.Multer.File,
+    createdBy?: string,
+  ): Promise<DisplayConfigModel> {
+    const existing = await this.prisma.displayConfig.findUnique({
+      where: { Id: id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`DisplayConfig with id ${id} not found`);
+    }
+
+    const fileExt = file.originalname.split('.').pop()?.toLowerCase() || '';
+    const allowedExts = [
+      'png',
+      'jpg',
+      'jpeg',
+      'gif',
+      'webp',
+      'mp4',
+      'webm',
+      'ogg',
+    ];
+    if (!allowedExts.includes(fileExt)) {
+      throw new UnsupportedMediaTypeException(
+        `File format not supported. Supported formats: ${allowedExts.join(', ')}`,
+      );
+    }
+
+    if (existing.FilePath) {
+      try {
+        await this.nasUploadService.deleteFile(existing.FilePath);
+      } catch (error) {
+        // ignore delete error
+      }
+    }
+
+    const fileName = `display_${id}_${Date.now()}.${fileExt}`;
+    const subFolder = 'display_media';
+
+    const fileUrl = await this.nasUploadService.uploadFile({
+      fileName,
+      fileBuffer: file.buffer,
+      subFolder,
+    });
+
+    return this.prisma.displayConfig.update({
+      where: { Id: id },
+      data: { FilePath: fileUrl },
+    });
+  }
+
+  async deleteMedia(
+    id: number,
+    createdBy?: string,
+  ): Promise<DisplayConfigModel> {
+    const existing = await this.prisma.displayConfig.findUnique({
+      where: { Id: id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`DisplayConfig with id ${id} not found`);
+    }
+
+    if (!existing.FilePath) {
+      throw new BadRequestException('Display config has no media to delete');
+    }
+
+    try {
+      await this.nasUploadService.deleteFile(existing.FilePath);
+    } catch (error) {
+      // ignore
+    }
+
+    return this.prisma.displayConfig.update({
+      where: { Id: id },
+      data: { FilePath: null },
+    });
   }
 }

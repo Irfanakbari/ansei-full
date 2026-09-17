@@ -99,3 +99,43 @@
         opacity: 0.5;
     }
 }
+
+/* ANSEI Credit Modal Animations & Styling */
+@keyframes ansei-heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.22); }
+}
+
+@keyframes ansei-credit-glow {
+    0%, 100% { box-shadow: 0 6px 16px rgba(38, 53, 69, 0.08); }
+    50% { box-shadow: 0 8px 20px rgba(38, 53, 69, 0.12); }
+}
+
+@keyframes ansei-credit-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ansei-credit-float {
+    0%, 100% { transform: translateY(0) rotate(-15deg); }
+    50% { transform: translateY(-10px) rotate(-8deg); }
+}
+
+@keyframes ansei-credit-shimmer {
+    from { transform: translateX(-140%) skewX(-18deg); }
+    to { transform: translateX(280%) skewX(-18deg); }
+}
+
+.ansei-credit-modal .ant-modal-content {
+    overflow: hidden;
+    background: #FCFCFA;
+}
+
+.ansei-credit-content > * {
+    animation: ansei-credit-rise 0.45s ease both;
+}
+
+.ansei-credit-content > *:nth-child(2) { animation-delay: 0.08s; }
+.ansei-credit-content > *:nth-child(3) { animation-delay: 0.16s; }
+.ansei-credit-content > *:nth-child(4) { animation-delay: 0.24s; }
+.ansei-credit-content > *:nth-child(5) { animation-delay: 0.32s; }

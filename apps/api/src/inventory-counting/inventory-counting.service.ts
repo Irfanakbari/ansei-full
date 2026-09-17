@@ -1659,6 +1659,9 @@ export class InventoryCountingService {
 
         const worksheet = workbook.addWorksheet(sheetName);
 
+        const subStartRow = 10;
+        const headerRowIdx = subStartRow + 8; // Row 18: Table Headers
+
         // Page Setup A4 Portrait
         worksheet.pageSetup = {
           paperSize: 9,
@@ -1666,7 +1669,7 @@ export class InventoryCountingService {
           fitToPage: true,
           fitToWidth: 1,
           fitToHeight: 0,
-          printTitlesRow: '1:17',
+          printTitlesRow: `1:${headerRowIdx}`,
         };
         worksheet.views = [{ showGridLines: false }];
 
@@ -1744,7 +1747,6 @@ export class InventoryCountingService {
         );
 
         // Sub-header details - Row 10
-        const subStartRow = 10;
         worksheet.getCell(`A${subStartRow}`).value = 'W/S Code';
         worksheet.getCell(`C${subStartRow}`).value = `: WS_${code}`;
         worksheet.getCell(`A${subStartRow + 1}`).value = 'Location';
@@ -1815,8 +1817,6 @@ export class InventoryCountingService {
         };
 
         // Table Headers - Row 18 (subStartRow + 8)
-        const headerRowIdx = subStartRow + 8;
-
         // Determine if MATERIAL category
         const isMaterial = inventoryCounting.Category === ItemCategory.MATERIAL;
 
@@ -2122,6 +2122,9 @@ export class InventoryCountingService {
       const workbook = new Workbook();
       const worksheet = workbook.addWorksheet('Snapshot');
 
+      const subStartRow = 9;
+      const headerRowIdx = subStartRow + 5; // Row 14: Table Headers
+
       // Page Setup
       worksheet.pageSetup = {
         paperSize: 9,
@@ -2129,7 +2132,7 @@ export class InventoryCountingService {
         fitToPage: true,
         fitToWidth: 1,
         fitToHeight: 0,
-        printTitlesRow: '1:15',
+        printTitlesRow: `1:${headerRowIdx}`,
       };
       worksheet.views = [{ showGridLines: false }];
 
@@ -2171,7 +2174,6 @@ export class InventoryCountingService {
       );
 
       // Sub-header
-      const subStartRow = 9;
       worksheet.getCell(`A${subStartRow}`).value = 'Snapshot Code';
       worksheet.getCell(`C${subStartRow}`).value = `: SN_${code}`;
       worksheet.getCell(`A${subStartRow + 1}`).value = 'Category';
@@ -2208,7 +2210,6 @@ export class InventoryCountingService {
       // Table Headers - vary by category
       // MATERIAL: No, Part Number, Part Name, WH System, WH Actual, WH Diff, Rack System, Rack Actual, Rack Diff (9 cols)
       // FINISH_GOOD: No, Part Number, Part Name, Location, System Qty, Actual Qty, Diff (7 cols)
-      const headerRowIdx = subStartRow + 5;
       const headers = isMaterial
         ? [
             'No',

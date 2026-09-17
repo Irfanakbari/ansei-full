@@ -3,6 +3,7 @@ import { NotFoundException } from '@nestjs/common';
 import { DisplayConfigService } from './display-config.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
+import { NasUploadService } from '../../common/utils/nas-upload.service';
 
 // Mock the PrismaService
 jest.mock('../../prisma/prisma.service');
@@ -80,6 +81,10 @@ describe('DisplayConfigService', () => {
         DisplayConfigService,
         { provide: PrismaService, useValue: prismaService },
         { provide: LogProcessService, useValue: logService },
+        {
+          provide: NasUploadService,
+          useValue: { uploadFile: jest.fn(), deleteFile: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -127,7 +132,7 @@ describe('DisplayConfigService', () => {
 
       expect(result).toEqual(mockDisplayConfig);
       expect(prismaService.displayConfig.findFirst).toHaveBeenCalledWith({
-        where: { IsOpen: true },
+        where: { IsOpen: true, OR: [{ Line: null }, { Line: '' }] },
         orderBy: { CreatedAt: 'desc' },
       });
     });
@@ -193,7 +198,7 @@ describe('DisplayConfigService', () => {
 
       expect(result.IsOpen).toBe(true);
       expect(prismaService.displayConfig.findFirst).toHaveBeenCalledWith({
-        where: { IsOpen: true },
+        where: { IsOpen: true, OR: [{ Line: null }, { Line: '' }] },
       });
       expect(prismaService.displayConfig.update).toHaveBeenCalledWith({
         where: { Id: 2 },
@@ -267,7 +272,11 @@ describe('DisplayConfigService', () => {
 
       expect(result.IsOpen).toBe(true);
       expect(prismaService.displayConfig.findFirst).toHaveBeenCalledWith({
-        where: { IsOpen: true, Id: { not: 1 } },
+        where: {
+          IsOpen: true,
+          OR: [{ Line: null }, { Line: '' }],
+          Id: { not: 1 },
+        },
       });
       expect(prismaService.displayConfig.update).toHaveBeenCalledWith({
         where: { Id: 2 },

@@ -36,4 +36,18 @@ export class ManPowerEntity {
       'http://192.168.1.15:8080/Ansei_Asset/manpower/12345678_1720000000.jpg',
   })
   PicturePath: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Skill Matrix',
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        Id: { type: 'number', example: 1 },
+        Label: { type: 'string', example: 'Assembly A' },
+        Point: { type: 'number', example: 3 },
+      },
+    },
+  })
+  SkillMatrix?: any[];
 }

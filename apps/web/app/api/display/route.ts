@@ -5,7 +5,9 @@ import { getApiUrl } from '@/lib/config';
 
 export async function GET(request: Request) {
     try {
-        const response = await fetch(`${getApiUrl('v1', request)}/settings/display-config/active`, {
+        const line = new URL(request.url).searchParams.get('line');
+        const query = line ? `?line=${encodeURIComponent(line)}` : '';
+        const response = await fetch(`${getApiUrl('v1', request)}/settings/display-config/active${query}`, {
             cache: 'no-store',
         });
         const data: unknown = await response.json();

@@ -121,10 +121,11 @@ describe('ManPowerService', () => {
 
       expect(result.data).toEqual(expected);
       expect(prismaService.manPower.findMany).toHaveBeenCalledWith({
+        where: {},
+        include: { SkillMatrix: true },
         orderBy: [{ CreatedAt: 'desc' }, { Uid: 'asc' }],
         skip: 0,
         take: 50,
-        where: {},
       });
     });
 
@@ -147,6 +148,7 @@ describe('ManPowerService', () => {
       expect(result).toEqual(mockManPower);
       expect(prismaService.manPower.findUnique).toHaveBeenCalledWith({
         where: { Uid: mockManPower.Uid },
+        include: { SkillMatrix: true },
       });
     });
 
@@ -168,6 +170,7 @@ describe('ManPowerService', () => {
       expect(result).toEqual(mockManPower);
       expect(prismaService.manPower.findUnique).toHaveBeenCalledWith({
         where: { Nik: 'EMP001' },
+        include: { SkillMatrix: true },
       });
     });
 

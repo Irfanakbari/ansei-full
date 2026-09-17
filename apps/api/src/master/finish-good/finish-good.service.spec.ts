@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { FinishGoodService } from './finish-good.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -252,6 +256,14 @@ describe('FinishGoodService', () => {
   });
 
   describe('update', () => {
+    it('should throw BadRequestException when attempting to update qty', async () => {
+      const updateDto = { qty: 100 } as any;
+
+      await expect(service.update(1, updateDto, 'admin')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
     it('should update an existing finish good', async () => {
       const updateDto = { partName: 'Product B Updated', price: 20000 };
       const updatedFinishGood = {

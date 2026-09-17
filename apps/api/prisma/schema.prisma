@@ -166,12 +166,24 @@ model BillOfMaterials {
 model ManPower {
   Uid              String             @id @default(uuid(4))
   Nik              String             @unique
-  PicturePath String?
+  PicturePath      String?
   Name             String
   CreatedAt        DateTime           @default(now())
   Status           Boolean            @default(true)
   Line             String?
   ProductionReport ProductionReport[]
+  SkillMatrix      SkillMatrix[]
+}
+
+model SkillMatrix {
+  Id          Int      @id @default(autoincrement())
+  ManPowerUid String
+  Label       String
+  Point       Int      // 1-4
+
+  ManPowerData ManPower @relation(fields: [ManPowerUid], references: [Uid], onDelete: Cascade)
+
+  @@index([ManPowerUid])
 }
 
 // --- CORE INVENTORY (LEDGER) ---
@@ -718,6 +730,8 @@ model DisplayConfig {
   CreatedAt   DateTime? @default(now())
   UpdatedAt   DateTime  @updatedAt
   IsOpen      Boolean   @default(false)
-  Url         String
+  Url         String?
   Loop        Boolean   @default(true)
+  FilePath    String?
+  Line        String?
 }

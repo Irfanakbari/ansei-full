@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -153,6 +154,12 @@ export class FinishGoodService {
     dto: UpdateFinishGoodDto,
     createdBy: string,
   ): Promise<FinishGoodModel> {
+    if ((dto as any).qty !== undefined) {
+      throw new BadRequestException(
+        'Direct modification of Qty is not allowed. Stock quantity must be updated via inventory transactions.',
+      );
+    }
+
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -197,7 +204,6 @@ export class FinishGoodService {
           PartName: dto.partName,
           Alias: dto.alias,
           Price: dto.price,
-          Qty: dto.qty,
         },
       });
 

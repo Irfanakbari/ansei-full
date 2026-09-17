@@ -1,12 +1,14 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-21 */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
+import { del, get, getApiErrorMessage, patch, post, postFormData, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 export interface DisplayConfigEntity {
     Id: number;
     Description: string;
-    Url: string;
+    Url: string | null;
+    FilePath: string | null;
+    Line: string | null;
     IsOpen: boolean;
     Loop: boolean;
     CreatedAt: string;
@@ -15,7 +17,8 @@ export interface DisplayConfigEntity {
 
 export interface CreateDisplayConfigDto {
     description: string;
-    url: string;
+    url?: string;
+    line?: string;
     isOpen: boolean;
     loop: boolean;
 }
@@ -23,6 +26,7 @@ export interface CreateDisplayConfigDto {
 export interface UpdateDisplayConfigDto {
     description?: string;
     url?: string;
+    line?: string;
     isOpen?: boolean;
     loop?: boolean;
 }
@@ -73,6 +77,19 @@ export const updateDisplayConfig = createAsyncThunk(
             return await patch<ApiSuccessEnvelope<DisplayConfigEntity>, UpdateDisplayConfigDto>(`/settings/display-config/${id}`, payload);
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to update display config'));
+        }
+    }
+);
+
+export const uploadDisplayMedia = createAsyncThunk(
+    'displayConfig/uploadMedia',
+    async ({ id, file }: { id: number; file: File }, { rejectWithValue }) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            return await postFormData<ApiSuccessEnvelope<DisplayConfigEntity>>(`/settings/display-config/${id}/media`, formData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to upload display media'));
         }
     }
 );

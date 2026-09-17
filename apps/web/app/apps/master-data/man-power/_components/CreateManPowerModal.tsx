@@ -1,7 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-16*/
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, App, Switch, Upload, Button, Space, Typography } from 'antd';
-import { UploadOutlined, DeleteOutlined, PictureOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, InputNumber, App, Switch, Upload, Button, Space, Typography } from 'antd';
+import { UploadOutlined, DeleteOutlined, PictureOutlined, MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
 import { createManPower, uploadManPowerPicture, fetchManPower } from '@/store/features/master/manPowerSlice';
@@ -75,6 +75,7 @@ const CreateManPowerModal: React.FC<Props> = ({ visible, onClose }) => {
                 name: values.name,
                 line: values.line,
                 status: values.status !== undefined ? values.status : true,
+                skillMatrix: values.skillMatrix || [],
             };
 
             const result = await dispatch(createManPower(payload)).unwrap();
@@ -167,6 +168,41 @@ const CreateManPowerModal: React.FC<Props> = ({ visible, onClose }) => {
                         </Text>
                     </div>
                 </Form.Item>
+                <div style={{ marginBottom: 16 }}>
+                    <Text strong>Skill Matrix</Text>
+                    <Form.List name="skillMatrix">
+                        {(fields, { add, remove }) => (
+                            <>
+                                {fields.map(({ key, name, ...restField }) => (
+                                    <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'label']}
+                                            rules={[{ required: true, message: 'Missing skill name' }]}
+                                            style={{ margin: 0 }}
+                                        >
+                                            <Input placeholder="Skill Label (e.g. Assembly)" />
+                                        </Form.Item>
+                                        <Form.Item
+                                            {...restField}
+                                            name={[name, 'point']}
+                                            rules={[{ required: true, message: 'Missing point' }]}
+                                            style={{ margin: 0 }}
+                                        >
+                                            <InputNumber min={1} max={4} placeholder="Poin 1-4" style={{ width: '100px' }} />
+                                        </Form.Item>
+                                        <MinusCircleOutlined onClick={() => remove(name)} style={{ color: 'red' }} />
+                                    </Space>
+                                ))}
+                                <Form.Item style={{ margin: 0, marginTop: 8 }}>
+                                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                        Add Skill
+                                    </Button>
+                                </Form.Item>
+                            </>
+                        )}
+                    </Form.List>
+                </div>
                 <Form.Item name="status" label="Active Status" valuePropName="checked">
                     <Switch />
                 </Form.Item>

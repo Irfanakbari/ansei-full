@@ -2,6 +2,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { del, get, getApiErrorMessage, patch, post, postFormData, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
 
+export interface SkillMatrixEntity {
+    Id: number;
+    Label: string;
+    Point: number;
+}
+
 export interface ManPowerEntity {
     Uid: string;
     Nik: string;
@@ -10,6 +16,7 @@ export interface ManPowerEntity {
     Status: boolean;
     Line: string | null;
     PicturePath?: string | null;
+    SkillMatrix?: SkillMatrixEntity[];
 }
 
 interface ManPowerState {
@@ -47,6 +54,7 @@ export const createManPower = createAsyncThunk(
         name: string;
         line?: string;
         status?: boolean;
+        skillMatrix?: { label: string; point: number }[];
     }, { rejectWithValue }) => {
         try {
             return await post<ApiSuccessEnvelope<ManPowerEntity>, typeof manPowerData>('/master/man-power', manPowerData);
@@ -65,6 +73,7 @@ export const updateManPower = createAsyncThunk(
             name?: string;
             line?: string;
             status?: boolean;
+            skillMatrix?: { label: string; point: number }[];
         }
     }, { rejectWithValue }) => {
         try {

@@ -1,11 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsBoolean,
-  IsUrl,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreateDisplayConfigDto {
   /** Deskripsi display */
@@ -18,13 +12,13 @@ export class CreateDisplayConfigDto {
   description: string;
 
   /** URL untuk display */
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'URL yang akan ditampilkan di display',
     example: 'https://display.example.com/screen/1',
   })
   @IsString()
-  @IsNotEmpty()
-  url: string;
+  @IsOptional()
+  url?: string;
 
   /** Status apakah display sedang aktif/open */
   @ApiPropertyOptional({
@@ -45,4 +39,20 @@ export class CreateDisplayConfigDto {
   @IsOptional()
   @IsBoolean()
   loop?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'URL file media (NAS) yang diupload',
+    example: 'http://192.168.1.15:8080/Ansei_Asset/video.mp4',
+  })
+  @IsString()
+  @IsOptional()
+  filePath?: string;
+
+  @ApiPropertyOptional({
+    description: 'Target line produksi',
+    example: 'LINE-A',
+  })
+  @IsString()
+  @IsOptional()
+  line?: string;
 }

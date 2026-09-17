@@ -404,6 +404,7 @@ export const ModelName = {
   BoxQTY: 'BoxQTY',
   BillOfMaterials: 'BillOfMaterials',
   ManPower: 'ManPower',
+  SkillMatrix: 'SkillMatrix',
   InventoryLedger: 'InventoryLedger',
   StockOpname: 'StockOpname',
   StockOpnameDetail: 'StockOpnameDetail',
@@ -448,7 +449,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "satuan" | "supplier" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "deliveryAttachment" | "shopping" | "productionReport" | "labelData" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig"
+    modelProps: "satuan" | "supplier" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "deliveryAttachment" | "shopping" | "productionReport" | "labelData" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -967,6 +968,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ManPowerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ManPowerCountAggregateOutputType> | number
+        }
+      }
+    }
+    SkillMatrix: {
+      payload: Prisma.$SkillMatrixPayload<ExtArgs>
+      fields: Prisma.SkillMatrixFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SkillMatrixFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SkillMatrixFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload>
+        }
+        findFirst: {
+          args: Prisma.SkillMatrixFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SkillMatrixFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload>
+        }
+        findMany: {
+          args: Prisma.SkillMatrixFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload>[]
+        }
+        create: {
+          args: Prisma.SkillMatrixCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload>
+        }
+        createMany: {
+          args: Prisma.SkillMatrixCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SkillMatrixCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload>[]
+        }
+        delete: {
+          args: Prisma.SkillMatrixDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload>
+        }
+        update: {
+          args: Prisma.SkillMatrixUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload>
+        }
+        deleteMany: {
+          args: Prisma.SkillMatrixDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SkillMatrixUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SkillMatrixUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload>[]
+        }
+        upsert: {
+          args: Prisma.SkillMatrixUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SkillMatrixPayload>
+        }
+        aggregate: {
+          args: Prisma.SkillMatrixAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSkillMatrix>
+        }
+        groupBy: {
+          args: Prisma.SkillMatrixGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SkillMatrixGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SkillMatrixCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SkillMatrixCountAggregateOutputType> | number
         }
       }
     }
@@ -3238,6 +3313,16 @@ export const ManPowerScalarFieldEnum = {
 export type ManPowerScalarFieldEnum = (typeof ManPowerScalarFieldEnum)[keyof typeof ManPowerScalarFieldEnum]
 
 
+export const SkillMatrixScalarFieldEnum = {
+  Id: 'Id',
+  ManPowerUid: 'ManPowerUid',
+  Label: 'Label',
+  Point: 'Point'
+} as const
+
+export type SkillMatrixScalarFieldEnum = (typeof SkillMatrixScalarFieldEnum)[keyof typeof SkillMatrixScalarFieldEnum]
+
+
 export const InventoryLedgerScalarFieldEnum = {
   Id: 'Id',
   TransactionDate: 'TransactionDate',
@@ -3673,7 +3758,9 @@ export const DisplayConfigScalarFieldEnum = {
   UpdatedAt: 'UpdatedAt',
   IsOpen: 'IsOpen',
   Url: 'Url',
-  Loop: 'Loop'
+  Loop: 'Loop',
+  FilePath: 'FilePath',
+  Line: 'Line'
 } as const
 
 export type DisplayConfigScalarFieldEnum = (typeof DisplayConfigScalarFieldEnum)[keyof typeof DisplayConfigScalarFieldEnum]
@@ -4111,6 +4198,7 @@ export type GlobalOmitConfig = {
   boxQTY?: Prisma.BoxQTYOmit
   billOfMaterials?: Prisma.BillOfMaterialsOmit
   manPower?: Prisma.ManPowerOmit
+  skillMatrix?: Prisma.SkillMatrixOmit
   inventoryLedger?: Prisma.InventoryLedgerOmit
   stockOpname?: Prisma.StockOpnameOmit
   stockOpnameDetail?: Prisma.StockOpnameDetailOmit

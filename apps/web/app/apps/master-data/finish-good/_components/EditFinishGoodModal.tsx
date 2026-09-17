@@ -27,7 +27,6 @@ const EditFinishGoodModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 partName: values.partName,
                 alias: values.alias,
                 price: values.price,
-                qty: values.qty,
             };
 
             const result = await dispatch(updateFinishGood({ id: data.Id, data: payload }));
@@ -82,8 +81,13 @@ const EditFinishGoodModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 <Form.Item name="price" label="Price">
                     <InputNumber placeholder="0" min={0} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
                 </Form.Item>
-                <Form.Item name="qty" label="Qty">
-                    <InputNumber placeholder="0" min={0} style={{ width: '100%' }} />
+                <Form.Item
+                    name="qty"
+                    label="Qty"
+                    tooltip="Stok kuantitas tidak dapat diedit langsung. Mutasi stok dikelola melalui proses produksi dan inventaris."
+                    extra={<span className="text-xs text-gray-400">Qty tidak dapat diedit secara manual</span>}
+                >
+                    <InputNumber disabled placeholder="0" min={0} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
                 </Form.Item>
             </Form>
         </Modal>

@@ -981,6 +981,9 @@ export class MaterialDeliveryNoteService {
       const dateStr = dayjs().format('DD-MM-YYYY HH:mm');
       const code = dn.DeliveryNoteNum;
 
+      const subStartRow = 10;
+      const headerRowIdx = subStartRow + 4; // Row 14: Table Headers
+
       // Page Setup A4 Portrait
       worksheet.pageSetup = {
         paperSize: 9,
@@ -988,7 +991,7 @@ export class MaterialDeliveryNoteService {
         fitToPage: true,
         fitToWidth: 1,
         fitToHeight: 0,
-        printTitlesRow: '1:17',
+        printTitlesRow: `1:${headerRowIdx}`,
       };
       worksheet.views = [{ showGridLines: false }];
 
@@ -1218,7 +1221,6 @@ export class MaterialDeliveryNoteService {
       });
 
       // Sub-header details - Row 10
-      const subStartRow = 10;
       worksheet.getCell(`A${subStartRow}`).value = 'Status';
       worksheet.getCell(`C${subStartRow}`).value = `: ${dn.Status}`;
       worksheet.getCell(`A${subStartRow + 1}`).value = 'Notes';
@@ -1250,8 +1252,6 @@ export class MaterialDeliveryNoteService {
       });
 
       // Table Headers - Row 14 (subStartRow + 4) - Part Number merge 4 columns, Part Name merge 5 columns, Qty merge 2 columns
-      const headerRowIdx = subStartRow + 4;
-
       // Set header row with 12 columns
       // Header text diletakkan di cell pertama merge
       const headerRow = worksheet.getRow(headerRowIdx);

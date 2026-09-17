@@ -47,6 +47,7 @@ export class ManPowerService {
       this.prisma.manPower.count({ where }),
       this.prisma.manPower.findMany({
         where,
+        include: { SkillMatrix: true },
         orderBy: [{ CreatedAt: 'desc' }, { Uid: 'asc' }],
         skip: (query.page - 1) * query.limit,
         take: query.limit,
@@ -66,6 +67,7 @@ export class ManPowerService {
   async findOne(uid: string): Promise<ManPowerModel> {
     const result = await this.prisma.manPower.findUnique({
       where: { Uid: uid },
+      include: { SkillMatrix: true },
     });
 
     if (!result) {
@@ -78,6 +80,7 @@ export class ManPowerService {
   async findByNik(nik: string): Promise<ManPowerModel> {
     const result = await this.prisma.manPower.findUnique({
       where: { Nik: nik },
+      include: { SkillMatrix: true },
     });
 
     if (!result) {
@@ -125,7 +128,16 @@ export class ManPowerService {
           Line: dto.line,
           Status: dto.status ?? true,
           PicturePath: dto.picturePath,
+          ...(dto.skillMatrix && {
+            SkillMatrix: {
+              create: dto.skillMatrix.map((s) => ({
+                Label: s.label,
+                Point: s.point,
+              })),
+            },
+          }),
         },
+        include: { SkillMatrix: true },
       });
 
       await this.logService.addLog({
@@ -204,7 +216,17 @@ export class ManPowerService {
           ...(dto.picturePath !== undefined
             ? { PicturePath: dto.picturePath }
             : {}),
+          ...(dto.skillMatrix && {
+            SkillMatrix: {
+              deleteMany: {},
+              create: dto.skillMatrix.map((s) => ({
+                Label: s.label,
+                Point: s.point,
+              })),
+            },
+          }),
         },
+        include: { SkillMatrix: true },
       });
 
       await this.logService.addLog({
