@@ -15,12 +15,20 @@ export class CreateMaterialDto {
   partName: string;
 
   @ApiPropertyOptional({
-    description: 'Nama supplier',
+    description: 'Nama supplier (Legacy string)',
     example: 'PT Supplier ABC',
   })
   @IsString()
   @IsOptional()
   supplier?: string;
+
+  @ApiPropertyOptional({
+    description: 'ID Supplier (Relasi master supplier)',
+    example: 1,
+  })
+  @IsInt()
+  @IsOptional()
+  supplierId?: number;
 
   @ApiPropertyOptional({ description: 'ID satuan', example: 1 })
   @IsInt()

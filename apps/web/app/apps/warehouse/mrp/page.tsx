@@ -26,6 +26,7 @@ interface MaterialMRP {
     qtyRack: number;
     qtyWarehouse: number;
     qtyPending: number;
+    qtyReserved?: number;
     qtyCurrentTotal: number;
     dailyDemand: DailyDemand[];
 }
@@ -177,14 +178,32 @@ export default function MRPPage() {
                 key: 'qtyPending',
                 width: 70,
                 align: 'right' as const,
-                render: (val: number) => (
-                    <Tag color={val > 0 ? 'orange' : 'default'} style={{ fontSize: 10 }}>
-                        {val}
-                    </Tag>
-                ),
+                render: (val: number | undefined) => {
+                    const value = val || 0;
+                    return (
+                        <Tag color={value > 0 ? 'purple' : 'default'} style={{ fontSize: 10 }}>
+                            {value}
+                        </Tag>
+                    );
+                },
             },
             {
-                title: 'Total',
+                title: 'Reserved',
+                dataIndex: 'qtyReserved',
+                key: 'qtyReserved',
+                width: 70,
+                align: 'right' as const,
+                render: (val: number | undefined) => {
+                    const value = val || 0;
+                    return (
+                        <Tag color={value > 0 ? 'orange' : 'default'} style={{ fontSize: 10 }}>
+                            {value}
+                        </Tag>
+                    );
+                },
+            },
+            {
+                title: 'Total Avail',
                 dataIndex: 'qtyCurrentTotal',
                 key: 'qtyCurrentTotal',
                 width: 80,

@@ -2,9 +2,9 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Table, Card, Breadcrumb, Tag, App, Progress, Tooltip } from 'antd';
+import { Table, Card, Breadcrumb, Tag, App, Progress, Tooltip, Dropdown } from 'antd';
 import type { TableProps } from 'antd';
-import { ReloadOutlined, PlusOutlined, EyeOutlined, DeleteOutlined, PlayCircleOutlined, StopOutlined, FileExcelOutlined, CameraOutlined } from '@ant-design/icons';
+import { ReloadOutlined, PlusOutlined, EyeOutlined, DeleteOutlined, PlayCircleOutlined, StopOutlined, FileExcelOutlined, CameraOutlined, DownOutlined, DownloadOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -216,6 +216,14 @@ export default function InventoryCountingPage() {
             filteredValue: filters.category ? [filters.category] : null,
         },
         {
+            title: 'Tolerance (%)',
+            dataIndex: 'Tolerance',
+            key: 'Tolerance',
+            width: 120,
+            align: 'center' as const,
+            render: (val: number | undefined) => `${val ?? 5}%`,
+        },
+        {
             title: 'Status',
             key: 'Status',
             width: 180,
@@ -305,37 +313,72 @@ export default function InventoryCountingPage() {
                     onClick={handleViewDetail}
                     enable={selectedRowKeys.length === 1}
                 />
-                <ButtonToolbar
-                    title="Start"
-                    icon={<PlayCircleOutlined />}
-                    onClick={handleStart}
-                    enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'}
-                />
-                <ButtonToolbar
-                    title="Approve & Close"
-                    icon={<StopOutlined />}
-                    onClick={handleOpenApproval}
-                    enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'IN_PROGRESS' && canApprove}
-                />
+                
+                <Dropdown
+                    menu={{
+                        items: [
+                            {
+                                key: 'start',
+                                label: 'Start',
+                                icon: <PlayCircleOutlined />,
+                                onClick: handleStart,
+                                disabled: !(selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'),
+                            },
+                            {
+                                key: 'approve',
+                                label: 'Approve & Close',
+                                icon: <StopOutlined />,
+                                onClick: handleOpenApproval,
+                                disabled: !(selectedRowKeys.length === 1 && selectedRecord?.Status === 'IN_PROGRESS' && canApprove),
+                            },
+                        ],
+                    }}
+                    trigger={['click', 'hover']}
+                    disabled={selectedRowKeys.length !== 1 || (selectedRecord?.Status !== 'DRAFT' && selectedRecord?.Status !== 'IN_PROGRESS')}
+                >
+                    <span className={`p-1 text-xs flex flex-row items-center justify-center gap-1 transition-colors ${selectedRowKeys.length !== 1 || (selectedRecord?.Status !== 'DRAFT' && selectedRecord?.Status !== 'IN_PROGRESS') ? "text-[#93A8B8] cursor-not-allowed" : "text-white hover:cursor-pointer hover:bg-[#3A4E61]"}`}>
+                        <PlayCircleOutlined />
+                        <span>Update Status <DownOutlined style={{ fontSize: '10px' }}/></span>
+                    </span>
+                </Dropdown>
+
+                <Dropdown
+                    menu={{
+                        items: [
+                            {
+                                key: 'worksheet',
+                                label: 'Worksheet',
+                                icon: <FileExcelOutlined />,
+                                onClick: handleDownloadWorksheet,
+                                disabled: selectedRowKeys.length !== 1,
+                            },
+                            {
+                                key: 'snapshot',
+                                label: 'Snapshot',
+                                icon: <CameraOutlined />,
+                                onClick: handleDownloadSnapshot,
+                                disabled: selectedRowKeys.length !== 1,
+                            },
+                        ],
+                    }}
+                    trigger={['click', 'hover']}
+                    disabled={selectedRowKeys.length !== 1 || downloadingWs || downloadingSnapshot}
+                >
+                    <span className={`p-1 text-xs flex flex-row items-center justify-center gap-1 transition-colors ${selectedRowKeys.length !== 1 || downloadingWs || downloadingSnapshot ? "text-[#93A8B8] cursor-not-allowed" : "text-white hover:cursor-pointer hover:bg-[#3A4E61]"}`}>
+                        {downloadingWs || downloadingSnapshot ? (
+                            <ReloadOutlined spin />
+                        ) : (
+                            <DownloadOutlined />
+                        )}
+                        <span>Downloads <DownOutlined style={{ fontSize: '10px' }}/></span>
+                    </span>
+                </Dropdown>
+
                 <ButtonToolbar
                     title="Delete"
                     icon={<DeleteOutlined />}
                     onClick={handleDelete}
                     enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'}
-                />
-                <ButtonToolbar
-                    title="Worksheet"
-                    icon={<FileExcelOutlined />}
-                    onClick={handleDownloadWorksheet}
-                    loading={downloadingWs}
-                    enable={selectedRowKeys.length === 1}
-                />
-                <ButtonToolbar
-                    title="Snapshot"
-                    icon={<CameraOutlined />}
-                    onClick={handleDownloadSnapshot}
-                    loading={downloadingSnapshot}
-                    enable={selectedRowKeys.length === 1}
                 />
             </ToolbarWrapper>
 

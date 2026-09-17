@@ -83,6 +83,7 @@ model Supplier {
   Name      String
   CreatedAt DateTime   @default(now())
   Incoming  Incoming[]
+  Material  Material[]
 }
 
 model Material {
@@ -93,6 +94,7 @@ model Material {
   CreatedBy    String
   UpdatedAt    DateTime @updatedAt
   Supplier     String?
+  SupplierId   Int?
   SatuanId     Int?
   RackLocation String?
 
@@ -106,7 +108,8 @@ model Material {
   MinimumStock Int @default(0)
   MaximumStock Int @default(0) // 0 means maximum stock is not configured
 
-  SatuanData Satuan? @relation(fields: [SatuanId], references: [Id])
+  SatuanData   Satuan?   @relation(fields: [SatuanId], references: [Id])
+  SupplierData Supplier? @relation(fields: [SupplierId], references: [Id])
 
   // relasi ke tabel lain
   BillOfMaterials             BillOfMaterials[]
@@ -228,6 +231,7 @@ model StockOpname {
   OpnameNumber String       @unique
   Category     ItemCategory
   Status       OpnameStatus @default(DRAFT)
+  Tolerance    Float        @default(5)
 
   CreatedAt   DateTime  @default(now())
   CreatedBy   String

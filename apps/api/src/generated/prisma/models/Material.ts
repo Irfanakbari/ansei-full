@@ -28,6 +28,7 @@ export type AggregateMaterial = {
 
 export type MaterialAvgAggregateOutputType = {
   Id: number | null
+  SupplierId: number | null
   SatuanId: number | null
   QtyRack: number | null
   QtyWarehouse: number | null
@@ -37,6 +38,7 @@ export type MaterialAvgAggregateOutputType = {
 
 export type MaterialSumAggregateOutputType = {
   Id: number | null
+  SupplierId: number | null
   SatuanId: number | null
   QtyRack: number | null
   QtyWarehouse: number | null
@@ -52,6 +54,7 @@ export type MaterialMinAggregateOutputType = {
   CreatedBy: string | null
   UpdatedAt: Date | null
   Supplier: string | null
+  SupplierId: number | null
   SatuanId: number | null
   RackLocation: string | null
   IsActive: boolean | null
@@ -70,6 +73,7 @@ export type MaterialMaxAggregateOutputType = {
   CreatedBy: string | null
   UpdatedAt: Date | null
   Supplier: string | null
+  SupplierId: number | null
   SatuanId: number | null
   RackLocation: string | null
   IsActive: boolean | null
@@ -88,6 +92,7 @@ export type MaterialCountAggregateOutputType = {
   CreatedBy: number
   UpdatedAt: number
   Supplier: number
+  SupplierId: number
   SatuanId: number
   RackLocation: number
   IsActive: number
@@ -102,6 +107,7 @@ export type MaterialCountAggregateOutputType = {
 
 export type MaterialAvgAggregateInputType = {
   Id?: true
+  SupplierId?: true
   SatuanId?: true
   QtyRack?: true
   QtyWarehouse?: true
@@ -111,6 +117,7 @@ export type MaterialAvgAggregateInputType = {
 
 export type MaterialSumAggregateInputType = {
   Id?: true
+  SupplierId?: true
   SatuanId?: true
   QtyRack?: true
   QtyWarehouse?: true
@@ -126,6 +133,7 @@ export type MaterialMinAggregateInputType = {
   CreatedBy?: true
   UpdatedAt?: true
   Supplier?: true
+  SupplierId?: true
   SatuanId?: true
   RackLocation?: true
   IsActive?: true
@@ -144,6 +152,7 @@ export type MaterialMaxAggregateInputType = {
   CreatedBy?: true
   UpdatedAt?: true
   Supplier?: true
+  SupplierId?: true
   SatuanId?: true
   RackLocation?: true
   IsActive?: true
@@ -162,6 +171,7 @@ export type MaterialCountAggregateInputType = {
   CreatedBy?: true
   UpdatedAt?: true
   Supplier?: true
+  SupplierId?: true
   SatuanId?: true
   RackLocation?: true
   IsActive?: true
@@ -267,6 +277,7 @@ export type MaterialGroupByOutputType = {
   CreatedBy: string
   UpdatedAt: Date
   Supplier: string | null
+  SupplierId: number | null
   SatuanId: number | null
   RackLocation: string | null
   IsActive: boolean
@@ -308,6 +319,7 @@ export type MaterialWhereInput = {
   CreatedBy?: Prisma.StringFilter<"Material"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"Material"> | Date | string
   Supplier?: Prisma.StringNullableFilter<"Material"> | string | null
+  SupplierId?: Prisma.IntNullableFilter<"Material"> | number | null
   SatuanId?: Prisma.IntNullableFilter<"Material"> | number | null
   RackLocation?: Prisma.StringNullableFilter<"Material"> | string | null
   IsActive?: Prisma.BoolFilter<"Material"> | boolean
@@ -317,6 +329,7 @@ export type MaterialWhereInput = {
   MinimumStock?: Prisma.IntFilter<"Material"> | number
   MaximumStock?: Prisma.IntFilter<"Material"> | number
   SatuanData?: Prisma.XOR<Prisma.SatuanNullableScalarRelationFilter, Prisma.SatuanWhereInput> | null
+  SupplierData?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
   BillOfMaterials?: Prisma.BillOfMaterialsListRelationFilter
   IncomingMaterial?: Prisma.IncomingMaterialListRelationFilter
   MaterialNG?: Prisma.MaterialNGListRelationFilter
@@ -334,6 +347,7 @@ export type MaterialOrderByWithRelationInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   Supplier?: Prisma.SortOrderInput | Prisma.SortOrder
+  SupplierId?: Prisma.SortOrderInput | Prisma.SortOrder
   SatuanId?: Prisma.SortOrderInput | Prisma.SortOrder
   RackLocation?: Prisma.SortOrderInput | Prisma.SortOrder
   IsActive?: Prisma.SortOrder
@@ -343,6 +357,7 @@ export type MaterialOrderByWithRelationInput = {
   MinimumStock?: Prisma.SortOrder
   MaximumStock?: Prisma.SortOrder
   SatuanData?: Prisma.SatuanOrderByWithRelationInput
+  SupplierData?: Prisma.SupplierOrderByWithRelationInput
   BillOfMaterials?: Prisma.BillOfMaterialsOrderByRelationAggregateInput
   IncomingMaterial?: Prisma.IncomingMaterialOrderByRelationAggregateInput
   MaterialNG?: Prisma.MaterialNGOrderByRelationAggregateInput
@@ -363,6 +378,7 @@ export type MaterialWhereUniqueInput = Prisma.AtLeast<{
   CreatedBy?: Prisma.StringFilter<"Material"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"Material"> | Date | string
   Supplier?: Prisma.StringNullableFilter<"Material"> | string | null
+  SupplierId?: Prisma.IntNullableFilter<"Material"> | number | null
   SatuanId?: Prisma.IntNullableFilter<"Material"> | number | null
   RackLocation?: Prisma.StringNullableFilter<"Material"> | string | null
   IsActive?: Prisma.BoolFilter<"Material"> | boolean
@@ -372,6 +388,7 @@ export type MaterialWhereUniqueInput = Prisma.AtLeast<{
   MinimumStock?: Prisma.IntFilter<"Material"> | number
   MaximumStock?: Prisma.IntFilter<"Material"> | number
   SatuanData?: Prisma.XOR<Prisma.SatuanNullableScalarRelationFilter, Prisma.SatuanWhereInput> | null
+  SupplierData?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
   BillOfMaterials?: Prisma.BillOfMaterialsListRelationFilter
   IncomingMaterial?: Prisma.IncomingMaterialListRelationFilter
   MaterialNG?: Prisma.MaterialNGListRelationFilter
@@ -389,6 +406,7 @@ export type MaterialOrderByWithAggregationInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   Supplier?: Prisma.SortOrderInput | Prisma.SortOrder
+  SupplierId?: Prisma.SortOrderInput | Prisma.SortOrder
   SatuanId?: Prisma.SortOrderInput | Prisma.SortOrder
   RackLocation?: Prisma.SortOrderInput | Prisma.SortOrder
   IsActive?: Prisma.SortOrder
@@ -415,6 +433,7 @@ export type MaterialScalarWhereWithAggregatesInput = {
   CreatedBy?: Prisma.StringWithAggregatesFilter<"Material"> | string
   UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"Material"> | Date | string
   Supplier?: Prisma.StringNullableWithAggregatesFilter<"Material"> | string | null
+  SupplierId?: Prisma.IntNullableWithAggregatesFilter<"Material"> | number | null
   SatuanId?: Prisma.IntNullableWithAggregatesFilter<"Material"> | number | null
   RackLocation?: Prisma.StringNullableWithAggregatesFilter<"Material"> | string | null
   IsActive?: Prisma.BoolWithAggregatesFilter<"Material"> | boolean
@@ -440,6 +459,7 @@ export type MaterialCreateInput = {
   MinimumStock?: number
   MaximumStock?: number
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
   MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
@@ -457,6 +477,7 @@ export type MaterialUncheckedCreateInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   SatuanId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
@@ -489,6 +510,7 @@ export type MaterialUpdateInput = {
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
   MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
   MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
@@ -506,6 +528,7 @@ export type MaterialUncheckedUpdateInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -531,6 +554,7 @@ export type MaterialCreateManyInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   SatuanId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
@@ -565,6 +589,7 @@ export type MaterialUncheckedUpdateManyInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -593,6 +618,7 @@ export type MaterialCountOrderByAggregateInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   Supplier?: Prisma.SortOrder
+  SupplierId?: Prisma.SortOrder
   SatuanId?: Prisma.SortOrder
   RackLocation?: Prisma.SortOrder
   IsActive?: Prisma.SortOrder
@@ -605,6 +631,7 @@ export type MaterialCountOrderByAggregateInput = {
 
 export type MaterialAvgOrderByAggregateInput = {
   Id?: Prisma.SortOrder
+  SupplierId?: Prisma.SortOrder
   SatuanId?: Prisma.SortOrder
   QtyRack?: Prisma.SortOrder
   QtyWarehouse?: Prisma.SortOrder
@@ -620,6 +647,7 @@ export type MaterialMaxOrderByAggregateInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   Supplier?: Prisma.SortOrder
+  SupplierId?: Prisma.SortOrder
   SatuanId?: Prisma.SortOrder
   RackLocation?: Prisma.SortOrder
   IsActive?: Prisma.SortOrder
@@ -638,6 +666,7 @@ export type MaterialMinOrderByAggregateInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   Supplier?: Prisma.SortOrder
+  SupplierId?: Prisma.SortOrder
   SatuanId?: Prisma.SortOrder
   RackLocation?: Prisma.SortOrder
   IsActive?: Prisma.SortOrder
@@ -650,6 +679,7 @@ export type MaterialMinOrderByAggregateInput = {
 
 export type MaterialSumOrderByAggregateInput = {
   Id?: Prisma.SortOrder
+  SupplierId?: Prisma.SortOrder
   SatuanId?: Prisma.SortOrder
   QtyRack?: Prisma.SortOrder
   QtyWarehouse?: Prisma.SortOrder
@@ -706,6 +736,48 @@ export type MaterialUncheckedUpdateManyWithoutSatuanDataNestedInput = {
   connect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
   update?: Prisma.MaterialUpdateWithWhereUniqueWithoutSatuanDataInput | Prisma.MaterialUpdateWithWhereUniqueWithoutSatuanDataInput[]
   updateMany?: Prisma.MaterialUpdateManyWithWhereWithoutSatuanDataInput | Prisma.MaterialUpdateManyWithWhereWithoutSatuanDataInput[]
+  deleteMany?: Prisma.MaterialScalarWhereInput | Prisma.MaterialScalarWhereInput[]
+}
+
+export type MaterialCreateNestedManyWithoutSupplierDataInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutSupplierDataInput, Prisma.MaterialUncheckedCreateWithoutSupplierDataInput> | Prisma.MaterialCreateWithoutSupplierDataInput[] | Prisma.MaterialUncheckedCreateWithoutSupplierDataInput[]
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutSupplierDataInput | Prisma.MaterialCreateOrConnectWithoutSupplierDataInput[]
+  createMany?: Prisma.MaterialCreateManySupplierDataInputEnvelope
+  connect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+}
+
+export type MaterialUncheckedCreateNestedManyWithoutSupplierDataInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutSupplierDataInput, Prisma.MaterialUncheckedCreateWithoutSupplierDataInput> | Prisma.MaterialCreateWithoutSupplierDataInput[] | Prisma.MaterialUncheckedCreateWithoutSupplierDataInput[]
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutSupplierDataInput | Prisma.MaterialCreateOrConnectWithoutSupplierDataInput[]
+  createMany?: Prisma.MaterialCreateManySupplierDataInputEnvelope
+  connect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+}
+
+export type MaterialUpdateManyWithoutSupplierDataNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutSupplierDataInput, Prisma.MaterialUncheckedCreateWithoutSupplierDataInput> | Prisma.MaterialCreateWithoutSupplierDataInput[] | Prisma.MaterialUncheckedCreateWithoutSupplierDataInput[]
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutSupplierDataInput | Prisma.MaterialCreateOrConnectWithoutSupplierDataInput[]
+  upsert?: Prisma.MaterialUpsertWithWhereUniqueWithoutSupplierDataInput | Prisma.MaterialUpsertWithWhereUniqueWithoutSupplierDataInput[]
+  createMany?: Prisma.MaterialCreateManySupplierDataInputEnvelope
+  set?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  disconnect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  delete?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  connect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  update?: Prisma.MaterialUpdateWithWhereUniqueWithoutSupplierDataInput | Prisma.MaterialUpdateWithWhereUniqueWithoutSupplierDataInput[]
+  updateMany?: Prisma.MaterialUpdateManyWithWhereWithoutSupplierDataInput | Prisma.MaterialUpdateManyWithWhereWithoutSupplierDataInput[]
+  deleteMany?: Prisma.MaterialScalarWhereInput | Prisma.MaterialScalarWhereInput[]
+}
+
+export type MaterialUncheckedUpdateManyWithoutSupplierDataNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutSupplierDataInput, Prisma.MaterialUncheckedCreateWithoutSupplierDataInput> | Prisma.MaterialCreateWithoutSupplierDataInput[] | Prisma.MaterialUncheckedCreateWithoutSupplierDataInput[]
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutSupplierDataInput | Prisma.MaterialCreateOrConnectWithoutSupplierDataInput[]
+  upsert?: Prisma.MaterialUpsertWithWhereUniqueWithoutSupplierDataInput | Prisma.MaterialUpsertWithWhereUniqueWithoutSupplierDataInput[]
+  createMany?: Prisma.MaterialCreateManySupplierDataInputEnvelope
+  set?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  disconnect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  delete?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  connect?: Prisma.MaterialWhereUniqueInput | Prisma.MaterialWhereUniqueInput[]
+  update?: Prisma.MaterialUpdateWithWhereUniqueWithoutSupplierDataInput | Prisma.MaterialUpdateWithWhereUniqueWithoutSupplierDataInput[]
+  updateMany?: Prisma.MaterialUpdateManyWithWhereWithoutSupplierDataInput | Prisma.MaterialUpdateManyWithWhereWithoutSupplierDataInput[]
   deleteMany?: Prisma.MaterialScalarWhereInput | Prisma.MaterialScalarWhereInput[]
 }
 
@@ -847,6 +919,7 @@ export type MaterialCreateWithoutSatuanDataInput = {
   QtyWarehouse?: number
   MinimumStock?: number
   MaximumStock?: number
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
   MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
@@ -864,6 +937,7 @@ export type MaterialUncheckedCreateWithoutSatuanDataInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
@@ -917,6 +991,7 @@ export type MaterialScalarWhereInput = {
   CreatedBy?: Prisma.StringFilter<"Material"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"Material"> | Date | string
   Supplier?: Prisma.StringNullableFilter<"Material"> | string | null
+  SupplierId?: Prisma.IntNullableFilter<"Material"> | number | null
   SatuanId?: Prisma.IntNullableFilter<"Material"> | number | null
   RackLocation?: Prisma.StringNullableFilter<"Material"> | string | null
   IsActive?: Prisma.BoolFilter<"Material"> | boolean
@@ -925,6 +1000,81 @@ export type MaterialScalarWhereInput = {
   QtyWarehouse?: Prisma.IntFilter<"Material"> | number
   MinimumStock?: Prisma.IntFilter<"Material"> | number
   MaximumStock?: Prisma.IntFilter<"Material"> | number
+}
+
+export type MaterialCreateWithoutSupplierDataInput = {
+  PartNumber: string
+  PartName: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  Supplier?: string | null
+  RackLocation?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  QtyRack?: number
+  QtyWarehouse?: number
+  MinimumStock?: number
+  MaximumStock?: number
+  SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
+  IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
+  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
+}
+
+export type MaterialUncheckedCreateWithoutSupplierDataInput = {
+  Id?: number
+  PartNumber: string
+  PartName: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  Supplier?: string | null
+  SatuanId?: number | null
+  RackLocation?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  QtyRack?: number
+  QtyWarehouse?: number
+  MinimumStock?: number
+  MaximumStock?: number
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
+  IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
+  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
+}
+
+export type MaterialCreateOrConnectWithoutSupplierDataInput = {
+  where: Prisma.MaterialWhereUniqueInput
+  create: Prisma.XOR<Prisma.MaterialCreateWithoutSupplierDataInput, Prisma.MaterialUncheckedCreateWithoutSupplierDataInput>
+}
+
+export type MaterialCreateManySupplierDataInputEnvelope = {
+  data: Prisma.MaterialCreateManySupplierDataInput | Prisma.MaterialCreateManySupplierDataInput[]
+  skipDuplicates?: boolean
+}
+
+export type MaterialUpsertWithWhereUniqueWithoutSupplierDataInput = {
+  where: Prisma.MaterialWhereUniqueInput
+  update: Prisma.XOR<Prisma.MaterialUpdateWithoutSupplierDataInput, Prisma.MaterialUncheckedUpdateWithoutSupplierDataInput>
+  create: Prisma.XOR<Prisma.MaterialCreateWithoutSupplierDataInput, Prisma.MaterialUncheckedCreateWithoutSupplierDataInput>
+}
+
+export type MaterialUpdateWithWhereUniqueWithoutSupplierDataInput = {
+  where: Prisma.MaterialWhereUniqueInput
+  data: Prisma.XOR<Prisma.MaterialUpdateWithoutSupplierDataInput, Prisma.MaterialUncheckedUpdateWithoutSupplierDataInput>
+}
+
+export type MaterialUpdateManyWithWhereWithoutSupplierDataInput = {
+  where: Prisma.MaterialScalarWhereInput
+  data: Prisma.XOR<Prisma.MaterialUpdateManyMutationInput, Prisma.MaterialUncheckedUpdateManyWithoutSupplierDataInput>
 }
 
 export type MaterialCreateWithoutBillOfMaterialsInput = {
@@ -942,6 +1092,7 @@ export type MaterialCreateWithoutBillOfMaterialsInput = {
   MinimumStock?: number
   MaximumStock?: number
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
   MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
@@ -958,6 +1109,7 @@ export type MaterialUncheckedCreateWithoutBillOfMaterialsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   SatuanId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
@@ -1005,6 +1157,7 @@ export type MaterialUpdateWithoutBillOfMaterialsInput = {
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
   MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
   MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
@@ -1021,6 +1174,7 @@ export type MaterialUncheckedUpdateWithoutBillOfMaterialsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1052,6 +1206,7 @@ export type MaterialCreateWithoutInventoryLedgerInput = {
   MinimumStock?: number
   MaximumStock?: number
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
   MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
@@ -1068,6 +1223,7 @@ export type MaterialUncheckedCreateWithoutInventoryLedgerInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   SatuanId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
@@ -1115,6 +1271,7 @@ export type MaterialUpdateWithoutInventoryLedgerInput = {
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
   MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
   MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
@@ -1131,6 +1288,7 @@ export type MaterialUncheckedUpdateWithoutInventoryLedgerInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1162,6 +1320,7 @@ export type MaterialCreateWithoutStockOpnameDetailInput = {
   MinimumStock?: number
   MaximumStock?: number
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
   MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
@@ -1178,6 +1337,7 @@ export type MaterialUncheckedCreateWithoutStockOpnameDetailInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   SatuanId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
@@ -1225,6 +1385,7 @@ export type MaterialUpdateWithoutStockOpnameDetailInput = {
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
   MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
   MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
@@ -1241,6 +1402,7 @@ export type MaterialUncheckedUpdateWithoutStockOpnameDetailInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1272,6 +1434,7 @@ export type MaterialCreateWithoutIncomingMaterialInput = {
   MinimumStock?: number
   MaximumStock?: number
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
@@ -1288,6 +1451,7 @@ export type MaterialUncheckedCreateWithoutIncomingMaterialInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   SatuanId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
@@ -1335,6 +1499,7 @@ export type MaterialUpdateWithoutIncomingMaterialInput = {
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
   MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
@@ -1351,6 +1516,7 @@ export type MaterialUncheckedUpdateWithoutIncomingMaterialInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1382,6 +1548,7 @@ export type MaterialCreateWithoutMaterialNGInput = {
   MinimumStock?: number
   MaximumStock?: number
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
@@ -1398,6 +1565,7 @@ export type MaterialUncheckedCreateWithoutMaterialNGInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   SatuanId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
@@ -1445,6 +1613,7 @@ export type MaterialUpdateWithoutMaterialNGInput = {
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
   MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
@@ -1461,6 +1630,7 @@ export type MaterialUncheckedUpdateWithoutMaterialNGInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1492,6 +1662,7 @@ export type MaterialCreateWithoutShoppingInput = {
   MinimumStock?: number
   MaximumStock?: number
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
   MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
@@ -1508,6 +1679,7 @@ export type MaterialUncheckedCreateWithoutShoppingInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   SatuanId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
@@ -1555,6 +1727,7 @@ export type MaterialUpdateWithoutShoppingInput = {
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
   MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
   MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
@@ -1571,6 +1744,7 @@ export type MaterialUncheckedUpdateWithoutShoppingInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1602,6 +1776,7 @@ export type MaterialCreateWithoutMaterialDeliveryNoteDetailsInput = {
   MinimumStock?: number
   MaximumStock?: number
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
   MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
@@ -1618,6 +1793,7 @@ export type MaterialUncheckedCreateWithoutMaterialDeliveryNoteDetailsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   SatuanId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
@@ -1665,6 +1841,7 @@ export type MaterialUpdateWithoutMaterialDeliveryNoteDetailsInput = {
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
   MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
   MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
@@ -1681,6 +1858,7 @@ export type MaterialUncheckedUpdateWithoutMaterialDeliveryNoteDetailsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1705,6 +1883,7 @@ export type MaterialCreateManySatuanDataInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   Supplier?: string | null
+  SupplierId?: number | null
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
@@ -1728,6 +1907,7 @@ export type MaterialUpdateWithoutSatuanDataInput = {
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
   MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
   MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
@@ -1745,6 +1925,7 @@ export type MaterialUncheckedUpdateWithoutSatuanDataInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1769,6 +1950,92 @@ export type MaterialUncheckedUpdateManyWithoutSatuanDataInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
+  MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type MaterialCreateManySupplierDataInput = {
+  Id?: number
+  PartNumber: string
+  PartName: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  Supplier?: string | null
+  SatuanId?: number | null
+  RackLocation?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  QtyRack?: number
+  QtyWarehouse?: number
+  MinimumStock?: number
+  MaximumStock?: number
+}
+
+export type MaterialUpdateWithoutSupplierDataInput = {
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
+  MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
+  IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
+  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
+}
+
+export type MaterialUncheckedUpdateWithoutSupplierDataInput = {
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
+  MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
+  IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
+  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
+}
+
+export type MaterialUncheckedUpdateManyWithoutSupplierDataInput = {
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1871,6 +2138,7 @@ export type MaterialSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   CreatedBy?: boolean
   UpdatedAt?: boolean
   Supplier?: boolean
+  SupplierId?: boolean
   SatuanId?: boolean
   RackLocation?: boolean
   IsActive?: boolean
@@ -1880,6 +2148,7 @@ export type MaterialSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   MinimumStock?: boolean
   MaximumStock?: boolean
   SatuanData?: boolean | Prisma.Material$SatuanDataArgs<ExtArgs>
+  SupplierData?: boolean | Prisma.Material$SupplierDataArgs<ExtArgs>
   BillOfMaterials?: boolean | Prisma.Material$BillOfMaterialsArgs<ExtArgs>
   IncomingMaterial?: boolean | Prisma.Material$IncomingMaterialArgs<ExtArgs>
   MaterialNG?: boolean | Prisma.Material$MaterialNGArgs<ExtArgs>
@@ -1898,6 +2167,7 @@ export type MaterialSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   CreatedBy?: boolean
   UpdatedAt?: boolean
   Supplier?: boolean
+  SupplierId?: boolean
   SatuanId?: boolean
   RackLocation?: boolean
   IsActive?: boolean
@@ -1907,6 +2177,7 @@ export type MaterialSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   MinimumStock?: boolean
   MaximumStock?: boolean
   SatuanData?: boolean | Prisma.Material$SatuanDataArgs<ExtArgs>
+  SupplierData?: boolean | Prisma.Material$SupplierDataArgs<ExtArgs>
 }, ExtArgs["result"]["material"]>
 
 export type MaterialSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1917,6 +2188,7 @@ export type MaterialSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   CreatedBy?: boolean
   UpdatedAt?: boolean
   Supplier?: boolean
+  SupplierId?: boolean
   SatuanId?: boolean
   RackLocation?: boolean
   IsActive?: boolean
@@ -1926,6 +2198,7 @@ export type MaterialSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   MinimumStock?: boolean
   MaximumStock?: boolean
   SatuanData?: boolean | Prisma.Material$SatuanDataArgs<ExtArgs>
+  SupplierData?: boolean | Prisma.Material$SupplierDataArgs<ExtArgs>
 }, ExtArgs["result"]["material"]>
 
 export type MaterialSelectScalar = {
@@ -1936,6 +2209,7 @@ export type MaterialSelectScalar = {
   CreatedBy?: boolean
   UpdatedAt?: boolean
   Supplier?: boolean
+  SupplierId?: boolean
   SatuanId?: boolean
   RackLocation?: boolean
   IsActive?: boolean
@@ -1946,9 +2220,10 @@ export type MaterialSelectScalar = {
   MaximumStock?: boolean
 }
 
-export type MaterialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "PartName" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "Supplier" | "SatuanId" | "RackLocation" | "IsActive" | "DiscontinueDate" | "QtyRack" | "QtyWarehouse" | "MinimumStock" | "MaximumStock", ExtArgs["result"]["material"]>
+export type MaterialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "PartName" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "Supplier" | "SupplierId" | "SatuanId" | "RackLocation" | "IsActive" | "DiscontinueDate" | "QtyRack" | "QtyWarehouse" | "MinimumStock" | "MaximumStock", ExtArgs["result"]["material"]>
 export type MaterialInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   SatuanData?: boolean | Prisma.Material$SatuanDataArgs<ExtArgs>
+  SupplierData?: boolean | Prisma.Material$SupplierDataArgs<ExtArgs>
   BillOfMaterials?: boolean | Prisma.Material$BillOfMaterialsArgs<ExtArgs>
   IncomingMaterial?: boolean | Prisma.Material$IncomingMaterialArgs<ExtArgs>
   MaterialNG?: boolean | Prisma.Material$MaterialNGArgs<ExtArgs>
@@ -1960,15 +2235,18 @@ export type MaterialInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
 }
 export type MaterialIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   SatuanData?: boolean | Prisma.Material$SatuanDataArgs<ExtArgs>
+  SupplierData?: boolean | Prisma.Material$SupplierDataArgs<ExtArgs>
 }
 export type MaterialIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   SatuanData?: boolean | Prisma.Material$SatuanDataArgs<ExtArgs>
+  SupplierData?: boolean | Prisma.Material$SupplierDataArgs<ExtArgs>
 }
 
 export type $MaterialPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Material"
   objects: {
     SatuanData: Prisma.$SatuanPayload<ExtArgs> | null
+    SupplierData: Prisma.$SupplierPayload<ExtArgs> | null
     BillOfMaterials: Prisma.$BillOfMaterialsPayload<ExtArgs>[]
     IncomingMaterial: Prisma.$IncomingMaterialPayload<ExtArgs>[]
     MaterialNG: Prisma.$MaterialNGPayload<ExtArgs>[]
@@ -1985,6 +2263,7 @@ export type $MaterialPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     CreatedBy: string
     UpdatedAt: Date
     Supplier: string | null
+    SupplierId: number | null
     SatuanId: number | null
     RackLocation: string | null
     IsActive: boolean
@@ -2388,6 +2667,7 @@ readonly fields: MaterialFieldRefs;
 export interface Prisma__MaterialClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   SatuanData<T extends Prisma.Material$SatuanDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$SatuanDataArgs<ExtArgs>>): Prisma.Prisma__SatuanClient<runtime.Types.Result.GetResult<Prisma.$SatuanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  SupplierData<T extends Prisma.Material$SupplierDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$SupplierDataArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   BillOfMaterials<T extends Prisma.Material$BillOfMaterialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$BillOfMaterialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BillOfMaterialsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   IncomingMaterial<T extends Prisma.Material$IncomingMaterialArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$IncomingMaterialArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncomingMaterialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   MaterialNG<T extends Prisma.Material$MaterialNGArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$MaterialNGArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNGPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2431,6 +2711,7 @@ export interface MaterialFieldRefs {
   readonly CreatedBy: Prisma.FieldRef<"Material", 'String'>
   readonly UpdatedAt: Prisma.FieldRef<"Material", 'DateTime'>
   readonly Supplier: Prisma.FieldRef<"Material", 'String'>
+  readonly SupplierId: Prisma.FieldRef<"Material", 'Int'>
   readonly SatuanId: Prisma.FieldRef<"Material", 'Int'>
   readonly RackLocation: Prisma.FieldRef<"Material", 'String'>
   readonly IsActive: Prisma.FieldRef<"Material", 'Boolean'>
@@ -2856,6 +3137,25 @@ export type Material$SatuanDataArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.SatuanInclude<ExtArgs> | null
   where?: Prisma.SatuanWhereInput
+}
+
+/**
+ * Material.SupplierData
+ */
+export type Material$SupplierDataArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Supplier
+   */
+  select?: Prisma.SupplierSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Supplier
+   */
+  omit?: Prisma.SupplierOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SupplierInclude<ExtArgs> | null
+  where?: Prisma.SupplierWhereInput
 }
 
 /**

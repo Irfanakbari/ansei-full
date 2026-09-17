@@ -10,9 +10,12 @@ import type {
 import ExcelJS from 'exceljs';
 
 // BOM data: materialId -> array of {finishGoodId, qty}
-// Forecast data: dateStr -> finishGoodPartNumber -> qty
+// Forecast data: dateStr -> poId -> { finishGoodId, outstandingQty }
 type BomDataMap = Map<number, Array<{ finishGoodId: number; qty: number }>>;
-type ForecastDataMap = Map<string, Map<string, number>>;
+type ForecastDataMap = Map<
+  string,
+  Map<string, { finishGoodId: string; outstandingQty: number }>
+>;
 
 @Injectable()
 export class MrpService {
@@ -58,6 +61,9 @@ export class MrpService {
       // Get all materials with their stock info
       const materials = await this.prisma.material.findMany({
         orderBy: { PartNumber: 'asc' },
+        include: {
+          SupplierData: true,
+        },
       });
 
       await this.logService.addLog({
@@ -68,7 +74,11 @@ export class MrpService {
       });
 
       // Get pending incoming quantities (from Incoming.IncomingMaterial where Closed = false)
+      // Re-added: Pending incoming represents goods physically arrived but still under checking.
       const pendingIncoming = await this.getPendingIncomingQuantities();
+
+      // Get Reserved Materials (from MaterialDeliveryNoteDetail with DRAFT status)
+      const reservedMaterials = await this.getReservedMaterials();
 
       // Get Bill of Materials for all materials
       const bomData = await this.getBillOfMaterialsData();
@@ -78,6 +88,9 @@ export class MrpService {
 
       // Get FinishGood to PartNumber mapping for BOM lookup
       const finishGoodMap = await this.getFinishGoodMapping();
+
+      // Get Picked Materials for those forecasts
+      const pickedMaterialsMap = await this.getPickedMaterials(forecastData);
 
       // Process each material
       const materialResults: MrpMaterialResponse[] = [];
@@ -89,27 +102,35 @@ export class MrpService {
         // Calculate QtyPending
         const qtyPending = pendingIncoming.get(materialId) || 0;
 
-        // Calculate QtyCurrentTotal
-        const qtyCurrentTotal =
-          material.QtyRack + material.QtyWarehouse + qtyPending;
+        // Calculate QtyReserved
+        const qtyReserved = reservedMaterials.get(partNumber) || 0;
 
-        // Calculate daily demand for each date
+        // Calculate QtyCurrentTotal (Available Stock = Rack + WH + Pending - Reserved)
+        const qtyCurrentTotal = Math.max(
+          0,
+          material.QtyRack + material.QtyWarehouse + qtyPending - qtyReserved,
+        );
+
+        // Calculate daily demand for each date (Cumulative)
+        let runningStock = qtyCurrentTotal;
         const dailyDemand: MrpDayDemand[] = dates.map((date) => {
           const dateStr = this.formatDate(date);
 
           // Get demand for this material on this date
           const demand = this.calculateMaterialDemand(
             materialId,
+            partNumber,
             dateStr,
             bomData,
             forecastData,
             finishGoodMap,
+            pickedMaterialsMap,
           );
 
-          // Lack = max(0, Demand - QtyCurrentTotal)
-          // If stock is enough (demand <= stock), lack = 0
-          // If stock is insufficient (demand > stock), lack = demand - stock
-          const lack = Math.max(0, demand - qtyCurrentTotal);
+          runningStock -= demand;
+
+          // Lack is the cumulative shortage up to this day
+          const lack = Math.max(0, -runningStock);
           const hasShortage = lack > 0;
 
           return {
@@ -124,11 +145,12 @@ export class MrpService {
           materialId,
           partNumber,
           partName: material.PartName,
-          supplier: material.Supplier,
+          supplier: material.SupplierData?.Name || material.Supplier || null,
           rackLocation: material.RackLocation,
           qtyRack: material.QtyRack,
           qtyWarehouse: material.QtyWarehouse,
           qtyPending,
+          qtyReserved,
           qtyCurrentTotal,
           dailyDemand,
         });
@@ -147,7 +169,7 @@ export class MrpService {
         calculatedAt: new Date().toISOString(),
         dateRange: {
           today: this.formatDate(today),
-          startDate: this.formatDate(dates[1]), // H+1 (first future day)
+          startDate: this.formatDate(dates[0]), // Start from Today (H+0)
           endDate: this.formatDate(dates[dates.length - 1]), // H+6 (last future day)
         },
         materials: materialResults,
@@ -226,6 +248,36 @@ export class MrpService {
   }
 
   /**
+   * Get reserved material quantities grouped by MaterialId (PartNumber)
+   * Only includes MaterialDeliveryNoteDetail where DeliveryNoteData.Status = 'DRAFT'
+   */
+  private async getReservedMaterials(): Promise<Map<string, number>> {
+    const reservedData = await this.prisma.materialDeliveryNoteDetail.groupBy({
+      by: ['MaterialId'],
+      where: {
+        DeliveryNoteData: {
+          Status: 'DRAFT',
+        },
+        QtyPicking: {
+          gt: 0,
+        },
+      },
+      _sum: {
+        QtyPicking: true,
+      },
+    });
+
+    const result = new Map<string, number>();
+    for (const item of reservedData) {
+      if (item.MaterialId) {
+        result.set(item.MaterialId, item._sum.QtyPicking || 0);
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Get Bill of Materials data for all materials
    * Maps MaterialId -> Set of FinishGoodIds that use this material
    */
@@ -278,34 +330,39 @@ export class MrpService {
 
   /**
    * Get forecast demands for the date range
-   * Only includes forecasts without DeliveryHistory (not yet delivered)
-   * Returns Map of date string -> finishGoodPartNumber -> totalQty
+   * Calculates outstanding demand by subtracting delivered qty
+   * Returns Map of date string -> poId -> { finishGoodId, outstandingQty }
    */
   private async getForecastDemands(dates: Date[]): Promise<ForecastDataMap> {
     // Dates array is chronological: [H-5, H-4, H-3, H-2, H-1, today, H+1]
     const startDate = dates[0]; // H-5 (earliest)
     const endDate = dates[dates.length - 1]; // H+1 (latest)
 
-    // Get forecasts in date range without delivery history
+    // Get forecasts in date range
     const forecasts = await this.prisma.forecast.findMany({
       where: {
         DeliveryDate: {
           gte: startDate,
           lte: endDate,
         },
-        // Only forecasts without DeliveryHistory (not yet delivered)
-        DeliveryHistory: {
-          none: {},
-        },
       },
       select: {
+        PoId: true,
         FinishGoodId: true,
         DeliveryDate: true,
         Qty: true,
+        DeliveryHistory: {
+          select: {
+            Qty: true,
+          },
+        },
       },
     });
 
-    const result = new Map<string, Map<string, number>>();
+    const result = new Map<
+      string,
+      Map<string, { finishGoodId: string; outstandingQty: number }>
+    >();
 
     for (const forecast of forecasts) {
       const dateStr = this.formatDate(new Date(forecast.DeliveryDate));
@@ -314,10 +371,61 @@ export class MrpService {
         result.set(dateStr, new Map());
       }
 
-      const currentQty = result.get(dateStr)!.get(forecast.FinishGoodId) || 0;
-      result
-        .get(dateStr)!
-        .set(forecast.FinishGoodId, currentQty + forecast.Qty);
+      // Calculate outstanding quantity (Forecast Qty - Total Delivered Qty)
+      const totalDelivered = forecast.DeliveryHistory.reduce(
+        (sum, h) => sum + h.Qty,
+        0,
+      );
+      const outstandingQty = Math.max(0, forecast.Qty - totalDelivered);
+
+      if (outstandingQty > 0) {
+        result.get(dateStr)!.set(forecast.PoId, {
+          finishGoodId: forecast.FinishGoodId,
+          outstandingQty,
+        });
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Get total picked quantity for all valid forecasts in the date range
+   * Returns Map of ForecastId -> Map of Material PartNumber -> QtyPick
+   */
+  private async getPickedMaterials(
+    forecastData: ForecastDataMap,
+  ): Promise<Map<string, Map<string, number>>> {
+    const allForecastIds = new Set<string>();
+    for (const dayForecasts of forecastData.values()) {
+      for (const poId of dayForecasts.keys()) {
+        allForecastIds.add(poId);
+      }
+    }
+
+    if (allForecastIds.size === 0) {
+      return new Map();
+    }
+
+    const shoppings = await this.prisma.shopping.groupBy({
+      by: ['ForecastId', 'MaterialId'],
+      where: {
+        ForecastId: { in: Array.from(allForecastIds) },
+      },
+      _sum: {
+        QtyPick: true,
+      },
+    });
+
+    const result = new Map<string, Map<string, number>>();
+    for (const shop of shoppings) {
+      if (!shop.ForecastId) continue;
+
+      if (!result.has(shop.ForecastId)) {
+        result.set(shop.ForecastId, new Map());
+      }
+
+      result.get(shop.ForecastId)!.set(shop.MaterialId, shop._sum.QtyPick || 0);
     }
 
     return result;
@@ -325,14 +433,16 @@ export class MrpService {
 
   /**
    * Calculate material demand for a specific date
-   * Based on BOM: Material demand = Sum of (Forecast.Qty * BOM.Qty) for all FG using this material
+   * Based on BOM: Material demand = Sum of max(0, (Forecast.OutstandingQty * BOM.Qty) - PickedQty)
    */
   private calculateMaterialDemand(
     materialId: number,
+    materialPartNumber: string,
     dateStr: string,
-    bomData: Map<number, Array<{ finishGoodId: number; qty: number }>>,
+    bomData: BomDataMap,
     forecastData: ForecastDataMap,
     finishGoodMap: Map<number, string>,
+    pickedMaterialsMap: Map<string, Map<string, number>>,
   ): number {
     const dayForecasts = forecastData.get(dateStr);
 
@@ -358,12 +468,19 @@ export class MrpService {
 
     let totalDemand = 0;
 
-    // For each FinishGood PartNumber that has forecast on this date
-    for (const [fgPartNumber, forecastQty] of dayForecasts) {
-      const bomQty = finishGoodBomMap.get(fgPartNumber);
+    // For each Forecast on this date
+    for (const [poId, { finishGoodId, outstandingQty }] of dayForecasts) {
+      const bomQty = finishGoodBomMap.get(finishGoodId);
       if (bomQty !== undefined) {
         // This FinishGood uses this Material
-        totalDemand += forecastQty * bomQty;
+        const baseRequired = outstandingQty * bomQty;
+
+        // Subtract already picked amount
+        const alreadyPicked =
+          pickedMaterialsMap.get(poId)?.get(materialPartNumber) || 0;
+
+        const remainingRequired = Math.max(0, baseRequired - alreadyPicked);
+        totalDemand += remainingRequired;
       }
     }
 
@@ -543,16 +660,23 @@ export class MrpService {
         { header: 'Qty Rack', width: 9, field: 'qtyRack', align: 'right' },
         { header: 'Qty WH', width: 9, field: 'qtyWarehouse', align: 'right' },
         { header: 'Pending', width: 8, field: 'qtyPending', align: 'right' },
-        { header: 'Total', width: 9, field: 'qtyCurrentTotal', align: 'right' },
+        { header: 'Reserved', width: 9, field: 'qtyReserved', align: 'right' },
+        {
+          header: 'Total Avail',
+          width: 10,
+          field: 'qtyCurrentTotal',
+          align: 'right',
+        },
       ];
 
       // Calculate column positions
-      // A=No, B=PartNumber, C=MaterialName, D=Supplier, E=Rack, F=QtyRack, G=QtyWH, H=Pending, I=Total
-      // Then J onwards are date columns with 2 sub-columns each (Dmd, Lack)
+      // A=No, B=PartNumber, C=MaterialName, D=Supplier, E=Rack, F=QtyRack, G=QtyWH, H=Pending, I=Reserved, J=Total
+      // Then K onwards are date columns with 2 sub-columns each (Dmd, Lack)
       // Then last column = Max Lack
 
+      const numBaseCols = baseColumns.length;
       const numDateColumns = dateColumns.length;
-      const totalCols = 9 + numDateColumns * 2 + 1; // base + date subcols + MaxLack
+      const totalCols = numBaseCols + numDateColumns * 2 + 1; // base + date subcols + MaxLack
 
       // Add data rows starting at row 7
       const currentRow = 7;
@@ -560,8 +684,8 @@ export class MrpService {
       // Header Row 5 - Main headers
       worksheet.getRow(5).height = 22;
 
-      // Base columns (A-I)
-      for (let i = 0; i < 9; i++) {
+      // Base columns
+      for (let i = 0; i < numBaseCols; i++) {
         const col = i + 1;
         const cell = worksheet.getCell(5, col);
         cell.value = baseColumns[i].header;
@@ -590,7 +714,7 @@ export class MrpService {
       }
 
       // Date columns header (spanning 2 columns each)
-      let dateColIndex = 10; // Start after base columns (column J)
+      let dateColIndex = numBaseCols + 1; // Start after base columns
       for (const dateCol of dateColumns) {
         const colStart = dateColIndex;
         const colEnd = dateColIndex + 1;
@@ -625,7 +749,7 @@ export class MrpService {
       }
 
       // Max Lack column header
-      const maxLackCol = 9 + numDateColumns * 2 + 1;
+      const maxLackCol = numBaseCols + numDateColumns * 2 + 1;
       const maxLackCell = worksheet.getCell(5, maxLackCol);
       maxLackCell.value = 'Max Lack';
       maxLackCell.font = {
@@ -650,7 +774,7 @@ export class MrpService {
 
       // Header Row 6 - Sub headers (Dmd, Lack)
       worksheet.getRow(6).height = 20;
-      dateColIndex = 10;
+      dateColIndex = numBaseCols + 1;
       for (const dateCol of dateColumns) {
         // Dmd header
         const dmdCell = worksheet.getCell(6, dateColIndex);
@@ -858,8 +982,33 @@ export class MrpService {
           right: { style: 'hair', color: { argb: 'FFE5E7EB' } },
         };
 
+        // Reserved
+        const reservedCell = worksheet.getCell(rowNum, 9);
+        reservedCell.value = material.qtyReserved || 0;
+        reservedCell.font = {
+          name: 'Arial',
+          size: 10,
+          color:
+            (material.qtyReserved || 0) > 0
+              ? { argb: 'FFD97706' }
+              : { argb: 'FF6B7280' },
+          bold: (material.qtyReserved || 0) > 0,
+        };
+        reservedCell.alignment = { horizontal: 'right', vertical: 'middle' };
+        reservedCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: rowBgColor },
+        };
+        reservedCell.border = {
+          top: { style: 'hair', color: { argb: 'FFE5E7EB' } },
+          bottom: { style: 'hair', color: { argb: 'FFE5E7EB' } },
+          left: { style: 'hair', color: { argb: 'FFE5E7EB' } },
+          right: { style: 'hair', color: { argb: 'FFE5E7EB' } },
+        };
+
         // Total
-        const totalCell = worksheet.getCell(rowNum, 9);
+        const totalCell = worksheet.getCell(rowNum, 10);
         totalCell.value = material.qtyCurrentTotal;
         totalCell.font = {
           name: 'Arial',
@@ -881,7 +1030,7 @@ export class MrpService {
         };
 
         // Date columns (Dmd and Lack)
-        dateColIndex = 10;
+        dateColIndex = numBaseCols + 1;
         for (const dateCol of dateColumns) {
           const demandData = material.dailyDemand.find(
             (dd) => dd.date === dateCol.dateStr,

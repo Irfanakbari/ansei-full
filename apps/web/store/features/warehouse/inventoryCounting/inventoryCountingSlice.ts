@@ -31,17 +31,19 @@ export interface InventoryCountingEntity {
     OpnameNumber: string;
     Category: 'MATERIAL' | 'FINISH_GOOD';
     Status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+    Tolerance: number;
     CreatedAt: string;
     CreatedBy: string;
     CreatedByName?: string;
-    StartedAt: string | null;
-    CompletedAt: string | null;
-    CompletedBy: string | null;
-    CompletedByName?: string | null;
-    Notes: string | null;
-    Details?: InventoryCountingDetailEntity[];
+    StartedAt?: string;
+    CompletedAt?: string;
+    CompletedBy?: string;
+    Notes?: string;
     TotalItems?: number;
     CompletedItems?: number;
+    _count?: {
+        Details: number;
+    };
 }
 
 // Response interfaces
@@ -343,13 +345,13 @@ export const downloadWorksheet = createAsyncThunk<
 // Generate Temporary Report
 export const generateTemporaryReport = createAsyncThunk<
     { success: boolean; filename: string },
-    { inventoryCountingId: string; tolerance: number },
+    { inventoryCountingId: string },
     { rejectValue: string }
 >(
     'inventoryCounting/generateTemporaryReport',
-    async ({ inventoryCountingId, tolerance }, { rejectWithValue }) => {
+    async ({ inventoryCountingId }, { rejectWithValue }) => {
         try {
-            const blob = await postBlob('/inventory-counting/generate-temporary-report', { id: inventoryCountingId, tolerance });
+            const blob = await postBlob('/inventory-counting/generate-temporary-report', { id: inventoryCountingId });
             const filename = `Inventory_Temporary_Report_${inventoryCountingId}.xlsx`;
 
             // Trigger download directly

@@ -40,7 +40,9 @@ export interface MrpMaterialResponse {
   qtyWarehouse: number;
   /** Pending quantity from open incoming orders */
   qtyPending: number;
-  /** Total current quantity: QtyRack + QtyWarehouse + QtyPending */
+  /** Quantity reserved/allocated but not yet shipped */
+  qtyReserved?: number;
+  /** Total current quantity: max(0, QtyRack + QtyWarehouse - qtyReserved) */
   qtyCurrentTotal: number;
   /** Daily demand forecast for 6 days (today, H+1, H-1, H-2, H-3, H-4, H-5) */
   dailyDemand: MrpDayDemand[];

@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsNumber,
 } from 'class-validator';
 import { ItemCategory } from '../../generated/prisma/enums';
 
@@ -15,6 +16,10 @@ export class CreateInventoryCountingDto {
   @IsEnum(ItemCategory)
   @IsNotEmpty()
   category: ItemCategory;
+
+  @IsOptional()
+  @IsNumber()
+  tolerance?: number;
 
   @IsOptional()
   @IsString()

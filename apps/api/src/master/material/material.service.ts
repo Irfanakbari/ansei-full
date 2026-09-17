@@ -44,6 +44,7 @@ export class MaterialService {
         where,
         include: {
           SatuanData: true,
+          SupplierData: true,
         },
         orderBy: [{ Id: 'asc' }],
         skip: (query.page - 1) * query.limit,
@@ -66,6 +67,7 @@ export class MaterialService {
       where: { Id: id },
       include: {
         SatuanData: true,
+        SupplierData: true,
       },
     });
 
@@ -81,6 +83,7 @@ export class MaterialService {
       where: { PartNumber: partNumber },
       include: {
         SatuanData: true,
+        SupplierData: true,
       },
     });
 
@@ -129,6 +132,7 @@ export class MaterialService {
           PartNumber: dto.partNumber,
           PartName: dto.partName,
           Supplier: dto.supplier,
+          SupplierId: dto.supplierId,
           SatuanId: dto.satuanId,
           RackLocation: dto.rackLocation,
           QtyRack: 0,
@@ -224,6 +228,7 @@ export class MaterialService {
           PartNumber: dto.partNumber,
           PartName: dto.partName,
           Supplier: dto.supplier,
+          SupplierId: dto.supplierId,
           SatuanId: dto.satuanId,
           RackLocation: dto.rackLocation,
           MinimumStock: dto.minimumStock,

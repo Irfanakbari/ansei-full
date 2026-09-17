@@ -219,8 +219,7 @@ export class InventoryCountingController {
   @ApiResponse({ status: 200, description: 'Excel file download' })
   async generateTemporaryReport(@Body() dto: GenerateExcelDto, @Res() res: Response) {
     const buffer = await this.inventoryCountingService.generateTemporaryReport(
-      dto.id,
-      dto.tolerance ?? 0,
+      dto.id
     );
 
     res.set({

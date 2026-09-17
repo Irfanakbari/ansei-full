@@ -51,7 +51,6 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
     const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
     
     // Tolerance state
-    const [tolerance, setTolerance] = useState<number>(5);
     const [downloadingTemp, setDownloadingTemp] = useState(false);
 
     const canApprove = Boolean(
@@ -228,7 +227,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
     const handleDownloadTempReport = async () => {
         setDownloadingTemp(true);
         try {
-            const result = await dispatch(generateTemporaryReport({ inventoryCountingId: data.Id, tolerance }));
+            const result = await dispatch(generateTemporaryReport({ inventoryCountingId: data.Id }));
             if (generateTemporaryReport.rejected.match(result)) {
                 throw new Error(result.payload as string);
             }
@@ -451,13 +450,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         )}
                         <Space>
                             <span style={{ marginLeft: 16 }}>Tolerance %:</span>
-                            <InputNumber 
-                                min={0} 
-                                max={100} 
-                                value={tolerance} 
-                                onChange={(v) => setTolerance(v || 0)} 
-                                style={{ width: 60 }} 
-                            />
+                            <span style={{ fontWeight: 'bold' }}>{data?.Tolerance ?? 5}%</span>
                             <Button 
                                 type="dashed" 
                                 icon={<DownloadOutlined />} 

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Modal, Form, Input, Select, Button, Space, App } from 'antd';
+import { Modal, Form, Input, Select, Button, Space, App, InputNumber } from 'antd';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
 import { createInventoryCounting, CreateInventoryCountingDto } from '@/store/features/warehouse/inventoryCounting/inventoryCountingSlice';
@@ -80,6 +80,20 @@ const CreateInventoryCountingModal: React.FC<Props> = ({ visible, onClose, onSuc
                             { value: 'MATERIAL', label: 'Material' },
                             { value: 'FINISH_GOOD', label: 'Finish Good' },
                         ]}
+                    />
+                </Form.Item>
+
+                <Form.Item
+                    name="tolerance"
+                    label="Tolerance (%)"
+                    initialValue={5}
+                    rules={[{ required: true, message: 'Please enter tolerance percentage' }]}
+                >
+                    <InputNumber
+                        min={0}
+                        max={100}
+                        style={{ width: '100%' }}
+                        size="large"
                     />
                 </Form.Item>
 

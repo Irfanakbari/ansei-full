@@ -95,6 +95,7 @@ export class InventoryCountingService {
           Category: dto.category,
           Status: OpnameStatus.DRAFT,
           Notes: dto.notes,
+          Tolerance: dto.tolerance ?? 5,
           CreatedBy: createdBy,
         },
       });
@@ -580,34 +581,36 @@ export class InventoryCountingService {
               location: 'inventory-counting.service.ts:545',
             });
 
-            for (const m of materials) {
-              cutOffEntries.push({
-                OpnameId: id,
-                MaterialId: m.PartNumber,
-                FinishGoodId: null,
-                Location: loc,
-                SystemQty: 0,
-                SystemQtyRack: 0,
-                Notes: m.PartName || '',
-              });
-            }
+          for (const m of materials) {
+            const safePartNumber = m.PartNumber && m.PartNumber.trim() !== '' ? m.PartNumber : `MAT-UNKNOWN-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            cutOffEntries.push({
+              OpnameId: dto.inventoryCountingId,
+              MaterialId: safePartNumber,
+              FinishGoodId: null,
+              Location: loc,
+              SystemQty: 0,
+              SystemQtyRack: 0,
+              Notes: m.PartName || '',
+            });
+          }
           } else {
             // FINISH_GOOD
             const finishGoods = await this.prisma.finishGood.findMany({
               select: { PartNumber: true, PartName: true },
             });
 
-            for (const fg of finishGoods) {
-              cutOffEntries.push({
-                OpnameId: id,
-                MaterialId: null,
-                FinishGoodId: fg.PartNumber,
-                Location: loc,
-                SystemQty: 0,
-                SystemQtyRack: 0,
-                Notes: fg.PartName || '',
-              });
-            }
+          for (const fg of finishGoods) {
+            const safePartNumber = fg.PartNumber && fg.PartNumber.trim() !== '' ? fg.PartNumber : `FG-UNKNOWN-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+            cutOffEntries.push({
+              OpnameId: dto.inventoryCountingId,
+              MaterialId: null,
+              FinishGoodId: safePartNumber,
+              Location: loc,
+              SystemQty: 0,
+              SystemQtyRack: 0,
+              Notes: fg.PartName || '',
+            });
+          }
           }
         }
 
@@ -2020,10 +2023,22 @@ export class InventoryCountingService {
                 };
               }
               if (colNumber === 9) {
-                cell.fill = {
-                  type: 'pattern',
-                  pattern: 'solid',
-                  fgColor: { argb: 'FFD3D3D3' },
+                const statusVal = cell.value;
+                const isMemenuhi = statusVal === 'Memenuhi';
+                const diffVal = row.getCell(7).value;
+                const isMinus = typeof diffVal === 'number' && diffVal < 0;
+                
+                if (isMinus) {
+                    cell.font = { color: { argb: 'FFFF0000' }, bold: true };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
+                } else if (isMemenuhi) {
+                    cell.font = { color: { argb: 'FF000000' }, bold: true };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF90EE90' } };
+                } else {
+                    cell.font = { color: { argb: 'FF000000' }, bold: true };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFC0CB' } };
+                }
+            },
                 };
               }
             } else if (isMaterial && isRack) {
@@ -2545,7 +2560,7 @@ export class InventoryCountingService {
   /**
    * Generate Temporary Report Excel file for inventory counting with tolerance
    */
-  async generateTemporaryReport(id: string, tolerance: number = 0): Promise<Buffer> {
+  async generateTemporaryReport(id: string): Promise<Buffer> {
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -2556,7 +2571,7 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Generating Temporary Report for inventory counting: ID=${id}, Tolerance=${tolerance}%`,
+        message: `Generating Temporary Report for inventory counting: ID=${id}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts',
       });
@@ -2764,15 +2779,20 @@ export class InventoryCountingService {
         snapshotNameMap.set(fg.PartNumber, fg.PartName),
       );
 
-      const calculateDiffPctAndStatus = (sys: number, act: number) => {
+            const calculateDiffPctAndStatus = (sys: number, act: number) => {
+        const tolerance = inventoryCounting.Tolerance ?? 5;
+        const diff = act - sys;
+        if (diff < 0) {
+          return { diffPct: 'Minus', status: 'Tidak Memenuhi', isMinus: true };
+        }
         let diffPct = 0;
         if (sys === 0) {
           diffPct = act > 0 ? 100 : 0;
         } else {
-          diffPct = (Math.abs(act - sys) / sys) * 100;
+          diffPct = (diff / sys) * 100;
         }
         const status = diffPct <= tolerance ? 'Memenuhi' : 'Tidak Memenuhi';
-        return { diffPct: diffPct.toFixed(2) + '%', status, diffPctNum: diffPct };
+        return { diffPct: diffPct.toFixed(2) + '%', status, isMinus: false };
       };
 
       if (isMaterial) {
@@ -2845,8 +2865,22 @@ export class InventoryCountingService {
               };
             }
             if (colNumber === 8 || colNumber === 13) {
-                const isMemenuhi = cell.value === 'Memenuhi';
-                cell.font = { color: { argb: isMemenuhi ? 'FF000000' : 'FF000000' }, bold: true };
+                const statusVal = cell.value;
+                const isMemenuhi = statusVal === 'Memenuhi';
+                const diffVal = colNumber === 8 ? row.getCell(6).value : row.getCell(11).value;
+                const isMinus = typeof diffVal === 'number' && diffVal < 0;
+                
+                if (isMinus) {
+                    cell.font = { color: { argb: 'FFFF0000' }, bold: true };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } };
+                } else if (isMemenuhi) {
+                    cell.font = { color: { argb: 'FF000000' }, bold: true };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF90EE90' } };
+                } else {
+                    cell.font = { color: { argb: 'FF000000' }, bold: true };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFC0CB' } };
+                }
+            }, bold: true };
                 cell.fill = {
                     type: 'pattern',
                     pattern: 'solid',
