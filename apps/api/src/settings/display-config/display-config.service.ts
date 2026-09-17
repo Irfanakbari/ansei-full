@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -14,6 +13,7 @@ import type {
 } from '../../generated/prisma/models';
 import type { Prisma } from '../../generated/prisma/client';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { validateUploadContent } from '../../common/utils/upload-security.util';
 
 @Injectable()
 export class DisplayConfigService {
@@ -333,22 +333,16 @@ export class DisplayConfigService {
       throw new NotFoundException(`DisplayConfig with id ${id} not found`);
     }
 
-    const fileExt = file.originalname.split('.').pop()?.toLowerCase() || '';
-    const allowedExts = [
+    const fileKind = validateUploadContent(file, [
       'png',
-      'jpg',
       'jpeg',
       'gif',
       'webp',
       'mp4',
       'webm',
       'ogg',
-    ];
-    if (!allowedExts.includes(fileExt)) {
-      throw new UnsupportedMediaTypeException(
-        `File format not supported. Supported formats: ${allowedExts.join(', ')}`,
-      );
-    }
+    ]);
+    const fileExt = fileKind === 'jpeg' ? 'jpg' : fileKind;
 
     if (existing.FilePath) {
       try {

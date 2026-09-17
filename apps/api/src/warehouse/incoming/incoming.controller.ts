@@ -168,7 +168,11 @@ export class IncomingController {
 
   @Post(':id/attachments')
   @Permission('IPCS.INCOMING_CREATE')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024, files: 1, fields: 4, parts: 5 },
+    }),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiResponse({
     status: 201,

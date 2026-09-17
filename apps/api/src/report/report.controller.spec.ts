@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
 import { ReportController } from './report.controller';
 import { ReportService } from './report.service';
+import { InventoryReconciliationService } from './inventory-reconciliation.service';
 
 describe('ReportController', () => {
   let controller: ReportController;
@@ -20,6 +21,7 @@ describe('ReportController', () => {
     generateMaterialNgReport: jest.fn(),
     generateInventoryLedgerReport: jest.fn(),
   };
+  const mockReconciliationService = { reconcile: jest.fn() };
 
   const mockResponse = {
     set: jest.fn().mockReturnThis(),
@@ -40,7 +42,13 @@ describe('ReportController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ReportController],
-      providers: [{ provide: ReportService, useValue: mockReportService }],
+      providers: [
+        { provide: ReportService, useValue: mockReportService },
+        {
+          provide: InventoryReconciliationService,
+          useValue: mockReconciliationService,
+        },
+      ],
     }).compile();
 
     controller = module.get<ReportController>(ReportController);
@@ -51,6 +59,13 @@ describe('ReportController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('returns the read-only inventory reconciliation', async () => {
+    const result = { readOnly: true };
+    mockReconciliationService.reconcile.mockResolvedValue(result);
+
+    await expect(controller.reconcileInventory(mockUser)).resolves.toBe(result);
   });
 
   describe('generateStockMaterialReport', () => {

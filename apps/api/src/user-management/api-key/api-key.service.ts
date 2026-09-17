@@ -34,8 +34,8 @@ export class ApiKeyService {
       );
     }
 
-    // 3. Generate API Key: ansei_api_ + 16 random hex chars
-    const randomPart = crypto.randomBytes(8).toString('hex');
+    // 3. Generate API Key: ansei_api_ + 32 random hex chars
+    const randomPart = crypto.randomBytes(16).toString('hex');
     const rawKey = `ansei_api_${randomPart}`;
     const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
     const keyPrefix = 'ansei_api_';
@@ -101,6 +101,7 @@ export class ApiKeyService {
       this.prisma.apiKey.count({ where }),
       this.prisma.apiKey.findMany({
         where,
+        omit: { KeyHash: true },
         include: {
           User: {
             select: {
@@ -134,6 +135,7 @@ export class ApiKeyService {
   async findOne(id: string) {
     const apiKey = await this.prisma.apiKey.findUnique({
       where: { Id: id },
+      omit: { KeyHash: true },
       include: {
         User: {
           select: {
@@ -172,6 +174,7 @@ export class ApiKeyService {
     return this.prisma.apiKey.update({
       where: { Id: id },
       data: { IsActive: false },
+      omit: { KeyHash: true },
       include: {
         User: {
           select: {
@@ -203,6 +206,7 @@ export class ApiKeyService {
     return this.prisma.apiKey.update({
       where: { Id: id },
       data: { IsActive: true },
+      omit: { KeyHash: true },
       include: {
         User: {
           select: {

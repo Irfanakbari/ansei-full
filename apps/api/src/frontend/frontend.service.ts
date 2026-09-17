@@ -11,6 +11,7 @@ import {
 } from './entities/dashboard-response.entity';
 import { FrontendFinishGoodEntity } from './entities/finish-good-list.entity';
 import { FrontendManPowerEntity } from './entities/man-power-list.entity';
+import { DisplayTargetEntity } from './entities/display-target.entity';
 
 @Injectable()
 export class FrontendService {
@@ -755,6 +756,43 @@ export class FrontendService {
       },
       orderBy: { PartNumber: 'asc' },
     });
+  }
+
+  async getDisplayTarget(partNumber: string): Promise<DisplayTargetEntity> {
+    const finishGood = await this.prisma.finishGood.findUnique({
+      where: { PartNumber: partNumber },
+      select: {
+        PartNumber: true,
+        PartName: true,
+        Alias: true,
+      },
+    });
+
+    const activeRelease = await this.prisma.productionRelease.findFirst({
+      where: { Status: ProductionStatus.RELEASED },
+      select: {
+        Id: true,
+        ReleaseNumber: true,
+        Forecasts: {
+          where: { FinishGoodId: partNumber },
+          select: { Qty: true },
+        },
+      },
+      orderBy: { PlanDate: 'desc' },
+    });
+
+    return {
+      partNumber,
+      partName: finishGood?.PartName ?? '',
+      alias: finishGood?.Alias ?? null,
+      targetQty:
+        activeRelease?.Forecasts.reduce(
+          (total, forecast) => total + forecast.Qty,
+          0,
+        ) ?? 0,
+      productionReleaseId: activeRelease?.Id ?? null,
+      releaseNumber: activeRelease?.ReleaseNumber ?? null,
+    };
   }
 
   /**

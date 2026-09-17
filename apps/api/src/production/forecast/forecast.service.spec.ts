@@ -86,6 +86,31 @@ describe('ForecastService', () => {
 
       expect(result.data).toEqual(mockForecasts);
     });
+
+    it('should filter forecasts by an inclusive delivery date range', async () => {
+      prismaService.forecast.count.mockResolvedValue(0);
+      prismaService.forecast.findMany.mockResolvedValue([]);
+
+      await service.findAll({
+        page: 1,
+        limit: 50,
+        deliveryDateFrom: '2026-09-01',
+        deliveryDateTo: '2026-09-30',
+      });
+
+      const expectedWhere = {
+        DeliveryDate: {
+          gte: new Date('2026-09-01T00:00:00.000Z'),
+          lte: new Date('2026-09-30T23:59:59.999Z'),
+        },
+      };
+      expect(prismaService.forecast.count).toHaveBeenCalledWith({
+        where: expectedWhere,
+      });
+      expect(prismaService.forecast.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expectedWhere }),
+      );
+    });
   });
 
   describe('findOne', () => {

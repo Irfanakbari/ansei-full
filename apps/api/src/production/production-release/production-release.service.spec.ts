@@ -5,10 +5,12 @@ import { LogProcessService } from '../../common/log-process/log-process.service'
 import { NasUploadService } from '../../common/utils/nas-upload.service';
 import {
   BadRequestException,
+  ConflictException,
   NotFoundException,
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { ProductionStatus } from '../../generated/prisma/enums';
+import { Prisma } from '../../generated/prisma/client';
 
 describe('ProductionReleaseService', () => {
   let service: ProductionReleaseService;
@@ -28,6 +30,8 @@ describe('ProductionReleaseService', () => {
         delete: jest.fn(),
       },
       forecast: {
+        count: jest.fn(),
+        aggregate: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
         updateMany: jest.fn(),
@@ -42,12 +46,19 @@ describe('ProductionReleaseService', () => {
         findMany: jest.fn(),
         groupBy: jest.fn(),
         createMany: jest.fn(),
+        deleteMany: jest.fn(),
       },
       boxQTY: {
         findUnique: jest.fn(),
       },
       deliveryHistory: {
         findMany: jest.fn(),
+      },
+      inventoryLedger: {
+        findFirst: jest.fn(),
+      },
+      stockOpname: {
+        findFirst: jest.fn(),
       },
       productionReleaseAttachment: {
         findMany: jest.fn(),
@@ -58,6 +69,7 @@ describe('ProductionReleaseService', () => {
         count: jest.fn(),
         delete: jest.fn(),
       },
+      $transaction: jest.fn(),
     };
 
     logService = {
@@ -82,6 +94,9 @@ describe('ProductionReleaseService', () => {
 
     service = module.get<ProductionReleaseService>(ProductionReleaseService);
     prismaService = module.get(PrismaService);
+    prismaService.$transaction.mockImplementation((callback) =>
+      callback(prismaService),
+    );
   });
 
   it('should be defined', () => {
@@ -177,6 +192,7 @@ describe('ProductionReleaseService', () => {
       prismaService.productionRelease.findFirst.mockResolvedValue(null);
       prismaService.productionRelease.create.mockResolvedValue(mockRelease);
       prismaService.forecast.findMany.mockResolvedValue([{ Qty: 10 }]);
+      prismaService.forecast.updateMany.mockResolvedValue({ count: 1 });
       prismaService.productionRelease.findUnique.mockResolvedValue(mockRelease);
 
       const result = await service.create(createDto, 'testuser');
@@ -185,8 +201,42 @@ describe('ProductionReleaseService', () => {
         data: expect.objectContaining({
           ReleaseNumber: 'PR-2026-001',
           IsNoAttachment: true,
+          TotalTargetQty: 10,
         }),
       });
+      expect(prismaService.$transaction).toHaveBeenCalledWith(
+        expect.any(Function),
+        { isolationLevel: 'Serializable' },
+      );
+    });
+
+    it('rolls back create semantics when forecast assignment changes', async () => {
+      logService.startProcess.mockResolvedValue({ ProcessId: 'process-1' });
+      prismaService.forecast.findMany.mockResolvedValue([
+        { PoId: 'PO-001', Qty: 10 },
+      ]);
+      prismaService.productionRelease.create.mockResolvedValue({
+        Id: 'rel-1',
+        ReleaseNumber: 'PR-001',
+      });
+      prismaService.forecast.updateMany.mockResolvedValue({ count: 0 });
+
+      await expect(
+        service.create(
+          {
+            releaseNumber: 'PR-001',
+            planDate: new Date('2026-06-10'),
+            forecastIds: ['PO-001'],
+          },
+          'testuser',
+        ),
+      ).rejects.toThrow(ConflictException);
+
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        'process-1',
+        'FAILED',
+      );
+      expect(prismaService.productionRelease.findUnique).not.toHaveBeenCalled();
     });
   });
 
@@ -226,6 +276,34 @@ describe('ProductionReleaseService', () => {
           IsNoAttachment: true,
         }),
       });
+    });
+
+    it('should reject CANCELLED through the generic update action', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...existingRelease,
+        Status: ProductionStatus.RELEASED,
+      });
+
+      await expect(
+        service.update(
+          'rel-1',
+          { status: ProductionStatus.CANCELLED },
+          'testuser',
+        ),
+      ).rejects.toThrow('dedicated cancel action');
+      expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
+    });
+
+    it('should reject direct forecast assignment changes after DRAFT', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...existingRelease,
+        Status: ProductionStatus.RELEASED,
+      });
+
+      await expect(
+        service.update('rel-1', { forecastIds: ['PO-001'] }, 'testuser'),
+      ).rejects.toThrow('Use Manage Forecasts');
+      expect(prismaService.forecast.updateMany).not.toHaveBeenCalled();
     });
 
     it('should reject RELEASED when a linked finish good has no Box Qty', async () => {
@@ -273,6 +351,74 @@ describe('ProductionReleaseService', () => {
         ),
       ).rejects.toThrow(BadRequestException);
       expect(prismaService.labelData.createMany).not.toHaveBeenCalled();
+    });
+
+    it('keeps labels and RELEASED transition in one transaction', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue(
+        existingRelease,
+      );
+      prismaService.forecast.findMany.mockResolvedValue([
+        {
+          PoId: 'PO-001',
+          Qty: 10,
+          FinishGoodId: 'FG-001',
+          PartData: { PartName: 'Finish Good A', BoxQTY: { Qty: 6 } },
+        },
+      ]);
+      prismaService.labelData.createMany.mockResolvedValue({ count: 2 });
+      prismaService.productionRelease.update.mockResolvedValue({
+        ...existingRelease,
+        Status: ProductionStatus.RELEASED,
+      });
+      prismaService.productionRelease.findUnique
+        .mockResolvedValueOnce(existingRelease)
+        .mockResolvedValueOnce({
+          ...existingRelease,
+          Status: ProductionStatus.RELEASED,
+          LabelDatas: [],
+        });
+
+      await service.update(
+        'rel-1',
+        { status: ProductionStatus.RELEASED },
+        'testuser',
+      );
+
+      expect(prismaService.labelData.createMany).toHaveBeenCalledWith({
+        data: expect.arrayContaining([
+          expect.objectContaining({ QtyThisBox: 6 }),
+          expect.objectContaining({ QtyThisBox: 4 }),
+        ]),
+      });
+      expect(prismaService.productionRelease.update).toHaveBeenCalledWith({
+        where: { Id: 'rel-1' },
+        data: expect.objectContaining({
+          Status: ProductionStatus.RELEASED,
+          TotalTargetQty: 10,
+        }),
+      });
+    });
+
+    it('maps the concurrent RELEASED unique invariant to 409', async () => {
+      prismaService.$transaction.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError('unique conflict', {
+          code: 'P2002',
+          clientVersion: '7.0.0',
+          meta: { target: 'ProductionRelease_one_released_key' },
+        }),
+      );
+
+      await expect(
+        service.update(
+          'rel-1',
+          { status: ProductionStatus.RELEASED },
+          'testuser',
+        ),
+      ).rejects.toThrow(ConflictException);
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        'PR123456',
+        'FAILED',
+      );
     });
 
     it('should reject COMPLETED while scanned label quantity is below target', async () => {
@@ -327,6 +473,163 @@ describe('ProductionReleaseService', () => {
     });
   });
 
+  describe('released forecast amendments', () => {
+    const released = {
+      Id: 'rel-1',
+      ReleaseNumber: 'PR-001',
+      Status: ProductionStatus.RELEASED,
+    };
+    const cleanForecast = {
+      PoId: 'PO-001',
+      Qty: 12,
+      FinishGoodId: 'FG-001',
+      ProductionReleaseId: null,
+      PartData: { PartName: 'Part', BoxQTY: { Qty: 5 } },
+      _count: { Shopping: 0, ProductionReport: 0, DeliveryHistory: 0 },
+      LabelData: [],
+    };
+
+    beforeEach(() => {
+      logService.startProcess.mockResolvedValue({ ProcessId: 'process-1' });
+      prismaService.productionRelease.findUnique.mockResolvedValue(released);
+    });
+
+    it('tags clean unlinked forecasts and creates complete labels atomically', async () => {
+      prismaService.forecast.findMany
+        .mockResolvedValueOnce([cleanForecast])
+        .mockResolvedValueOnce([]);
+      prismaService.forecast.updateMany.mockResolvedValue({ count: 1 });
+      prismaService.forecast.aggregate.mockResolvedValue({ _sum: { Qty: 12 } });
+      prismaService.labelData.createMany.mockResolvedValue({ count: 3 });
+
+      await service.tagForecasts(
+        'rel-1',
+        { forecastIds: ['PO-001'], reason: 'Schedule amendment' },
+        'testuser',
+      );
+
+      expect(prismaService.labelData.createMany).toHaveBeenCalledWith({
+        data: expect.arrayContaining([
+          expect.objectContaining({ QtyThisBox: 5 }),
+          expect.objectContaining({ QtyThisBox: 2 }),
+        ]),
+      });
+      expect(prismaService.$transaction).toHaveBeenCalledTimes(1);
+    });
+
+    it('blocks any Shopping row even when its quantity is zero', async () => {
+      prismaService.forecast.findMany.mockResolvedValue([
+        {
+          ...cleanForecast,
+          _count: { ...cleanForecast._count, Shopping: 1 },
+        },
+      ]);
+
+      await expect(
+        service.tagForecasts(
+          'rel-1',
+          { forecastIds: ['PO-001'], reason: 'Schedule amendment' },
+          'testuser',
+        ),
+      ).rejects.toThrow('operational activity');
+      expect(prismaService.$transaction).toHaveBeenCalledWith(
+        expect.any(Function),
+        { isolationLevel: 'Serializable' },
+      );
+      expect(prismaService.forecast.updateMany).not.toHaveBeenCalled();
+      expect(prismaService.labelData.createMany).not.toHaveBeenCalled();
+    });
+
+    it('blocks failed pokayoke history', async () => {
+      prismaService.forecast.findMany.mockResolvedValue([
+        {
+          ...cleanForecast,
+          LabelData: [
+            {
+              Id: 1,
+              Scanned: false,
+              _count: { PokayokeHistory: 1 },
+              DeliveryHistory: null,
+            },
+          ],
+        },
+      ]);
+
+      await expect(
+        service.tagForecasts(
+          'rel-1',
+          { forecastIds: ['PO-001'], reason: 'Schedule amendment' },
+          'testuser',
+        ),
+      ).rejects.toThrow('operational activity');
+    });
+
+    it('rejects untagging every linked forecast and directs cancellation', async () => {
+      prismaService.forecast.findMany.mockResolvedValue([
+        { ...cleanForecast, ProductionReleaseId: 'rel-1' },
+      ]);
+      prismaService.forecast.count.mockResolvedValue(1);
+
+      await expect(
+        service.untagForecasts(
+          'rel-1',
+          { forecastIds: ['PO-001'], reason: 'Schedule amendment' },
+          'testuser',
+        ),
+      ).rejects.toThrow('Cancel the production release instead');
+    });
+
+    it('rechecks activity inside the transaction before cancel mutations', async () => {
+      prismaService.forecast.findMany
+        .mockResolvedValueOnce([{ PoId: 'PO-001' }])
+        .mockResolvedValueOnce([
+          {
+            ...cleanForecast,
+            ProductionReleaseId: 'rel-1',
+            _count: { ...cleanForecast._count, ProductionReport: 1 },
+          },
+        ]);
+
+      await expect(
+        service.cancel('rel-1', { reason: 'Schedule cancelled' }, 'testuser'),
+      ).rejects.toThrow('operational activity');
+
+      expect(prismaService.$transaction).toHaveBeenCalledWith(
+        expect.any(Function),
+        { isolationLevel: 'Serializable' },
+      );
+      expect(prismaService.labelData.deleteMany).not.toHaveBeenCalled();
+      expect(prismaService.forecast.updateMany).not.toHaveBeenCalled();
+      expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
+    });
+
+    it('does not continue mutations or success audit when a transaction step fails', async () => {
+      prismaService.forecast.findMany.mockResolvedValue([cleanForecast]);
+      prismaService.forecast.updateMany.mockResolvedValue({ count: 1 });
+      prismaService.labelData.createMany.mockRejectedValue(
+        new Error('label insert failed'),
+      );
+
+      await expect(
+        service.tagForecasts(
+          'rel-1',
+          { forecastIds: ['PO-001'], reason: 'Schedule amendment' },
+          'testuser',
+        ),
+      ).rejects.toThrow('label insert failed');
+
+      expect(prismaService.forecast.aggregate).not.toHaveBeenCalled();
+      expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
+      expect(logService.addLog).not.toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'INFO' }),
+      );
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        'process-1',
+        'FAILED',
+      );
+    });
+  });
+
   describe('uploadAttachment', () => {
     const mockFile: Express.Multer.File = {
       fieldname: 'file',
@@ -334,7 +637,7 @@ describe('ProductionReleaseService', () => {
       encoding: '7bit',
       mimetype: 'application/pdf',
       size: 1024 * 1024, // 1MB
-      buffer: Buffer.from('test content'),
+      buffer: Buffer.from('%PDF-1.7 test content'),
       stream: null as any,
       destination: '',
       filename: '',

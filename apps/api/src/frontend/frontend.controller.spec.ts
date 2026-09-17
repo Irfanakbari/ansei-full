@@ -6,6 +6,7 @@ describe('FrontendController', () => {
   let controller: FrontendController;
   let service: {
     getFinishGoodsList: jest.Mock;
+    getDisplayTarget: jest.Mock;
     getManPowerList: jest.Mock;
     getProductionStatus: jest.Mock;
     getNotifications: jest.Mock;
@@ -15,6 +16,7 @@ describe('FrontendController', () => {
   beforeEach(async () => {
     service = {
       getFinishGoodsList: jest.fn(),
+      getDisplayTarget: jest.fn(),
       getManPowerList: jest.fn(),
       getProductionStatus: jest.fn(),
       getNotifications: jest.fn(),
@@ -37,6 +39,25 @@ describe('FrontendController', () => {
 
     expect(result).toEqual(mock);
     expect(service.getFinishGoodsList).toHaveBeenCalled();
+  });
+
+  it('should return a display target for the selected part number', async () => {
+    const mock = {
+      partNumber: 'FG-001',
+      partName: 'Part 1',
+      alias: 'P1',
+      targetQty: 25,
+      productionReleaseId: 'release-1',
+      releaseNumber: 'PR-001',
+    };
+    service.getDisplayTarget.mockResolvedValue(mock);
+
+    const result = await controller.getDisplayTarget({
+      partNumber: 'FG-001',
+    });
+
+    expect(result).toEqual(mock);
+    expect(service.getDisplayTarget).toHaveBeenCalledWith('FG-001');
   });
 
   it('should return manpower list', async () => {

@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
 import { SmtpService } from '../common/utils/smtp.service';
 import { DeliveryNoteStatus } from '../generated/prisma/enums';
+import { OutboxService } from '../common/outbox/outbox.service';
 
 describe('MaterialDeliveryNoteService', () => {
   let service: MaterialDeliveryNoteService;
@@ -81,6 +82,7 @@ describe('MaterialDeliveryNoteService', () => {
         createMany: jest.fn(),
       },
       $transaction: jest.fn((callback) => callback(prismaService)),
+      outboxEvent: { upsert: jest.fn() },
     };
 
     logService = {
@@ -99,6 +101,10 @@ describe('MaterialDeliveryNoteService', () => {
         { provide: PrismaService, useValue: prismaService },
         { provide: LogProcessService, useValue: logService },
         { provide: SmtpService, useValue: smtpService },
+        {
+          provide: OutboxService,
+          useValue: { create: jest.fn().mockResolvedValue({}) },
+        },
       ],
     }).compile();
 
@@ -263,9 +269,12 @@ describe('MaterialDeliveryNoteService', () => {
         mockDeliveryNote,
       );
 
-      const result = await service.remove('uuid-1234');
+      const result = await service.remove('uuid-1234', 'admin');
 
       expect(result).toEqual({ deleted: true, id: 'uuid-1234' });
+      expect(logService.startProcess).toHaveBeenCalledWith(
+        expect.objectContaining({ createdBy: 'admin' }),
+      );
     });
 
     it('should throw BadRequestException when not DRAFT', async () => {
@@ -275,7 +284,7 @@ describe('MaterialDeliveryNoteService', () => {
       };
       prismaService.materialDeliveryNote.findUnique.mockResolvedValue(shipped);
 
-      await expect(service.remove('uuid-1234')).rejects.toThrow(
+      await expect(service.remove('uuid-1234', 'admin')).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -384,6 +393,7 @@ describe('MaterialDeliveryNoteService', () => {
 
       // First call returns DRAFT for validation, second returns SHIPPED for findOne
       prismaService.materialDeliveryNote.findUnique
+        .mockResolvedValueOnce(draftFullyPicked)
         .mockResolvedValueOnce(draftFullyPicked)
         .mockResolvedValueOnce(shippedResult);
       prismaService.material.findUnique.mockResolvedValue({

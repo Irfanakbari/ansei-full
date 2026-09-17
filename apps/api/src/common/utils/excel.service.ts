@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import * as XLSX from 'xlsx';
+import { CellValue, Workbook } from 'exceljs';
 import moment from 'moment-timezone';
 
 export interface ExcelRow {
-  [columnPosition: number]: string | number | Date | undefined;
+  [columnPosition: number]: string | number | boolean | Date | undefined;
 }
+
+type ExcelCellValue = ExcelRow[number];
 
 @Injectable()
 export class ExcelService {
@@ -13,34 +15,37 @@ export class ExcelService {
    * Column A = index 0, Column B = index 1, etc.
    * This approach reads by position rather than header name, making it robust against header name changes.
    */
-  readExcelByPosition(file: Express.Multer.File): ExcelRow[] {
+  async readExcelByPosition(file: Express.Multer.File): Promise<ExcelRow[]> {
     try {
-      const fileBuffer = file.buffer;
-      const workbook = XLSX.read(fileBuffer, {
-        type: 'buffer',
-        cellDates: true,
-        raw: false,
-      });
+      const workbook = new Workbook();
+      const workbookBuffer = file.buffer.buffer.slice(
+        file.buffer.byteOffset,
+        file.buffer.byteOffset + file.buffer.byteLength,
+      ) as ArrayBuffer;
+      await workbook.xlsx.load(workbookBuffer);
+      const worksheet = workbook.worksheets[0];
 
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
+      if (!worksheet) {
+        return [];
+      }
 
-      // Convert to JSON with header: 1 (use 1-based column numbers as headers)
-      const data = XLSX.utils.sheet_to_json(worksheet, {
-        header: 1,
-        defval: '',
-      });
-
-      // Skip header row (index 0) and process data rows
       const rows: ExcelRow[] = [];
-      for (let i = 1; i < data.length; i++) {
-        const row = data[i] as (string | number | Date | undefined)[];
-        if (row && row.length > 0) {
-          const obj: ExcelRow = {};
-          row.forEach((cell, colIndex) => {
-            obj[colIndex] = cell;
-          });
-          rows.push(obj);
+      for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
+        const worksheetRow = worksheet.getRow(rowNumber);
+        const row: ExcelRow = {};
+
+        for (
+          let columnNumber = 1;
+          columnNumber <= worksheetRow.cellCount;
+          columnNumber++
+        ) {
+          row[columnNumber - 1] = this.normalizeCellValue(
+            worksheetRow.getCell(columnNumber).value,
+          );
+        }
+
+        if (worksheetRow.cellCount > 0) {
+          rows.push(row);
         }
       }
 
@@ -51,6 +56,34 @@ export class ExcelService {
           (error instanceof Error ? error.message : 'Unknown error'),
       );
     }
+  }
+
+  private normalizeCellValue(value: CellValue): ExcelCellValue {
+    if (value === null) {
+      return '';
+    }
+    if (
+      value instanceof Date ||
+      ['string', 'number', 'boolean'].includes(typeof value)
+    ) {
+      return value as ExcelCellValue;
+    }
+    if (typeof value !== 'object') {
+      return String(value);
+    }
+    if ('result' in value && value.result !== undefined) {
+      return this.normalizeCellValue(value.result);
+    }
+    if ('text' in value) {
+      return value.text;
+    }
+    if ('richText' in value) {
+      return value.richText.map((part) => part.text).join('');
+    }
+    if ('error' in value) {
+      return value.error;
+    }
+    return String(value);
   }
 
   /**

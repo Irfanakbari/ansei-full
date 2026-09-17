@@ -25,12 +25,26 @@ import {
 import { Permission } from '../auth/decorators/permission.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
+import { InventoryReconciliationService } from './inventory-reconciliation.service';
 
 @ApiTags('Reports')
 @ApiBearerAuth()
 @Controller('report')
 export class ReportController {
-  constructor(private readonly reportService: ReportService) {}
+  constructor(
+    private readonly reportService: ReportService,
+    private readonly inventoryReconciliationService: InventoryReconciliationService,
+  ) {}
+
+  @Get('inventory-reconciliation')
+  @Permission('IPCS.REPORT_READ')
+  @ApiOperation({
+    summary: 'Reconcile inventory and production integrity',
+    description: 'Returns read-only integrity findings without repairing data',
+  })
+  reconcileInventory(@CurrentUser() _user: ICurrentUser) {
+    return this.inventoryReconciliationService.reconcile();
+  }
 
   // ========== STOCK MATERIAL REPORT ==========
 

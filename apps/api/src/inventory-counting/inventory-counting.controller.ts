@@ -130,23 +130,32 @@ export class InventoryCountingController {
     return this.inventoryCountingService.generateCutOff(dto, user.username);
   }
 
-  @Patch('details/:detailId')
+  @Patch(':id/details/:detailId')
   @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
   @ApiOperation({ summary: 'Update actual stock for a detail item' })
   @ApiParam({ name: 'detailId', description: 'StockOpnameDetail ID' })
   @ApiResponse({ status: 200, type: InventoryCountingResponseEntity })
   async updateActualStock(
+    @Param('id') id: string,
     @Param('detailId', ParseIntPipe) detailId: number,
     @Body() dto: UpdateActualStockDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    // Get opnameId from query param or body
     return this.inventoryCountingService.updateActualStock(
-      '', // opnameId is validated in service via detail
+      id,
       detailId,
       dto,
       user.username,
     );
+  }
+
+  @Post(':id/cancel')
+  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
+  @ApiOperation({ summary: 'Cancel inventory counting session' })
+  @ApiParam({ name: 'id', description: 'StockOpname ID' })
+  @ApiResponse({ status: 200, type: InventoryCountingResponseEntity })
+  async cancel(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {
+    return this.inventoryCountingService.cancel(id, user.username);
   }
 
   @Post('close')

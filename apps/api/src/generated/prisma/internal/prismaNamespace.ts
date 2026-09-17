@@ -415,6 +415,8 @@ export const ModelName = {
   ProductionRelease: 'ProductionRelease',
   ProductionReleaseAttachment: 'ProductionReleaseAttachment',
   Shopping: 'Shopping',
+  ShoppingProductionResult: 'ShoppingProductionResult',
+  OutboxEvent: 'OutboxEvent',
   ProductionReport: 'ProductionReport',
   LabelData: 'LabelData',
   PokayokeScanHistory: 'PokayokeScanHistory',
@@ -449,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "satuan" | "supplier" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "productionReport" | "labelData" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig"
+    modelProps: "satuan" | "supplier" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingProductionResult" | "outboxEvent" | "productionReport" | "labelData" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1782,6 +1784,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ShoppingCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ShoppingCountAggregateOutputType> | number
+        }
+      }
+    }
+    ShoppingProductionResult: {
+      payload: Prisma.$ShoppingProductionResultPayload<ExtArgs>
+      fields: Prisma.ShoppingProductionResultFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ShoppingProductionResultFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ShoppingProductionResultFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+        }
+        findFirst: {
+          args: Prisma.ShoppingProductionResultFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ShoppingProductionResultFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+        }
+        findMany: {
+          args: Prisma.ShoppingProductionResultFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>[]
+        }
+        create: {
+          args: Prisma.ShoppingProductionResultCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+        }
+        createMany: {
+          args: Prisma.ShoppingProductionResultCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ShoppingProductionResultCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>[]
+        }
+        delete: {
+          args: Prisma.ShoppingProductionResultDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+        }
+        update: {
+          args: Prisma.ShoppingProductionResultUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+        }
+        deleteMany: {
+          args: Prisma.ShoppingProductionResultDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ShoppingProductionResultUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ShoppingProductionResultUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>[]
+        }
+        upsert: {
+          args: Prisma.ShoppingProductionResultUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+        }
+        aggregate: {
+          args: Prisma.ShoppingProductionResultAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShoppingProductionResult>
+        }
+        groupBy: {
+          args: Prisma.ShoppingProductionResultGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShoppingProductionResultGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ShoppingProductionResultCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShoppingProductionResultCountAggregateOutputType> | number
+        }
+      }
+    }
+    OutboxEvent: {
+      payload: Prisma.$OutboxEventPayload<ExtArgs>
+      fields: Prisma.OutboxEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OutboxEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OutboxEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        findFirst: {
+          args: Prisma.OutboxEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OutboxEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        findMany: {
+          args: Prisma.OutboxEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>[]
+        }
+        create: {
+          args: Prisma.OutboxEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        createMany: {
+          args: Prisma.OutboxEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OutboxEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>[]
+        }
+        delete: {
+          args: Prisma.OutboxEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        update: {
+          args: Prisma.OutboxEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.OutboxEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OutboxEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OutboxEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.OutboxEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+        }
+        aggregate: {
+          args: Prisma.OutboxEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOutboxEvent>
+        }
+        groupBy: {
+          args: Prisma.OutboxEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutboxEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OutboxEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutboxEventCountAggregateOutputType> | number
         }
       }
     }
@@ -3493,6 +3643,41 @@ export const ShoppingScalarFieldEnum = {
 export type ShoppingScalarFieldEnum = (typeof ShoppingScalarFieldEnum)[keyof typeof ShoppingScalarFieldEnum]
 
 
+export const ShoppingProductionResultScalarFieldEnum = {
+  ForecastId: 'ForecastId',
+  ShoppingId: 'ShoppingId',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy'
+} as const
+
+export type ShoppingProductionResultScalarFieldEnum = (typeof ShoppingProductionResultScalarFieldEnum)[keyof typeof ShoppingProductionResultScalarFieldEnum]
+
+
+export const OutboxEventScalarFieldEnum = {
+  Id: 'Id',
+  IdempotencyKey: 'IdempotencyKey',
+  Type: 'Type',
+  Payload: 'Payload',
+  Status: 'Status',
+  Attempts: 'Attempts',
+  MaxAttempts: 'MaxAttempts',
+  NextAttemptAt: 'NextAttemptAt',
+  LastErrorCode: 'LastErrorCode',
+  LastError: 'LastError',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt',
+  QueuedAt: 'QueuedAt',
+  ProcessingAt: 'ProcessingAt',
+  SucceededAt: 'SucceededAt',
+  FailedAt: 'FailedAt',
+  Actor: 'Actor',
+  ReferenceType: 'ReferenceType',
+  ReferenceId: 'ReferenceId'
+} as const
+
+export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[keyof typeof OutboxEventScalarFieldEnum]
+
+
 export const ProductionReportScalarFieldEnum = {
   Id: 'Id',
   Date: 'Date',
@@ -3781,6 +3966,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -3795,6 +3987,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -3947,6 +4148,48 @@ export type EnumTypeShoppingFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'TypeShopping[]'
  */
 export type ListEnumTypeShoppingFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TypeShopping[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OutboxEventType'
+ */
+export type EnumOutboxEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutboxEventType'>
+    
+
+
+/**
+ * Reference to a field of type 'OutboxEventType[]'
+ */
+export type ListEnumOutboxEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutboxEventType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'OutboxEventStatus'
+ */
+export type EnumOutboxEventStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutboxEventStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'OutboxEventStatus[]'
+ */
+export type ListEnumOutboxEventStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutboxEventStatus[]'>
     
 
 
@@ -4216,6 +4459,8 @@ export type GlobalOmitConfig = {
   productionRelease?: Prisma.ProductionReleaseOmit
   productionReleaseAttachment?: Prisma.ProductionReleaseAttachmentOmit
   shopping?: Prisma.ShoppingOmit
+  shoppingProductionResult?: Prisma.ShoppingProductionResultOmit
+  outboxEvent?: Prisma.OutboxEventOmit
   productionReport?: Prisma.ProductionReportOmit
   labelData?: Prisma.LabelDataOmit
   pokayokeScanHistory?: Prisma.PokayokeScanHistoryOmit

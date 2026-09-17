@@ -24,9 +24,8 @@ export class CreatePokayokeScanDto {
     description: 'Scan result status (SUKSES = success, GAGAL = failed)',
     example: 'SUKSES',
   })
-  @IsString()
-  @IsNotEmpty()
-  status: string; // 'SUKSES' or 'GAGAL'
+  @IsEnum(PokayokeCompareStatus)
+  status: PokayokeCompareStatus;
 }
 
 export class PokayokeScanQueryDto {

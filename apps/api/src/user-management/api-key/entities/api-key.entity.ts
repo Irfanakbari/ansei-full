@@ -60,7 +60,7 @@ export class CreateApiKeyResponseEntity {
   Name: string;
 
   @ApiProperty({
-    example: 'ansei_api_a1b2c3d4e5f6g7h8',
+    example: 'ansei_api_a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4',
     description: 'Full API Key - SHOW ONLY ONCE!',
   })
   ApiKey: string;

@@ -117,7 +117,11 @@ export class ManPowerController {
   @ApiResponse({ status: 404, description: 'Man power tidak ditemukan' })
   @Post(':uid/picture')
   @Permission('IPCS.MASTER_UPDATE')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+    }),
+  )
   async uploadPicture(
     @Param('uid') uid: string,
     @UploadedFile(

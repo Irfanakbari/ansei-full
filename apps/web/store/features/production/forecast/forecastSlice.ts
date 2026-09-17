@@ -42,7 +42,13 @@ interface ForecastState {
     pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
 
-export interface ForecastQuery { page?: number; limit?: number; search?: string }
+export interface ForecastQuery {
+    page?: number;
+    limit?: number;
+    search?: string;
+    deliveryDateFrom?: string;
+    deliveryDateTo?: string;
+}
 
 const initialState: ForecastState = {
     data: [],

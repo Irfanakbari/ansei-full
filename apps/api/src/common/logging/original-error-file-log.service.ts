@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationShutdown } from '@nestjs/common';
 import { chmodSync, mkdirSync } from 'node:fs';
 import { createLogger, format, Logger as WinstonLogger } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
@@ -11,7 +11,7 @@ export interface OriginalErrorLogContext {
 }
 
 @Injectable()
-export class OriginalErrorFileLogService {
+export class OriginalErrorFileLogService implements OnApplicationShutdown {
   private readonly logger = new Logger(OriginalErrorFileLogService.name);
   private readonly auditLogger: WinstonLogger;
   private readonly storagePath =
@@ -41,6 +41,13 @@ export class OriginalErrorFileLogService {
       level: 'error',
       format: format.combine(format.timestamp(), format.json()),
       transports: [transport],
+    });
+  }
+
+  onApplicationShutdown(): Promise<void> {
+    return new Promise((resolve) => {
+      this.auditLogger.once('finish', resolve);
+      this.auditLogger.end();
     });
   }
 

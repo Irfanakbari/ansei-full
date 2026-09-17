@@ -178,6 +178,61 @@ describe('LogProcessService', () => {
       });
     });
 
+    it('should keep concurrent process message IDs independent', async () => {
+      prismaService.logProcessDetail.create.mockImplementation(({ data }) =>
+        Promise.resolve({ ...mockLogProcessDetail, ...data }),
+      );
+
+      await Promise.all([
+        service.addLog({
+          processId: 'process-a',
+          message: 'A1',
+          type: 'INFO',
+          location: 'test.ts',
+        }),
+        service.addLog({
+          processId: 'process-b',
+          message: 'B1',
+          type: 'INFO',
+          location: 'test.ts',
+        }),
+        service.addLog({
+          processId: 'process-a',
+          message: 'A2',
+          type: 'INFO',
+          location: 'test.ts',
+        }),
+      ]);
+
+      const calls = prismaService.logProcessDetail.create.mock.calls.map(
+        ([argument]) => argument.data,
+      );
+      expect(calls.map((call) => [call.ProcessId, call.MessageId])).toEqual([
+        ['process-a', 'COMM-001'],
+        ['process-b', 'COMM-001'],
+        ['process-a', 'COMM-002'],
+      ]);
+    });
+
+    it('should use the supplied transaction client', async () => {
+      const transactionClient = {
+        logProcessDetail: {
+          create: jest.fn().mockResolvedValue(mockLogProcessDetail),
+        },
+      };
+
+      await service.addLog({
+        processId: 'transaction-process',
+        message: 'Committed fact',
+        type: 'INFO',
+        location: 'test.ts',
+        client: transactionClient as never,
+      });
+
+      expect(transactionClient.logProcessDetail.create).toHaveBeenCalled();
+      expect(prismaService.logProcessDetail.create).not.toHaveBeenCalled();
+    });
+
     it('should reset counter when reaching 999', async () => {
       prismaService.logProcessDetail.create.mockResolvedValue(
         mockLogProcessDetail,

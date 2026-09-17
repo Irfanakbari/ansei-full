@@ -283,14 +283,14 @@ export const generateCutOff = createAsyncThunk<
 // Update actual stock
 export const updateActualStock = createAsyncThunk<
     { success: boolean; data: InventoryCountingDetailEntity },
-    { detailId: number; dto: UpdateActualStockDto },
+    { inventoryCountingId: string; detailId: number; dto: UpdateActualStockDto },
     { rejectValue: string }
 >(
     'inventoryCounting/updateActualStock',
-    async ({ detailId, dto }: { detailId: number; dto: UpdateActualStockDto }, { rejectWithValue }) => {
+    async ({ inventoryCountingId, detailId, dto }, { rejectWithValue }) => {
         try {
             return await patch<{ success: boolean; data: InventoryCountingDetailEntity }>(
-                `/inventory-counting/details/${detailId}`,
+                `/inventory-counting/${inventoryCountingId}/details/${detailId}`,
                 dto
             );
         } catch (error: unknown) {

@@ -1,8 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import type { NextFunction, Request, Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -41,35 +43,50 @@ async function bootstrap() {
   });
   app.enableShutdownHooks();
 
-  const config = new DocumentBuilder()
-    .setTitle('ANSEI REVAMP API')
-    .setDescription(
-      'Dokumentasi API untuk sistem ANSEI REVAMP. Menangani modul Autentikasi, ' +
-        'User Management, Master Data (Material, Satuan, Supplier, Finish Good, BOM, Box Qty, Man Power), ' +
-        'Production (Forecast, Shopping, Production Release, Production Report, Pre-Delivery, Pokayoke), ' +
-        'Warehouse (Incoming, Transfer), Inventory Counting, System Logs, dan Settings.',
-    )
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
-  app.getHttpAdapter().get('/docs-json', (req, res) => {
-    res.json(document);
-  });
+  const configService = app.get(ConfigService);
+  const production = configService.get<string>('NODE_ENV') === 'production';
+  const swaggerEnabled =
+    configService.get<string>('SWAGGER_ENABLED') === 'true' ||
+    (!production && configService.get<string>('SWAGGER_ENABLED') !== 'false');
+  if (swaggerEnabled) {
+    const config = new DocumentBuilder()
+      .setTitle('ANSEI REVAMP API')
+      .setDescription(
+        'Dokumentasi API untuk sistem ANSEI REVAMP. Menangani modul Autentikasi, ' +
+          'User Management, Master Data (Material, Satuan, Supplier, Finish Good, BOM, Box Qty, Man Power), ' +
+          'Production (Forecast, Shopping, Production Release, Production Report, Pre-Delivery, Pokayoke), ' +
+          'Warehouse (Incoming, Transfer), Inventory Counting, System Logs, dan Settings.',
+      )
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    const apiKey = configService.get<string>('SWAGGER_API_KEY');
+    const protect = (req: Request, res: Response, next: NextFunction) => {
+      if (!apiKey || req.headers['x-docs-api-key'] === apiKey) return next();
+      res.status(401).json({
+        success: false,
+        statusCode: 401,
+        message: 'Documentation authentication failed',
+      });
+    };
+    const instance = app.getHttpAdapter().getInstance();
+    instance.use('/api/docs', protect);
+    instance.use('/api/docs-json', protect);
+    SwaggerModule.setup('api/docs', app, document, {
+      jsonDocumentUrl: 'api/docs-json',
+    });
+  }
 
-  app.listen(process.env.PORT ?? 7500).then(
-    () => {
-      console.log(
-        `🚀 Application is running on port ${process.env.PORT ?? 7500}`,
-      );
-    },
-    (err) => {
-      console.error('Failed to start server:', err);
-    },
-  );
+  const port = configService.get<number>('PORT', 7500);
+  await app.listen(port);
+  Logger.log(`Application is running on port ${port}`, 'Bootstrap');
 }
 bootstrap().catch((err) => {
-  console.error('Failed to start application:', err);
+  Logger.error(
+    err instanceof Error ? err.message : 'Failed to start application',
+    undefined,
+    'Bootstrap',
+  );
   process.exit(1);
 });

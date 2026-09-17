@@ -4,11 +4,10 @@ import {
   ApiProduces,
   ApiResponse,
 } from '@nestjs/swagger';
-import { Controller, Post, UseGuards, Res } from '@nestjs/common';
+import { Controller, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { MrpService } from './mrp.service';
 import { Permission } from '../auth/decorators/permission.decorator';
-import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('MRP')
 @Controller('mrp')
@@ -31,8 +30,7 @@ export class MrpController {
    * Returns Excel file with merged headers, subheaders, and printable format
    */
   @Post('export')
-  @Public()
-  // @Permission('IPCS.MRP_READ')
+  @Permission('IPCS.MRP_READ')
   @ApiProduces(
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   )

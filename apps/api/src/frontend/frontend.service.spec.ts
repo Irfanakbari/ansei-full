@@ -5,14 +5,16 @@ import { PrismaService } from '../prisma/prisma.service';
 describe('FrontendService', () => {
   let service: FrontendService;
   let prisma: {
-    finishGood: { findMany: jest.Mock };
+    finishGood: { findMany: jest.Mock; findUnique: jest.Mock };
     manPower: { findMany: jest.Mock };
+    productionRelease: { findFirst: jest.Mock };
   };
 
   beforeEach(async () => {
     prisma = {
-      finishGood: { findMany: jest.fn() },
+      finishGood: { findMany: jest.fn(), findUnique: jest.fn() },
       manPower: { findMany: jest.fn() },
+      productionRelease: { findFirst: jest.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -43,6 +45,60 @@ describe('FrontendService', () => {
           Alias: true,
         },
         orderBy: { PartNumber: 'asc' },
+      });
+    });
+  });
+
+  describe('getDisplayTarget', () => {
+    it('should sum forecasts for the part number in the active release', async () => {
+      prisma.finishGood.findUnique.mockResolvedValue({
+        PartNumber: 'FG-001',
+        PartName: 'Part 1',
+        Alias: 'P1',
+      });
+      prisma.productionRelease.findFirst.mockResolvedValue({
+        Id: 'release-1',
+        ReleaseNumber: 'PR-001',
+        Forecasts: [{ Qty: 10 }, { Qty: 15 }],
+      });
+
+      await expect(service.getDisplayTarget('FG-001')).resolves.toEqual({
+        partNumber: 'FG-001',
+        partName: 'Part 1',
+        alias: 'P1',
+        targetQty: 25,
+        productionReleaseId: 'release-1',
+        releaseNumber: 'PR-001',
+      });
+      expect(prisma.productionRelease.findFirst).toHaveBeenCalledWith({
+        where: { Status: 'RELEASED' },
+        select: {
+          Id: true,
+          ReleaseNumber: true,
+          Forecasts: {
+            where: { FinishGoodId: 'FG-001' },
+            select: { Qty: true },
+          },
+        },
+        orderBy: { PlanDate: 'desc' },
+      });
+    });
+
+    it('should return zero when no production release is active', async () => {
+      prisma.finishGood.findUnique.mockResolvedValue({
+        PartNumber: 'FG-001',
+        PartName: 'Part 1',
+        Alias: null,
+      });
+      prisma.productionRelease.findFirst.mockResolvedValue(null);
+
+      await expect(service.getDisplayTarget('FG-001')).resolves.toEqual({
+        partNumber: 'FG-001',
+        partName: 'Part 1',
+        alias: null,
+        targetQty: 0,
+        productionReleaseId: null,
+        releaseNumber: null,
       });
     });
   });

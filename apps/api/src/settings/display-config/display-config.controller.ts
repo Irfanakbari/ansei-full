@@ -103,7 +103,11 @@ export class DisplayConfigController {
   @ApiResponse({ status: 200, type: DisplayConfigEntity })
   @Post(':id/media')
   @Permission('DISPLAY_CONFIG_UPDATE')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 50 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+    }),
+  )
   async uploadMedia(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile(

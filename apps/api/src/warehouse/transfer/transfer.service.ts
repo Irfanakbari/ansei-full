@@ -8,6 +8,7 @@ import {
   ItemCategory,
 } from '../../generated/prisma/enums';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
+import { withInventoryTransaction } from '../../common/helpers/inventory-transaction.helper';
 
 export interface TransferResult {
   partNumber: string;
@@ -47,120 +48,130 @@ export class TransferService {
       });
 
       // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
-      await assertNoActiveInventoryCounting(
+      const processId = logProcess.ProcessId;
+      const balances = await withInventoryTransaction(
         this.prisma,
         ItemCategory.MATERIAL,
-        'Transfer to Rack',
-      );
+        async (tx) => {
+          await assertNoActiveInventoryCounting(
+            tx,
+            ItemCategory.MATERIAL,
+            'Transfer to Rack',
+          );
+          const material = await tx.material.findUnique({
+            where: { PartNumber: partNumber },
+            select: { IsActive: true, QtyWarehouse: true, QtyRack: true },
+          });
+          if (!material) {
+            throw new BadRequestException(
+              `POKAYOKE: Material ${partNumber} not found in Material master`,
+            );
+          }
+          if (!material.IsActive) {
+            throw new BadRequestException(
+              `POKAYOKE: Material ${partNumber} is discontinued and cannot be used in transactions. Please reactivate the material first.`,
+            );
+          }
+          if (material.QtyWarehouse < qty) {
+            throw new BadRequestException(
+              `POKAYOKE: Insufficient stock in warehouse. Available: ${material.QtyWarehouse}, Required: ${qty}`,
+            );
+          }
+          const warehouseBefore = material.QtyWarehouse;
+          const rackBefore = material.QtyRack;
+          const warehouseAfter = warehouseBefore - qty;
+          const rackAfter = rackBefore + qty;
+          const referenceDoc = `TRANSFER-TO-RACK-${crypto.randomUUID()}`;
+          // Update Material stock
+          await tx.material.update({
+            where: { PartNumber: partNumber },
+            data: {
+              QtyWarehouse: warehouseAfter,
+              QtyRack: rackAfter,
+            },
+          });
 
-      // POKAYOKE: Validate material exists
-      await this.validateMaterialExists(partNumber, logProcess.ProcessId);
+          await this.logService.addLog({
+            processId,
+            message: `Material stock updated: Warehouse ${warehouseBefore}->${warehouseAfter}, Rack ${rackBefore}->${rackAfter}`,
+            type: 'INFO',
+            location: 'transfer.service.ts:62',
+            client: tx,
+          });
 
-      // POKAYOKE: Validate sufficient stock in warehouse
-      await this.validateWarehouseStock(partNumber, qty, logProcess.ProcessId);
+          // Create InventoryLedger for warehouse decrease
+          await tx.inventoryLedger.create({
+            data: {
+              Id: crypto.randomUUID(),
+              TransactionDate: new Date(),
+              ItemCategory: 'MATERIAL',
+              MaterialId: partNumber,
+              Location: LocationType.WAREHOUSE,
+              TransactionType: TransactionType.TRANSFER_TO_RACK,
+              ReferenceDoc: referenceDoc,
+              BalanceBefore: warehouseBefore,
+              QtyIn: 0,
+              QtyOut: qty,
+              BalanceAfter: warehouseAfter,
+              CreatedBy: transferredBy,
+              Notes: `Transfer to Rack for ${partNumber}, Qty: ${qty}`,
+            },
+          });
 
-      const processId = logProcess.ProcessId;
+          await this.logService.addLog({
+            processId,
+            message: `Warehouse Ledger created: ${warehouseBefore} -> ${warehouseAfter}`,
+            type: 'INFO',
+            location: 'transfer.service.ts:76',
+            client: tx,
+          });
 
-      // Get current stock
-      const material = await this.prisma.material.findUnique({
-        where: { PartNumber: partNumber },
-        select: {
-          QtyWarehouse: true,
-          QtyRack: true,
+          // Create InventoryLedger for rack increase
+          await tx.inventoryLedger.create({
+            data: {
+              Id: crypto.randomUUID(),
+              TransactionDate: new Date(),
+              ItemCategory: 'MATERIAL',
+              MaterialId: partNumber,
+              Location: LocationType.RACK,
+              TransactionType: TransactionType.TRANSFER_TO_RACK,
+              ReferenceDoc: referenceDoc,
+              BalanceBefore: rackBefore,
+              QtyIn: qty,
+              QtyOut: 0,
+              BalanceAfter: rackAfter,
+              CreatedBy: transferredBy,
+              Notes: `Transfer from Warehouse, Qty: ${qty}`,
+            },
+          });
+
+          await this.logService.addLog({
+            processId,
+            message: `Rack Ledger created: ${rackBefore} -> ${rackAfter}`,
+            type: 'INFO',
+            location: 'transfer.service.ts:90',
+            client: tx,
+          });
+          await this.logService.addLog({
+            processId,
+            message: `Transfer to rack completed: ${partNumber}, Qty: ${qty}`,
+            type: 'INFO',
+            location: 'TransferService.transferToRack',
+            client: tx,
+          });
+          await this.logService.completeProcess(
+            processId,
+            'SUCCESS',
+            undefined,
+            tx,
+          );
+          return { warehouseBefore, warehouseAfter, rackBefore, rackAfter };
         },
-      });
-
-      const warehouseBefore = material?.QtyWarehouse || 0;
-      const rackBefore = material?.QtyRack || 0;
-      const warehouseAfter = warehouseBefore - qty;
-      const rackAfter = rackBefore + qty;
-
-      // Update stock in transaction
-      await this.prisma.$transaction(async (tx) => {
-        // Update Material stock
-        await tx.material.update({
-          where: { PartNumber: partNumber },
-          data: {
-            QtyWarehouse: warehouseAfter,
-            QtyRack: rackAfter,
-          },
-        });
-
-        await this.logService.addLog({
-          processId,
-          message: `Material stock updated: Warehouse ${warehouseBefore}->${warehouseAfter}, Rack ${rackBefore}->${rackAfter}`,
-          type: 'INFO',
-          location: 'transfer.service.ts:62',
-        });
-
-        // Create InventoryLedger for warehouse decrease
-        await tx.inventoryLedger.create({
-          data: {
-            Id: crypto.randomUUID(),
-            TransactionDate: new Date(),
-            ItemCategory: 'MATERIAL',
-            MaterialId: partNumber,
-            Location: LocationType.WAREHOUSE,
-            TransactionType: TransactionType.TRANSFER_TO_RACK,
-            ReferenceDoc: `TRANSFER-TO-RACK-${Date.now()}`,
-            BalanceBefore: warehouseBefore,
-            QtyIn: 0,
-            QtyOut: qty,
-            BalanceAfter: warehouseAfter,
-            CreatedBy: transferredBy,
-            Notes: `Transfer to Rack for ${partNumber}, Qty: ${qty}`,
-          },
-        });
-
-        await this.logService.addLog({
-          processId,
-          message: `Warehouse Ledger created: ${warehouseBefore} -> ${warehouseAfter}`,
-          type: 'INFO',
-          location: 'transfer.service.ts:76',
-        });
-
-        // Create InventoryLedger for rack increase
-        await tx.inventoryLedger.create({
-          data: {
-            Id: crypto.randomUUID(),
-            TransactionDate: new Date(),
-            ItemCategory: 'MATERIAL',
-            MaterialId: partNumber,
-            Location: LocationType.RACK,
-            TransactionType: TransactionType.TRANSFER_TO_RACK,
-            ReferenceDoc: `TRANSFER-TO-RACK-${Date.now()}`,
-            BalanceBefore: rackBefore,
-            QtyIn: qty,
-            QtyOut: 0,
-            BalanceAfter: rackAfter,
-            CreatedBy: transferredBy,
-            Notes: `Transfer from Warehouse, Qty: ${qty}`,
-          },
-        });
-
-        await this.logService.addLog({
-          processId,
-          message: `Rack Ledger created: ${rackBefore} -> ${rackAfter}`,
-          type: 'INFO',
-          location: 'transfer.service.ts:90',
-        });
-      });
-
-      await this.logService.addLog({
-        processId,
-        message: `Transfer to rack completed: ${partNumber}, Qty: ${qty}`,
-        type: 'INFO',
-        location: 'transfer.service.ts:95',
-      });
-
-      await this.logService.completeProcess(processId, 'SUCCESS');
+      );
 
       return {
         partNumber,
-        warehouseBefore,
-        warehouseAfter,
-        rackBefore,
-        rackAfter,
+        ...balances,
         transferQty: qty,
         success: true,
       };

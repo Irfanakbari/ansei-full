@@ -1,4 +1,4 @@
-/* By Irfan Akbari Vuteq Indonesia - 2026-08-20 */
+/* By Irfan Akbari Vuteq Indonesia - 2026-08-20 - Updated 2026-09-17 */
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
@@ -10,15 +10,51 @@ export interface ActiveDisplayConfig {
     Loop: boolean;
 }
 
+export interface DisplayTarget {
+    partNumber: string;
+    partName: string;
+    alias: string | null;
+    targetQty: number;
+    productionReleaseId: string | null;
+    releaseNumber: string | null;
+}
+
 interface DisplayState {
     config: ActiveDisplayConfig | null;
     loading: boolean;
+    target: DisplayTarget | null;
+    targetLoading: boolean;
+    targetError: string | null;
 }
 
 const initialState: DisplayState = {
     config: null,
     loading: true,
+    target: null,
+    targetLoading: false,
+    targetError: null,
 };
+
+function getResponseMessage(data: unknown, fallback: string): string {
+    if (
+        typeof data === 'object' &&
+        data !== null &&
+        'message' in data &&
+        typeof data.message === 'string'
+    ) {
+        return data.message;
+    }
+
+    return fallback;
+}
+
+function unwrapPayload(data: unknown): unknown {
+    if (typeof data === 'object' && data !== null && 'data' in data) {
+        return data.data;
+    }
+
+    return data;
+}
 
 export const fetchActiveDisplayConfig = createAsyncThunk<
     ActiveDisplayConfig | null,
@@ -31,27 +67,50 @@ export const fetchActiveDisplayConfig = createAsyncThunk<
         const data: unknown = await response.json();
 
         if (!response.ok) {
-            const message =
-                typeof data === 'object' &&
-                data !== null &&
-                'message' in data &&
-                typeof (data as any).message === 'string'
-                    ? (data as any).message
-                    : 'Failed to fetch active display configuration';
-            return rejectWithValue(message);
+            return rejectWithValue(
+                getResponseMessage(data, 'Failed to fetch active display configuration'),
+            );
         }
 
-        const payloadData = (data as any)?.data;
-        return payloadData as ActiveDisplayConfig | null;
+        return unwrapPayload(data) as ActiveDisplayConfig | null;
     } catch {
         return rejectWithValue('Failed to fetch active display configuration');
     }
 });
 
+export const fetchDisplayTarget = createAsyncThunk<DisplayTarget, string, { rejectValue: string }>(
+    'display/fetchTarget',
+    async (partNumber, { rejectWithValue }) => {
+        try {
+            const query = new URLSearchParams({ partNumber });
+            const response = await fetch(`/api/display/target?${query.toString()}`, {
+                cache: 'no-store',
+            });
+            const data: unknown = await response.json();
+
+            if (!response.ok) {
+                return rejectWithValue(
+                    getResponseMessage(data, 'Failed to fetch the active production target'),
+                );
+            }
+
+            return unwrapPayload(data) as DisplayTarget;
+        } catch {
+            return rejectWithValue('Failed to fetch the active production target');
+        }
+    },
+);
+
 const displaySlice = createSlice({
     name: 'display',
     initialState,
-    reducers: {},
+    reducers: {
+        clearDisplayTarget(state) {
+            state.target = null;
+            state.targetError = null;
+            state.targetLoading = false;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchActiveDisplayConfig.pending, (state) => {
@@ -64,8 +123,22 @@ const displaySlice = createSlice({
             .addCase(fetchActiveDisplayConfig.rejected, (state) => {
                 state.config = null;
                 state.loading = false;
+            })
+            .addCase(fetchDisplayTarget.pending, (state) => {
+                state.targetLoading = true;
+                state.targetError = null;
+            })
+            .addCase(fetchDisplayTarget.fulfilled, (state, action) => {
+                state.target = action.payload;
+                state.targetLoading = false;
+            })
+            .addCase(fetchDisplayTarget.rejected, (state, action) => {
+                state.target = null;
+                state.targetLoading = false;
+                state.targetError = action.payload ?? 'Failed to fetch the active production target';
             });
     },
 });
 
+export const { clearDisplayTarget } = displaySlice.actions;
 export default displaySlice.reducer;

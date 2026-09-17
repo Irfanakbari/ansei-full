@@ -25,6 +25,9 @@ import {
   UpdateProductionReleaseDto,
   UploadProductionAttachmentDto,
   ProductionReleaseQueryDto,
+  CancelProductionReleaseDto,
+  AmendProductionReleaseForecastsDto,
+  ProductionReleaseForecastCandidatesQueryDto,
 } from './dto';
 import {
   AttachmentResponseEntity,
@@ -95,9 +98,20 @@ export class ProductionReleaseController {
     return this.productionReleaseService.getForecastList(id);
   }
 
+  @Get(':id/forecast-candidates')
+  @Permission('IPCS.PRODUCTION_RELEASE_READ')
+  async getForecastCandidates(
+    @Param('id') id: string,
+    @Query() query: ProductionReleaseForecastCandidatesQueryDto,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.productionReleaseService.getForecastCandidates(id, query);
+  }
+
   @Post()
   @Permission('IPCS.PRODUCTION_RELEASE_CREATE')
   @ApiResponse({ status: 201, type: ProductionReleaseEntity })
+  @ApiResponse({ status: 409, description: 'Forecast assignment conflict' })
   async create(
     @Body() createDto: CreateProductionReleaseDto,
     @CurrentUser() user: ICurrentUser,
@@ -109,12 +123,55 @@ export class ProductionReleaseController {
   @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
   @ApiResponse({ status: 200, type: ProductionReleaseEntity })
   @ApiResponse({ status: 404, description: 'Release not found' })
+  @ApiResponse({
+    status: 409,
+    description: 'Concurrent release or forecast conflict',
+  })
   async update(
     @Param('id') id: string,
     @Body() updateDto: UpdateProductionReleaseDto,
     @CurrentUser() user: ICurrentUser,
   ) {
     return this.productionReleaseService.update(id, updateDto, user.username);
+  }
+
+  @Post(':id/cancel')
+  @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
+  @ApiResponse({ status: 200, type: ProductionReleaseEntity })
+  @ApiResponse({
+    status: 409,
+    description: 'Release or linked forecasts have operational activity',
+  })
+  async cancel(
+    @Param('id') id: string,
+    @Body() dto: CancelProductionReleaseDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.productionReleaseService.cancel(id, dto, user.username);
+  }
+
+  @Post(':id/forecasts/tag')
+  @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
+  @ApiResponse({ status: 200, type: ProductionReleaseEntity })
+  @ApiResponse({ status: 409, description: 'Forecast cannot be amended' })
+  async tagForecasts(
+    @Param('id') id: string,
+    @Body() dto: AmendProductionReleaseForecastsDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.productionReleaseService.tagForecasts(id, dto, user.username);
+  }
+
+  @Post(':id/forecasts/untag')
+  @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
+  @ApiResponse({ status: 200, type: ProductionReleaseEntity })
+  @ApiResponse({ status: 409, description: 'Forecast cannot be amended' })
+  async untagForecasts(
+    @Param('id') id: string,
+    @Body() dto: AmendProductionReleaseForecastsDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.productionReleaseService.untagForecasts(id, dto, user.username);
   }
 
   @Delete(':id')
@@ -133,7 +190,11 @@ export class ProductionReleaseController {
 
   @Post(':id/attachments')
   @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
-  @UseInterceptors(FilesInterceptor('files', 10))
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      limits: { fileSize: 10 * 1024 * 1024, files: 10, fields: 1, parts: 11 },
+    }),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -164,7 +225,11 @@ export class ProductionReleaseController {
 
   @Patch(':id/attachments/:attachmentId')
   @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+    }),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

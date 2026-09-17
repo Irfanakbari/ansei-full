@@ -308,11 +308,16 @@ describe('InventoryCountingController', () => {
 
       service.updateActualStock.mockResolvedValue(mockResult);
 
-      const result = await controller.updateActualStock(1, mockDto, mockUser);
+      const result = await controller.updateActualStock(
+        '123',
+        1,
+        mockDto,
+        mockUser,
+      );
 
       expect(result).toEqual(mockResult);
       expect(service.updateActualStock).toHaveBeenCalledWith(
-        '',
+        '123',
         1,
         mockDto,
         mockUser.username,

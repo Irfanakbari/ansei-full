@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -31,9 +30,10 @@ import type {
 import type { Prisma } from '../../generated/prisma/client';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
+import { withInventoryTransaction } from '../../common/helpers/inventory-transaction.helper';
+import { validateUploadContent } from '../../common/utils/upload-security.util';
 
 // Allowed file extensions and max size
-const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 @Injectable()
@@ -179,6 +179,7 @@ export class IncomingService {
           message: `Incoming header created with ID: ${incoming.Id}`,
           type: 'INFO',
           location: 'incoming.service.ts:66',
+          client: tx,
         });
 
         // Create IncomingMaterial entries
@@ -198,12 +199,18 @@ export class IncomingService {
           message: `Created ${dto.materials.length} IncomingMaterial entries`,
           type: 'INFO',
           location: 'incoming.service.ts:79',
+          client: tx,
         });
+
+        await this.logService.completeProcess(
+          processId,
+          'SUCCESS',
+          undefined,
+          tx,
+        );
 
         return incoming;
       });
-
-      await this.logService.completeProcess(processId, 'SUCCESS');
 
       return result;
     } catch (error) {
@@ -468,107 +475,143 @@ export class IncomingService {
       const processId = logProcess.ProcessId;
 
       // Use transaction to update inventory and incoming
-      await this.prisma.$transaction(async (tx) => {
-        // Update incoming status
-        await tx.incoming.update({
-          where: { Id: id },
-          data: {
-            Closed: true,
-            ApprovedAt: now,
-            ApprovedBy: receivedBy,
-          },
-        });
-
-        await this.logService.addLog({
-          processId,
-          message: `Incoming marked as Closed, ApprovedAt set to ${now.toISOString()}`,
-          type: 'INFO',
-          location: 'incoming.service.ts:287',
-        });
-
-        // Process each incoming material
-        for (const item of existing.IncomingMaterial) {
-          if (!item.MaterialId || !item.MaterialData) {
-            await this.logService.addLog({
-              processId,
-              message: `Skipping item ${item.Id} - no material data`,
-              type: 'WARN',
-              location: 'incoming.service.ts:295',
-            });
-            continue;
-          }
-
-          // Get current stock
-          const material = await tx.material.findUnique({
-            where: { Id: item.MaterialId },
+      await withInventoryTransaction(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        async (tx) => {
+          await assertNoActiveInventoryCounting(
+            tx,
+            ItemCategory.MATERIAL,
+            'Receive Incoming',
+          );
+          const current = await tx.incoming.findUnique({
+            where: { Id: id },
+            include: { IncomingMaterial: { include: { MaterialData: true } } },
           });
-
-          if (!material) {
-            await this.logService.addLog({
-              processId,
-              message: `Material ${item.MaterialId} not found, skipping`,
-              type: 'WARN',
-              location: 'incoming.service.ts:303',
-            });
-            continue;
+          if (!current) {
+            throw new NotFoundException(`Incoming with id ${id} not found`);
           }
-
-          const balanceBefore = material.QtyWarehouse || 0;
-          const balanceAfter = balanceBefore + item.Qty;
-          totalQty += item.Qty;
-
-          // Create InventoryLedger entry
-          // Note: InventoryLedger.MaterialId references Material.PartNumber (String), not Material.Id (Int)
-          await tx.inventoryLedger.create({
+          if (current.Closed || current.ApprovedAt) {
+            throw new BadRequestException(
+              'Incoming has already been received or is being processed.',
+            );
+          }
+          const currentUnmatched = current.IncomingMaterial.filter(
+            (item) => item.QtyChecked !== item.Qty,
+          );
+          if (currentUnmatched.length > 0) {
+            throw new BadRequestException(
+              'POKAYOKE: QtyChecked must equal Qty for all materials before receiving.',
+            );
+          }
+          // Update incoming status
+          await tx.incoming.update({
+            where: { Id: id },
             data: {
-              Id: crypto.randomUUID(),
-              TransactionDate: now,
-              ItemCategory: 'MATERIAL',
-              MaterialId: material.PartNumber,
-              Location: LocationType.WAREHOUSE,
-              TransactionType: TransactionType.INCOMING_SUPPLIER,
-              ReferenceDoc: existing.PoId,
-              BalanceBefore: balanceBefore,
-              QtyIn: item.Qty,
-              QtyOut: 0,
-              BalanceAfter: balanceAfter,
-              CreatedBy: receivedBy,
-              Notes: `Incoming from PO: ${existing.PoId}`,
+              Closed: true,
+              ApprovedAt: now,
+              ApprovedBy: receivedBy,
             },
           });
 
           await this.logService.addLog({
             processId,
-            message: `Created InventoryLedger for Material ${item.MaterialId}: +${item.Qty} (${balanceBefore} -> ${balanceAfter})`,
+            message: `Incoming marked as Closed, ApprovedAt set to ${now.toISOString()}`,
             type: 'INFO',
-            location: 'incoming.service.ts:325',
+            location: 'incoming.service.ts:287',
+            client: tx,
           });
 
-          // Update Material QtyWarehouse
-          await tx.material.update({
-            where: { Id: item.MaterialId },
-            data: {
-              QtyWarehouse: balanceAfter,
-            },
-          });
+          // Process each incoming material
+          for (const item of current.IncomingMaterial) {
+            if (!item.MaterialId || !item.MaterialData) {
+              await this.logService.addLog({
+                processId,
+                message: `Skipping item ${item.Id} - no material data`,
+                type: 'WARN',
+                location: 'incoming.service.ts:295',
+              });
+              continue;
+            }
 
+            // Get current stock
+            const material = await tx.material.findUnique({
+              where: { Id: item.MaterialId },
+            });
+
+            if (!material) {
+              await this.logService.addLog({
+                processId,
+                message: `Material ${item.MaterialId} not found, skipping`,
+                type: 'WARN',
+                location: 'incoming.service.ts:303',
+              });
+              continue;
+            }
+
+            const balanceBefore = material.QtyWarehouse || 0;
+            const balanceAfter = balanceBefore + item.Qty;
+            totalQty += item.Qty;
+
+            // Create InventoryLedger entry
+            // Note: InventoryLedger.MaterialId references Material.PartNumber (String), not Material.Id (Int)
+            await tx.inventoryLedger.create({
+              data: {
+                Id: crypto.randomUUID(),
+                TransactionDate: now,
+                ItemCategory: 'MATERIAL',
+                MaterialId: material.PartNumber,
+                Location: LocationType.WAREHOUSE,
+                TransactionType: TransactionType.INCOMING_SUPPLIER,
+                ReferenceDoc: existing.PoId,
+                BalanceBefore: balanceBefore,
+                QtyIn: item.Qty,
+                QtyOut: 0,
+                BalanceAfter: balanceAfter,
+                CreatedBy: receivedBy,
+                Notes: `Incoming from PO: ${existing.PoId}`,
+              },
+            });
+
+            await this.logService.addLog({
+              processId,
+              message: `Created InventoryLedger for Material ${item.MaterialId}: +${item.Qty} (${balanceBefore} -> ${balanceAfter})`,
+              type: 'INFO',
+              location: 'incoming.service.ts:325',
+              client: tx,
+            });
+
+            // Update Material QtyWarehouse
+            await tx.material.update({
+              where: { Id: item.MaterialId },
+              data: {
+                QtyWarehouse: balanceAfter,
+              },
+            });
+
+            await this.logService.addLog({
+              processId,
+              message: `Updated Material ${item.MaterialId} QtyWarehouse: ${balanceAfter}`,
+              type: 'INFO',
+              location: 'incoming.service.ts:333',
+              client: tx,
+            });
+          }
           await this.logService.addLog({
             processId,
-            message: `Updated Material ${item.MaterialId} QtyWarehouse: ${balanceAfter}`,
+            message: `Receive completed: ${current.IncomingMaterial.length} items, ${totalQty} total qty`,
             type: 'INFO',
-            location: 'incoming.service.ts:333',
+            location: 'IncomingService.receive',
+            client: tx,
           });
-        }
-      });
-
-      await this.logService.addLog({
-        processId,
-        message: `Receive completed: ${existing.IncomingMaterial.length} items, ${totalQty} total qty`,
-        type: 'INFO',
-        location: 'incoming.service.ts:341',
-      });
-
-      await this.logService.completeProcess(processId, 'SUCCESS');
+          await this.logService.completeProcess(
+            processId,
+            'SUCCESS',
+            undefined,
+            tx,
+          );
+        },
+      );
 
       return {
         id: existing.Id,
@@ -883,19 +926,13 @@ export class IncomingService {
         location: 'incoming.service.ts:620',
       });
 
-      // Validate file extension
-      const fileExtension = file.originalname.split('.').pop()?.toLowerCase();
-      if (!fileExtension || !ALLOWED_EXTENSIONS.includes(fileExtension)) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Invalid file extension: ${fileExtension}. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
-          type: 'ERROR',
-          location: 'incoming.service.ts:630',
-        });
-        throw new UnsupportedMediaTypeException(
-          `Invalid file extension. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
-        );
-      }
+      const fileKind = validateUploadContent(file, [
+        'pdf',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+      ]);
 
       // Validate file size
       if (file.size > MAX_FILE_SIZE) {
@@ -918,7 +955,7 @@ export class IncomingService {
       }
 
       // Generate filename: PoId_ddMMyyyy.extension
-      const ext = file.originalname.split('.').pop()?.toLowerCase() || '';
+      const ext = fileKind === 'jpeg' ? 'jpg' : fileKind;
       const dateStr = new Date()
         .toLocaleDateString('id-ID', {
           day: '2-digit',
@@ -944,7 +981,7 @@ export class IncomingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `File uploaded to NAS: ${fileUrl}`,
+        message: `File uploaded to NAS for incoming ${incomingId}`,
         type: 'INFO',
         location: 'incoming.service.ts:670',
       });
@@ -960,7 +997,7 @@ export class IncomingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Attachment created for incoming ${incomingId}: ${fileUrl}`,
+        message: `Attachment created for incoming ${incomingId}`,
         type: 'INFO',
         location: 'incoming.service.ts:680',
       });
@@ -1052,7 +1089,7 @@ export class IncomingService {
         await this.nasUploadService.deleteFile(incoming.FilePath);
         await this.logService.addLog({
           processId: logProcess.ProcessId,
-          message: `File deleted from NAS: ${incoming.FilePath}`,
+          message: `File deleted from NAS for incoming ${attachmentId}`,
           type: 'INFO',
           location: 'incoming.service.ts:758',
         });

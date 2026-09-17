@@ -63,6 +63,19 @@ enum NotificationType {
   DEFAULT
 }
 
+enum OutboxEventType {
+  PRINT_PART_TAG_ANSEI
+  DELIVERY_NOTE_EMAIL
+}
+
+enum OutboxEventStatus {
+  PENDING
+  QUEUED
+  PROCESSING
+  SUCCEEDED
+  FAILED
+}
+
 enum PartType {
   ONE
   TWO
@@ -338,6 +351,7 @@ model Forecast {
   PartData           FinishGood          @relation(fields: [FinishGoodId], references: [PartNumber], onDelete: Cascade)
   LabelData          LabelData[]
   Shopping           Shopping[]
+  ShoppingProductionResult ShoppingProductionResult?
   ProductionRelease  ProductionRelease?  @relation(fields: [ProductionReleaseId], references: [Id])
   ProductionReport   ProductionReport[]
 
@@ -420,6 +434,42 @@ model Shopping {
 
   @@index([ForecastId], map: "Shopping_forecastId_fkey")
   @@index([MaterialId], map: "Shopping_materialId_fkey")
+}
+
+model ShoppingProductionResult {
+  ForecastId String   @id
+  ShoppingId String   @unique
+  CreatedAt  DateTime @default(now())
+  CreatedBy  String
+
+  Forecast Forecast @relation(fields: [ForecastId], references: [PoId], onDelete: Cascade)
+
+  @@index([CreatedAt])
+}
+
+model OutboxEvent {
+  Id             String            @id @default(uuid())
+  IdempotencyKey String            @unique @db.VarChar(255)
+  Type           OutboxEventType
+  Payload        Json
+  Status         OutboxEventStatus @default(PENDING)
+  Attempts       Int               @default(0)
+  MaxAttempts    Int               @default(5)
+  NextAttemptAt  DateTime          @default(now())
+  LastErrorCode  String?           @db.VarChar(64)
+  LastError      String?           @db.VarChar(500)
+  CreatedAt      DateTime          @default(now())
+  UpdatedAt      DateTime          @updatedAt
+  QueuedAt       DateTime?
+  ProcessingAt   DateTime?
+  SucceededAt    DateTime?
+  FailedAt       DateTime?
+  Actor          String?           @db.VarChar(255)
+  ReferenceType  String?           @db.VarChar(64)
+  ReferenceId    String?           @db.VarChar(255)
+
+  @@index([Status, NextAttemptAt])
+  @@index([ReferenceType, ReferenceId, CreatedAt])
 }
 
 model ProductionReport {

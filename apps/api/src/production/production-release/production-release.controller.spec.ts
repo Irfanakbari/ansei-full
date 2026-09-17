@@ -8,6 +8,7 @@ import {
 import type { ProductionReleaseModel } from '../../generated/prisma/models';
 import { ProductionStatus } from '../../generated/prisma/enums';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { ConflictException } from '@nestjs/common';
 
 describe('ProductionReleaseController', () => {
   let controller: ProductionReleaseController;
@@ -52,6 +53,9 @@ describe('ProductionReleaseController', () => {
       getLabels: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      cancel: jest.fn(),
+      tagForecasts: jest.fn(),
+      untagForecasts: jest.fn(),
       remove: jest.fn(),
       uploadAttachment: jest.fn(),
       getAttachments: jest.fn(),
@@ -166,6 +170,22 @@ describe('ProductionReleaseController', () => {
         mockUser.username,
       );
     });
+
+    it('propagates a concurrent release conflict as 409', async () => {
+      service.update.mockRejectedValue(
+        new ConflictException(
+          'Another production release is already RELEASED.',
+        ),
+      );
+
+      await expect(
+        controller.update(
+          'uuid-1234',
+          { status: ProductionStatus.RELEASED },
+          mockUser,
+        ),
+      ).rejects.toMatchObject({ status: 409 });
+    });
   });
 
   describe('remove', () => {
@@ -177,6 +197,34 @@ describe('ProductionReleaseController', () => {
       expect(result).toEqual({ deleted: true, id: 'uuid-1234' });
       expect(service.remove).toHaveBeenCalledWith(
         'uuid-1234',
+        mockUser.username,
+      );
+    });
+  });
+
+  describe('released amendment routes', () => {
+    it('passes actor and reason to cancel', async () => {
+      const dto = { reason: 'No longer required' };
+      service.cancel.mockResolvedValue(mockProductionRelease);
+
+      await controller.cancel('uuid-1234', dto, mockUser);
+
+      expect(service.cancel).toHaveBeenCalledWith(
+        'uuid-1234',
+        dto,
+        mockUser.username,
+      );
+    });
+
+    it('passes actor and selected forecasts to tag', async () => {
+      const dto = { forecastIds: ['PO-001'], reason: 'Added demand' };
+      service.tagForecasts.mockResolvedValue(mockProductionRelease);
+
+      await controller.tagForecasts('uuid-1234', dto, mockUser);
+
+      expect(service.tagForecasts).toHaveBeenCalledWith(
+        'uuid-1234',
+        dto,
         mockUser.username,
       );
     });

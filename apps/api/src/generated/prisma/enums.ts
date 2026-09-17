@@ -75,6 +75,25 @@ export const NotificationType = {
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
 
 
+export const OutboxEventType = {
+  PRINT_PART_TAG_ANSEI: 'PRINT_PART_TAG_ANSEI',
+  DELIVERY_NOTE_EMAIL: 'DELIVERY_NOTE_EMAIL'
+} as const
+
+export type OutboxEventType = (typeof OutboxEventType)[keyof typeof OutboxEventType]
+
+
+export const OutboxEventStatus = {
+  PENDING: 'PENDING',
+  QUEUED: 'QUEUED',
+  PROCESSING: 'PROCESSING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED'
+} as const
+
+export type OutboxEventStatus = (typeof OutboxEventStatus)[keyof typeof OutboxEventStatus]
+
+
 export const PartType = {
   ONE: 'ONE',
   TWO: 'TWO',

@@ -12,6 +12,8 @@ import { Permission } from '../auth/decorators/permission.decorator';
 import { DashboardResponseEntity } from './entities/dashboard-response.entity';
 import { FrontendFinishGoodEntity } from './entities/finish-good-list.entity';
 import { FrontendManPowerEntity } from './entities/man-power-list.entity';
+import { DisplayTargetQueryDto } from './dto/display-target-query.dto';
+import { DisplayTargetEntity } from './entities/display-target.entity';
 
 @ApiTags('Frontend')
 @ApiBearerAuth()
@@ -50,6 +52,20 @@ export class FrontendController {
   @ApiResponse({ status: 200, type: [FrontendFinishGoodEntity] })
   async getFinishGoods(): Promise<FrontendFinishGoodEntity[]> {
     return this.frontendService.getFinishGoodsList();
+  }
+
+  @Get('display-target')
+  @Public()
+  @ApiOperation({
+    summary: 'Get the active production target for a display part number',
+    description:
+      'Returns the sum of forecast quantities for the selected finish good in the active RELEASED production release.',
+  })
+  @ApiResponse({ status: 200, type: DisplayTargetEntity })
+  async getDisplayTarget(
+    @Query() query: DisplayTargetQueryDto,
+  ): Promise<DisplayTargetEntity> {
+    return this.frontendService.getDisplayTarget(query.partNumber);
   }
 
   @Get('man-power')

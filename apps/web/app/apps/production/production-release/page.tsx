@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Table, Card, Breadcrumb, App, Input, Button, Space, Tag, Tooltip, Progress } from 'antd';
 import type { InputRef } from 'antd';
-import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, StopOutlined, TagsOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,6 +13,8 @@ import { ProductionReleaseEntity, fetchProductionRelease, deleteProductionReleas
 import DetailProductionReleaseModal from './_components/DetailProductionReleaseModal';
 import CreateProductionReleaseModal from './_components/CreateProductionReleaseModal';
 import EditProductionReleaseModal from './_components/EditProductionReleaseModal';
+import ManageForecastsModal from './_components/ManageForecastsModal';
+import CancelProductionReleaseModal from './_components/CancelProductionReleaseModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -31,6 +33,8 @@ export default function ProductionReleasePage() {
     const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [isManageModalVisible, setIsManageModalVisible] = useState(false);
+    const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
     const [detailData, setDetailData] = useState<ProductionReleaseEntity | null>(null);
     const [editData, setEditData] = useState<ProductionReleaseEntity | null>(null);
     const [sortedInfo, setSortedInfo] = useState<any>({});
@@ -220,6 +224,8 @@ export default function ProductionReleasePage() {
                 <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
+                <ButtonToolbar title="Manage Forecasts" icon={<TagsOutlined />} onClick={() => setIsManageModalVisible(true)} enable={selectedRecord?.Status === 'RELEASED'} />
+                <ButtonToolbar title="Cancel Release" icon={<StopOutlined />} onClick={() => setIsCancelModalVisible(true)} enable={selectedRecord?.Status === 'RELEASED'} />
             </ToolbarWrapper>
 
             <Table
@@ -271,6 +277,9 @@ export default function ProductionReleasePage() {
                     onSuccess={() => dispatch(fetchProductionRelease(query))}
                 />
             )}
+
+            <ManageForecastsModal open={isManageModalVisible} release={selectedRecord ?? null} onClose={() => setIsManageModalVisible(false)} onSuccess={() => { setSelectedRowKeys([]); dispatch(fetchProductionRelease(query)); }} />
+            <CancelProductionReleaseModal open={isCancelModalVisible} release={selectedRecord ?? null} onClose={() => setIsCancelModalVisible(false)} onSuccess={() => { setSelectedRowKeys([]); dispatch(fetchProductionRelease(query)); }} />
 
         </Card>
     );

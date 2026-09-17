@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MrpController } from './mrp.controller';
 import { MrpService } from './mrp.service';
 import type { MrpCalculateResponse } from './dto/mrp-calculate.dto';
+import { PERMISSIONS_KEY } from '../auth/decorators/permission.decorator';
+import { IS_PUBLIC_KEY } from '../auth/decorators/public.decorator';
 
 describe('MrpController', () => {
   let controller: MrpController;
@@ -74,6 +76,15 @@ describe('MrpController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('protects export with MRP read permission and no public bypass', () => {
+    expect(
+      Reflect.getMetadata(PERMISSIONS_KEY, controller.exportToExcel),
+    ).toEqual(['IPCS.MRP_READ']);
+    expect(
+      Reflect.getMetadata(IS_PUBLIC_KEY, controller.exportToExcel),
+    ).not.toBe(true);
   });
 
   describe('calculate', () => {

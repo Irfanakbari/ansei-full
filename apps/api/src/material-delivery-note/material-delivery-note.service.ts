@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
-import { SmtpService } from '../common/utils/smtp.service';
 import {
   CreateMaterialDeliveryNoteDto,
   PickMaterialDto,
@@ -29,17 +28,19 @@ import { excelToPdf } from '../common/utils/document-converter.util';
 import * as fs from 'fs';
 import * as path from 'path';
 import { assertNoActiveInventoryCounting } from '../common/helpers/inventory-counting-check.helper';
+import { withInventoryTransaction } from '../common/helpers/inventory-transaction.helper';
 import {
   getUserDisplayNameMap,
   getUserDisplayName,
 } from '../common/helpers/user-lookup.helper';
+import { OutboxService } from '../common/outbox/outbox.service';
 
 @Injectable()
 export class MaterialDeliveryNoteService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
-    private readonly smtpService: SmtpService,
+    private readonly outboxService: OutboxService,
   ) {}
 
   // Generate delivery note number: SJ-MAT/YYYY/MM/XXXX
@@ -370,13 +371,14 @@ export class MaterialDeliveryNoteService {
   }
 
   // Delete (DRAFT only)
-  async remove(id: string) {
+  async remove(id: string, deletedBy: string) {
     let logProcess: LogProcessModel | undefined;
 
     try {
       logProcess = await this.logService.startProcess({
         functionId: 'MAT_DEL_001C',
         functionName: 'deleteMaterialDeliveryNote',
+        createdBy: deletedBy,
       });
 
       const existing = await this.prisma.materialDeliveryNote.findUnique({
@@ -690,90 +692,131 @@ export class MaterialDeliveryNoteService {
       // Execute ship with stock cut and ledger entry
       const localProcessId = logProcess.ProcessId;
 
-      await this.prisma.$transaction(async (tx) => {
-        const ledgerEntries: Prisma.InventoryLedgerCreateManyInput[] = [];
-
-        for (const detail of dn.Details) {
-          // Get current stock
-          const material = await tx.material.findUnique({
-            where: { PartNumber: detail.MaterialId },
-            select: { QtyWarehouse: true },
+      await withInventoryTransaction(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        async (tx) => {
+          await assertNoActiveInventoryCounting(
+            tx,
+            ItemCategory.MATERIAL,
+            'Ship Material Delivery Note',
+          );
+          const currentDn = await tx.materialDeliveryNote.findUnique({
+            where: { Id: id },
+            include: { Details: true },
           });
+          if (!currentDn) {
+            throw new NotFoundException(`Delivery note not found: ${id}`);
+          }
+          if (currentDn.Status !== DeliveryNoteStatus.DRAFT) {
+            throw new BadRequestException(
+              `Cannot ship - delivery note status is ${currentDn.Status}`,
+            );
+          }
+          const currentUnpicked = currentDn.Details.filter(
+            (detail) => detail.QtyPicking !== detail.QtyRequested,
+          );
+          if (currentUnpicked.length > 0) {
+            throw new BadRequestException(
+              'Qty picking harus sama dengan qty requested sebelum kirim.',
+            );
+          }
+          const ledgerEntries: Prisma.InventoryLedgerCreateManyInput[] = [];
 
-          if (!material) continue;
+          for (const detail of currentDn.Details) {
+            // Get current stock
+            const material = await tx.material.findUnique({
+              where: { PartNumber: detail.MaterialId },
+              select: { QtyWarehouse: true },
+            });
 
-          const balanceBefore = material.QtyWarehouse;
-          const qtyOut = detail.QtyPicking;
-          const balanceAfter = balanceBefore - qtyOut;
+            if (!material) continue;
 
-          // POKAYOKE: Verify balance calculation
+            const balanceBefore = material.QtyWarehouse;
+            const qtyOut = detail.QtyPicking;
+            const balanceAfter = balanceBefore - qtyOut;
+            if (balanceAfter < 0) {
+              throw new BadRequestException(
+                `Insufficient warehouse stock for ${detail.MaterialId}. Available: ${balanceBefore}, Required: ${qtyOut}`,
+              );
+            }
+
+            // POKAYOKE: Verify balance calculation
+            await this.logService.addLog({
+              processId: localProcessId,
+              message: `Stock mutation: ${detail.MaterialId} | Before: ${balanceBefore} | Out: ${qtyOut} | After: ${balanceAfter}`,
+              type: 'INFO',
+              location: 'material-delivery-note.service.ts:503',
+              client: tx,
+            });
+
+            // Cut stock
+            await tx.material.update({
+              where: { PartNumber: detail.MaterialId },
+              data: { QtyWarehouse: balanceAfter },
+            });
+
+            // Create ledger entry
+            ledgerEntries.push({
+              ItemCategory: ItemCategory.MATERIAL,
+              MaterialId: detail.MaterialId,
+              Location: LocationType.WAREHOUSE,
+              TransactionType: TransactionType.MATERIAL_OUT_DELIVERY,
+              ReferenceDoc: currentDn.DeliveryNoteNum,
+              BalanceBefore: balanceBefore,
+              QtyIn: 0,
+              QtyOut: qtyOut,
+              BalanceAfter: balanceAfter,
+              CreatedBy: shippedBy,
+              Notes: `Delivery Note: ${currentDn.DeliveryNoteNum}`,
+            });
+          }
+
+          // Bulk create ledger entries
+          if (ledgerEntries.length > 0) {
+            await tx.inventoryLedger.createMany({ data: ledgerEntries });
+          }
+
           await this.logService.addLog({
             processId: localProcessId,
-            message: `Stock mutation: ${detail.MaterialId} | Before: ${balanceBefore} | Out: ${qtyOut} | After: ${balanceAfter}`,
+            message: `Created ${ledgerEntries.length} InventoryLedger entries`,
             type: 'INFO',
-            location: 'material-delivery-note.service.ts:503',
+            location: 'material-delivery-note.service.ts:531',
+            client: tx,
           });
 
-          // Cut stock
-          await tx.material.update({
-            where: { PartNumber: detail.MaterialId },
-            data: { QtyWarehouse: balanceAfter },
+          // Update DN status to SHIPPED
+          await tx.materialDeliveryNote.update({
+            where: { Id: id },
+            data: {
+              Status: DeliveryNoteStatus.SHIPPED,
+              ShippedAt: new Date(),
+              ShippedBy: shippedBy,
+            },
           });
 
-          // Create ledger entry
-          ledgerEntries.push({
-            ItemCategory: ItemCategory.MATERIAL,
-            MaterialId: detail.MaterialId,
-            Location: LocationType.WAREHOUSE,
-            TransactionType: TransactionType.MATERIAL_OUT_DELIVERY,
-            ReferenceDoc: dn.DeliveryNoteNum,
-            BalanceBefore: balanceBefore,
-            QtyIn: 0,
-            QtyOut: qtyOut,
-            BalanceAfter: balanceAfter,
-            CreatedBy: shippedBy,
-            Notes: `Delivery Note: ${dn.DeliveryNoteNum}`,
+          await this.logService.addLog({
+            processId: localProcessId,
+            message: `DN status updated to SHIPPED`,
+            type: 'INFO',
+            location: 'material-delivery-note.service.ts:540',
+            client: tx,
           });
-        }
-
-        // Bulk create ledger entries
-        if (ledgerEntries.length > 0) {
-          await tx.inventoryLedger.createMany({ data: ledgerEntries });
-        }
-
-        await this.logService.addLog({
-          processId: localProcessId,
-          message: `Created ${ledgerEntries.length} InventoryLedger entries`,
-          type: 'INFO',
-          location: 'material-delivery-note.service.ts:531',
-        });
-
-        // Update DN status to SHIPPED
-        await tx.materialDeliveryNote.update({
-          where: { Id: id },
-          data: {
-            Status: DeliveryNoteStatus.SHIPPED,
-            ShippedAt: new Date(),
-            ShippedBy: shippedBy,
-          },
-        });
-
-        await this.logService.addLog({
-          processId: localProcessId,
-          message: `DN status updated to SHIPPED`,
-          type: 'INFO',
-          location: 'material-delivery-note.service.ts:540',
-        });
-      });
-
-      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Ship completed successfully for DN: ${dn.DeliveryNoteNum}`,
-        type: 'INFO',
-        location: 'material-delivery-note.service.ts:548',
-      });
+          await this.logService.addLog({
+            processId: localProcessId,
+            message: `Ship completed successfully for DN: ${currentDn.DeliveryNoteNum}`,
+            type: 'INFO',
+            location: 'MaterialDeliveryNoteService.ship',
+            client: tx,
+          });
+          await this.logService.completeProcess(
+            localProcessId,
+            'SUCCESS',
+            undefined,
+            tx,
+          );
+        },
+      );
 
       return this.findOne(id);
     } catch (error) {
@@ -1480,157 +1523,56 @@ export class MaterialDeliveryNoteService {
     id: string,
     dto: SendDeliveryNoteEmailDto,
     sentBy: string,
-  ): Promise<{
-    success: boolean;
-    messageId?: string;
-    error?: string;
-    deliveryNote?: unknown;
-  }> {
-    let logProcess: LogProcessModel | undefined;
-
-    try {
-      logProcess = await this.logService.startProcess({
-        functionId: 'MAT_DEL_007',
-        functionName: 'sendDeliveryNoteEmail',
-        createdBy: sentBy,
-      });
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Sending Delivery Note email for DN ID: ${id}`,
-        type: 'INFO',
-        location: 'material-delivery-note.service.ts:838',
-      });
-
-      // Validate email recipients
-      const toEmails = dto.to
-        .split(',')
-        .map((email) => email.trim())
-        .filter((email) => email.length > 0);
-
-      if (toEmails.length === 0) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: 'No valid email recipients provided',
-          type: 'ERROR',
-          location: 'material-delivery-note.service.ts:850',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-        throw new BadRequestException(
-          'At least one email recipient is required',
-        );
-      }
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Valid recipients: ${toEmails.join(', ')}`,
-        type: 'INFO',
-        location: 'material-delivery-note.service.ts:857',
-      });
-
-      // Fetch DN to verify it exists
-      const dn = await this.prisma.materialDeliveryNote.findUnique({
-        where: { Id: id },
-      });
-
-      if (!dn) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `DN not found: ${id}`,
-          type: 'ERROR',
-          location: 'material-delivery-note.service.ts:867',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-        throw new NotFoundException(`Delivery note not found: ${id}`);
-      }
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Found DN: ${dn.DeliveryNoteNum}, Status: ${dn.Status}`,
-        type: 'INFO',
-        location: 'material-delivery-note.service.ts:876',
-      });
-
-      // Generate PDF
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: 'Generating PDF attachment',
-        type: 'INFO',
-        location: 'material-delivery-note.service.ts:881',
-      });
-
-      const pdfBuffer = await this.generateDeliveryNotePDF(id);
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `PDF generated, size: ${pdfBuffer.length} bytes`,
-        type: 'INFO',
-        location: 'material-delivery-note.service.ts:888',
-      });
-
-      // Process CC emails
-      const ccEmails = dto.cc
-        ? dto.cc
-            .split(',')
-            .map((email) => email.trim())
-            .filter((email) => email.length > 0)
-        : undefined;
-
-      // Send email via SMTP
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: 'Sending email via SMTP',
-        type: 'INFO',
-        location: 'material-delivery-note.service.ts:902',
-      });
-
-      const emailResult = await this.smtpService.sendDeliveryNoteEmail({
-        to: toEmails,
-        cc: ccEmails,
-        deliveryNoteNum: dn.DeliveryNoteNum,
-        destination: dn.Destination,
-        pdfBuffer,
-        sentBy,
-      });
-
-      if (!emailResult.success) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Email send failed: ${emailResult.error}`,
-          type: 'ERROR',
-          location: 'material-delivery-note.service.ts:917',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-        throw new BadRequestException(
-          `Failed to send email: ${emailResult.error}`,
-        );
-      }
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Email sent successfully. MessageId: ${emailResult.messageId}`,
-        type: 'INFO',
-        location: 'material-delivery-note.service.ts:926',
-      });
-
-      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
-
-      return {
-        success: true,
-        messageId: emailResult.messageId,
-        deliveryNote: await this.findOne(id),
-      };
-    } catch (error) {
-      if (logProcess) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `ERROR sending Delivery Note email: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          type: 'ERROR',
-          location: 'material-delivery-note.service.ts:940',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-      }
-      throw error;
+  ) {
+    const to = dto.to
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean)
+      .sort();
+    if (to.length === 0) {
+      throw new BadRequestException('At least one email recipient is required');
     }
+    const cc = (dto.cc ?? '')
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter(Boolean)
+      .sort();
+    const event = await this.prisma.$transaction(async (tx) => {
+      const dn = await tx.materialDeliveryNote.findUnique({
+        where: { Id: id },
+        include: {
+          Details: {
+            select: {
+              MaterialId: true,
+              FinishGoodPartTemp: true,
+              QtyRequested: true,
+              QtyPicking: true,
+              QtyReceived: true,
+            },
+            orderBy: { Id: 'asc' },
+          },
+        },
+      });
+      if (!dn) throw new NotFoundException(`Delivery note not found: ${id}`);
+      const documentVersion = OutboxService.fingerprint([
+        dn.DeliveryNoteNum,
+        dn.Destination,
+        dn.Status,
+        dn.CreatedAt,
+        dn.ShippedAt,
+        dn.ReceivedAt,
+        dn.Details,
+      ]);
+      const recipientFingerprint = OutboxService.fingerprint([to, cc]);
+      return this.outboxService.create(tx, {
+        idempotencyKey: `delivery-note-email:${id}:${documentVersion}:${recipientFingerprint}`,
+        type: 'DELIVERY_NOTE_EMAIL',
+        payload: { deliveryNoteId: id, documentVersion, to, cc, sentBy },
+        actor: sentBy,
+        referenceType: 'MATERIAL_DELIVERY_NOTE',
+        referenceId: id,
+      });
+    });
+    return OutboxService.safeEvent(event);
   }
 }

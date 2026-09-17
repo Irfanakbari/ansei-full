@@ -5,6 +5,20 @@ export interface NasUploadFile {
   fileName: string;
   fileBuffer: Buffer;
   subFolder?: string;
+  signal?: AbortSignal;
+}
+
+const REQUEST_TIMEOUT_MS = 15_000;
+const DOWNLOAD_TIMEOUT_MS = 30_000;
+const LOGOUT_TIMEOUT_MS = 5_000;
+const MAX_RESPONSE_BYTES = 64 * 1024;
+const MAX_RETRIES = 2;
+const MAX_CONCURRENT_REQUESTS = 8;
+
+interface NasApiResponse {
+  success: boolean;
+  data?: { sid?: string };
+  error?: { code?: number };
 }
 
 /**
@@ -18,40 +32,94 @@ export interface NasUploadFile {
 export class NasUploadService {
   private readonly logger = new Logger(NasUploadService.name);
 
-  private readonly NAS_HOST = process.env.NAS_HOST || '192.168.1.15';
-  private readonly NAS_PORT = process.env.NAS_PORT || '5000'; // 5001 untuk HTTPS
-  private readonly NAS_PROTOCOL = process.env.NAS_PROTOCOL || 'http';
-  private readonly NAS_USER = process.env.NAS_USER || 'tes';
-  private readonly NAS_PASSWORD = process.env.NAS_PASSWORD || 'P@ta';
+  private readonly NAS_HOST = process.env.NAS_HOST?.trim();
+  private readonly NAS_PORT = process.env.NAS_PORT?.trim();
+  private readonly NAS_PROTOCOL = process.env.NAS_PROTOCOL?.trim();
+  private readonly NAS_USER = process.env.NAS_USER?.trim();
+  private readonly NAS_PASSWORD = process.env.NAS_PASSWORD;
 
   /**
    * Nama share / folder yang di-share di Synology (shared folder name).
    * Contoh: 'AssetStorage'
    */
-  private readonly NAS_SMB_SHARE = process.env.NAS_SMB_SHARE || 'AssetStorage';
+  private readonly NAS_SMB_SHARE = process.env.NAS_SMB_SHARE?.trim();
 
   /**
    * Subfolder di dalam share sebagai base path untuk semua file.
    * Contoh: 'ProductionAttachment'
    */
-  private readonly NAS_SMB_SUBFOLDER =
-    process.env.NAS_SMB_SUBFOLDER || 'Ansei_Asset';
+  private readonly NAS_SMB_SUBFOLDER = process.env.NAS_SMB_SUBFOLDER?.trim();
 
   /**
    * URL publik base untuk digunakan sebagai file URL yang disimpan di DB.
    */
-  private readonly NAS_BASE_URL =
-    process.env.NAS_BASE_URL || 'http://192.168.1.15/AssetStorage/Ansei_Asset';
+  private readonly NAS_BASE_URL = process.env.NAS_BASE_URL?.trim();
+  private activeRequests = 0;
+  private readonly waiters: Array<() => void> = [];
+
+  private getConfig(): {
+    host: string;
+    port: string;
+    protocol: 'http' | 'https';
+    user: string;
+    password: string;
+    share: string;
+    subfolder: string;
+    baseUrl: URL;
+  } {
+    const missing = [
+      ['NAS_HOST', this.NAS_HOST],
+      ['NAS_PORT', this.NAS_PORT],
+      ['NAS_PROTOCOL', this.NAS_PROTOCOL],
+      ['NAS_USER', this.NAS_USER],
+      ['NAS_PASSWORD', this.NAS_PASSWORD],
+      ['NAS_SMB_SHARE', this.NAS_SMB_SHARE],
+      ['NAS_SMB_SUBFOLDER', this.NAS_SMB_SUBFOLDER],
+      ['NAS_BASE_URL', this.NAS_BASE_URL],
+    ].filter(([, value]) => !value);
+
+    if (missing.length > 0) {
+      throw new Error(
+        `NAS configuration is incomplete: ${missing.map(([name]) => name).join(', ')}`,
+      );
+    }
+
+    if (this.NAS_PROTOCOL !== 'http' && this.NAS_PROTOCOL !== 'https') {
+      throw new Error('NAS_PROTOCOL must be http or https');
+    }
+    if (
+      process.env.NODE_ENV === 'production' &&
+      this.NAS_PROTOCOL !== 'https'
+    ) {
+      throw new Error('NAS_PROTOCOL must be https in production');
+    }
+
+    const baseUrl = new URL(this.NAS_BASE_URL as string);
+    if (!['http:', 'https:'].includes(baseUrl.protocol)) {
+      throw new Error('NAS_BASE_URL must use http or https');
+    }
+    if (
+      process.env.NODE_ENV === 'production' &&
+      baseUrl.protocol !== 'https:'
+    ) {
+      throw new Error('NAS_BASE_URL must use https in production');
+    }
+
+    return {
+      host: this.NAS_HOST as string,
+      port: this.NAS_PORT as string,
+      protocol: this.NAS_PROTOCOL,
+      user: this.NAS_USER as string,
+      password: this.NAS_PASSWORD as string,
+      share: this.NAS_SMB_SHARE as string,
+      subfolder: this.NAS_SMB_SUBFOLDER as string,
+      baseUrl,
+    };
+  }
 
   private get baseApiUrl(): string {
-    const url = `${this.NAS_PROTOCOL}://${this.NAS_HOST}:${this.NAS_PORT}/webapi`;
-    // Validate URL format
-    try {
-      new URL(url);
-    } catch {
-      throw new Error(`Invalid NAS configuration: ${url}`);
-    }
-    return url;
+    const config = this.getConfig();
+    return `${config.protocol}://${config.host}:${config.port}/webapi`;
   }
 
   /**
@@ -73,37 +141,32 @@ export class NasUploadService {
   /**
    * Login ke Synology FileStation API dan dapatkan SID (session token).
    */
-  private async login(): Promise<string> {
+  private async login(signal?: AbortSignal): Promise<string> {
+    const config = this.getConfig();
     // Build URL with proper encoding using URLSearchParams for all parameters
     const baseParams = new URLSearchParams({
       api: 'SYNO.API.Auth',
       version: '3',
       method: 'login',
-      account: this.NAS_USER,
-      passwd: this.NAS_PASSWORD,
+      account: config.user,
+      passwd: config.password,
       session: 'FileStation',
       format: 'sid',
     });
 
     const url = `${this.baseApiUrl}/auth.cgi?${baseParams.toString()}`;
 
-    this.logger.debug(
-      `NAS login URL: ${url.replace(this.NAS_PASSWORD, '***')}`,
-    );
-
     let res: Response;
     try {
-      res = await fetch(url);
-    } catch (fetchError) {
-      this.logger.error(`NAS fetch error: ${fetchError}`);
-      throw new Error(`NAS connection failed: ${fetchError}`);
+      res = await this.fetchWithRetry(url, {}, signal);
+    } catch (error) {
+      this.logger.error('NAS connection failed');
+      if (signal?.aborted) throw error;
+      throw new Error('NAS connection failed');
     }
 
     if (!res.ok) {
-      const errorText = await res.text().catch(() => 'Unknown error');
-      throw new Error(
-        `NAS login HTTP error: ${res.status} ${res.statusText} - ${errorText}`,
-      );
+      throw new Error(`NAS login HTTP error: ${res.status}`);
     }
 
     let json: {
@@ -112,19 +175,18 @@ export class NasUploadService {
       error?: { code?: number };
     };
     try {
-      json = await res.json();
-    } catch (parseError) {
-      const responseText = await res.text().catch(() => 'Unknown');
-      throw new Error(
-        `NAS login response parse error: ${parseError}, response: ${responseText}`,
-      );
+      json = await this.readJson(res);
+    } catch {
+      throw new Error('NAS login returned an invalid response');
     }
 
     if (!json.success) {
       throw new Error(`NAS login failed: error code ${json.error?.code}`);
     }
 
-    return json.data?.sid as string;
+    if (!json.data?.sid)
+      throw new Error('NAS login response did not include a session');
+    return json.data.sid;
   }
 
   /**
@@ -139,7 +201,12 @@ export class NasUploadService {
         session: 'FileStation',
         _sid: sid,
       });
-      await fetch(`${this.baseApiUrl}/auth.cgi?${params.toString()}`);
+      await this.fetchOnce(
+        `${this.baseApiUrl}/auth.cgi?${params.toString()}`,
+        {},
+        undefined,
+        LOGOUT_TIMEOUT_MS,
+      );
     } catch {
       // non-critical
     }
@@ -154,17 +221,18 @@ export class NasUploadService {
    * Mengembalikan URL publik file yang disimpan di DB.
    */
   async uploadFile(dto: NasUploadFile): Promise<string> {
-    const sid = await this.login();
+    const config = this.getConfig();
+    const sid = await this.login(dto.signal);
 
     try {
       // Path tujuan di dalam share: /AssetStorage/ProductionAttachment/production-release-id
       const subFolder = dto.subFolder
         ? `/${dto.subFolder.replace(/\\/g, '/')}`
         : '';
-      const destFolderPath = `/${this.NAS_SMB_SHARE}/${this.NAS_SMB_SUBFOLDER}${subFolder}`;
+      const destFolderPath = `/${config.share}/${config.subfolder}${subFolder}`;
 
       // Buat folder rekursif jika belum ada
-      await this.ensureDirectory(sid, destFolderPath);
+      await this.ensureDirectory(sid, destFolderPath, dto.signal);
 
       // Upload file menggunakan multipart/form-data
       const formData = new FormData();
@@ -181,10 +249,15 @@ export class NasUploadService {
 
       // _sid harus ada di query string URL, bukan hanya di form body
       const uploadUrl = `${this.baseApiUrl}/entry.cgi?_sid=${encodeURIComponent(sid)}`;
-      const uploadRes = await fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-      });
+      const uploadRes = await this.fetchWithRetry(
+        uploadUrl,
+        {
+          method: 'POST',
+          body: formData,
+        },
+        dto.signal,
+        false,
+      );
 
       if (!uploadRes.ok) {
         throw new Error(
@@ -192,16 +265,14 @@ export class NasUploadService {
         );
       }
 
-      const uploadJson = await uploadRes.json();
+      const uploadJson = await this.readJson<NasApiResponse>(uploadRes);
       if (!uploadJson.success) {
         throw new Error(
           `NAS upload failed: error code ${uploadJson.error?.code}`,
         );
       }
 
-      this.logger.log(
-        `File uploaded to NAS: ${destFolderPath}/${dto.fileName}`,
-      );
+      this.logger.log('File uploaded to NAS');
       return this.buildPublicUrl(dto.subFolder ?? '', dto.fileName);
     } finally {
       await this.logout(sid);
@@ -215,7 +286,7 @@ export class NasUploadService {
   async deleteFile(publicUrl: string): Promise<void> {
     const nasPath = this.publicUrlToNasPath(publicUrl);
     if (!nasPath) {
-      this.logger.warn(`Cannot resolve NAS path from URL: ${publicUrl}`);
+      this.logger.warn('Cannot resolve NAS path from URL');
       return;
     }
 
@@ -230,21 +301,22 @@ export class NasUploadService {
         _sid: sid,
       });
 
-      const res = await fetch(
+      const res = await this.fetchWithRetry(
         `${this.baseApiUrl}/entry.cgi?${params.toString()}`,
+        {},
+        undefined,
+        false,
       );
 
       if (!res.ok) {
         throw new Error(`NAS delete HTTP error: ${res.status}`);
       }
 
-      const json = await res.json();
+      const json = await this.readJson<NasApiResponse>(res);
       if (!json.success) {
-        this.logger.warn(
-          `NAS delete failed for ${nasPath}: error code ${json.error?.code}`,
-        );
+        this.logger.warn(`NAS delete failed: error code ${json.error?.code}`);
       } else {
-        this.logger.log(`File deleted from NAS: ${nasPath}`);
+        this.logger.log('File deleted from NAS');
       }
     } finally {
       await this.logout(sid);
@@ -269,10 +341,10 @@ export class NasUploadService {
         _sid: sid,
       });
 
-      const res = await fetch(
+      const res = await this.fetchWithRetry(
         `${this.baseApiUrl}/entry.cgi?${params.toString()}`,
       );
-      const json = await res.json();
+      const json = await this.readJson<NasApiResponse>(res);
       return json.success === true;
     } finally {
       await this.logout(sid);
@@ -284,17 +356,20 @@ export class NasUploadService {
    * publicUrl adalah URL yang tersimpan di DB.
    * Mengembalikan Response object dari fetch sehingga controller bisa pipe body-nya.
    */
-  async downloadFile(publicUrl: string): Promise<{
+  async downloadFile(
+    publicUrl: string,
+    signal?: AbortSignal,
+  ): Promise<{
     response: Response;
     fileName: string;
     contentType: string;
   }> {
     const nasPath = this.publicUrlToNasPath(publicUrl);
     if (!nasPath) {
-      throw new Error(`Cannot resolve NAS path from URL: ${publicUrl}`);
+      throw new Error('Cannot resolve NAS path from URL');
     }
 
-    const sid = await this.login();
+    const sid = await this.login(signal);
 
     const fileName = nasPath.split('/').pop() || 'file';
 
@@ -307,22 +382,66 @@ export class NasUploadService {
       _sid: sid,
     });
 
-    const res = await fetch(
-      `${this.baseApiUrl}/entry.cgi?${params.toString()}`,
-    );
-
-    if (!res.ok) {
+    let res: Response;
+    try {
+      res = await this.fetchWithRetry(
+        `${this.baseApiUrl}/entry.cgi?${params.toString()}`,
+        {},
+        signal,
+        true,
+        DOWNLOAD_TIMEOUT_MS,
+      );
+      if (!res.ok) throw new Error(`NAS download HTTP error: ${res.status}`);
+    } catch (error) {
       await this.logout(sid);
-      throw new Error(`NAS download HTTP error: ${res.status}`);
+      throw error;
     }
 
-    // Logout dilakukan setelah stream selesai tidak bisa, jadi biarkan session expire
-    // SID Synology default expire setelah beberapa menit idle
+    const body = res.body;
+    if (!body) {
+      await this.logout(sid);
+      throw new Error('NAS download returned an empty body');
+    }
+    const reader = body.getReader();
+    let closed = false;
+    const abortStream = () => {
+      void reader.cancel(signal?.reason).finally(() => closeSession());
+    };
+    const closeSession = async () => {
+      if (closed) return;
+      closed = true;
+      signal?.removeEventListener('abort', abortStream);
+      await this.logout(sid);
+    };
+    signal?.addEventListener('abort', abortStream, { once: true });
+    const wrappedBody = new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        try {
+          const chunk = await reader.read();
+          if (chunk.done) {
+            controller.close();
+            await closeSession();
+          } else {
+            controller.enqueue(chunk.value);
+          }
+        } catch (error) {
+          controller.error(error);
+          await closeSession();
+        }
+      },
+      async cancel(reason) {
+        try {
+          await reader.cancel(reason);
+        } finally {
+          await closeSession();
+        }
+      },
+    });
 
     const contentType =
       res.headers.get('content-type') || 'application/octet-stream';
 
-    return { response: res, fileName, contentType };
+    return { response: new Response(wrappedBody, res), fileName, contentType };
   }
 
   // ---------------------------------------------------------------------------
@@ -333,7 +452,11 @@ export class NasUploadService {
    * Buat directory secara rekursif menggunakan FileStation API.
    * path format: /ShareName/folder/subfolder
    */
-  private async ensureDirectory(sid: string, path: string): Promise<void> {
+  private async ensureDirectory(
+    sid: string,
+    path: string,
+    signal?: AbortSignal,
+  ): Promise<void> {
     try {
       // SYNO.FileStation.CreateFolder:
       // folder_path = parent directory (tempat folder baru dibuat)
@@ -355,31 +478,35 @@ export class NasUploadService {
         _sid: sid,
       });
 
-      const res = await fetch(
+      const res = await this.fetchWithRetry(
         `${this.baseApiUrl}/entry.cgi?${params.toString()}`,
+        {},
+        signal,
       );
-      const json = await res.json();
+      const json = await this.readJson<NasApiResponse>(res);
 
       if (!json.success) {
         const code = json.error?.code;
         // 1104 = folder already exists — tidak apa-apa
         if (code !== 1104) {
-          this.logger.debug(
-            `ensureDirectory response for ${path}: code=${code}`,
-          );
+          this.logger.debug(`ensureDirectory response code=${code}`);
         }
       } else {
-        this.logger.debug(`Created NAS directory: ${path}`);
+        this.logger.debug('Created NAS directory');
       }
-    } catch (err) {
-      this.logger.warn(`ensureDirectory failed (non-critical): ${err}`);
+    } catch (error) {
+      this.logger.warn('ensureDirectory failed');
+      throw error;
     }
   }
 
   private buildPublicUrl(subFolder: string, fileName: string): string {
+    const config = this.getConfig();
     const folder = subFolder ? `/${subFolder.replace(/\\/g, '/')}` : '';
-    // Format URL saved to DB: http://NAS_HOST:8080/NAS_SMB_SUBFOLDER/subFolder/fileName (without NAS_SMB_SHARE)
-    return `http://${this.NAS_HOST}:8080/${this.NAS_SMB_SUBFOLDER}${folder}/${fileName}`;
+    return new URL(
+      `${folder.replace(/^\//, '')}${folder ? '/' : ''}${fileName}`,
+      `${config.baseUrl.toString().replace(/\/$/, '')}/`,
+    ).toString();
   }
 
   /**
@@ -388,6 +515,7 @@ export class NasUploadService {
    *       → "/AssetStorage/ProductionAttachment/release-id/file.pdf"
    */
   private publicUrlToNasPath(publicUrl: string): string | null {
+    const config = this.getConfig();
     if (!publicUrl) return null;
 
     try {
@@ -408,16 +536,14 @@ export class NasUploadService {
       }
 
       // Jika path tidak diawali dengan /NAS_SMB_SHARE/, tambahkan /NAS_SMB_SHARE di depannya
-      const sharePrefix = `/${this.NAS_SMB_SHARE}/`;
-      if (!path.startsWith(sharePrefix) && path !== `/${this.NAS_SMB_SHARE}`) {
-        path = `/${this.NAS_SMB_SHARE}${path}`;
+      const sharePrefix = `/${config.share}/`;
+      if (!path.startsWith(sharePrefix) && path !== `/${config.share}`) {
+        path = `/${config.share}${path}`;
       }
 
       return path;
-    } catch (err) {
-      this.logger.warn(
-        `Failed to parse public URL: ${publicUrl}, error: ${err}`,
-      );
+    } catch {
+      this.logger.warn('Failed to parse public URL');
       return null;
     }
   }
@@ -430,6 +556,7 @@ export class NasUploadService {
   remapUrlToNewFormat(publicUrl: string): string {
     if (!publicUrl) return publicUrl;
     try {
+      const config = this.getConfig();
       let pathname = '';
       if (publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) {
         const url = new URL(publicUrl);
@@ -443,16 +570,99 @@ export class NasUploadService {
       }
 
       // Jika path mengandung /NAS_SMB_SHARE/, buang prefix tersebut
-      const sharePrefix = `/${this.NAS_SMB_SHARE}/`;
+      const sharePrefix = `/${config.share}/`;
       if (pathname.startsWith(sharePrefix)) {
         pathname = '/' + pathname.substring(sharePrefix.length);
-      } else if (pathname === `/${this.NAS_SMB_SHARE}`) {
+      } else if (pathname === `/${config.share}`) {
         pathname = '/';
       }
 
-      return `http://${this.NAS_HOST}:8080${pathname}`;
+      return new URL(
+        pathname.replace(/^\//, ''),
+        `${config.baseUrl.origin}/`,
+      ).toString();
     } catch {
       return publicUrl;
     }
+  }
+
+  private async acquire(signal?: AbortSignal): Promise<void> {
+    signal?.throwIfAborted();
+    if (this.activeRequests < MAX_CONCURRENT_REQUESTS) {
+      this.activeRequests += 1;
+      return;
+    }
+    await new Promise<void>((resolve, reject) => {
+      const resume = () => {
+        signal?.removeEventListener('abort', abort);
+        resolve();
+      };
+      const abort = () => {
+        const index = this.waiters.indexOf(resume);
+        if (index >= 0) this.waiters.splice(index, 1);
+        reject(
+          signal?.reason instanceof Error
+            ? signal.reason
+            : new Error('NAS request aborted'),
+        );
+      };
+      signal?.addEventListener('abort', abort, { once: true });
+      this.waiters.push(resume);
+    });
+    this.activeRequests += 1;
+  }
+
+  private release(): void {
+    this.activeRequests -= 1;
+    this.waiters.shift()?.();
+  }
+
+  private async fetchOnce(
+    input: string,
+    init: RequestInit = {},
+    signal?: AbortSignal,
+    timeoutMs = REQUEST_TIMEOUT_MS,
+  ): Promise<Response> {
+    await this.acquire(signal);
+    const timeout = AbortSignal.timeout(timeoutMs);
+    const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
+    try {
+      return await fetch(input, { ...init, signal: combined });
+    } finally {
+      this.release();
+    }
+  }
+
+  private async fetchWithRetry(
+    input: string,
+    init: RequestInit = {},
+    signal?: AbortSignal,
+    retryable = true,
+    timeoutMs = REQUEST_TIMEOUT_MS,
+  ): Promise<Response> {
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        const response = await this.fetchOnce(input, init, signal, timeoutMs);
+        if (
+          !retryable ||
+          attempt >= MAX_RETRIES ||
+          ![429, 502, 503, 504].includes(response.status)
+        )
+          return response;
+      } catch (error) {
+        if (signal?.aborted || attempt >= MAX_RETRIES || !retryable)
+          throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100 * 2 ** attempt));
+    }
+  }
+
+  private async readJson<T>(response: Response): Promise<T> {
+    const length = Number(response.headers.get('content-length') ?? 0);
+    if (length > MAX_RESPONSE_BYTES) throw new Error('NAS response too large');
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (bytes.byteLength > MAX_RESPONSE_BYTES)
+      throw new Error('NAS response too large');
+    return JSON.parse(new TextDecoder().decode(bytes)) as T;
   }
 }

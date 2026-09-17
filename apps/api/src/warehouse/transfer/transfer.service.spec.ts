@@ -151,6 +151,8 @@ describe('TransferService', () => {
       expect(logService.completeProcess).toHaveBeenCalledWith(
         mockLogProcess.ProcessId,
         'SUCCESS',
+        undefined,
+        expect.any(Object),
       );
     });
   });

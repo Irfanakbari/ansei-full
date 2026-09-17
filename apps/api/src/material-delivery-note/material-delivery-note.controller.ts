@@ -30,12 +30,14 @@ import {
 import { Permission } from '../auth/decorators/permission.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
+import { OutboxService } from '../common/outbox/outbox.service';
 
 @ApiTags('Material Delivery Note')
 @Controller('transfer-material')
 export class MaterialDeliveryNoteController {
   constructor(
     private readonly materialDeliveryNoteService: MaterialDeliveryNoteService,
+    private readonly outboxService: OutboxService,
   ) {}
 
   @Post()
@@ -104,8 +106,8 @@ export class MaterialDeliveryNoteController {
     status: 400,
     description: 'Cannot delete non-DRAFT delivery note',
   })
-  async remove(@Param('id') id: string) {
-    return this.materialDeliveryNoteService.remove(id);
+  async remove(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {
+    return this.materialDeliveryNoteService.remove(id, user.username);
   }
 
   @Patch(':id/pick')
@@ -220,5 +222,17 @@ export class MaterialDeliveryNoteController {
       dto,
       user.username,
     );
+  }
+
+  @Get(':id/send-dn/status')
+  @Permission('IPCS.TRANSFER_MATERIAL_READ')
+  async getSendDNStatus(@Param('id') id: string) {
+    return this.outboxService.findLatest('MATERIAL_DELIVERY_NOTE', id);
+  }
+
+  @Post(':id/send-dn/retry')
+  @Permission('IPCS.TRANSFER_MATERIAL_UPDATE')
+  async retrySendDN(@Param('id') id: string) {
+    return this.outboxService.retryLatest('MATERIAL_DELIVERY_NOTE', id);
   }
 }

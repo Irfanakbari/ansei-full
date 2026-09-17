@@ -3,7 +3,6 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
-  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -19,8 +18,8 @@ import type {
   PaginationMeta,
 } from '../../common/interceptors/api-response.interface';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { validateUploadContent } from '../../common/utils/upload-security.util';
 
-const ALLOWED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
 @Injectable()
@@ -287,7 +286,7 @@ export class ManPowerService {
           await this.nasUploadService.deleteFile(existing.PicturePath);
           await this.logService.addLog({
             processId: logProcess.ProcessId,
-            message: `Picture deleted from NAS: ${existing.PicturePath}`,
+            message: `Picture deleted from NAS for man power ${uid}`,
             type: 'INFO',
             location: 'man-power.service.ts:255',
           });
@@ -350,19 +349,13 @@ export class ManPowerService {
         location: 'man-power.service.ts:303',
       });
 
-      // Validate file extension
-      const fileExtension = file.originalname.split('.').pop()?.toLowerCase();
-      if (!fileExtension || !ALLOWED_IMAGE_EXTENSIONS.includes(fileExtension)) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Invalid file extension: ${fileExtension}. Allowed: ${ALLOWED_IMAGE_EXTENSIONS.join(', ')}`,
-          type: 'ERROR',
-          location: 'man-power.service.ts:313',
-        });
-        throw new UnsupportedMediaTypeException(
-          `Invalid file extension. Allowed image extensions: ${ALLOWED_IMAGE_EXTENSIONS.join(', ')}`,
-        );
-      }
+      const fileKind = validateUploadContent(file, [
+        'png',
+        'jpeg',
+        'gif',
+        'webp',
+      ]);
+      const fileExtension = fileKind === 'jpeg' ? 'jpg' : fileKind;
 
       // Validate file size (max 5MB)
       if (file.size > MAX_IMAGE_SIZE) {
@@ -390,7 +383,7 @@ export class ManPowerService {
           await this.nasUploadService.deleteFile(existing.PicturePath);
           await this.logService.addLog({
             processId: logProcess.ProcessId,
-            message: `Old picture deleted from NAS: ${existing.PicturePath}`,
+            message: `Old picture deleted from NAS for man power ${uid}`,
             type: 'INFO',
             location: 'man-power.service.ts:344',
           });
@@ -423,7 +416,7 @@ export class ManPowerService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Picture uploaded to NAS: ${fileUrl}`,
+        message: `Picture uploaded to NAS for man power ${uid}`,
         type: 'INFO',
         location: 'man-power.service.ts:374',
       });
@@ -489,7 +482,7 @@ export class ManPowerService {
         await this.nasUploadService.deleteFile(existing.PicturePath);
         await this.logService.addLog({
           processId: logProcess.ProcessId,
-          message: `Picture deleted from NAS: ${existing.PicturePath}`,
+          message: `Picture deleted from NAS for man power ${uid}`,
           type: 'INFO',
           location: 'man-power.service.ts:430',
         });

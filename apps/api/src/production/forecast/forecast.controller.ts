@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ForecastService } from './forecast.service';
-import { CreateForecastDto, UpdateForecastDto } from './dto';
+import { CreateForecastDto, ForecastQueryDto, UpdateForecastDto } from './dto';
 import {
   ForecastEntity,
   ForecastOperatorEntity,
@@ -26,7 +26,6 @@ import {
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
-import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
 @ApiTags('Forecast')
 @Controller('production/forecast')
@@ -42,7 +41,7 @@ export class ForecastController {
   @Get()
   @Permission('IPCS.FORECAST_READ')
   async findAll(
-    @Query() query: SearchPaginationQueryDto,
+    @Query() query: ForecastQueryDto,
     @CurrentUser() user: ICurrentUser,
   ) {
     return this.forecastService.findAll(query);
@@ -110,7 +109,11 @@ export class ForecastController {
   })
   @Post('import')
   @Permission('IPCS.FORECAST_CREATE')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+    }),
+  )
   async importExcel(
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() user: ICurrentUser,

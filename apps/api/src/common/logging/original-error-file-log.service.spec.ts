@@ -32,9 +32,15 @@ describe(OriginalErrorFileLogService.name, () => {
       statusCode: 500,
     });
 
-    const fileName = (await readdir(storagePath)).find(
-      (name) => name.startsWith('secure-error-') && name.endsWith('.txt'),
-    );
+    let fileName: string | undefined;
+    for (let attempt = 0; attempt < 20 && !fileName; attempt++) {
+      fileName = (await readdir(storagePath)).find(
+        (name) => name.startsWith('secure-error-') && name.endsWith('.txt'),
+      );
+      if (!fileName) {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+    }
     expect(fileName).toBeDefined();
     const filePath = join(storagePath, fileName!);
     const content = await readFile(filePath, 'utf8');

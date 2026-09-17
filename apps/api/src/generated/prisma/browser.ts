@@ -108,6 +108,16 @@ export type ProductionReleaseAttachment = Prisma.ProductionReleaseAttachmentMode
  */
 export type Shopping = Prisma.ShoppingModel
 /**
+ * Model ShoppingProductionResult
+ * 
+ */
+export type ShoppingProductionResult = Prisma.ShoppingProductionResultModel
+/**
+ * Model OutboxEvent
+ * 
+ */
+export type OutboxEvent = Prisma.OutboxEventModel
+/**
  * Model ProductionReport
  * 
  */

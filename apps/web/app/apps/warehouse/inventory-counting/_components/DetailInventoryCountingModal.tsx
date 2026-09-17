@@ -197,6 +197,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                     : { actualQty: warehouseVal };
 
                 const result = await dispatch(updateActualStock({
+                    inventoryCountingId: data.Id,
                     detailId: detailIdToUpdate,
                     dto,
                 }));

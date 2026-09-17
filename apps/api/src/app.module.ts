@@ -30,7 +30,7 @@ import { MaterialDeliveryNoteModule } from './material-delivery-note/material-de
 import { FrontendModule } from './frontend/frontend.module';
 import { MrpModule } from './mrp/mrp.module';
 import { ReportModule } from './report/report.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { DualAuthGuard } from './auth/guards/dual-auth.guard';
 import { join } from 'path';
 import { PrismaModule } from './prisma/prisma.module';
@@ -39,11 +39,15 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { PrismaClientExceptionFilter } from './common/filters/prisma-client-exception.filter';
 import { RequestCorrelationMiddleware } from './common/middleware/request-correlation.middleware';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor';
+import { OutboxModule } from './common/outbox/outbox.module';
+import { validateEnvironment } from './config/environment.validation';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validate: validateEnvironment,
     }),
     // Serve static assets (signatures, images, etc.)
     ServeStaticModule.forRoot({
@@ -75,6 +79,7 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
       ],
     }),
     PrismaModule,
+    OutboxModule,
     AuthModule,
     LoggingModule,
     UserManagementModule,
@@ -101,10 +106,15 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
     FrontendModule,
     MrpModule,
     ReportModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     // Global auth guard - applies to all routes by default
     {
       provide: APP_GUARD,

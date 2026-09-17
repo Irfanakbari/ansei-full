@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
-import { PrinterService } from '../../common/printer/printer.service';
+import { OutboxService } from '../../common/outbox/outbox.service';
 import { CreateShoppingDto } from './dto';
 import type {
   ShoppingModel,
@@ -89,7 +89,7 @@ export class ShoppingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
-    private readonly printerService: PrinterService,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async findAll(query: SearchPaginationQueryDto) {
@@ -219,10 +219,6 @@ export class ShoppingService {
         },
       },
     });
-
-    // DEBUG: Log hasil BOM query
-    console.log('[DEBUG] BOM Entries count:', bomEntries.length);
-    console.log('[DEBUG] BOM Entries:', JSON.stringify(bomEntries, null, 2));
 
     // Get semua shopping untuk forecast ini
     const shoppings = await this.prisma.shopping.findMany({
@@ -446,75 +442,7 @@ export class ShoppingService {
       },
     );
 
-    if (shouldIncrementFinishGood) {
-      await this.emitPartTag(forecastId, forecast.FinishGoodId, processId);
-    }
-
     return shopping;
-  }
-
-  private async emitPartTag(
-    forecastId: string,
-    finishGoodId: string,
-    processId: string,
-  ): Promise<void> {
-    try {
-      const [forecast, finishGood, boxQTY] = await Promise.all([
-        this.prisma.forecast.findUnique({ where: { PoId: forecastId } }),
-        this.prisma.finishGood.findUnique({
-          where: { PartNumber: finishGoodId },
-        }),
-        this.prisma.boxQTY.findUnique({
-          where: { PartNumber: finishGoodId },
-        }),
-      ]);
-
-      if (!forecast || !finishGood) {
-        throw new Error('Committed part tag data could not be loaded');
-      }
-
-      await this.printerService.printPartTagAnsei({
-        poId: forecast.PoId,
-        qtyOrder: forecast.Qty,
-        partNumber: finishGood.PartNumber,
-        partName: finishGood.PartName,
-        vendorCode: forecast.VendorCode,
-        classificationCode: forecast.Classification,
-        deliveryDate: forecast.DeliveryDate,
-        qtyPerbox: boxQTY?.Qty ?? forecast.Qty,
-        poNumber: forecast.PoNumber,
-        receivingArea: forecast.ReceivingArea,
-      });
-      await this.safePrinterAudit(
-        processId,
-        `Printer event printPartTagAnsei emitted for forecast ${forecastId}`,
-        'INFO',
-      );
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      await this.safePrinterAudit(
-        processId,
-        `Printer event printPartTagAnsei failed for forecast ${forecastId}: ${message}`,
-        'ERROR',
-      );
-    }
-  }
-
-  private async safePrinterAudit(
-    processId: string,
-    message: string,
-    type: 'INFO' | 'ERROR',
-  ): Promise<void> {
-    try {
-      await this.logService.addLog({
-        processId,
-        message,
-        type,
-        location: 'ShoppingService.emitPartTag',
-      });
-    } catch {
-      return;
-    }
   }
 
   /**
@@ -698,6 +626,48 @@ export class ShoppingService {
     });
 
     const result = await this.prisma.$transaction(async (tx) => {
+      if (dto.forecastId && dto.type === TypeShopping.REGULER) {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${dto.forecastId}))`;
+
+        const finishGoodId = finishGoodContext?.finishGoodId;
+        const forecastQty = finishGoodContext?.forecastQty;
+        if (!finishGoodId || !forecastQty) {
+          throw new BadRequestException(
+            `POKAYOKE: Forecast ${dto.forecastId} has incomplete finish good context`,
+          );
+        }
+
+        const [bomEntry, committedPicks] = await Promise.all([
+          tx.billOfMaterials.findFirst({
+            where: {
+              FGData: { PartNumber: finishGoodId },
+              MaterialData: { PartNumber: dto.materialId },
+            },
+            select: { Qty: true },
+          }),
+          tx.shopping.findMany({
+            where: {
+              ForecastId: dto.forecastId,
+              MaterialId: dto.materialId,
+            },
+            select: { QtyPick: true },
+          }),
+        ]);
+        const totalRequired = forecastQty * (bomEntry?.Qty ?? 0);
+        const alreadyPicked = committedPicks.reduce(
+          (sum, pick) => sum + pick.QtyPick,
+          0,
+        );
+
+        if (!bomEntry || alreadyPicked + dto.qtyPick > totalRequired) {
+          throw new BadRequestException(
+            `POKAYOKE FAILED: QtyPick (${dto.qtyPick}) exceeds remaining required (${Math.max(totalRequired - alreadyPicked, 0)}). Exceeds the requirement!`,
+          );
+        }
+      }
+
+      await tx.$executeRaw`SELECT 1 FROM "Material" WHERE "PartNumber" = ${dto.materialId} FOR UPDATE`;
+
       // Get current QtyRack
       const material = await tx.material.findUnique({
         where: { PartNumber: dto.materialId },
@@ -706,6 +676,12 @@ export class ShoppingService {
 
       const balanceBefore = material?.QtyRack || 0;
       const balanceAfter = balanceBefore - dto.qtyPick;
+
+      if (balanceAfter < 0) {
+        throw new BadRequestException(
+          `POKAYOKE: Insufficient stock in QtyRack. Available: ${balanceBefore}, Required: ${dto.qtyPick}`,
+        );
+      }
 
       const isAdditional =
         dto.type === TypeShopping.ADDITIONAL ||
@@ -734,22 +710,16 @@ export class ShoppingService {
 
       await this.logService.addLog({
         processId,
-        message: `InventoryLedger created: Material ${dto.materialId} QtyRack ${balanceBefore} -> ${balanceAfter}`,
+        message: `Shopping ${shoppingId} stock mutation committed for ${dto.materialId}`,
         type: 'INFO',
-        location: 'shopping.service.ts:348',
+        location: 'ShoppingService.executeShoppingTransaction',
+        client: tx,
       });
 
       // Update Material QtyRack
       await tx.material.update({
         where: { PartNumber: dto.materialId },
         data: { QtyRack: balanceAfter },
-      });
-
-      await this.logService.addLog({
-        processId,
-        message: `Material ${dto.materialId} QtyRack updated: ${balanceAfter}`,
-        type: 'INFO',
-        location: 'shopping.service.ts:356',
       });
 
       // Create Shopping record
@@ -772,61 +742,132 @@ export class ShoppingService {
       // ========== FINISH GOOD INCREMENT (PRODUCTION_RESULT) ==========
       // Only for REGULER shopping when ALL BOM materials are COMPLETE
       if (
+        validForecastId &&
         finishGoodContext?.finishGoodId &&
         finishGoodContext?.forecastQty &&
-        finishGoodContext?.shouldIncrementFinishGood
+        (await this.checkAllBomsCompleteInTransaction(
+          tx,
+          validForecastId,
+          finishGoodContext.finishGoodId,
+          finishGoodContext.forecastQty,
+        ))
       ) {
-        // Get current FinishGood stock
-        const fg = await tx.finishGood.findUnique({
-          where: { PartNumber: finishGoodContext.finishGoodId },
-          select: { Qty: true, PartName: true },
-        });
+        const markerCount = await tx.$executeRaw`
+          INSERT INTO "ShoppingProductionResult" ("ForecastId", "ShoppingId", "CreatedBy")
+          VALUES (${validForecastId}, ${shoppingId}, ${createdBy})
+          ON CONFLICT ("ForecastId") DO NOTHING
+        `;
 
-        if (fg) {
-          const fgBalanceBefore = fg.Qty;
-          const fgBalanceAfter =
-            fgBalanceBefore + finishGoodContext.forecastQty;
-
-          // INCREMENT FinishGood Qty
-          await tx.finishGood.update({
+        if (markerCount === 1) {
+          await tx.$executeRaw`SELECT 1 FROM "FinishGood" WHERE "PartNumber" = ${finishGoodContext.finishGoodId} FOR UPDATE`;
+          // Get current FinishGood stock
+          const fg = await tx.finishGood.findUnique({
             where: { PartNumber: finishGoodContext.finishGoodId },
-            data: { Qty: fgBalanceAfter },
+            select: { Qty: true, PartName: true },
           });
 
-          // Create InventoryLedger entry for PRODUCTION_RESULT
-          await tx.inventoryLedger.create({
-            data: {
-              Id: crypto.randomUUID(),
-              TransactionDate: new Date(),
-              ItemCategory: 'FINISH_GOOD',
-              FinishGoodId: finishGoodContext.finishGoodId,
-              Location: LocationType.FINISH_GOOD_AREA,
-              TransactionType: TransactionType.PRODUCTION_RESULT,
-              ReferenceDoc: `PROD-${shoppingId}`,
-              BalanceBefore: fgBalanceBefore,
-              QtyIn: finishGoodContext.forecastQty,
-              QtyOut: 0,
-              BalanceAfter: fgBalanceAfter,
-              CreatedBy: createdBy,
-              Notes: `Production Result from REGULER shopping completion for PO: ${dto.forecastId}. Material: ${dto.materialId}, QtyPick: ${dto.qtyPick}`,
-            },
-          });
+          if (fg) {
+            const fgBalanceBefore = fg.Qty;
+            const fgBalanceAfter =
+              fgBalanceBefore + finishGoodContext.forecastQty;
 
-          await this.logService.addLog({
-            processId,
-            message: `FINISH GOOD INCREMENT: ${finishGoodContext.finishGoodId} Qty ${fgBalanceBefore} -> ${fgBalanceAfter} (+${finishGoodContext.forecastQty}) - BOM Complete for PO: ${dto.forecastId}`,
-            type: 'INFO',
-            location: 'shopping.service.ts:380',
-          });
+            // INCREMENT FinishGood Qty
+            await tx.finishGood.update({
+              where: { PartNumber: finishGoodContext.finishGoodId },
+              data: { Qty: fgBalanceAfter },
+            });
+
+            // Create InventoryLedger entry for PRODUCTION_RESULT
+            await tx.inventoryLedger.create({
+              data: {
+                Id: crypto.randomUUID(),
+                TransactionDate: new Date(),
+                ItemCategory: 'FINISH_GOOD',
+                FinishGoodId: finishGoodContext.finishGoodId,
+                Location: LocationType.FINISH_GOOD_AREA,
+                TransactionType: TransactionType.PRODUCTION_RESULT,
+                ReferenceDoc: `PROD-${shoppingId}`,
+                BalanceBefore: fgBalanceBefore,
+                QtyIn: finishGoodContext.forecastQty,
+                QtyOut: 0,
+                BalanceAfter: fgBalanceAfter,
+                CreatedBy: createdBy,
+                Notes: `Production Result from REGULER shopping completion for PO: ${dto.forecastId}. Material: ${dto.materialId}, QtyPick: ${dto.qtyPick}`,
+              },
+            });
+
+            const [forecast, boxQTY] = await Promise.all([
+              tx.forecast.findUniqueOrThrow({
+                where: { PoId: validForecastId },
+              }),
+              tx.boxQTY.findUnique({
+                where: { PartNumber: finishGoodContext.finishGoodId },
+              }),
+            ]);
+            await this.outboxService.create(tx, {
+              idempotencyKey: `print-part-tag:${validForecastId}`,
+              type: 'PRINT_PART_TAG_ANSEI',
+              payload: {
+                poId: forecast.PoId,
+                qtyOrder: forecast.Qty,
+                partNumber: finishGoodContext.finishGoodId,
+                partName: fg.PartName,
+                vendorCode: forecast.VendorCode,
+                classificationCode: forecast.Classification,
+                deliveryDate: forecast.DeliveryDate,
+                qtyPerbox: boxQTY?.Qty ?? forecast.Qty,
+                poNumber: forecast.PoNumber,
+                receivingArea: forecast.ReceivingArea,
+              },
+              actor: createdBy,
+              referenceType: 'SHOPPING_PRODUCTION_RESULT',
+              referenceId: validForecastId,
+            });
+          }
         }
       }
 
+      await this.logService.completeProcess(
+        processId,
+        'SUCCESS',
+        undefined,
+        tx,
+      );
       return shopping;
     });
 
-    await this.logService.completeProcess(processId, 'SUCCESS');
-
     return result;
+  }
+
+  private async checkAllBomsCompleteInTransaction(
+    tx: Prisma.TransactionClient,
+    forecastId: string,
+    finishGoodId: string,
+    forecastQty: number,
+  ): Promise<boolean> {
+    const bomEntries = await tx.billOfMaterials.findMany({
+      where: { FGData: { PartNumber: finishGoodId } },
+      include: { MaterialData: { select: { PartNumber: true } } },
+    });
+
+    if (bomEntries.length === 0) return false;
+
+    const shoppings = await tx.shopping.findMany({
+      where: { ForecastId: forecastId },
+      select: { MaterialId: true, QtyPick: true },
+    });
+    const picked = new Map<string, number>();
+    for (const shopping of shoppings) {
+      picked.set(
+        shopping.MaterialId,
+        (picked.get(shopping.MaterialId) ?? 0) + shopping.QtyPick,
+      );
+    }
+
+    return bomEntries.every(
+      (bom) =>
+        (picked.get(bom.MaterialData.PartNumber) ?? 0) >= forecastQty * bom.Qty,
+    );
   }
 
   async remove(id: string, deletedBy: string) {

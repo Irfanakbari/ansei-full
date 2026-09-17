@@ -10,8 +10,8 @@ describe('DeliveryService', () => {
   let logService: any;
 
   const createMockTx = () => ({
-    deliveryHistory: { create: jest.fn() },
-    finishGood: { update: jest.fn() },
+    deliveryHistory: { create: jest.fn(), findUnique: jest.fn() },
+    finishGood: { findUnique: jest.fn(), update: jest.fn() },
     inventoryLedger: { create: jest.fn() },
   });
 
@@ -100,6 +100,8 @@ describe('DeliveryService', () => {
 
       const mockTx = createMockTx();
       mockTx.deliveryHistory.create.mockResolvedValue(mockDelivery);
+      mockTx.deliveryHistory.findUnique.mockResolvedValue(null);
+      mockTx.finishGood.findUnique.mockResolvedValue(mockFinishGood);
       mockTx.finishGood.update.mockResolvedValue({});
       mockTx.inventoryLedger.create.mockResolvedValue({});
 

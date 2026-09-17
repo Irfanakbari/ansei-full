@@ -28,6 +28,7 @@ export class PokayokeService {
         functionName: 'PokayokeService.Scan',
         createdBy,
       });
+      const processId = logProcess.ProcessId;
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -135,43 +136,28 @@ export class PokayokeService {
         location: 'pokayoke.service.ts:110',
       });
 
-      try {
-        const requirements = await this.shoppingService.checkRequirement(
-          labelData.ForecastId,
-        );
+      const requirements = await this.shoppingService.checkRequirement(
+        labelData.ForecastId,
+      );
 
-        if (requirements.summary.overallPercentage < 100) {
-          const msg = `POKAYOKE FAILED: Shopping belum selesai untuk Forecast ${labelData.ForecastId}. Progress: ${requirements.summary.overallPercentage}% (${requirements.summary.totalQtyPicked}/${requirements.summary.totalQtyNeeded}). Selesaikan shopping terlebih dahulu.`;
-          await this.logService.addLog({
-            processId: logProcess.ProcessId,
-            message: msg,
-            type: 'ERROR',
-            location: 'pokayoke.service.ts:120',
-          });
-          await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-          throw new BadRequestException(msg);
-        }
-
+      if (requirements.summary.overallPercentage < 100) {
+        const msg = `POKAYOKE FAILED: Shopping belum selesai untuk Forecast ${labelData.ForecastId}. Progress: ${requirements.summary.overallPercentage}% (${requirements.summary.totalQtyPicked}/${requirements.summary.totalQtyNeeded}). Selesaikan shopping terlebih dahulu.`;
         await this.logService.addLog({
           processId: logProcess.ProcessId,
-          message: `POKAYOKE: Shopping COMPLETE (${requirements.summary.overallPercentage}%) - All ${requirements.summary.totalMaterials} materials picked`,
-          type: 'INFO',
-          location: 'pokayoke.service.ts:128',
+          message: msg,
+          type: 'ERROR',
+          location: 'pokayoke.service.ts:120',
         });
-      } catch (error) {
-        // Re-throw BadRequestException as-is
-        if (error instanceof BadRequestException) {
-          throw error;
-        }
-        // For other errors (e.g., Forecast not found in shopping), log and continue
-        // This allows scan even if forecast doesn't have shopping records yet
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Shopping check skipped: ${error instanceof Error ? error.message : 'Unknown error'}. Continuing scan...`,
-          type: 'WARN',
-          location: 'pokayoke.service.ts:138',
-        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+        throw new BadRequestException(msg);
       }
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `POKAYOKE: Shopping COMPLETE (${requirements.summary.overallPercentage}%) - All ${requirements.summary.totalMaterials} materials picked`,
+        type: 'INFO',
+        location: 'pokayoke.service.ts:128',
+      });
 
       // STEP 5: POKAYOKE - Validate FinishGood/PartNumber
       if (!labelData.FinishGoodId) {
@@ -224,50 +210,81 @@ export class PokayokeService {
         location: 'pokayoke.service.ts:154',
       });
 
-      const scanResult = await this.prisma.pokayokeScanHistory.create({
-        data: {
-          LabelNumber: dto.labelNumber,
-          PoId: labelData.ForecastId,
-          PartNumber: finishGood.PartNumber,
-          PartName: finishGood.PartName,
-          Status: statusValue,
-          CreatedBy: createdBy,
-        },
-      });
+      const scanResult =
+        dto.status === PokayokeCompareStatus.SUKSES
+          ? await this.prisma.$transaction(async (tx) => {
+              const claimed = await tx.labelData.updateMany({
+                where: { Id: labelData.Id, Scanned: false },
+                data: { Scanned: true },
+              });
 
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `PokayokeScanHistory created: ID=${scanResult.Id}`,
-        type: 'INFO',
-        location: 'pokayoke.service.ts:172',
-      });
+              if (claimed.count !== 1) {
+                throw new BadRequestException(
+                  `POKAYOKE: LabelNumber ${dto.labelNumber} already validated. Cannot scan again.`,
+                );
+              }
+
+              const history = await tx.pokayokeScanHistory.create({
+                data: {
+                  LabelNumber: dto.labelNumber,
+                  PoId: labelData.ForecastId,
+                  PartNumber: finishGood.PartNumber,
+                  PartName: finishGood.PartName,
+                  Status: statusValue,
+                  CreatedBy: createdBy,
+                  LabelDataId: labelData.Id,
+                },
+              });
+
+              if (labelData.ProductionReleaseId) {
+                await tx.productionRelease.update({
+                  where: { Id: labelData.ProductionReleaseId },
+                  data: {
+                    TotalGoodQty: { increment: labelData.QtyThisBox },
+                  },
+                });
+              }
+
+              await this.logService.addLog({
+                processId,
+                message: `PokayokeScanHistory created: ID=${history.Id}; LabelData ${labelData.Id} updated: Scanned=true`,
+                type: 'INFO',
+                location: 'PokayokeService.scan',
+                client: tx,
+              });
+              await this.logService.completeProcess(
+                processId,
+                'SUCCESS',
+                undefined,
+                tx,
+              );
+
+              return history;
+            })
+          : await this.prisma.pokayokeScanHistory.create({
+              data: {
+                LabelNumber: dto.labelNumber,
+                PoId: labelData.ForecastId,
+                PartNumber: finishGood.PartNumber,
+                PartName: finishGood.PartName,
+                Status: statusValue,
+                CreatedBy: createdBy,
+                LabelDataId: labelData.Id,
+              },
+            });
+
+      if (dto.status !== PokayokeCompareStatus.SUKSES) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `PokayokeScanHistory created: ID=${scanResult.Id}`,
+          type: 'INFO',
+          location: 'pokayoke.service.ts:172',
+        });
+      }
 
       // STEP 7: Update scanned label and release cache atomically only if SUKSES.
       // LabelData.Scanned + QtyThisBox remains the source of truth for actual output.
-      if (dto.status === 'SUKSES') {
-        await this.prisma.$transaction(async (tx) => {
-          await tx.labelData.update({
-            where: { Id: labelData.Id },
-            data: { Scanned: true },
-          });
-
-          if (labelData.ProductionReleaseId) {
-            await tx.productionRelease.update({
-              where: { Id: labelData.ProductionReleaseId },
-              data: {
-                TotalGoodQty: { increment: labelData.QtyThisBox },
-              },
-            });
-          }
-        });
-
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `LabelData ${labelData.Id} updated: Scanned=true (SUKSES)`,
-          type: 'INFO',
-          location: 'pokayoke.service.ts:184',
-        });
-      } else {
+      if (dto.status !== 'SUKSES') {
         // GAGAL - do NOT update Scanned, label can be re-scanned later
         await this.logService.addLog({
           processId: logProcess.ProcessId,
@@ -277,7 +294,9 @@ export class PokayokeService {
         });
       }
 
-      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      if (dto.status !== PokayokeCompareStatus.SUKSES) {
+        await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      }
 
       const message =
         dto.status === 'SUKSES'

@@ -29,6 +29,7 @@ import {
   getUserDisplayName,
   getUserDisplayNameMap,
 } from '../common/helpers/user-lookup.helper';
+import { withInventoryTransaction } from '../common/helpers/inventory-transaction.helper';
 
 @Injectable()
 export class InventoryCountingService {
@@ -666,78 +667,82 @@ export class InventoryCountingService {
 
       const localProcessId = logProcess.ProcessId;
 
-      await this.prisma.$transaction(async (tx) => {
-        for (const detail of existing.Details) {
-          if (detail.MaterialId) {
-            // MATERIAL: snapshot based on location
-            const material = await tx.material.findUnique({
-              where: { PartNumber: detail.MaterialId },
-              select: { QtyWarehouse: true, QtyRack: true },
-            });
-
-            if (material) {
-              const isRack = detail.Location === LocationType.RACK;
-              // WAREHOUSE: SystemQty = QtyWarehouse, SystemQtyRack = 0
-              // RACK: SystemQty = 0, SystemQtyRack = QtyRack
-              const systemQty = isRack ? 0 : material.QtyWarehouse;
-              const systemQtyRack = isRack ? material.QtyRack : 0;
-
-              await tx.stockOpnameDetail.update({
-                where: { Id: detail.Id },
-                data: {
-                  SystemQty: systemQty,
-                  SystemQtyRack: systemQtyRack,
-                },
+      await withInventoryTransaction(
+        this.prisma,
+        existing.Category,
+        async (tx) => {
+          const claimed = await tx.stockOpname.updateMany({
+            where: { Id: id, Status: OpnameStatus.DRAFT },
+            data: { Status: OpnameStatus.IN_PROGRESS, StartedAt: new Date() },
+          });
+          if (claimed.count !== 1) {
+            throw new BadRequestException(
+              'Inventory counting has already been started or changed concurrently.',
+            );
+          }
+          for (const detail of existing.Details) {
+            if (detail.MaterialId) {
+              // MATERIAL: snapshot based on location
+              const material = await tx.material.findUnique({
+                where: { PartNumber: detail.MaterialId },
+                select: { QtyWarehouse: true, QtyRack: true },
               });
 
-              await this.logService.addLog({
-                processId: localProcessId,
-                message: `MATERIAL ${detail.MaterialId} [${detail.Location}]: SystemQty=${systemQty}, SystemQtyRack=${systemQtyRack}`,
-                type: 'INFO',
-                location: 'inventory-counting.service.ts:538',
-              });
-            }
-          } else if (detail.FinishGoodId) {
-            // FINISH_GOOD: snapshot from Qty
-            const fg = await tx.finishGood.findUnique({
-              where: { PartNumber: detail.FinishGoodId },
-              select: { Qty: true },
-            });
+              if (material) {
+                const isRack = detail.Location === LocationType.RACK;
+                // WAREHOUSE: SystemQty = QtyWarehouse, SystemQtyRack = 0
+                // RACK: SystemQty = 0, SystemQtyRack = QtyRack
+                const systemQty = isRack ? 0 : material.QtyWarehouse;
+                const systemQtyRack = isRack ? material.QtyRack : 0;
 
-            if (fg) {
-              await tx.stockOpnameDetail.update({
-                where: { Id: detail.Id },
-                data: {
-                  SystemQty: fg.Qty,
-                },
+                await tx.stockOpnameDetail.update({
+                  where: { Id: detail.Id },
+                  data: {
+                    SystemQty: systemQty,
+                    SystemQtyRack: systemQtyRack,
+                  },
+                });
+
+                await this.logService.addLog({
+                  processId: localProcessId,
+                  message: `MATERIAL ${detail.MaterialId} [${detail.Location}]: SystemQty=${systemQty}, SystemQtyRack=${systemQtyRack}`,
+                  type: 'INFO',
+                  location: 'inventory-counting.service.ts:538',
+                });
+              }
+            } else if (detail.FinishGoodId) {
+              // FINISH_GOOD: snapshot from Qty
+              const fg = await tx.finishGood.findUnique({
+                where: { PartNumber: detail.FinishGoodId },
+                select: { Qty: true },
               });
 
-              await this.logService.addLog({
-                processId: localProcessId,
-                message: `FINISHGOOD ${detail.FinishGoodId}: SystemQty=${fg.Qty}`,
-                type: 'INFO',
-                location: 'inventory-counting.service.ts:562',
-              });
+              if (fg) {
+                await tx.stockOpnameDetail.update({
+                  where: { Id: detail.Id },
+                  data: {
+                    SystemQty: fg.Qty,
+                  },
+                });
+
+                await this.logService.addLog({
+                  processId: localProcessId,
+                  message: `FINISHGOOD ${detail.FinishGoodId}: SystemQty=${fg.Qty}`,
+                  type: 'INFO',
+                  location: 'inventory-counting.service.ts:562',
+                });
+              }
             }
           }
-        }
 
-        // STEP 5: Update status to IN_PROGRESS and set StartedAt
-        await tx.stockOpname.update({
-          where: { Id: id },
-          data: {
-            Status: OpnameStatus.IN_PROGRESS,
-            StartedAt: new Date(),
-          },
-        });
-
-        await this.logService.addLog({
-          processId: localProcessId,
-          message: 'Inventory counting status updated to IN_PROGRESS',
-          type: 'INFO',
-          location: 'inventory-counting.service.ts:681',
-        });
-      });
+          await this.logService.addLog({
+            processId: localProcessId,
+            message: 'Inventory counting status updated to IN_PROGRESS',
+            type: 'INFO',
+            location: 'inventory-counting.service.ts:681',
+          });
+        },
+      );
 
       await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
 
@@ -802,11 +807,8 @@ export class InventoryCountingService {
         location: 'inventory-counting.service.ts:498',
       });
 
-      // STEP 2: Validate status is DRAFT or IN_PROGRESS
-      if (
-        inventoryCounting.Status !== OpnameStatus.DRAFT &&
-        inventoryCounting.Status !== OpnameStatus.IN_PROGRESS
-      ) {
+      // STEP 2: Validate status is DRAFT
+      if (inventoryCounting.Status !== OpnameStatus.DRAFT) {
         await this.logService.addLog({
           processId: logProcess.ProcessId,
           message: `Cannot generate cut-off for inventory counting with status ${inventoryCounting.Status}`,
@@ -916,95 +918,122 @@ export class InventoryCountingService {
         location: 'inventory-counting.service.ts:681',
       });
 
-      if (cutOffEntries.length > 0) {
-        await this.prisma.stockOpnameDetail.createMany({
-          data: cutOffEntries,
-          skipDuplicates: true,
-        });
-      }
+      const localProcessId = logProcess.ProcessId;
 
-      // STEP 5: Auto-start if DRAFT (this will trigger snapshot)
-      if (inventoryCounting.Status === OpnameStatus.DRAFT) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message:
-            'Auto-starting inventory counting (was DRAFT) - this will snapshot system qty',
-          type: 'INFO',
-          location: 'inventory-counting.service.ts:695',
-        });
-
-        // Get all details that were just created
-        const details = await this.prisma.stockOpnameDetail.findMany({
-          where: { OpnameId: dto.inventoryCountingId },
-        });
-
-        // Snapshot system qty for all details
-        // For MATERIAL with 2 locations (WAREHOUSE and RACK):
-        //   - WAREHOUSE detail: SystemQty = QtyWarehouse, SystemQtyRack = 0
-        //   - RACK detail: SystemQty = 0, SystemQtyRack = QtyRack
-        // For FINISH_GOOD:
-        //   - SystemQty = Qty
-        for (const detail of details) {
-          if (detail.MaterialId) {
-            const material = await this.prisma.material.findUnique({
-              where: { PartNumber: detail.MaterialId },
-              select: { QtyWarehouse: true, QtyRack: true },
+      await withInventoryTransaction(
+        this.prisma,
+        inventoryCounting.Category,
+        async (tx) => {
+          const currentCounting = await tx.stockOpname.findUnique({
+            where: { Id: dto.inventoryCountingId },
+          });
+          if (!currentCounting) {
+            throw new NotFoundException(
+              `Inventory counting with ID ${dto.inventoryCountingId} not found`,
+            );
+          }
+          if (currentCounting.Status !== OpnameStatus.DRAFT) {
+            throw new BadRequestException(
+              `Cannot generate cut-off for inventory counting with status ${currentCounting.Status}`,
+            );
+          }
+          if (cutOffEntries.length > 0) {
+            await tx.stockOpnameDetail.createMany({
+              data: cutOffEntries,
+              skipDuplicates: true,
             });
+          }
 
-            if (material) {
-              const isRack = detail.Location === LocationType.RACK;
-              // WAREHOUSE: SystemQty = QtyWarehouse, SystemQtyRack = 0
-              // RACK: SystemQty = 0, SystemQtyRack = QtyRack
-              const systemQty = isRack ? 0 : material.QtyWarehouse;
-              const systemQtyRack = isRack ? material.QtyRack : 0;
+          // STEP 5: Auto-start after snapshot generation
+          await this.logService.addLog({
+            processId: localProcessId,
+            message:
+              'Auto-starting inventory counting (was DRAFT) - this will snapshot system qty',
+            type: 'INFO',
+            location: 'inventory-counting.service.ts:695',
+          });
 
-              await this.prisma.stockOpnameDetail.update({
-                where: { Id: detail.Id },
-                data: {
-                  SystemQty: systemQty,
-                  SystemQtyRack: systemQtyRack,
-                },
+          // Get all details that were just created
+          const details = await tx.stockOpnameDetail.findMany({
+            where: { OpnameId: dto.inventoryCountingId },
+          });
+
+          // Snapshot system qty for all details
+          // For MATERIAL with 2 locations (WAREHOUSE and RACK):
+          //   - WAREHOUSE detail: SystemQty = QtyWarehouse, SystemQtyRack = 0
+          //   - RACK detail: SystemQty = 0, SystemQtyRack = QtyRack
+          // For FINISH_GOOD:
+          //   - SystemQty = Qty
+          for (const detail of details) {
+            if (detail.MaterialId) {
+              const material = await tx.material.findUnique({
+                where: { PartNumber: detail.MaterialId },
+                select: { QtyWarehouse: true, QtyRack: true },
               });
 
-              await this.logService.addLog({
-                processId: logProcess.ProcessId,
-                message: `MATERIAL ${detail.MaterialId} [${detail.Location}]: SystemQty=${systemQty}, SystemQtyRack=${systemQtyRack}`,
-                type: 'INFO',
-                location: 'inventory-counting.service.ts:722',
-              });
-            }
-          } else if (detail.FinishGoodId) {
-            const fg = await this.prisma.finishGood.findUnique({
-              where: { PartNumber: detail.FinishGoodId },
-              select: { Qty: true },
-            });
+              if (material) {
+                const isRack = detail.Location === LocationType.RACK;
+                // WAREHOUSE: SystemQty = QtyWarehouse, SystemQtyRack = 0
+                // RACK: SystemQty = 0, SystemQtyRack = QtyRack
+                const systemQty = isRack ? 0 : material.QtyWarehouse;
+                const systemQtyRack = isRack ? material.QtyRack : 0;
 
-            if (fg) {
-              await this.prisma.stockOpnameDetail.update({
-                where: { Id: detail.Id },
-                data: {
-                  SystemQty: fg.Qty,
-                },
+                await tx.stockOpnameDetail.update({
+                  where: { Id: detail.Id },
+                  data: {
+                    SystemQty: systemQty,
+                    SystemQtyRack: systemQtyRack,
+                  },
+                });
+
+                await this.logService.addLog({
+                  processId: localProcessId,
+                  message: `MATERIAL ${detail.MaterialId} [${detail.Location}]: SystemQty=${systemQty}, SystemQtyRack=${systemQtyRack}`,
+                  type: 'INFO',
+                  location: 'inventory-counting.service.ts:722',
+                });
+              }
+            } else if (detail.FinishGoodId) {
+              const fg = await tx.finishGood.findUnique({
+                where: { PartNumber: detail.FinishGoodId },
+                select: { Qty: true },
               });
 
-              await this.logService.addLog({
-                processId: logProcess.ProcessId,
-                message: `FINISHGOOD ${detail.FinishGoodId}: SystemQty=${fg.Qty}`,
-                type: 'INFO',
-                location: 'inventory-counting.service.ts:740',
-              });
+              if (fg) {
+                await tx.stockOpnameDetail.update({
+                  where: { Id: detail.Id },
+                  data: {
+                    SystemQty: fg.Qty,
+                  },
+                });
+
+                await this.logService.addLog({
+                  processId: localProcessId,
+                  message: `FINISHGOOD ${detail.FinishGoodId}: SystemQty=${fg.Qty}`,
+                  type: 'INFO',
+                  location: 'inventory-counting.service.ts:740',
+                });
+              }
             }
           }
-        }
 
-        await this.prisma.stockOpname.update({
-          where: { Id: dto.inventoryCountingId },
-          data: {
-            Status: OpnameStatus.IN_PROGRESS,
-            StartedAt: new Date(),
-          },
-        });
-      }
+          const started = await tx.stockOpname.updateMany({
+            where: {
+              Id: dto.inventoryCountingId,
+              Status: OpnameStatus.DRAFT,
+            },
+            data: {
+              Status: OpnameStatus.IN_PROGRESS,
+              StartedAt: new Date(),
+            },
+          });
+          if (started.count !== 1) {
+            throw new BadRequestException(
+              'Inventory counting has already been started or changed concurrently.',
+            );
+          }
+        },
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -1082,6 +1111,12 @@ export class InventoryCountingService {
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
         throw new NotFoundException(
           `StockOpnameDetail with ID ${detailId} not found`,
+        );
+      }
+
+      if (detail.OpnameId !== id) {
+        throw new NotFoundException(
+          `StockOpnameDetail with ID ${detailId} was not found for inventory counting ${id}`,
         );
       }
 
@@ -1336,215 +1371,252 @@ export class InventoryCountingService {
 
       const localProcessId = logProcess.ProcessId;
 
-      await this.prisma.$transaction(async (tx) => {
-        let adjustedCount = 0;
-        const ledgerEntries: Array<{
-          Id: string;
-          TransactionDate: Date;
-          ItemCategory: ItemCategory;
-          MaterialId: string | null;
-          FinishGoodId: string | null;
-          Location: LocationType;
-          TransactionType: { create: any };
-          ReferenceDoc: string;
-          BalanceBefore: number;
-          QtyIn: number;
-          QtyOut: number;
-          BalanceAfter: number;
-          CreatedBy: string;
-          Notes: string | null;
-        }> = [];
-
-        for (const detail of inventoryCounting.Details) {
-          // Calculate diffs for logging
-          const diffQty =
-            detail.ActualQty !== null ? detail.ActualQty - detail.SystemQty : 0;
-          const diffQtyRack =
-            detail.ActualQtyRack !== null && detail.SystemQtyRack !== null
-              ? detail.ActualQtyRack - detail.SystemQtyRack
-              : null;
-
-          // Update diffs in detail record
-          const detailUpdate: any = { DiffQty: diffQty };
-          if (diffQtyRack !== null) {
-            detailUpdate.DiffQtyRack = diffQtyRack;
-          }
-
-          await tx.stockOpnameDetail.update({
-            where: { Id: detail.Id },
-            data: detailUpdate,
+      await withInventoryTransaction(
+        this.prisma,
+        inventoryCounting.Category,
+        async (tx) => {
+          const currentCounting = await tx.stockOpname.findUnique({
+            where: { Id: id },
+            include: { Details: true },
           });
+          if (!currentCounting) {
+            throw new NotFoundException(
+              `Inventory counting with ID ${id} not found`,
+            );
+          }
+          if (currentCounting.Status !== OpnameStatus.IN_PROGRESS) {
+            throw new BadRequestException(
+              `Cannot close inventory counting with status ${currentCounting.Status}. Must be IN_PROGRESS.`,
+            );
+          }
+          const currentIncomplete = currentCounting.Details.filter(
+            (detail) =>
+              detail.ActualQty === null ||
+              (currentCounting.Category === ItemCategory.MATERIAL &&
+                detail.Location === LocationType.RACK &&
+                detail.ActualQtyRack === null),
+          );
+          if (currentIncomplete.length > 0) {
+            throw new BadRequestException(
+              `Cannot close inventory counting. ${currentIncomplete.length} items still have incomplete actual quantities.`,
+            );
+          }
+          let adjustedCount = 0;
+          const ledgerEntries: Array<{
+            Id: string;
+            TransactionDate: Date;
+            ItemCategory: ItemCategory;
+            MaterialId: string | null;
+            FinishGoodId: string | null;
+            Location: LocationType;
+            TransactionType: { create: any };
+            ReferenceDoc: string;
+            BalanceBefore: number;
+            QtyIn: number;
+            QtyOut: number;
+            BalanceAfter: number;
+            CreatedBy: string;
+            Notes: string | null;
+          }> = [];
 
-          if (detail.MaterialId) {
-            // MATERIAL: set stock to actual based on Location
-            // - WAREHOUSE: QtyWarehouse = ActualQty
-            // - RACK: QtyRack = ActualQtyRack
-            const material = await tx.material.findUnique({
-              where: { PartNumber: detail.MaterialId },
+          for (const detail of currentCounting.Details) {
+            // Calculate diffs for logging
+            const diffQty =
+              detail.ActualQty !== null
+                ? detail.ActualQty - detail.SystemQty
+                : 0;
+            const diffQtyRack =
+              detail.ActualQtyRack !== null && detail.SystemQtyRack !== null
+                ? detail.ActualQtyRack - detail.SystemQtyRack
+                : null;
+
+            // Update diffs in detail record
+            const detailUpdate: any = { DiffQty: diffQty };
+            if (diffQtyRack !== null) {
+              detailUpdate.DiffQtyRack = diffQtyRack;
+            }
+
+            await tx.stockOpnameDetail.update({
+              where: { Id: detail.Id },
+              data: detailUpdate,
             });
 
-            if (material) {
-              const isRack = detail.Location === LocationType.RACK;
-              let newQty: number;
-              let currentQty: number;
+            if (detail.MaterialId) {
+              // MATERIAL: set stock to actual based on Location
+              // - WAREHOUSE: QtyWarehouse = ActualQty
+              // - RACK: QtyRack = ActualQtyRack
+              const material = await tx.material.findUnique({
+                where: { PartNumber: detail.MaterialId },
+              });
 
-              if (isRack) {
-                // RACK location: set QtyRack = ActualQtyRack
-                currentQty = material.QtyRack ?? 0;
-                newQty = Math.max(0, detail.ActualQtyRack ?? 0);
+              if (material) {
+                const isRack = detail.Location === LocationType.RACK;
+                let newQty: number;
+                let currentQty: number;
 
-                await tx.material.update({
-                  where: { PartNumber: detail.MaterialId },
-                  data: { QtyRack: newQty },
-                });
-              } else {
-                // WAREHOUSE location: set QtyWarehouse = ActualQty
-                currentQty = material.QtyWarehouse ?? 0;
-                newQty = Math.max(0, detail.ActualQty ?? 0);
+                if (isRack) {
+                  // RACK location: set QtyRack = ActualQtyRack
+                  currentQty = material.QtyRack ?? 0;
+                  newQty = Math.max(0, detail.ActualQtyRack ?? 0);
 
-                await tx.material.update({
-                  where: { PartNumber: detail.MaterialId },
-                  data: { QtyWarehouse: newQty },
+                  await tx.material.update({
+                    where: { PartNumber: detail.MaterialId },
+                    data: { QtyRack: newQty },
+                  });
+                } else {
+                  // WAREHOUSE location: set QtyWarehouse = ActualQty
+                  currentQty = material.QtyWarehouse ?? 0;
+                  newQty = Math.max(0, detail.ActualQty ?? 0);
+
+                  await tx.material.update({
+                    where: { PartNumber: detail.MaterialId },
+                    data: { QtyWarehouse: newQty },
+                  });
+                }
+
+                // Create ledger entry for adjustment
+                const actualDiff = newQty - currentQty;
+                const ledgerEntry = {
+                  Id: crypto.randomUUID(),
+                  TransactionDate: new Date(),
+                  ItemCategory: ItemCategory.MATERIAL,
+                  MaterialId: detail.MaterialId,
+                  FinishGoodId: null,
+                  Location: detail.Location,
+                  TransactionType: { create: { create: {} } } as any,
+                  ReferenceDoc: inventoryCounting.OpnameNumber,
+                  BalanceBefore: currentQty,
+                  QtyIn: actualDiff > 0 ? actualDiff : 0,
+                  QtyOut: actualDiff < 0 ? Math.abs(actualDiff) : 0,
+                  BalanceAfter: newQty,
+                  CreatedBy: closedBy,
+                  Notes: `Stock Opname ${inventoryCounting.OpnameNumber} - ${isRack ? 'RACK' : 'WAREHOUSE'}`,
+                };
+                ledgerEntries.push(ledgerEntry);
+
+                if (actualDiff !== 0) adjustedCount++;
+
+                await this.logService.addLog({
+                  processId: localProcessId,
+                  message: `MATERIAL ${detail.MaterialId} [${detail.Location}]: ${currentQty} -> ${newQty} (diff=${actualDiff})`,
+                  type: 'INFO',
+                  location: 'inventory-counting.service.ts:870',
                 });
               }
-
-              // Create ledger entry for adjustment
-              const actualDiff = newQty - currentQty;
-              const ledgerEntry = {
-                Id: crypto.randomUUID(),
-                TransactionDate: new Date(),
-                ItemCategory: ItemCategory.MATERIAL,
-                MaterialId: detail.MaterialId,
-                FinishGoodId: null,
-                Location: detail.Location,
-                TransactionType: { create: { create: {} } } as any,
-                ReferenceDoc: inventoryCounting.OpnameNumber,
-                BalanceBefore: currentQty,
-                QtyIn: actualDiff > 0 ? actualDiff : 0,
-                QtyOut: actualDiff < 0 ? Math.abs(actualDiff) : 0,
-                BalanceAfter: newQty,
-                CreatedBy: closedBy,
-                Notes: `Stock Opname ${inventoryCounting.OpnameNumber} - ${isRack ? 'RACK' : 'WAREHOUSE'}`,
-              };
-              ledgerEntries.push(ledgerEntry);
-
-              if (actualDiff !== 0) adjustedCount++;
-
-              await this.logService.addLog({
-                processId: localProcessId,
-                message: `MATERIAL ${detail.MaterialId} [${detail.Location}]: ${currentQty} -> ${newQty} (diff=${actualDiff})`,
-                type: 'INFO',
-                location: 'inventory-counting.service.ts:870',
-              });
-            }
-          } else if (detail.FinishGoodId) {
-            // FINISH_GOOD: set Qty = ActualQty
-            const fg = await tx.finishGood.findUnique({
-              where: { PartNumber: detail.FinishGoodId },
-            });
-
-            if (fg) {
-              const currentQty = fg.Qty ?? 0;
-              const newQty = Math.max(0, detail.ActualQty ?? 0);
-
-              await tx.finishGood.update({
+            } else if (detail.FinishGoodId) {
+              // FINISH_GOOD: set Qty = ActualQty
+              const fg = await tx.finishGood.findUnique({
                 where: { PartNumber: detail.FinishGoodId },
-                data: { Qty: newQty },
               });
 
-              // Create ledger entry
-              const actualDiff = newQty - currentQty;
-              const ledgerEntry = {
-                Id: crypto.randomUUID(),
-                TransactionDate: new Date(),
-                ItemCategory: ItemCategory.FINISH_GOOD,
-                MaterialId: null,
-                FinishGoodId: detail.FinishGoodId,
-                Location: detail.Location,
-                TransactionType: { create: { create: {} } } as any,
-                ReferenceDoc: inventoryCounting.OpnameNumber,
-                BalanceBefore: currentQty,
-                QtyIn: actualDiff > 0 ? actualDiff : 0,
-                QtyOut: actualDiff < 0 ? Math.abs(actualDiff) : 0,
-                BalanceAfter: newQty,
-                CreatedBy: closedBy,
-                Notes: `Stock Opname ${inventoryCounting.OpnameNumber}`,
-              };
-              ledgerEntries.push(ledgerEntry);
+              if (fg) {
+                const currentQty = fg.Qty ?? 0;
+                const newQty = Math.max(0, detail.ActualQty ?? 0);
 
-              if (actualDiff !== 0) adjustedCount++;
+                await tx.finishGood.update({
+                  where: { PartNumber: detail.FinishGoodId },
+                  data: { Qty: newQty },
+                });
 
-              await this.logService.addLog({
-                processId: localProcessId,
-                message: `FINISHGOOD ${detail.FinishGoodId}: ${currentQty} -> ${newQty} (diff=${actualDiff})`,
-                type: 'INFO',
-                location: 'inventory-counting.service.ts:910',
-              });
+                // Create ledger entry
+                const actualDiff = newQty - currentQty;
+                const ledgerEntry = {
+                  Id: crypto.randomUUID(),
+                  TransactionDate: new Date(),
+                  ItemCategory: ItemCategory.FINISH_GOOD,
+                  MaterialId: null,
+                  FinishGoodId: detail.FinishGoodId,
+                  Location: detail.Location,
+                  TransactionType: { create: { create: {} } } as any,
+                  ReferenceDoc: inventoryCounting.OpnameNumber,
+                  BalanceBefore: currentQty,
+                  QtyIn: actualDiff > 0 ? actualDiff : 0,
+                  QtyOut: actualDiff < 0 ? Math.abs(actualDiff) : 0,
+                  BalanceAfter: newQty,
+                  CreatedBy: closedBy,
+                  Notes: `Stock Opname ${inventoryCounting.OpnameNumber}`,
+                };
+                ledgerEntries.push(ledgerEntry);
+
+                if (actualDiff !== 0) adjustedCount++;
+
+                await this.logService.addLog({
+                  processId: localProcessId,
+                  message: `FINISHGOOD ${detail.FinishGoodId}: ${currentQty} -> ${newQty} (diff=${actualDiff})`,
+                  type: 'INFO',
+                  location: 'inventory-counting.service.ts:910',
+                });
+              }
             }
           }
-        }
 
-        // Batch insert ledger entries
-        if (ledgerEntries.length > 0) {
-          // Build clean ledger data without the TransactionType relation field
-          const cleanLedgerData = ledgerEntries.map((e) => ({
-            Id: e.Id,
-            TransactionDate: e.TransactionDate,
-            ItemCategory: e.ItemCategory,
-            MaterialId: e.MaterialId,
-            FinishGoodId: e.FinishGoodId,
-            Location: e.Location,
-            TransactionType: 'STOCK_OPNAME_DIFF' as const,
-            ReferenceDoc: e.ReferenceDoc,
-            BalanceBefore: e.BalanceBefore,
-            QtyIn: e.QtyIn,
-            QtyOut: e.QtyOut,
-            BalanceAfter: e.BalanceAfter,
-            CreatedBy: e.CreatedBy,
-            Notes: e.Notes,
-          }));
+          // Batch insert ledger entries
+          if (ledgerEntries.length > 0) {
+            // Build clean ledger data without the TransactionType relation field
+            const cleanLedgerData = ledgerEntries.map((e) => ({
+              Id: e.Id,
+              TransactionDate: e.TransactionDate,
+              ItemCategory: e.ItemCategory,
+              MaterialId: e.MaterialId,
+              FinishGoodId: e.FinishGoodId,
+              Location: e.Location,
+              TransactionType: 'STOCK_OPNAME_DIFF' as const,
+              ReferenceDoc: e.ReferenceDoc,
+              BalanceBefore: e.BalanceBefore,
+              QtyIn: e.QtyIn,
+              QtyOut: e.QtyOut,
+              BalanceAfter: e.BalanceAfter,
+              CreatedBy: e.CreatedBy,
+              Notes: e.Notes,
+            }));
 
-          await tx.inventoryLedger.createMany({ data: cleanLedgerData });
+            await tx.inventoryLedger.createMany({ data: cleanLedgerData });
+
+            await this.logService.addLog({
+              processId: localProcessId,
+              message: `Created ${cleanLedgerData.length} InventoryLedger entries`,
+              type: 'INFO',
+              location: 'inventory-counting.service.ts:952',
+            });
+          }
 
           await this.logService.addLog({
             processId: localProcessId,
-            message: `Created ${cleanLedgerData.length} InventoryLedger entries`,
+            message: `Stock adjustments completed: ${adjustedCount} items adjusted`,
             type: 'INFO',
-            location: 'inventory-counting.service.ts:952',
+            location: 'inventory-counting.service.ts:958',
           });
-        }
 
-        await this.logService.addLog({
-          processId: localProcessId,
-          message: `Stock adjustments completed: ${adjustedCount} items adjusted`,
-          type: 'INFO',
-          location: 'inventory-counting.service.ts:958',
-        });
+          // STEP 5: Update status to COMPLETED
+          const approvalNotes = notes?.trim()
+            ? inventoryCounting.Notes
+              ? `${inventoryCounting.Notes} | [APPROVED by ${closedBy}]: ${notes.trim()}`
+              : `[APPROVED by ${closedBy}]: ${notes.trim()}`
+            : inventoryCounting.Notes;
 
-        // STEP 5: Update status to COMPLETED
-        const approvalNotes = notes?.trim()
-          ? inventoryCounting.Notes
-            ? `${inventoryCounting.Notes} | [APPROVED by ${closedBy}]: ${notes.trim()}`
-            : `[APPROVED by ${closedBy}]: ${notes.trim()}`
-          : inventoryCounting.Notes;
+          const completed = await tx.stockOpname.updateMany({
+            where: { Id: id, Status: OpnameStatus.IN_PROGRESS },
+            data: {
+              Status: OpnameStatus.COMPLETED,
+              CompletedAt: new Date(),
+              CompletedBy: closedBy,
+              Notes: approvalNotes,
+            },
+          });
+          if (completed.count !== 1) {
+            throw new BadRequestException(
+              'Inventory counting has already been closed or changed concurrently.',
+            );
+          }
 
-        await tx.stockOpname.update({
-          where: { Id: id },
-          data: {
-            Status: OpnameStatus.COMPLETED,
-            CompletedAt: new Date(),
-            CompletedBy: closedBy,
-            Notes: approvalNotes,
-          },
-        });
-
-        await this.logService.addLog({
-          processId: localProcessId,
-          message: 'Inventory counting status updated to COMPLETED',
-          type: 'INFO',
-          location: 'inventory-counting.service.ts:970',
-        });
-      });
+          await this.logService.addLog({
+            processId: localProcessId,
+            message: 'Inventory counting status updated to COMPLETED',
+            type: 'INFO',
+            location: 'inventory-counting.service.ts:970',
+          });
+        },
+      );
 
       await this.logService.completeProcess(
         logProcess.ProcessId,
@@ -1569,6 +1641,51 @@ export class InventoryCountingService {
       }
       throw error;
     }
+  }
+
+  async cancel(id: string, cancelledBy: string) {
+    const inventoryCounting = await this.prisma.stockOpname.findUnique({
+      where: { Id: id },
+    });
+    if (!inventoryCounting) {
+      throw new NotFoundException(`Inventory counting with ID ${id} not found`);
+    }
+    if (
+      inventoryCounting.Status !== OpnameStatus.DRAFT &&
+      inventoryCounting.Status !== OpnameStatus.IN_PROGRESS
+    ) {
+      throw new BadRequestException(
+        `Cannot cancel inventory counting with status ${inventoryCounting.Status}`,
+      );
+    }
+
+    await withInventoryTransaction(
+      this.prisma,
+      inventoryCounting.Category,
+      async (tx) => {
+        const cancelled = await tx.stockOpname.updateMany({
+          where: {
+            Id: id,
+            Status: { in: [OpnameStatus.DRAFT, OpnameStatus.IN_PROGRESS] },
+          },
+          data: {
+            Status: OpnameStatus.CANCELLED,
+            CompletedAt: new Date(),
+            CompletedBy: cancelledBy,
+          },
+        });
+        if (cancelled.count !== 1) {
+          throw new BadRequestException(
+            'Inventory counting has already been cancelled or changed concurrently.',
+          );
+        }
+      },
+    );
+
+    return {
+      success: true,
+      data: await this.findOne(id),
+    };
   }
 
   async getDetails(opnameId: string) {

@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MaterialDeliveryNoteController } from './material-delivery-note.controller';
 import { MaterialDeliveryNoteService } from './material-delivery-note.service';
+import { OutboxService } from '../common/outbox/outbox.service';
 import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
 
 describe('MaterialDeliveryNoteController', () => {
@@ -71,6 +72,13 @@ describe('MaterialDeliveryNoteController', () => {
       controllers: [MaterialDeliveryNoteController],
       providers: [
         { provide: MaterialDeliveryNoteService, useValue: mockService },
+        {
+          provide: OutboxService,
+          useValue: {
+            findLatest: jest.fn(),
+            retryLatest: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -182,10 +190,13 @@ describe('MaterialDeliveryNoteController', () => {
     it('should delete delivery note', async () => {
       service.remove.mockResolvedValue({ deleted: true, id: 'uuid-1234' });
 
-      const result = await controller.remove('uuid-1234');
+      const result = await controller.remove('uuid-1234', mockUser);
 
       expect(result).toEqual({ deleted: true, id: 'uuid-1234' });
-      expect(service.remove).toHaveBeenCalledWith('uuid-1234');
+      expect(service.remove).toHaveBeenCalledWith(
+        'uuid-1234',
+        mockUser.username,
+      );
     });
   });
 

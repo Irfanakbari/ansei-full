@@ -16,7 +16,11 @@ import {
 import { Button, Modal, Form, Select, App, Spin, Tag, Avatar } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
-import { fetchActiveDisplayConfig } from '@/store/features/display/displaySlice';
+import {
+    clearDisplayTarget,
+    fetchActiveDisplayConfig,
+    fetchDisplayTarget,
+} from '@/store/features/display/displaySlice';
 import OperatorReportModal from './_components/OperatorReportModal';
 
 export interface DisplayManPower {
@@ -92,7 +96,9 @@ export default function DisplayPage() {
     const displayRef = useRef<HTMLElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const { config } = useSelector((state: RootState) => state.display);
+    const { config, target, targetLoading, targetError } = useSelector(
+        (state: RootState) => state.display,
+    );
     const mediaSource = config?.FilePath || config?.Url || FALLBACK_MEDIA_URL;
     const isImageMedia = mediaSource ? /\.(png|jpe?g|gif|webp)(?:\?.*)?$/i.test(mediaSource) : false;
 
@@ -264,6 +270,23 @@ export default function DisplayPage() {
         }, 60000);
         return () => clearInterval(videoInterval);
     }, [dispatch, stationConfig.manpower?.Line]);
+
+    // Keep the target synchronized with the selected part and active production release.
+    useEffect(() => {
+        const partNumber = stationConfig.selectedPartNumber ?? stationConfig.finishGood?.PartNumber;
+
+        if (!partNumber) {
+            dispatch(clearDisplayTarget());
+            return;
+        }
+
+        void dispatch(fetchDisplayTarget(partNumber));
+        const targetInterval = setInterval(() => {
+            void dispatch(fetchDisplayTarget(partNumber));
+        }, 60000);
+
+        return () => clearInterval(targetInterval);
+    }, [dispatch, stationConfig.finishGood?.PartNumber, stationConfig.selectedPartNumber]);
 
     // Handle fullscreen
     useEffect(() => {
@@ -489,6 +512,27 @@ export default function DisplayPage() {
                                     ) : (
                                         ''
                                     )}
+                                </span>
+                            </div>
+
+                            {/* Target from forecasts linked to the active production release. */}
+                            <div className="w-full rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 px-4 text-center shadow-2xs">
+                                <span className="block text-[11px] uppercase text-emerald-600 font-bold tracking-wider mb-0.5">
+                                    Target
+                                </span>
+                                <span className="block text-2xl sm:text-3xl font-black text-emerald-700 tracking-wide leading-tight">
+                                    {targetLoading
+                                        ? '...'
+                                        : target && target.partNumber === activeFinishGood?.PartNumber
+                                          ? target.targetQty.toLocaleString('id-ID')
+                                          : '0'}
+                                </span>
+                                <span className="block text-[10px] sm:text-xs font-semibold text-emerald-700/75 mt-0.5 truncate">
+                                    {targetError
+                                        ? 'Target tidak dapat dimuat'
+                                        : target?.releaseNumber
+                                          ? `Production Release: ${target.releaseNumber}`
+                                          : 'Tidak ada production release aktif'}
                                 </span>
                             </div>
                         </div>

@@ -1,8 +1,8 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
-  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -12,15 +12,18 @@ import {
   UpdateProductionReleaseDto,
   UploadProductionAttachmentDto,
   ProductionReleaseQueryDto,
+  CancelProductionReleaseDto,
+  AmendProductionReleaseForecastsDto,
+  ProductionReleaseForecastCandidatesQueryDto,
 } from './dto';
 import type { LogProcessModel } from '../../generated/prisma/models';
 import { ProductionStatus } from '../../generated/prisma/enums';
-import type { Prisma } from '../../generated/prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 import { randomUUID } from 'node:crypto';
+import { validateUploadContent } from '../../common/utils/upload-security.util';
 
 // Allowed file extensions and max size
-const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 @Injectable()
@@ -30,6 +33,22 @@ export class ProductionReleaseService {
     private readonly logService: LogProcessService,
     private readonly nasUploadService: NasUploadService,
   ) {}
+
+  private isUniqueConstraintError(error: unknown): boolean {
+    return (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    );
+  }
+
+  private releaseConflict(error: unknown): never {
+    if (this.isUniqueConstraintError(error)) {
+      throw new ConflictException(
+        'Production release conflicts with current database state. Refresh and try again.',
+      );
+    }
+    throw error;
+  }
 
   async findAll(query: ProductionReleaseQueryDto) {
     const where: Prisma.ProductionReleaseWhereInput = {
@@ -333,6 +352,372 @@ export class ProductionReleaseService {
     };
   }
 
+  async getForecastCandidates(
+    id: string,
+    query: ProductionReleaseForecastCandidatesQueryDto,
+  ) {
+    const release = await this.prisma.productionRelease.findUnique({
+      where: { Id: id },
+      select: { Status: true },
+    });
+    if (!release)
+      throw new NotFoundException(`ProductionRelease with id ${id} not found`);
+    if (release.Status !== ProductionStatus.RELEASED)
+      throw new ConflictException(
+        'Forecasts can only be managed for a RELEASED production release.',
+      );
+    const where: Prisma.ForecastWhereInput = {
+      ProductionReleaseId: query.mode === 'untag' ? id : null,
+      ...(query.search
+        ? {
+            OR: [
+              { PoId: { contains: query.search, mode: 'insensitive' } },
+              {
+                FinishGoodId: {
+                  contains: query.search,
+                  mode: 'insensitive',
+                },
+              },
+              { VendorName: { contains: query.search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+    const [totalItems, data] = await Promise.all([
+      this.prisma.forecast.count({ where }),
+      this.prisma.forecast.findMany({
+        where,
+        select: {
+          Id: true,
+          PoId: true,
+          Qty: true,
+          FinishGoodId: true,
+          ProductionReleaseId: true,
+          DeliveryDate: true,
+          VendorName: true,
+          PartData: { select: { PartNumber: true, PartName: true } },
+        },
+        orderBy: [{ DeliveryDate: 'asc' }, { PoId: 'asc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
+  }
+
+  private async requireReleased(tx: Prisma.TransactionClient, id: string) {
+    const release = await tx.productionRelease.findUnique({
+      where: { Id: id },
+    });
+    if (!release)
+      throw new NotFoundException(`ProductionRelease with id ${id} not found`);
+    if (release.Status !== ProductionStatus.RELEASED) {
+      throw new ConflictException(
+        'Only a RELEASED production release can be amended.',
+      );
+    }
+    return release;
+  }
+
+  private async getAmendmentForecasts(
+    tx: Prisma.TransactionClient,
+    forecastIds: string[],
+  ) {
+    const forecasts = await tx.forecast.findMany({
+      where: { PoId: { in: forecastIds } },
+      select: {
+        PoId: true,
+        Qty: true,
+        FinishGoodId: true,
+        ProductionReleaseId: true,
+        PartData: {
+          select: { PartName: true, BoxQTY: { select: { Qty: true } } },
+        },
+        _count: {
+          select: {
+            Shopping: true,
+            ProductionReport: true,
+            DeliveryHistory: true,
+          },
+        },
+        LabelData: {
+          select: {
+            Id: true,
+            Scanned: true,
+            _count: { select: { PokayokeHistory: true } },
+            DeliveryHistory: { select: { Id: true } },
+          },
+        },
+      },
+    });
+    const found = new Set(forecasts.map((forecast) => forecast.PoId));
+    const missing = forecastIds.filter((poId) => !found.has(poId));
+    if (missing.length)
+      throw new NotFoundException(
+        `Forecast(s) not found: ${missing.join(', ')}`,
+      );
+    return forecasts;
+  }
+
+  private assertNoOperationalActivity(
+    forecasts: Awaited<
+      ReturnType<ProductionReleaseService['getAmendmentForecasts']>
+    >,
+  ) {
+    const blocked = forecasts.filter(
+      (forecast) =>
+        forecast._count.Shopping > 0 ||
+        forecast._count.ProductionReport > 0 ||
+        forecast._count.DeliveryHistory > 0 ||
+        forecast.LabelData.some(
+          (label) =>
+            label.Scanned ||
+            label._count.PokayokeHistory > 0 ||
+            label.DeliveryHistory,
+        ),
+    );
+    if (blocked.length) {
+      throw new ConflictException(
+        `Forecast(s) have operational activity and cannot be amended: ${blocked.map((item) => item.PoId).join(', ')}`,
+      );
+    }
+  }
+
+  private buildLabels(
+    releaseId: string,
+    forecasts: Awaited<
+      ReturnType<ProductionReleaseService['getAmendmentForecasts']>
+    >,
+  ) {
+    return forecasts.flatMap((forecast) => {
+      const boxQty = forecast.PartData?.BoxQTY?.Qty ?? 0;
+      if (boxQty <= 0) {
+        throw new ConflictException(
+          `Box Qty must be configured with a value greater than 0 for ${forecast.FinishGoodId} (PO ${forecast.PoId}).`,
+        );
+      }
+      return Array.from(
+        { length: Math.ceil(forecast.Qty / boxQty) },
+        (_, index) => {
+          const qty =
+            index === Math.ceil(forecast.Qty / boxQty) - 1
+              ? forecast.Qty % boxQty || boxQty
+              : boxQty;
+          return {
+            LabelNumber: `${forecast.PoId}${String(index + 1).padStart(3, '0')}${String(qty).padStart(5, '0')}`,
+            FinishGoodId: forecast.FinishGoodId,
+            ForecastId: forecast.PoId,
+            Scanned: false,
+            QtyThisBox: qty,
+            ProductionReleaseId: releaseId,
+          };
+        },
+      );
+    });
+  }
+
+  async cancel(id: string, dto: CancelProductionReleaseDto, actor: string) {
+    const log = await this.logService.startProcess({
+      functionId: 'PROD_RELEASE_004',
+      functionName: 'ProductionReleaseService.Cancel',
+      createdBy: actor,
+    });
+    try {
+      const releaseNumber = await this.prisma.$transaction(
+        async (tx) => {
+          const release = await this.requireReleased(tx, id);
+          const forecastIds = (
+            await tx.forecast.findMany({
+              where: { ProductionReleaseId: id },
+              select: { PoId: true },
+            })
+          ).map((item) => item.PoId);
+          const forecasts = await this.getAmendmentForecasts(tx, forecastIds);
+          this.assertNoOperationalActivity(forecasts);
+          await tx.labelData.deleteMany({ where: { ProductionReleaseId: id } });
+          await tx.forecast.updateMany({
+            where: { ProductionReleaseId: id },
+            data: { ProductionReleaseId: null },
+          });
+          await tx.productionRelease.update({
+            where: { Id: id },
+            data: {
+              Status: ProductionStatus.CANCELLED,
+              TotalTargetQty: 0,
+              TotalGoodQty: 0,
+              TotalNgQty: 0,
+            },
+          });
+          await this.logService.addLog({
+            processId: log.ProcessId,
+            message: `Cancelled ${release.ReleaseNumber}. Reason: ${dto.reason}`,
+            type: 'INFO',
+            location: 'ProductionReleaseService.cancel',
+            client: tx,
+          });
+          await this.logService.completeProcess(
+            log.ProcessId,
+            'SUCCESS',
+            undefined,
+            tx,
+          );
+          return release.ReleaseNumber;
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+      void releaseNumber;
+      return this.findOne(id);
+    } catch (error) {
+      await this.logService.completeProcess(log.ProcessId, 'FAILED');
+      throw error;
+    }
+  }
+
+  async tagForecasts(
+    id: string,
+    dto: AmendProductionReleaseForecastsDto,
+    actor: string,
+  ) {
+    const log = await this.logService.startProcess({
+      functionId: 'PROD_RELEASE_005',
+      functionName: 'ProductionReleaseService.TagForecasts',
+      createdBy: actor,
+    });
+    try {
+      await this.prisma.$transaction(
+        async (tx) => {
+          await this.requireReleased(tx, id);
+          const forecasts = await this.getAmendmentForecasts(
+            tx,
+            dto.forecastIds,
+          );
+          const linked = forecasts.filter(
+            (forecast) => forecast.ProductionReleaseId !== null,
+          );
+          if (linked.length)
+            throw new ConflictException(
+              `Forecast(s) are already linked: ${linked.map((item) => item.PoId).join(', ')}`,
+            );
+          this.assertNoOperationalActivity(forecasts);
+          const labels = this.buildLabels(id, forecasts);
+          const result = await tx.forecast.updateMany({
+            where: { PoId: { in: dto.forecastIds }, ProductionReleaseId: null },
+            data: { ProductionReleaseId: id },
+          });
+          if (result.count !== forecasts.length)
+            throw new ConflictException(
+              'Forecast assignment changed. Refresh and try again.',
+            );
+          const createdLabels = await tx.labelData.createMany({ data: labels });
+          if (createdLabels.count !== labels.length)
+            throw new ConflictException(
+              'Not all labels could be generated. Refresh and try again.',
+            );
+          const aggregate = await tx.forecast.aggregate({
+            where: { ProductionReleaseId: id },
+            _sum: { Qty: true },
+          });
+          await tx.productionRelease.update({
+            where: { Id: id },
+            data: { TotalTargetQty: aggregate._sum.Qty ?? 0 },
+          });
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+      await this.logService.addLog({
+        processId: log.ProcessId,
+        message: `Tagged forecasts ${dto.forecastIds.join(', ')}. Reason: ${dto.reason}`,
+        type: 'INFO',
+        location: 'ProductionReleaseService.tagForecasts',
+      });
+      await this.logService.completeProcess(log.ProcessId, 'SUCCESS');
+      return this.findOne(id);
+    } catch (error) {
+      await this.logService.completeProcess(log.ProcessId, 'FAILED');
+      throw error;
+    }
+  }
+
+  async untagForecasts(
+    id: string,
+    dto: AmendProductionReleaseForecastsDto,
+    actor: string,
+  ) {
+    const log = await this.logService.startProcess({
+      functionId: 'PROD_RELEASE_006',
+      functionName: 'ProductionReleaseService.UntagForecasts',
+      createdBy: actor,
+    });
+    try {
+      await this.prisma.$transaction(
+        async (tx) => {
+          await this.requireReleased(tx, id);
+          const forecasts = await this.getAmendmentForecasts(
+            tx,
+            dto.forecastIds,
+          );
+          const invalid = forecasts.filter(
+            (forecast) => forecast.ProductionReleaseId !== id,
+          );
+          if (invalid.length)
+            throw new ConflictException(
+              `Forecast(s) are not linked to this release: ${invalid.map((item) => item.PoId).join(', ')}`,
+            );
+          this.assertNoOperationalActivity(forecasts);
+          const linkedCount = await tx.forecast.count({
+            where: { ProductionReleaseId: id },
+          });
+          if (linkedCount === forecasts.length)
+            throw new ConflictException(
+              'Cannot remove all forecasts. Cancel the production release instead.',
+            );
+          await tx.labelData.deleteMany({
+            where: {
+              ProductionReleaseId: id,
+              ForecastId: { in: dto.forecastIds },
+            },
+          });
+          const result = await tx.forecast.updateMany({
+            where: { PoId: { in: dto.forecastIds }, ProductionReleaseId: id },
+            data: { ProductionReleaseId: null },
+          });
+          if (result.count !== forecasts.length)
+            throw new ConflictException(
+              'Forecast assignment changed. Refresh and try again.',
+            );
+          const aggregate = await tx.forecast.aggregate({
+            where: { ProductionReleaseId: id },
+            _sum: { Qty: true },
+          });
+          await tx.productionRelease.update({
+            where: { Id: id },
+            data: { TotalTargetQty: aggregate._sum.Qty ?? 0 },
+          });
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+      await this.logService.addLog({
+        processId: log.ProcessId,
+        message: `Untagged forecasts ${dto.forecastIds.join(', ')}. Reason: ${dto.reason}`,
+        type: 'INFO',
+        location: 'ProductionReleaseService.untagForecasts',
+      });
+      await this.logService.completeProcess(log.ProcessId, 'SUCCESS');
+      return this.findOne(id);
+    } catch (error) {
+      await this.logService.completeProcess(log.ProcessId, 'FAILED');
+      throw error;
+    }
+  }
+
   async create(dto: CreateProductionReleaseDto, createdBy: string) {
     let logProcess: LogProcessModel | undefined;
 
@@ -350,36 +735,57 @@ export class ProductionReleaseService {
         location: 'production-release.service.ts:60',
       });
 
-      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
-      await assertNoActiveInventoryCounting(
-        this.prisma,
-        undefined,
-        'Production Release',
-      );
-
-      // Check if there's already a RELEASED release (only one RELEASED allowed at a time)
-      const existingReleased = await this.prisma.productionRelease.findFirst({
-        where: {
-          Status: ProductionStatus.RELEASED,
-        },
-      });
-
-      if (existingReleased) {
-        throw new BadRequestException(
-          `Cannot create new release. There is already a RELEASED production release (${existingReleased.ReleaseNumber}). Only one RELEASED release is allowed at a time.`,
-        );
+      if (dto.forecastIds.length === 0) {
+        throw new BadRequestException('forecastIds cannot be empty');
       }
 
-      const result = await this.prisma.productionRelease.create({
-        data: {
-          ReleaseNumber: dto.releaseNumber,
-          PlanDate: new Date(dto.planDate),
-          Notes: dto.notes,
-          Status: ProductionStatus.DRAFT,
-          CreatedBy: createdBy,
-          IsNoAttachment: dto.isNoAttachment ?? false,
+      const forecastIds = [...new Set(dto.forecastIds)];
+      const result = await this.prisma.$transaction(
+        async (tx) => {
+          await assertNoActiveInventoryCounting(
+            tx,
+            undefined,
+            'Production Release',
+          );
+          const forecasts = await tx.forecast.findMany({
+            where: { PoId: { in: forecastIds }, ProductionReleaseId: null },
+            select: { PoId: true, Qty: true },
+          });
+          if (forecasts.length !== forecastIds.length) {
+            throw new ConflictException(
+              'One or more forecasts do not exist or are already assigned. Refresh and try again.',
+            );
+          }
+          const created = await tx.productionRelease.create({
+            data: {
+              ReleaseNumber: dto.releaseNumber,
+              PlanDate: new Date(dto.planDate),
+              Notes: dto.notes,
+              Status: ProductionStatus.DRAFT,
+              CreatedBy: createdBy,
+              IsNoAttachment: dto.isNoAttachment ?? false,
+              TotalTargetQty: forecasts.reduce(
+                (sum, forecast) => sum + forecast.Qty,
+                0,
+              ),
+            },
+          });
+          const assignment = await tx.forecast.updateMany({
+            where: {
+              PoId: { in: forecastIds },
+              ProductionReleaseId: null,
+            },
+            data: { ProductionReleaseId: created.Id },
+          });
+          if (assignment.count !== forecastIds.length) {
+            throw new ConflictException(
+              'Forecast assignment changed. Refresh and try again.',
+            );
+          }
+          return created;
         },
-      });
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -388,39 +794,12 @@ export class ProductionReleaseService {
         location: 'production-release.service.ts:301',
       });
 
-      // Validate forecastIds (now required via DTO validation)
-      if (dto.forecastIds.length === 0) {
-        throw new BadRequestException('forecastIds cannot be empty');
-      }
-
       // Link forecasts to release
       await this.logService.addLog({
         processId: logProcess.ProcessId,
         message: `Linking ${dto.forecastIds.length} forecasts to release`,
         type: 'INFO',
         location: 'production-release.service.ts:78',
-      });
-
-      // Update Forecasts with ProductionReleaseId
-      await this.prisma.forecast.updateMany({
-        where: {
-          PoId: { in: dto.forecastIds },
-        },
-        data: {
-          ProductionReleaseId: result.Id,
-        },
-      });
-
-      // Calculate and update TotalTargetQty
-      const forecasts = await this.prisma.forecast.findMany({
-        where: { PoId: { in: dto.forecastIds } },
-        select: { Qty: true },
-      });
-      const totalTargetQty = forecasts.reduce((sum, f) => sum + f.Qty, 0);
-
-      await this.prisma.productionRelease.update({
-        where: { Id: result.Id },
-        data: { TotalTargetQty: totalTargetQty },
       });
 
       await this.logService.addLog({
@@ -443,7 +822,7 @@ export class ProductionReleaseService {
         });
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }
-      throw error;
+      this.releaseConflict(error);
     }
   }
 
@@ -457,165 +836,201 @@ export class ProductionReleaseService {
         createdBy: updatedBy,
       });
 
-      const existing = await this.prisma.productionRelease.findUnique({
-        where: { Id: id },
-      });
-
-      if (!existing) {
-        throw new NotFoundException(
-          `ProductionRelease with id ${id} not found`,
-        );
-      }
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Updating production release ${existing.ReleaseNumber}, current status: ${existing.Status}`,
-        type: 'INFO',
-        location: 'production-release.service.ts:140',
-      });
-
-      // Check if trying to change from RELEASED back to DRAFT
-      if (
-        dto.status === ProductionStatus.DRAFT &&
-        existing.Status === ProductionStatus.RELEASED
-      ) {
+      if (dto.status === ProductionStatus.CANCELLED) {
         throw new BadRequestException(
-          'Cannot change status from RELEASED to DRAFT. Once released, a production release cannot be reverted.',
+          'Use the dedicated cancel action to cancel a production release.',
         );
       }
 
-      // If status is being changed to RELEASED, generate LabelData
-      if (
-        dto.status === ProductionStatus.RELEASED &&
-        existing.Status !== ProductionStatus.RELEASED
-      ) {
-        // POKAYOKE: Tolak rilis jika sesi Inventory Counting sedang aktif
-        await assertNoActiveInventoryCounting(
-          this.prisma,
-          undefined,
-          'Release Production',
-        );
-
-        // Check if there's already another RELEASED release (only one RELEASED allowed at a time)
-        const existingReleased = await this.prisma.productionRelease.findFirst({
-          where: {
-            Status: ProductionStatus.RELEASED,
-            Id: { not: id }, // Exclude current release being updated
-          },
-        });
-
-        if (existingReleased) {
-          throw new BadRequestException(
-            `Cannot release. There is already another RELEASED production release (${existingReleased.ReleaseNumber}). Only one RELEASED release is allowed at a time.`,
-          );
-        }
-
-        await this.validateBoxQtyForRelease(id);
-
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message:
-            'Status changing to RELEASED - generating LabelData for all linked forecasts',
-          type: 'INFO',
-          location: 'production-release.service.ts:155',
-        });
-
-        await this.generateLabelsForRelease(id, logProcess.ProcessId);
-      }
-
-      if (
-        dto.status === ProductionStatus.COMPLETED &&
-        existing.Status !== ProductionStatus.COMPLETED
-      ) {
-        const effectiveNoAttachment =
-          dto.isNoAttachment ?? existing.IsNoAttachment;
-        const [linkedForecasts, scannedLabels, attachmentCount] =
-          await Promise.all([
-            this.prisma.forecast.findMany({
+      const result = await this.prisma.$transaction(
+        async (tx) => {
+          const existing = await tx.productionRelease.findUnique({
+            where: { Id: id },
+          });
+          if (!existing) {
+            throw new NotFoundException(
+              `ProductionRelease with id ${id} not found`,
+            );
+          }
+          if (
+            dto.forecastIds !== undefined &&
+            existing.Status !== ProductionStatus.DRAFT
+          ) {
+            throw new BadRequestException(
+              'Forecast assignments can only be edited directly while the production release is DRAFT. Use Manage Forecasts for a RELEASED production release.',
+            );
+          }
+          if (
+            dto.status === ProductionStatus.DRAFT &&
+            existing.Status === ProductionStatus.RELEASED
+          ) {
+            throw new BadRequestException(
+              'Cannot change status from RELEASED to DRAFT. Once released, a production release cannot be reverted.',
+            );
+          }
+          if (dto.isNoAttachment === true) {
+            const attachmentCount = await tx.productionReleaseAttachment.count({
               where: { ProductionReleaseId: id },
-              select: { Qty: true },
-            }),
-            this.prisma.labelData.findMany({
-              where: { ProductionReleaseId: id, Scanned: true },
-              select: { QtyThisBox: true },
-            }),
-            this.prisma.productionReleaseAttachment.count({
+            });
+            if (attachmentCount > 0) {
+              throw new BadRequestException(
+                'Cannot select No Attachment while attachments exist. Delete the attachments first.',
+              );
+            }
+          }
+
+          if (dto.forecastIds !== undefined) {
+            const forecastIds = [...new Set(dto.forecastIds)];
+            const forecasts = await tx.forecast.findMany({
+              where: {
+                PoId: { in: forecastIds },
+                OR: [
+                  { ProductionReleaseId: null },
+                  { ProductionReleaseId: id },
+                ],
+              },
+              select: { PoId: true },
+            });
+            if (forecasts.length !== forecastIds.length) {
+              throw new ConflictException(
+                'One or more forecasts do not exist or are assigned to another release. Refresh and try again.',
+              );
+            }
+            await tx.forecast.updateMany({
               where: { ProductionReleaseId: id },
-            }),
-          ]);
-        const totalTargetQty = linkedForecasts.reduce(
-          (sum, forecast) => sum + forecast.Qty,
-          0,
-        );
-        const totalGoodQty = scannedLabels.reduce(
-          (sum, label) => sum + label.QtyThisBox,
-          0,
-        );
+              data: { ProductionReleaseId: null },
+            });
+            const linked = await tx.forecast.updateMany({
+              where: {
+                PoId: { in: forecastIds },
+                ProductionReleaseId: null,
+              },
+              data: { ProductionReleaseId: id },
+            });
+            if (linked.count !== forecastIds.length) {
+              throw new ConflictException(
+                'Forecast assignment changed. Refresh and try again.',
+              );
+            }
+          }
 
-        if (totalGoodQty < totalTargetQty) {
-          throw new BadRequestException(
-            `Cannot complete production release. Scanned label quantity is ${totalGoodQty} of ${totalTargetQty}; remaining ${totalTargetQty - totalGoodQty}.`,
-          );
-        }
-        if (!effectiveNoAttachment && attachmentCount === 0) {
-          throw new BadRequestException(
-            'Cannot complete production release without an attachment. Upload at least one attachment or select No Attachment.',
-          );
-        }
-      }
-
-      if (dto.isNoAttachment === true) {
-        const attachmentCount =
-          await this.prisma.productionReleaseAttachment.count({
+          const linkedForecasts = await tx.forecast.findMany({
             where: { ProductionReleaseId: id },
+            select: {
+              PoId: true,
+              Qty: true,
+              FinishGoodId: true,
+              PartData: {
+                select: { PartName: true, BoxQTY: { select: { Qty: true } } },
+              },
+            },
           });
-        if (attachmentCount > 0) {
-          throw new BadRequestException(
-            'Cannot select No Attachment while attachments exist. Delete the attachments first.',
+          const totalTargetQty = linkedForecasts.reduce(
+            (sum, forecast) => sum + forecast.Qty,
+            0,
           );
-        }
-      }
 
-      // Update forecast links if provided
-      if (dto.forecastIds !== undefined) {
-        // First, unlink all existing forecasts
-        await this.prisma.forecast.updateMany({
-          where: { ProductionReleaseId: id },
-          data: { ProductionReleaseId: null },
-        });
+          if (
+            dto.status === ProductionStatus.RELEASED &&
+            existing.Status !== ProductionStatus.RELEASED
+          ) {
+            await assertNoActiveInventoryCounting(
+              tx,
+              undefined,
+              'Release Production',
+            );
+            if (linkedForecasts.length === 0) {
+              throw new BadRequestException(
+                'Cannot release production: no forecast/PO is linked to this release.',
+              );
+            }
+            const missingBoxQty = linkedForecasts.filter(
+              (forecast) =>
+                !forecast.PartData?.BoxQTY || forecast.PartData.BoxQTY.Qty <= 0,
+            );
+            if (missingBoxQty.length > 0) {
+              const details = missingBoxQty
+                .map(
+                  (forecast) =>
+                    `${forecast.FinishGoodId} (${forecast.PartData?.PartName ?? '-'}, PO ${forecast.PoId})`,
+                )
+                .join(', ');
+              throw new BadRequestException(
+                `Cannot release production. Box Qty must be configured with a value greater than 0 for: ${details}.`,
+              );
+            }
+            const labels = this.buildLabels(
+              id,
+              linkedForecasts.map((forecast) => ({
+                ...forecast,
+                ProductionReleaseId: id,
+                _count: {
+                  Shopping: 0,
+                  ProductionReport: 0,
+                  DeliveryHistory: 0,
+                },
+                LabelData: [],
+              })),
+            );
+            const createdLabels = await tx.labelData.createMany({
+              data: labels,
+            });
+            if (createdLabels.count !== labels.length) {
+              throw new ConflictException(
+                'Not all labels could be generated. Refresh and try again.',
+              );
+            }
+          }
 
-        // Then link new forecasts
-        if (dto.forecastIds.length > 0) {
-          await this.prisma.forecast.updateMany({
-            where: { PoId: { in: dto.forecastIds } },
-            data: { ProductionReleaseId: id },
+          if (
+            dto.status === ProductionStatus.COMPLETED &&
+            existing.Status !== ProductionStatus.COMPLETED
+          ) {
+            const [scannedLabels, attachmentCount] = await Promise.all([
+              tx.labelData.findMany({
+                where: { ProductionReleaseId: id, Scanned: true },
+                select: { QtyThisBox: true },
+              }),
+              tx.productionReleaseAttachment.count({
+                where: { ProductionReleaseId: id },
+              }),
+            ]);
+            const totalGoodQty = scannedLabels.reduce(
+              (sum, label) => sum + label.QtyThisBox,
+              0,
+            );
+            if (totalGoodQty < totalTargetQty) {
+              throw new BadRequestException(
+                `Cannot complete production release. Scanned label quantity is ${totalGoodQty} of ${totalTargetQty}; remaining ${totalTargetQty - totalGoodQty}.`,
+              );
+            }
+            if (
+              !(dto.isNoAttachment ?? existing.IsNoAttachment) &&
+              attachmentCount === 0
+            ) {
+              throw new BadRequestException(
+                'Cannot complete production release without an attachment. Upload at least one attachment or select No Attachment.',
+              );
+            }
+          }
+
+          return tx.productionRelease.update({
+            where: { Id: id },
+            data: {
+              ...(dto.planDate !== undefined
+                ? { PlanDate: new Date(dto.planDate) }
+                : {}),
+              ...(dto.status !== undefined ? { Status: dto.status } : {}),
+              ...(dto.notes !== undefined ? { Notes: dto.notes } : {}),
+              ...(dto.isNoAttachment !== undefined
+                ? { IsNoAttachment: dto.isNoAttachment }
+                : {}),
+              TotalTargetQty: totalTargetQty,
+            },
           });
-        }
-      }
-
-      const updateData: Record<string, unknown> = {};
-      if (dto.planDate !== undefined)
-        updateData.PlanDate = new Date(dto.planDate);
-      if (dto.status !== undefined) updateData.Status = dto.status;
-      if (dto.notes !== undefined) updateData.Notes = dto.notes;
-      if (dto.isNoAttachment !== undefined)
-        updateData.IsNoAttachment = dto.isNoAttachment;
-
-      // Recalculate TotalTargetQty from linked forecasts
-      const linkedForecasts = await this.prisma.forecast.findMany({
-        where: { ProductionReleaseId: id },
-        select: { Qty: true },
-      });
-
-      updateData.TotalTargetQty = linkedForecasts.reduce(
-        (sum, f) => sum + f.Qty,
-        0,
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
       );
-
-      const result = await this.prisma.productionRelease.update({
-        where: { Id: id },
-        data: updateData,
-      });
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -631,7 +1046,7 @@ export class ProductionReleaseService {
       if (logProcess) {
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }
-      throw error;
+      this.releaseConflict(error);
     }
   }
 
@@ -1203,7 +1618,7 @@ export class ProductionReleaseService {
           await this.nasUploadService.deleteFile(attachment.FilePath);
           await this.logService.addLog({
             processId: logProcess.ProcessId,
-            message: `File deleted from NAS: ${attachment.FilePath}`,
+            message: `File deleted from NAS for attachment ${attachmentId}`,
             type: 'INFO',
             location: 'production-release.service.ts:961',
           });
@@ -1241,11 +1656,7 @@ export class ProductionReleaseService {
   }
 
   private validateAttachmentFile(file: Express.Multer.File): void {
-    const extension = file.originalname.split('.').pop()?.toLowerCase();
-    if (!extension || !ALLOWED_EXTENSIONS.includes(extension))
-      throw new UnsupportedMediaTypeException(
-        `Invalid file extension. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
-      );
+    validateUploadContent(file, ['pdf', 'jpeg', 'png', 'gif', 'webp']);
     if (file.size > MAX_FILE_SIZE)
       throw new BadRequestException('File too large. Maximum size is 10MB');
   }

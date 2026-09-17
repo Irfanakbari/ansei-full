@@ -14,6 +14,7 @@ describe('PokayokeService', () => {
     labelData: {
       findUnique: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
     forecast: {
       findUnique: jest.fn(),
@@ -40,7 +41,7 @@ describe('PokayokeService', () => {
   };
 
   const mockShoppingService = {
-    // Add mock methods as needed
+    checkRequirement: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -70,6 +71,15 @@ describe('PokayokeService', () => {
         (callback: (tx: typeof mockPrismaService) => Promise<unknown>) =>
           callback(mockPrismaService),
       );
+      mockShoppingService.checkRequirement.mockResolvedValue({
+        summary: {
+          overallPercentage: 100,
+          totalQtyPicked: 20,
+          totalQtyNeeded: 20,
+          totalMaterials: 1,
+        },
+      });
+      mockPrismaService.labelData.updateMany.mockResolvedValue({ count: 1 });
     });
 
     it('should successfully scan a valid label', async () => {
@@ -110,11 +120,100 @@ describe('PokayokeService', () => {
 
       expect(result.success).toBe(true);
       expect(result.data.labelNumber).toBe('LBL001');
-      expect(mockPrismaService.labelData.update).toHaveBeenCalled();
+      expect(mockPrismaService.labelData.updateMany).toHaveBeenCalledWith({
+        where: { Id: 1, Scanned: false },
+        data: { Scanned: true },
+      });
+      expect(mockPrismaService.pokayokeScanHistory.create).toHaveBeenCalledWith(
+        {
+          data: expect.objectContaining({ LabelDataId: 1 }),
+        },
+      );
       expect(mockPrismaService.productionRelease.update).toHaveBeenCalledWith({
         where: { Id: 'release-1' },
         data: { TotalGoodQty: { increment: 20 } },
       });
+    });
+
+    it('rolls back the successful scan unit when the release increment fails', async () => {
+      const label = {
+        Id: 1,
+        LabelNumber: 'LBL001',
+        ForecastId: 'PO-001',
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
+        QtyThisBox: 20,
+        Scanned: false,
+      };
+      mockPrismaService.labelData.findUnique.mockResolvedValue(label);
+      mockPrismaService.forecast.findUnique.mockResolvedValue({
+        PoId: 'PO-001',
+      });
+      mockPrismaService.finishGood.findUnique.mockResolvedValue({
+        PartNumber: 'FG-001',
+        PartName: 'Finish Good A',
+      });
+      mockPrismaService.pokayokeScanHistory.create.mockResolvedValue({ Id: 1 });
+      mockPrismaService.productionRelease.update.mockRejectedValue(
+        new Error('release update failed'),
+      );
+
+      await expect(
+        service.scan({ labelNumber: 'LBL001', status: 'SUKSES' }, 'admin'),
+      ).rejects.toThrow('release update failed');
+      expect(mockPrismaService.$transaction).toHaveBeenCalledTimes(1);
+      expect(logService.completeProcess).toHaveBeenLastCalledWith(
+        'PR123',
+        'FAILED',
+      );
+    });
+
+    it('rejects a concurrent successful scan when the label claim loses', async () => {
+      mockPrismaService.labelData.findUnique.mockResolvedValue({
+        Id: 1,
+        LabelNumber: 'LBL001',
+        ForecastId: 'PO-001',
+        FinishGoodId: 'FG-001',
+        QtyThisBox: 20,
+        Scanned: false,
+      });
+      mockPrismaService.forecast.findUnique.mockResolvedValue({
+        PoId: 'PO-001',
+      });
+      mockPrismaService.finishGood.findUnique.mockResolvedValue({
+        PartNumber: 'FG-001',
+        PartName: 'Finish Good A',
+      });
+      mockPrismaService.labelData.updateMany.mockResolvedValue({ count: 0 });
+
+      await expect(
+        service.scan({ labelNumber: 'LBL001', status: 'SUKSES' }, 'admin'),
+      ).rejects.toThrow('already validated');
+      expect(
+        mockPrismaService.pokayokeScanHistory.create,
+      ).not.toHaveBeenCalled();
+      expect(mockPrismaService.productionRelease.update).not.toHaveBeenCalled();
+    });
+
+    it('fails closed when shopping validation unexpectedly fails', async () => {
+      mockPrismaService.labelData.findUnique.mockResolvedValue({
+        Id: 1,
+        LabelNumber: 'LBL001',
+        ForecastId: 'PO-001',
+        FinishGoodId: 'FG-001',
+        Scanned: false,
+      });
+      mockPrismaService.forecast.findUnique.mockResolvedValue({
+        PoId: 'PO-001',
+      });
+      mockShoppingService.checkRequirement.mockRejectedValue(
+        new Error('shopping unavailable'),
+      );
+
+      await expect(
+        service.scan({ labelNumber: 'LBL001', status: 'SUKSES' }, 'admin'),
+      ).rejects.toThrow('shopping unavailable');
+      expect(mockPrismaService.$transaction).not.toHaveBeenCalled();
     });
 
     it('should throw error when label not found', async () => {

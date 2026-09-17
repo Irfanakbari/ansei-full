@@ -15,6 +15,7 @@ import {
 } from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
+import { withInventoryTransaction } from '../../common/helpers/inventory-transaction.helper';
 
 @Injectable()
 export class DeliveryService {
@@ -314,125 +315,143 @@ export class DeliveryService {
         location: 'delivery.service.ts:230',
       });
 
-      // Get current FinishGood stock
-      const finishGood = await this.prisma.finishGood.findUnique({
-        where: { PartNumber: labelData.FinishGoodId },
-      });
-
-      if (!finishGood) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `ERROR: FinishGood ${labelData.FinishGoodId} not found`,
-          type: 'ERROR',
-          location: 'delivery.service.ts:242',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-        throw new BadRequestException(
-          `FinishGood ${labelData.FinishGoodId} not found in system`,
-        );
-      }
-
-      // POKAYOKE: Validate stock is sufficient for delivery
-      if (finishGood.Qty < labelData.QtyThisBox) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `POKAYOKE FAILED: Insufficient stock. Available: ${finishGood.Qty}, Required: ${labelData.QtyThisBox}`,
-          type: 'ERROR',
-          location: 'delivery.service.ts:308',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-        throw new BadRequestException(
-          `POKAYOKE: Insufficient stock for delivery. Available: ${finishGood.Qty}, Required: ${labelData.QtyThisBox}`,
-        );
-      }
-
-      const balanceBefore = finishGood.Qty;
-      const balanceAfter = balanceBefore - labelData.QtyThisBox;
-
       // Store processId in local variable to avoid shadowing with Node.js global process
       const localProcessId = logProcess.ProcessId;
 
       // Create DeliveryHistory and update stock in transaction
-      const result = await this.prisma.$transaction(async (tx) => {
-        // Create DeliveryHistory record
-        // Note: LabelDataId references LabelData.LabelNumber (String), not LabelData.Id (Int)
-        const delivery = await tx.deliveryHistory.create({
+      const result = await withInventoryTransaction(
+        this.prisma,
+        ItemCategory.FINISH_GOOD,
+        async (tx) => {
+          await assertNoActiveInventoryCounting(
+            tx,
+            ItemCategory.FINISH_GOOD,
+            'Delivery Finish Good',
+          );
+          const concurrentDelivery = await tx.deliveryHistory.findUnique({
+            where: { LabelDataId: labelData.LabelNumber },
+          });
+          if (concurrentDelivery) {
+            return { delivery: concurrentDelivery, isDuplicate: true };
+          }
+          const finishGood = await tx.finishGood.findUnique({
+            where: { PartNumber: labelData.FinishGoodId },
+          });
+          if (!finishGood) {
+            throw new BadRequestException(
+              `FinishGood ${labelData.FinishGoodId} not found in system`,
+            );
+          }
+          if (finishGood.Qty < labelData.QtyThisBox) {
+            throw new BadRequestException(
+              `POKAYOKE: Insufficient stock for delivery. Available: ${finishGood.Qty}, Required: ${labelData.QtyThisBox}`,
+            );
+          }
+          const balanceBefore = finishGood.Qty;
+          const balanceAfter = balanceBefore - labelData.QtyThisBox;
+          // Create DeliveryHistory record
+          // Note: LabelDataId references LabelData.LabelNumber (String), not LabelData.Id (Int)
+          const delivery = await tx.deliveryHistory.create({
+            data: {
+              ForecastId: labelData.ForecastId,
+              Qty: labelData.QtyThisBox,
+              CreatedBy: createdBy,
+              LabelDataId: labelData.LabelNumber,
+            },
+          });
+
+          await this.logService.addLog({
+            processId: localProcessId,
+            message: `DeliveryHistory created: ID=${delivery.Id}`,
+            type: 'INFO',
+            location: 'delivery.service.ts:266',
+            client: tx,
+          });
+
+          // Update FinishGood stock
+          await tx.finishGood.update({
+            where: { PartNumber: labelData.FinishGoodId },
+            data: { Qty: balanceAfter },
+          });
+
+          await this.logService.addLog({
+            processId: localProcessId,
+            message: `FinishGood ${labelData.FinishGoodId} stock decremented: ${balanceBefore} -> ${balanceAfter}`,
+            type: 'INFO',
+            location: 'delivery.service.ts:276',
+            client: tx,
+          });
+
+          // Create InventoryLedger entry (OUTGOING - barang keluar ke customer)
+          await tx.inventoryLedger.create({
+            data: {
+              Id: crypto.randomUUID(),
+              TransactionDate: new Date(),
+              ItemCategory: 'FINISH_GOOD',
+              FinishGoodId: labelData.FinishGoodId,
+              Location: 'FINISH_GOOD_AREA',
+              TransactionType: 'DELIVERY_TO_CUSTOMER',
+              ReferenceDoc: `DELIVERY-${delivery.Id}`,
+              BalanceBefore: balanceBefore,
+              QtyIn: 0,
+              QtyOut: labelData.QtyThisBox,
+              BalanceAfter: balanceAfter,
+              CreatedBy: createdBy,
+              Notes: `Delivery for PO: ${labelData.ForecastId}, Label: ${labelData.LabelNumber}`,
+            },
+          });
+
+          await this.logService.addLog({
+            processId: localProcessId,
+            message: `InventoryLedger created for delivery: -${labelData.QtyThisBox} units (OUTGOING)`,
+            type: 'INFO',
+            location: 'delivery.service.ts:294',
+            client: tx,
+          });
+
+          await this.logService.addLog({
+            processId: localProcessId,
+            message: `Delivery completed successfully: ID=${delivery.Id}, Label=${labelData.LabelNumber}, Qty=${labelData.QtyThisBox}`,
+            type: 'INFO',
+            location: 'DeliveryService.create',
+            client: tx,
+          });
+          await this.logService.completeProcess(
+            localProcessId,
+            'SUCCESS',
+            undefined,
+            tx,
+          );
+
+          return { delivery, isDuplicate: false };
+        },
+      );
+
+      if (result.isDuplicate) {
+        return {
+          success: false,
+          isDuplicate: true,
+          message: `Label ${labelData.LabelNumber} has already been delivered`,
           data: {
-            ForecastId: labelData.ForecastId,
-            Qty: labelData.QtyThisBox,
-            CreatedBy: createdBy,
-            LabelDataId: labelData.LabelNumber,
+            id: result.delivery.Id,
+            forecastId: result.delivery.ForecastId,
+            qty: result.delivery.Qty,
+            deliveredAt: result.delivery.CreatedAt,
+            deliveredBy: result.delivery.CreatedBy,
           },
-        });
-
-        await this.logService.addLog({
-          processId: localProcessId,
-          message: `DeliveryHistory created: ID=${delivery.Id}`,
-          type: 'INFO',
-          location: 'delivery.service.ts:266',
-        });
-
-        // Update FinishGood stock
-        await tx.finishGood.update({
-          where: { PartNumber: labelData.FinishGoodId },
-          data: { Qty: balanceAfter },
-        });
-
-        await this.logService.addLog({
-          processId: localProcessId,
-          message: `FinishGood ${labelData.FinishGoodId} stock decremented: ${balanceBefore} -> ${balanceAfter}`,
-          type: 'INFO',
-          location: 'delivery.service.ts:276',
-        });
-
-        // Create InventoryLedger entry (OUTGOING - barang keluar ke customer)
-        await tx.inventoryLedger.create({
-          data: {
-            Id: crypto.randomUUID(),
-            TransactionDate: new Date(),
-            ItemCategory: 'FINISH_GOOD',
-            FinishGoodId: labelData.FinishGoodId,
-            Location: 'FINISH_GOOD_AREA',
-            TransactionType: 'DELIVERY_TO_CUSTOMER',
-            ReferenceDoc: `DELIVERY-${delivery.Id}`,
-            BalanceBefore: balanceBefore,
-            QtyIn: 0,
-            QtyOut: labelData.QtyThisBox,
-            BalanceAfter: balanceAfter,
-            CreatedBy: createdBy,
-            Notes: `Delivery for PO: ${labelData.ForecastId}, Label: ${labelData.LabelNumber}`,
-          },
-        });
-
-        await this.logService.addLog({
-          processId: localProcessId,
-          message: `InventoryLedger created for delivery: -${labelData.QtyThisBox} units (OUTGOING)`,
-          type: 'INFO',
-          location: 'delivery.service.ts:294',
-        });
-
-        return delivery;
-      });
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Delivery completed successfully: ID=${result.Id}, Label=${labelData.LabelNumber}, Qty=${labelData.QtyThisBox}`,
-        type: 'INFO',
-        location: 'delivery.service.ts:304',
-      });
-
-      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+        };
+      }
 
       return {
         success: true,
         message: `Delivery successful for LabelNumber ${labelData.LabelNumber}`,
         data: {
-          id: result.Id,
-          forecastId: result.ForecastId,
-          qty: result.Qty,
-          createdAt: result.CreatedAt,
-          createdBy: result.CreatedBy,
-          labelDataId: result.LabelDataId,
+          id: result.delivery.Id,
+          forecastId: result.delivery.ForecastId,
+          qty: result.delivery.Qty,
+          createdAt: result.delivery.CreatedAt,
+          createdBy: result.delivery.CreatedBy,
+          labelDataId: result.delivery.LabelDataId,
         },
       };
     } catch (error) {

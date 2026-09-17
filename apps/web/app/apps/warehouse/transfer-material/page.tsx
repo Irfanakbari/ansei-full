@@ -236,6 +236,7 @@ export default function TransferMaterialPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
+        filteredValue: query.search ? [query.search] : null,
     });
 
     const columns = [

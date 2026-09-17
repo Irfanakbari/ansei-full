@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
+import { get, getApiErrorMessage, post, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 import {fetchWithAuth} from "@/store/utils/fetchWithAuth";
 
 // Forecast item interface
@@ -10,6 +10,7 @@ export interface ForecastItem {
     FinishGoodId: string;
     Qty: number;
     DeliveryDate: string;
+    ProductionReleaseId?: string | null;
     PartData: {
         PartNumber: string;
         PartName: string;
@@ -91,6 +92,9 @@ interface ProductionReleaseState {
     attachmentLoading: boolean;
     error: string | null;
     pagination: { page: number; limit: number; totalItems: number; totalPages: number };
+    forecastCandidates: ForecastItem[];
+    forecastCandidatesLoading: boolean;
+    forecastCandidatesPagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
 
 const initialState: ProductionReleaseState = {
@@ -102,7 +106,21 @@ const initialState: ProductionReleaseState = {
     attachmentLoading: false,
     error: null,
     pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
+    forecastCandidates: [],
+    forecastCandidatesLoading: false,
+    forecastCandidatesPagination: { page: 1, limit: 10, totalItems: 0, totalPages: 0 },
 };
+
+export const fetchProductionReleaseForecastCandidates = createAsyncThunk<PaginatedForecastCandidates, { id: string; mode: 'tag' | 'untag'; page: number; limit: number; search?: string }, { rejectValue: string }>(
+    'productionRelease/fetchForecastCandidates',
+    async ({ id, ...params }, { rejectWithValue }) => {
+        try {
+            return await get<PaginatedForecastCandidates>(`/production/production-release/${id}/forecast-candidates`, { params });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch forecast candidates'));
+        }
+    }
+);
 
 export interface ProductionReleaseQuery {
     page?: number;
@@ -113,6 +131,11 @@ export interface ProductionReleaseQuery {
 
 interface PaginatedProductionRelease {
     data: ProductionReleaseEntity[];
+    meta: { page: number; limit: number; totalItems: number; totalPages: number };
+}
+
+interface PaginatedForecastCandidates {
+    data: ForecastItem[];
     meta: { page: number; limit: number; totalItems: number; totalPages: number };
 }
 
@@ -175,6 +198,45 @@ export interface UpdateProductionReleasePayload {
     forecastIds?: string[];
     isNoAttachment?: boolean;
 }
+
+export interface AmendProductionReleasePayload {
+    id: string;
+    forecastIds: string[];
+    reason: string;
+}
+
+export const cancelProductionRelease = createAsyncThunk<ProductionReleaseEntity, { id: string; reason: string }, { rejectValue: string }>(
+    'productionRelease/cancel',
+    async ({ id, reason }, { rejectWithValue }) => {
+        try {
+            return await post<ProductionReleaseEntity, { reason: string }>(`/production/production-release/${id}/cancel`, { reason });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to cancel production release'));
+        }
+    }
+);
+
+export const tagProductionReleaseForecasts = createAsyncThunk<ProductionReleaseEntity, AmendProductionReleasePayload, { rejectValue: string }>(
+    'productionRelease/tagForecasts',
+    async ({ id, forecastIds, reason }, { rejectWithValue }) => {
+        try {
+            return await post<ProductionReleaseEntity, { forecastIds: string[]; reason: string }>(`/production/production-release/${id}/forecasts/tag`, { forecastIds, reason });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to tag forecasts'));
+        }
+    }
+);
+
+export const untagProductionReleaseForecasts = createAsyncThunk<ProductionReleaseEntity, AmendProductionReleasePayload, { rejectValue: string }>(
+    'productionRelease/untagForecasts',
+    async ({ id, forecastIds, reason }, { rejectWithValue }) => {
+        try {
+            return await post<ProductionReleaseEntity, { forecastIds: string[]; reason: string }>(`/production/production-release/${id}/forecasts/untag`, { forecastIds, reason });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to untag forecasts'));
+        }
+    }
+);
 
 // Update production release
 export const updateProductionRelease = createAsyncThunk<
@@ -417,6 +479,16 @@ const productionReleaseSlice = createSlice({
             // Delete attachment
             .addCase(deleteAttachment.fulfilled, (state, action) => {
                 state.attachments = state.attachments.filter(item => item.Id !== action.payload);
+            })
+            .addCase(fetchProductionReleaseForecastCandidates.pending, (state) => { state.forecastCandidatesLoading = true; })
+            .addCase(fetchProductionReleaseForecastCandidates.fulfilled, (state, action) => {
+                state.forecastCandidatesLoading = false;
+                state.forecastCandidates = action.payload.data;
+                state.forecastCandidatesPagination = action.payload.meta;
+            })
+            .addCase(fetchProductionReleaseForecastCandidates.rejected, (state, action) => {
+                state.forecastCandidatesLoading = false;
+                state.error = action.payload ?? 'Failed to fetch forecast candidates';
             })
             // Clear detail
             .addCase(clearProductionReleaseDetail.fulfilled, (state) => {

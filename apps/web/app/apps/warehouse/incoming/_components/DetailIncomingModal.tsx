@@ -1,11 +1,12 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-06-08 */
 "use client";
 
-import React from 'react';
-import { Modal, Descriptions, Table, Tooltip, Typography, Space } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Button, Modal, Descriptions, Table, Tooltip, Typography, Space } from 'antd';
+import { ArrowRightOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { IncomingEntity, IncomingMaterial } from '@/store/features/warehouse/incoming/incomingSlice';
+import MaterialLinkedModal from './LinkedModal/MaterialLinkedModal';
 
 interface Props {
     visible: boolean;
@@ -27,6 +28,8 @@ const formatDT = (val: string | null | undefined) => {
 };
 
 const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
+    const [linkedPartNumber, setLinkedPartNumber] = useState<string | null>(null);
+
     const columns: ColumnsType<IncomingMaterial> = [
         {
             title: '#',
@@ -39,7 +42,24 @@ const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
             dataIndex: ['MaterialData', 'PartNumber'],
             key: 'PartNumber',
             width: 150,
-            render: (val: string) => <Tooltip title={val}><code style={{ fontSize: 11 }}>{val}</code></Tooltip>,
+            render: (val: string) => (
+                <Space size={4}>
+                    <Tooltip title="View Material details">
+                        <Button
+                            type="text"
+                            size="small"
+                            aria-label={`View Material details for ${val}`}
+                            icon={<ArrowRightOutlined style={{ color: '#d4a106', fontSize: 12 }} />}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setLinkedPartNumber(val);
+                            }}
+                            style={{ width: 20, minWidth: 20, height: 20, padding: 0 }}
+                        />
+                    </Tooltip>
+                    <Tooltip title={val}><code style={{ fontSize: 11 }}>{val}</code></Tooltip>
+                </Space>
+            ),
         },
         {
             title: 'Part Name',
@@ -107,6 +127,12 @@ const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 scroll={{ x: 600, y: 300 }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
+            />
+
+            <MaterialLinkedModal
+                open={linkedPartNumber !== null}
+                partNumber={linkedPartNumber}
+                onClose={() => setLinkedPartNumber(null)}
             />
         </Modal>
     );

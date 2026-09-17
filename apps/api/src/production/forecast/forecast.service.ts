@@ -8,14 +8,14 @@ import { LogProcessService } from '../../common/log-process/log-process.service'
 import { ExcelService } from '../../common/utils/excel.service';
 import { formatErrorMessage } from '../../common/utils/error-formatter.util';
 import { PrinterService } from '../../common/printer/printer.service';
-import { CreateForecastDto, UpdateForecastDto } from './dto';
+import { CreateForecastDto, ForecastQueryDto, UpdateForecastDto } from './dto';
 import type {
   ForecastModel,
   LogProcessModel,
 } from '../../generated/prisma/models';
 import { ProductionStatus } from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
-import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { validateUploadContent } from '../../common/utils/upload-security.util';
 
 interface ForecastExcelRow {
   [columnPosition: number]: string | number | Date | undefined;
@@ -60,18 +60,29 @@ export class ForecastService {
     PART_NO: 11,
   };
 
-  async findAll(query: SearchPaginationQueryDto = { page: 1, limit: 50 }) {
+  async findAll(query: ForecastQueryDto = { page: 1, limit: 50 }) {
     const page = query?.page ?? 1;
     const limit = query?.limit ?? 50;
-    const where: Prisma.ForecastWhereInput = query?.search
-      ? {
-          OR: [
-            { PoId: { contains: query.search, mode: 'insensitive' } },
-            { FinishGoodId: { contains: query.search, mode: 'insensitive' } },
-            { VendorName: { contains: query.search, mode: 'insensitive' } },
-          ],
-        }
-      : {};
+    const where: Prisma.ForecastWhereInput = {};
+
+    if (query?.search) {
+      where.OR = [
+        { PoId: { contains: query.search, mode: 'insensitive' } },
+        { FinishGoodId: { contains: query.search, mode: 'insensitive' } },
+        { VendorName: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (query?.deliveryDateFrom || query?.deliveryDateTo) {
+      where.DeliveryDate = {
+        ...(query.deliveryDateFrom
+          ? { gte: new Date(`${query.deliveryDateFrom}T00:00:00.000Z`) }
+          : {}),
+        ...(query.deliveryDateTo
+          ? { lte: new Date(`${query.deliveryDateTo}T23:59:59.999Z`) }
+          : {}),
+      };
+    }
     const [totalItems, data] = await Promise.all([
       this.prisma.forecast.count({ where }),
       this.prisma.forecast.findMany({
@@ -407,8 +418,10 @@ export class ForecastService {
         location: 'forecast.service.ts:215',
       });
 
+      validateUploadContent(file, ['xlsx']);
+
       // Read Excel by column position
-      const rawData = this.excelService.readExcelByPosition(file);
+      const rawData = await this.excelService.readExcelByPosition(file);
 
       // Filter out empty rows (rows where all values are empty strings)
       const filteredData = rawData.filter((row: ForecastExcelRow) => {

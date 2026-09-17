@@ -69,6 +69,8 @@ export const ModelName = {
   ProductionRelease: 'ProductionRelease',
   ProductionReleaseAttachment: 'ProductionReleaseAttachment',
   Shopping: 'Shopping',
+  ShoppingProductionResult: 'ShoppingProductionResult',
+  OutboxEvent: 'OutboxEvent',
   ProductionReport: 'ProductionReport',
   LabelData: 'LabelData',
   PokayokeScanHistory: 'PokayokeScanHistory',
@@ -369,6 +371,41 @@ export const ShoppingScalarFieldEnum = {
 export type ShoppingScalarFieldEnum = (typeof ShoppingScalarFieldEnum)[keyof typeof ShoppingScalarFieldEnum]
 
 
+export const ShoppingProductionResultScalarFieldEnum = {
+  ForecastId: 'ForecastId',
+  ShoppingId: 'ShoppingId',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy'
+} as const
+
+export type ShoppingProductionResultScalarFieldEnum = (typeof ShoppingProductionResultScalarFieldEnum)[keyof typeof ShoppingProductionResultScalarFieldEnum]
+
+
+export const OutboxEventScalarFieldEnum = {
+  Id: 'Id',
+  IdempotencyKey: 'IdempotencyKey',
+  Type: 'Type',
+  Payload: 'Payload',
+  Status: 'Status',
+  Attempts: 'Attempts',
+  MaxAttempts: 'MaxAttempts',
+  NextAttemptAt: 'NextAttemptAt',
+  LastErrorCode: 'LastErrorCode',
+  LastError: 'LastError',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt',
+  QueuedAt: 'QueuedAt',
+  ProcessingAt: 'ProcessingAt',
+  SucceededAt: 'SucceededAt',
+  FailedAt: 'FailedAt',
+  Actor: 'Actor',
+  ReferenceType: 'ReferenceType',
+  ReferenceId: 'ReferenceId'
+} as const
+
+export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[keyof typeof OutboxEventScalarFieldEnum]
+
+
 export const ProductionReportScalarFieldEnum = {
   Id: 'Id',
   Date: 'Date',
@@ -657,6 +694,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -671,4 +715,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

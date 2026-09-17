@@ -2,9 +2,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Table, Card, Breadcrumb, App, Input, Button, Space, Tag, Tooltip } from 'antd';
-import type { InputRef } from 'antd';
-import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, PrinterOutlined } from '@ant-design/icons';
+import { Table, Card, Breadcrumb, App, Input, Button, DatePicker, Space, Tag, Tooltip } from 'antd';
+import type { InputRef, TableProps } from 'antd';
+import type { FilterDropdownProps } from 'antd/es/table/interface';
+import dayjs, { type Dayjs } from 'dayjs';
+import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, PrinterOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,6 +16,7 @@ import DetailForecastModal from './_components/DetailForecastModal';
 import CreateForecastModal from './_components/CreateForecastModal';
 import EditForecastModal from './_components/EditForecastModal';
 import ImportForecastModal from './_components/ImportForecastModal';
+import FinishGoodLinkedModal from './_components/LinkedModal/FinishGoodLinkedModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -33,6 +36,7 @@ export default function ForecastPage() {
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isImportModalVisible, setIsImportModalVisible] = useState(false);
+    const [linkedFinishGood, setLinkedFinishGood] = useState<ForecastEntity['PartData'] | null>(null);
     const [detailData, setDetailData] = useState<ForecastEntity | null>(null);
     const [editData, setEditData] = useState<ForecastEntity | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
@@ -120,10 +124,21 @@ export default function ForecastPage() {
         }
     };
 
-    const handleTableChange = (tablePagination: any, filters: any, sorter: any) => {
-        setSortedInfo(sorter);
-        const search = Object.values(filters).flat().find((value) => typeof value === 'string') as string | undefined;
-        dispatch(setForecastQuery({ page: tablePagination.current, limit: tablePagination.pageSize, search }));
+    const handleTableChange: TableProps<ForecastEntity>['onChange'] = (tablePagination, filters, sorter) => {
+        setSortedInfo(Array.isArray(sorter) ? sorter[0] ?? {} : sorter);
+        const search = Object.entries(filters)
+            .filter(([key]) => key !== 'DeliveryDate')
+            .flatMap(([, values]) => values ?? [])
+            .find((value) => typeof value === 'string') as string | undefined;
+        const deliveryDateRange = filters.DeliveryDate as string[] | null;
+
+        dispatch(setForecastQuery({
+            page: deliveryDateRange ? 1 : tablePagination.current,
+            limit: tablePagination.pageSize,
+            search,
+            deliveryDateFrom: deliveryDateRange?.[0],
+            deliveryDateTo: deliveryDateRange?.[1],
+        }));
     };
 
     const getColumnSearchProps = (dataIndex: string) => ({
@@ -150,6 +165,7 @@ export default function ForecastPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
         ),
+        filteredValue: query.search ? [query.search] : null,
         onFilter: (value: any, record: any) => {
             return record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase());
         },
@@ -171,9 +187,24 @@ export default function ForecastPage() {
             key: 'PartData',
             width: 150,
             render: (_: any, record: ForecastEntity) => (
-                <Tooltip title={`${record.PartData?.PartNumber} - ${record.PartData?.PartName}`}>
-                    <span>{record.PartData?.PartNumber}</span>
-                </Tooltip>
+                <Space size={4}>
+                    <Tooltip title="View Finish Good details">
+                        <Button
+                            type="text"
+                            size="small"
+                            aria-label={`View Finish Good details for ${record.PartData?.PartNumber || 'unknown part'}`}
+                            icon={<ArrowRightOutlined style={{ color: '#d4a106', fontSize: 12 }} />}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                setLinkedFinishGood(record.PartData ?? null);
+                            }}
+                            style={{ width: 20, minWidth: 20, height: 20, padding: 0 }}
+                        />
+                    </Tooltip>
+                    <Tooltip title={`${record.PartData?.PartNumber} - ${record.PartData?.PartName}`}>
+                        <span>{record.PartData?.PartNumber || '-'}</span>
+                    </Tooltip>
+                </Space>
             ),
             ...getColumnSearchProps('PartData.PartNumber'),
         },
@@ -200,6 +231,45 @@ export default function ForecastPage() {
             key: 'DeliveryDate',
             width: 120,
             render: formatDateTime,
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: FilterDropdownProps) => {
+                const currentRange = selectedKeys as string[];
+                const pickerValue: [Dayjs, Dayjs] | null = currentRange.length === 2
+                    ? [dayjs(currentRange[0]), dayjs(currentRange[1])]
+                    : null;
+
+                return (
+                    <div style={{ padding: 8 }} onKeyDown={(event) => event.stopPropagation()}>
+                        <DatePicker.RangePicker
+                            value={pickerValue}
+                            format="DD/MM/YYYY"
+                            allowClear
+                            onChange={(dates) => {
+                                const [from, to] = dates ?? [];
+                                setSelectedKeys(from && to ? [from.format('YYYY-MM-DD'), to.format('YYYY-MM-DD')] : []);
+                            }}
+                            style={{ marginBottom: 8 }}
+                        />
+                        <Space>
+                            <Button type="primary" size="small" onClick={() => confirm()} style={{ width: 90 }}>
+                                Filter
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    clearFilters?.();
+                                    confirm();
+                                }}
+                                style={{ width: 90 }}
+                            >
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            filteredValue: query.deliveryDateFrom && query.deliveryDateTo
+                ? [query.deliveryDateFrom, query.deliveryDateTo]
+                : null,
             sorter: (a: ForecastEntity, b: ForecastEntity) => new Date(a.DeliveryDate).getTime() - new Date(b.DeliveryDate).getTime(),
             sortOrder: sortedInfo.columnKey === 'DeliveryDate' ? sortedInfo.order : null,
         },
@@ -263,6 +333,12 @@ export default function ForecastPage() {
                     data={detailData}
                 />
             )}
+
+            <FinishGoodLinkedModal
+                open={linkedFinishGood !== null}
+                partNumber={linkedFinishGood?.PartNumber ?? null}
+                onClose={() => setLinkedFinishGood(null)}
+            />
 
             <CreateForecastModal
                 visible={isCreateModalVisible}

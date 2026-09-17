@@ -43,6 +43,17 @@ export const fetchFinishGood = createAsyncThunk<PaginatedApiSuccessEnvelope<Fini
     }
 );
 
+export const fetchFinishGoodByPartNumber = createAsyncThunk<ApiSuccessEnvelope<FinishGoodEntity>, string, { rejectValue: string }>(
+    'finishGood/fetchByPartNumber',
+    async (partNumber, { rejectWithValue }) => {
+        try {
+            return await get<ApiSuccessEnvelope<FinishGoodEntity>>(`/master/finish-good/part-number/${encodeURIComponent(partNumber)}`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch finish good detail'));
+        }
+    }
+);
+
 export const createFinishGood = createAsyncThunk(
     'finishGood/create',
     async (finishGoodData: {

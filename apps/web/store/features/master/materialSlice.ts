@@ -53,6 +53,17 @@ export const fetchMaterial = createAsyncThunk<PaginatedApiSuccessEnvelope<Materi
     }
 );
 
+export const fetchMaterialByPartNumber = createAsyncThunk<ApiSuccessEnvelope<MaterialEntity>, string, { rejectValue: string }>(
+    'material/fetchByPartNumber',
+    async (partNumber, { rejectWithValue }) => {
+        try {
+            return await get<ApiSuccessEnvelope<MaterialEntity>>(`/master/material/part-number/${encodeURIComponent(partNumber)}`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch material detail'));
+        }
+    }
+);
+
 export const createMaterial = createAsyncThunk(
     'material/create',
     async (materialData: {

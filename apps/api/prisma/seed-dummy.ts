@@ -2,7 +2,12 @@ import 'dotenv/config';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
-import { NotificationType } from '../src/generated/prisma/enums';
+import {
+  ItemCategory,
+  LocationType,
+  NotificationType,
+  TransactionType,
+} from '../src/generated/prisma/enums';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error('DATABASE_URL is required');
@@ -11,6 +16,29 @@ const pool = new Pool({ connectionString });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 const ACTOR = 'seed-dummy';
 const DUMMY_PREFIX = 'DM-';
+const INITIAL_RACK_QTY = 10_000;
+const INITIAL_WAREHOUSE_QTY = 1_000;
+
+async function clearSeededTables(): Promise<void> {
+  await prisma.$executeRawUnsafe(`
+    TRUNCATE TABLE
+      "InventoryLedger",
+      "BillOfMaterials",
+      "BoxQTY",
+      "Forecast",
+      "LineStatus",
+      "ManPower",
+      "Material",
+      "FinishGood",
+      "Supplier",
+      "Satuan",
+      "EmailNotification",
+      "DashboardSetting",
+      "PrinterSetting",
+      "DisplayConfig"
+    RESTART IDENTITY CASCADE
+  `);
+}
 
 const units = ['PCS', 'SET', 'KG', 'METER', 'GRAM', 'LITER', 'ROLL'];
 const suppliers = [
@@ -72,7 +100,9 @@ function assert(condition: boolean, message: string): asserts condition {
 }
 
 async function main(): Promise<void> {
-  console.log('Starting dummy seed (upsert-only, no truncate)');
+  console.log('Clearing all seeded tables and dependent data');
+  await clearSeededTables();
+  console.log('Starting dummy seed with initial material stock');
 
   const unitMap = new Map<string, number>();
   for (const name of units) {
@@ -111,11 +141,42 @@ async function main(): Promise<void> {
         SatuanId: unitMap.get(unit),
         RackLocation: `DM-${String.fromCharCode(65 + (index % 4))}-${String(index + 1).padStart(2, '0')}`,
         IsActive: true,
-        QtyRack: 0,
-        QtyWarehouse: 0,
+        QtyRack: INITIAL_RACK_QTY,
+        QtyWarehouse: INITIAL_WAREHOUSE_QTY,
       },
     });
     materials.push(material);
+
+    await prisma.inventoryLedger.createMany({
+      data: [
+        {
+          ItemCategory: ItemCategory.MATERIAL,
+          MaterialId: partNumber,
+          Location: LocationType.RACK,
+          TransactionType: TransactionType.ADJUSTMENT_MANUAL,
+          ReferenceDoc: `${DUMMY_PREFIX}INITIAL-STOCK-RACK`,
+          BalanceBefore: 0,
+          QtyIn: INITIAL_RACK_QTY,
+          QtyOut: 0,
+          BalanceAfter: INITIAL_RACK_QTY,
+          CreatedBy: ACTOR,
+          Notes: 'Initial rack stock for dummy production simulation',
+        },
+        {
+          ItemCategory: ItemCategory.MATERIAL,
+          MaterialId: partNumber,
+          Location: LocationType.WAREHOUSE,
+          TransactionType: TransactionType.ADJUSTMENT_MANUAL,
+          ReferenceDoc: `${DUMMY_PREFIX}INITIAL-STOCK-WAREHOUSE`,
+          BalanceBefore: 0,
+          QtyIn: INITIAL_WAREHOUSE_QTY,
+          QtyOut: 0,
+          BalanceAfter: INITIAL_WAREHOUSE_QTY,
+          CreatedBy: ACTOR,
+          Notes: 'Initial warehouse stock for dummy production simulation',
+        },
+      ],
+    });
   }
 
   const finishGoods = [] as Awaited<
@@ -306,6 +367,43 @@ async function main(): Promise<void> {
   assert(materials.length === 30, 'Expected 30 materials');
   assert(finishGoods.length === 30, 'Expected 30 finish goods');
   assert(bomCount === 150, 'Expected 150 BOM rows');
+
+  const materialStockCount = await prisma.material.count({
+    where: {
+      QtyRack: INITIAL_RACK_QTY,
+      QtyWarehouse: INITIAL_WAREHOUSE_QTY,
+    },
+  });
+  const rackLedgerCount = await prisma.inventoryLedger.count({
+    where: {
+      ItemCategory: ItemCategory.MATERIAL,
+      Location: LocationType.RACK,
+      BalanceBefore: 0,
+      QtyIn: INITIAL_RACK_QTY,
+      QtyOut: 0,
+      BalanceAfter: INITIAL_RACK_QTY,
+    },
+  });
+  const warehouseLedgerCount = await prisma.inventoryLedger.count({
+    where: {
+      ItemCategory: ItemCategory.MATERIAL,
+      Location: LocationType.WAREHOUSE,
+      BalanceBefore: 0,
+      QtyIn: INITIAL_WAREHOUSE_QTY,
+      QtyOut: 0,
+      BalanceAfter: INITIAL_WAREHOUSE_QTY,
+    },
+  });
+  assert(
+    materialStockCount === materials.length,
+    'Material stock cache mismatch',
+  );
+  assert(rackLedgerCount === materials.length, 'Rack ledger mismatch');
+  assert(
+    warehouseLedgerCount === materials.length,
+    'Warehouse ledger mismatch',
+  );
+
   console.log(
     JSON.stringify(
       {
@@ -316,6 +414,11 @@ async function main(): Promise<void> {
         manpower: 16,
         forecasts: forecastIndex - 1,
         forecastCountByMonth,
+        initialMaterialStock: {
+          rackPerMaterial: INITIAL_RACK_QTY,
+          warehousePerMaterial: INITIAL_WAREHOUSE_QTY,
+          ledgerRows: materials.length * 2,
+        },
       },
       null,
       2,
