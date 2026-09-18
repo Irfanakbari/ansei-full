@@ -33,8 +33,14 @@ services:
       - PORT=3005
       - HOSTNAME=0.0.0.0
       - API_URL=http://ansei-api:7500
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - VUTEQ_SSO_REDIS_DB=0
+      - VUTEQ_SSO_REDIS_KEY_PREFIX=
     depends_on:
       - ansei-api
+      - redis
 
   # 3. Printer Worker Container (BullMQ Async Worker)
   ansei-printer:
