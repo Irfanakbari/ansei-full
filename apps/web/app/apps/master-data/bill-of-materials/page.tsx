@@ -5,24 +5,27 @@ import {
     Alert,
     App,
     Breadcrumb,
+    Button,
     Card,
     Checkbox,
     Form,
     Input,
     Modal,
     Select,
+    Space,
     Table,
-    Tabs,
     Tag,
 } from "antd";
 import type {TableProps} from "antd";
-import {PlusOutlined, ReloadOutlined} from "@ant-design/icons";
+import type {FilterDropdownProps} from "antd/es/table/interface";
+import {PlusOutlined, ReloadOutlined, SearchOutlined} from "@ant-design/icons";
 import {useDispatch, useSelector} from "react-redux";
 import {useRouter} from "next/navigation";
 import type {AppDispatch, RootState} from "@/store";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import ButtonToolbar from "@/components/ButtonToolbar";
 import GoldenArrowAction from "@/components/GoldenArrowAction";
+import FinishGoodLinkedModal from "@/components/production/FinishGoodLinkedModal";
 import {usePhasePermission} from "@/components/traceability/usePhasePermission";
 import {
     createRevision,
@@ -31,6 +34,7 @@ import {
 } from "@/store/features/traceability/traceabilitySlice";
 import type {BomRevision, Page} from "@/store/features/traceability/types";
 import {fetchFinishGood} from "@/store/features/master/finishGoodSlice";
+import RevisionDetailsModal from "./_components/RevisionDetailsModal";
 
 export default function BillOfMaterialsPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -46,6 +50,8 @@ export default function BillOfMaterialsPage() {
     const [refresh, setRefresh] = useState(0);
     const [open, setOpen] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [revisionId, setRevisionId] = useState<string | null>(null);
+    const [finishGoodPartNumber, setFinishGoodPartNumber] = useState<string | null>(null);
     const [form] = Form.useForm<{
         finishGoodId: number;
         reason: string;
@@ -69,6 +75,62 @@ export default function BillOfMaterialsPage() {
             alive = false;
         };
     }, [dispatch, query, refresh]);
+    const statusFilter = query.active === "true" ? "ACTIVE" : query.status;
+    const handleTableChange: TableProps<BomRevision>["onChange"] = (
+        pagination,
+        filters,
+    ) => {
+        const search = String(filters.finishGood?.[0] ?? "").trim();
+        const selectedStatus = filters.status?.[0]
+            ? String(filters.status[0])
+            : undefined;
+        const filterChanged = search !== (query.search ?? "") || selectedStatus !== statusFilter;
+        setSelected(null);
+        dispatch(
+            setRevisionQuery({
+                page: filterChanged ? 1 : (pagination.current ?? query.page),
+                limit: pagination.pageSize ?? query.limit,
+                ...(search ? {search} : {}),
+                ...(selectedStatus === "ACTIVE"
+                    ? {active: "true"}
+                    : selectedStatus
+                        ? {status: selectedStatus}
+                        : {}),
+            }),
+        );
+    };
+    const renderFinishGoodSearch = ({
+                                        setSelectedKeys,
+                                        selectedKeys,
+                                        confirm,
+                                        clearFilters,
+                                    }: FilterDropdownProps) => (
+        <div style={{padding: 8}} onKeyDown={(event) => event.stopPropagation()}>
+            <Input
+                autoFocus
+                placeholder="Search finish good"
+                value={String(selectedKeys[0] ?? "")}
+                onChange={(event) =>
+                    setSelectedKeys(event.target.value ? [event.target.value] : [])
+                }
+                onPressEnter={() => confirm()}
+                style={{display: "block", marginBottom: 8, width: 240}}
+            />
+            <Space>
+                <Button type="primary" icon={<SearchOutlined/>} onClick={() => confirm()}>
+                    Search
+                </Button>
+                <Button
+                    onClick={() => {
+                        clearFilters?.();
+                        confirm();
+                    }}
+                >
+                    Reset
+                </Button>
+            </Space>
+        </div>
+    );
     const columns: TableProps<BomRevision>["columns"] = [
         {
             title: "Revision",
@@ -78,23 +140,29 @@ export default function BillOfMaterialsPage() {
                     <GoldenArrowAction
                         ariaLabel={`Open BOM revision ${r.Revision}`}
                         tooltip="Open BOM revision"
-                        onClick={() =>
-                            router.push(`/apps/master-data/bill-of-materials/${r.Id}`)
-                        }
+                        onClick={() => setRevisionId(r.Id)}
                     />
         </span>
             ),
         },
-        {title: "FG Part Number", render: (_, r) => r.FinishGood.PartNumber},
-        {title: "FG Part Name", render: (_, r) => r.FinishGood.PartName},
         {
-            title: "Status",
+            title: "FG Part Number",
+            key: "finishGood",
             render: (_, r) => (
-                <Tag color={r.Status === "APPROVED" ? "green" : "blue"}>
-                    {r.FinishGood.ActiveBomRevisionId === r.Id ? "ACTIVE" : r.Status}
-                </Tag>
+                <Space size={4}>
+                    <GoldenArrowAction
+                        ariaLabel={`Open Finish Good detail for ${r.FinishGood.PartNumber}`}
+                        tooltip="Open Finish Good detail"
+                        onClick={() => setFinishGoodPartNumber(r.FinishGood.PartNumber)}
+                    />
+                    <span>{r.FinishGood.PartNumber}</span>
+                </Space>
             ),
+            filterDropdown: renderFinishGoodSearch,
+            filteredValue: query.search ? [query.search] : null,
+            filterIcon: (filtered) => <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>,
         },
+        {title: "FG Part Name", render: (_, r) => r.FinishGood.PartName},
         {title: "Materials", render: (_, r) => r.Lines.length},
         {title: "Approved By", dataIndex: "ApprovedBy"},
         {
@@ -105,6 +173,26 @@ export default function BillOfMaterialsPage() {
                         timeZone: "Asia/Jakarta",
                     })
                     : "-",
+        },
+        {
+            title: "Status",
+            key: "status",
+            filters: ["ACTIVE", "DRAFT", "SUBMITTED", "APPROVED", "CANCELLED"].map(
+                (status) => ({text: status, value: status}),
+            ),
+            filterMultiple: false,
+            filteredValue: statusFilter ? [statusFilter] : null,
+            render: (_, r) => {
+                const status = r.FinishGood.ActiveBomRevisionId === r.Id ? "ACTIVE" : r.Status;
+                const colors = {
+                    ACTIVE: "green",
+                    DRAFT: "default",
+                    SUBMITTED: "orange",
+                    APPROVED: "blue",
+                    CANCELLED: "red",
+                } as const;
+                return <Tag color={colors[status]}>{status}</Tag>;
+            },
         },
     ];
     const create = async () => {
@@ -141,47 +229,11 @@ export default function BillOfMaterialsPage() {
                     icon={<PlusOutlined/>}
                     enable={can("IPCS.BOM_REVISION_CREATE")}
                     onClick={() => {
-                        form.resetFields();
                         setOpen(true);
                         void dispatch(fetchFinishGood({limit: 50}));
                     }}
                 />
             </ToolbarWrapper>
-            <Tabs
-                activeKey={
-                    query.active === "true" ? "ACTIVE" : (query.status ?? "HISTORY")
-                }
-                onChange={(key) => {
-                    setSelected(null);
-                    dispatch(
-                        setRevisionQuery({
-                            page: 1,
-                            limit: 20,
-                            search: query.search,
-                            ...(key === "ACTIVE"
-                                ? {active: "true"}
-                                : key === "HISTORY"
-                                    ? {}
-                                    : {status: key}),
-                        }),
-                    );
-                }}
-                items={[
-                    {key: "ACTIVE", label: "Active BOM"},
-                    {key: "DRAFT", label: "Drafts"},
-                    {key: "SUBMITTED", label: "Pending Approval"},
-                    {key: "HISTORY", label: "History"},
-                ]}
-            />
-            <Input.Search
-                placeholder="Search finish good"
-                defaultValue={query.search}
-                allowClear
-                onSearch={(search) =>
-                    dispatch(setRevisionQuery({...query, search, page: 1}))
-                }
-                style={{maxWidth: 380, marginBottom: 12}}
-            />
             {error && <Alert type="error" title={error} showIcon/>}
             <Table<BomRevision>
                 size="small"
@@ -191,6 +243,7 @@ export default function BillOfMaterialsPage() {
                 dataSource={data?.data ?? []}
                 loading={loading}
                 scroll={{x: "max-content"}}
+                onChange={handleTableChange}
                 onRow={(row) => ({
                     onClick: () => setSelected(row),
                     onDoubleClick: () =>
@@ -203,8 +256,6 @@ export default function BillOfMaterialsPage() {
                     current: query.page,
                     pageSize: query.limit,
                     total: data?.meta.totalItems ?? 0,
-                    onChange: (page, limit) =>
-                        dispatch(setRevisionQuery({...query, page, limit})),
                 }}
             />
             <Modal
@@ -215,8 +266,11 @@ export default function BillOfMaterialsPage() {
                 onOk={() => void create()}
                 confirmLoading={saving}
                 destroyOnHidden
+                afterOpenChange={(isOpen) => {
+                    if (isOpen) form.resetFields();
+                }}
             >
-                <Form form={form} layout="vertical">
+                <Form form={form} layout="vertical" preserve={false}>
                     <Form.Item
                         name="finishGoodId"
                         label="Finish Good"
@@ -231,7 +285,7 @@ export default function BillOfMaterialsPage() {
                             loading={finishGoods.loading}
                             options={finishGoods.data.map((f) => ({
                                 value: f.Id,
-                                label: `${f.PartNumber} � ${f.PartName}`,
+                                label: `${f.PartNumber} - ${f.PartName}`,
                             }))}
                         />
                     </Form.Item>
@@ -247,6 +301,17 @@ export default function BillOfMaterialsPage() {
                     </Form.Item>
                 </Form>
             </Modal>
+            <RevisionDetailsModal
+                open={Boolean(revisionId)}
+                revisionId={revisionId}
+                onClose={() => setRevisionId(null)}
+                onChanged={() => setRefresh((value) => value + 1)}
+            />
+            <FinishGoodLinkedModal
+                open={finishGoodPartNumber !== null}
+                partNumber={finishGoodPartNumber}
+                onClose={() => setFinishGoodPartNumber(null)}
+            />
         </Card>
     );
 }

@@ -43,7 +43,21 @@ import type {BomRevision} from "@/store/features/traceability/types";
 import {fetchMaterial} from "@/store/features/master/materialSlice";
 
 type Line = { materialId: number; qty: number; label: string };
-export default function RevisionDetails({id}: { id: string }) {
+type RevisionDetailsProps = {
+    id: string;
+    presentation?: "page" | "modal";
+    onChanged?: () => void;
+    onRevisionCreated?: (revisionId: string) => void;
+    onStatusChange?: (status: { saving: boolean; hasUnsavedChanges: boolean }) => void;
+};
+
+export default function RevisionDetails({
+                                            id,
+                                            presentation = "page",
+                                            onChanged,
+                                            onRevisionCreated,
+                                            onStatusChange,
+                                        }: RevisionDetailsProps) {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
     const {message} = App.useApp();
@@ -113,6 +127,9 @@ export default function RevisionDetails({id}: { id: string }) {
             ));
     const editable =
         revision?.Status === "DRAFT" && can("IPCS.BOM_REVISION_UPDATE");
+    useEffect(() => {
+        onStatusChange?.({saving, hasUnsavedChanges});
+    }, [hasUnsavedChanges, onStatusChange, saving]);
     const execute = async (
         kind: "edit" | "submit" | "approve" | "reject" | "cancel",
     ) => {
@@ -151,6 +168,7 @@ export default function RevisionDetails({id}: { id: string }) {
             setAction(null);
             setActionReason("");
             setRefresh((n) => n + 1);
+            onChanged?.();
             message.success("BOM revision updated.");
         } catch (e) {
             message.error(String(e));
@@ -169,7 +187,12 @@ export default function RevisionDetails({id}: { id: string }) {
                     reason: `Revision of BOM ${revision.Revision}`,
                 }),
             ).unwrap();
-            router.push(`/apps/master-data/bill-of-materials/${r.Id}`);
+            if (onRevisionCreated) {
+                onRevisionCreated(r.Id);
+                onChanged?.();
+            } else {
+                router.push(`/apps/master-data/bill-of-materials/${r.Id}`);
+            }
         } catch (e) {
             message.error(String(e));
         } finally {
@@ -182,21 +205,23 @@ export default function RevisionDetails({id}: { id: string }) {
             styles={{body: {padding: 0}}}
             loading={loading}
         >
-            <Breadcrumb
-                style={{marginBottom: 16}}
-                items={[
-                    {title: "Home"},
-                    {title: "Master Data"},
-                    {
-                        title: (
-                            <Link href="/apps/master-data/bill-of-materials">
-                                Bill of Materials
-                            </Link>
-                        ),
-                    },
-                    {title: "Revision Detail"},
-                ]}
-            />
+            {presentation === "page" && (
+                <Breadcrumb
+                    style={{marginBottom: 16}}
+                    items={[
+                        {title: "Home"},
+                        {title: "Master Data"},
+                        {
+                            title: (
+                                <Link href="/apps/master-data/bill-of-materials">
+                                    Bill of Materials
+                                </Link>
+                            ),
+                        },
+                        {title: "Revision Detail"},
+                    ]}
+                />
+            )}
             <ToolbarWrapper>
                 <ButtonToolbar
                     title="Refresh"
@@ -271,7 +296,7 @@ export default function RevisionDetails({id}: { id: string }) {
                     <Descriptions
                         size="small"
                         bordered
-                        column={3}
+                        column={{xs: 1, sm: 2, lg: 3}}
                         style={{marginTop: 12, marginBottom: 12}}
                         items={[
                             {
@@ -374,9 +399,9 @@ export default function RevisionDetails({id}: { id: string }) {
                                             ]}
                                         />
                                         {editable && (
-                                            <Space style={{marginTop: 12}}>
+                                            <Space wrap style={{marginTop: 12, width: "100%"}}>
                                                 <Select
-                                                    style={{width: 420}}
+                                                    style={{width: "min(420px, 100%)", minWidth: 240}}
                                                     placeholder="Search material"
                                                     showSearch={{
                                                         filterOption: false,
