@@ -28,6 +28,7 @@ Read this file before changing the repository. Also inspect the nearest existing
 - Register reducers in `store/index.ts`. Preserve centralized authentication, refresh, redirect, and permission behavior.
 - Match backend methods, paths, versions, casing, query parameters, content types, and envelopes exactly.
 - Follow neighboring Ant Design patterns, use stable row keys, centered dialogs, explicit loading/error states, and supported Ant Design 6 APIs.
+- On new or modified tabular list pages, put search and filters in the relevant Ant Design `Table` column through `filterDropdown`, `filters`, or the table search pattern. Do not place a standalone filter/search row directly below `ToolbarWrapper`; reserve standalone filters for controls that affect multiple non-table sections or pages without a table.
 
 ### API
 

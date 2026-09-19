@@ -1,19 +1,22 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
 "use client";
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Alert,
   Breadcrumb,
+  Button,
   Card,
   Descriptions,
   Input,
+  Space,
   Table,
   Tabs,
   Tag,
 } from "antd";
-import { ReloadOutlined } from "@ant-design/icons";
+import type { FilterDropdownProps } from "antd/es/table/interface";
+import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
@@ -32,9 +35,49 @@ import type {
   TraceData,
   TraceEvent,
 } from "@/store/features/traceability/types";
+
+const renderTraceSearch = ({
+  setSelectedKeys,
+  selectedKeys,
+  confirm,
+  clearFilters,
+}: FilterDropdownProps) => (
+  <div style={{ padding: 8 }} onKeyDown={(event) => event.stopPropagation()}>
+    <Input
+      autoFocus
+      aria-label="Search traceability references"
+      placeholder="Search PO / Release / Label / Shopping / NG Case"
+      value={selectedKeys[0]?.toString() ?? ""}
+      onChange={(event) =>
+        setSelectedKeys(event.target.value ? [event.target.value] : [])
+      }
+      onPressEnter={() => confirm()}
+      style={{ marginBottom: 8, display: "block", width: 320 }}
+    />
+    <Space>
+      <Button
+        type="primary"
+        size="small"
+        icon={<SearchOutlined />}
+        onClick={() => confirm()}
+      >
+        Search
+      </Button>
+      <Button
+        size="small"
+        onClick={() => {
+          clearFilters?.();
+          confirm();
+        }}
+      >
+        Reset
+      </Button>
+    </Space>
+  </div>
+);
+
 export default function TraceabilityView() {
   const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
   const params = useSearchParams();
   const poId = params.get("poId");
   const label = params.get("label");
@@ -98,17 +141,6 @@ export default function TraceabilityView() {
           onClick={() => setRefresh((n) => n + 1)}
         />
       </ToolbarWrapper>
-      <Input.Search
-        style={{ maxWidth: 520, margin: "12px 0" }}
-        placeholder="Search PO / Release / Label / Shopping / NG Case"
-        allowClear
-        defaultValue={query.search}
-        onSearch={(search) => {
-          dispatch(setTraceQuery({ ...query, search, page: 1 }));
-          setPage(1);
-          router.replace("/apps/traceability");
-        }}
-      />
       {error && <Alert type="error" title={error} showIcon />}
       {!poId && (
         <Table<TraceSearchRow>
@@ -120,6 +152,14 @@ export default function TraceabilityView() {
           columns={[
             {
               title: "PO",
+              key: "search",
+              filteredValue: query.search ? [query.search] : null,
+              filterDropdown: renderTraceSearch,
+              filterIcon: (filtered) => (
+                <SearchOutlined
+                  style={{ color: filtered ? "#1677ff" : undefined }}
+                />
+              ),
               render: (_, r) => (
                 <Link
                   href={`/apps/traceability?poId=${encodeURIComponent(r.PoId)}`}
@@ -144,8 +184,20 @@ export default function TraceabilityView() {
             current: query.page,
             pageSize: query.limit,
             total: results?.meta.totalItems,
-            onChange: (page, limit) =>
-              dispatch(setTraceQuery({ ...query, page, limit })),
+          }}
+          onChange={(pagination, filters) => {
+            const search = filters.search?.[0]?.toString() ?? "";
+            dispatch(
+              setTraceQuery({
+                ...query,
+                search,
+                page: search === (query.search ?? "")
+                  ? (pagination.current ?? 1)
+                  : 1,
+                limit: pagination.pageSize ?? query.limit,
+              }),
+            );
+            setPage(1);
           }}
         />
       )}

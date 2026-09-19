@@ -20,7 +20,12 @@ import {
   Table,
   Tag,
 } from "antd";
-import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
+import type { FilterDropdownProps } from "antd/es/table/interface";
+import {
+  PlusOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/store";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
@@ -48,6 +53,47 @@ type DraftLine = {
   qtyNg: number;
   qtyReplacement: number;
 };
+
+const renderCaseSearch = ({
+  setSelectedKeys,
+  selectedKeys,
+  confirm,
+  clearFilters,
+}: FilterDropdownProps) => (
+  <div style={{ padding: 8 }} onKeyDown={(event) => event.stopPropagation()}>
+    <Input
+      autoFocus
+      aria-label="Search material NG case or PO"
+      placeholder="Search case or PO"
+      value={selectedKeys[0]?.toString() ?? ""}
+      onChange={(event) =>
+        setSelectedKeys(event.target.value ? [event.target.value] : [])
+      }
+      onPressEnter={() => confirm()}
+      style={{ marginBottom: 8, display: "block", width: 240 }}
+    />
+    <Space>
+      <Button
+        type="primary"
+        size="small"
+        icon={<SearchOutlined />}
+        onClick={() => confirm()}
+      >
+        Search
+      </Button>
+      <Button
+        size="small"
+        onClick={() => {
+          clearFilters?.();
+          confirm();
+        }}
+      >
+        Reset
+      </Button>
+    </Space>
+  </div>
+);
+
 export default function MaterialNgWorkspace() {
   const dispatch = useDispatch<AppDispatch>();
   const params = useSearchParams();
@@ -279,15 +325,6 @@ export default function MaterialNgWorkspace() {
           onClick={() => void begin()}
         />
       </ToolbarWrapper>
-      <Input.Search
-        placeholder="Search case or PO"
-        allowClear
-        onSearch={(v) => {
-          setSearch(v);
-          setPage(1);
-        }}
-        style={{ maxWidth: 400, marginBottom: 12 }}
-      />
       {error && <Alert type="error" title={error} />}
       <Table<NgCase>
         size="small"
@@ -304,7 +341,18 @@ export default function MaterialNgWorkspace() {
           },
         }}
         columns={[
-          { title: "Case", dataIndex: "CaseNumber" },
+          {
+            title: "Case",
+            dataIndex: "CaseNumber",
+            key: "search",
+            filteredValue: search ? [search] : null,
+            filterDropdown: renderCaseSearch,
+            filterIcon: (filtered) => (
+              <SearchOutlined
+                style={{ color: filtered ? "#1677ff" : undefined }}
+              />
+            ),
+          },
           { title: "PO", dataIndex: "ForecastId" },
           { title: "Stage", dataIndex: "Stage" },
           { title: "Status", render: (_, r) => <Tag>{r.Status}</Tag> },
@@ -315,7 +363,11 @@ export default function MaterialNgWorkspace() {
           current: page,
           pageSize: 20,
           total: result?.meta.totalItems,
-          onChange: setPage,
+        }}
+        onChange={(pagination, filters) => {
+          const nextSearch = filters.search?.[0]?.toString() ?? "";
+          setPage(nextSearch === search ? (pagination.current ?? 1) : 1);
+          setSearch(nextSearch);
         }}
         scroll={{ x: "max-content" }}
       />
