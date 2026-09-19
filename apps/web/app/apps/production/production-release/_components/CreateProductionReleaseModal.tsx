@@ -131,37 +131,32 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
 
     const columns = [
         {
-            title: 'PO ID',
+            title: 'PO Number',
             dataIndex: 'PoId',
             key: 'PoId',
-            width: 130,
             render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
         },
         {
             title: 'Part Number',
             dataIndex: ['PartData', 'PartNumber'],
             key: 'PartNumber',
-            width: 120,
             render: (val: string) => val || '-',
         },
         {
             title: 'Delivery Date',
             dataIndex: 'DeliveryDate',
             key: 'DeliveryDate',
-            width: 110,
             render: (val: string) => formatDate(val),
         },
         {
             title: 'Qty',
             dataIndex: 'Qty',
             key: 'Qty',
-            width: 60,
             align: 'right' as const,
         },
         {
             title: 'Status',
             key: 'Status',
-            width: 80,
             align: 'center' as const,
             render: (_: any, record: ForecastEntity) => {
                 const isOpen = isForecastOpen(record);
@@ -205,7 +200,7 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
                 <Form.Item name="notes" label="Notes">
                     <Input.TextArea placeholder="Notes (optional)" rows={2} />
                 </Form.Item>
-                <Form.Item label="PO IDs" required>
+                <Form.Item label="Production orders" required>
                     <div style={{ marginBottom: 8 }}>
                         <Input.Search
                             ref={searchInput}
@@ -222,7 +217,6 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
                     <Table
                         rowSelection={rowSelection}
                         columns={columns}
-                        tableLayout="fixed"
                         dataSource={forecasts}
                         size="small"
                         loading={forecastLoading}
@@ -237,7 +231,7 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
                             pageSizeOptions: ['10', '20', '50'],
                             showTotal: (total) => `Total ${total} items`,
                         }}
-                        scroll={{ y: 300 }}
+                        scroll={{ x: 'max-content', y: 300 }}
                         className="small-table"
                         style={{ fontSize: '10px' }}
                     />

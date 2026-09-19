@@ -48,16 +48,25 @@ const CreateIncomingModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
     const handleAddMaterial = () => {
         if (selectedMaterialId && selectedQty && selectedQty > 0) {
             const selectedMaterial = materialData.find(m => m.Id === selectedMaterialId);
-            const newKey = Date.now();
-            setMaterials(prev => [
-                ...prev,
-                {
-                    key: newKey,
-                    materialId: selectedMaterialId,
-                    qty: selectedQty,
-                    materialData: selectedMaterial ? { PartNumber: selectedMaterial.PartNumber, PartName: selectedMaterial.PartName } : undefined,
-                },
-            ]);
+            setMaterials((current) => {
+                const existing = current.find((item) => item.materialId === selectedMaterialId);
+                if (existing) {
+                    return current.map((item) =>
+                        item.materialId === selectedMaterialId
+                            ? { ...item, qty: item.qty + selectedQty }
+                            : item,
+                    );
+                }
+                return [
+                    ...current,
+                    {
+                        key: Date.now(),
+                        materialId: selectedMaterialId,
+                        qty: selectedQty,
+                        materialData: selectedMaterial ? { PartNumber: selectedMaterial.PartNumber, PartName: selectedMaterial.PartName } : undefined,
+                    },
+                ];
+            });
             setSelectedMaterialId(undefined);
             setSelectedQty(undefined);
         } else {
@@ -121,7 +130,6 @@ const CreateIncomingModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
         {
             title: 'Part Number',
             key: 'PartNumber',
-            width: 150,
             render: (_: any, record: MaterialItem) => record.materialData?.PartNumber || '-',
         },
         {
@@ -133,13 +141,11 @@ const CreateIncomingModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
             title: 'Qty',
             dataIndex: 'qty',
             key: 'qty',
-            width: 80,
             align: 'right' as const,
         },
         {
             title: '',
             key: 'action',
-            width: 50,
             render: (_: any, record: MaterialItem) => (
                 <Button type="link" danger icon={<DeleteOutlined />} onClick={() => handleRemoveMaterial(record.key)} />
             ),
@@ -158,22 +164,21 @@ const CreateIncomingModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
             zIndex={1050}
         >
             <Form form={form} layout="vertical">
-                <Form.Item name="poId" label="PO ID" rules={[{ required: true, message: 'Please enter PO ID' }]}>
+                <Form.Item name="poId" label="PO Number" rules={[{ required: true, message: 'Please enter PO number' }]}>
                     <Input placeholder="PO-2024-001" onChange={(e) => {
                         const value = e.target.value.toUpperCase();
                         form.setFieldValue('poId', value);
                     }} />
                 </Form.Item>
                 <Form.Item name="supplierId" label="Supplier" rules={[{ required: true, message: 'Please select supplier' }]}>
-                    <Select placeholder="Select supplier" showSearch filterOption={(input, option) =>
-                        (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
-                    }>
-                        {supplierData.map(s => (
-                            <Select.Option key={s.Id} value={s.Id} label={s.Name}>
-                                {s.Name}
-                            </Select.Option>
-                        ))}
-                    </Select>
+                    <Select
+                        placeholder="Select supplier"
+                        showSearch={{ optionFilterProp: 'label' }}
+                        options={supplierData.map((supplier) => ({
+                            value: supplier.Id,
+                            label: supplier.Name,
+                        }))}
+                    />
                 </Form.Item>
                 <Form.Item name="receivedBy" label="Received By" rules={[{ required: true, message: 'Please enter receiver name' }]}>
                     <Input placeholder="Receiver name" />
@@ -188,19 +193,14 @@ const CreateIncomingModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
                 <Select
                     placeholder="Select material"
                     style={{ width: 250 }}
-                    showSearch
+                    showSearch={{ optionFilterProp: 'label' }}
                     value={selectedMaterialId}
                     onChange={setSelectedMaterialId}
-                    filterOption={(input, option) =>
-                        (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
-                    }
-                >
-                    {materialData.map(m => (
-                        <Select.Option key={m.Id} value={m.Id} label={`${m.PartNumber} - ${m.PartName}`}>
-                            {m.PartNumber} - {m.PartName}
-                        </Select.Option>
-                    ))}
-                </Select>
+                    options={materialData.map((material) => ({
+                        value: material.Id,
+                        label: `${material.PartNumber} - ${material.PartName}`,
+                    }))}
+                />
                 <InputNumber
                     placeholder="Qty"
                     min={1}
@@ -217,7 +217,7 @@ const CreateIncomingModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
                 size="small"
                 rowKey="key"
                 pagination={false}
-                scroll={{ x: 500 }}
+                scroll={{ x: 'max-content' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

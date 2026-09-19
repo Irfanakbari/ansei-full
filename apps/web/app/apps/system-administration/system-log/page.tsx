@@ -143,7 +143,6 @@ export default function SystemLogPage() {
             title: 'Process ID',
             dataIndex: 'processId',
             key: 'processId',
-            width: 220,
             ellipsis: true,
             render: (val: string) => <Tooltip title={val}><Text code style={{ fontSize: 11 }}>{val}</Text></Tooltip>,
         },
@@ -151,7 +150,6 @@ export default function SystemLogPage() {
             title: 'Function ID',
             dataIndex: 'functionId',
             key: 'functionId',
-            width: 140,
             ellipsis: true,
             filteredValue: filteredInfo.functionId || null,
             ...getColumnSearchProps('functionId', 'Search Function ID'),
@@ -160,14 +158,12 @@ export default function SystemLogPage() {
             title: 'Function Name',
             dataIndex: 'functionName',
             key: 'functionName',
-            width: 180,
             ellipsis: true,
         },
         {
             title: 'Status',
             dataIndex: 'processStatus',
             key: 'processStatus',
-            width: 100,
             filteredValue: filteredInfo.processStatus || null,
             filterMultiple: false,
             filters: STATUS_OPTIONS,
@@ -187,35 +183,29 @@ export default function SystemLogPage() {
             title: 'Process Date',
             dataIndex: 'processDate',
             key: 'processDate',
-            width: 150,
             render: formatDateTime,
         },
         {
             title: 'Start',
             dataIndex: 'processStart',
             key: 'processStart',
-            width: 150,
             render: formatDateTime,
         },
         {
             title: 'End',
             dataIndex: 'processEnd',
             key: 'processEnd',
-            width: 150,
             render: formatDateTime,
         },
         {
             title: 'Created At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            width: 150,
             render: formatDateTime,
         },
         {
             title: 'Action',
             key: 'action',
-            width: 80,
-            fixed: 'right',
             render: (_: any, record: any) => (
                 <Tooltip title="View Detail">
                     <EyeOutlined
@@ -268,7 +258,7 @@ export default function SystemLogPage() {
                     showTotal: (t) => `Total ${t} records`,
                 }}
                 rowKey="processId"
-                scroll={{ x: 1300, y: 'calc(100vh - 320px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 320px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

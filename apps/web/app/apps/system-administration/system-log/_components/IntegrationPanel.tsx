@@ -38,13 +38,13 @@ export default function IntegrationPanel() {
     return () => { active = false; };
   }, [dispatch, query]);
   const columns: TableProps<IntegrationEvent>['columns'] = [
-    { title: 'Created (Jakarta)', dataIndex: 'createdAt', width: 165, render: formatDateTime },
-    { title: 'Type', dataIndex: 'type', width: 190 },
+    { title: 'Created (Jakarta)', dataIndex: 'createdAt', render: formatDateTime },
+    { title: 'Type', dataIndex: 'type' },
     { title: 'Reference', dataIndex: 'referenceId', ellipsis: true },
-    { title: 'Status', dataIndex: 'status', width: 125, render: value => <Tag color={value === 'FAILED' ? 'error' : value === 'SUCCEEDED' ? 'success' : 'processing'}>{value}</Tag> },
-    { title: 'Attempts', width: 90, render: (_, row) => `${row.attempts}/${row.maxAttempts}` },
-    { title: 'Result / attention', width: 300, render: (_, row) => row.completionEvidence === 'LEGACY_UNVERIFIED' ? 'Legacy completion — transport outcome not verified.' : row.error?.message || (row.status === 'SUCCEEDED' ? 'Transport accepted; physical print / recipient receipt not verified.' : 'Awaiting transport result') },
-    { title: 'Actions', width: 145, render: (_, row) => <Space><Button type="link" size="small" onClick={() => setAuditId(row.id)}>Audit</Button>{canRecover && row.status === 'FAILED' && row.error?.code !== 'OUTBOX_CLOSED' && <Button size="small" onClick={() => { form.resetFields(); setSelected(row); }}>Recover</Button>}</Space> },
+    { title: 'Status', dataIndex: 'status', render: value => <Tag color={value === 'FAILED' ? 'error' : value === 'SUCCEEDED' ? 'success' : 'processing'}>{value}</Tag> },
+    { title: 'Attempts', render: (_, row) => `${row.attempts}/${row.maxAttempts}` },
+    { title: 'Result / attention', render: (_, row) => row.completionEvidence === 'LEGACY_UNVERIFIED' ? 'Legacy completion — transport outcome not verified.' : row.error?.message || (row.status === 'SUCCEEDED' ? 'Transport accepted; physical print / recipient receipt not verified.' : 'Awaiting transport result') },
+    { title: 'Actions', render: (_, row) => <Space><Button type="link" size="small" onClick={() => setAuditId(row.id)}>Audit</Button>{canRecover && row.status === 'FAILED' && row.error?.code !== 'OUTBOX_CLOSED' && <Button size="small" onClick={() => { form.resetFields(); setSelected(row); }}>Recover</Button>}</Space> },
   ];
   async function submit() {
     if (!selected || inFlight.current) return;
@@ -66,7 +66,7 @@ export default function IntegrationPanel() {
     {error && <Alert type="error" title={error} showIcon />}
     {summary && <Space wrap style={{ marginBottom: 12 }}><Tag>Pending {summary.pending}</Tag><Tag>Queued {summary.queued}</Tag><Tag>Processing {summary.processing}</Tag><Tag color="error">Failed {summary.failed}</Tag><Tag color="warning">Uncertain {summary.uncertain}</Tag><Tag>Exhausted {summary.exhausted}</Tag><Typography.Text type="secondary">Oldest open: {summary.oldestPendingAt ? formatDateTime(summary.oldestPendingAt) : '—'} · Updated {formatDateTime(summary.observedAt)}</Typography.Text></Space>}
     {summary && (!summary.queueAvailable || !summary.printerQueueAvailable) && <Alert type="warning" title="Queue unavailable. Durable requests are retained; investigate the dependency before recovery." showIcon />}
-    <Table<IntegrationEvent> rowKey="id" size="small" className="small-table" columns={columns} dataSource={rows} loading={loading} scroll={{ x: 1150 }} pagination={{ current: query.page, pageSize: query.limit, total, showSizeChanger: true, onChange: (page, limit) => setQuery(current => ({ ...current, page, limit })) }} />
+    <Table<IntegrationEvent> rowKey="id" size="small" className="small-table" columns={columns} dataSource={rows} loading={loading} scroll={{ x: 'max-content' }} pagination={{ current: query.page, pageSize: query.limit, total, showSizeChanger: true, onChange: (page, limit) => setQuery(current => ({ ...current, page, limit })) }} />
     <Modal centered open={!!selected} title="Recover integration" onCancel={() => { if (!saving) setSelected(undefined); }} onOk={submit} confirmLoading={saving} cancelButtonProps={{ disabled: saving }} destroyOnHidden>
       <Typography.Paragraph>Retry permits one additional attempt. Check external delivery evidence and stop any old worker before retrying an uncertain result. Do not enter credentials or document contents.</Typography.Paragraph>
       <Typography.Paragraph copyable>{selected?.id}</Typography.Paragraph>

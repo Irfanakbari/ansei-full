@@ -70,7 +70,7 @@ export default function BillOfMaterialsPage() {
   const columns: TableProps<BomRevision>["columns"] = [
     { title: "FG Part Number", render: (_, r) => r.FinishGood.PartNumber },
     { title: "FG Part Name", render: (_, r) => r.FinishGood.PartName },
-    { title: "Revision", dataIndex: "Revision", width: 90 },
+    { title: "Revision", dataIndex: "Revision" },
     {
       title: "Status",
       render: (_, r) => (
@@ -183,7 +183,7 @@ export default function BillOfMaterialsPage() {
         columns={columns}
         dataSource={data?.data ?? []}
         loading={loading}
-        scroll={{ x: 950 }}
+        scroll={{ x: "max-content" }}
         rowSelection={{
           type: "radio",
           selectedRowKeys: selected ? [selected.Id] : [],

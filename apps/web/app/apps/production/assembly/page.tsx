@@ -147,20 +147,13 @@ export default function AssemblyPage() {
   });
   const columns: TableProps<AssemblySession>["columns"] = [
     {
-      title: "Prod Release ID",
+      title: "Release Number",
       key: "productionReleaseId",
-      width: 180,
-      ...searchFilter("productionReleaseId", "Production release ID"),
-      render: (_, row) => (
-        <code style={{ fontSize: 10 }}>
-          {row.LabelData.ProductionReleaseId ?? "-"}
-        </code>
-      ),
+      render: (_, row) => row.LabelData.ProductionRelease?.ReleaseNumber ?? "-",
     },
     {
       title: "Label Number",
       key: "labelNumber",
-      width: 180,
       ...searchFilter("labelNumber", "Search label number"),
       render: (_, row) => (
         <code style={{ fontSize: 11 }}>{row.LabelData.LabelNumber}</code>
@@ -169,7 +162,6 @@ export default function AssemblyPage() {
     {
       title: "Finish Good",
       key: "part",
-      width: 200,
       render: (_, row) => (
         <span>
           <code style={{ fontSize: 10 }}>{row.LabelData.FinishGoodId}</code>
@@ -189,13 +181,11 @@ export default function AssemblyPage() {
       title: "Manpower",
       dataIndex: "ManPowerName",
       key: "manPowerNik",
-      width: 160,
       ...searchFilter("manPowerNik", "Search manpower NIK"),
     },
     {
       title: "Qty/Box",
       key: "qty",
-      width: 80,
       align: "right",
       render: (_, row) => row.LabelData.QtyThisBox,
     },
@@ -203,7 +193,6 @@ export default function AssemblyPage() {
       title: "Status",
       dataIndex: "Status",
       key: "status",
-      width: 140,
       filterMultiple: false,
       filteredValue: query.status ? [query.status] : null,
       filters: [
@@ -378,7 +367,7 @@ export default function AssemblyPage() {
         loading={loading}
         size="small"
         className="small-table"
-        scroll={{ x: 1800, y: "calc(100vh - 380px)" }}
+        scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
         onChange={(pagination, filters, _sorter, extra) =>
           setQuery({
             page: extra.action === "filter" ? 1 : pagination.current,

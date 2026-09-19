@@ -42,7 +42,7 @@ export default function ManageForecastsModal({ open, release, onClose, onSuccess
     }, [dispatch, form, mode, open, release]);
 
     const columns: TableColumnsType<ForecastItem> = [
-        { title: 'PO ID', dataIndex: 'PoId', key: 'PoId' },
+        { title: 'PO Number', dataIndex: 'PoId', key: 'PoId' },
         { title: 'Part Number', dataIndex: 'FinishGoodId', key: 'FinishGoodId' },
         { title: 'Qty', dataIndex: 'Qty', key: 'Qty', align: 'right' },
         { title: 'State', key: 'state', render: (_, item) => <Tag color={item.ProductionReleaseId ? 'blue' : 'default'}>{item.ProductionReleaseId ? 'LINKED' : 'UNLINKED'}</Tag> },

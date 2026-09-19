@@ -108,16 +108,14 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
 
   const forecastColumns = [
     {
-      title: "PO ID",
+      title: "PO Number",
       dataIndex: "PoId",
       key: "PoId",
-      width: 130,
       render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
     },
     {
       title: "Part Number",
       key: "PartNumber",
-      width: 110,
       render: (_: any, record: any) => record.PartData?.PartNumber || "-",
     },
     {
@@ -136,7 +134,6 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
     {
       title: "Picked Material",
       key: "Picked",
-      width: 120,
       align: "right" as const,
       render: (_: any, record: any) => {
         const totalPicked =
@@ -155,7 +152,6 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
       title: "Delivery Date",
       dataIndex: "DeliveryDate",
       key: "DeliveryDate",
-      width: 100,
       render: (val: string) =>
         val ? new Date(val).toLocaleDateString("id-ID") : "-",
     },
@@ -178,7 +174,6 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
       title: "Size",
       dataIndex: "FileSize",
       key: "FileSize",
-      width: 70,
       align: "right" as const,
       render: (val: any) => {
         const size = Number(val) || 0;
@@ -190,7 +185,6 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
     {
       title: "Action",
       key: "action",
-      width: 100,
       align: "center" as const,
       render: (_: any, record: ProductionAttachment) => (
         <Space size="small">

@@ -17,17 +17,17 @@ interface MaterialLinkedModalProps {
 }
 
 const columns: TableProps<MaterialEntity>['columns'] = [
-    { title: 'Part Number', dataIndex: 'PartNumber', key: 'PartNumber', width: 150, render: (value: string) => <code style={{ fontSize: 11 }}>{value || '-'}</code> },
-    { title: 'Part Name', dataIndex: 'PartName', key: 'PartName', width: 220, render: (value: string) => value || '-' },
-    { title: 'Supplier', dataIndex: 'Supplier', key: 'Supplier', width: 150, render: (value: string | null) => value || '-' },
-    { title: 'Unit', key: 'SatuanData', width: 100, render: (_value, record) => record.SatuanData?.Name || '-' },
-    { title: 'Rack Location', dataIndex: 'RackLocation', key: 'RackLocation', width: 120, render: (value: string | null) => value || '-' },
-    { title: 'Qty Rack', dataIndex: 'QtyRack', key: 'QtyRack', width: 100, align: 'right' },
-    { title: 'Qty Warehouse', dataIndex: 'QtyWarehouse', key: 'QtyWarehouse', width: 120, align: 'right' },
-    { title: 'Minimum Stock', dataIndex: 'MinimumStock', key: 'MinimumStock', width: 120, align: 'right' },
-    { title: 'Maximum Stock', dataIndex: 'MaximumStock', key: 'MaximumStock', width: 125, align: 'right', render: (value: number) => value === 0 ? 'Not Set' : value },
-    { title: 'Created By', dataIndex: 'CreatedBy', key: 'CreatedBy', width: 140, render: (_value, record) => record.CreatedByName || record.CreatedBy || '-' },
-    { title: 'Created Date', dataIndex: 'CreatedAt', key: 'CreatedAt', width: 160, render: (value: string) => formatDateTime(value) },
+    { title: 'Part Number', dataIndex: 'PartNumber', key: 'PartNumber', render: (value: string) => <code style={{ fontSize: 11 }}>{value || '-'}</code> },
+    { title: 'Part Name', dataIndex: 'PartName', key: 'PartName', render: (value: string) => value || '-' },
+    { title: 'Supplier', dataIndex: 'Supplier', key: 'Supplier', render: (value: string | null) => value || '-' },
+    { title: 'Unit', key: 'SatuanData', render: (_value, record) => record.SatuanData?.Name || '-' },
+    { title: 'Rack Location', dataIndex: 'RackLocation', key: 'RackLocation', render: (value: string | null) => value || '-' },
+    { title: 'Qty Rack', dataIndex: 'QtyRack', key: 'QtyRack', align: 'right' },
+    { title: 'Qty Warehouse', dataIndex: 'QtyWarehouse', key: 'QtyWarehouse', align: 'right' },
+    { title: 'Minimum Stock', dataIndex: 'MinimumStock', key: 'MinimumStock', align: 'right' },
+    { title: 'Maximum Stock', dataIndex: 'MaximumStock', key: 'MaximumStock', align: 'right', render: (value: number) => value === 0 ? 'Not Set' : value },
+    { title: 'Created By', dataIndex: 'CreatedBy', key: 'CreatedBy', render: (_value, record) => record.CreatedByName || record.CreatedBy || '-' },
+    { title: 'Created Date', dataIndex: 'CreatedAt', key: 'CreatedAt', render: (value: string) => formatDateTime(value) },
 ];
 
 export default function MaterialLinkedModal({ open, partNumber, onClose }: MaterialLinkedModalProps) {
@@ -76,7 +76,7 @@ export default function MaterialLinkedModal({ open, partNumber, onClose }: Mater
             destroyOnHidden
             zIndex={1100}
         >
-            {error && <Alert type="error" message={error} showIcon style={{ marginBottom: 12 }} />}
+            {error && <Alert type="error" title={error} showIcon style={{ marginBottom: 12 }} />}
             <Table<MaterialEntity>
                 columns={columns}
                 dataSource={material ? [material] : []}
@@ -84,9 +84,8 @@ export default function MaterialLinkedModal({ open, partNumber, onClose }: Mater
                 pagination={false}
                 loading={loading}
                 size="small"
-                tableLayout="fixed"
                 locale={{ emptyText: error ? 'Material detail could not be loaded' : 'Material data is not available' }}
-                scroll={{ x: 1500 }}
+                scroll={{ x: 'max-content' }}
                 className="small-table"
                 style={{ fontSize: 11 }}
             />

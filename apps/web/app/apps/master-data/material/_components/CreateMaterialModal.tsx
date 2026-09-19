@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { createMaterial, fetchMaterial } from '@/store/features/master/materialSlice';
 import { fetchSatuan } from '@/store/features/master/satuanSlice';
+import { fetchSupplier } from '@/store/features/master/supplierSlice';
 
 interface Props {
     visible: boolean;
@@ -18,10 +19,12 @@ const CreateMaterialModal: React.FC<Props> = ({ visible, onClose }) => {
     const [loading, setLoading] = useState(false);
 
     const { data: satuan } = useSelector((state: RootState) => state.satuan);
+    const { data: suppliers } = useSelector((state: RootState) => state.supplier);
 
     useEffect(() => {
         if (visible) {
             dispatch(fetchSatuan());
+            dispatch(fetchSupplier({ page: 1, limit: 100 }));
         }
     }, [visible, dispatch]);
 
@@ -86,14 +89,23 @@ const CreateMaterialModal: React.FC<Props> = ({ visible, onClose }) => {
                     <Input placeholder="Enter part name" />
                 </Form.Item>
                 <Form.Item name="supplier" label="Supplier">
-                    <Input placeholder="Enter supplier name" />
+                    <Select
+                        placeholder="Select supplier"
+                        allowClear
+                        showSearch={{ optionFilterProp: 'label' }}
+                        options={suppliers.map((supplier) => ({
+                            value: supplier.Name,
+                            label: supplier.Name,
+                        }))}
+                    />
                 </Form.Item>
                 <Form.Item name="satuanId" label="Unit">
-                    <Select placeholder="Select unit" allowClear>
-                        {satuan.map(s => (
-                            <Select.Option key={s.Id} value={s.Id}>{s.Name}</Select.Option>
-                        ))}
-                    </Select>
+                    <Select
+                        placeholder="Select unit"
+                        allowClear
+                        showSearch={{ optionFilterProp: 'label' }}
+                        options={satuan.map((unit) => ({ value: unit.Id, label: unit.Name }))}
+                    />
                 </Form.Item>
                 <Form.Item name="rackLocation" label="Rack Location">
                     <Input placeholder="Enter rack location" />

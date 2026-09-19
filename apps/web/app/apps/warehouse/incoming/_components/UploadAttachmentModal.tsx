@@ -285,6 +285,7 @@ const UploadAttachmentModal: React.FC<Props> = ({ visible, onClose, incomingId, 
                     <Upload
                         beforeUpload={handleBeforeUpload}
                         onRemove={handleRemove}
+                        onChange={({ fileList: nextFileList }) => setFileList(nextFileList.slice(-1))}
                         fileList={fileList}
                         maxCount={1}
                         listType="text"

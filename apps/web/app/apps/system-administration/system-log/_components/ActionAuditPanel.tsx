@@ -32,12 +32,12 @@ export default function ActionAuditPanel({ processId, sourceId }: { processId?: 
   }, [dispatch, query, processId, sourceId]);
   const filter = (values: Partial<ActionAuditQuery>) => setQuery(current => ({ ...current, ...values, page: 1 }));
   const columns: TableProps<ActionAuditEvent>['columns'] = [
-    { title: 'Time (Jakarta)', dataIndex: 'CreatedAt', width: 160, render: formatDateTime },
-    { title: 'Action', dataIndex: 'Action', width: 110, render: value => <Tag color={value === 'DENIED' || value === 'FAILED' ? 'error' : value === 'REPLAY' ? 'warning' : 'blue'}>{value}</Tag> },
-    { title: 'Document', dataIndex: 'SourceType', width: 160 },
+    { title: 'Time (Jakarta)', dataIndex: 'CreatedAt', render: formatDateTime },
+    { title: 'Action', dataIndex: 'Action', render: value => <Tag color={value === 'DENIED' || value === 'FAILED' ? 'error' : value === 'REPLAY' ? 'warning' : 'blue'}>{value}</Tag> },
+    { title: 'Document', dataIndex: 'SourceType' },
     { title: 'Reference', dataIndex: 'SourceId', ellipsis: true },
-    { title: 'Actor', dataIndex: 'Actor', width: 170, render: value => value || <Tag>Unattributed</Tag> },
-    { title: 'Action', key: 'detail', width: 75, render: (_, row) => <Button size="small" type="link" onClick={() => setSelected(row)}>Detail</Button> },
+    { title: 'Actor', dataIndex: 'Actor', render: value => value || <Tag>Unattributed</Tag> },
+    { title: 'Action', key: 'detail', render: (_, row) => <Button size="small" type="link" onClick={() => setSelected(row)}>Detail</Button> },
   ];
   const fields = Array.from(new Set([...Object.keys(selected?.Before ?? {}), ...Object.keys(selected?.After ?? {})]));
   return <>
@@ -52,7 +52,7 @@ export default function ActionAuditPanel({ processId, sourceId }: { processId?: 
       </Space>
     </ToolbarWrapper>
     {error && <Alert type="error" showIcon title={error} />}
-    <Table<ActionAuditEvent> rowKey="Id" columns={columns} dataSource={rows} loading={loading} size="small" className="small-table" scroll={{ x: 950 }} pagination={{ current: query.page, pageSize: query.limit, total, showSizeChanger: true, onChange: (page, limit) => setQuery(current => ({ ...current, page, limit })) }} />
+    <Table<ActionAuditEvent> rowKey="Id" columns={columns} dataSource={rows} loading={loading} size="small" className="small-table" scroll={{ x: 'max-content' }} pagination={{ current: query.page, pageSize: query.limit, total, showSizeChanger: true, onChange: (page, limit) => setQuery(current => ({ ...current, page, limit })) }} />
     <Modal centered open={!!selected} onCancel={() => setSelected(undefined)} footer={null} title="Action Audit Detail" width={950} destroyOnHidden>
       {selected && <>
         <Descriptions bordered size="small" column={2} items={[

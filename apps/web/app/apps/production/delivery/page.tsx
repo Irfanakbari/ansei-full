@@ -137,26 +137,28 @@ export default function DeliveryPage() {
     //     render: (val: number) => <code style={{ fontSize: 11 }}>{val}</code>,
     // },
     {
-      title: "Forecast ID",
-      dataIndex: "forecastId",
-      key: "forecastId",
-      width: 160,
-      ...getColumnSearchProps("forecastId"),
-      render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
+      title: "Release Number",
+      dataIndex: "releaseNumber",
+      key: "releaseNumber",
+      render: (val: string | null) => val || "-",
     },
     {
-      title: "Label Data ID",
-      dataIndex: "labelDataId",
-      key: "labelDataId",
-      width: 120,
-      ...getColumnSearchProps("labelDataId"),
-      render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
+      title: "PO Number",
+      dataIndex: "forecastId",
+      key: "forecastId",
+      ...getColumnSearchProps("forecastId"),
+      render: (val: string) => val,
+    },
+    {
+      title: "Label Number",
+      dataIndex: "labelNumber",
+      key: "labelNumber",
+      ...getColumnSearchProps("labelNumber"),
     },
     {
       title: "Qty",
       dataIndex: "qty",
       key: "qty",
-      width: 80,
       align: "right" as const,
       render: (val: number) => <Tag color="blue">{val}</Tag>,
     },
@@ -164,7 +166,6 @@ export default function DeliveryPage() {
       title: "Created By",
       dataIndex: "createdBy",
       key: "createdBy",
-      width: 140,
       render: (_: any, record: any) =>
         record.createdByName || record.CreatedByName || "-",
       ...getColumnSearchProps("createdBy"),
@@ -173,7 +174,6 @@ export default function DeliveryPage() {
       title: "Delivered At",
       dataIndex: "createdAt",
       key: "createdAt",
-      width: 150,
       render: formatDateTime,
     },
   ];
@@ -221,7 +221,7 @@ export default function DeliveryPage() {
             `${range[0]}-${range[1]} of ${total}`,
         }}
         rowKey="id"
-        scroll={{ x: 800, y: "calc(100vh - 380px)" }}
+        scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
         className="small-table"
       />
 

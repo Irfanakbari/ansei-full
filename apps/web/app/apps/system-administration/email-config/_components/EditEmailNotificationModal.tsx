@@ -76,10 +76,6 @@ const EditEmailNotificationModal: React.FC<Props> = ({ visible, onClose, data, o
             zIndex={1050}
         >
             <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
-                <Form.Item label="ID" style={{ marginBottom: 8 }}>
-                    <code>{data.Id}</code>
-                </Form.Item>
-
                 <Form.Item
                     name="name"
                     label="Recipient Name"
@@ -104,13 +100,16 @@ const EditEmailNotificationModal: React.FC<Props> = ({ visible, onClose, data, o
                     label="Notification Type"
                     rules={[{ required: true, message: 'Notification type is required' }]}
                 >
-                    <Select placeholder="Select notification type">
-                        <Select.Option value="DEFAULT">Default</Select.Option>
-                        <Select.Option value="INCOMING">Incoming</Select.Option>
-                        <Select.Option value="OUTGOING">Outgoing</Select.Option>
-                        <Select.Option value="PRODUCTION">Production</Select.Option>
-                        <Select.Option value="TRANSFER">Transfer</Select.Option>
-                    </Select>
+                    <Select
+                        placeholder="Select notification type"
+                        options={[
+                            { value: 'DEFAULT', label: 'Default' },
+                            { value: 'INCOMING', label: 'Incoming' },
+                            { value: 'OUTGOING', label: 'Outgoing' },
+                            { value: 'PRODUCTION', label: 'Production' },
+                            { value: 'TRANSFER', label: 'Transfer' },
+                        ]}
+                    />
                 </Form.Item>
             </Form>
         </Modal>

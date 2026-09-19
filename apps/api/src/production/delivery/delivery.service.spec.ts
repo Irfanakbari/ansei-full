@@ -256,8 +256,26 @@ describe('DeliveryService', () => {
   describe('findAll', () => {
     it('should return paginated deliveries', async () => {
       const mockDeliveries = [
-        { Id: 1, ForecastId: 'PO-001', Qty: 100 },
-        { Id: 2, ForecastId: 'PO-002', Qty: 50 },
+        {
+          Id: 1,
+          ForecastId: 'PO-001',
+          Qty: 100,
+          LabelDataId: 'LBL-001',
+          LabelData: {
+            LabelNumber: 'LBL-001',
+            ProductionRelease: { ReleaseNumber: 'REL-001' },
+          },
+        },
+        {
+          Id: 2,
+          ForecastId: 'PO-002',
+          Qty: 50,
+          LabelDataId: 'LBL-002',
+          LabelData: {
+            LabelNumber: 'LBL-002',
+            ProductionRelease: { ReleaseNumber: 'REL-002' },
+          },
+        },
       ];
 
       mockPrismaService.deliveryHistory.count.mockResolvedValue(2);
@@ -269,6 +287,10 @@ describe('DeliveryService', () => {
 
       expect(result.meta.totalItems).toBe(2);
       expect(result.data).toHaveLength(2);
+      expect(result.data[0]).toMatchObject({
+        labelNumber: 'LBL-001',
+        releaseNumber: 'REL-001',
+      });
     });
 
     it('should filter by forecastId', async () => {

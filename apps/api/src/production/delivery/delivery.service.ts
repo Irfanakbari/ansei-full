@@ -513,6 +513,14 @@ export class DeliveryService {
       this.prisma.deliveryHistory.count({ where }),
       this.prisma.deliveryHistory.findMany({
         where,
+        include: {
+          LabelData: {
+            select: {
+              LabelNumber: true,
+              ProductionRelease: { select: { ReleaseNumber: true } },
+            },
+          },
+        },
         orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
         skip: offset,
         take: limit,
@@ -527,6 +535,8 @@ export class DeliveryService {
         createdAt: item.CreatedAt,
         createdBy: item.CreatedBy,
         labelDataId: item.LabelDataId,
+        labelNumber: item.LabelData?.LabelNumber ?? item.LabelDataId,
+        releaseNumber: item.LabelData?.ProductionRelease?.ReleaseNumber ?? null,
       })),
       meta: {
         page,

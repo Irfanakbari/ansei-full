@@ -234,10 +234,9 @@ export default function PreDeliveryPage() {
         ) : null,
     },
     {
-      title: "Prod Release ID",
+      title: "Release Number",
       dataIndex: "productionReleaseNumber",
       key: "productionReleaseNumber",
-      width: 160,
       ...getProductionReleaseFilterProps(),
       render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
     },
@@ -245,7 +244,6 @@ export default function PreDeliveryPage() {
       title: "Label Number",
       dataIndex: "labelNumber",
       key: "labelNumber",
-      width: 180,
       ...getColumnSearchProps("labelNumber"),
       render: (val: string) => (
         <Tooltip title={val}>
@@ -256,7 +254,6 @@ export default function PreDeliveryPage() {
     {
       title: "Finish Good",
       key: "finishGood",
-      width: 200,
       ...getColumnSearchProps("finishGoodId"),
       render: (_: any, record: PreDeliveryEntity) => (
         <span>
@@ -267,10 +264,9 @@ export default function PreDeliveryPage() {
       ),
     },
     {
-      title: "Forecast ID",
+      title: "PO Number",
       dataIndex: "forecastId",
       key: "forecastId",
-      width: 140,
       ...getColumnSearchProps("forecastId"),
       render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
     },
@@ -278,21 +274,18 @@ export default function PreDeliveryPage() {
       title: "Vendor",
       dataIndex: "vendorName",
       key: "vendorName",
-      width: 150,
       ...getColumnSearchProps("vendorName"),
     },
     {
       title: "Delivery Date",
       dataIndex: "deliveryDate",
       key: "deliveryDate",
-      width: 100,
       render: formatDate,
     },
     {
       title: "Qty/Box",
       dataIndex: "qtyThisBox",
       key: "qtyThisBox",
-      width: 80,
       align: "right" as const,
       render: (val: number) => <strong>{val}</strong>,
     },
@@ -300,7 +293,6 @@ export default function PreDeliveryPage() {
       title: "Scanned",
       dataIndex: "scanned",
       key: "scanned",
-      width: 80,
       align: "center" as const,
       ...getScannedFilterProps(),
       render: (val: boolean) => (
@@ -347,7 +339,7 @@ export default function PreDeliveryPage() {
             `${range[0]}-${range[1]} of ${total}`,
         }}
         rowKey="id"
-        scroll={{ x: 1200, y: "calc(100vh - 380px)" }}
+        scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
         className="small-table"
       />
     </Card>

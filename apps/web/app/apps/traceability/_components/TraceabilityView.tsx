@@ -206,7 +206,7 @@ export default function TraceabilityView() {
                     loading={loading}
                     rowKey="Id"
                     dataSource={events?.data ?? []}
-                    scroll={{ x: 850 }}
+                    scroll={{ x: "max-content" }}
                     columns={[
                       {
                         title: "Time",
@@ -245,12 +245,12 @@ export default function TraceabilityView() {
                       rowKey="Id"
                       dataSource={data.shopping}
                       columns={[
-                        { title: "Shopping", dataIndex: "Id" },
                         { title: "Material", dataIndex: "MaterialId" },
                         { title: "Purpose", dataIndex: "Purpose" },
                         { title: "Qty", dataIndex: "QtyPick" },
                         { title: "Actor", dataIndex: "CreatedBy" },
                       ]}
+                      scroll={{ x: "max-content" }}
                     />
                   </>
                 ),
@@ -279,6 +279,7 @@ export default function TraceabilityView() {
                       { title: "Status", dataIndex: "Status" },
                       { title: "Actor", dataIndex: "CreatedBy" },
                     ]}
+                    scroll={{ x: "max-content" }}
                   />
                 ),
               },
@@ -324,6 +325,7 @@ export default function TraceabilityView() {
                             : "-",
                       },
                     ]}
+                    scroll={{ x: "max-content" }}
                   />
                 ),
               },

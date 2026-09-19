@@ -16,28 +16,24 @@ const DetailBOMModal: React.FC<Props> = ({ visible, onClose, data }) => {
         {
             title: '#',
             key: 'index',
-            width: 50,
             render: (_: any, __: any, index: number) => index + 1,
         },
         {
             title: 'Part Number',
             dataIndex: ['MaterialData', 'PartNumber'],
             key: 'PartNumber',
-            width: 150,
             render: (val: string) => <code style={{ fontSize: 11 }}>{val}</code>,
         },
         {
             title: 'Part Name',
             dataIndex: ['MaterialData', 'PartName'],
             key: 'PartName',
-            width: 250,
             ellipsis: true,
         },
         {
             title: 'Qty',
             dataIndex: 'Qty',
             key: 'Qty',
-            width: 100,
             align: 'right' as const,
         },
     ];
@@ -61,7 +57,7 @@ const DetailBOMModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 rowKey="Id"
                 size="small"
                 pagination={false}
-                scroll={{ y: 400 }}
+                scroll={{ x: 'max-content', y: 400 }}
                 style={{ fontSize: '11px' }}
             />
         </Modal>

@@ -134,7 +134,6 @@ export default function StockTransactionLogPage() {
             title: 'Date',
             dataIndex: 'transactionDate',
             key: 'transactionDate',
-            width: 150,
             filteredValue: null,
             render: (val: string) => formatDateTime(val),
             sorter: (a: StockTransactionLogEntity, b: StockTransactionLogEntity) =>
@@ -145,7 +144,6 @@ export default function StockTransactionLogPage() {
             title: 'Category',
             dataIndex: 'itemCategory',
             key: 'itemCategory',
-            width: 100,
             filteredValue: filteredInfo.itemCategory || null,
             filterMultiple: false,
             render: (val: ItemCategory) => (
@@ -154,11 +152,10 @@ export default function StockTransactionLogPage() {
             filters: ITEM_CATEGORY_OPTIONS.map(opt => ({ text: opt.label, value: opt.value })),
         },
         {
-            title: 'Item ID',
+            title: 'Item Reference',
             key: 'itemId',
-            width: 120,
             filteredValue: filteredInfo.materialId || null,
-            ...getColumnSearchProps('materialId', 'Search Item ID'),
+            ...getColumnSearchProps('materialId', 'Search item reference'),
             render: (_: any, record: StockTransactionLogEntity) => (
                 <code style={{ fontSize: 10 }}>
                     {record.materialId || record.finishGoodId || '-'}
@@ -169,7 +166,6 @@ export default function StockTransactionLogPage() {
             title: 'Transaction Type',
             dataIndex: 'transactionType',
             key: 'transactionType',
-            width: 150,
             filteredValue: filteredInfo.transactionType || null,
             filterMultiple: false,
             render: (val: TransactionType) => (
@@ -183,7 +179,6 @@ export default function StockTransactionLogPage() {
             title: 'Location',
             dataIndex: 'location',
             key: 'location',
-            width: 120,
             filteredValue: null,
             render: (val: string) => (
                 <Tag color={LOCATION_COLORS[val] || 'default'}>
@@ -195,7 +190,6 @@ export default function StockTransactionLogPage() {
             title: 'Reference',
             dataIndex: 'referenceDoc',
             key: 'referenceDoc',
-            width: 140,
             ellipsis: true,
             filteredValue: filteredInfo.referenceDoc || null,
             ...getColumnSearchProps('referenceDoc', 'Search Reference'),
@@ -205,7 +199,6 @@ export default function StockTransactionLogPage() {
             title: 'Balance Before',
             dataIndex: 'balanceBefore',
             key: 'balanceBefore',
-            width: 100,
             align: 'right' as const,
             filteredValue: null,
         },
@@ -213,7 +206,6 @@ export default function StockTransactionLogPage() {
             title: 'Qty In',
             dataIndex: 'qtyIn',
             key: 'qtyIn',
-            width: 80,
             align: 'right' as const,
             filteredValue: null,
             render: (val: number) => val > 0 ? <span style={{ color: '#52c41a' }}>{val}</span> : '-',
@@ -222,7 +214,6 @@ export default function StockTransactionLogPage() {
             title: 'Qty Out',
             dataIndex: 'qtyOut',
             key: 'qtyOut',
-            width: 80,
             align: 'right' as const,
             filteredValue: null,
             render: (val: number) => val > 0 ? <span style={{ color: '#ff4d4f' }}>{val}</span> : '-',
@@ -231,7 +222,6 @@ export default function StockTransactionLogPage() {
             title: 'Balance After',
             dataIndex: 'balanceAfter',
             key: 'balanceAfter',
-            width: 100,
             align: 'right' as const,
             filteredValue: null,
             render: (val: number) => <strong>{val}</strong>,
@@ -240,7 +230,6 @@ export default function StockTransactionLogPage() {
             title: 'Created By',
             dataIndex: 'createdBy',
             key: 'createdBy',
-            width: 140,
             filteredValue: filteredInfo.createdBy || null,
             render: (_: any, record: any) => record.createdByName || record.CreatedByName || '-',
             ...getColumnSearchProps('createdBy', 'Search Created By'),
@@ -249,7 +238,6 @@ export default function StockTransactionLogPage() {
             title: 'Notes',
             dataIndex: 'notes',
             key: 'notes',
-            width: 120,
             ellipsis: true,
             filteredValue: null,
             render: (val: string | null) => val || '-',
@@ -283,7 +271,7 @@ export default function StockTransactionLogPage() {
                     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} records`,
                 }}
                 rowKey="id"
-                scroll={{ x: 1400, y: 'calc(100vh - 320px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 320px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

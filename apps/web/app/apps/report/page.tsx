@@ -205,7 +205,6 @@ const ReportPage: React.FC = () => {
         {
             title: '#',
             key: 'index',
-            width: 60,
             render: (_: any, __: any, index: number) => index + 1,
         },
         {
@@ -222,7 +221,6 @@ const ReportPage: React.FC = () => {
         {
             title: 'Filters',
             key: 'filters',
-            width: 200,
             render: (_: any, record: ReportItem) => (
                 <Space size="small">
                     {record.hasDateFilter && (
@@ -243,7 +241,6 @@ const ReportPage: React.FC = () => {
         {
             title: 'Action',
             key: 'action',
-            width: 120,
             align: 'center' as const,
             render: (_: any, record: ReportItem) => (
                 <Button
@@ -318,7 +315,7 @@ const ReportPage: React.FC = () => {
                 rowKey="key"
                 pagination={false}
                 size="small"
-                scroll={{ x: 800, y: 'calc(100vh - 320px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 320px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

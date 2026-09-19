@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Table, Card, Breadcrumb, App, Input, Button, Space, Tag, Tooltip } from 'antd';
+import { Table, Card, Breadcrumb, App, Input, Button, Space, Tag } from 'antd';
 import type { InputRef, TableProps } from 'antd';
 import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, CheckOutlined, CheckCircleOutlined, DeleteOutlined, PaperClipOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
@@ -55,7 +55,7 @@ export default function IncomingPage() {
             modal.confirm({
                 title: 'Receive Incoming?',
                 icon: <CheckOutlined />,
-                content: `Receive incoming ${selectedRecord.Id} from ${selectedRecord.SupplierData?.Name}?`,
+                content: `Receive PO ${selectedRecord.PoId} from ${selectedRecord.SupplierData?.Name}?`,
                 okText: 'Receive',
                 cancelText: 'Cancel',
                 centered: true,
@@ -82,7 +82,7 @@ export default function IncomingPage() {
             modal.confirm({
                 title: 'Delete Incoming?',
                 icon: <DeleteOutlined />,
-                content: `Delete incoming ${selectedRecord.Id}?`,
+                content: `Delete incoming for PO ${selectedRecord.PoId}?`,
                 okText: 'Delete',
                 okType: 'danger',
                 cancelText: 'Cancel',
@@ -136,7 +136,7 @@ export default function IncomingPage() {
 
     const handleTableChange: TableProps<IncomingEntity>['onChange'] = (pageInfo, filters, sorter) => {
         setSortedInfo(sorter);
-        const search = String(filters.Id?.[0] ?? filters.PoId?.[0] ?? filters.SupplierName?.[0] ?? filters.ReceivedBy?.[0] ?? '');
+        const search = String(filters.PoId?.[0] ?? filters.SupplierName?.[0] ?? filters.ReceivedBy?.[0] ?? '');
         dispatch(setIncomingQuery({ page: search ? 1 : pageInfo.current, limit: pageInfo.pageSize, search }));
     };
 
@@ -169,34 +169,21 @@ export default function IncomingPage() {
 
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'Id',
-            key: 'Id',
-            width: 180,
-            ellipsis: true,
-            render: (val: string) => <Tooltip title={val}><code style={{ fontSize: 11 }}>{val}</code></Tooltip>,
-            ...getColumnSearchProps('Id'),
-        },
-        {
-            title: 'PO ID',
+            title: 'PO Number',
             dataIndex: 'PoId',
             key: 'PoId',
-            width: 150,
-            ellipsis: true,
             ...getColumnSearchProps('PoId'),
         },
         {
             title: 'Supplier',
             dataIndex: ['SupplierData', 'Name'],
             key: 'SupplierName',
-            width: 200,
             ...getColumnSearchProps('SupplierData.Name'),
         },
         {
             title: 'Received By',
             dataIndex: 'ReceivedBy',
             key: 'ReceivedBy',
-            width: 140,
             render: (_: any, record: any) => record.ReceivedByName || record.receivedByName || '-',
             ...getColumnSearchProps('ReceivedBy'),
         },
@@ -204,7 +191,6 @@ export default function IncomingPage() {
             title: 'Materials',
             dataIndex: 'IncomingMaterial',
             key: 'Materials',
-            width: 80,
             align: 'center' as const,
             render: (val: any[]) => <Tag color="blue">{val?.length || 0}</Tag>,
         },
@@ -212,7 +198,6 @@ export default function IncomingPage() {
             title: 'Closed',
             dataIndex: 'Closed',
             key: 'Closed',
-            width: 80,
             align: 'center' as const,
             render: (val: boolean) => <Tag color={val ? 'green' : 'red'}>{val ? 'Yes' : 'No'}</Tag>,
         },
@@ -220,14 +205,12 @@ export default function IncomingPage() {
             title: 'Approved At',
             dataIndex: 'ApprovedAt',
             key: 'ApprovedAt',
-            width: 150,
             render: (val: string | null) => val ? formatDateTime(val) : '-',
         },
         {
             title: 'Submitted At',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 150,
             render: formatDateTime,
             sorter: (a: any, b: any) => new Date(a.CreatedAt).getTime() - new Date(b.CreatedAt).getTime(),
             sortOrder: sortedInfo.columnKey === 'CreatedAt' ? sortedInfo.order : null,
@@ -268,7 +251,7 @@ export default function IncomingPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

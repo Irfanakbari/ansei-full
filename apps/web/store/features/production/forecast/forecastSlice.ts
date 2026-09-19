@@ -24,6 +24,7 @@ export interface ForecastEntity {
     Qty: number;
     FinishGoodId: string;
     ProductionReleaseId: string | null;
+    ProductionRelease?: { ReleaseNumber: string } | null;
     Status: string;
     CreatedAt: string;
     CreatedBy: string;

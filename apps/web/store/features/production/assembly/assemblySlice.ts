@@ -22,6 +22,7 @@ export interface AssemblySession {
     QtyThisBox: number;
     ForecastId: string;
     ProductionReleaseId: string | null;
+    ProductionRelease: { ReleaseNumber: string } | null;
     PartData: { PartName: string };
   };
 }

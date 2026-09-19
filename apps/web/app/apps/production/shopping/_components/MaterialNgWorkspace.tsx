@@ -331,7 +331,7 @@ export default function MaterialNgWorkspace() {
           total: result?.meta.totalItems,
           onChange: setPage,
         }}
-        scroll={{ x: 900 }}
+        scroll={{ x: "max-content" }}
       />
       {selected && (
         <>
@@ -399,7 +399,6 @@ export default function MaterialNgWorkspace() {
                   dataSource={r.Replacements}
                   pagination={false}
                   columns={[
-                    { title: "Shopping", dataIndex: "Id" },
                     { title: "Qty", dataIndex: "QtyPick" },
                     { title: "Actor", dataIndex: "CreatedBy" },
                     {

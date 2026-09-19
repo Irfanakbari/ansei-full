@@ -35,7 +35,7 @@ const DetailShoppingModal: React.FC<Props> = ({ visible, onClose, data }) => {
             title={
                 <Space>
                     <EyeOutlined />
-                    <span>Detail Shopping - {data.Id}</span>
+                    <span>Shopping Detail · {data.ForecastId || 'Non-production'}</span>
                 </Space>
             }
             open={visible}
@@ -47,14 +47,11 @@ const DetailShoppingModal: React.FC<Props> = ({ visible, onClose, data }) => {
             zIndex={1050}
         >
             <Descriptions bordered size="small" column={2}>
-                <Descriptions.Item label="ID">
-                    <code style={{ fontSize: 11 }}>{data.Id}</code>
-                </Descriptions.Item>
                 <Descriptions.Item label="Type">
                     <Tag color={TYPE_COLORS[data.Type] || 'default'}>{data.Type}</Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="Forecast ID">
-                    <code style={{ fontSize: 11 }}>{data.ForecastId}</code>
+                <Descriptions.Item label="PO Number">
+                    {data.ForecastId || '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="Qty Pick">
                     <strong>{data.QtyPick}</strong>

@@ -75,10 +75,6 @@ const EditPrinterSettingModal: React.FC<Props> = ({ visible, onClose, data, onSu
             zIndex={1050}
         >
             <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
-                <Form.Item label="ID" style={{ marginBottom: 8 }}>
-                    <code>{data.Id}</code>
-                </Form.Item>
-
                 <Form.Item
                     name="name"
                     label="Printer Name"

@@ -25,6 +25,14 @@ export class DeliveryEntity {
     description: 'LabelData ID associated with this delivery',
   })
   labelDataId: string | null;
+
+  @ApiPropertyOptional({ description: 'Human-readable production label' })
+  labelNumber?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Human-readable production release number',
+  })
+  releaseNumber?: string | null;
 }
 
 export class DeliveryResponseEntity {

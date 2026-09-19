@@ -30,6 +30,7 @@ const sessionInclude = {
       QtyThisBox: true,
       ForecastId: true,
       ProductionReleaseId: true,
+      ProductionRelease: { select: { ReleaseNumber: true } },
       PartData: { select: { PartName: true } },
     },
   },

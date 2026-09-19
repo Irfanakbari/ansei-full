@@ -1,7 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-10 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
-import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
+import { get, getApiErrorMessage, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Delivery entity interface
 export interface DeliveryEntity {
@@ -12,6 +12,8 @@ export interface DeliveryEntity {
     createdBy: string;
     createdByName?: string;
     labelDataId: string;
+    labelNumber: string;
+    releaseNumber: string | null;
 }
 
 // Delivery response interface
@@ -36,14 +38,6 @@ export interface CreateDeliveryRequest {
 }
 
 // Paginated response
-export interface PaginatedDelivery {
-    data: DeliveryEntity[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
-
 // Delivery state
 interface DeliveryState {
     data: DeliveryEntity[];
@@ -79,14 +73,13 @@ const initialState: DeliveryState = {
 };
 
 // Fetch all deliveries
-export const fetchDelivery = createAsyncThunk<PaginatedDelivery, DeliveryQuery, { rejectValue: string }>(
+export const fetchDelivery = createAsyncThunk<PaginatedApiSuccessEnvelope<DeliveryEntity>, DeliveryQuery, { rejectValue: string }>(
     'delivery/fetchAll',
     async (filters: DeliveryQuery, { rejectWithValue }) => {
         try {
-            const response = await get<ApiSuccessEnvelope<PaginatedDelivery>>('/production/delivery', {
+            return await get<PaginatedApiSuccessEnvelope<DeliveryEntity>>('/production/delivery', {
                 params: { page: filters.page ?? 1, limit: filters.limit ?? 50, forecastId: filters.forecastId, createdBy: filters.createdBy },
             });
-            return response.data;
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch delivery data'));
         }
@@ -150,10 +143,10 @@ const deliverySlice = createSlice({
                 state.loading = false;
                 state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
                 state.pagination = {
-                    page: action.payload.page || 1,
-                    limit: action.payload.limit || 50,
-                    total: action.payload.total || 0,
-                    totalPages: action.payload.totalPages || 0,
+                    page: action.payload.meta.page,
+                    limit: action.payload.meta.limit,
+                    total: action.payload.meta.totalItems,
+                    totalPages: action.payload.meta.totalPages,
                 };
             })
             .addCase(fetchDelivery.rejected, (state, action) => {

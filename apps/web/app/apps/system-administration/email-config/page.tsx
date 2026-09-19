@@ -110,25 +110,15 @@ export default function EmailConfigPage() {
 
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'Id',
-            key: 'Id',
-            width: 80,
-            align: 'center' as const,
-            ...getColumnSearchProps('Id'),
-        },
-        {
             title: 'Name',
             dataIndex: 'Name',
             key: 'Name',
-            width: 150,
             ...getColumnSearchProps('Name'),
         },
         {
             title: 'Email',
             dataIndex: 'Email',
             key: 'Email',
-            width: 200,
             ellipsis: true,
             ...getColumnSearchProps('Email'),
         },
@@ -136,7 +126,6 @@ export default function EmailConfigPage() {
             title: 'Type',
             dataIndex: 'Type',
             key: 'Type',
-            width: 120,
             align: 'center' as const,
             render: (val: NotificationType) => <Tag color={TYPE_COLORS[val] || 'default'}>{val}</Tag>,
             filters: [
@@ -152,7 +141,6 @@ export default function EmailConfigPage() {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 140,
             render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-',
             ...getColumnSearchProps('CreatedBy'),
         },
@@ -160,7 +148,6 @@ export default function EmailConfigPage() {
             title: 'Created At',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 160,
             render: formatDateTime,
         },
     ];
@@ -196,7 +183,7 @@ export default function EmailConfigPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

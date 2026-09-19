@@ -107,7 +107,6 @@ export default function PokayokePage() {
             title: 'Label Number',
             dataIndex: 'labelNumber',
             key: 'labelNumber',
-            width: 180,
             ...getColumnSearchProps('labelNumber'),
             render: (val: string) => (
                 <Tooltip title={val}>
@@ -116,10 +115,9 @@ export default function PokayokePage() {
             ),
         },
         {
-            title: 'PO ID',
+            title: 'PO Number',
             dataIndex: 'poId',
             key: 'poId',
-            width: 120,
             ...getColumnSearchProps('poId'),
             render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
         },
@@ -127,7 +125,6 @@ export default function PokayokePage() {
             title: 'Part Number',
             dataIndex: 'partNumber',
             key: 'partNumber',
-            width: 120,
             ...getColumnSearchProps('partNumber'),
             render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
         },
@@ -135,14 +132,12 @@ export default function PokayokePage() {
             title: 'Part Name',
             dataIndex: 'partName',
             key: 'partName',
-            width: 180,
             render: (val: string) => <span style={{ fontSize: 11 }}>{val}</span>,
         },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
-            width: 100,
             align: 'center' as const,
             ...getStatusFilterProps(),
             render: (val: string) => (
@@ -153,7 +148,6 @@ export default function PokayokePage() {
             title: 'Scanned At',
             dataIndex: 'createdAt',
             key: 'createdAt',
-            width: 150,
             render: formatDateTime,
         },
     ];
@@ -203,7 +197,7 @@ export default function PokayokePage() {
                     showTotal: (total: number) => `Total ${total} records`,
                 }}
                 rowKey="id"
-                scroll={{ x: 1000, y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
             />
 

@@ -72,28 +72,24 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
             title: 'BOM Qty/Unit',
             dataIndex: 'bomQtyPerUnit',
             key: 'bomQtyPerUnit',
-            width: 100,
             align: 'right' as const,
         },
         {
             title: 'Required',
             dataIndex: 'totalRequired',
             key: 'totalRequired',
-            width: 80,
             align: 'right' as const,
         },
         {
             title: 'Picked',
             dataIndex: 'alreadyPicked',
             key: 'alreadyPicked',
-            width: 80,
             align: 'right' as const,
         },
         {
             title: 'Remaining',
             dataIndex: 'remainingToPick',
             key: 'remainingToPick',
-            width: 80,
             align: 'right' as const,
             render: (val: number, record: ShoppingStatusResponse['bomSummary'][0]) => (
                 <Text type={record?.isCompleted ? 'success' : 'warning'} strong={!record?.isCompleted}>
@@ -105,7 +101,6 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
             title: 'Status',
             dataIndex: 'isCompleted',
             key: 'isCompleted',
-            width: 80,
             align: 'center' as const,
             render: (val: boolean) => (
                 <Tag color={val ? 'success' : 'warning'}>{val ? 'Done' : 'Pending'}</Tag>
@@ -130,7 +125,7 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
             zIndex={1050}
         >
             <Descriptions bordered size="small" column={2} style={{ marginBottom: 16 }}>
-                <Descriptions.Item label="PO ID">
+                <Descriptions.Item label="PO Number">
                     <code style={{ fontSize: 11 }}>{data.PoId}</code>
                 </Descriptions.Item>
                 <Descriptions.Item label="Status">
@@ -170,7 +165,7 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
                     {data.DeliveryPeriod}
                 </Descriptions.Item>
                 <Descriptions.Item label="Production Release">
-                    {data.ProductionReleaseId || '-'}
+                    {data.ProductionRelease?.ReleaseNumber || '-'}
                 </Descriptions.Item>
             </Descriptions>
 
@@ -209,7 +204,7 @@ const DetailForecastModal: React.FC<Props> = ({ visible, onClose, data }) => {
                         rowKey="materialId"
                         pagination={false}
                         loading={loadingStatus}
-                        scroll={{ x: 700 }}
+                        scroll={{ x: 'max-content' }}
                         className="small-table"
                         style={{ fontSize: '11px' }}
                     />

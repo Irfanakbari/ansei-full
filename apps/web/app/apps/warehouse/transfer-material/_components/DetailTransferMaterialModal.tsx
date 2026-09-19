@@ -142,7 +142,6 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
         {
             title: 'Material',
             key: 'transfer-material-col',
-            width: 250,
             render: (_: unknown, record: TransferMaterialDetailEntity) => (
                 <div key={`material-${record.MaterialId}`}>
                     <code style={{ fontSize: 11 }}>{record.MaterialId}</code>
@@ -156,21 +155,18 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
             title: 'Finish Good Part',
             dataIndex: 'FinishGoodPartTemp',
             key: 'transfer-finish-good-part-col',
-            width: 150,
             render: (value: string | null) => value || '-',
         },
         {
             title: 'Qty Requested',
             dataIndex: 'QtyRequested',
             key: 'transfer-qty-requested-col',
-            width: 100,
             align: 'center' as const,
         },
         {
             title: 'Qty Picking',
             dataIndex: 'QtyPicking',
             key: 'transfer-qty-picking-col',
-            width: 150,
             align: 'center' as const,
             render: (val: number, record: TransferMaterialDetailEntity) => {
                 const isEditing = editingKey === record.MaterialId;
@@ -199,14 +195,12 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
             title: 'Qty Received',
             dataIndex: 'QtyReceived',
             key: 'transfer-qty-received-col',
-            width: 100,
             align: 'center' as const,
             render: (val: number | null) => val !== null ? val : '-',
         },
         {
             title: 'Action',
             key: 'transfer-action-col',
-            width: 120,
             render: (_: unknown, record: TransferMaterialDetailEntity) => {
                 if (!isPickingMode) return null;
                 if (editingKey !== record.MaterialId) {
@@ -346,7 +340,7 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                 rowKey="MaterialId"
                 size="small"
                 pagination={{ pageSize: 20 }}
-                scroll={{ x: 700, y: 400 }}
+                scroll={{ x: 'max-content', y: 400 }}
                 style={{ maxHeight: 450 }}
             />
         </Modal>

@@ -58,12 +58,11 @@ export default function FinishGoodPage() {
     });
 
     const columns = [
-        { title: 'Passthrough', dataIndex: 'IsPassthrough', key: 'IsPassthrough', width: 150, render: (value: boolean) => value ? 'Yes — skip Assy' : 'No — Assy required' },
+        { title: 'Passthrough', dataIndex: 'IsPassthrough', key: 'IsPassthrough', render: (value: boolean) => value ? 'Yes — skip Assy' : 'No — Assy required' },
         {
             title: 'Part Number',
             dataIndex: 'PartNumber',
             key: 'PartNumber',
-            width: 160,
             ...getColumnSearchProps('PartNumber')
         },
         {
@@ -76,7 +75,6 @@ export default function FinishGoodPage() {
             title: 'Alias',
             dataIndex: 'Alias',
             key: 'Alias',
-            width: 140,
             render: (val: string | null) => val || '-',
             ...getColumnSearchProps('Alias')
         },
@@ -84,7 +82,6 @@ export default function FinishGoodPage() {
             title: 'Price',
             dataIndex: 'Price',
             key: 'Price',
-            width: 140,
             align: 'right' as const,
             render: (val: number | null) => val ? `Rp ${val.toLocaleString('id-ID')}` : '-'
         },
@@ -92,21 +89,18 @@ export default function FinishGoodPage() {
             title: 'Qty',
             dataIndex: 'Qty',
             key: 'Qty',
-            width: 100,
             align: 'right' as const
         },
         {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 140,
             render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-'
         },
         {
             title: 'Created Date',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 160,
             render: (val: string) => formatDateTime(val)
         }
     ];
@@ -181,7 +175,7 @@ export default function FinishGoodPage() {
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

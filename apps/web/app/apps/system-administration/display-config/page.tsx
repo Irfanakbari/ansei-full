@@ -75,18 +75,9 @@ const DisplayConfigPage: React.FC = () => {
 
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'Id',
-            key: 'Id',
-            width: 80,
-            ellipsis: true,
-            render: (val: number) => <code style={{ fontSize: 11 }}>{val}</code>,
-        },
-        {
             title: 'Description',
             dataIndex: 'Description',
             key: 'Description',
-            width: 200,
         },
         {
             title: 'URL',
@@ -98,7 +89,6 @@ const DisplayConfigPage: React.FC = () => {
             title: 'Auto Open',
             dataIndex: 'IsOpen',
             key: 'IsOpen',
-            width: 100,
             align: 'center' as const,
             render: (IsOpen: boolean) => (
                 <Tag color={IsOpen ? 'green' : 'default'}>
@@ -110,7 +100,6 @@ const DisplayConfigPage: React.FC = () => {
             title: 'Loop',
             dataIndex: 'Loop',
             key: 'Loop',
-            width: 80,
             align: 'center' as const,
             render: (Loop: boolean) => (
                 <Tag color={Loop ? 'green' : 'default'}>
@@ -122,7 +111,6 @@ const DisplayConfigPage: React.FC = () => {
             title: 'Created At',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 160,
             render: formatDateTime,
         },
     ];
@@ -165,7 +153,7 @@ const DisplayConfigPage: React.FC = () => {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

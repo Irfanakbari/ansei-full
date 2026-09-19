@@ -7,6 +7,8 @@ export class DeliveryDto {
   @ApiProperty() createdAt: Date;
   @ApiProperty() createdBy: string;
   @ApiPropertyOptional() labelDataId: string | null;
+  @ApiPropertyOptional() labelNumber: string | null;
+  @ApiPropertyOptional() releaseNumber: string | null;
 }
 
 export class PaginatedDeliveryDto {

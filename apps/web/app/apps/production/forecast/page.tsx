@@ -176,10 +176,9 @@ export default function ForecastPage() {
 
     const columns = [
         {
-            title: 'PO ID',
+            title: 'PO Number',
             dataIndex: 'PoId',
             key: 'PoId',
-            width: 150,
             ellipsis: true,
             render: (val: string) => <Tooltip title={val}><code style={{ fontSize: 11 }}>{val}</code></Tooltip>,
             ...getColumnSearchProps('PoId'),
@@ -188,7 +187,6 @@ export default function ForecastPage() {
             title: 'Finish Good',
             dataIndex: ['PartData', 'PartNumber'],
             key: 'PartData',
-            width: 150,
             render: (_: any, record: ForecastEntity) => (
                 <Space size={4}>
                     <Tooltip title="View Finish Good details">
@@ -215,7 +213,6 @@ export default function ForecastPage() {
             title: 'Vendor',
             dataIndex: 'VendorName',
             key: 'VendorName',
-            width: 150,
             ellipsis: true,
             ...getColumnSearchProps('VendorName'),
         },
@@ -223,7 +220,6 @@ export default function ForecastPage() {
             title: 'Qty',
             dataIndex: 'Qty',
             key: 'Qty',
-            width: 80,
             align: 'right' as const,
             sorter: (a: ForecastEntity, b: ForecastEntity) => a.Qty - b.Qty,
             sortOrder: sortedInfo.columnKey === 'Qty' ? sortedInfo.order : null,
@@ -232,7 +228,6 @@ export default function ForecastPage() {
             title: 'Delivery Date',
             dataIndex: 'DeliveryDate',
             key: 'DeliveryDate',
-            width: 120,
             render: formatDateTime,
             filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: FilterDropdownProps) => {
                 const currentRange = selectedKeys as string[];
@@ -279,7 +274,6 @@ export default function ForecastPage() {
         {
             title: 'Status',
             key: 'Status',
-            width: 100,
             render: (_: any, record: ForecastEntity) => {
                 const status = record.ProductionReleaseId ? 'RELEASED' : 'DRAFT';
                 return (
@@ -310,7 +304,6 @@ export default function ForecastPage() {
                     type: 'radio',
                 }}
                 columns={columns}
-                tableLayout="fixed"
                 dataSource={data}
                 size="small"
                 loading={loading}
@@ -324,7 +317,7 @@ export default function ForecastPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

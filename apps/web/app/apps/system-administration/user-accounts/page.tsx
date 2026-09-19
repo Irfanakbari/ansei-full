@@ -179,7 +179,7 @@ export default function UserAccountsPage() {
                 }}
                 onChange={handleTableChange}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

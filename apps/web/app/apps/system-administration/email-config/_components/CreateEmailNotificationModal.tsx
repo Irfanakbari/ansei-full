@@ -92,13 +92,16 @@ const CreateEmailNotificationModal: React.FC<Props> = ({ visible, onClose, onSuc
                     label="Notification Type"
                     rules={[{ required: true, message: 'Notification type is required' }]}
                 >
-                    <Select placeholder="Select notification type">
-                        <Select.Option value="DEFAULT">Default</Select.Option>
-                        <Select.Option value="INCOMING">Incoming</Select.Option>
-                        <Select.Option value="OUTGOING">Outgoing</Select.Option>
-                        <Select.Option value="PRODUCTION">Production</Select.Option>
-                        <Select.Option value="TRANSFER">Transfer</Select.Option>
-                    </Select>
+                    <Select
+                        placeholder="Select notification type"
+                        options={[
+                            { value: 'DEFAULT', label: 'Default' },
+                            { value: 'INCOMING', label: 'Incoming' },
+                            { value: 'OUTGOING', label: 'Outgoing' },
+                            { value: 'PRODUCTION', label: 'Production' },
+                            { value: 'TRANSFER', label: 'Transfer' },
+                        ]}
+                    />
                 </Form.Item>
             </Form>
         </Modal>

@@ -190,23 +190,9 @@ export default function ShoppingPage() {
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "Id",
-      key: "Id",
-      width: 150,
-      ellipsis: true,
-      render: (val: string) => (
-        <Tooltip title={val}>
-          <code style={{ fontSize: 11 }}>{val}</code>
-        </Tooltip>
-      ),
-      ...getColumnSearchProps("Id"),
-    },
-    {
       title: "Material",
       dataIndex: ["MaterialData", "PartNumber"],
       key: "MaterialData",
-      width: 150,
       render: (_: any, record: ShoppingEntity) => (
         <Tooltip
           title={`${record.MaterialData?.PartNumber} - ${record.MaterialData?.PartName}`}
@@ -217,10 +203,9 @@ export default function ShoppingPage() {
       ...getColumnSearchProps("MaterialData.PartNumber"),
     },
     {
-      title: "Forecast ID",
+      title: "PO Number",
       dataIndex: "ForecastId",
       key: "ForecastId",
-      width: 150,
       ellipsis: true,
       render: (val: string) => <code style={{ fontSize: 11 }}>{val}</code>,
       ...getColumnSearchProps("ForecastId"),
@@ -229,7 +214,6 @@ export default function ShoppingPage() {
       title: "Qty Pick",
       dataIndex: "QtyPick",
       key: "QtyPick",
-      width: 100,
       align: "right" as const,
       render: (val: number) => <Tag color="green">{val}</Tag>,
       sorter: (a: ShoppingEntity, b: ShoppingEntity) => a.QtyPick - b.QtyPick,
@@ -239,7 +223,6 @@ export default function ShoppingPage() {
       title: "Purpose",
       dataIndex: "Purpose",
       key: "Type",
-      width: 100,
       render: (val: string) => (
         <Tag color={TYPE_COLORS[val] || "default"}>{val}</Tag>
       ),
@@ -255,7 +238,6 @@ export default function ShoppingPage() {
       title: "Created At",
       dataIndex: "CreatedAt",
       key: "CreatedAt",
-      width: 120,
       render: formatDateTime,
     },
   ];
@@ -319,7 +301,6 @@ export default function ShoppingPage() {
           type: "radio",
         }}
         columns={columns}
-        tableLayout="fixed"
         dataSource={data}
         size="small"
         loading={loading}
@@ -333,7 +314,7 @@ export default function ShoppingPage() {
           showTotal: (total) => `Total ${total} records`,
         }}
         rowKey="Id"
-        scroll={{ y: "calc(100vh - 380px)" }}
+        scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
         className="small-table"
         style={{ fontSize: "11px" }}
       />

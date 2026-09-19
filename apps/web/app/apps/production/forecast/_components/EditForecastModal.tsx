@@ -2,11 +2,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, App, Select } from 'antd';
+import { Modal, Form, Input, InputNumber, App, Select, Divider } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { updateForecast, ForecastEntity } from '@/store/features/production/forecast/forecastSlice';
 import { fetchFinishGood } from '@/store/features/master/finishGoodSlice';
+import { fetchSupplier } from '@/store/features/master/supplierSlice';
 
 interface Props {
     visible: boolean;
@@ -29,10 +30,12 @@ const EditForecastModal: React.FC<Props> = ({ visible, onClose, data, onSuccess 
     const [loading, setLoading] = useState(false);
 
     const { data: finishGoods } = useSelector((state: RootState) => state.finishGood);
+    const { data: suppliers, loading: supplierLoading } = useSelector((state: RootState) => state.supplier);
 
     useEffect(() => {
         if (visible) {
             dispatch(fetchFinishGood());
+            dispatch(fetchSupplier({ page: 1, limit: 100 }));
         }
     }, [visible, dispatch]);
 
@@ -87,6 +90,7 @@ const EditForecastModal: React.FC<Props> = ({ visible, onClose, data, onSuccess 
             confirmLoading={loading}
             width={700}
             zIndex={1050}
+            destroyOnHidden
         >
             <Form form={form} layout="vertical" initialValues={{
                 finishGoodId: data.FinishGoodId,
@@ -99,26 +103,20 @@ const EditForecastModal: React.FC<Props> = ({ visible, onClose, data, onSuccess 
                 item: data.Item,
                 deliveryPeriod: data.DeliveryPeriod,
                 status: data.Status,
-            }}>
+            }} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
+                <Divider titlePlacement="start" style={{ gridColumn: '1 / -1' }}>Order</Divider>
                 <Form.Item name="status" label="Status">
-                    <Select>
-                        {STATUS_OPTIONS.map(opt => (
-                            <Select.Option key={opt.value} value={opt.value}>
-                                {opt.label}
-                            </Select.Option>
-                        ))}
-                    </Select>
+                    <Select options={STATUS_OPTIONS} />
                 </Form.Item>
                 <Form.Item name="finishGoodId" label="Finish Good">
-                    <Select placeholder="Select finish good" showSearch filterOption={(input, option) =>
-                        (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
-                    }>
-                        {finishGoods.map(fg => (
-                            <Select.Option key={fg.Id} value={fg.Id} label={`${fg.PartNumber} - ${fg.PartName}`}>
-                                {fg.PartNumber} - {fg.PartName}
-                            </Select.Option>
-                        ))}
-                    </Select>
+                    <Select
+                        placeholder="Select finish good"
+                        showSearch={{ optionFilterProp: 'label' }}
+                        options={finishGoods.map((finishGood) => ({
+                            value: finishGood.PartNumber,
+                            label: `${finishGood.PartNumber} - ${finishGood.PartName}`,
+                        }))}
+                    />
                 </Form.Item>
                 <Form.Item name="qty" label="Qty">
                     <InputNumber placeholder="100" min={1} style={{ width: '100%' }} />
@@ -126,8 +124,13 @@ const EditForecastModal: React.FC<Props> = ({ visible, onClose, data, onSuccess 
                 <Form.Item name="vendorCode" label="Vendor Code">
                     <Input placeholder="VC001" />
                 </Form.Item>
-                <Form.Item name="vendorName" label="Vendor Name">
-                    <Input placeholder="PT Supplier Indonesia" />
+                <Form.Item name="vendorName" label="Vendor">
+                    <Select
+                        placeholder="Select vendor"
+                        loading={supplierLoading}
+                        showSearch={{ optionFilterProp: 'label' }}
+                        options={suppliers.map((supplier) => ({ value: supplier.Name, label: supplier.Name }))}
+                    />
                 </Form.Item>
                 <Form.Item name="receivingArea" label="Receiving Area">
                     <Input placeholder="WAREHOUSE-A" />
@@ -138,6 +141,7 @@ const EditForecastModal: React.FC<Props> = ({ visible, onClose, data, onSuccess 
                 <Form.Item name="poNumber" label="PO Number">
                     <Input placeholder="PO-2024-001" />
                 </Form.Item>
+                <Divider titlePlacement="start" style={{ gridColumn: '1 / -1' }}>Quantity and schedule</Divider>
                 <Form.Item name="item" label="Item">
                     <InputNumber placeholder="1" min={1} style={{ width: '100%' }} />
                 </Form.Item>

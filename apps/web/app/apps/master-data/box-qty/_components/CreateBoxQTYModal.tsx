@@ -71,15 +71,14 @@ const CreateBoxQTYModal: React.FC<Props> = ({ visible, onClose }) => {
         >
             <Form form={form} layout="vertical">
                 <Form.Item name="partNumber" label="Finish Good" rules={[{ required: true, message: 'Please select finish good' }]}>
-                    <Select placeholder="Select finish good" showSearch filterOption={(input, option) =>
-                        (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
-                    }>
-                        {finishGoods.map(fg => (
-                            <Select.Option key={fg.Id} value={fg.PartNumber} label={`${fg.PartNumber} - ${fg.PartName}`}>
-                                {fg.PartNumber} - {fg.PartName}
-                            </Select.Option>
-                        ))}
-                    </Select>
+                    <Select
+                        placeholder="Select finish good"
+                        showSearch={{ optionFilterProp: 'label' }}
+                        options={finishGoods.map((finishGood) => ({
+                            value: finishGood.PartNumber,
+                            label: `${finishGood.PartNumber} - ${finishGood.PartName}`,
+                        }))}
+                    />
                 </Form.Item>
                 <Form.Item name="qty" label="Qty Per Box" rules={[{ required: true, message: 'Please enter qty' }]}>
                     <InputNumber placeholder="0" min={1} style={{ width: '100%' }} />

@@ -181,7 +181,6 @@ export default function ProductionReportPage() {
       title: "Date",
       dataIndex: "date",
       key: "date",
-      width: 100,
       render: formatDate,
       sorter: (a: ProductionReportEntity, b: ProductionReportEntity) =>
         new Date(a.date).getTime() - new Date(b.date).getTime(),
@@ -190,14 +189,12 @@ export default function ProductionReportPage() {
       title: "Time",
       dataIndex: "time",
       key: "time",
-      width: 80,
       render: (val: string | null) => val || "-",
     },
     {
       title: "Part Type",
       dataIndex: "recordType",
       key: "recordType",
-      width: 90,
       render: (val: PartType) => (
         <Tag color={RECORD_TYPE_COLORS[val] || "default"}>{val}</Tag>
       ),
@@ -206,7 +203,6 @@ export default function ProductionReportPage() {
       title: "Finish Good",
       dataIndex: "finishGoodId",
       key: "finishGoodId",
-      width: 140,
       ...getColumnSearchProps("fgData.PartNumber"),
       render: (_: any, record: ProductionReportEntity) => (
         <Tooltip
@@ -222,7 +218,6 @@ export default function ProductionReportPage() {
       title: "Man Power",
       dataIndex: "manPowerUid",
       key: "manPowerUid",
-      width: 140,
       ...getColumnSearchProps("manPowerData.Name"),
       render: (_: any, record: ProductionReportEntity) => (
         <span>{record.manPowerData?.Name || record.manPowerUid}</span>
@@ -232,7 +227,6 @@ export default function ProductionReportPage() {
       title: "Qty",
       dataIndex: "qty",
       key: "qty",
-      width: 70,
       align: "right" as const,
       render: (val: number) => <strong>{val}</strong>,
     },
@@ -240,7 +234,6 @@ export default function ProductionReportPage() {
       title: "NG Qty",
       dataIndex: "ngQty",
       key: "ngQty",
-      width: 70,
       align: "right" as const,
       render: (val: number) =>
         val > 0 ? <span style={{ color: "#ff4d4f" }}>{val}</span> : "-",
@@ -249,7 +242,6 @@ export default function ProductionReportPage() {
       title: "Stop (min)",
       dataIndex: "stopMinute",
       key: "stopMinute",
-      width: 80,
       align: "right" as const,
       render: (val: number) =>
         val > 0 ? <span style={{ color: "#faad14" }}>{val}</span> : "-",
@@ -258,7 +250,6 @@ export default function ProductionReportPage() {
       title: "Validated",
       dataIndex: "validatedAt",
       key: "validatedAt",
-      width: 100,
       ...getValidatedFilterProps(),
       render: (val: string | null) =>
         val ? (
@@ -271,7 +262,6 @@ export default function ProductionReportPage() {
       title: "Validated By",
       dataIndex: "validatedBy",
       key: "validatedBy",
-      width: 100,
       render: (val: string | null) => val || "-",
     },
   ];
@@ -471,7 +461,6 @@ export default function ProductionReportPage() {
           type: "radio",
         }}
         columns={columns}
-        tableLayout="fixed"
         dataSource={data}
         size="small"
         loading={loading}
@@ -487,7 +476,7 @@ export default function ProductionReportPage() {
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
         }}
         rowKey="id"
-        scroll={{ x: 1200, y: "calc(100vh - 400px)" }}
+        scroll={{ x: "max-content", y: "calc(100vh - 400px)" }}
         className="small-table"
         style={{ fontSize: "11px" }}
       />

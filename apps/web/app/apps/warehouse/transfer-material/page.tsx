@@ -244,7 +244,6 @@ export default function TransferMaterialPage() {
             title: 'Delivery Note Num',
             dataIndex: 'DeliveryNoteNum',
             key: 'DeliveryNoteNum',
-            width: 180,
             ellipsis: true,
             render: (val: string) => <Tooltip title={val}><code style={{ fontSize: 11 }}>{val}</code></Tooltip>,
             ...getColumnSearchProps('DeliveryNoteNum'),
@@ -253,7 +252,6 @@ export default function TransferMaterialPage() {
             title: 'Destination',
             dataIndex: 'Destination',
             key: 'Destination',
-            width: 200,
             ellipsis: true,
             ...getColumnSearchProps('Destination'),
         },
@@ -261,7 +259,6 @@ export default function TransferMaterialPage() {
             title: 'Status',
             dataIndex: 'Status',
             key: 'Status',
-            width: 120,
             render: (val: string) => <Tag color={STATUS_COLORS[val] || 'default'}>{val}</Tag>,
             filters: [
                 { text: 'DRAFT', value: 'DRAFT' },
@@ -274,7 +271,6 @@ export default function TransferMaterialPage() {
         {
             title: 'Items',
             key: 'Items',
-            width: 80,
             align: 'center' as const,
             render: (_: any, record: TransferMaterialEntity) => (
                 <Tag color="blue">{record.Details?.length || 0}</Tag>
@@ -284,7 +280,6 @@ export default function TransferMaterialPage() {
             title: 'Notes',
             dataIndex: 'Notes',
             key: 'Notes',
-            width: 150,
             ellipsis: true,
             render: (val: string | null) => val || '-',
         },
@@ -292,21 +287,18 @@ export default function TransferMaterialPage() {
             title: 'Shipped At',
             dataIndex: 'ShippedAt',
             key: 'ShippedAt',
-            width: 150,
             render: (val: string | null) => val ? formatDateTime(val) : '-',
         },
         {
             title: 'Received At',
             dataIndex: 'ReceivedAt',
             key: 'ReceivedAt',
-            width: 150,
             render: (val: string | null) => val ? formatDateTime(val) : '-',
         },
         {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 140,
             render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-',
             ...getColumnSearchProps('CreatedBy'),
         },
@@ -314,7 +306,6 @@ export default function TransferMaterialPage() {
             title: 'Created At',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 150,
             render: formatDateTime,
             sorter: (a: any, b: any) => new Date(a.CreatedAt).getTime() - new Date(b.CreatedAt).getTime(),
             sortOrder: sortedInfo.columnKey === 'CreatedAt' ? sortedInfo.order : null,
@@ -407,7 +398,7 @@ export default function TransferMaterialPage() {
                     showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total}`,
                 }}
                 rowKey="Id"
-                scroll={{ x: 1200, y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
             />
 

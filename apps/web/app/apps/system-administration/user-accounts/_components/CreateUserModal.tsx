@@ -89,11 +89,11 @@ const CreateUserModal: React.FC<Props> = ({ visible, onClose }) => {
                     <Input placeholder="Enter phone number" />
                 </Form.Item>
                 <Form.Item name="RoleId" label="Role">
-                    <Select placeholder="Select a role">
-                        {roles.map(role => (
-                            <Select.Option key={role.Id} value={role.Id}>{role.RoleName}</Select.Option>
-                        ))}
-                    </Select>
+                    <Select
+                        placeholder="Select a role"
+                        showSearch={{ optionFilterProp: 'label' }}
+                        options={roles.map((role) => ({ value: role.Id, label: role.RoleName }))}
+                    />
                 </Form.Item>
 
                 <Form.Item name="IsActive" label="Active Status" valuePropName="checked">

@@ -61,7 +61,6 @@ export default function BoxQTYPage() {
             title: 'Part Number',
             dataIndex: 'PartNumber',
             key: 'PartNumber',
-            width: 150,
             ...getColumnSearchProps('PartNumber')
         },
         {
@@ -149,7 +148,7 @@ export default function BoxQTYPage() {
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

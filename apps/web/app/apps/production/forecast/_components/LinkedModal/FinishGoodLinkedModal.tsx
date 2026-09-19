@@ -21,28 +21,24 @@ const columns: TableProps<FinishGoodEntity>['columns'] = [
         title: 'Part Number',
         dataIndex: 'PartNumber',
         key: 'PartNumber',
-        width: 160,
         render: (value: string) => <code style={{ fontSize: 11 }}>{value || '-'}</code>,
     },
     {
         title: 'Part Name',
         dataIndex: 'PartName',
         key: 'PartName',
-        width: 220,
         render: (value: string) => value || '-',
     },
     {
         title: 'Alias',
         dataIndex: 'Alias',
         key: 'Alias',
-        width: 140,
         render: (value: string | null) => value || '-',
     },
     {
         title: 'Price',
         dataIndex: 'Price',
         key: 'Price',
-        width: 140,
         align: 'right',
         render: (value: number | null) => value !== null ? `Rp ${value.toLocaleString('id-ID')}` : '-',
     },
@@ -50,21 +46,18 @@ const columns: TableProps<FinishGoodEntity>['columns'] = [
         title: 'Qty',
         dataIndex: 'Qty',
         key: 'Qty',
-        width: 100,
         align: 'right',
     },
     {
         title: 'Created By',
         dataIndex: 'CreatedBy',
         key: 'CreatedBy',
-        width: 140,
         render: (_value: string, record) => record.CreatedByName || record.CreatedBy || '-',
     },
     {
         title: 'Created Date',
         dataIndex: 'CreatedAt',
         key: 'CreatedAt',
-        width: 160,
         render: (value: string) => formatDateTime(value),
     },
 ];
@@ -127,9 +120,8 @@ export default function FinishGoodLinkedModal({ open, partNumber, onClose }: Fin
                 pagination={false}
                 loading={loading}
                 size="small"
-                tableLayout="fixed"
                 locale={{ emptyText: error ? 'Finish Good detail could not be loaded' : 'Finish Good data is not available' }}
-                scroll={{ x: 1060 }}
+                scroll={{ x: 'max-content' }}
                 className="small-table"
                 style={{ fontSize: 11 }}
             />

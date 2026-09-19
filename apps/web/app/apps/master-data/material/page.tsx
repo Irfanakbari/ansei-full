@@ -65,7 +65,6 @@ export default function MaterialPage() {
             title: 'Part Number',
             dataIndex: 'PartNumber',
             key: 'PartNumber',
-            width: 150,
             ...getColumnSearchProps('PartNumber')
         },
         {
@@ -96,28 +95,24 @@ export default function MaterialPage() {
             title: 'Qty Rack',
             dataIndex: 'QtyRack',
             key: 'QtyRack',
-            width: 100,
             align: 'right' as const
         },
         {
             title: 'Qty Warehouse',
             dataIndex: 'QtyWarehouse',
             key: 'QtyWarehouse',
-            width: 120,
             align: 'right' as const
         },
         {
             title: 'Minimum Stock',
             dataIndex: 'MinimumStock',
             key: 'MinimumStock',
-            width: 120,
             align: 'right' as const
         },
         {
             title: 'Maximum Stock',
             dataIndex: 'MaximumStock',
             key: 'MaximumStock',
-            width: 125,
             align: 'right' as const,
             render: (value: number) => value === 0 ? 'Not Set' : value,
         },
@@ -125,14 +120,12 @@ export default function MaterialPage() {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 140,
             render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-'
         },
         {
             title: 'Created Date',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 150,
             render: (val: string) => formatDateTime(val)
         }
     ];
@@ -219,7 +212,7 @@ export default function MaterialPage() {
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

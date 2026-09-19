@@ -107,6 +107,7 @@ export class ForecastService {
               PartName: true,
             },
           },
+          ProductionRelease: { select: { ReleaseNumber: true } },
         },
         orderBy: [{ DeliveryDate: 'desc' }, { Id: 'desc' }],
         skip: (page - 1) * limit,
@@ -139,6 +140,7 @@ export class ForecastService {
               PartName: true,
             },
           },
+          ProductionRelease: { select: { ReleaseNumber: true } },
         },
       });
     }
@@ -154,6 +156,7 @@ export class ForecastService {
               PartName: true,
             },
           },
+          ProductionRelease: { select: { ReleaseNumber: true } },
         },
       });
     }

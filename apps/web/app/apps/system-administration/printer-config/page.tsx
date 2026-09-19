@@ -102,26 +102,15 @@ export default function PrinterConfigPage() {
 
     const columns = [
         {
-            title: 'ID',
-            dataIndex: 'Id',
-            key: 'Id',
-            width: 200,
-            ellipsis: true,
-            render: (val: string) => <code style={{ fontSize: 11 }}>{val}</code>,
-            ...getColumnSearchProps('Id'),
-        },
-        {
             title: 'Printer Name',
             dataIndex: 'Name',
             key: 'Name',
-            width: 200,
             ...getColumnSearchProps('Name'),
         },
         {
             title: 'IP Address',
             dataIndex: 'IpAddress',
             key: 'IpAddress',
-            width: 150,
             render: (val: string) => <Tag color="blue">{val}</Tag>,
             ...getColumnSearchProps('IpAddress'),
         },
@@ -129,7 +118,6 @@ export default function PrinterConfigPage() {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 140,
             render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-',
             ...getColumnSearchProps('CreatedBy'),
         },
@@ -137,7 +125,6 @@ export default function PrinterConfigPage() {
             title: 'Created At',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 160,
             render: formatDateTime,
         },
     ];
@@ -173,7 +160,7 @@ export default function PrinterConfigPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

@@ -380,7 +380,6 @@ const CreateShoppingModal: React.FC<Props> = ({
     {
       title: "Remaining",
       key: "remaining",
-      width: 100,
       align: "center" as const,
       render: (_: any, record: SelectedMaterialItem) =>
         record.isCompleted ? (
@@ -392,7 +391,6 @@ const CreateShoppingModal: React.FC<Props> = ({
     {
       title: "Qty Pick",
       key: "qtyPick",
-      width: 120,
       render: (_: any, record: SelectedMaterialItem) => (
         <InputNumber
           min={1}
@@ -405,7 +403,6 @@ const CreateShoppingModal: React.FC<Props> = ({
     {
       title: "",
       key: "action",
-      width: 60,
       render: (_: any, record: SelectedMaterialItem) => (
         <Button
           type="text"

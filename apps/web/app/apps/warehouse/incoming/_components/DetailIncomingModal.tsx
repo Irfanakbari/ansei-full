@@ -34,14 +34,12 @@ const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
         {
             title: '#',
             key: 'index',
-            width: 50,
             render: (_: any, __: any, index: number) => index + 1,
         },
         {
             title: 'Part Number',
             dataIndex: ['MaterialData', 'PartNumber'],
             key: 'PartNumber',
-            width: 150,
             render: (val: string) => (
                 <Space size={4}>
                     <Tooltip title="View Material details">
@@ -70,7 +68,6 @@ const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
             title: 'Qty',
             dataIndex: 'Qty',
             key: 'Qty',
-            width: 100,
             align: 'right' as const,
         },
     ];
@@ -80,7 +77,7 @@ const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
             title={
                 <Space>
                     <EyeOutlined />
-                    <span>Detail Incoming - {data.Id}</span>
+                    <span>Incoming Detail - PO {data.PoId}</span>
                 </Space>
             }
             open={visible}
@@ -92,10 +89,7 @@ const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
             zIndex={1050}
         >
             <Descriptions bordered size="small" column={2} style={{ marginBottom: 16 }}>
-                <Descriptions.Item label="ID">
-                    <code style={{ fontSize: 11 }}>{data.Id}</code>
-                </Descriptions.Item>
-                <Descriptions.Item label="PO ID">
+                <Descriptions.Item label="PO Number">
                     {data.PoId}
                 </Descriptions.Item>
                 <Descriptions.Item label="Supplier">
@@ -124,7 +118,7 @@ const DetailIncomingModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 size="small"
                 rowKey="Id"
                 pagination={false}
-                scroll={{ x: 600, y: 300 }}
+                scroll={{ x: 'max-content', y: 300 }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

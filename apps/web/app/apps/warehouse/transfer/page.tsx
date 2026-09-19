@@ -89,7 +89,6 @@ export default function TransferPage() {
             title: 'Part Number',
             dataIndex: 'PartNumber',
             key: 'PartNumber',
-            width: 150,
             render: (val: string) => <code style={{ fontSize: 11 }}>{val}</code>,
             ...getColumnSearchProps('PartNumber'),
         },
@@ -103,7 +102,6 @@ export default function TransferPage() {
             title: 'Rack Qty',
             dataIndex: 'QtyRack',
             key: 'QtyRack',
-            width: 100,
             align: 'right' as const,
             render: (val: number) => <Tag color="green">{val}</Tag>,
             sorter: (a: MaterialWithQty, b: MaterialWithQty) => a.QtyRack - b.QtyRack,
@@ -113,7 +111,6 @@ export default function TransferPage() {
             title: 'Warehouse Qty',
             dataIndex: 'QtyWarehouse',
             key: 'QtyWarehouse',
-            width: 120,
             align: 'right' as const,
             render: (val: number) => <Tag color="blue">{val}</Tag>,
             sorter: (a: MaterialWithQty, b: MaterialWithQty) => a.QtyWarehouse - b.QtyWarehouse,
@@ -122,7 +119,6 @@ export default function TransferPage() {
         {
             title: 'Total',
             key: 'total',
-            width: 100,
             align: 'right' as const,
             render: (_: any, record: MaterialWithQty) => record.QtyRack + record.QtyWarehouse,
             sorter: (a: MaterialWithQty, b: MaterialWithQty) => (a.QtyRack + a.QtyWarehouse) - (b.QtyRack + b.QtyWarehouse),
@@ -162,7 +158,7 @@ export default function TransferPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

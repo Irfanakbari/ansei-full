@@ -62,7 +62,6 @@ export default function ManPowerPage() {
             title: 'Photo',
             dataIndex: 'PicturePath',
             key: 'PicturePath',
-            width: 70,
             align: 'center' as const,
             render: (val: string | null, record: ManPowerEntity) => {
                 if (val) {
@@ -85,7 +84,6 @@ export default function ManPowerPage() {
             title: 'NIK',
             dataIndex: 'Nik',
             key: 'Nik',
-            width: 120,
             ...getColumnSearchProps('Nik')
         },
         {
@@ -98,21 +96,18 @@ export default function ManPowerPage() {
             title: 'Line',
             dataIndex: 'Line',
             key: 'Line',
-            width: 100,
             render: (val: string | null) => val || '-'
         },
         {
             title: 'Status',
             dataIndex: 'Status',
             key: 'Status',
-            width: 100,
             render: (val: boolean) => <Tag color={val ? 'green' : 'red'}>{val ? 'Active' : 'Inactive'}</Tag>
         },
         {
             title: 'Created At',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 150,
             render: (val: string) => formatDateTime(val)
         }
     ];
@@ -187,7 +182,7 @@ export default function ManPowerPage() {
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Uid"
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />

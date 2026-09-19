@@ -195,7 +195,6 @@ export default function InventoryCountingPage() {
             title: 'Opname Number',
             dataIndex: 'OpnameNumber',
             key: 'OpnameNumber',
-            width: 180,
             ellipsis: true,
             render: (val: string) => <Tooltip title={val || '-'}><code style={{ fontSize: 11 }}>{val || '-'}</code></Tooltip>,
         },
@@ -203,7 +202,6 @@ export default function InventoryCountingPage() {
             title: 'Category',
             dataIndex: 'Category',
             key: 'Category',
-            width: 120,
             render: (val: string) => (
                 <Tag color={CATEGORY_COLORS[val] || 'default'}>
                     {val ? val.replace('_', ' ') : '-'}
@@ -219,14 +217,12 @@ export default function InventoryCountingPage() {
             title: 'Tolerance (%)',
             dataIndex: 'Tolerance',
             key: 'Tolerance',
-            width: 120,
             align: 'center' as const,
             render: (val: number | undefined) => `${val ?? 5}%`,
         },
         {
             title: 'Status',
             key: 'Status',
-            width: 180,
             render: (_: any, record: InventoryCountingEntity) => (
                 <div>
                     <Tag color={STATUS_COLORS[record.Status] || 'default'}>
@@ -253,7 +249,6 @@ export default function InventoryCountingPage() {
         {
             title: 'Items',
             key: 'items',
-            width: 100,
             align: 'center' as const,
             render: (_: any, record: InventoryCountingEntity) => (
                 <span>
@@ -265,7 +260,6 @@ export default function InventoryCountingPage() {
             title: 'Notes',
             dataIndex: 'Notes',
             key: 'Notes',
-            width: 150,
             ellipsis: true,
             render: (val: string | null) => val || '-',
         },
@@ -273,14 +267,12 @@ export default function InventoryCountingPage() {
             title: 'Created At',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 150,
             render: formatDateTime,
         },
         {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 140,
             render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-',
         },
     ];
@@ -405,7 +397,7 @@ export default function InventoryCountingPage() {
                     showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total}`,
                 }}
                 rowKey="Id"
-                scroll={{ x: 1000, y: 'calc(100vh - 380px)' }}
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
             />
 

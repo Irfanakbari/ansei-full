@@ -141,7 +141,6 @@ export default function ProductionReleasePage() {
             title: 'Release Number',
             dataIndex: 'ReleaseNumber',
             key: 'ReleaseNumber',
-            width: 180,
             ellipsis: true,
             render: (val: string) => <Tooltip title={val}><code style={{ fontSize: 11 }}>{val}</code></Tooltip>,
              ...getColumnSearchProps('ReleaseNumber'),
@@ -151,7 +150,6 @@ export default function ProductionReleasePage() {
             title: 'Plan Date',
             dataIndex: 'PlanDate',
             key: 'PlanDate',
-            width: 120,
             render: formatDateTime,
             sorter: (a: ProductionReleaseEntity, b: ProductionReleaseEntity) => new Date(a.PlanDate).getTime() - new Date(b.PlanDate).getTime(),
             sortOrder: sortedInfo.columnKey === 'PlanDate' ? sortedInfo.order : null,
@@ -160,7 +158,6 @@ export default function ProductionReleasePage() {
             title: 'Forecasts',
             dataIndex: 'Forecasts',
             key: 'Forecasts',
-            width: 80,
             align: 'center' as const,
             render: (val: any[]) => <Tag color="blue">{val?.length || 0}</Tag>,
         },
@@ -168,7 +165,6 @@ export default function ProductionReleasePage() {
             title: 'Status',
             dataIndex: 'Status',
             key: 'Status',
-            width: 150,
             filters: [
                 { text: 'DRAFT', value: 'DRAFT' },
                 { text: 'RELEASED', value: 'RELEASED' },
@@ -196,7 +192,6 @@ export default function ProductionReleasePage() {
             title: 'Notes',
             dataIndex: 'Notes',
             key: 'Notes',
-            width: 100,
             ellipsis: true,
             render: (val: string | null) => val || '-',
         },
@@ -204,21 +199,18 @@ export default function ProductionReleasePage() {
             title: 'Production Time',
             dataIndex: 'TotalProductionMinutes',
             key: 'TotalProductionMinutes',
-            width: 160,
             render: (value: number | null) => formatProductionDuration(value),
         },
         {
             title: 'Created At',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
-            width: 120,
             render: formatDateTime,
         },
         {
             title: 'Created By',
             dataIndex: 'CreatedBy',
             key: 'CreatedBy',
-            width: 140,
             render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-',
         },
     ];
@@ -244,7 +236,6 @@ export default function ProductionReleasePage() {
                     type: 'radio',
                 }}
                 columns={columns}
-                tableLayout="fixed"
                 dataSource={data}
                 size="small"
                 loading={loading}
@@ -257,8 +248,8 @@ export default function ProductionReleasePage() {
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} records`,
                 }}
-                rowKey={(record) => record.Id || record.ReleaseNumber || String(Math.random())}
-                scroll={{ y: 'calc(100vh - 380px)' }}
+                rowKey="Id"
+                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />
