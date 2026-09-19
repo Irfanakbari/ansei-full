@@ -187,8 +187,8 @@ export default function MaterialPage() {
                 <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchMaterial(query)); }} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Discontinue" icon={<StopOutlined />} onClick={handleDiscontinue} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
+                <ButtonToolbar title="Discontinue" icon={<StopOutlined />} onClick={handleDiscontinue} enable={selectedRowKeys.length === 1} />
             </ToolbarWrapper>
 
             <Table

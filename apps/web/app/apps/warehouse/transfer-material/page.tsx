@@ -328,6 +328,13 @@ export default function TransferMaterialPage() {
                     onClick={() => setIsCreateModalVisible(true)}
                 />
                 <ButtonToolbar
+                    title="Delete"
+                    icon={<DeleteOutlined />}
+                    onClick={handleDelete}
+                    loading={actionLoading === 'delete'}
+                    enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'}
+                />
+                <ButtonToolbar
                     title="Detail"
                     icon={<EyeOutlined />}
                     onClick={handleViewDetail}
@@ -352,13 +359,6 @@ export default function TransferMaterialPage() {
                     icon={<CloseCircleOutlined />}
                     onClick={handleCancel}
                     loading={actionLoading === 'cancel'}
-                    enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'}
-                />
-                <ButtonToolbar
-                    title="Delete"
-                    icon={<DeleteOutlined />}
-                    onClick={handleDelete}
-                    loading={actionLoading === 'delete'}
                     enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'}
                 />
                 <ButtonToolbar

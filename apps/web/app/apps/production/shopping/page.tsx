@@ -260,15 +260,15 @@ export default function ShoppingPage() {
           onClick={() => setIsCreateModalVisible(true)}
         />
         <ButtonToolbar
-          title="Detail"
-          icon={<EyeOutlined />}
-          onClick={handleViewDetail}
-          enable={selectedRowKeys.length === 1}
-        />
-        <ButtonToolbar
           title="Delete"
           icon={<DeleteOutlined />}
           onClick={handleDelete}
+          enable={selectedRowKeys.length === 1}
+        />
+        <ButtonToolbar
+          title="Detail"
+          icon={<EyeOutlined />}
+          onClick={handleViewDetail}
           enable={selectedRowKeys.length === 1}
         />
       </ToolbarWrapper>

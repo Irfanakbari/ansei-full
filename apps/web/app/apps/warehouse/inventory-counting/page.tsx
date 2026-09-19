@@ -299,13 +299,6 @@ export default function InventoryCountingPage() {
                     icon={<PlusOutlined />}
                     onClick={() => setIsCreateModalVisible(true)}
                 />
-                <ButtonToolbar
-                    title="Detail"
-                    icon={<EyeOutlined />}
-                    onClick={handleViewDetail}
-                    enable={selectedRowKeys.length === 1}
-                />
-                
                 <Dropdown
                     menu={{
                         items: [
@@ -333,6 +326,19 @@ export default function InventoryCountingPage() {
                         <span>Update Status <DownOutlined style={{ fontSize: '10px' }}/></span>
                     </span>
                 </Dropdown>
+
+                <ButtonToolbar
+                    title="Delete"
+                    icon={<DeleteOutlined />}
+                    onClick={handleDelete}
+                    enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'}
+                />
+                <ButtonToolbar
+                    title="Detail"
+                    icon={<EyeOutlined />}
+                    onClick={handleViewDetail}
+                    enable={selectedRowKeys.length === 1}
+                />
 
                 <Dropdown
                     menu={{
@@ -365,13 +371,6 @@ export default function InventoryCountingPage() {
                         <span>Downloads <DownOutlined style={{ fontSize: '10px' }}/></span>
                     </span>
                 </Dropdown>
-
-                <ButtonToolbar
-                    title="Delete"
-                    icon={<DeleteOutlined />}
-                    onClick={handleDelete}
-                    enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'}
-                />
             </ToolbarWrapper>
 
             <Table

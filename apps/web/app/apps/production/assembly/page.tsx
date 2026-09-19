@@ -249,13 +249,6 @@ export default function AssemblyPage() {
         ]}
       />
       <ToolbarWrapper>
-        {canCreate && (
-          <ButtonToolbar
-            title="Create Assembly"
-            icon={<PlusOutlined />}
-            onClick={() => setCreateOpen(true)}
-          />
-        )}
         <ButtonToolbar
           title="Refresh"
           icon={<ReloadOutlined />}
@@ -264,6 +257,13 @@ export default function AssemblyPage() {
             void dispatch(fetchAssemblySessions(query));
           }}
         />
+        {canCreate && (
+          <ButtonToolbar
+            title="Create Assembly"
+            icon={<PlusOutlined />}
+            onClick={() => setCreateOpen(true)}
+          />
+        )}
       </ToolbarWrapper>
       {detailSession && (
         <Space style={{ margin: "8px 0" }}>

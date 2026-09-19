@@ -163,6 +163,7 @@ export default function ApiKeyManagementPage() {
             <ToolbarWrapper>
                 <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchApiKeys(query)); }} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
+                <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar
                     title="Revoke"
                     icon={<StopOutlined />}
@@ -175,7 +176,6 @@ export default function ApiKeyManagementPage() {
                     onClick={handleReactivate}
                     enable={selectedRowKeys.length === 1 && data.find(d => d.Id === selectedRowKeys[0])?.IsActive === false}
                 />
-                <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
             </ToolbarWrapper>
             <Input.Search allowClear placeholder="Search name, description, user, email, or creator" style={{ width: 420, marginBottom: 12 }} onSearch={(search) => setQuery((current) => ({ ...current, page: 1, search }))} />
 

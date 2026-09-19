@@ -223,11 +223,11 @@ export default function IncomingPage() {
             <ToolbarWrapper>
                 <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchIncoming(query))} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
+                <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1 && !selectedRecord?.Closed} />
                 <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Receive" icon={<CheckOutlined />} onClick={handleReceive} enable={selectedRowKeys.length === 1 && !selectedRecord?.Closed} />
                 <ButtonToolbar title="Checking" icon={<CheckCircleOutlined />} onClick={handleChecking} enable={selectedRowKeys.length === 1 && !selectedRecord?.Closed} />
                 <ButtonToolbar title="Attachment" icon={<PaperClipOutlined />} onClick={handleUploadAttachment} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1 && !selectedRecord?.Closed} />
             </ToolbarWrapper>
 
             <Table

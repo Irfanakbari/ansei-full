@@ -289,11 +289,11 @@ export default function ForecastPage() {
             <ToolbarWrapper>
                 <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchForecast(query))} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
-                <ButtonToolbar title="Import" icon={<UploadOutlined />} onClick={() => setIsImportModalVisible(true)} />
-                <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Print" icon={<PrinterOutlined />} onClick={handlePrintTag} loading={isPrinting} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
+                <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
+                <ButtonToolbar title="Import" icon={<UploadOutlined />} onClick={() => setIsImportModalVisible(true)} />
+                <ButtonToolbar title="Print" icon={<PrinterOutlined />} onClick={handlePrintTag} loading={isPrinting} enable={selectedRowKeys.length === 1} />
             </ToolbarWrapper>
 
             <Table

@@ -203,6 +203,14 @@ export default function RevisionDetails({ id }: { id: string }) {
           onClick={() => setRefresh((n) => n + 1)}
         />
         <ButtonToolbar
+          title="New Revision"
+          icon={<CopyOutlined />}
+          enable={
+            Boolean(revision) && can("IPCS.BOM_REVISION_CREATE") && !saving
+          }
+          onClick={() => void copy()}
+        />
+        <ButtonToolbar
           title="Save Draft"
           icon={<SaveOutlined />}
           enable={editable && !saving}
@@ -246,14 +254,6 @@ export default function RevisionDetails({ id }: { id: string }) {
           icon={<StopOutlined />}
           enable={editable && !saving}
           onClick={() => setAction("cancel")}
-        />
-        <ButtonToolbar
-          title="New Revision"
-          icon={<CopyOutlined />}
-          enable={
-            Boolean(revision) && can("IPCS.BOM_REVISION_CREATE") && !saving
-          }
-          onClick={() => void copy()}
         />
       </ToolbarWrapper>
       {error && <Alert type="error" title={error} />}

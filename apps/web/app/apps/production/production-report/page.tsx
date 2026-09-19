@@ -391,6 +391,12 @@ export default function ProductionReportPage() {
           onClick={() => setIsCreateModalVisible(true)}
         />
         <ButtonToolbar
+          title="Delete"
+          icon={<DeleteOutlined />}
+          onClick={handleDelete}
+          enable={selectedRowKeys.length === 1}
+        />
+        <ButtonToolbar
           title="Detail"
           icon={<EyeOutlined />}
           onClick={() => setDetailReport(selectedRow ?? null)}
@@ -407,12 +413,6 @@ export default function ProductionReportPage() {
           icon={<CloseCircleOutlined />}
           onClick={handleUnvalidate}
           enable={selectedRowKeys.length === 1 && !!selectedRow?.validatedAt}
-        />
-        <ButtonToolbar
-          title="Delete"
-          icon={<DeleteOutlined />}
-          onClick={handleDelete}
-          enable={selectedRowKeys.length === 1}
         />
       </ToolbarWrapper>
       {can("IPCS.MATERIAL_NG_CREATE") && (

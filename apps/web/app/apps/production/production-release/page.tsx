@@ -195,9 +195,9 @@ export default function ProductionReleasePage() {
             <ToolbarWrapper>
                 <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchProductionRelease(query))} />
                 <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
-                <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
+                <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
                 <ButtonToolbar title="Manage Forecasts" icon={<TagsOutlined />} onClick={() => setIsManageModalVisible(true)} enable={selectedRecord?.Status === 'RELEASED'} />
                 <ButtonToolbar title="Cancel Release" icon={<StopOutlined />} onClick={() => setIsCancelModalVisible(true)} enable={selectedRecord?.Status === 'RELEASED'} />
             </ToolbarWrapper>
