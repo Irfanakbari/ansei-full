@@ -1,7 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Alert,
@@ -18,7 +18,6 @@ import {
   Select,
   Space,
   Table,
-  Tabs,
   Tag,
 } from "antd";
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
@@ -51,7 +50,6 @@ type DraftLine = {
 };
 export default function MaterialNgWorkspace() {
   const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
   const params = useSearchParams();
   const { message } = App.useApp();
   const { can } = usePhasePermission();
@@ -265,8 +263,7 @@ export default function MaterialNgWorkspace() {
         items={[
           { title: "Home" },
           { title: "Production" },
-          { title: <Link href="/apps/production/shopping">Shopping</Link> },
-          { title: "NG Replacement" },
+          { title: "Material NG" },
         ]}
       />
       <ToolbarWrapper>
@@ -282,17 +279,6 @@ export default function MaterialNgWorkspace() {
           onClick={() => void begin()}
         />
       </ToolbarWrapper>
-      <Tabs
-        activeKey="NG"
-        onChange={(key) =>
-          router.push(`/apps/production/shopping?purpose=${key}`)
-        }
-        items={[
-          { key: "STANDARD", label: "Standard" },
-          { key: "NG", label: "NG Replacement" },
-          { key: "NON_PRODUCTION", label: "Non-production" },
-        ]}
-      />
       <Input.Search
         placeholder="Search case or PO"
         allowClear
@@ -467,9 +453,10 @@ export default function MaterialNgWorkspace() {
             rules={[{ required: true }]}
           >
             <Select
-              showSearch
-              filterOption={false}
-              onSearch={(v) => void findOrders(v)}
+              showSearch={{
+                filterOption: false,
+                onSearch: (value) => void findOrders(value),
+              }}
               onChange={(v) => void selectPo(v)}
               options={orders.map((o) => ({
                 value: o.PoId,
@@ -483,9 +470,15 @@ export default function MaterialNgWorkspace() {
               label="Process Stage"
               rules={[{ required: true, whitespace: true }]}
             >
-              <Input
-                placeholder="Assembly / preparation / other"
-                maxLength={100}
+              <Select
+                placeholder="Select process stage"
+                options={[
+                  { value: "MATERIAL_PREPARATION", label: "Material Preparation" },
+                  { value: "ASSEMBLY", label: "Assembly" },
+                  { value: "POKAYOKE", label: "Poka-Yoke" },
+                  { value: "PRE_DELIVERY", label: "Pre Delivery" },
+                  { value: "OTHER", label: "Other" },
+                ]}
               />
             </Form.Item>
             <Form.Item

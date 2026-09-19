@@ -3,6 +3,7 @@
 import { formatProductionDuration } from "./productionDuration";
 
 import ReleaseBomPanel from "@/components/traceability/ReleaseBomPanel";
+import FinishGoodLinkedModal from "@/components/production/FinishGoodLinkedModal";
 import React, { useEffect } from "react";
 import {
   Modal,
@@ -21,6 +22,7 @@ import {
   PaperClipOutlined,
   DeleteOutlined,
   DownloadOutlined,
+  ArrowRightOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -69,6 +71,7 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
   const { attachments, attachmentLoading } = useSelector(
     (state: RootState) => state.productionRelease,
   );
+  const [linkedFinishGood, setLinkedFinishGood] = React.useState<string | null>(null);
 
   useEffect(() => {
     if (visible && data.Id) {
@@ -116,7 +119,12 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
     {
       title: "Part Number",
       key: "PartNumber",
-      render: (_: any, record: any) => record.PartData?.PartNumber || "-",
+      render: (_: any, record: any) => (
+        <Space size={4}>
+          <Button type="text" size="small" aria-label={`View Finish Good ${record.PartData?.PartNumber || ""}`} icon={<ArrowRightOutlined style={{ color: "#d4a106", fontSize: 12 }} />} onClick={() => setLinkedFinishGood(record.PartData?.PartNumber ?? null)} style={{ width: 20, minWidth: 20, height: 20, padding: 0 }} />
+          <span>{record.PartData?.PartNumber || "-"}</span>
+        </Space>
+      ),
     },
     {
       title: "Part Name",
@@ -421,6 +429,7 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
         </div>
       </div>
       <ReleaseBomPanel releaseId={data.Id} />
+      <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood} onClose={() => setLinkedFinishGood(null)} />
     </Modal>
   );
 };

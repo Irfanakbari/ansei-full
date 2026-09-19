@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { Modal, Form, Select, App, Button, Space, Tag } from 'antd';
+import { Modal, Form, Select, App, Button, Space } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { createDelivery, CreateDeliveryRequest } from '@/store/features/production/delivery/deliverySlice';
@@ -81,46 +81,14 @@ const CreateDeliveryModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
                 >
                     <Select
                         placeholder="Select Label Number"
-                        showSearch
+                        showSearch={{ optionFilterProp: 'label' }}
                         size="large"
-                        filterOption={(input, option) =>
-                            (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
-                        }
-                    >
-                        {availableLabels.map(label => {
-                            // Check if this label is already delivered
-                            // Compare against both id and labelNumber since labelDataId could reference either
-                            const isDelivered =
-                                deliveredLabelIds.has(String(label.id)) ||
-                                deliveredLabelIds.has(label.labelNumber);
-
-                            return (
-                                <Select.Option
-                                    key={label.id}
-                                    value={label.id}
-                                    label={label.labelNumber}
-                                    disabled={isDelivered}
-                                >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div>
-                                            <code style={{ fontSize: 11 }}>{label.labelNumber}</code>
-                                            <div style={{ fontSize: 10, color: '#666' }}>
-                                                {label.finishGoodName} | Qty: {label.qtyThisBox}
-                                            </div>
-                                            <div style={{ fontSize: 10, color: '#666' }}>
-                                                Forecast: {label.forecastId}
-                                            </div>
-                                        </div>
-                                        {isDelivered ? (
-                                            <Tag color="green">Delivered</Tag>
-                                        ) : (
-                                            <Tag color="blue">Ready</Tag>
-                                        )}
-                                    </div>
-                                </Select.Option>
-                            );
-                        })}
-                    </Select>
+                        options={availableLabels.map((label) => ({
+                            value: label.id,
+                            label: `${label.labelNumber} · ${label.finishGoodName} · Qty ${label.qtyThisBox} · PO ${label.forecastId}`,
+                            disabled: deliveredLabelIds.has(String(label.id)) || deliveredLabelIds.has(label.labelNumber),
+                        }))}
+                    />
                 </Form.Item>
 
                 <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>

@@ -14,9 +14,11 @@ import {
   Tag,
   Tooltip,
   Space,
+  Modal,
+  Descriptions,
 } from "antd";
 import type { InputRef } from "antd";
-import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
+import { ReloadOutlined, SearchOutlined, ArrowRightOutlined, EyeOutlined } from "@ant-design/icons";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import ButtonToolbar from "@/components/ButtonToolbar";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,6 +32,7 @@ import {
   fetchProductionRelease,
   ProductionReleaseEntity,
 } from "@/store/features/production/productionRelease/productionReleaseSlice";
+import FinishGoodLinkedModal from "@/components/production/FinishGoodLinkedModal";
 
 const formatDate = (val: string | null | undefined) => {
   if (!val) return "-";
@@ -46,6 +49,8 @@ export default function PreDeliveryPage() {
     (state: RootState) => state.productionRelease,
   );
   const searchInput = useRef<InputRef>(null);
+  const [detail, setDetail] = React.useState<PreDeliveryEntity | null>(null);
+  const [linkedFinishGood, setLinkedFinishGood] = React.useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchPreDelivery(filters));
@@ -127,10 +132,11 @@ export default function PreDeliveryPage() {
           onChange={(val) => setSelectedKeys(val ? [val] : [])}
           style={{ width: "100%", marginBottom: 8 }}
           allowClear
-        >
-          <Select.Option value="scanned">Scanned</Select.Option>
-          <Select.Option value="unscanned">Unscanned</Select.Option>
-        </Select>
+          options={[
+            { value: "scanned", label: "Scanned" },
+            { value: "unscanned", label: "Unscanned" },
+          ]}
+        />
         <Space>
           <Button
             type="primary"
@@ -178,15 +184,12 @@ export default function PreDeliveryPage() {
           onChange={(val) => setSelectedKeys(val ? [val] : [])}
           style={{ width: "100%", marginBottom: 8 }}
           allowClear
-          showSearch
-          optionFilterProp="children"
-        >
-          {productionReleases.map((pr: ProductionReleaseEntity) => (
-            <Select.Option key={pr.Id} value={pr.ReleaseNumber}>
-              {pr.ReleaseNumber}
-            </Select.Option>
-          ))}
-        </Select>
+          showSearch={{ optionFilterProp: "label" }}
+          options={productionReleases.map((release: ProductionReleaseEntity) => ({
+            value: release.ReleaseNumber,
+            label: release.ReleaseNumber,
+          }))}
+        />
         <Space>
           <Button
             type="primary"
@@ -222,18 +225,6 @@ export default function PreDeliveryPage() {
 
   const columns = [
     {
-      title: "Traceability",
-      key: "traceability",
-      render: (_: unknown, row: { forecastId: string; labelNumber: string }) =>
-        can("IPCS.TRACEABILITY_READ") ? (
-          <Link
-            href={`/apps/traceability?poId=${encodeURIComponent(row.forecastId)}&label=${encodeURIComponent(row.labelNumber)} `.trim()}
-          >
-            View Traceability
-          </Link>
-        ) : null,
-    },
-    {
       title: "Release Number",
       dataIndex: "productionReleaseNumber",
       key: "productionReleaseNumber",
@@ -256,11 +247,10 @@ export default function PreDeliveryPage() {
       key: "finishGood",
       ...getColumnSearchProps("finishGoodId"),
       render: (_: any, record: PreDeliveryEntity) => (
-        <span>
-          <code style={{ fontSize: 10 }}>{record.finishGoodId}</code>
-          <br />
-          <span style={{ fontSize: 11 }}>{record.finishGoodName}</span>
-        </span>
+        <Space size={4}>
+          <Button type="text" size="small" aria-label={`View Finish Good ${record.finishGoodId}`} icon={<ArrowRightOutlined style={{ color: "#d4a106", fontSize: 12 }} />} onClick={() => setLinkedFinishGood(record.finishGoodId)} style={{ width: 20, minWidth: 20, height: 20, padding: 0 }} />
+          <Tooltip title={`${record.finishGoodId} - ${record.finishGoodName}`}><code style={{ fontSize: 10 }}>{record.finishGoodId}</code></Tooltip>
+        </Space>
       ),
     },
     {
@@ -271,25 +261,6 @@ export default function PreDeliveryPage() {
       render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
     },
     {
-      title: "Vendor",
-      dataIndex: "vendorName",
-      key: "vendorName",
-      ...getColumnSearchProps("vendorName"),
-    },
-    {
-      title: "Delivery Date",
-      dataIndex: "deliveryDate",
-      key: "deliveryDate",
-      render: formatDate,
-    },
-    {
-      title: "Qty/Box",
-      dataIndex: "qtyThisBox",
-      key: "qtyThisBox",
-      align: "right" as const,
-      render: (val: number) => <strong>{val}</strong>,
-    },
-    {
       title: "Scanned",
       dataIndex: "scanned",
       key: "scanned",
@@ -298,6 +269,11 @@ export default function PreDeliveryPage() {
       render: (val: boolean) => (
         <Tag color={val ? "success" : "warning"}>{val ? "Yes" : "No"}</Tag>
       ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_: unknown, record: PreDeliveryEntity) => <Button type="link" size="small" icon={<EyeOutlined />} onClick={() => setDetail(record)}>Detail</Button>,
     },
   ];
 
@@ -342,6 +318,20 @@ export default function PreDeliveryPage() {
         scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
         className="small-table"
       />
+      <Modal title={`Pre Delivery Detail · ${detail?.labelNumber ?? ""}`} open={Boolean(detail)} onCancel={() => setDetail(null)} footer={null} centered width={720} destroyOnHidden>
+        {detail && <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
+          <Descriptions.Item label="Release Number">{detail.productionReleaseNumber}</Descriptions.Item>
+          <Descriptions.Item label="PO Number">{detail.forecastId}</Descriptions.Item>
+          <Descriptions.Item label="Label Number"><code>{detail.labelNumber}</code></Descriptions.Item>
+          <Descriptions.Item label="Finish Good">{detail.finishGoodId} - {detail.finishGoodName}</Descriptions.Item>
+          <Descriptions.Item label="Vendor">{detail.vendorName}</Descriptions.Item>
+          <Descriptions.Item label="Delivery Date">{formatDate(detail.deliveryDate)}</Descriptions.Item>
+          <Descriptions.Item label="Qty/Box">{detail.qtyThisBox}</Descriptions.Item>
+          <Descriptions.Item label="Poka-Yoke"><Tag color={detail.scanned ? "success" : "warning"}>{detail.scanned ? "Passed" : "Pending"}</Tag></Descriptions.Item>
+          {can("IPCS.TRACEABILITY_READ") && <Descriptions.Item label="Traceability" span={2}><Link href={`/apps/traceability?poId=${encodeURIComponent(detail.forecastId)}&label=${encodeURIComponent(detail.labelNumber)}`}>View Traceability</Link></Descriptions.Item>}
+        </Descriptions>}
+      </Modal>
+      <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood} onClose={() => setLinkedFinishGood(null)} />
     </Card>
   );
 }

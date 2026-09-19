@@ -16,7 +16,6 @@ import EditProductionReleaseModal from './_components/EditProductionReleaseModal
 import ManageForecastsModal from './_components/ManageForecastsModal';
 import CancelProductionReleaseModal from './_components/CancelProductionReleaseModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
-import { formatProductionDuration } from './_components/productionDuration';
 
 const STATUS_COLORS: Record<string, string> = {
     PENDING: 'warning',
@@ -187,31 +186,6 @@ export default function ProductionReleasePage() {
                     )}
                 </div>
             ),
-        },
-        {
-            title: 'Notes',
-            dataIndex: 'Notes',
-            key: 'Notes',
-            ellipsis: true,
-            render: (val: string | null) => val || '-',
-        },
-        {
-            title: 'Production Time',
-            dataIndex: 'TotalProductionMinutes',
-            key: 'TotalProductionMinutes',
-            render: (value: number | null) => formatProductionDuration(value),
-        },
-        {
-            title: 'Created At',
-            dataIndex: 'CreatedAt',
-            key: 'CreatedAt',
-            render: formatDateTime,
-        },
-        {
-            title: 'Created By',
-            dataIndex: 'CreatedBy',
-            key: 'CreatedBy',
-            render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-',
         },
     ];
 

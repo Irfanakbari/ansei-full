@@ -464,32 +464,14 @@ const CreateShoppingModal: React.FC<Props> = ({
           >
             <Select
               placeholder="Select forecast"
-              showSearch
-              filterOption={(input, option) =>
-                (option?.label?.toString() || "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
+              showSearch={{ optionFilterProp: "label" }}
               onChange={handleForecastChange}
               loading={prLoading}
-            >
-              {allForecasts.map((f) => (
-                <Select.Option
-                  key={f.PoId}
-                  value={f.PoId}
-                  label={`${f.PoId} - ${f.PartData?.PartNumber}`}
-                >
-                  <Space>
-                    <span>
-                      {f.PoId} - {f.PartData?.PartNumber}
-                    </span>
-                    <Tag color="blue" style={{ fontSize: 10 }}>
-                      {f.ReleaseNumber}
-                    </Tag>
-                  </Space>
-                </Select.Option>
-              ))}
-            </Select>
+              options={allForecasts.map((forecast) => ({
+                value: forecast.PoId,
+                label: `${forecast.PoId} - ${forecast.PartData?.PartNumber} · ${forecast.ReleaseNumber}`,
+              }))}
+            />
           </Form.Item>
         )}
         {shoppingType === "ADDITIONAL" && (
@@ -515,38 +497,16 @@ const CreateShoppingModal: React.FC<Props> = ({
                 ? "Select forecast first"
                 : "Select materials"
             }
-            showSearch
-            filterOption={(input, option) =>
-              (option?.label?.toString() || "")
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
+            showSearch={{ optionFilterProp: "label" }}
             disabled={shoppingType === "REGULER" && !selectedForecastId}
             onChange={handleMaterialSelectChange}
             value={selectedMaterials.map((m) => m.materialId)}
-          >
-            {availableMaterials.map((m) => (
-              <Select.Option
-                key={m.Id}
-                value={m.Id}
-                label={`${m.PartNumber} - ${m.PartName}`}
-                disabled={m.isCompleted}
-              >
-                <Space>
-                  <span>
-                    {m.PartNumber} - {m.PartName}
-                  </span>
-                  {m.isCompleted ? (
-                    <Tag color="success">Completed</Tag>
-                  ) : (
-                    <Tag color="warning">
-                      Remaining: {m.qtyRemaining || "N/A"}
-                    </Tag>
-                  )}
-                </Space>
-              </Select.Option>
-            ))}
-          </Select>
+            options={availableMaterials.map((material) => ({
+              value: material.Id,
+              label: `${material.PartNumber} - ${material.PartName} · ${material.isCompleted ? "Completed" : `Remaining ${material.qtyRemaining || "N/A"}`}`,
+              disabled: material.isCompleted,
+            }))}
+          />
         </Form.Item>
 
         {selectedMaterials.length > 0 && (

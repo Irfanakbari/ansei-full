@@ -1,9 +1,6 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
-import { usePhasePermission } from "@/components/traceability/usePhasePermission";
-import { Tabs } from "antd";
-import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import {
   Table,
@@ -39,25 +36,13 @@ import DetailShoppingModal from "./_components/DetailShoppingModal";
 import CreateShoppingModal from "./_components/CreateShoppingModal";
 import { formatDateTime } from "@/lib/utils/dateTime";
 
-const TYPE_COLORS: Record<string, string> = {
-  REGULER: "blue",
-  ADDITIONAL: "orange",
-};
-
 export default function ShoppingPage() {
-  const router = useRouter();
-  const { can } = usePhasePermission();
   const { message, modal } = App.useApp();
   const dispatch = useDispatch<AppDispatch>();
   const { data, loading, query, pagination } = useSelector(
     (state: RootState) => state.shopping,
   );
 
-  useEffect(() => {
-    const purpose = new URLSearchParams(window.location.search).get("purpose");
-    if (purpose === "NON_PRODUCTION")
-      dispatch(setShoppingQuery({ purpose, page: 1 }));
-  }, [dispatch]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
@@ -124,14 +109,17 @@ export default function ShoppingPage() {
     sorter: any,
   ) => {
     setSortedInfo(sorter);
-    const search = Object.values(filters)
-      .flat()
+    const search = Object.entries(filters)
+      .filter(([key]) => key !== "Type")
+      .flatMap(([, values]) => values ?? [])
       .find((value) => typeof value === "string") as string | undefined;
+    const purpose = filters.Type?.[0]?.toString();
     dispatch(
       setShoppingQuery({
         page: tablePagination.current,
         limit: tablePagination.pageSize,
         search,
+        purpose,
       }),
     );
   };
@@ -220,11 +208,19 @@ export default function ShoppingPage() {
       sortOrder: sortedInfo.columnKey === "QtyPick" ? sortedInfo.order : null,
     },
     {
-      title: "Purpose",
+      title: "Type",
       dataIndex: "Purpose",
       key: "Type",
+      filters: [
+        { text: "Regular", value: "STANDARD" },
+        { text: "Non-production", value: "NON_PRODUCTION" },
+      ],
+      filterMultiple: false,
+      filteredValue: query.purpose ? [query.purpose] : null,
       render: (val: string) => (
-        <Tag color={TYPE_COLORS[val] || "default"}>{val}</Tag>
+        <Tag color={val === "STANDARD" ? "blue" : "orange"}>
+          {val === "STANDARD" ? "REGULAR" : "NON-PRODUCTION"}
+        </Tag>
       ),
     },
     {
@@ -277,22 +273,6 @@ export default function ShoppingPage() {
         />
       </ToolbarWrapper>
 
-      <Tabs
-        activeKey={query.purpose ?? "STANDARD"}
-        onChange={(key) => {
-          if (key === "NG")
-            router.push("/apps/production/shopping/material-ng");
-          else dispatch(setShoppingQuery({ ...query, purpose: key, page: 1 }));
-        }}
-        items={[
-          { key: "STANDARD", label: "Standard" },
-          ...(can("IPCS.MATERIAL_NG_READ") || can("IPCS.MATERIAL_NG_CREATE")
-            ? [{ key: "NG", label: "NG Replacement" }]
-            : []),
-          { key: "NON_PRODUCTION", label: "Non-production" },
-          { key: "LEGACY_UNCLASSIFIED", label: "Legacy" },
-        ]}
-      />
       <Table
         rowSelection={{
           selectedRowKeys,

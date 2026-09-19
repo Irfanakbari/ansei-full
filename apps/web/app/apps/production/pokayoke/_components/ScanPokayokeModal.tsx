@@ -81,10 +81,13 @@ const ScanPokayokeModal: React.FC<ScanPokayokeModalProps> = ({
                     label="Status"
                     rules={[{ required: true, message: 'Please select status' }]}
                 >
-                    <Select size="large">
-                        <Select.Option value="SUKSES">SUKSES</Select.Option>
-                        <Select.Option value="GAGAL">GAGAL</Select.Option>
-                    </Select>
+                    <Select
+                        size="large"
+                        options={[
+                            { value: 'SUKSES', label: 'SUKSES' },
+                            { value: 'GAGAL', label: 'GAGAL' },
+                        ]}
+                    />
                 </Form.Item>
 
                 <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>

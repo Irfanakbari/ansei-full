@@ -47,7 +47,7 @@ import {
 import CreditInformationModal from "./_components/CreditInformationModal";
 import "../batik.css";
 
-const APP_VERSION = "1.32.1";
+const APP_VERSION = "4.0.2";
 const APP_YEAR = "2026";
 
 const LATEST_RELEASE_SUMMARY = [
@@ -96,11 +96,8 @@ const PERMISSIONS = {
   // Production
   forecast: ["IPCS.FORECAST_READ"],
   productionRelease: ["IPCS.PRODUCTION_RELEASE_READ"],
-  shopping: [
-    "IPCS.SHOPPING_READ",
-    "IPCS.MATERIAL_NG_READ",
-    "IPCS.MATERIAL_NG_CREATE",
-  ],
+  shopping: ["IPCS.SHOPPING_READ"],
+  materialNg: ["IPCS.MATERIAL_NG_READ", "IPCS.MATERIAL_NG_CREATE"],
   assembly: ["IPCS.ASSEMBLY_READ"],
   preDelivery: ["IPCS.PRE_DELIVERY_READ"],
   pokayoke: ["IPCS.POKAYOKE_READ", "IPCS.POKAYOKE_CREATE"],
@@ -290,6 +287,13 @@ const baseMenuItems: MenuItem[] = [
       undefined,
       undefined,
       [...PERMISSIONS.productionReport],
+    ),
+    getItem(
+      <Link href="/apps/production/material-ng">Material NG</Link>,
+      "prod-material-ng",
+      undefined,
+      undefined,
+      [...PERMISSIONS.materialNg],
     ),
   ]),
   getItem(

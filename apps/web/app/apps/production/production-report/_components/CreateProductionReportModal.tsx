@@ -127,60 +127,30 @@ const CreateProductionReportModal: React.FC<Props> = ({ visible, onClose, onSucc
                     <Form.Item name="manPowerUid" label="Man Power" rules={[{ required: true, message: 'Please select man power' }]}>
                         <Select
                             placeholder="Select man power"
-                            showSearch
-                            filterOption={(input, option) =>
-                                (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
-                            }
-                        >
-                            {manPowers.map(mp => (
-                                <Select.Option key={mp.Uid} value={mp.Uid} label={`${mp.Nik} - ${mp.Name}`}>
-                                    {mp.Nik} - {mp.Name}
-                                </Select.Option>
-                            ))}
-                        </Select>
+                            showSearch={{ optionFilterProp: 'label' }}
+                            options={manPowers.map((manPower) => ({ value: manPower.Uid, label: `${manPower.Nik} - ${manPower.Name}` }))}
+                        />
                     </Form.Item>
                     <Form.Item name="finishGoodId" label="Finish Good" rules={[{ required: true, message: 'Please select finish good' }]}>
                         <Select
                             placeholder="Select finish good"
-                            showSearch
-                            filterOption={(input, option) =>
-                                (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
-                            }
-                        >
-                            {finishGoods.map(fg => (
-                                <Select.Option key={fg.PartNumber} value={fg.PartNumber} label={`${fg.PartNumber} - ${fg.PartName}`}>
-                                    {fg.PartNumber} - {fg.PartName}
-                                </Select.Option>
-                            ))}
-                        </Select>
+                            showSearch={{ optionFilterProp: 'label' }}
+                            options={finishGoods.map((finishGood) => ({ value: finishGood.PartNumber, label: `${finishGood.PartNumber} - ${finishGood.PartName}` }))}
+                        />
                     </Form.Item>
                     <Form.Item name="poNumber" label="PO Number">
                         <Select
                             placeholder="Select PO Number"
                             allowClear
-                            showSearch
-                            filterOption={(input, option) =>
-                                (option?.label?.toString() || '').toLowerCase().includes(input.toLowerCase())
-                            }
-                        >
-                            {forecasts.map(f => (
-                                <Select.Option key={f.Id} value={f.PoId} label={f.PoId}>
-                                    {f.PoId}
-                                </Select.Option>
-                            ))}
-                        </Select>
+                            showSearch={{ optionFilterProp: 'label' }}
+                            options={forecasts.map((forecast) => ({ value: forecast.PoId, label: forecast.PoId }))}
+                        />
                     </Form.Item>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0 16px' }}>
                     <Form.Item name="recordType" label="Part Type" rules={[{ required: true, message: 'Please select part type' }]}>
-                        <Select placeholder="Select part type">
-                            {PART_TYPE_OPTIONS.map(opt => (
-                                <Select.Option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                </Select.Option>
-                            ))}
-                        </Select>
+                        <Select placeholder="Select part type" options={PART_TYPE_OPTIONS} />
                     </Form.Item>
                     <Form.Item name="qty" label="Good Qty" rules={[{ required: true, message: 'Please enter good qty' }]}>
                         <InputNumber placeholder="100" min={0} style={{ width: '100%' }} />

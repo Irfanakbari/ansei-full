@@ -43,6 +43,7 @@ export interface ShoppingEntity {
   QtyPick: number;
   Type: string;
   Description: string | null;
+  Destination?: string | null;
   CreatedAt: string;
   UpdatedAt: string;
   CreatedBy: string;
@@ -133,6 +134,7 @@ interface ShoppingState {
   };
 }
 export interface ShoppingQuery {
+  scope?: "OPERATIONS";
   purpose?: string;
   page?: number;
   limit?: number;
@@ -147,7 +149,7 @@ const initialState: ShoppingState = {
   checkLoading: false,
   error: null,
   checkRequirement: null,
-  query: { page: 1, limit: 50, purpose: "STANDARD" },
+  query: { page: 1, limit: 50, scope: "OPERATIONS" },
   pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 

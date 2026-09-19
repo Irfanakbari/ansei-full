@@ -61,6 +61,11 @@ export class CreateShoppingDto {
 }
 
 export class ShoppingQueryDto extends SearchPaginationQueryDto {
+  @ApiPropertyOptional({ enum: ['OPERATIONS'] })
+  @IsOptional()
+  @IsEnum(['OPERATIONS'])
+  scope?: 'OPERATIONS';
+
   @ApiPropertyOptional({
     enum: [
       'STANDARD',

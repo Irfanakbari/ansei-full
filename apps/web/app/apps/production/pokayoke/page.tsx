@@ -4,13 +4,14 @@
 import React, { useEffect, useRef } from 'react';
 import { Table, Card, Breadcrumb, App, Input, Button, Select, Tag, Tooltip, Space } from 'antd';
 import type { InputRef } from 'antd';
-import { ReloadOutlined, SearchOutlined, ScanOutlined } from '@ant-design/icons';
+import { ReloadOutlined, SearchOutlined, ScanOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchPokayoke, PokayokeScanEntity, setFilters } from '@/store/features/production/pokayoke/pokayokeSlice';
 import ScanPokayokeModal from './_components/ScanPokayokeModal';
+import FinishGoodLinkedModal from '@/components/production/FinishGoodLinkedModal';
 
 const formatDateTime = (val: string | null | undefined) => {
     if (!val) return '-';
@@ -35,6 +36,7 @@ export default function PokayokePage() {
     const { data, loading, pagination, filters } = useSelector((state: RootState) => state.pokayoke);
     const searchInput = useRef<InputRef>(null);
     const [isScanModalVisible, setIsScanModalVisible] = React.useState(false);
+    const [linkedFinishGood, setLinkedFinishGood] = React.useState<string | null>(null);
 
     useEffect(() => {
         dispatch(fetchPokayoke(filters));
@@ -80,10 +82,11 @@ export default function PokayokePage() {
                     onChange={(val) => setSelectedKeys(val ? [val] : [])}
                     style={{ width: '100%', marginBottom: 8 }}
                     allowClear
-                >
-                    <Select.Option value="SUKSES">SUKSES</Select.Option>
-                    <Select.Option value="GAGAL">GAGAL</Select.Option>
-                </Select>
+                    options={[
+                        { value: 'SUKSES', label: 'SUKSES' },
+                        { value: 'GAGAL', label: 'GAGAL' },
+                    ]}
+                />
                 <Space>
                     <Button type="primary" onClick={() => confirm()} size="small" style={{ width: 60 }}>
                         OK
@@ -122,17 +125,16 @@ export default function PokayokePage() {
             render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
         },
         {
-            title: 'Part Number',
+            title: 'Finish Good',
             dataIndex: 'partNumber',
             key: 'partNumber',
             ...getColumnSearchProps('partNumber'),
-            render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
-        },
-        {
-            title: 'Part Name',
-            dataIndex: 'partName',
-            key: 'partName',
-            render: (val: string) => <span style={{ fontSize: 11 }}>{val}</span>,
+            render: (val: string, record: PokayokeScanEntity) => (
+                <Space size={4}>
+                    <Button type="text" size="small" aria-label={`View Finish Good ${val}`} icon={<ArrowRightOutlined style={{ color: '#d4a106', fontSize: 12 }} />} onClick={() => setLinkedFinishGood(val)} style={{ width: 20, minWidth: 20, height: 20, padding: 0 }} />
+                    <Tooltip title={`${val} - ${record.partName}`}><code style={{ fontSize: 10 }}>{val}</code></Tooltip>
+                </Space>
+            ),
         },
         {
             title: 'Status',
@@ -206,6 +208,7 @@ export default function PokayokePage() {
                 onClose={() => setIsScanModalVisible(false)}
                 onSuccess={handleScanSuccess}
             />
+            <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood} onClose={() => setLinkedFinishGood(null)} />
         </Card>
     );
 }

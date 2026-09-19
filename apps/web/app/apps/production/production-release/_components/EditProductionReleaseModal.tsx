@@ -161,7 +161,7 @@ const EditProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data, o
                 <Typography.Title level={5}>Attachments</Typography.Title>
                 <Table<ProductionAttachment> columns={columns} dataSource={attachments} rowKey="Id" size="small" pagination={false} loading={attachmentLoading} locale={{ emptyText: 'No attachments' }} />
                 <Form.Item label="Add files" required={status === 'COMPLETED' && !noAttachment} style={{ marginTop: 16 }}>
-                    <Upload multiple maxCount={10} fileList={fileList} disabled={noAttachment || data.Status === 'COMPLETED'} beforeUpload={(file) => { if (!validateFile(file)) return Upload.LIST_IGNORE; setFileList((current) => current.length >= 10 ? current : [...current, file]); return false; }} onRemove={(file) => setFileList((current) => current.filter((item) => item.uid !== file.uid))}>
+                    <Upload multiple maxCount={10} fileList={fileList} disabled={noAttachment || data.Status === 'COMPLETED'} beforeUpload={(file) => { if (!validateFile(file)) return Upload.LIST_IGNORE; setFileList((current) => current.length >= 10 ? current : [...current, file]); return false; }} onChange={({ fileList: nextFileList }) => setFileList(nextFileList.slice(0, 10))} onRemove={(file) => setFileList((current) => current.filter((item) => item.uid !== file.uid))}>
                         <Button icon={<UploadOutlined />} disabled={noAttachment || data.Status === 'COMPLETED'}>Select files</Button>
                     </Upload>
                     <Typography.Text type="secondary">Up to 10 files per upload, 10 MB each. PDF and image files only.</Typography.Text>

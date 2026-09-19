@@ -268,7 +268,7 @@ export default function TraceabilityView() {
                         title: "Case",
                         render: (_, r) => (
                           <Link
-                            href={`/apps/production/shopping/material-ng?ngCaseId=${r.Id}`}
+                            href={`/apps/production/material-ng?ngCaseId=${r.Id}`}
                           >
                             {r.CaseNumber}
                           </Link>

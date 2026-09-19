@@ -135,6 +135,8 @@ export class ShoppingService {
         }
       : {};
     if (query.purpose) where.Purpose = query.purpose;
+    else if (query.scope === 'OPERATIONS')
+      where.Purpose = { in: ['STANDARD', 'NON_PRODUCTION'] };
     const [totalItems, data] = await Promise.all([
       this.prisma.shopping.count({ where }),
       this.prisma.shopping.findMany({

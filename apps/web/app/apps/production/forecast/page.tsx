@@ -16,7 +16,7 @@ import DetailForecastModal from './_components/DetailForecastModal';
 import CreateForecastModal from './_components/CreateForecastModal';
 import EditForecastModal from './_components/EditForecastModal';
 import ImportForecastModal from './_components/ImportForecastModal';
-import FinishGoodLinkedModal from './_components/LinkedModal/FinishGoodLinkedModal';
+import FinishGoodLinkedModal from '@/components/production/FinishGoodLinkedModal';
 import { formatDateTime } from '@/lib/utils/dateTime';
 
 const STATUS_COLORS: Record<string, string> = {

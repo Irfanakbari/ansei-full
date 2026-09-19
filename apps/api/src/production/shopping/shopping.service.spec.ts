@@ -46,6 +46,7 @@ describe('ShoppingService', () => {
         findUniqueOrThrow: jest.fn().mockResolvedValue({ Id: 1 }),
       },
       shopping: {
+        count: jest.fn().mockResolvedValue(0),
         create: jest.fn(),
         findMany: jest.fn(),
         findUnique: jest.fn(),
@@ -99,6 +100,23 @@ describe('ShoppingService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('findAll', () => {
+    it('keeps NG replacement and legacy records out of the operational shopping view', async () => {
+      prismaService.shopping.findMany.mockResolvedValue([]);
+
+      await service.findAll({ page: 1, limit: 50, scope: 'OPERATIONS' });
+
+      expect(prismaService.shopping.count).toHaveBeenCalledWith({
+        where: { Purpose: { in: ['STANDARD', 'NON_PRODUCTION'] } },
+      });
+      expect(prismaService.shopping.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { Purpose: { in: ['STANDARD', 'NON_PRODUCTION'] } },
+        }),
+      );
+    });
   });
 
   describe('getForecastPickingStatus', () => {

@@ -24,6 +24,8 @@ import {
   CloseCircleOutlined,
   DeleteOutlined,
   PlusOutlined,
+  EyeOutlined,
+  ArrowRightOutlined,
 } from "@ant-design/icons";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import ButtonToolbar from "@/components/ButtonToolbar";
@@ -35,21 +37,15 @@ import {
   validateProductionReport,
   unvalidateProductionReport,
   deleteProductionReport,
-  PartType,
   setFilters,
 } from "@/store/features/production/productionReport/productionReportSlice";
 import CreateProductionReportModal from "./_components/CreateProductionReportModal";
+import DetailProductionReportModal from "./_components/DetailProductionReportModal";
+import FinishGoodLinkedModal from "@/components/production/FinishGoodLinkedModal";
 
 const formatDate = (val: string | null | undefined) => {
   if (!val) return "-";
   return new Date(val).toLocaleDateString("id-ID");
-};
-
-const RECORD_TYPE_COLORS: Record<string, string> = {
-  ONE: "blue",
-  TWO: "green",
-  THREE: "orange",
-  FOUR: "purple",
 };
 
 export default function ProductionReportPage() {
@@ -62,6 +58,8 @@ export default function ProductionReportPage() {
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [detailReport, setDetailReport] = useState<ProductionReportEntity | null>(null);
+  const [linkedFinishGood, setLinkedFinishGood] = useState<string | null>(null);
 
   const searchInput = useRef<InputRef>(null);
 
@@ -140,10 +138,11 @@ export default function ProductionReportPage() {
           onChange={(val) => setSelectedKeys(val ? [val] : [])}
           style={{ width: "100%", marginBottom: 8 }}
           allowClear
-        >
-          <Select.Option value="validated">Validated</Select.Option>
-          <Select.Option value="pending">Pending</Select.Option>
-        </Select>
+          options={[
+            { value: "validated", label: "Validated" },
+            { value: "pending", label: "Pending" },
+          ]}
+        />
         <Space>
           <Button
             type="primary"
@@ -186,32 +185,15 @@ export default function ProductionReportPage() {
         new Date(a.date).getTime() - new Date(b.date).getTime(),
     },
     {
-      title: "Time",
-      dataIndex: "time",
-      key: "time",
-      render: (val: string | null) => val || "-",
-    },
-    {
-      title: "Part Type",
-      dataIndex: "recordType",
-      key: "recordType",
-      render: (val: PartType) => (
-        <Tag color={RECORD_TYPE_COLORS[val] || "default"}>{val}</Tag>
-      ),
-    },
-    {
       title: "Finish Good",
       dataIndex: "finishGoodId",
       key: "finishGoodId",
       ...getColumnSearchProps("fgData.PartNumber"),
       render: (_: any, record: ProductionReportEntity) => (
-        <Tooltip
-          title={`${record.fgData?.PartNumber} - ${record.fgData?.PartName}`}
-        >
-          <code style={{ fontSize: 10 }}>
-            {record.fgData?.PartNumber || record.finishGoodId}
-          </code>
-        </Tooltip>
+        <Space size={4}>
+          <Button type="text" size="small" aria-label={`View Finish Good ${record.fgData?.PartNumber || record.finishGoodId}`} icon={<ArrowRightOutlined style={{ color: "#d4a106", fontSize: 12 }} />} onClick={(event) => { event.stopPropagation(); setLinkedFinishGood(record.fgData?.PartNumber || record.finishGoodId); }} style={{ width: 20, minWidth: 20, height: 20, padding: 0 }} />
+          <Tooltip title={`${record.fgData?.PartNumber} - ${record.fgData?.PartName}`}><code style={{ fontSize: 10 }}>{record.fgData?.PartNumber || record.finishGoodId}</code></Tooltip>
+        </Space>
       ),
     },
     {
@@ -239,14 +221,6 @@ export default function ProductionReportPage() {
         val > 0 ? <span style={{ color: "#ff4d4f" }}>{val}</span> : "-",
     },
     {
-      title: "Stop (min)",
-      dataIndex: "stopMinute",
-      key: "stopMinute",
-      align: "right" as const,
-      render: (val: number) =>
-        val > 0 ? <span style={{ color: "#faad14" }}>{val}</span> : "-",
-    },
-    {
       title: "Validated",
       dataIndex: "validatedAt",
       key: "validatedAt",
@@ -257,12 +231,6 @@ export default function ProductionReportPage() {
         ) : (
           <Tag color="warning">Pending</Tag>
         ),
-    },
-    {
-      title: "Validated By",
-      dataIndex: "validatedBy",
-      key: "validatedBy",
-      render: (val: string | null) => val || "-",
     },
   ];
 
@@ -423,6 +391,12 @@ export default function ProductionReportPage() {
           onClick={() => setIsCreateModalVisible(true)}
         />
         <ButtonToolbar
+          title="Detail"
+          icon={<EyeOutlined />}
+          onClick={() => setDetailReport(selectedRow ?? null)}
+          enable={selectedRowKeys.length === 1}
+        />
+        <ButtonToolbar
           title="Validate"
           icon={<CheckCircleOutlined />}
           onClick={handleValidate}
@@ -445,8 +419,8 @@ export default function ProductionReportPage() {
         <Link
           href={
             selectedRow?.forecastId
-              ? `/apps/production/shopping/material-ng?poId=${encodeURIComponent(selectedRow.forecastId)}&productionReportId=${selectedRow.id}`
-              : "/apps/production/shopping/material-ng"
+              ? `/apps/production/material-ng?poId=${encodeURIComponent(selectedRow.forecastId)}&productionReportId=${selectedRow.id}`
+              : "/apps/production/material-ng"
           }
         >
           Report Material NG
@@ -493,6 +467,8 @@ export default function ProductionReportPage() {
           );
         }}
       />
+      <DetailProductionReportModal report={detailReport} onClose={() => setDetailReport(null)} />
+      <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood} onClose={() => setLinkedFinishGood(null)} />
     </Card>
   );
 }

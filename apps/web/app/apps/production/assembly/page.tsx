@@ -22,18 +22,20 @@ import {
   ReloadOutlined,
   SearchOutlined,
   PlusOutlined,
+  ArrowRightOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import EndAssemblyModal from "./_components/EndAssemblyModal";
 import CreateAssemblyModal from "./_components/CreateAssemblyModal";
+import AssemblyDetailModal from "./_components/AssemblyDetailModal";
+import FinishGoodLinkedModal from "@/components/production/FinishGoodLinkedModal";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import ButtonToolbar from "@/components/ButtonToolbar";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/store";
 import {
   fetchAssemblySessions,
-  fetchAssemblyProgress,
   cancelAssembly,
-  type AssemblyProgress,
   type AssemblySession,
   type AssemblyQuery,
 } from "@/store/features/production/assembly/assemblySlice";
@@ -44,6 +46,8 @@ export default function AssemblyPage() {
   const user = useSelector((state: RootState) => state.auth.user);
   const [ending, setEnding] = useState<AssemblySession | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [detailSession, setDetailSession] = useState<AssemblySession | null>(null);
+  const [linkedFinishGood, setLinkedFinishGood] = useState<string | null>(null);
   const canCreate =
     user?.RoleName === "SUPER" ||
     user?.GlobalRoles?.includes("SUPER_ADMINISTRATOR") ||
@@ -61,39 +65,11 @@ export default function AssemblyPage() {
   );
   const [query, setQuery] = useState<AssemblyQuery>({ page: 1, limit: 50 });
   const [selected, setSelected] = useState<AssemblySession | null>(null);
-  const [progress, setProgress] = useState<AssemblyProgress | null>(null);
-  const [progressError, setProgressError] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [saving, setSaving] = useState(false);
   const [form] = Form.useForm<{ reason: string }>();
   useEffect(() => {
     void dispatch(fetchAssemblySessions(query));
   }, [dispatch, query]);
-  useEffect(() => {
-    let current = true;
-    dispatch(
-      fetchAssemblyProgress({
-        productionReleaseId: query.productionReleaseId,
-        labelNumber: query.labelNumber,
-      }),
-    )
-      .unwrap()
-      .then((value) => {
-        if (current) {
-          setProgress(value);
-          setProgressError(null);
-        }
-      })
-      .catch((err) => {
-        if (current) {
-          setProgress(null);
-          setProgressError(String(err));
-        }
-      });
-    return () => {
-      current = false;
-    };
-  }, [dispatch, query.productionReleaseId, query.labelNumber, refreshKey]);
   const searchFilter = (
     key: "labelNumber" | "productionReleaseId" | "manPowerNik",
     placeholder: string,
@@ -163,13 +139,10 @@ export default function AssemblyPage() {
       title: "Finish Good",
       key: "part",
       render: (_, row) => (
-        <span>
-          <code style={{ fontSize: 10 }}>{row.LabelData.FinishGoodId}</code>
-          <br />
-          <span style={{ fontSize: 11 }}>
-            {row.LabelData.PartData.PartName}
-          </span>
-        </span>
+        <Space size={4}>
+          <Button type="text" size="small" aria-label={`View Finish Good ${row.LabelData.FinishGoodId}`} icon={<ArrowRightOutlined style={{ color: "#d4a106", fontSize: 12 }} />} onClick={() => setLinkedFinishGood(row.LabelData.FinishGoodId)} style={{ width: 20, minWidth: 20, height: 20, padding: 0 }} />
+          <span>{row.LabelData.FinishGoodId}</span>
+        </Space>
       ),
     },
     {
@@ -182,12 +155,6 @@ export default function AssemblyPage() {
       dataIndex: "ManPowerName",
       key: "manPowerNik",
       ...searchFilter("manPowerNik", "Search manpower NIK"),
-    },
-    {
-      title: "Qty/Box",
-      key: "qty",
-      align: "right",
-      render: (_, row) => row.LabelData.QtyThisBox,
     },
     {
       title: "Status",
@@ -219,42 +186,12 @@ export default function AssemblyPage() {
       ),
     },
     {
-      title: "Started",
-      dataIndex: "StartedAt",
-      render: (value) => new Date(value).toLocaleString("id-ID"),
-    },
-    {
-      title: "Ended",
-      dataIndex: "EndedAt",
-      render: (value) =>
-        value ? new Date(value).toLocaleString("id-ID") : "—",
-    },
-    {
-      title: "Duration (HH:mm)",
-      key: "duration",
-      render: (_, row) => {
-        if (!row.EndedAt) return "—";
-        const minutes = Math.max(
-          0,
-          Math.floor(
-            (Date.parse(row.EndedAt) - Date.parse(row.StartedAt)) / 60000,
-          ),
-        );
-        return (
-          String(Math.floor(minutes / 60)).padStart(2, "0") +
-          ":" +
-          String(minutes % 60).padStart(2, "0")
-        );
-      },
-    },
-    { title: "Cancellation reason", dataIndex: "CancelReason" },
-    {
       title: "Action",
       key: "action",
-      render: (_, row) =>
-        row.Status === "IN_PROGRESS" && (
+      render: (_, row) => (
           <Space>
-            {canCreate && (
+            <Button size="small" icon={<EyeOutlined />} onClick={() => setDetailSession(row)}>Detail</Button>
+            {row.Status === "IN_PROGRESS" && canCreate && (
               <Button
                 type="primary"
                 size="small"
@@ -263,7 +200,7 @@ export default function AssemblyPage() {
                 End Assembly
               </Button>
             )}
-            {canCancel && (
+            {row.Status === "IN_PROGRESS" && canCancel && (
               <Button
                 danger
                 size="small"
@@ -291,7 +228,6 @@ export default function AssemblyPage() {
         }),
       ).unwrap();
       setSelected(null);
-      setRefreshKey((value) => value + 1);
       message.success("Assembly cancelled");
       void dispatch(fetchAssemblySessions(query));
     } catch (err) {
@@ -325,38 +261,26 @@ export default function AssemblyPage() {
           icon={<ReloadOutlined />}
           loading={loading}
           onClick={() => {
-            setRefreshKey((value) => value + 1);
             void dispatch(fetchAssemblySessions(query));
           }}
         />
       </ToolbarWrapper>
-      {selected && (
+      {detailSession && (
         <Space style={{ margin: "8px 0" }}>
           {can("IPCS.MATERIAL_NG_CREATE") && (
             <Link
-              href={`/apps/production/shopping/material-ng?poId=${encodeURIComponent(selected.LabelData.ForecastId)}&assemblySessionId=${selected.Id}`}
+              href={`/apps/production/material-ng?poId=${encodeURIComponent(detailSession.LabelData.ForecastId)}&assemblySessionId=${detailSession.Id}`}
             >
               Report Material NG
             </Link>
           )}
           {can("IPCS.TRACEABILITY_READ") && (
             <Link
-              href={`/apps/traceability?poId=${encodeURIComponent(selected.LabelData.ForecastId)}&label=${encodeURIComponent(selected.LabelData.LabelNumber)}`}
+              href={`/apps/traceability?poId=${encodeURIComponent(detailSession.LabelData.ForecastId)}&label=${encodeURIComponent(detailSession.LabelData.LabelNumber)}`}
             >
               View Traceability
             </Link>
           )}
-        </Space>
-      )}
-      <p className="mb-2">Label progress in active releases (all manpower)</p>
-      {progressError && <Alert type="warning" title={progressError} />}
-      {progress && (
-        <Space wrap className="mb-4">
-          <Tag>Waiting shopping: {progress.waitingShopping}</Tag>
-          <Tag>Ready for Assy: {progress.ready}</Tag>
-          <Tag color="processing">In progress: {progress.inProgress}</Tag>
-          <Tag color="success">Completed: {progress.completed}</Tag>
-          <Tag>Passthrough: {progress.notRequired}</Tag>
         </Space>
       )}
       {error && <Alert type="error" title={error} showIcon />}
@@ -396,7 +320,6 @@ export default function AssemblyPage() {
           onClose={() => setEnding(null)}
           onCompleted={() => {
             setEnding(null);
-            setRefreshKey((value) => value + 1);
             void dispatch(fetchAssemblySessions(query));
           }}
         />
@@ -406,7 +329,6 @@ export default function AssemblyPage() {
           onClose={() => setCreateOpen(false)}
           onCreated={() => {
             setCreateOpen(false);
-            setRefreshKey((value) => value + 1);
             void dispatch(fetchAssemblySessions(query));
           }}
         />
@@ -434,6 +356,8 @@ export default function AssemblyPage() {
           </Form.Item>
         </Form>
       </Modal>
+      <AssemblyDetailModal session={detailSession} onClose={() => setDetailSession(null)} />
+      <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood} onClose={() => setLinkedFinishGood(null)} />
     </Card>
   );
 }
