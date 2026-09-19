@@ -2,11 +2,19 @@
   "repository": {
     "source": "combined-git-history",
     "upstreamRepository": "https://github.com/Vuteq-Indonesia/api-ansei-revamp",
-    "generatedAt": "2026-09-17",
-    "commitCount": 48,
+    "generatedAt": "2026-09-19",
+    "commitCount": 49,
     "format": "standardized-curated-commit-summaries"
   },
   "commits": [
+    {
+      "hash": "74cc15724350a53157a74a578e80954330b8c9f7",
+      "shortHash": "74cc157",
+      "author": "irfanakbari",
+      "date": "2026-09-19T22:29:05+07:00",
+      "category": "Feature",
+      "summary": "Add unified BOM and traceability lists with golden-arrow modal details and Finish Good drill-downs"
+    },
     {
       "hash": "release-1.18.0",
       "shortHash": "v1.18.0",
