@@ -1,3 +1,4 @@
+import { auditedWrite } from '../../common/helpers/audited-transaction.helper';
 import {
   Injectable,
   NotFoundException,
@@ -127,24 +128,26 @@ export class MaterialService {
         );
       }
 
-      const result = await this.prisma.material.create({
-        data: {
-          PartNumber: dto.partNumber,
-          PartName: dto.partName,
-          Supplier: dto.supplier,
-          SupplierId: dto.supplierId,
-          SatuanId: dto.satuanId,
-          RackLocation: dto.rackLocation,
-          QtyRack: 0,
-          QtyWarehouse: 0,
-          MinimumStock: dto.minimumStock ?? 0,
-          MaximumStock: dto.maximumStock ?? 0,
-          CreatedBy: createdBy,
-        },
-        include: {
-          SatuanData: true,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.material.create({
+          data: {
+            PartNumber: dto.partNumber,
+            PartName: dto.partName,
+            Supplier: dto.supplier,
+            SupplierId: dto.supplierId,
+            SatuanId: dto.satuanId,
+            RackLocation: dto.rackLocation,
+            QtyRack: 0,
+            QtyWarehouse: 0,
+            MinimumStock: dto.minimumStock ?? 0,
+            MaximumStock: dto.maximumStock ?? 0,
+            CreatedBy: createdBy,
+          },
+          include: {
+            SatuanData: true,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -222,22 +225,24 @@ export class MaterialService {
         location: 'material.service.ts:112',
       });
 
-      const result = await this.prisma.material.update({
-        where: { Id: id },
-        data: {
-          PartNumber: dto.partNumber,
-          PartName: dto.partName,
-          Supplier: dto.supplier,
-          SupplierId: dto.supplierId,
-          SatuanId: dto.satuanId,
-          RackLocation: dto.rackLocation,
-          MinimumStock: dto.minimumStock,
-          MaximumStock: dto.maximumStock,
-        },
-        include: {
-          SatuanData: true,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.material.update({
+          where: { Id: id },
+          data: {
+            PartNumber: dto.partNumber,
+            PartName: dto.partName,
+            Supplier: dto.supplier,
+            SupplierId: dto.supplierId,
+            SatuanId: dto.satuanId,
+            RackLocation: dto.rackLocation,
+            MinimumStock: dto.minimumStock,
+            MaximumStock: dto.maximumStock,
+          },
+          include: {
+            SatuanData: true,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -291,9 +296,11 @@ export class MaterialService {
         location: 'material.service.ts:162',
       });
 
-      await this.prisma.material.delete({
-        where: { Id: id },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.material.delete({
+          where: { Id: id },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -480,16 +487,18 @@ export class MaterialService {
 
       // ========== PERFORM DISCONTINUE ==========
       const now = new Date();
-      const result = await this.prisma.material.update({
-        where: { PartNumber: partNumber },
-        data: {
-          IsActive: false,
-          DiscontinueDate: now,
-        },
-        include: {
-          SatuanData: true,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.material.update({
+          where: { PartNumber: partNumber },
+          data: {
+            IsActive: false,
+            DiscontinueDate: now,
+          },
+          include: {
+            SatuanData: true,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -563,16 +572,18 @@ export class MaterialService {
       }
 
       // Perform reactivation
-      const result = await this.prisma.material.update({
-        where: { PartNumber: partNumber },
-        data: {
-          IsActive: true,
-          DiscontinueDate: null,
-        },
-        include: {
-          SatuanData: true,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.material.update({
+          where: { PartNumber: partNumber },
+          data: {
+            IsActive: true,
+            DiscontinueDate: null,
+          },
+          include: {
+            SatuanData: true,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

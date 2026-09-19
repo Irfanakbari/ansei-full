@@ -1,3 +1,4 @@
+import { auditedWrite } from '../../common/helpers/audited-transaction.helper';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -75,11 +76,13 @@ export class SatuanService {
         location: 'satuan.service.ts:35',
       });
 
-      const result = await this.prisma.satuan.create({
-        data: {
-          Name: dto.name,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.satuan.create({
+          data: {
+            Name: dto.name,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -134,12 +137,14 @@ export class SatuanService {
         location: 'satuan.service.ts:79',
       });
 
-      const result = await this.prisma.satuan.update({
-        where: { Id: id },
-        data: {
-          ...(dto.name !== undefined && { Name: dto.name }),
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.satuan.update({
+          where: { Id: id },
+          data: {
+            ...(dto.name !== undefined && { Name: dto.name }),
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -193,9 +198,11 @@ export class SatuanService {
         location: 'satuan.service.ts:119',
       });
 
-      await this.prisma.satuan.delete({
-        where: { Id: id },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.satuan.delete({
+          where: { Id: id },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

@@ -34,7 +34,7 @@ describe('LogProcessService', () => {
   let prismaService: {
     logProcess: {
       create: jest.Mock;
-      update: jest.Mock;
+      updateMany: jest.Mock;
     };
     logProcessDetail: {
       create: jest.Mock;
@@ -45,7 +45,7 @@ describe('LogProcessService', () => {
     prismaService = {
       logProcess: {
         create: jest.fn(),
-        update: jest.fn(),
+        updateMany: jest.fn(),
       },
       logProcessDetail: {
         create: jest.fn(),
@@ -146,7 +146,7 @@ describe('LogProcessService', () => {
       expect(result.Type).toBe('ERROR');
     });
 
-    it('should increment message counter for each log', async () => {
+    it('should assign independent message IDs to each log', async () => {
       prismaService.logProcessDetail.create.mockResolvedValue(
         mockLogProcessDetail,
       );
@@ -160,7 +160,7 @@ describe('LogProcessService', () => {
 
       expect(prismaService.logProcessDetail.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          MessageId: 'COMM-001',
+          MessageId: expect.stringMatching(/^COMM-[0-9a-f-]{36}$/),
         }),
       });
 
@@ -173,7 +173,7 @@ describe('LogProcessService', () => {
 
       expect(prismaService.logProcessDetail.create).toHaveBeenLastCalledWith({
         data: expect.objectContaining({
-          MessageId: 'COMM-002',
+          MessageId: expect.stringMatching(/^COMM-[0-9a-f-]{36}$/),
         }),
       });
     });
@@ -208,9 +208,9 @@ describe('LogProcessService', () => {
         ([argument]) => argument.data,
       );
       expect(calls.map((call) => [call.ProcessId, call.MessageId])).toEqual([
-        ['process-a', 'COMM-001'],
-        ['process-b', 'COMM-001'],
-        ['process-a', 'COMM-002'],
+        ['process-a', expect.stringMatching(/^COMM-[0-9a-f-]{36}$/)],
+        ['process-b', expect.stringMatching(/^COMM-[0-9a-f-]{36}$/)],
+        ['process-a', expect.stringMatching(/^COMM-[0-9a-f-]{36}$/)],
       ]);
     });
 
@@ -233,7 +233,7 @@ describe('LogProcessService', () => {
       expect(prismaService.logProcessDetail.create).not.toHaveBeenCalled();
     });
 
-    it('should reset counter when reaching 999', async () => {
+    it('should continue issuing unique IDs after many messages', async () => {
       prismaService.logProcessDetail.create.mockResolvedValue(
         mockLogProcessDetail,
       );
@@ -264,7 +264,7 @@ describe('LogProcessService', () => {
 
       expect(prismaService.logProcessDetail.create).toHaveBeenLastCalledWith({
         data: expect.objectContaining({
-          MessageId: 'COMM-001',
+          MessageId: expect.stringMatching(/^COMM-[0-9a-f-]{36}$/),
         }),
       });
     });
@@ -272,7 +272,7 @@ describe('LogProcessService', () => {
 
   describe('completeProcess', () => {
     it('should update process status to SUCCESS', async () => {
-      prismaService.logProcess.update.mockResolvedValue({
+      prismaService.logProcess.updateMany.mockResolvedValue({
         ...mockLogProcess,
         ProcessStatus: 'SUCCESS',
         ProcessEnd: new Date(),
@@ -283,8 +283,8 @@ describe('LogProcessService', () => {
 
       await service.completeProcess('PR20260606120000123456', 'SUCCESS');
 
-      expect(prismaService.logProcess.update).toHaveBeenCalledWith({
-        where: { ProcessId: 'PR20260606120000123456' },
+      expect(prismaService.logProcess.updateMany).toHaveBeenCalledWith({
+        where: { ProcessId: 'PR20260606120000123456', ProcessEnd: null },
         data: expect.objectContaining({
           ProcessStatus: 'SUCCESS',
           ProcessEnd: expect.any(Date),
@@ -293,7 +293,7 @@ describe('LogProcessService', () => {
     });
 
     it('should update process status to FAILED', async () => {
-      prismaService.logProcess.update.mockResolvedValue({
+      prismaService.logProcess.updateMany.mockResolvedValue({
         ...mockLogProcess,
         ProcessStatus: 'FAILED',
         ProcessEnd: new Date(),
@@ -304,8 +304,8 @@ describe('LogProcessService', () => {
 
       await service.completeProcess('PR20260606120000123456', 'FAILED');
 
-      expect(prismaService.logProcess.update).toHaveBeenCalledWith({
-        where: { ProcessId: 'PR20260606120000123456' },
+      expect(prismaService.logProcess.updateMany).toHaveBeenCalledWith({
+        where: { ProcessId: 'PR20260606120000123456', ProcessEnd: null },
         data: expect.objectContaining({
           ProcessStatus: 'FAILED',
         }),
@@ -313,7 +313,7 @@ describe('LogProcessService', () => {
     });
 
     it('should add end message when provided', async () => {
-      prismaService.logProcess.update.mockResolvedValue({
+      prismaService.logProcess.updateMany.mockResolvedValue({
         ...mockLogProcess,
         ProcessStatus: 'SUCCESS',
         ProcessEnd: new Date(),
@@ -337,7 +337,7 @@ describe('LogProcessService', () => {
     });
 
     it('should add ERROR log when status is FAILED with end message', async () => {
-      prismaService.logProcess.update.mockResolvedValue({
+      prismaService.logProcess.updateMany.mockResolvedValue({
         ...mockLogProcess,
         ProcessStatus: 'FAILED',
         ProcessEnd: new Date(),
@@ -363,7 +363,7 @@ describe('LogProcessService', () => {
   });
 
   describe('resetCounter', () => {
-    it('should reset message counter to 0', async () => {
+    it('should preserve the compatibility reset operation', async () => {
       prismaService.logProcessDetail.create.mockResolvedValue(
         mockLogProcessDetail,
       );
@@ -389,7 +389,7 @@ describe('LogProcessService', () => {
 
       expect(prismaService.logProcessDetail.create).toHaveBeenLastCalledWith({
         data: expect.objectContaining({
-          MessageId: 'COMM-001',
+          MessageId: expect.stringMatching(/^COMM-[0-9a-f-]{36}$/),
         }),
       });
     });

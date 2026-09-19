@@ -1,14 +1,16 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-16 */
 import { NextResponse } from 'next/server';
 import { getApiUrl } from '@/lib/config';
+import { sso } from '@/lib/sso';
 
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const response = await fetch(`${getApiUrl('v1', request)}/production/production-report`, {
+        const response = await sso.fetch(request, `${getApiUrl('v1', request)}/production/production-report`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Idempotency-Key': request.headers.get('idempotency-key') ?? '',
             },
             body: JSON.stringify(body),
         });
@@ -20,7 +22,10 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json(data, { status: 201 });
-    } catch {
+    } catch (error: unknown) {
+        if (error instanceof Error && error.name === 'VuteqAuthenticationError') {
+            return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
+        }
         return NextResponse.json(
             { message: 'Gagal mengirim laporan produksi ke server' },
             { status: 500 },

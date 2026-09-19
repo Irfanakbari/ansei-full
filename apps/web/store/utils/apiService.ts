@@ -20,6 +20,7 @@
  */
 
 import type { ApiVersion } from '@/lib/config';
+import { commandIdentity } from './commandIdentity';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -188,9 +189,19 @@ async function request<T>(
   } = options;
 
   const url = buildUrl(path, params, apiVersion);
+  const bodyCommand = method === 'POST' && (
+    path === '/production/shopping' || path.startsWith('/production/material-ng-cases')
+  ) && typeof body === 'object' && body !== null && !Array.isArray(body);
+  const commandPayload = bodyCommand ? { ...body as Record<string, unknown>, requestId: undefined } : body;
+  const protectedCommand = method !== 'GET' && (
+    bodyCommand || /^\/production\/forecast\/[^/]+\/print-tag$/.test(path) || path.startsWith('/master/bom-revisions') || path === '/production/production-report' || /^\/warehouse\/incoming\/[^/]+\/receive$/.test(path)
+  );
+  const command = protectedCommand ? await commandIdentity(method, url, commandPayload) : undefined;
+  const outgoingBody = bodyCommand && command ? { ...commandPayload as Record<string, unknown>, requestId: command.id } : body;
 
   const requestHeaders: Record<string, string> = {
     ...headers,
+    ...(command ? { 'Idempotency-Key': command.id } : {}),
   };
   delete requestHeaders.Authorization;
   delete requestHeaders.authorization;
@@ -211,8 +222,8 @@ async function request<T>(
       method,
       headers: requestHeaders,
       credentials: 'include',
-      body: body
-        ? (options.isFormData ? (body as FormData) : JSON.stringify(body))
+      body: outgoingBody
+        ? (options.isFormData ? (outgoingBody as FormData) : JSON.stringify(outgoingBody))
         : undefined,
       signal: finalSignal,
     });
@@ -268,6 +279,7 @@ async function request<T>(
       );
     }
 
+    command?.complete();
     return data as T;
   } catch (error) {
     clearTimeout(timeoutId);

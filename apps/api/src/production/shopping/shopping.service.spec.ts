@@ -1,3 +1,16 @@
+// These unit tests inject frozen requirement fixtures; real snapshot persistence is exercised by phase-one.database.spec.ts.
+jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
+  ...jest.requireActual('../../common/helpers/bom-snapshot.helper'),
+  orderBom: () =>
+    Promise.resolve({
+      Id: 'snapshot',
+      Revision: { Revision: 1 },
+      Lines: [{ Id: 'line', MaterialId: 1, PartNumber: 'MAT-001' }],
+    }),
+  snapshotBomEntries: (tx: {
+    snapshotRequirements: { findMany: () => Promise<unknown> };
+  }) => tx.snapshotRequirements.findMany(),
+}));
 import { Test, TestingModule } from '@nestjs/testing';
 import { ShoppingService } from './shopping.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -13,15 +26,25 @@ describe('ShoppingService', () => {
 
   beforeEach(async () => {
     prismaService = {
+      materialNG: { findMany: jest.fn().mockResolvedValue([]) },
+      businessCommand: {
+        findUnique: jest.fn(),
+        create: jest.fn().mockResolvedValue({ Id: 'command' }),
+        update: jest.fn(),
+      },
+      productionTraceEvent: { create: jest.fn() },
       labelData: {
         findMany: jest.fn().mockResolvedValue([{ RequiresAssembly: false }]),
       },
       forecast: { findUnique: jest.fn(), findUniqueOrThrow: jest.fn() },
       productionRelease: { findUnique: jest.fn() },
-      billOfMaterials: { findMany: jest.fn() },
+      snapshotRequirements: { findMany: jest.fn() },
       finishGood: { findUnique: jest.fn(), update: jest.fn() },
       boxQTY: { findUnique: jest.fn() },
-      material: { findUnique: jest.fn() },
+      material: {
+        findUnique: jest.fn(),
+        findUniqueOrThrow: jest.fn().mockResolvedValue({ Id: 1 }),
+      },
       shopping: {
         create: jest.fn(),
         findMany: jest.fn(),
@@ -36,7 +59,14 @@ describe('ShoppingService', () => {
         create: jest.fn(),
         aggregate: jest
           .fn()
-          .mockResolvedValue({ _sum: { QtyIn: 5, QtyOut: 0 } }),
+          .mockImplementation((q: { where: { ItemCategory: string } }) =>
+            Promise.resolve({
+              _sum: {
+                QtyIn: q.where.ItemCategory === 'FINISH_GOOD' ? 5 : 10,
+                QtyOut: 0,
+              },
+            }),
+          ),
       },
       outboxEvent: { upsert: jest.fn() },
       $executeRaw: jest.fn().mockResolvedValue(1),
@@ -93,7 +123,7 @@ describe('ShoppingService', () => {
       prismaService.productionRelease.findUnique.mockResolvedValue(
         mockProductionRelease,
       );
-      prismaService.billOfMaterials.findMany.mockResolvedValue(mockBom);
+      prismaService.snapshotRequirements.findMany.mockResolvedValue(mockBom);
       prismaService.shopping.findMany.mockResolvedValue([]);
 
       const result = await service.getForecastPickingStatus('PO-001');
@@ -237,8 +267,11 @@ describe('ShoppingService', () => {
           materialId: 'MAT-001',
           qtyPick: 2,
           type: 'ADDITIONAL',
-          forecastId: 'ADDITIONAL',
-          description: '',
+          forecastId: undefined,
+          purpose: 'NON_PRODUCTION',
+          requestId: '00000000-0000-4000-8000-000000000002',
+          destination: 'Maintenance',
+          description: 'Maintenance consumption',
         },
         'test',
       );
@@ -272,8 +305,11 @@ describe('ShoppingService', () => {
             materialId: 'MAT-001',
             qtyPick: 2,
             type: 'ADDITIONAL',
-            forecastId: 'ADDITIONAL',
-            description: '',
+            forecastId: undefined,
+            purpose: 'NON_PRODUCTION',
+            requestId: '00000000-0000-4000-8000-000000000002',
+            destination: 'Maintenance',
+            description: 'Maintenance consumption',
           },
           'test',
         );
@@ -290,8 +326,10 @@ describe('ShoppingService', () => {
       materialId: 'MAT-001',
       qtyPick: 2,
       type: 'REGULER' as const,
+      purpose: 'STANDARD' as const,
+      requestId: '00000000-0000-4000-8000-000000000001',
       forecastId: 'PO-001',
-      description: '',
+      description: 'Maintenance consumption',
     };
 
     beforeEach(() => {
@@ -311,13 +349,13 @@ describe('ShoppingService', () => {
         Id: 'SHP-001',
         ForecastId: 'PO-001',
       });
-      prismaService.billOfMaterials.findMany.mockResolvedValue([
+      prismaService.snapshotRequirements.findMany.mockResolvedValue([
         {
           Qty: 2,
           MaterialData: { PartNumber: 'MAT-001' },
         },
       ]);
-      prismaService.billOfMaterials.findFirst = jest
+      prismaService.snapshotRequirements.findFirst = jest
         .fn()
         .mockResolvedValue({ Qty: 2 });
       prismaService.shopping.findMany
@@ -341,11 +379,12 @@ describe('ShoppingService', () => {
     });
 
     it('does not increment finish good or add a duplicate production ledger when the durable claim exists', async () => {
-      prismaService.$executeRaw
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(1)
-        .mockResolvedValueOnce(0);
+      prismaService.$executeRaw.mockImplementation(
+        (sql: TemplateStringsArray) =>
+          Promise.resolve(
+            sql.join('').includes('INSERT INTO "ShoppingCompletion"') ? 0 : 1,
+          ),
+      );
 
       await service['executeShoppingTransaction'](dto, 'test', 'PR123', {
         finishGoodId: 'FG-001',

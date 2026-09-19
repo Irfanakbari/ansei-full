@@ -148,3 +148,33 @@ export const DeliveryNoteStatus = {
 } as const
 
 export type DeliveryNoteStatus = (typeof DeliveryNoteStatus)[keyof typeof DeliveryNoteStatus]
+
+
+export const BomRevisionStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  APPROVED: 'APPROVED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type BomRevisionStatus = (typeof BomRevisionStatus)[keyof typeof BomRevisionStatus]
+
+
+export const ShoppingPurpose = {
+  STANDARD: 'STANDARD',
+  NG_REPLACEMENT: 'NG_REPLACEMENT',
+  NON_PRODUCTION: 'NON_PRODUCTION',
+  LEGACY_UNCLASSIFIED: 'LEGACY_UNCLASSIFIED'
+} as const
+
+export type ShoppingPurpose = (typeof ShoppingPurpose)[keyof typeof ShoppingPurpose]
+
+
+export const MaterialNgCaseStatus = {
+  OPEN: 'OPEN',
+  FULFILLED: 'FULFILLED',
+  CLOSED: 'CLOSED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type MaterialNgCaseStatus = (typeof MaterialNgCaseStatus)[keyof typeof MaterialNgCaseStatus]

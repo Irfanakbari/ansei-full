@@ -1,3 +1,4 @@
+import { ApiHeader } from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -85,16 +86,25 @@ export class ProductionReportController {
     return this.productionReportService.findOne(id);
   }
 
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    required: true,
+    schema: { type: 'string', format: 'uuid' },
+    description:
+      'Reuse for retries of the same command; generate a new key for a new action.',
+  })
   @Post()
-  @Public()
+  @Permission('IPCS.PRODUCTION_REPORT_CREATE')
   @ApiOperation({
     summary:
-      'Create new production report with POKAYOKE validation (Public - for Operator Station)',
+      'Create a production report attributed to the authenticated station or user',
   })
   @ApiResponse({ status: 201, type: ProductionReportEntity })
-  async create(@Body() createDto: CreateProductionReportDto) {
-    // Use 'OPERATOR' as createdBy for public endpoint
-    return this.productionReportService.create(createDto, 'OPERATOR');
+  async create(
+    @Body() createDto: CreateProductionReportDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.productionReportService.create(createDto, user.username);
   }
 
   @Patch(':id')

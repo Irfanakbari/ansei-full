@@ -39,10 +39,12 @@ describe('AssemblyService', () => {
     requestId: 'request-1',
   };
   const tx = {
+    productionTraceEvent: { findFirst: jest.fn(), create: jest.fn() },
     $executeRaw: jest.fn(),
     manPower: { findUnique: jest.fn(), findMany: jest.fn() },
     labelData: { findUnique: jest.fn(), findMany: jest.fn() },
     assemblySession: {
+      findUniqueOrThrow: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
       create: jest.fn(),
@@ -69,6 +71,10 @@ describe('AssemblyService', () => {
         fn(tx as unknown as Prisma.TransactionClient),
     );
     log.startProcess.mockResolvedValue({ ProcessId: 'audit' });
+    tx.assemblySession.findUniqueOrThrow.mockResolvedValue({
+      ...session,
+      LabelData: { ForecastId: 'PO', ProductionReleaseId: 'REL' },
+    });
     tx.manPower.findUnique.mockResolvedValue(operator);
     tx.labelData.findUnique.mockResolvedValue(label);
     ready.mockResolvedValue({ label, forecast: {} } as Awaited<

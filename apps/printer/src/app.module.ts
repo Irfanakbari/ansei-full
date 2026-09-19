@@ -1,3 +1,4 @@
+import { OutboxReceiptService } from "./outbox-receipt.service";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { BullModule } from "@nestjs/bullmq";
@@ -33,6 +34,7 @@ import { PrinterErrorFileLogService } from "./printer-error-file-log.service";
   ],
   providers: [
     PrinterProcessor,
+    OutboxReceiptService,
     PartTagPdfService,
     IpPrinterService,
     PrinterSettingService,

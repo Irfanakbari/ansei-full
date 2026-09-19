@@ -1,5 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-18 */
 "use client";
+import Link from "next/link";
+import { usePhasePermission } from "@/components/traceability/usePhasePermission";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -36,6 +38,7 @@ import {
   type AssemblyQuery,
 } from "@/store/features/production/assembly/assemblySlice";
 export default function AssemblyPage() {
+  const { can } = usePhasePermission();
   const dispatch = useDispatch<AppDispatch>();
   const { message } = App.useApp();
   const user = useSelector((state: RootState) => state.auth.user);
@@ -338,6 +341,24 @@ export default function AssemblyPage() {
           }}
         />
       </ToolbarWrapper>
+      {selected && (
+        <Space style={{ margin: "8px 0" }}>
+          {can("IPCS.MATERIAL_NG_CREATE") && (
+            <Link
+              href={`/apps/production/shopping/material-ng?poId=${encodeURIComponent(selected.LabelData.ForecastId)}&assemblySessionId=${selected.Id}`}
+            >
+              Report Material NG
+            </Link>
+          )}
+          {can("IPCS.TRACEABILITY_READ") && (
+            <Link
+              href={`/apps/traceability?poId=${encodeURIComponent(selected.LabelData.ForecastId)}&label=${encodeURIComponent(selected.LabelData.LabelNumber)}`}
+            >
+              View Traceability
+            </Link>
+          )}
+        </Space>
+      )}
       <p className="mb-2">Label progress in active releases (all manpower)</p>
       {progressError && <Alert type="warning" title={progressError} />}
       {progress && (

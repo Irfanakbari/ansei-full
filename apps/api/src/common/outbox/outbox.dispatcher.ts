@@ -1,3 +1,5 @@
+import { integrationDeadline } from './integration-deadline';
+/* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
 import { InjectQueue } from '@nestjs/bullmq';
 import {
   Injectable,
@@ -8,35 +10,40 @@ import {
 import { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DISPATCH_OUTBOX_EVENT, OUTBOX_QUEUE } from './outbox.types';
+import {
+  OutboxStateService,
+  SAFE_RETRY,
+  UNCERTAIN,
+  PRINT_READY,
+  SENDING,
+  jobIdentity,
+} from './outbox-state.service';
 
 @Injectable()
 export class OutboxDispatcher implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(OutboxDispatcher.name);
   private timer?: NodeJS.Timeout;
   private running = false;
-
   constructor(
     private readonly prisma: PrismaService,
     @InjectQueue(OUTBOX_QUEUE) private readonly queue: Queue,
+    private readonly state: OutboxStateService,
+    @InjectQueue('printer_queue') private readonly printerQueue: Queue,
   ) {}
-
-  onModuleInit(): void {
+  onModuleInit() {
     this.timer = setInterval(() => this.scheduleDispatch(), 5000);
     this.timer.unref();
     this.scheduleDispatch();
   }
-
-  private scheduleDispatch(): void {
-    void this.dispatch().catch((error: unknown) => {
-      const errorName = error instanceof Error ? error.name : 'UnknownError';
-      this.logger.error(
-        `Outbox dispatch cycle failed; pending events will be retried: ${errorName}`,
-      );
-    });
-  }
-
-  onModuleDestroy(): void {
+  onModuleDestroy() {
     if (this.timer) clearInterval(this.timer);
+  }
+  private scheduleDispatch() {
+    void this.dispatch().catch(() =>
+      this.logger.error(
+        'Integration dispatch unavailable; durable records retained.',
+      ),
+    );
   }
 
   async dispatch(): Promise<void> {
@@ -44,42 +51,127 @@ export class OutboxDispatcher implements OnModuleInit, OnModuleDestroy {
     this.running = true;
     try {
       const staleBefore = new Date(Date.now() - 10 * 60 * 1000);
-      await this.prisma.outboxEvent.updateMany({
+      const active = await this.prisma.outboxEvent.findMany({
         where: {
           Status: { in: ['QUEUED', 'PROCESSING'] },
           UpdatedAt: { lt: staleBefore },
         },
-        data: {
-          Status: 'PENDING',
-          NextAttemptAt: new Date(),
-          LastErrorCode: 'OUTBOX_STALE_CLAIM',
-          LastError: 'Interrupted delivery was recovered and will be retried',
-          QueuedAt: null,
-          ProcessingAt: null,
-        },
+        take: 50,
+        orderBy: { UpdatedAt: 'asc' },
       });
+      for (const event of active) {
+        // A durable send marker is never automatically replayed, even if Redis lost the job.
+        if (
+          event.LastErrorCode === SENDING ||
+          event.Attempts === 0 ||
+          (event.Status === 'PROCESSING' &&
+            ![PRINT_READY, 'OUTBOX_PREPARING'].includes(
+              event.LastErrorCode ?? '',
+            ))
+        ) {
+          await this.state.change(
+            event,
+            {
+              Status: 'FAILED',
+              FailedAt: new Date(),
+              LastErrorCode: UNCERTAIN,
+              LastError:
+                'Delivery outcome requires reconciliation before retry.',
+            },
+            'INTERRUPTED',
+          );
+          continue;
+        }
+        const queue =
+          event.Status === 'QUEUED' ? this.queue : this.printerQueue;
+        const job = await integrationDeadline(queue.getJob(jobIdentity(event)));
+        const status = job
+          ? await integrationDeadline(job.getState())
+          : 'missing';
+        if (
+          [
+            'active',
+            'waiting',
+            'delayed',
+            'prioritized',
+            'waiting-children',
+          ].includes(status)
+        )
+          continue;
+        // The printer writes its result to PostgreSQL. A completed queue job alone is not success evidence.
+        await this.state.change(
+          event,
+          {
+            Status: 'FAILED',
+            FailedAt: new Date(),
+            LastErrorCode: SAFE_RETRY,
+            LastError:
+              'Interrupted before external delivery; safe retry available.',
+            NextAttemptAt: new Date(),
+          },
+          'RECOVER',
+        );
+      }
       const events = await this.prisma.outboxEvent.findMany({
         where: {
-          Status: { in: ['PENDING', 'FAILED'] },
+          OR: [
+            { Status: 'PENDING' },
+            { Status: 'FAILED', LastErrorCode: SAFE_RETRY },
+          ],
           NextAttemptAt: { lte: new Date() },
-          Attempts: { lt: 5 },
+          Attempts: { lt: this.prisma.outboxEvent.fields.MaxAttempts },
         },
-        orderBy: { CreatedAt: 'asc' },
+        orderBy: { NextAttemptAt: 'asc' },
         take: 50,
       });
       for (const event of events) {
+        if (event.Attempts >= event.MaxAttempts) continue;
+        const claimed = await this.state.change(
+          event,
+          {
+            Status: 'QUEUED',
+            Attempts: { increment: 1 },
+            QueuedAt: new Date(),
+            ProcessingAt: null,
+            FailedAt: null,
+            LastErrorCode: null,
+            LastError: null,
+          },
+          'QUEUE',
+        );
+        if (!claimed) continue;
         try {
-          await this.queue.add(
-            DISPATCH_OUTBOX_EVENT,
-            { eventId: event.Id },
-            { jobId: event.Id, removeOnComplete: true, removeOnFail: true },
+          // Commit QUEUED before publishing. A worker can safely claim immediately.
+          await integrationDeadline(
+            this.queue.add(
+              DISPATCH_OUTBOX_EVENT,
+              { eventId: claimed.Id, attempt: claimed.Attempts },
+              {
+                jobId: jobIdentity(claimed),
+                attempts: 1,
+                removeOnComplete: { age: 86400 },
+                removeOnFail: { age: 86400 },
+              },
+            ),
           );
-          await this.prisma.outboxEvent.updateMany({
-            where: { Id: event.Id, Status: { in: ['PENDING', 'FAILED'] } },
-            data: { Status: 'QUEUED', QueuedAt: new Date() },
-          });
         } catch {
-          this.logger.warn(`Outbox event ${event.Id} remains pending`);
+          // Redis may have accepted the job before the response was lost. CAS fences that job if it has not started.
+          await this.state.change(
+            claimed,
+            {
+              Status: 'FAILED',
+              LastErrorCode: SAFE_RETRY,
+              LastError: 'Queue publish interrupted before delivery.',
+              NextAttemptAt: new Date(
+                Date.now() +
+                  Math.min(
+                    300000,
+                    5000 * 2 ** Math.min(claimed.Attempts - 1, 6),
+                  ),
+              ),
+            },
+            'QUEUE_FAILED',
+          );
         }
       }
     } finally {

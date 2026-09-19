@@ -1,6 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import {fetchWithAuth} from "@/store/utils/fetchWithAuth";
+import { post, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
+import { commandIdentity } from '@/store/utils/commandIdentity';
 
 // Transfer response interface
 export interface TransferToRackResponse {
@@ -31,16 +32,13 @@ export const transferToRack = createAsyncThunk(
     'transfer/toRack',
     async ({ partNumber, qty }: { partNumber: string; qty: number }, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/material/${partNumber}/transfer-to-rack`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ qty }),
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to transfer to rack');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const path = `/warehouse/material/${encodeURIComponent(partNumber)}/transfer-to-rack`;
+            const command = await commandIdentity('POST', path, { qty });
+            const response = await post<ApiSuccessEnvelope<TransferToRackResponse>>(path, { qty, requestId: command.id });
+            command.complete();
+            return response.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to transfer to rack'));
         }
     }
 );

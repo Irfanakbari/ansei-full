@@ -38,6 +38,14 @@ describe('TransferService', () => {
         update: jest.fn(),
       },
       inventoryLedger: {
+        aggregate: jest.fn().mockImplementation(({ where }) =>
+          Promise.resolve({
+            _sum: {
+              QtyIn: where.Location === 'WAREHOUSE' ? 100 : 50,
+              QtyOut: 0,
+            },
+          }),
+        ),
         create: jest.fn(),
       },
       $transaction: jest.fn((callback) => callback(mockPrismaService)),

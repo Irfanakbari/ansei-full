@@ -1,13 +1,8 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bullmq';
 import { PrinterService } from './printer.service';
-
+import { OutboxModule } from '../outbox/outbox.module';
 @Module({
-  imports: [
-    BullModule.registerQueue({
-      name: 'printer_queue',
-    }),
-  ],
+  imports: [OutboxModule],
   providers: [PrinterService],
   exports: [PrinterService],
 })

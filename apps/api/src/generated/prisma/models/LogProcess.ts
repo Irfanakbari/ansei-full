@@ -214,6 +214,8 @@ export type LogProcessWhereInput = {
   ProcessDate?: Prisma.DateTimeFilter<"LogProcess"> | Date | string
   CreatedAt?: Prisma.DateTimeFilter<"LogProcess"> | Date | string
   CreatedBy?: Prisma.StringNullableFilter<"LogProcess"> | string | null
+  AuditEvents?: Prisma.ActionAuditEventListRelationFilter
+  TraceEvents?: Prisma.ProductionTraceEventListRelationFilter
   LogProcessDetails?: Prisma.LogProcessDetailListRelationFilter
 }
 
@@ -227,6 +229,8 @@ export type LogProcessOrderByWithRelationInput = {
   ProcessDate?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  AuditEvents?: Prisma.ActionAuditEventOrderByRelationAggregateInput
+  TraceEvents?: Prisma.ProductionTraceEventOrderByRelationAggregateInput
   LogProcessDetails?: Prisma.LogProcessDetailOrderByRelationAggregateInput
 }
 
@@ -243,6 +247,8 @@ export type LogProcessWhereUniqueInput = Prisma.AtLeast<{
   ProcessDate?: Prisma.DateTimeFilter<"LogProcess"> | Date | string
   CreatedAt?: Prisma.DateTimeFilter<"LogProcess"> | Date | string
   CreatedBy?: Prisma.StringNullableFilter<"LogProcess"> | string | null
+  AuditEvents?: Prisma.ActionAuditEventListRelationFilter
+  TraceEvents?: Prisma.ProductionTraceEventListRelationFilter
   LogProcessDetails?: Prisma.LogProcessDetailListRelationFilter
 }, "ProcessId">
 
@@ -286,6 +292,8 @@ export type LogProcessCreateInput = {
   ProcessDate: Date | string
   CreatedAt: Date | string
   CreatedBy?: string | null
+  AuditEvents?: Prisma.ActionAuditEventCreateNestedManyWithoutProcessInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutProcessInput
   LogProcessDetails?: Prisma.LogProcessDetailCreateNestedManyWithoutLogProcessInput
 }
 
@@ -299,6 +307,8 @@ export type LogProcessUncheckedCreateInput = {
   ProcessDate: Date | string
   CreatedAt: Date | string
   CreatedBy?: string | null
+  AuditEvents?: Prisma.ActionAuditEventUncheckedCreateNestedManyWithoutProcessInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutProcessInput
   LogProcessDetails?: Prisma.LogProcessDetailUncheckedCreateNestedManyWithoutLogProcessInput
 }
 
@@ -312,6 +322,8 @@ export type LogProcessUpdateInput = {
   ProcessDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AuditEvents?: Prisma.ActionAuditEventUpdateManyWithoutProcessNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutProcessNestedInput
   LogProcessDetails?: Prisma.LogProcessDetailUpdateManyWithoutLogProcessNestedInput
 }
 
@@ -325,6 +337,8 @@ export type LogProcessUncheckedUpdateInput = {
   ProcessDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AuditEvents?: Prisma.ActionAuditEventUncheckedUpdateManyWithoutProcessNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutProcessNestedInput
   LogProcessDetails?: Prisma.LogProcessDetailUncheckedUpdateManyWithoutLogProcessNestedInput
 }
 
@@ -405,6 +419,22 @@ export type LogProcessNullableScalarRelationFilter = {
   isNot?: Prisma.LogProcessWhereInput | null
 }
 
+export type LogProcessCreateNestedOneWithoutAuditEventsInput = {
+  create?: Prisma.XOR<Prisma.LogProcessCreateWithoutAuditEventsInput, Prisma.LogProcessUncheckedCreateWithoutAuditEventsInput>
+  connectOrCreate?: Prisma.LogProcessCreateOrConnectWithoutAuditEventsInput
+  connect?: Prisma.LogProcessWhereUniqueInput
+}
+
+export type LogProcessUpdateOneWithoutAuditEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.LogProcessCreateWithoutAuditEventsInput, Prisma.LogProcessUncheckedCreateWithoutAuditEventsInput>
+  connectOrCreate?: Prisma.LogProcessCreateOrConnectWithoutAuditEventsInput
+  upsert?: Prisma.LogProcessUpsertWithoutAuditEventsInput
+  disconnect?: Prisma.LogProcessWhereInput | boolean
+  delete?: Prisma.LogProcessWhereInput | boolean
+  connect?: Prisma.LogProcessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LogProcessUpdateToOneWithWhereWithoutAuditEventsInput, Prisma.LogProcessUpdateWithoutAuditEventsInput>, Prisma.LogProcessUncheckedUpdateWithoutAuditEventsInput>
+}
+
 export type LogProcessCreateNestedOneWithoutLogProcessDetailsInput = {
   create?: Prisma.XOR<Prisma.LogProcessCreateWithoutLogProcessDetailsInput, Prisma.LogProcessUncheckedCreateWithoutLogProcessDetailsInput>
   connectOrCreate?: Prisma.LogProcessCreateOrConnectWithoutLogProcessDetailsInput
@@ -421,6 +451,94 @@ export type LogProcessUpdateOneWithoutLogProcessDetailsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LogProcessUpdateToOneWithWhereWithoutLogProcessDetailsInput, Prisma.LogProcessUpdateWithoutLogProcessDetailsInput>, Prisma.LogProcessUncheckedUpdateWithoutLogProcessDetailsInput>
 }
 
+export type LogProcessCreateNestedOneWithoutTraceEventsInput = {
+  create?: Prisma.XOR<Prisma.LogProcessCreateWithoutTraceEventsInput, Prisma.LogProcessUncheckedCreateWithoutTraceEventsInput>
+  connectOrCreate?: Prisma.LogProcessCreateOrConnectWithoutTraceEventsInput
+  connect?: Prisma.LogProcessWhereUniqueInput
+}
+
+export type LogProcessUpdateOneWithoutTraceEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.LogProcessCreateWithoutTraceEventsInput, Prisma.LogProcessUncheckedCreateWithoutTraceEventsInput>
+  connectOrCreate?: Prisma.LogProcessCreateOrConnectWithoutTraceEventsInput
+  upsert?: Prisma.LogProcessUpsertWithoutTraceEventsInput
+  disconnect?: Prisma.LogProcessWhereInput | boolean
+  delete?: Prisma.LogProcessWhereInput | boolean
+  connect?: Prisma.LogProcessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LogProcessUpdateToOneWithWhereWithoutTraceEventsInput, Prisma.LogProcessUpdateWithoutTraceEventsInput>, Prisma.LogProcessUncheckedUpdateWithoutTraceEventsInput>
+}
+
+export type LogProcessCreateWithoutAuditEventsInput = {
+  ProcessId: string
+  FunctionId: string
+  FunctionName: string
+  ProcessStatus: string
+  ProcessStart: Date | string
+  ProcessEnd?: Date | string | null
+  ProcessDate: Date | string
+  CreatedAt: Date | string
+  CreatedBy?: string | null
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutProcessInput
+  LogProcessDetails?: Prisma.LogProcessDetailCreateNestedManyWithoutLogProcessInput
+}
+
+export type LogProcessUncheckedCreateWithoutAuditEventsInput = {
+  ProcessId: string
+  FunctionId: string
+  FunctionName: string
+  ProcessStatus: string
+  ProcessStart: Date | string
+  ProcessEnd?: Date | string | null
+  ProcessDate: Date | string
+  CreatedAt: Date | string
+  CreatedBy?: string | null
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutProcessInput
+  LogProcessDetails?: Prisma.LogProcessDetailUncheckedCreateNestedManyWithoutLogProcessInput
+}
+
+export type LogProcessCreateOrConnectWithoutAuditEventsInput = {
+  where: Prisma.LogProcessWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogProcessCreateWithoutAuditEventsInput, Prisma.LogProcessUncheckedCreateWithoutAuditEventsInput>
+}
+
+export type LogProcessUpsertWithoutAuditEventsInput = {
+  update: Prisma.XOR<Prisma.LogProcessUpdateWithoutAuditEventsInput, Prisma.LogProcessUncheckedUpdateWithoutAuditEventsInput>
+  create: Prisma.XOR<Prisma.LogProcessCreateWithoutAuditEventsInput, Prisma.LogProcessUncheckedCreateWithoutAuditEventsInput>
+  where?: Prisma.LogProcessWhereInput
+}
+
+export type LogProcessUpdateToOneWithWhereWithoutAuditEventsInput = {
+  where?: Prisma.LogProcessWhereInput
+  data: Prisma.XOR<Prisma.LogProcessUpdateWithoutAuditEventsInput, Prisma.LogProcessUncheckedUpdateWithoutAuditEventsInput>
+}
+
+export type LogProcessUpdateWithoutAuditEventsInput = {
+  ProcessId?: Prisma.StringFieldUpdateOperationsInput | string
+  FunctionId?: Prisma.StringFieldUpdateOperationsInput | string
+  FunctionName?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ProcessEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ProcessDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutProcessNestedInput
+  LogProcessDetails?: Prisma.LogProcessDetailUpdateManyWithoutLogProcessNestedInput
+}
+
+export type LogProcessUncheckedUpdateWithoutAuditEventsInput = {
+  ProcessId?: Prisma.StringFieldUpdateOperationsInput | string
+  FunctionId?: Prisma.StringFieldUpdateOperationsInput | string
+  FunctionName?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ProcessEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ProcessDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutProcessNestedInput
+  LogProcessDetails?: Prisma.LogProcessDetailUncheckedUpdateManyWithoutLogProcessNestedInput
+}
+
 export type LogProcessCreateWithoutLogProcessDetailsInput = {
   ProcessId: string
   FunctionId: string
@@ -431,6 +549,8 @@ export type LogProcessCreateWithoutLogProcessDetailsInput = {
   ProcessDate: Date | string
   CreatedAt: Date | string
   CreatedBy?: string | null
+  AuditEvents?: Prisma.ActionAuditEventCreateNestedManyWithoutProcessInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutProcessInput
 }
 
 export type LogProcessUncheckedCreateWithoutLogProcessDetailsInput = {
@@ -443,6 +563,8 @@ export type LogProcessUncheckedCreateWithoutLogProcessDetailsInput = {
   ProcessDate: Date | string
   CreatedAt: Date | string
   CreatedBy?: string | null
+  AuditEvents?: Prisma.ActionAuditEventUncheckedCreateNestedManyWithoutProcessInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutProcessInput
 }
 
 export type LogProcessCreateOrConnectWithoutLogProcessDetailsInput = {
@@ -471,6 +593,8 @@ export type LogProcessUpdateWithoutLogProcessDetailsInput = {
   ProcessDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AuditEvents?: Prisma.ActionAuditEventUpdateManyWithoutProcessNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutProcessNestedInput
 }
 
 export type LogProcessUncheckedUpdateWithoutLogProcessDetailsInput = {
@@ -483,6 +607,80 @@ export type LogProcessUncheckedUpdateWithoutLogProcessDetailsInput = {
   ProcessDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AuditEvents?: Prisma.ActionAuditEventUncheckedUpdateManyWithoutProcessNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutProcessNestedInput
+}
+
+export type LogProcessCreateWithoutTraceEventsInput = {
+  ProcessId: string
+  FunctionId: string
+  FunctionName: string
+  ProcessStatus: string
+  ProcessStart: Date | string
+  ProcessEnd?: Date | string | null
+  ProcessDate: Date | string
+  CreatedAt: Date | string
+  CreatedBy?: string | null
+  AuditEvents?: Prisma.ActionAuditEventCreateNestedManyWithoutProcessInput
+  LogProcessDetails?: Prisma.LogProcessDetailCreateNestedManyWithoutLogProcessInput
+}
+
+export type LogProcessUncheckedCreateWithoutTraceEventsInput = {
+  ProcessId: string
+  FunctionId: string
+  FunctionName: string
+  ProcessStatus: string
+  ProcessStart: Date | string
+  ProcessEnd?: Date | string | null
+  ProcessDate: Date | string
+  CreatedAt: Date | string
+  CreatedBy?: string | null
+  AuditEvents?: Prisma.ActionAuditEventUncheckedCreateNestedManyWithoutProcessInput
+  LogProcessDetails?: Prisma.LogProcessDetailUncheckedCreateNestedManyWithoutLogProcessInput
+}
+
+export type LogProcessCreateOrConnectWithoutTraceEventsInput = {
+  where: Prisma.LogProcessWhereUniqueInput
+  create: Prisma.XOR<Prisma.LogProcessCreateWithoutTraceEventsInput, Prisma.LogProcessUncheckedCreateWithoutTraceEventsInput>
+}
+
+export type LogProcessUpsertWithoutTraceEventsInput = {
+  update: Prisma.XOR<Prisma.LogProcessUpdateWithoutTraceEventsInput, Prisma.LogProcessUncheckedUpdateWithoutTraceEventsInput>
+  create: Prisma.XOR<Prisma.LogProcessCreateWithoutTraceEventsInput, Prisma.LogProcessUncheckedCreateWithoutTraceEventsInput>
+  where?: Prisma.LogProcessWhereInput
+}
+
+export type LogProcessUpdateToOneWithWhereWithoutTraceEventsInput = {
+  where?: Prisma.LogProcessWhereInput
+  data: Prisma.XOR<Prisma.LogProcessUpdateWithoutTraceEventsInput, Prisma.LogProcessUncheckedUpdateWithoutTraceEventsInput>
+}
+
+export type LogProcessUpdateWithoutTraceEventsInput = {
+  ProcessId?: Prisma.StringFieldUpdateOperationsInput | string
+  FunctionId?: Prisma.StringFieldUpdateOperationsInput | string
+  FunctionName?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ProcessEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ProcessDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AuditEvents?: Prisma.ActionAuditEventUpdateManyWithoutProcessNestedInput
+  LogProcessDetails?: Prisma.LogProcessDetailUpdateManyWithoutLogProcessNestedInput
+}
+
+export type LogProcessUncheckedUpdateWithoutTraceEventsInput = {
+  ProcessId?: Prisma.StringFieldUpdateOperationsInput | string
+  FunctionId?: Prisma.StringFieldUpdateOperationsInput | string
+  FunctionName?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ProcessEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ProcessDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AuditEvents?: Prisma.ActionAuditEventUncheckedUpdateManyWithoutProcessNestedInput
+  LogProcessDetails?: Prisma.LogProcessDetailUncheckedUpdateManyWithoutLogProcessNestedInput
 }
 
 
@@ -491,10 +689,14 @@ export type LogProcessUncheckedUpdateWithoutLogProcessDetailsInput = {
  */
 
 export type LogProcessCountOutputType = {
+  AuditEvents: number
+  TraceEvents: number
   LogProcessDetails: number
 }
 
 export type LogProcessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  AuditEvents?: boolean | LogProcessCountOutputTypeCountAuditEventsArgs
+  TraceEvents?: boolean | LogProcessCountOutputTypeCountTraceEventsArgs
   LogProcessDetails?: boolean | LogProcessCountOutputTypeCountLogProcessDetailsArgs
 }
 
@@ -506,6 +708,20 @@ export type LogProcessCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.E
    * Select specific fields to fetch from the LogProcessCountOutputType
    */
   select?: Prisma.LogProcessCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LogProcessCountOutputType without action
+ */
+export type LogProcessCountOutputTypeCountAuditEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ActionAuditEventWhereInput
+}
+
+/**
+ * LogProcessCountOutputType without action
+ */
+export type LogProcessCountOutputTypeCountTraceEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionTraceEventWhereInput
 }
 
 /**
@@ -526,6 +742,8 @@ export type LogProcessSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   ProcessDate?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
+  AuditEvents?: boolean | Prisma.LogProcess$AuditEventsArgs<ExtArgs>
+  TraceEvents?: boolean | Prisma.LogProcess$TraceEventsArgs<ExtArgs>
   LogProcessDetails?: boolean | Prisma.LogProcess$LogProcessDetailsArgs<ExtArgs>
   _count?: boolean | Prisma.LogProcessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["logProcess"]>
@@ -568,6 +786,8 @@ export type LogProcessSelectScalar = {
 
 export type LogProcessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ProcessId" | "FunctionId" | "FunctionName" | "ProcessStatus" | "ProcessStart" | "ProcessEnd" | "ProcessDate" | "CreatedAt" | "CreatedBy", ExtArgs["result"]["logProcess"]>
 export type LogProcessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  AuditEvents?: boolean | Prisma.LogProcess$AuditEventsArgs<ExtArgs>
+  TraceEvents?: boolean | Prisma.LogProcess$TraceEventsArgs<ExtArgs>
   LogProcessDetails?: boolean | Prisma.LogProcess$LogProcessDetailsArgs<ExtArgs>
   _count?: boolean | Prisma.LogProcessCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -577,6 +797,8 @@ export type LogProcessIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 export type $LogProcessPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LogProcess"
   objects: {
+    AuditEvents: Prisma.$ActionAuditEventPayload<ExtArgs>[]
+    TraceEvents: Prisma.$ProductionTraceEventPayload<ExtArgs>[]
     LogProcessDetails: Prisma.$LogProcessDetailPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -983,6 +1205,8 @@ readonly fields: LogProcessFieldRefs;
  */
 export interface Prisma__LogProcessClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  AuditEvents<T extends Prisma.LogProcess$AuditEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogProcess$AuditEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActionAuditEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  TraceEvents<T extends Prisma.LogProcess$TraceEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogProcess$TraceEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionTraceEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LogProcessDetails<T extends Prisma.LogProcess$LogProcessDetailsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LogProcess$LogProcessDetailsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LogProcessDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1412,6 +1636,54 @@ export type LogProcessDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many LogProcesses to delete.
    */
   limit?: number
+}
+
+/**
+ * LogProcess.AuditEvents
+ */
+export type LogProcess$AuditEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ActionAuditEvent
+   */
+  select?: Prisma.ActionAuditEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ActionAuditEvent
+   */
+  omit?: Prisma.ActionAuditEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ActionAuditEventInclude<ExtArgs> | null
+  where?: Prisma.ActionAuditEventWhereInput
+  orderBy?: Prisma.ActionAuditEventOrderByWithRelationInput | Prisma.ActionAuditEventOrderByWithRelationInput[]
+  cursor?: Prisma.ActionAuditEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ActionAuditEventScalarFieldEnum | Prisma.ActionAuditEventScalarFieldEnum[]
+}
+
+/**
+ * LogProcess.TraceEvents
+ */
+export type LogProcess$TraceEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionTraceEvent
+   */
+  select?: Prisma.ProductionTraceEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionTraceEvent
+   */
+  omit?: Prisma.ProductionTraceEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionTraceEventInclude<ExtArgs> | null
+  where?: Prisma.ProductionTraceEventWhereInput
+  orderBy?: Prisma.ProductionTraceEventOrderByWithRelationInput | Prisma.ProductionTraceEventOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionTraceEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionTraceEventScalarFieldEnum | Prisma.ProductionTraceEventScalarFieldEnum[]
 }
 
 /**

@@ -18,10 +18,46 @@ import type {
   PaginationMeta,
 } from '../common/interceptors/api-response.interface';
 import type { Prisma } from '../generated/prisma/client';
+import { ActionAuditQueryDto } from './dto/action-audit.dto';
 
 @Injectable()
 export class SystemLogService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async actions(query: ActionAuditQueryDto) {
+    const where: Prisma.ActionAuditEventWhereInput = {
+      RequestId: query.requestId,
+      ProcessId: query.processId,
+      SourceType: query.sourceType,
+      SourceId: query.sourceId,
+      Action: query.action,
+      CreatedAt:
+        query.from || query.to
+          ? {
+              gte: query.from ? new Date(query.from) : undefined,
+              lte: query.to ? new Date(query.to) : undefined,
+            }
+          : undefined,
+    };
+    const [data, totalItems] = await Promise.all([
+      this.prisma.actionAuditEvent.findMany({
+        where,
+        orderBy: [{ CreatedAt: 'desc' }, { Id: 'desc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+      this.prisma.actionAuditEvent.count({ where }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
+  }
 
   /**
    * GET /system-log

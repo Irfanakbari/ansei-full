@@ -1,7 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Form, Input, App } from 'antd';
 import { MailOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,6 +21,8 @@ const EmailDNModal: React.FC<Props> = ({ visible, onClose, deliveryNoteId, deliv
     const { message } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
+    const inFlight = useRef(false);
+    const [submitting, setSubmitting] = useState(false);
     const { loading } = useSelector((state: RootState) => state.transferMaterial);
 
     useEffect(() => {
@@ -35,8 +37,11 @@ const EmailDNModal: React.FC<Props> = ({ visible, onClose, deliveryNoteId, deliv
     }, [visible, deliveryNoteNum, form]);
 
     const handleSubmit = async () => {
+        if (inFlight.current) return;
+        inFlight.current = true;
         try {
             const values = await form.validateFields();
+            setSubmitting(true);
 
             const result = await dispatch(sendDN({
                 id: deliveryNoteId,
@@ -52,7 +57,7 @@ const EmailDNModal: React.FC<Props> = ({ visible, onClose, deliveryNoteId, deliv
                 throw new Error((result.payload as string) || 'Failed to send delivery note');
             }
 
-            message.success('Delivery note sent successfully');
+            message.success('Email request recorded. Check delivery in System Logs > Integrations.');
             onClose();
             form.resetFields();
         } catch (error: unknown) {
@@ -62,10 +67,14 @@ const EmailDNModal: React.FC<Props> = ({ visible, onClose, deliveryNoteId, deliv
             }
             const err = error as Error;
             message.error(err?.message || 'Failed to send delivery note');
+        } finally {
+            inFlight.current = false;
+            setSubmitting(false);
         }
     };
 
     const handleCancel = () => {
+        if (inFlight.current) return;
         form.resetFields();
         onClose();
     };
@@ -82,7 +91,8 @@ const EmailDNModal: React.FC<Props> = ({ visible, onClose, deliveryNoteId, deliv
             onOk={handleSubmit}
             centered={true}
             onCancel={handleCancel}
-            confirmLoading={loading}
+            confirmLoading={loading || submitting}
+            cancelButtonProps={{ disabled: submitting }}
             width={500}
             okText="Send Email"
             zIndex={1050}

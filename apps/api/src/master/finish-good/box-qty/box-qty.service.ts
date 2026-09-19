@@ -1,3 +1,4 @@
+import { auditedWrite } from '../../../common/helpers/audited-transaction.helper';
 import {
   Injectable,
   NotFoundException,
@@ -98,15 +99,17 @@ export class BoxQtyService {
         );
       }
 
-      const result = await this.prisma.boxQTY.create({
-        data: {
-          PartNumber: dto.partNumber,
-          Qty: dto.qty,
-        },
-        include: {
-          PartData: true,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.boxQTY.create({
+          data: {
+            PartNumber: dto.partNumber,
+            Qty: dto.qty,
+          },
+          include: {
+            PartData: true,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -185,16 +188,18 @@ export class BoxQtyService {
         location: 'box-qty.service.ts:120',
       });
 
-      const result = await this.prisma.boxQTY.update({
-        where: { Id: id },
-        data: {
-          PartNumber: dto.partNumber,
-          Qty: dto.qty,
-        },
-        include: {
-          PartData: true,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.boxQTY.update({
+          where: { Id: id },
+          data: {
+            PartNumber: dto.partNumber,
+            Qty: dto.qty,
+          },
+          include: {
+            PartData: true,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -248,9 +253,11 @@ export class BoxQtyService {
         location: 'box-qty.service.ts:169',
       });
 
-      await this.prisma.boxQTY.delete({
-        where: { Id: id },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.boxQTY.delete({
+          where: { Id: id },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

@@ -5,37 +5,29 @@ import type {
   LogProcessDetailModel,
 } from '../../generated/prisma/models';
 import type { Prisma } from '../../generated/prisma/client';
+import { randomUUID } from 'node:crypto';
+import {
+  auditContext,
+  bindAuditContext,
+} from '../helpers/audit-context.helper';
+import { auditedTransaction } from '../helpers/audited-transaction.helper';
 
 type LogProcessClient = PrismaService | Prisma.TransactionClient;
 
 @Injectable()
 export class LogProcessService {
-  private readonly messageCounters = new Map<string, number>();
-
   constructor(private readonly prisma: PrismaService) {}
 
   private generateProcessId(): string {
-    const now = new Date();
-    const datePart = now.toISOString().slice(0, 10).replace(/-/g, '');
-    const timePart = now.toISOString().slice(11, 19).replace(/:/g, '');
-    const msPart = now.getMilliseconds().toString().padStart(3, '0');
-    const randPart = Math.floor(Math.random() * 1000)
-      .toString()
-      .padStart(3, '0');
-    const uniquePart = (parseInt(msPart + randPart) % 1000000)
-      .toString()
-      .padStart(6, '0');
-    return `PR${datePart}${timePart}${uniquePart}`;
+    return `PR${randomUUID().replaceAll('-', '')}`;
   }
 
-  private generateMessageId(processId: string): string {
-    const next = (this.messageCounters.get(processId) ?? 0) + 1;
-    this.messageCounters.set(processId, next > 999 ? 1 : next);
-    return `COMM-${this.messageCounters.get(processId)!.toString().padStart(3, '0')}`;
+  private generateMessageId(): string {
+    return `COMM-${randomUUID()}`;
   }
 
   resetCounter(): void {
-    this.messageCounters.clear();
+    // Compatibility method: message identities no longer depend on process-local counters.
   }
 
   async startProcess(params: {
@@ -44,6 +36,13 @@ export class LogProcessService {
     createdBy?: string;
     client?: LogProcessClient;
   }): Promise<LogProcessModel> {
+    const currentContext = auditContext.getStore();
+    if (currentContext) currentContext.actor = params.createdBy;
+    if (!params.client && currentContext) {
+      return auditedTransaction(this.prisma, (tx) =>
+        this.startProcess({ ...params, client: tx }),
+      );
+    }
     const now = new Date();
 
     const client = params.client ?? this.prisma;
@@ -59,7 +58,11 @@ export class LogProcessService {
         CreatedBy: params.createdBy,
       },
     });
-    this.messageCounters.set(process.ProcessId, 0);
+    const context = auditContext.getStore();
+    if (context) {
+      context.processId = process.ProcessId;
+      context.actor = params.createdBy;
+    }
     return process;
   }
 
@@ -73,10 +76,12 @@ export class LogProcessService {
     const now = new Date();
     const client = params.client ?? this.prisma;
 
+    if (params.client) await bindAuditContext(params.client);
+
     return client.logProcessDetail.create({
       data: {
         ProcessId: params.processId,
-        MessageId: this.generateMessageId(params.processId),
+        MessageId: this.generateMessageId(),
         Message: params.message,
         Type: params.type,
         Location: params.location,
@@ -92,6 +97,12 @@ export class LogProcessService {
     endMessage?: string,
     client: LogProcessClient = this.prisma,
   ): Promise<void> {
+    if (client === this.prisma && auditContext.getStore()) {
+      return auditedTransaction(this.prisma, (tx) =>
+        this.completeProcess(processId, status, endMessage, tx),
+      );
+    }
+    await bindAuditContext(client);
     const now = new Date();
 
     if (endMessage) {
@@ -104,13 +115,12 @@ export class LogProcessService {
       });
     }
 
-    await client.logProcess.update({
-      where: { ProcessId: processId },
+    await client.logProcess.updateMany({
+      where: { ProcessId: processId, ProcessEnd: null },
       data: {
         ProcessStatus: status,
         ProcessEnd: now,
       },
     });
-    this.messageCounters.delete(processId);
   }
 }

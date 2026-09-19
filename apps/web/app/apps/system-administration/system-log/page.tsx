@@ -1,9 +1,12 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-06-08 */
 "use client";
 
+import IntegrationPanel from './_components/IntegrationPanel';
+import ActionAuditPanel from './_components/ActionAuditPanel';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
     Table,
+    Tabs,
     Card,
     Breadcrumb,
     Input,
@@ -234,6 +237,8 @@ export default function SystemLogPage() {
                 items={[{ title: 'Home' }, { title: 'System Administration' }, { title: 'System Logs' }]}
             />
 
+            <Tabs items={[
+                { key: 'processes', label: 'Process Logs', children: <>
             <ToolbarWrapper>
                 <ButtonToolbar
                     title="Refresh"
@@ -267,6 +272,11 @@ export default function SystemLogPage() {
                 className="small-table"
                 style={{ fontSize: '11px' }}
             />
+
+                </> },
+                { key: 'actions', label: 'Action Audit', children: <ActionAuditPanel /> },
+                { key: 'integrations', label: 'Integrations', children: <IntegrationPanel /> },
+            ]} />
 
             <DetailSystemLogModal
                 visible={modalOpen}

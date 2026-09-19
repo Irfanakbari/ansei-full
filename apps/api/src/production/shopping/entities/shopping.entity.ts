@@ -127,6 +127,11 @@ export class ShoppingPickResult {
  * Bom Summary Entity
  */
 export class BomSummaryEntity {
+  @ApiProperty() standardRequired: number;
+  @ApiProperty() standardIssued: number;
+  @ApiProperty() replacementIssued: number;
+  @ApiProperty() materialNg: number;
+  @ApiProperty() remainingReplacement: number;
   @ApiProperty({ description: 'ID material', example: 'MAT-001' })
   materialId: string;
 
@@ -176,6 +181,8 @@ export class ForecastPickingStatusProgressEntity {
  * Forecast Picking Status Entity
  */
 export class ForecastPickingStatusEntity {
+  @ApiProperty() snapshotId: string;
+  @ApiProperty() bomRevision: number;
   @ApiProperty({ description: 'ID Forecast', example: 'PO-001' })
   forecastId: string;
 
@@ -212,6 +219,11 @@ export class ForecastPickingStatusEntity {
  * Check Requirement Item Entity
  */
 export class CheckRequirementItemEntity {
+  @ApiProperty() standardRequired: number;
+  @ApiProperty() standardIssued: number;
+  @ApiProperty() replacementIssued: number;
+  @ApiProperty() materialNg: number;
+  @ApiProperty() remainingReplacement: number;
   @ApiProperty({ description: 'ID material', example: 'MAT-001' })
   materialId: string;
 
@@ -276,6 +288,8 @@ export class CheckRequirementSummaryEntity {
  * Check Requirement Response Entity
  */
 export class CheckRequirementResponseEntity {
+  @ApiProperty() snapshotId: string;
+  @ApiProperty() bomRevision: number;
   @ApiProperty({ description: 'ID Forecast (PO ID)', example: 'PO-001' })
   forecastId: string;
 

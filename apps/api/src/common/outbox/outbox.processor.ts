@@ -1,7 +1,9 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { integrationDeadline } from './integration-deadline';
+import { OutboxService } from './outbox.service';
+/* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
+import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import type { Job, Queue } from 'bullmq';
-import { InjectQueue } from '@nestjs/bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SmtpService } from '../utils/smtp.service';
 import { MaterialDeliveryNoteService } from '../../material-delivery-note/material-delivery-note.service';
@@ -15,41 +17,41 @@ import {
   type OutboxJobPayload,
   OUTBOX_QUEUE,
 } from './outbox.types';
+import {
+  OutboxStateService,
+  PRINT_READY,
+  SENDING,
+  SAFE_RETRY,
+  UNCERTAIN,
+  jobIdentity,
+} from './outbox-state.service';
 
-function partTagPayload(value: unknown): PartTagAnseiPayload {
-  if (!value || typeof value !== 'object') {
+function printPayload(value: unknown): PartTagAnseiPayload {
+  const data = value as PartTagAnseiPayload;
+  if (
+    !data ||
+    typeof data !== 'object' ||
+    !Number.isInteger(data.qtyOrder) ||
+    data.qtyOrder <= 0 ||
+    !Number.isInteger(data.qtyPerbox) ||
+    data.qtyPerbox <= 0 ||
+    [
+      'poId',
+      'partNumber',
+      'partName',
+      'vendorCode',
+      'classificationCode',
+      'poNumber',
+      'receivingArea',
+    ].some(
+      (key) =>
+        typeof (data as unknown as Record<string, unknown>)[key] !== 'string',
+    ) ||
+    !Number.isFinite(new Date(data.deliveryDate).getTime())
+  )
     throw new Error('Invalid print payload');
-  }
-  const payload = value as Record<string, unknown>;
-  const required = [
-    'poId',
-    'qtyOrder',
-    'partNumber',
-    'partName',
-    'vendorCode',
-    'classificationCode',
-    'deliveryDate',
-    'qtyPerbox',
-    'poNumber',
-    'receivingArea',
-  ];
-  if (required.some((key) => payload[key] === undefined)) {
-    throw new Error('Invalid print payload');
-  }
-  return {
-    poId: String(payload.poId),
-    qtyOrder: Number(payload.qtyOrder),
-    partNumber: String(payload.partNumber),
-    partName: String(payload.partName),
-    vendorCode: String(payload.vendorCode),
-    classificationCode: String(payload.classificationCode),
-    deliveryDate: new Date(String(payload.deliveryDate)),
-    qtyPerbox: Number(payload.qtyPerbox),
-    poNumber: String(payload.poNumber),
-    receivingArea: String(payload.receivingArea),
-  };
+  return { ...data, deliveryDate: new Date(data.deliveryDate) };
 }
-
 @Injectable()
 @Processor(OUTBOX_QUEUE)
 export class OutboxProcessor extends WorkerHost {
@@ -58,82 +60,172 @@ export class OutboxProcessor extends WorkerHost {
     private readonly smtp: SmtpService,
     private readonly deliveryNotes: MaterialDeliveryNoteService,
     @InjectQueue('printer_queue') private readonly printerQueue: Queue,
+    private readonly state: OutboxStateService,
   ) {
     super();
   }
-
   async process(job: Job<OutboxJobPayload>): Promise<void> {
     if (job.name !== DISPATCH_OUTBOX_EVENT) return;
-    const claimed = await this.prisma.outboxEvent.updateMany({
-      where: { Id: job.data.eventId, Status: 'QUEUED' },
-      data: {
-        Status: 'PROCESSING',
-        ProcessingAt: new Date(),
-        Attempts: { increment: 1 },
-      },
-    });
-    if (claimed.count === 0) return;
-    const event = await this.prisma.outboxEvent.findUniqueOrThrow({
+    const queued = await this.prisma.outboxEvent.findUnique({
       where: { Id: job.data.eventId },
     });
+    if (
+      !queued ||
+      queued.Status !== 'QUEUED' ||
+      queued.Attempts !== job.data.attempt
+    )
+      return;
+    let event = await this.state.change(
+      queued,
+      {
+        Status: 'PROCESSING',
+        ProcessingAt: new Date(),
+        LastErrorCode: 'OUTBOX_PREPARING',
+      },
+      'PREPARE',
+    );
+    if (!event) return;
+    let externalStarted = false;
     try {
       if (event.Type === 'PRINT_PART_TAG_ANSEI') {
-        await this.printerQueue.add(
-          PRINT_PART_TAG_ANSEI,
-          partTagPayload(event.Payload),
-          {
-            jobId: event.Id,
-            attempts: 3,
-            backoff: { type: 'exponential', delay: 5000 },
-            removeOnComplete: false,
-            removeOnFail: false,
-          },
+        const payload = printPayload(event.Payload);
+        event = await this.state.change(
+          event,
+          { LastErrorCode: PRINT_READY },
+          'PRINT_READY',
         );
-      } else {
-        const payload = event.Payload as unknown as DeliveryNoteEmailPayload;
-        const pdfBuffer = await this.deliveryNotes.generateDeliveryNotePDF(
-          payload.deliveryNoteId,
+        if (!event) return;
+        await integrationDeadline(
+          this.printerQueue.add(
+            PRINT_PART_TAG_ANSEI,
+            {
+              ...payload,
+              outboxEventId: event.Id,
+              outboxAttempt: event.Attempts,
+            },
+            {
+              jobId: jobIdentity(event),
+              attempts: 1,
+              removeOnComplete: { age: 604800 },
+              removeOnFail: { age: 604800 },
+            },
+          ),
         );
-        const dn = await this.prisma.materialDeliveryNote.findUniqueOrThrow({
-          where: { Id: payload.deliveryNoteId },
-        });
-        const result = await this.smtp.sendDeliveryNoteEmail({
-          to: payload.to,
-          cc: payload.cc,
-          deliveryNoteNum: dn.DeliveryNoteNum,
-          destination: dn.Destination,
-          pdfBuffer,
-          sentBy: payload.sentBy,
-        });
-        if (!result.success)
-          throw new Error('Email provider rejected the request');
+        return; // Only the printer worker can persist transport success.
       }
-      await this.prisma.outboxEvent.updateMany({
-        where: { Id: event.Id, Status: 'PROCESSING' },
-        data: {
+      const payload = event.Payload as unknown as DeliveryNoteEmailPayload;
+      if (
+        !payload ||
+        typeof payload.deliveryNoteId !== 'string' ||
+        !Array.isArray(payload.to) ||
+        !payload.to.length
+      )
+        throw new Error('Invalid email payload');
+      const readDocument = () =>
+        this.prisma.materialDeliveryNote.findUniqueOrThrow({
+          where: { Id: payload.deliveryNoteId },
+          include: {
+            Details: {
+              select: {
+                MaterialId: true,
+                FinishGoodPartTemp: true,
+                QtyRequested: true,
+                QtyPicking: true,
+                QtyReceived: true,
+              },
+              orderBy: { Id: 'asc' },
+            },
+          },
+        });
+      const dn = await readDocument();
+      const matchesVersion = (value: typeof dn) =>
+        OutboxService.fingerprint([
+          value.DeliveryNoteNum,
+          value.Destination,
+          value.Status,
+          value.CreatedAt,
+          value.ShippedAt,
+          value.ReceivedAt,
+          value.Details,
+        ]) === payload.documentVersion;
+      if (!matchesVersion(dn)) {
+        await this.state.change(
+          event,
+          {
+            Status: 'FAILED',
+            FailedAt: new Date(),
+            LastErrorCode: 'OUTBOX_DOCUMENT_CHANGED',
+            LastError:
+              'Delivery note changed. Review and submit a new email request.',
+          },
+          'DOCUMENT_CHANGED',
+        );
+        return;
+      }
+      const pdfBuffer = await this.deliveryNotes.generateDeliveryNotePDF(
+        payload.deliveryNoteId,
+      );
+      if (!matchesVersion(await readDocument())) {
+        await this.state.change(
+          event,
+          {
+            Status: 'FAILED',
+            FailedAt: new Date(),
+            LastErrorCode: 'OUTBOX_DOCUMENT_CHANGED',
+            LastError:
+              'Delivery note changed during preparation. Submit a new reviewed email request.',
+          },
+          'DOCUMENT_CHANGED',
+        );
+        return;
+      }
+      // Durable fence before SMTP. Crash/timeout after this point must be reconciled, never blindly retried.
+      event = await this.state.change(
+        event,
+        { LastErrorCode: SENDING },
+        'SEND',
+      );
+      if (!event) return;
+      externalStarted = true;
+      const result = await this.smtp.sendDeliveryNoteEmail({
+        to: payload.to,
+        cc: payload.cc,
+        deliveryNoteNum: dn.DeliveryNoteNum,
+        destination: dn.Destination,
+        pdfBuffer,
+        sentBy: payload.sentBy,
+        subject: payload.subject,
+        message: payload.message,
+      });
+      if (!result.success) throw new Error('SMTP outcome unavailable');
+      await this.state.change(
+        event,
+        {
           Status: 'SUCCEEDED',
           SucceededAt: new Date(),
+          LastErrorCode: 'OUTBOX_TRANSPORT_ACCEPTED',
           LastError: null,
-          LastErrorCode: null,
         },
-      });
+        'TRANSPORT_ACCEPTED',
+      );
     } catch {
-      const exhausted = event.Attempts + 1 >= event.MaxAttempts;
-      const delay = Math.min(300000, 5000 * 2 ** Math.max(event.Attempts, 0));
-      await this.prisma.outboxEvent.updateMany({
-        where: { Id: event.Id, Status: 'PROCESSING' },
-        data: {
+      if (!event) return;
+      await this.state.change(
+        event,
+        {
           Status: 'FAILED',
-          NextAttemptAt: new Date(Date.now() + delay),
-          LastErrorCode: exhausted
-            ? 'OUTBOX_RETRIES_EXHAUSTED'
-            : 'OUTBOX_DISPATCH_FAILED',
-          LastError: exhausted
-            ? 'Delivery failed after the maximum number of attempts'
-            : 'Delivery failed and will be retried',
-          FailedAt: exhausted ? new Date() : null,
+          FailedAt: new Date(),
+          LastErrorCode: externalStarted ? UNCERTAIN : SAFE_RETRY,
+          LastError: externalStarted
+            ? 'Email delivery outcome requires reconciliation.'
+            : 'Preparation failed before external delivery.',
+          NextAttemptAt: new Date(
+            Date.now() +
+              Math.min(300000, 5000 * 2 ** Math.min(event.Attempts - 1, 6)),
+          ),
         },
-      });
+        externalStarted ? 'UNCERTAIN' : 'PREPARATION_FAILED',
+      );
     }
   }
 }

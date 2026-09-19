@@ -167,6 +167,7 @@ describe('BillOfMaterialsService', () => {
 
       expect(result).toEqual(expected);
       expect(prismaService.billOfMaterials.findMany).toHaveBeenCalledWith({
+        where: { FGData: { ActiveBomRevisionId: { not: null } } },
         include: { FGData: true, MaterialData: true },
         orderBy: { Id: 'asc' },
       });
@@ -190,7 +191,10 @@ describe('BillOfMaterialsService', () => {
 
       expect(result).toEqual(expected);
       expect(prismaService.billOfMaterials.findMany).toHaveBeenCalledWith({
-        where: { FinishGoodId: 1 },
+        where: {
+          FinishGoodId: 1,
+          FGData: { ActiveBomRevisionId: { not: null } },
+        },
         include: { FGData: true, MaterialData: true },
         orderBy: { Id: 'asc' },
       });
@@ -206,129 +210,28 @@ describe('BillOfMaterialsService', () => {
 
       expect(result).toEqual(expected);
       expect(prismaService.billOfMaterials.findMany).toHaveBeenCalledWith({
-        where: { MaterialId: 1 },
+        where: {
+          MaterialId: 1,
+          FGData: { ActiveBomRevisionId: { not: null } },
+        },
         include: { FGData: true, MaterialData: true },
         orderBy: { Id: 'asc' },
       });
     });
   });
 
-  describe('create', () => {
-    it('should create a new BOM record', async () => {
-      const createDto = { materialId: 1, finishGoodId: 1, qty: 10 };
-      const created = { ...mockBOM };
-
-      logService.startProcess.mockResolvedValue(mockLogProcess);
-      logService.addLog.mockResolvedValue({} as any);
-      logService.completeProcess.mockResolvedValue(undefined);
-      prismaService.material.findUnique.mockResolvedValue(mockMaterial);
-      prismaService.finishGood.findUnique.mockResolvedValue(mockFinishGood);
-      prismaService.billOfMaterials.findFirst.mockResolvedValue(null);
-      prismaService.billOfMaterials.create.mockResolvedValue(created);
-
-      const result = await service.create(createDto, 'admin');
-
-      expect(result).toEqual(created);
-      expect(logService.startProcess).toHaveBeenCalledWith({
-        functionId: 'BOM_001',
-        functionName: 'BillOfMaterialsService.Create',
-        createdBy: 'admin',
-      });
-    });
-
-    it('should throw NotFoundException when Material not found', async () => {
-      const createDto = { materialId: 999, finishGoodId: 1, qty: 10 };
-
-      logService.startProcess.mockResolvedValue(mockLogProcess);
-      prismaService.material.findUnique.mockResolvedValue(null);
-
-      await expect(service.create(createDto, 'admin')).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-
-    it('should throw NotFoundException when FinishGood not found', async () => {
-      const createDto = { materialId: 1, finishGoodId: 999, qty: 10 };
-
-      logService.startProcess.mockResolvedValue(mockLogProcess);
-      prismaService.material.findUnique.mockResolvedValue(mockMaterial);
-      prismaService.finishGood.findUnique.mockResolvedValue(null);
-
-      await expect(service.create(createDto, 'admin')).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-
-    it('should throw ConflictException when BOM already exists', async () => {
-      const createDto = { materialId: 1, finishGoodId: 1, qty: 10 };
-
-      logService.startProcess.mockResolvedValue(mockLogProcess);
-      prismaService.material.findUnique.mockResolvedValue(mockMaterial);
-      prismaService.finishGood.findUnique.mockResolvedValue(mockFinishGood);
-      prismaService.billOfMaterials.findFirst.mockResolvedValue(mockBOM);
-
-      await expect(service.create(createDto, 'admin')).rejects.toThrow(
+  describe('retired mutation contract', () => {
+    it('rejects create, update and delete without writing', () => {
+      expect(() =>
+        service.create({ materialId: 1, finishGoodId: 1, qty: 2 }, 'operator'),
+      ).toThrow(ConflictException);
+      expect(() => service.update(1, { qty: 2 }, 'operator')).toThrow(
         ConflictException,
       );
-    });
-  });
-
-  describe('update', () => {
-    it('should update an existing BOM record', async () => {
-      const updateDto = { qty: 20 };
-      const updated = { ...mockBOM, Qty: 20 };
-
-      logService.startProcess.mockResolvedValue(mockLogProcess);
-      logService.addLog.mockResolvedValue({} as any);
-      logService.completeProcess.mockResolvedValue(undefined);
-      prismaService.billOfMaterials.findUnique.mockResolvedValue(mockBOM);
-      prismaService.billOfMaterials.update.mockResolvedValue(updated);
-
-      const result = await service.update(1, updateDto, 'admin');
-
-      expect(result).toEqual(updated);
-      expect(logService.completeProcess).toHaveBeenCalledWith(
-        mockLogProcess.ProcessId,
-        'SUCCESS',
-      );
-    });
-
-    it('should throw NotFoundException when updating non-existent record', async () => {
-      const updateDto = { qty: 20 };
-
-      logService.startProcess.mockResolvedValue(mockLogProcess);
-      prismaService.billOfMaterials.findUnique.mockResolvedValue(null);
-
-      await expect(service.update(999, updateDto, 'admin')).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-  });
-
-  describe('remove', () => {
-    it('should delete an existing BOM record', async () => {
-      logService.startProcess.mockResolvedValue(mockLogProcess);
-      logService.addLog.mockResolvedValue({} as any);
-      logService.completeProcess.mockResolvedValue(undefined);
-      prismaService.billOfMaterials.findUnique.mockResolvedValue(mockBOM);
-      prismaService.billOfMaterials.delete.mockResolvedValue(mockBOM);
-
-      const result = await service.remove(1, 'admin');
-
-      expect(result).toEqual({ deleted: true, id: 1 });
-      expect(logService.completeProcess).toHaveBeenCalledWith(
-        mockLogProcess.ProcessId,
-        'SUCCESS',
-      );
-    });
-
-    it('should throw NotFoundException when deleting non-existent record', async () => {
-      logService.startProcess.mockResolvedValue(mockLogProcess);
-      prismaService.billOfMaterials.findUnique.mockResolvedValue(null);
-
-      await expect(service.remove(999, 'admin')).rejects.toThrow(
-        NotFoundException,
-      );
+      expect(() => service.remove(1, 'operator')).toThrow(ConflictException);
+      expect(prismaService.billOfMaterials.create).not.toHaveBeenCalled();
+      expect(prismaService.billOfMaterials.update).not.toHaveBeenCalled();
+      expect(prismaService.billOfMaterials.delete).not.toHaveBeenCalled();
     });
   });
 });

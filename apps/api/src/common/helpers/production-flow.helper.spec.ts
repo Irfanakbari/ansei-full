@@ -1,3 +1,10 @@
+// These unit tests inject frozen requirement fixtures; real snapshot persistence is exercised by phase-one.database.spec.ts.
+jest.mock('./bom-snapshot.helper', () => ({
+  ...jest.requireActual('./bom-snapshot.helper'),
+  snapshotBomEntries: (tx: {
+    snapshotRequirements: { findMany: () => Promise<unknown> };
+  }) => tx.snapshotRequirements.findMany(),
+}));
 import { assertLabelReady, isShoppingComplete } from './production-flow.helper';
 import type { Prisma } from '../../generated/prisma/client';
 
@@ -21,7 +28,7 @@ describe('production flow prerequisites', () => {
     assemblySession: { findFirst: jest.fn() },
     labelData: { findUnique: jest.fn() },
     forecast: { findUnique: jest.fn() },
-    billOfMaterials: { findMany: jest.fn() },
+    snapshotRequirements: { findMany: jest.fn() },
     shopping: { findMany: jest.fn() },
     inventoryLedger: { aggregate: jest.fn() },
   };
@@ -30,7 +37,7 @@ describe('production flow prerequisites', () => {
     jest.resetAllMocks();
     mocks.labelData.findUnique.mockResolvedValue(label);
     mocks.forecast.findUnique.mockResolvedValue(forecast);
-    mocks.billOfMaterials.findMany.mockResolvedValue([
+    mocks.snapshotRequirements.findMany.mockResolvedValue([
       { Qty: 1, MaterialData: { PartNumber: 'MAT-1' } },
     ]);
     mocks.shopping.findMany.mockResolvedValue([
@@ -149,7 +156,7 @@ describe('production flow prerequisites', () => {
   });
 
   it('rejects an empty BOM', async () => {
-    mocks.billOfMaterials.findMany.mockResolvedValue([]);
+    mocks.snapshotRequirements.findMany.mockResolvedValue([]);
     await expect(assertLabelReady(tx, 1, false)).rejects.toThrow(
       'every BOM material',
     );

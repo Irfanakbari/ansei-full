@@ -1,3 +1,4 @@
+import { snapshotBomEntries } from './bom-snapshot.helper';
 import type { Prisma } from '../../generated/prisma/client';
 import { BadRequestException } from '@nestjs/common';
 
@@ -45,12 +46,9 @@ export async function assertLabelReady(
       'Label must belong to the current RELEASED forecast and finish good.',
     );
   }
-  const boms = await tx.billOfMaterials.findMany({
-    where: { FGData: { PartNumber: forecast.FinishGoodId } },
-    include: { MaterialData: { select: { PartNumber: true } } },
-  });
+  const boms = await snapshotBomEntries(tx, forecast.PoId);
   const picks = await tx.shopping.findMany({
-    where: { ForecastId: forecast.PoId },
+    where: { ForecastId: forecast.PoId, Purpose: 'STANDARD' },
     select: { Id: true, MaterialId: true, QtyPick: true },
   });
   const requirements = boms.map((bom) => ({

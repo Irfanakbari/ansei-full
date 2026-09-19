@@ -1,3 +1,4 @@
+import { auditedWrite } from '../../common/helpers/audited-transaction.helper';
 import {
   Injectable,
   NotFoundException,
@@ -114,17 +115,19 @@ export class FinishGoodService {
         );
       }
 
-      const result = await this.prisma.finishGood.create({
-        data: {
-          PartNumber: dto.partNumber,
-          PartName: dto.partName,
-          Alias: dto.alias,
-          Price: dto.price ?? 0,
-          IsPassthrough: dto.isPassthrough ?? false,
-          Qty: dto.qty ?? 0,
-          CreatedBy: createdBy,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.finishGood.create({
+          data: {
+            PartNumber: dto.partNumber,
+            PartName: dto.partName,
+            Alias: dto.alias,
+            Price: dto.price ?? 0,
+            IsPassthrough: dto.isPassthrough ?? false,
+            Qty: dto.qty ?? 0,
+            CreatedBy: createdBy,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -198,16 +201,18 @@ export class FinishGoodService {
         location: 'finish-good.service.ts:112',
       });
 
-      const result = await this.prisma.finishGood.update({
-        where: { Id: id },
-        data: {
-          PartNumber: dto.partNumber,
-          PartName: dto.partName,
-          Alias: dto.alias,
-          Price: dto.price,
-          IsPassthrough: dto.isPassthrough,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.finishGood.update({
+          where: { Id: id },
+          data: {
+            PartNumber: dto.partNumber,
+            PartName: dto.partName,
+            Alias: dto.alias,
+            Price: dto.price,
+            IsPassthrough: dto.isPassthrough,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -261,9 +266,11 @@ export class FinishGoodService {
         location: 'finish-good.service.ts:161',
       });
 
-      await this.prisma.finishGood.delete({
-        where: { Id: id },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.finishGood.delete({
+          where: { Id: id },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

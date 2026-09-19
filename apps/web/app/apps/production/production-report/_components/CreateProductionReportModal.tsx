@@ -1,6 +1,9 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08*/
 "use client";
 
+import { useDispatch as useCommandDispatch } from 'react-redux';
+import type { AppDispatch as CommandDispatch } from '@/store';
+import { createProductionReport } from '@/store/features/production/productionReport/productionReportSlice';
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, InputNumber, App, Select, DatePicker, Input, Typography } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,6 +30,7 @@ const PART_TYPE_OPTIONS = [
 const CreateProductionReportModal: React.FC<Props> = ({ visible, onClose, onSuccess }) => {
     const { message } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
+    const commandDispatch = useCommandDispatch<CommandDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
@@ -79,17 +83,7 @@ const CreateProductionReportModal: React.FC<Props> = ({ visible, onClose, onSucc
                 finishGoodId: values.finishGoodId,
             };
 
-            const response = await fetch('/api/proxy/v1/production/production-report', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to create production report');
-            }
+            await commandDispatch(createProductionReport(payload)).unwrap();
 
             message.success('Production report created successfully');
             form.resetFields();

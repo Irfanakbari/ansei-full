@@ -7,6 +7,7 @@ import {
   ApiProduces,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
+import { ActionAuditDto, ActionAuditQueryDto } from './dto/action-audit.dto';
 import { SystemLogService } from './system-log.service';
 import { SystemLogQueryDto } from './dto/system-log-query.dto';
 import { InventoryLedgerQueryDto } from './dto/inventory-ledger-query.dto';
@@ -90,6 +91,21 @@ export class SystemLogController {
     res.setHeader('Content-Length', buffer.length);
 
     res.end(buffer);
+  }
+
+  @Get('actions')
+  @Permission('IPCS.SYSTEM_LOG_READ')
+  @ApiOperation({
+    summary: 'Read immutable action evidence and transaction replays',
+  })
+  @ApiSuccessEnvelope({
+    status: 200,
+    type: ActionAuditDto,
+    isArray: true,
+    paginated: true,
+  })
+  actions(@Query() query: ActionAuditQueryDto) {
+    return this.systemLogService.actions(query);
   }
 
   @Get(':id')

@@ -54,6 +54,13 @@ export class IpPrinterService {
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const printer = new ipp.Printer(printerUrl);
+      const timeout = setTimeout(
+        () =>
+          reject(
+            new Error("IPP response timed out; delivery outcome uncertain"),
+          ),
+        PRINTER_TIMEOUT_MS,
+      );
       const msg = {
         "operation-attributes-tag": {
           "requesting-user-name": "ANSEI System",
@@ -64,6 +71,7 @@ export class IpPrinterService {
       };
 
       printer.execute("Print-Job" as any, msg, (err, res) => {
+        clearTimeout(timeout);
         if (err) {
           const ippErr = new Error(
             `[IPP Print Error] Gagal mengirim dokumen ke printer ${printerUrl}: ${err.message}. Pastikan service IPP berjalan di port 631 dan URL valid.`,
@@ -74,9 +82,7 @@ export class IpPrinterService {
         }
 
         if (res.statusCode !== "successful-ok") {
-          this.logger.warn(
-            `[IPP Status Warning] Printer ${printerUrl} mengembalikan status non-success: ${res.statusCode}`,
-          );
+          return reject(new Error("IPP server did not accept the print job"));
         } else {
           this.logger.log(
             `IPP Print job submitted successfully to ${printerUrl}. Job ID: ${res["job-attributes-tag"]?.["job-id"] || "unknown"}`,

@@ -1,222 +1,246 @@
-/* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
+/* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
 "use client";
-
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Table, Card, Breadcrumb, App, Input, Space, Button, Tag } from 'antd';
-import type { InputRef } from 'antd';
-import { EditOutlined, DeleteOutlined, ReloadOutlined, ExclamationCircleOutlined, SearchOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
-import ToolbarWrapper from '@/components/ToolbarWrapper';
-import ButtonToolbar from '@/components/ButtonToolbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { BOMEntity, BOMGrouped, fetchBOM, deleteBOM, setBOMQuery } from '@/store/features/master/bomSlice';
-import CreateBOMModal from './_components/CreateBOMModal';
-import EditBOMModal from './_components/EditBOMModal';
-import DetailBOMModal from './_components/DetailBOMModal';
-
+import { useEffect, useState } from "react";
+import {
+  Alert,
+  App,
+  Breadcrumb,
+  Card,
+  Checkbox,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Table,
+  Tabs,
+  Tag,
+} from "antd";
+import type { TableProps } from "antd";
+import { PlusOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import type { AppDispatch, RootState } from "@/store";
+import ToolbarWrapper from "@/components/ToolbarWrapper";
+import ButtonToolbar from "@/components/ButtonToolbar";
+import { usePhasePermission } from "@/components/traceability/usePhasePermission";
+import {
+  createRevision,
+  fetchRevisions,
+  setRevisionQuery,
+} from "@/store/features/traceability/traceabilitySlice";
+import type { BomRevision, Page } from "@/store/features/traceability/types";
+import { fetchFinishGood } from "@/store/features/master/finishGoodSlice";
 export default function BillOfMaterialsPage() {
-    const { message, modal } = App.useApp();
-    const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, pagination, query } = useSelector((state: RootState) => state.bom);
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-
-    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-    const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-    const [editData, setEditData] = useState<BOMEntity | null>(null);
-    const [detailData, setDetailData] = useState<BOMGrouped | null>(null);
-
-    useEffect(() => {
-        dispatch(fetchBOM(query));
-    }, [dispatch, query]);
-
-    // Group data by Finish Good
-    const groupedData = useMemo(() => {
-        const groups: Record<number, BOMGrouped> = {};
-        (Array.isArray(data) ? data : []).forEach((item) => {
-            const fgId:any = item.FinishGoodId;
-            if (!groups[fgId]) {
-                groups[fgId] = {
-                    FinishGoodId: fgId,
-                    FGData: item.FGData,
-                    materials: [],
-                };
-            }
-            groups[fgId].materials.push(item);
-        });
-        return Object.values(groups);
-    }, [data]);
-
-    const searchInput = useRef<InputRef>(null);
-
-    const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => confirm()}
-                    style={{ marginBottom: 8, display: 'block' }}
-                />
-                <Space>
-                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
-                        Search
-                    </Button>
-                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
-                        Reset
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-        ),
-        filteredValue: query.search ? [query.search] : null,
-    });
-
-    const columns = [
-        {
-            title: 'FG Part Number',
-            dataIndex: ['FGData', 'PartNumber'],
-            key: 'FGPartNumber',
-            width: 200,
-            render: (_: any, record: BOMGrouped) => (
-                <strong>{record.FGData?.PartNumber}</strong>
-            ),
-            ...getColumnSearchProps('FGData.PartNumber')
-        },
-        {
-            title: 'FG Part Name',
-            dataIndex: ['FGData', 'PartName'],
-            key: 'FGPartName',
-            render: (_: any, record: BOMGrouped) => record.FGData?.PartName || '-',
-            ...getColumnSearchProps('FGData.PartName')
-        },
-        {
-            title: 'Materials',
-            key: 'MaterialCount',
-            width: 120,
-            align: 'center' as const,
-            render: (_: any, record: BOMGrouped) => <Tag color="blue">{record.materials?.length || 0}</Tag>,
-        },
-    ];
-
-    const handleDetail = () => {
-        if (selectedRowKeys.length === 1) {
-            const selectedGroup = groupedData.find((item) => item.FinishGoodId === selectedRowKeys[0]);
-            if (selectedGroup) {
-                setDetailData(selectedGroup);
-                setIsDetailModalVisible(true);
-            }
-        }
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const { message } = App.useApp();
+  const { can } = usePhasePermission();
+  const query = useSelector((s: RootState) => s.phaseOne.revisionQuery);
+  const finishGoods = useSelector((s: RootState) => s.finishGood);
+  const [data, setData] = useState<Page<BomRevision> | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [selected, setSelected] = useState<BomRevision | null>(null);
+  const [refresh, setRefresh] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form] = Form.useForm<{
+    finishGoodId: number;
+    reason: string;
+    importLegacy: boolean;
+  }>();
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const result = await dispatch(fetchRevisions(query)).unwrap();
+        if (alive) setData(result);
+      } catch (e) {
+        if (alive) setError(String(e));
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
     };
-
-    const handleEdit = () => {
-        if (selectedRowKeys.length === 1) {
-            // Get first material from group for edit
-            const selectedGroup = groupedData.find((item) => item.FinishGoodId === selectedRowKeys[0]);
-            if (selectedGroup && selectedGroup.materials.length > 0) {
-                setEditData(selectedGroup.materials[0]);
-                setIsEditModalVisible(true);
-            }
+  }, [dispatch, query, refresh]);
+  const columns: TableProps<BomRevision>["columns"] = [
+    { title: "FG Part Number", render: (_, r) => r.FinishGood.PartNumber },
+    { title: "FG Part Name", render: (_, r) => r.FinishGood.PartName },
+    { title: "Revision", dataIndex: "Revision", width: 90 },
+    {
+      title: "Status",
+      render: (_, r) => (
+        <Tag color={r.Status === "APPROVED" ? "green" : "blue"}>
+          {r.FinishGood.ActiveBomRevisionId === r.Id ? "ACTIVE" : r.Status}
+        </Tag>
+      ),
+    },
+    { title: "Materials", render: (_, r) => r.Lines.length },
+    { title: "Approved By", dataIndex: "ApprovedBy" },
+    {
+      title: "Approved At",
+      render: (_, r) =>
+        r.ApprovedAt
+          ? new Date(r.ApprovedAt).toLocaleString("id-ID", {
+              timeZone: "Asia/Jakarta",
+            })
+          : "-",
+    },
+  ];
+  const create = async () => {
+    try {
+      const value = await form.validateFields();
+      setSaving(true);
+      const result = await dispatch(createRevision(value)).unwrap();
+      setOpen(false);
+      router.push(`/apps/master-data/bill-of-materials/${result.Id}`);
+    } catch (e) {
+      if (typeof e === "string") message.error(e);
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <Card variant="borderless" styles={{ body: { padding: 0 } }}>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: "Home" },
+          { title: "Master Data" },
+          { title: "Bill of Materials" },
+        ]}
+      />
+      <ToolbarWrapper>
+        <ButtonToolbar
+          title="Refresh"
+          icon={<ReloadOutlined />}
+          onClick={() => setRefresh((v) => v + 1)}
+        />
+        <ButtonToolbar
+          title="Create Revision"
+          icon={<PlusOutlined />}
+          enable={can("IPCS.BOM_REVISION_CREATE")}
+          onClick={() => {
+            form.resetFields();
+            setOpen(true);
+            void dispatch(fetchFinishGood({ limit: 50 }));
+          }}
+        />
+        <ButtonToolbar
+          title="Detail"
+          icon={<EyeOutlined />}
+          enable={Boolean(selected)}
+          onClick={() =>
+            selected &&
+            router.push(`/apps/master-data/bill-of-materials/${selected.Id}`)
+          }
+        />
+      </ToolbarWrapper>
+      <Tabs
+        activeKey={
+          query.active === "true" ? "ACTIVE" : (query.status ?? "HISTORY")
         }
-    };
-
-    const handleDelete = () => {
-        if (selectedRowKeys.length === 1) {
-            modal.confirm({
-                title: 'Are you sure you want to delete all BOM for this Finish Good?',
-                icon: <ExclamationCircleOutlined />,
-                content: `Finish Good: ${groupedData.find(d => d.FinishGoodId === selectedRowKeys[0])?.FGData.PartNumber}`,
-                okText: 'Yes, Delete',
-                okType: 'danger',
-                cancelText: 'Cancel',
-                centered: true,
-                onOk: async () => {
-                    try {
-                        // Delete all materials in the group
-                        const group = groupedData.find(g => g.FinishGoodId === selectedRowKeys[0]);
-                        if (group) {
-                            for (const material of group.materials) {
-                                const result = await dispatch(deleteBOM(material.Id));
-
-                                if (deleteBOM.rejected.match(result)) {
-                                    throw new Error((result.payload as string) || 'Failed to delete BOM');
-                                }
-                            }
-                        }
-                        message.success('BOM deleted successfully');
-                        setSelectedRowKeys([]);
-                        dispatch(fetchBOM(query));
-                    } catch (error: unknown) {
-                        const err = error as Error;
-                        message.error(err?.message || String(error) || 'Failed to delete BOM');
-                    }
-                },
-            });
+        onChange={(key) => {
+          setSelected(null);
+          dispatch(
+            setRevisionQuery({
+              page: 1,
+              limit: 20,
+              search: query.search,
+              ...(key === "ACTIVE"
+                ? { active: "true" }
+                : key === "HISTORY"
+                  ? {}
+                  : { status: key }),
+            }),
+          );
+        }}
+        items={[
+          { key: "ACTIVE", label: "Active BOM" },
+          { key: "DRAFT", label: "Drafts" },
+          { key: "SUBMITTED", label: "Pending Approval" },
+          { key: "HISTORY", label: "History" },
+        ]}
+      />
+      <Input.Search
+        placeholder="Search finish good"
+        defaultValue={query.search}
+        allowClear
+        onSearch={(search) =>
+          dispatch(setRevisionQuery({ ...query, search, page: 1 }))
         }
-    };
-
-
-    return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
-            <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Master Data' }, { title: 'Bill of Materials' }]} />
-            <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchBOM(query)); }} />
-                <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
-                <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleDetail} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
-            </ToolbarWrapper>
-
-            <Table
-                rowSelection={{
-                    selectedRowKeys,
-                    onChange: (keys) => setSelectedRowKeys(keys),
-                    checkStrictly: true,
-                    type: 'radio',
-                }}
-                columns={columns}
-                dataSource={groupedData}
-                size="small"
-                loading={loading}
-                onChange={(pageInfo, tableFilters) => dispatch(setBOMQuery({ page: tableFilters.FGPartNumber || tableFilters.FGPartName || tableFilters.FGData ? 1 : pageInfo.current, limit: pageInfo.pageSize, search: String(tableFilters.FGPartNumber?.[0] ?? tableFilters.FGPartName?.[0] ?? tableFilters.FGData?.[0] ?? '') }))}
-                pagination={{
-                    size: 'small',
-                    current: pagination.page,
-                    pageSize: pagination.limit,
-                    total: pagination.totalItems,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Total ${total} items`,
-                }}
-                rowKey="FinishGoodId"
-                scroll={{ y: 'calc(100vh - 380px)' }}
-                className="small-table"
-                style={{ fontSize: '11px' }}
+        style={{ maxWidth: 380, marginBottom: 12 }}
+      />
+      {error && <Alert type="error" title={error} showIcon />}
+      <Table<BomRevision>
+        size="small"
+        className="small-table"
+        rowKey="Id"
+        columns={columns}
+        dataSource={data?.data ?? []}
+        loading={loading}
+        scroll={{ x: 950 }}
+        rowSelection={{
+          type: "radio",
+          selectedRowKeys: selected ? [selected.Id] : [],
+          onChange: (_, rows) => setSelected(rows[0] ?? null),
+        }}
+        onRow={(row) => ({
+          onDoubleClick: () =>
+            router.push(`/apps/master-data/bill-of-materials/${row.Id}`),
+        })}
+        pagination={{
+          current: query.page,
+          pageSize: query.limit,
+          total: data?.meta.totalItems ?? 0,
+          onChange: (page, limit) =>
+            dispatch(setRevisionQuery({ ...query, page, limit })),
+        }}
+      />
+      <Modal
+        centered
+        open={open}
+        title="Create BOM Revision"
+        onCancel={() => setOpen(false)}
+        onOk={() => void create()}
+        confirmLoading={saving}
+        destroyOnHidden
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            name="finishGoodId"
+            label="Finish Good"
+            rules={[{ required: true }]}
+          >
+            <Select
+              showSearch
+              filterOption={false}
+              onSearch={(search) =>
+                void dispatch(fetchFinishGood({ search, limit: 50 }))
+              }
+              loading={finishGoods.loading}
+              options={finishGoods.data.map((f) => ({
+                value: f.Id,
+                label: `${f.PartNumber} � ${f.PartName}`,
+              }))}
             />
-
-            {editData && (
-                <EditBOMModal
-                    visible={isEditModalVisible}
-                    onClose={() => setIsEditModalVisible(false)}
-                    data={editData}
-                />
-            )}
-
-            <CreateBOMModal
-                visible={isCreateModalVisible}
-                onClose={() => setIsCreateModalVisible(false)}
-            />
-
-            {detailData && (
-                <DetailBOMModal
-                    visible={isDetailModalVisible}
-                    onClose={() => setIsDetailModalVisible(false)}
-                    data={detailData}
-                />
-            )}
-        </Card>
-    );
+          </Form.Item>
+          <Form.Item
+            name="reason"
+            label="Change Reason"
+            rules={[{ required: true, whitespace: true }]}
+          >
+            <Input.TextArea maxLength={1000} />
+          </Form.Item>
+          <Form.Item name="importLegacy" valuePropName="checked">
+            <Checkbox>Import current BOM as an initial baseline draft</Checkbox>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </Card>
+  );
 }

@@ -1,3 +1,4 @@
+import { ShoppingQueryDto } from './dto/create-shopping.dto';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -35,7 +36,7 @@ export class ShoppingController {
   @Get()
   @Permission('IPCS.SHOPPING_READ')
   async findAll(
-    @Query() query: SearchPaginationQueryDto,
+    @Query() query: ShoppingQueryDto,
     @CurrentUser() user: ICurrentUser,
   ) {
     return this.shoppingService.findAll(query);

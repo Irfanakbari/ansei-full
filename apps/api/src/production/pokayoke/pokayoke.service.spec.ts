@@ -1,3 +1,10 @@
+// These unit tests inject frozen requirement fixtures; real snapshot persistence is exercised by phase-one.database.spec.ts.
+jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
+  ...jest.requireActual('../../common/helpers/bom-snapshot.helper'),
+  snapshotBomEntries: (tx: {
+    snapshotRequirements: { findMany: () => Promise<unknown> };
+  }) => tx.snapshotRequirements.findMany(),
+}));
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { PokayokeService } from './pokayoke.service';
@@ -32,8 +39,9 @@ describe('PokayokeService', () => {
     productionRelease: {
       update: jest.fn(),
     },
+    productionTraceEvent: { create: jest.fn() },
     $executeRaw: jest.fn(),
-    billOfMaterials: { findMany: jest.fn() },
+    snapshotRequirements: { findMany: jest.fn() },
     shopping: { findMany: jest.fn() },
     inventoryLedger: { aggregate: jest.fn() },
     $transaction: jest.fn(),
@@ -76,7 +84,7 @@ describe('PokayokeService', () => {
         (callback: (tx: typeof mockPrismaService) => Promise<unknown>) =>
           callback(mockPrismaService),
       );
-      mockPrismaService.billOfMaterials.findMany.mockResolvedValue([
+      mockPrismaService.snapshotRequirements.findMany.mockResolvedValue([
         { Qty: 1, MaterialData: { PartNumber: 'MAT-001' } },
       ]);
       mockPrismaService.shopping.findMany.mockResolvedValue([

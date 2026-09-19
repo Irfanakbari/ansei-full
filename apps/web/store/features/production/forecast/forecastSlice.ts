@@ -174,7 +174,7 @@ export const printForecastTag = createAsyncThunk(
     'forecast/printTag',
     async (id: string, { rejectWithValue }) => {
         try {
-            return await post<ApiSuccessEnvelope<{ message: string }>, undefined>(`/production/forecast/${id}/print-tag`, undefined);
+            return (await post<ApiSuccessEnvelope<{ message: string; integrationId: string }>, undefined>(`/production/forecast/${id}/print-tag`, undefined)).data;
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to print tag'));
         }

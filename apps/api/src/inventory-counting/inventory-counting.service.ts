@@ -1,3 +1,4 @@
+import { auditedWrite } from '../common/helpers/audited-transaction.helper';
 import {
   BadRequestException,
   Injectable,
@@ -96,16 +97,18 @@ export class InventoryCountingService {
         location: 'inventory-counting.service.ts:66',
       });
 
-      const result = await this.prisma.stockOpname.create({
-        data: {
-          OpnameNumber: dto.opnameNumber,
-          Category: dto.category,
-          Status: OpnameStatus.DRAFT,
-          Notes: dto.notes,
-          Tolerance: dto.tolerance ?? 0,
-          CreatedBy: createdBy,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.stockOpname.create({
+          data: {
+            OpnameNumber: dto.opnameNumber,
+            Category: dto.category,
+            Status: OpnameStatus.DRAFT,
+            Notes: dto.notes,
+            Tolerance: dto.tolerance ?? 0,
+            CreatedBy: createdBy,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -371,10 +374,12 @@ export class InventoryCountingService {
       });
 
       // STEP 3: Execute update
-      const result = await this.prisma.stockOpname.update({
-        where: { Id: id },
-        data: updateData,
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.stockOpname.update({
+          where: { Id: id },
+          data: updateData,
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -472,9 +477,11 @@ export class InventoryCountingService {
         location: 'inventory-counting.service.ts:350',
       });
 
-      await this.prisma.stockOpname.delete({
-        where: { Id: id },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.stockOpname.delete({
+          where: { Id: id },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -642,9 +649,11 @@ export class InventoryCountingService {
         });
 
         // Create details
-        await this.prisma.stockOpnameDetail.createMany({
-          data: cutOffEntries,
-        });
+        await auditedWrite(this.prisma, (tx) =>
+          tx.stockOpnameDetail.createMany({
+            data: cutOffEntries,
+          }),
+        );
 
         // Re-fetch details for snapshot
         existing.Details = await this.prisma.stockOpnameDetail.findMany({
@@ -1172,10 +1181,12 @@ export class InventoryCountingService {
         updateData.DiffQtyRack = diffQtyRack;
       }
 
-      const result = await this.prisma.stockOpnameDetail.update({
-        where: { Id: detailId },
-        data: updateData,
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.stockOpnameDetail.update({
+          where: { Id: detailId },
+          data: updateData,
+        }),
+      );
 
       // Synchronize paired row for MATERIAL so that both locations are updated
       if (detail.MaterialId) {
@@ -1192,16 +1203,19 @@ export class InventoryCountingService {
             },
           });
           if (rackDetail) {
-            await this.prisma.stockOpnameDetail.update({
-              where: { Id: rackDetail.Id },
-              data: {
-                ActualQty: dto.actualQtyRack,
-                ActualQtyRack: dto.actualQtyRack,
-                DiffQtyRack:
-                  dto.actualQtyRack - (rackDetail.SystemQtyRack ?? 0),
-                DiffQty: dto.actualQtyRack - (rackDetail.SystemQty ?? 0),
-              },
-            });
+            await auditedWrite(this.prisma, (tx) =>
+              tx.stockOpnameDetail.update({
+                where: { Id: rackDetail.Id },
+                data: {
+                  ActualQty: dto.actualQtyRack,
+                  ActualQtyRack: dto.actualQtyRack,
+                  DiffQtyRack:
+                    (dto.actualQtyRack ?? 0) - (rackDetail.SystemQtyRack ?? 0),
+                  DiffQty:
+                    (dto.actualQtyRack ?? 0) - (rackDetail.SystemQty ?? 0),
+                },
+              }),
+            );
           }
         } else if (
           detail.Location === LocationType.RACK &&
@@ -1218,13 +1232,15 @@ export class InventoryCountingService {
             },
           );
           if (warehouseDetail) {
-            await this.prisma.stockOpnameDetail.update({
-              where: { Id: warehouseDetail.Id },
-              data: {
-                ActualQty: dto.actualQty,
-                DiffQty: dto.actualQty - (warehouseDetail.SystemQty ?? 0),
-              },
-            });
+            await auditedWrite(this.prisma, (tx) =>
+              tx.stockOpnameDetail.update({
+                where: { Id: warehouseDetail.Id },
+                data: {
+                  ActualQty: dto.actualQty,
+                  DiffQty: dto.actualQty - (warehouseDetail.SystemQty ?? 0),
+                },
+              }),
+            );
           }
         }
       }

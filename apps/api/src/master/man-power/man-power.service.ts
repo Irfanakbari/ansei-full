@@ -1,3 +1,4 @@
+import { auditedWrite } from '../../common/helpers/audited-transaction.helper';
 import {
   Injectable,
   NotFoundException,
@@ -120,24 +121,26 @@ export class ManPowerService {
         );
       }
 
-      const result = await this.prisma.manPower.create({
-        data: {
-          Nik: dto.nik,
-          Name: dto.name,
-          Line: dto.line,
-          Status: dto.status ?? true,
-          PicturePath: dto.picturePath,
-          ...(dto.skillMatrix && {
-            SkillMatrix: {
-              create: dto.skillMatrix.map((s) => ({
-                Label: s.label,
-                Point: s.point,
-              })),
-            },
-          }),
-        },
-        include: { SkillMatrix: true },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.manPower.create({
+          data: {
+            Nik: dto.nik,
+            Name: dto.name,
+            Line: dto.line,
+            Status: dto.status ?? true,
+            PicturePath: dto.picturePath,
+            ...(dto.skillMatrix && {
+              SkillMatrix: {
+                create: dto.skillMatrix.map((s) => ({
+                  Label: s.label,
+                  Point: s.point,
+                })),
+              },
+            }),
+          },
+          include: { SkillMatrix: true },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -205,28 +208,30 @@ export class ManPowerService {
         location: 'man-power.service.ts:182',
       });
 
-      const result = await this.prisma.manPower.update({
-        where: { Uid: uid },
-        data: {
-          Nik: dto.nik,
-          Name: dto.name,
-          Line: dto.line,
-          Status: dto.status,
-          ...(dto.picturePath !== undefined
-            ? { PicturePath: dto.picturePath }
-            : {}),
-          ...(dto.skillMatrix && {
-            SkillMatrix: {
-              deleteMany: {},
-              create: dto.skillMatrix.map((s) => ({
-                Label: s.label,
-                Point: s.point,
-              })),
-            },
-          }),
-        },
-        include: { SkillMatrix: true },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.manPower.update({
+          where: { Uid: uid },
+          data: {
+            Nik: dto.nik,
+            Name: dto.name,
+            Line: dto.line,
+            Status: dto.status,
+            ...(dto.picturePath !== undefined
+              ? { PicturePath: dto.picturePath }
+              : {}),
+            ...(dto.skillMatrix && {
+              SkillMatrix: {
+                deleteMany: {},
+                create: dto.skillMatrix.map((s) => ({
+                  Label: s.label,
+                  Point: s.point,
+                })),
+              },
+            }),
+          },
+          include: { SkillMatrix: true },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -300,9 +305,11 @@ export class ManPowerService {
         }
       }
 
-      await this.prisma.manPower.delete({
-        where: { Uid: uid },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.manPower.delete({
+          where: { Uid: uid },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -422,12 +429,14 @@ export class ManPowerService {
       });
 
       // Update PicturePath in database
-      const result = await this.prisma.manPower.update({
-        where: { Uid: uid },
-        data: {
-          PicturePath: fileUrl,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.manPower.update({
+          where: { Uid: uid },
+          data: {
+            PicturePath: fileUrl,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -496,12 +505,14 @@ export class ManPowerService {
       }
 
       // Set PicturePath to null in DB
-      const result = await this.prisma.manPower.update({
-        where: { Uid: uid },
-        data: {
-          PicturePath: null,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.manPower.update({
+          where: { Uid: uid },
+          data: {
+            PicturePath: null,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

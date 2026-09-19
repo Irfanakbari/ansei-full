@@ -1,3 +1,4 @@
+import { SearchPaginationQueryDto } from '../../../common/dto/search-pagination-query.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
@@ -6,10 +7,19 @@ import {
   IsOptional,
   IsEnum,
   ValidateIf,
+  IsUUID,
+  IsInt,
+  Min,
 } from 'class-validator';
 import { TypeShopping } from '../../../generated/prisma/enums';
 
 export class CreateShoppingDto {
+  @ApiProperty({ format: 'uuid' }) @IsUUID() requestId: string;
+  @ApiProperty({ enum: ['STANDARD', 'NON_PRODUCTION'] })
+  @IsEnum(['STANDARD', 'NON_PRODUCTION'])
+  purpose: 'STANDARD' | 'NON_PRODUCTION';
+  @ApiPropertyOptional() @IsOptional() @IsUUID() snapshotId?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() destination?: string;
   /**
    * Forecast ID (PO ID) - WAJIB untuk REGULER, TIDAK WAJIB untuk ADDITIONAL
    */
@@ -29,7 +39,8 @@ export class CreateShoppingDto {
   materialId: string;
 
   @ApiProperty({ description: 'Qty yang diambil (pick)', example: 50 })
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   qtyPick: number;
 
   @ApiProperty({
@@ -47,4 +58,24 @@ export class CreateShoppingDto {
   @IsOptional()
   @IsString()
   description?: string;
+}
+
+export class ShoppingQueryDto extends SearchPaginationQueryDto {
+  @ApiPropertyOptional({
+    enum: [
+      'STANDARD',
+      'NG_REPLACEMENT',
+      'NON_PRODUCTION',
+      'LEGACY_UNCLASSIFIED',
+    ],
+  })
+  @IsOptional()
+  @IsEnum([
+    'STANDARD',
+    'NG_REPLACEMENT',
+    'NON_PRODUCTION',
+    'LEGACY_UNCLASSIFIED',
+  ])
+  purpose?:
+    'STANDARD' | 'NG_REPLACEMENT' | 'NON_PRODUCTION' | 'LEGACY_UNCLASSIFIED';
 }

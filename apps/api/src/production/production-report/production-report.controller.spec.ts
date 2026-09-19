@@ -95,10 +95,10 @@ describe('ProductionReportController', () => {
       };
       service.create.mockResolvedValue(mockReport);
 
-      const result = await controller.create(createDto);
+      const result = await controller.create(createDto, mockUser);
 
       expect(result).toEqual(mockReport);
-      expect(service.create).toHaveBeenCalledWith(createDto, 'OPERATOR');
+      expect(service.create).toHaveBeenCalledWith(createDto, mockUser.username);
     });
   });
 

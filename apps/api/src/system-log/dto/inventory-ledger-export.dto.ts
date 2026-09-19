@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString, IsDateString, IsEnum } from 'class-validator';
-import { ItemCategory, TransactionType } from 'src/generated/prisma/enums';
+import { ItemCategory, TransactionType } from '../../generated/prisma/enums';
 
 export class InventoryLedgerExportDto {
   @ApiPropertyOptional({

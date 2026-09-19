@@ -1,3 +1,4 @@
+import { auditedTransaction } from '../../common/helpers/audited-transaction.helper';
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-18 */
 import {
   BadRequestException,
@@ -227,9 +228,38 @@ export class AssemblyService {
       createdBy: actor,
     });
     try {
-      return await this.prisma.$transaction(async (tx) => {
+      return await auditedTransaction(this.prisma, async (tx) => {
         await lockProductionFlow(tx);
         const result = await work(tx);
+        const session = await tx.assemblySession.findUniqueOrThrow({
+          where: { Id: result.Id },
+          include: { LabelData: true },
+        });
+        const type = `ASSEMBLY_${action}`;
+        if (
+          !(await tx.productionTraceEvent.findFirst({
+            where: {
+              SourceType: 'AssemblySession',
+              SourceId: session.Id,
+              Type: type,
+            },
+          }))
+        )
+          await tx.productionTraceEvent.create({
+            data: {
+              ForecastId: session.LabelData.ForecastId,
+              ReleaseId: session.LabelData.ProductionReleaseId,
+              Type: type,
+              SourceType: 'AssemblySession',
+              SourceId: session.Id,
+              Actor: actor,
+              CorrelationId:
+                action === 'START'
+                  ? session.StartRequestId
+                  : (session.CompleteRequestId ?? session.Id),
+              ProcessId: process.ProcessId,
+            },
+          });
         await this.log.addLog({
           processId: process.ProcessId,
           message: `Assembly ${action} committed for session ${result.Id}`,

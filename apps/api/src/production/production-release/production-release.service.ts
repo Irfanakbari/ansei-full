@@ -1,4 +1,13 @@
 import {
+  auditedTransaction,
+  auditedWrite,
+} from '../../common/helpers/audited-transaction.helper';
+import {
+  snapshotRelease,
+  assertNoOutstandingReplacement,
+  latestSnapshot,
+} from '../../common/helpers/bom-snapshot.helper';
+import {
   BadRequestException,
   ConflictException,
   Injectable,
@@ -88,6 +97,7 @@ export class ProductionReleaseService {
                 },
               },
               Shopping: {
+                where: { Purpose: 'STANDARD' },
                 select: {
                   QtyPick: true,
                 },
@@ -167,6 +177,19 @@ export class ProductionReleaseService {
       bomMap.set(fg.PartNumber, materialQty);
     }
 
+    const orderSnapshots = new Map(
+      await Promise.all(
+        releases.flatMap((r) =>
+          r.Forecasts.map(
+            async (f) =>
+              [
+                f.PoId,
+                await latestSnapshot(this.prisma, f.PoId, r.Id),
+              ] as const,
+          ),
+        ),
+      ),
+    );
     // Get delivery progress data (based on DeliveryHistory) and pokayoke progress (based on Scanned)
     const releaseIds = releases.map((r) => r.Id).filter(Boolean);
 
@@ -240,7 +263,12 @@ export class ProductionReleaseService {
 
       // Progress Shopping: based on BOM material requirements
       const totalMaterialNeeded = release.Forecasts.reduce((sum, forecast) => {
-        const bomQtyPerFg = bomMap.get(forecast.FinishGoodId) || 0;
+        const saved = orderSnapshots.get(forecast.PoId);
+        const bomQtyPerFg = saved
+          ? saved.Lines.reduce((n, l) => n + l.QtyPerUnit, 0)
+          : release.Status === 'DRAFT'
+            ? bomMap.get(forecast.FinishGoodId) || 0
+            : 0;
         return sum + forecast.Qty * bomQtyPerFg;
       }, 0);
 
@@ -306,6 +334,16 @@ export class ProductionReleaseService {
       include: {
         Forecasts: {
           include: {
+            BomSnapshots: {
+              select: {
+                Id: true,
+                Version: true,
+                RevisionId: true,
+                CreatedAt: true,
+              },
+              orderBy: { CreatedAt: 'desc' },
+              take: 1,
+            },
             PartData: {
               select: {
                 PartNumber: true,
@@ -313,6 +351,7 @@ export class ProductionReleaseService {
               },
             },
             Shopping: {
+              where: { Purpose: 'STANDARD' },
               select: {
                 Id: true,
                 QtyPick: true,
@@ -536,7 +575,8 @@ export class ProductionReleaseService {
       createdBy: actor,
     });
     try {
-      const releaseNumber = await this.prisma.$transaction(
+      const releaseNumber = await auditedTransaction(
+        this.prisma,
         async (tx) => {
           await lockProductionFlow(tx);
           const release = await this.requireReleased(tx, id);
@@ -598,7 +638,8 @@ export class ProductionReleaseService {
       createdBy: actor,
     });
     try {
-      await this.prisma.$transaction(
+      await auditedTransaction(
+        this.prisma,
         async (tx) => {
           await lockProductionFlow(tx);
           await this.requireReleased(tx, id);
@@ -623,6 +664,7 @@ export class ProductionReleaseService {
             throw new ConflictException(
               'Forecast assignment changed. Refresh and try again.',
             );
+          await snapshotRelease(tx, id, actor, log.ProcessId);
           const createdLabels = await tx.labelData.createMany({ data: labels });
           if (createdLabels.count !== labels.length)
             throw new ConflictException(
@@ -664,7 +706,8 @@ export class ProductionReleaseService {
       createdBy: actor,
     });
     try {
-      await this.prisma.$transaction(
+      await auditedTransaction(
+        this.prisma,
         async (tx) => {
           await lockProductionFlow(tx);
           await this.requireReleased(tx, id);
@@ -748,7 +791,8 @@ export class ProductionReleaseService {
       }
 
       const forecastIds = [...new Set(dto.forecastIds)];
-      const result = await this.prisma.$transaction(
+      const result = await auditedTransaction(
+        this.prisma,
         async (tx) => {
           await lockProductionFlow(tx);
           await assertNoActiveInventoryCounting(
@@ -851,7 +895,8 @@ export class ProductionReleaseService {
         );
       }
 
-      const result = await this.prisma.$transaction(
+      const result = await auditedTransaction(
+        this.prisma,
         async (tx) => {
           await lockProductionFlow(tx);
           const existing = await tx.productionRelease.findUnique({
@@ -1111,6 +1156,31 @@ export class ProductionReleaseService {
             });
           }
 
+          if (isClosing) await assertNoOutstandingReplacement(tx, id);
+          if (
+            dto.status === ProductionStatus.RELEASED ||
+            existing.Status === ProductionStatus.RELEASED
+          )
+            await snapshotRelease(tx, id, updatedBy, logProcess!.ProcessId);
+          if (dto.status && dto.status !== existing.Status) {
+            const linkedOrders = await tx.forecast.findMany({
+              where: { ProductionReleaseId: id },
+              select: { PoId: true },
+            });
+            await tx.productionTraceEvent.createMany({
+              data: linkedOrders.map((order) => ({
+                ForecastId: order.PoId,
+                ReleaseId: id,
+                Type: 'RELEASE_STATUS_CHANGED',
+                SourceType: 'ProductionRelease',
+                SourceId: id,
+                Actor: updatedBy,
+                CorrelationId: logProcess!.ProcessId,
+                ProcessId: logProcess!.ProcessId,
+                Metadata: { before: existing.Status, after: dto.status! },
+              })),
+            });
+          }
           return tx.productionRelease.update({
             where: { Id: id },
             data: {
@@ -1269,10 +1339,12 @@ export class ProductionReleaseService {
     }
 
     if (labelDataToCreate.length > 0) {
-      await this.prisma.labelData.createMany({
-        data: labelDataToCreate,
-        skipDuplicates: true,
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.labelData.createMany({
+          data: labelDataToCreate,
+          skipDuplicates: true,
+        }),
+      );
 
       await this.logService.addLog({
         processId,
@@ -1321,7 +1393,7 @@ export class ProductionReleaseService {
       });
 
       // Use transaction to delete related data
-      await this.prisma.$transaction(async (tx) => {
+      await auditedTransaction(this.prisma, async (tx) => {
         await lockProductionFlow(tx);
         const processId = logProcess!.ProcessId;
         const existing = await tx.productionRelease.findUnique({
@@ -1467,13 +1539,15 @@ export class ProductionReleaseService {
       throw new NotFoundException(`ProductionRelease with id ${id} not found`);
     }
 
-    return this.prisma.productionRelease.update({
-      where: { Id: id },
-      data: {
-        TotalGoodQty: release.TotalGoodQty + goodQty,
-        TotalNgQty: release.TotalNgQty + ngQty,
-      },
-    });
+    return auditedWrite(this.prisma, (tx) =>
+      tx.productionRelease.update({
+        where: { Id: id },
+        data: {
+          TotalGoodQty: release.TotalGoodQty + goodQty,
+          TotalNgQty: release.TotalNgQty + ngQty,
+        },
+      }),
+    );
   }
 
   async uploadAttachment(
@@ -1529,8 +1603,8 @@ export class ProductionReleaseService {
           subFolder: dto.productionReleaseId,
         });
         uploadedPaths.push(filePath);
-        const attachment = await this.prisma.productionReleaseAttachment.create(
-          {
+        const attachment = await auditedWrite(this.prisma, (tx) =>
+          tx.productionReleaseAttachment.create({
             data: {
               FileName: storedFileName,
               FilePath: filePath,
@@ -1540,7 +1614,7 @@ export class ProductionReleaseService {
               ProductionReleaseId: dto.productionReleaseId,
               CreatedBy: createdBy,
             },
-          },
+          }),
         );
         attachments.push(this.toAttachmentResponse(attachment));
       }
@@ -1625,17 +1699,19 @@ export class ProductionReleaseService {
         fileBuffer: file.buffer,
         subFolder: productionReleaseId,
       });
-      const updated = await this.prisma.productionReleaseAttachment.update({
-        where: { id: attachmentId },
-        data: {
-          FileName: storedFileName,
-          FilePath: newPath,
-          OriginalFileName: file.originalname,
-          FileSize: file.size,
-          MimeType: file.mimetype,
-          UpdatedBy: updatedBy,
-        },
-      });
+      const updated = await auditedWrite(this.prisma, (tx) =>
+        tx.productionReleaseAttachment.update({
+          where: { id: attachmentId },
+          data: {
+            FileName: storedFileName,
+            FilePath: newPath,
+            OriginalFileName: file.originalname,
+            FileSize: file.size,
+            MimeType: file.mimetype,
+            UpdatedBy: updatedBy,
+          },
+        }),
+      );
       await this.logService.addLog({
         processId: logProcess.ProcessId,
         message: `Replaced attachment ${attachmentId} for production release ${productionReleaseId}`,
@@ -1748,9 +1824,11 @@ export class ProductionReleaseService {
       }
 
       // Delete record from database
-      await this.prisma.productionReleaseAttachment.delete({
-        where: { id: attachmentId },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.productionReleaseAttachment.delete({
+          where: { id: attachmentId },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -1838,8 +1916,10 @@ export class ProductionReleaseService {
           },
         },
         Shopping: {
+          where: { Purpose: 'STANDARD' },
           select: {
             Id: true,
+            SnapshotLineId: true,
             MaterialId: true,
             QtyPick: true,
             MaterialData: {
@@ -1885,6 +1965,7 @@ export class ProductionReleaseService {
         ? await this.prisma.billOfMaterials.findMany({
             where: {
               FinishGoodId: { in: fgIds },
+              FGData: { ActiveBomRevisionId: { not: null } },
             },
             select: {
               FinishGoodId: true,
@@ -1926,11 +2007,42 @@ export class ProductionReleaseService {
     }
 
     // Transform data to match the expected format
+    const snapshots = new Map(
+      await Promise.all(
+        forecastsData.map(
+          async (f) =>
+            [
+              f.PoId,
+              await latestSnapshot(this.prisma, f.PoId, releaseId),
+            ] as const,
+        ),
+      ),
+    );
     const forecasts = forecastsData.map((forecast) => {
       const fgId = fgPartNumberToIdMap.get(forecast.FinishGoodId);
-      const bomQtyPerFg = fgId ? (bomQtyPerFgMap.get(fgId) ?? 0) : 0;
+      const snapshot = snapshots.get(forecast.PoId);
+      const bomQtyPerFg = snapshot
+        ? snapshot.Lines.reduce((n, l) => n + l.QtyPerUnit, 0)
+        : release.Status === 'DRAFT' && fgId
+          ? (bomQtyPerFgMap.get(fgId) ?? 0)
+          : 0;
       const qtyRequired = forecast.Qty * bomQtyPerFg;
-      const bomMaterials = fgId ? bomByFgMap.get(fgId) : undefined;
+      const bomMaterials = snapshot
+        ? new Map(
+            snapshot.Lines.map((line) => [
+              line.MaterialId,
+              {
+                qty: line.QtyPerUnit,
+                materialData: {
+                  PartNumber: line.PartNumber,
+                  PartName: line.PartName,
+                },
+              },
+            ]),
+          )
+        : release.Status === 'DRAFT' && fgId
+          ? bomByFgMap.get(fgId)
+          : undefined;
 
       // Get shopping data or generate from BOM if empty
       let shoppingList: Array<{
@@ -1955,8 +2067,10 @@ export class ProductionReleaseService {
           );
 
           // Find matching BOM entry by material ID
-          let qtyRequiredPerMaterial = 0;
-          if (bomMaterials) {
+          let qtyRequiredPerMaterial =
+            snapshot?.Lines.find((line) => line.Id === shop.SnapshotLineId)
+              ?.RequiredQty ?? 0;
+          if (!qtyRequiredPerMaterial && bomMaterials) {
             for (const [bomMaterialId, bomInfo] of bomMaterials) {
               if (shop.MaterialId === bomInfo.materialData.PartNumber) {
                 qtyRequiredPerMaterial = bomInfo.qty * forecast.Qty;

@@ -1,3 +1,4 @@
+import { snapshotBomEntries } from '../../common/helpers/bom-snapshot.helper';
 import {
   Injectable,
   NotFoundException,
@@ -160,20 +161,11 @@ export class DeliveryService {
       });
 
       // Get BOM for this FinishGood
-      const bomEntries = await this.prisma.billOfMaterials.findMany({
-        where: { FGData: { PartNumber: forecast.FinishGoodId } },
-        include: {
-          MaterialData: {
-            select: {
-              PartNumber: true,
-            },
-          },
-        },
-      });
+      const bomEntries = await snapshotBomEntries(this.prisma, forecast.PoId);
 
       // Get all shopping for this forecast
       const shoppings = await this.prisma.shopping.findMany({
-        where: { ForecastId: forecast.PoId },
+        where: { ForecastId: forecast.PoId, Purpose: 'STANDARD' },
         select: { MaterialId: true, QtyPick: true },
       });
 
@@ -442,6 +434,18 @@ export class DeliveryService {
             tx,
           );
 
+          await tx.productionTraceEvent.create({
+            data: {
+              ForecastId: labelData.ForecastId,
+              ReleaseId: labelData.ProductionReleaseId,
+              Type: 'DELIVERED',
+              SourceType: 'DeliveryHistory',
+              SourceId: String(delivery.Id),
+              Actor: createdBy,
+              CorrelationId: localProcessId,
+              ProcessId: localProcessId,
+            },
+          });
           return { delivery, isDuplicate: false };
         },
       );

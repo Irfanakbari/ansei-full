@@ -1,7 +1,25 @@
 import {
+  auditedTransaction,
+  auditedWrite,
+} from '../../common/helpers/audited-transaction.helper';
+import { lockInventoryCategory } from '../../common/helpers/inventory-transaction.helper';
+import { ShoppingQueryDto } from './dto/create-shopping.dto';
+import {
+  orderBom,
+  snapshotBomEntries,
+} from '../../common/helpers/bom-snapshot.helper';
+import {
+  claimCommand,
+  commandFingerprint,
+  recordCommandReplay,
+  finishCommand,
+} from '../../common/helpers/business-command.helper';
+
+import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -29,6 +47,11 @@ import { lockProductionFlow } from '../../common/helpers/production-flow.helper'
  * Interface for BOM summary response
  */
 export interface BomSummary {
+  standardRequired: number;
+  standardIssued: number;
+  replacementIssued: number;
+  materialNg: number;
+  remainingReplacement: number;
   materialId: string;
   materialName: string;
   bomQtyPerUnit: number;
@@ -42,6 +65,8 @@ export interface BomSummary {
  * Interface for forecast picking status response
  */
 export interface ForecastPickingStatus {
+  snapshotId: string;
+  bomRevision: number;
   forecastId: string;
   finishGoodId: string;
   finishGoodName: string;
@@ -59,6 +84,11 @@ export interface ForecastPickingStatus {
  * Interface for check requirement response
  */
 export interface CheckRequirementItem {
+  standardRequired: number;
+  standardIssued: number;
+  replacementIssued: number;
+  materialNg: number;
+  remainingReplacement: number;
   materialId: string;
   materialName: string;
   bomQtyPerUnit: number;
@@ -69,11 +99,13 @@ export interface CheckRequirementItem {
 }
 
 export interface CheckRequirementResponse {
+  snapshotId: string;
+  bomRevision: number;
   forecastId: string;
   finishGoodId: string;
   finishGoodName: string;
   forecastQty: number;
-  productionReleaseStatus: string | null;
+  productionReleaseStatus: ProductionStatus | null;
   requirements: CheckRequirementItem[];
   summary: {
     totalMaterials: number;
@@ -93,7 +125,7 @@ export class ShoppingService {
     private readonly outboxService: OutboxService,
   ) {}
 
-  async findAll(query: SearchPaginationQueryDto) {
+  async findAll(query: ShoppingQueryDto) {
     const where: Prisma.ShoppingWhereInput = query.search
       ? {
           OR: [
@@ -102,6 +134,7 @@ export class ShoppingService {
           ],
         }
       : {};
+    if (query.purpose) where.Purpose = query.purpose;
     const [totalItems, data] = await Promise.all([
       this.prisma.shopping.count({ where }),
       this.prisma.shopping.findMany({
@@ -144,7 +177,7 @@ export class ShoppingService {
 
   async findByForecastId(forecastId: string) {
     return this.prisma.shopping.findMany({
-      where: { ForecastId: forecastId },
+      where: { ForecastId: forecastId, Purpose: 'STANDARD' },
       include: {
         MaterialData: true,
         ForecastData: true,
@@ -174,114 +207,63 @@ export class ShoppingService {
   async getForecastPickingStatus(
     forecastId: string,
   ): Promise<ForecastPickingStatus> {
-    // Get Forecast dengan ProductionRelease
-    const forecast = await this.prisma.forecast.findUnique({
-      where: { PoId: forecastId },
-      include: {
-        PartData: {
-          select: {
-            PartNumber: true,
-            PartName: true,
-          },
-        },
-      },
-    });
-
-    // Get ProductionRelease separately
-    const productionRelease = forecast?.ProductionReleaseId
-      ? await this.prisma.productionRelease.findUnique({
-          where: { Id: forecast.ProductionReleaseId },
-          select: { Status: true },
-        })
-      : null;
-
-    if (!forecast) {
-      throw new NotFoundException(`Forecast ${forecastId} not found`);
-    }
-
-    // Get semua BOM untuk FinishGood ini (Filter by FGData.PartNumber)
-    // Include semua field yang diperlukan
-    const bomEntries = await this.prisma.billOfMaterials.findMany({
-      where: { FGData: { PartNumber: forecast.FinishGoodId } },
-      include: {
-        FGData: {
-          select: {
-            Id: true,
-            PartNumber: true,
-            PartName: true,
-          },
-        },
-        MaterialData: {
-          select: {
-            Id: true,
-            PartNumber: true,
-            PartName: true,
-          },
-        },
-      },
-    });
-
-    // Get semua shopping untuk forecast ini
-    const shoppings = await this.prisma.shopping.findMany({
-      where: { ForecastId: forecastId },
-      select: {
-        MaterialId: true,
-        QtyPick: true,
-      },
-    });
-
-    // Calculate total picked per material
-    const pickedByMaterial = new Map<string, number>();
-    for (const shop of shoppings) {
-      const current = pickedByMaterial.get(shop.MaterialId) || 0;
-      pickedByMaterial.set(shop.MaterialId, current + shop.QtyPick);
-    }
-
-    // Build BOM summary
-    const bomSummary: BomSummary[] = bomEntries.map((bom) => {
-      const totalRequired = forecast.Qty * bom.Qty;
-      const alreadyPicked =
-        pickedByMaterial.get(bom.MaterialData.PartNumber) || 0;
-      const remainingToPick = totalRequired - alreadyPicked;
-
-      return {
-        materialId: bom.MaterialData.PartNumber,
-        materialName: bom.MaterialData.PartName,
-        bomQtyPerUnit: bom.Qty,
-        totalRequired,
-        alreadyPicked,
-        remainingToPick,
-        isCompleted: remainingToPick <= 0,
-      };
-    });
-
-    // Calculate progress
-    const totalMaterials = bomSummary.length;
-    const completedMaterials = bomSummary.filter((b) => b.isCompleted).length;
-    const totalPicked = bomSummary.reduce((sum, b) => sum + b.alreadyPicked, 0);
-    const totalRequired = bomSummary.reduce(
-      (sum, b) => sum + b.totalRequired,
-      0,
-    );
-    const totalPickedPercent =
-      totalRequired > 0 ? Math.round((totalPicked / totalRequired) * 100) : 0;
-
+    const requirements = await this.checkRequirement(forecastId);
     return {
-      forecastId: forecast.PoId,
-      finishGoodId: forecast.FinishGoodId,
-      finishGoodName: forecast.PartData.PartName,
-      forecastQty: forecast.Qty,
-      status: productionRelease?.Status || null,
-      bomSummary,
+      snapshotId: requirements.snapshotId,
+      bomRevision: requirements.bomRevision,
+      forecastId: requirements.forecastId,
+      finishGoodId: requirements.finishGoodId,
+      finishGoodName: requirements.finishGoodName,
+      forecastQty: requirements.forecastQty,
+      status: requirements.productionReleaseStatus,
+      bomSummary: requirements.requirements.map((line) => ({
+        ...line,
+        totalRequired: line.standardRequired,
+        alreadyPicked: line.standardIssued,
+        remainingToPick: line.qtyRemaining,
+      })),
       progress: {
-        totalMaterials,
-        completedMaterials,
-        totalPickedPercent,
+        totalMaterials: requirements.summary.totalMaterials,
+        completedMaterials: requirements.summary.completedMaterials,
+        totalPickedPercent: requirements.summary.overallPercentage,
       },
     };
   }
 
   async create(dto: CreateShoppingDto, createdBy: string) {
+    if (
+      dto.purpose === 'NON_PRODUCTION' &&
+      (!dto.destination?.trim() || !dto.description?.trim() || dto.forecastId)
+    )
+      throw new BadRequestException(
+        'Non-production requires destination and reason, without a PO.',
+      );
+    if ((dto.type === 'REGULER') !== (dto.purpose === 'STANDARD'))
+      throw new BadRequestException('Shopping type and purpose do not match.');
+    const previous = await this.prisma.businessCommand.findUnique({
+      where: {
+        Scope_RequestId: { Scope: 'SHOPPING', RequestId: dto.requestId },
+      },
+    });
+    if (previous) {
+      if (
+        previous.Actor !== createdBy ||
+        previous.Fingerprint !== commandFingerprint(dto)
+      )
+        throw new ConflictException(
+          'Request identity was already used for another operation.',
+        );
+      if (previous.Result === null)
+        throw new ConflictException(
+          'Transaction result is unavailable; reconcile before retrying.',
+        );
+      await recordCommandReplay(this.prisma, previous.Id, createdBy);
+      const saved = previous.Result as { shoppingId: string };
+      return this.prisma.shopping.findUniqueOrThrow({
+        where: { Id: saved.shoppingId },
+        include: { MaterialData: true, ForecastData: true },
+      });
+    }
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -354,7 +336,7 @@ export class ShoppingService {
 
     // STEP 3: POKAYOKE - BOM harus ada untuk FinishGood ini
     const bomEntry = await this.validateBOMExists(
-      forecast.FinishGoodId,
+      forecastId,
       dto.materialId,
       processId,
     );
@@ -418,7 +400,7 @@ export class ShoppingService {
     // Include the current pick in the calculation (since it hasn't been committed yet)
     const shouldIncrementFinishGood = await this.checkAllBomsComplete(
       forecastId,
-      forecast.FinishGoodId,
+      forecastId,
       dto.materialId,
       dto.qtyPick,
       processId,
@@ -476,14 +458,7 @@ export class ShoppingService {
     }
 
     // Get all BOM entries for this FinishGood
-    const bomEntries = await this.prisma.billOfMaterials.findMany({
-      where: { FGData: { PartNumber: finishGoodId } },
-      include: {
-        MaterialData: {
-          select: { PartNumber: true },
-        },
-      },
-    });
+    const bomEntries = await snapshotBomEntries(this.prisma, forecastId);
 
     if (bomEntries.length === 0) {
       await this.logService.addLog({
@@ -513,6 +488,7 @@ export class ShoppingService {
       const shoppings = await this.prisma.shopping.findMany({
         where: {
           ForecastId: forecastId,
+          Purpose: 'STANDARD',
           MaterialId: materialPartNumber,
         },
         select: { QtyPick: true },
@@ -626,7 +602,48 @@ export class ShoppingService {
       location: 'shopping.service.ts:320',
     });
 
-    const result = await this.prisma.$transaction(async (tx) => {
+    const result = await auditedTransaction(this.prisma, async (tx) => {
+      await lockInventoryCategory(tx, 'MATERIAL');
+      await lockProductionFlow(tx);
+      const { command, duplicate } = await claimCommand(
+        tx,
+        'SHOPPING',
+        dto.requestId,
+        createdBy,
+        dto,
+      );
+      if (duplicate) {
+        const saved = command.Result as { shoppingId: string };
+        return tx.shopping.findUniqueOrThrow({
+          where: { Id: saved.shoppingId },
+          include: { MaterialData: true, ForecastData: true },
+        });
+      }
+      await assertNoActiveInventoryCounting(
+        tx,
+        ItemCategory.MATERIAL,
+        'Shopping Material',
+      );
+      const snapshot =
+        dto.purpose === 'STANDARD' ? await orderBom(tx, dto.forecastId!) : null;
+      if (dto.snapshotId && snapshot?.Id !== dto.snapshotId)
+        throw new BadRequestException(
+          'BOM snapshot changed. Refresh the order.',
+        );
+      const identity = snapshot
+        ? await tx.material.findUniqueOrThrow({
+            where: { PartNumber: dto.materialId },
+            select: { Id: true },
+          })
+        : null;
+      const snapshotLine = snapshot?.Lines.find(
+        (line) => line.MaterialId === identity?.Id,
+      );
+      if (snapshot && !snapshotLine)
+        throw new BadRequestException(
+          'Material is not in the order BOM snapshot.',
+        );
+
       if (dto.forecastId && dto.type === TypeShopping.REGULER) {
         await lockProductionFlow(tx);
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${dto.forecastId}))`;
@@ -656,16 +673,13 @@ export class ShoppingService {
         }
 
         const [bomEntry, committedPicks] = await Promise.all([
-          tx.billOfMaterials.findFirst({
-            where: {
-              FGData: { PartNumber: finishGoodId },
-              MaterialData: { PartNumber: dto.materialId },
-            },
-            select: { Qty: true },
-          }),
+          snapshotBomEntries(tx, dto.forecastId).then((lines) =>
+            lines.find((l) => l.MaterialData.PartNumber === dto.materialId),
+          ),
           tx.shopping.findMany({
             where: {
               ForecastId: dto.forecastId,
+              Purpose: 'STANDARD',
               MaterialId: dto.materialId,
             },
             select: { QtyPick: true },
@@ -686,6 +700,7 @@ export class ShoppingService {
 
       await tx.$executeRaw`SELECT 1 FROM "Material" WHERE "PartNumber" = ${dto.materialId} FOR UPDATE`;
 
+      await tx.$executeRaw`SELECT 1 FROM "Material" WHERE "PartNumber" = ${dto.materialId} FOR UPDATE`;
       // Get current QtyRack
       const material = await tx.material.findUnique({
         where: { PartNumber: dto.materialId },
@@ -693,6 +708,21 @@ export class ShoppingService {
       });
 
       const balanceBefore = material?.QtyRack || 0;
+      const ledger = await tx.inventoryLedger.aggregate({
+        where: {
+          MaterialId: dto.materialId,
+          ItemCategory: 'MATERIAL',
+          Location: 'RACK',
+        },
+        _sum: { QtyIn: true, QtyOut: true },
+      });
+      if (
+        balanceBefore !==
+        (ledger._sum.QtyIn ?? 0) - (ledger._sum.QtyOut ?? 0)
+      )
+        throw new BadRequestException(
+          'Rack cache differs from ledger. Reconcile before shopping.',
+        );
       const balanceAfter = balanceBefore - dto.qtyPick;
 
       if (balanceAfter < 0) {
@@ -747,6 +777,10 @@ export class ShoppingService {
           ForecastId: validForecastId,
           MaterialId: dto.materialId,
           QtyPick: dto.qtyPick,
+          Purpose: dto.purpose,
+          Destination: dto.destination,
+          SnapshotLineId: snapshotLine?.Id,
+          CommandId: command.Id,
           Type: dto.type,
           Description: dto.description,
           CreatedBy: createdBy,
@@ -876,6 +910,20 @@ export class ShoppingService {
         undefined,
         tx,
       );
+      if (dto.forecastId)
+        await tx.productionTraceEvent.create({
+          data: {
+            ForecastId: dto.forecastId,
+            ReleaseId: snapshot?.ReleaseId,
+            Type: 'STANDARD_ISSUED',
+            SourceType: 'Shopping',
+            SourceId: shopping.Id,
+            Actor: createdBy,
+            CorrelationId: dto.requestId,
+            ProcessId: processId,
+          },
+        });
+      await finishCommand(tx, command.Id, { shoppingId: shopping.Id });
       return shopping;
     });
 
@@ -888,15 +936,12 @@ export class ShoppingService {
     finishGoodId: string,
     forecastQty: number,
   ): Promise<boolean> {
-    const bomEntries = await tx.billOfMaterials.findMany({
-      where: { FGData: { PartNumber: finishGoodId } },
-      include: { MaterialData: { select: { PartNumber: true } } },
-    });
+    const bomEntries = await snapshotBomEntries(tx, forecastId);
 
     if (bomEntries.length === 0) return false;
 
     const shoppings = await tx.shopping.findMany({
-      where: { ForecastId: forecastId },
+      where: { ForecastId: forecastId, Purpose: 'STANDARD' },
       select: { MaterialId: true, QtyPick: true },
     });
     const picked = new Map<string, number>();
@@ -948,9 +993,11 @@ export class ShoppingService {
         location: 'shopping.service.ts:410',
       });
 
-      await this.prisma.shopping.delete({
-        where: { Id: id },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.shopping.delete({
+          where: { Id: id },
+        }),
+      );
 
       await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
 
@@ -1128,12 +1175,12 @@ export class ShoppingService {
     processId: string,
   ): Promise<BillOfMaterialsModel> {
     // Cari BOM dengan filter FGData.PartNumber
-    const bomEntry = await this.prisma.billOfMaterials.findFirst({
-      where: {
-        FGData: { PartNumber: finishGoodPartNumber },
-        MaterialData: { PartNumber: materialId },
-      },
-    });
+    const bomEntry = await snapshotBomEntries(
+      this.prisma,
+      finishGoodPartNumber,
+    ).then((lines) =>
+      lines.find((l) => l.MaterialData.PartNumber === materialId),
+    );
 
     if (!bomEntry) {
       await this.logService.addLog({
@@ -1169,6 +1216,7 @@ export class ShoppingService {
     const shoppings = await this.prisma.shopping.findMany({
       where: {
         ForecastId: forecastId,
+        Purpose: 'STANDARD',
         MaterialId: materialId,
       },
       select: { QtyPick: true },
@@ -1246,7 +1294,7 @@ export class ShoppingService {
     }
 
     // Get ProductionRelease status
-    let productionReleaseStatus: string | null = null;
+    let productionReleaseStatus: ProductionStatus | null = null;
     if (forecast.ProductionReleaseId) {
       const release = await this.prisma.productionRelease.findUnique({
         where: { Id: forecast.ProductionReleaseId },
@@ -1256,21 +1304,11 @@ export class ShoppingService {
     }
 
     // Get BOM for FinishGood
-    const bomEntries = await this.prisma.billOfMaterials.findMany({
-      where: { FGData: { PartNumber: forecast.FinishGoodId } },
-      include: {
-        MaterialData: {
-          select: {
-            PartNumber: true,
-            PartName: true,
-          },
-        },
-      },
-    });
+    const bomEntries = await snapshotBomEntries(this.prisma, forecastId);
 
     // Get all shopping records for this forecast
     const shoppings = await this.prisma.shopping.findMany({
-      where: { ForecastId: forecastId },
+      where: { ForecastId: forecastId, Purpose: 'STANDARD' },
       select: {
         MaterialId: true,
         QtyPick: true,
@@ -1285,12 +1323,44 @@ export class ShoppingService {
     }
 
     // Build requirements
+    const snapshot = await orderBom(this.prisma, forecastId);
+    const replacements = await this.prisma.shopping.findMany({
+      where: { ForecastId: forecastId, Purpose: 'NG_REPLACEMENT' },
+    });
+    const ngDetails = await this.prisma.materialNG.findMany({
+      where: { Case: { ForecastId: forecastId, Status: { not: 'CANCELLED' } } },
+      include: { Case: true, Replacements: true },
+    });
     const requirements: CheckRequirementItem[] = bomEntries.map((bom) => {
       const qtyNeeded = forecast.Qty * bom.Qty;
       const qtyPicked = pickedByMaterial.get(bom.MaterialData.PartNumber) || 0;
       const qtyRemaining = qtyNeeded - qtyPicked;
 
       return {
+        standardRequired: qtyNeeded,
+        standardIssued: qtyPicked,
+        replacementIssued: replacements
+          .filter((s) => s.MaterialId === bom.MaterialData.PartNumber)
+          .reduce((sum, s) => sum + s.QtyPick, 0),
+        materialNg: ngDetails
+          .filter((d) => d.MaterialId === bom.MaterialData.PartNumber)
+          .reduce((sum, d) => sum + d.Qty, 0),
+        remainingReplacement: ngDetails
+          .filter(
+            (d) =>
+              d.MaterialId === bom.MaterialData.PartNumber &&
+              d.Case?.Status === 'OPEN',
+          )
+          .reduce(
+            (sum, d) =>
+              sum +
+              Math.max(
+                0,
+                d.ReplacementRequestedQty -
+                  d.Replacements.reduce((n, s) => n + s.QtyPick, 0),
+              ),
+            0,
+          ),
         materialId: bom.MaterialData.PartNumber,
         materialName: bom.MaterialData.PartName,
         bomQtyPerUnit: bom.Qty,
@@ -1323,6 +1393,8 @@ export class ShoppingService {
 
     return {
       forecastId: forecast.PoId,
+      snapshotId: snapshot.Id,
+      bomRevision: snapshot.Revision.Revision,
       finishGoodId: forecast.FinishGoodId,
       finishGoodName: forecast.PartData.PartName,
       forecastQty: forecast.Qty,

@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
 import { LogProcessService } from '../log-process/log-process.service';
@@ -52,6 +48,9 @@ export class SmtpService {
       host: this.config.host,
       port: this.config.port,
       secure: this.config.secure,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 30000,
       auth: {
         user: this.config.user,
         pass: this.config.pass,
@@ -100,7 +99,7 @@ export class SmtpService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Sending email to: ${toAddresses.join(', ')}, CC: ${ccAddresses?.join(', ') || 'none'}`,
+        message: 'Submitting email to configured recipients.',
         type: 'INFO',
         location: 'smtp.service.ts:82',
       });
@@ -123,7 +122,7 @@ export class SmtpService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Email sent successfully. MessageId: ${info.messageId}`,
+        message: 'Email accepted by transport.',
         type: 'INFO',
         location: 'smtp.service.ts:101',
       });
@@ -134,9 +133,9 @@ export class SmtpService {
         success: true,
         messageId: info.messageId,
       };
-    } catch (error) {
+    } catch {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
+        'Email operation failed; inspect transport configuration and delivery evidence.';
 
       if (logProcess) {
         await this.logService.addLog({
@@ -148,7 +147,7 @@ export class SmtpService {
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }
 
-      this.logger.error(`Failed to send email: ${errorMessage}`, error);
+      this.logger.error(errorMessage);
 
       return {
         success: false,
@@ -167,6 +166,8 @@ export class SmtpService {
     destination: string;
     pdfBuffer: Buffer;
     sentBy: string;
+    subject?: string;
+    message?: string;
   }): Promise<{ success: boolean; messageId?: string; error?: string }> {
     let logProcess: LogProcessModel | undefined;
 
@@ -179,17 +180,31 @@ export class SmtpService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Preparing Delivery Note email for DN: ${params.deliveryNoteNum}`,
+        message: 'Preparing delivery note email.',
         type: 'INFO',
         location: 'smtp.service.ts:143',
       });
 
-      const subject = `Delivery Note - ${params.deliveryNoteNum}`;
+      const escapeHtml = (value: string) =>
+        value.replace(
+          /[&<>"']/g,
+          (character) =>
+            ({
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;',
+            })[character]!,
+        );
+      const subject =
+        params.subject || `Delivery Note - ${params.deliveryNoteNum}`;
       const html = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333;">Delivery Note</h2>
           <p>Dear Team,</p>
-          <p>Please find attached the Delivery Note <strong>${params.deliveryNoteNum}</strong> for destination: <strong>${params.destination}</strong>.</p>
+          <p>Please find attached the Delivery Note <strong>${escapeHtml(params.deliveryNoteNum)}</strong> for destination: <strong>${escapeHtml(params.destination)}</strong>.</p>
+          ${params.message ? `<p>${escapeHtml(params.message)}</p>` : ''}
           <p>Please confirm receipt once the materials have been received.</p>
           <br/>
           <p>Best regards,<br/>ANSEI System</p>
@@ -220,17 +235,20 @@ export class SmtpService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Delivery Note email result: success=${result.success}, messageId=${result.messageId || 'N/A'}`,
+        message: `Delivery Note email result: success=${result.success}`,
         type: 'INFO',
         location: 'smtp.service.ts:175',
       });
 
-      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      await this.logService.completeProcess(
+        logProcess.ProcessId,
+        result.success ? 'SUCCESS' : 'FAILED',
+      );
 
       return result;
-    } catch (error) {
+    } catch {
       const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
+        'Email operation failed; inspect transport configuration and delivery evidence.';
 
       if (logProcess) {
         await this.logService.addLog({
@@ -257,9 +275,9 @@ export class SmtpService {
       await this.transporter.verify();
       this.logger.log('SMTP connection verified successfully');
       return true;
-    } catch (error) {
+    } catch {
       this.logger.error(
-        `SMTP connection verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `SMTP connection verification failed: ${'Email operation failed; inspect transport configuration and delivery evidence.'}`,
       );
       return false;
     }

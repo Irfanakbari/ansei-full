@@ -100,6 +100,8 @@ model Supplier {
 }
 
 model Material {
+  BomRevisionLines BomRevisionLine[]
+  BomSnapshotLines ProductionBomSnapshotLine[]
   Id           Int      @id @default(autoincrement())
   PartNumber   String   @unique
   PartName     String
@@ -137,6 +139,9 @@ model Material {
 }
 
 model FinishGood {
+  ActiveBomRevisionId String? @unique
+  ActiveBomRevision BomRevision? @relation("ActiveBom", fields: [ActiveBomRevisionId], references: [Id], onDelete: Restrict)
+  BomRevisions BomRevision[] @relation("RevisionFinishGood")
   Id            Int     @id @default(autoincrement())
   PartNumber    String  @unique
   PartName      String
@@ -320,6 +325,13 @@ model IncomingMaterial {
 }
 
 model MaterialNG {
+  CaseId String?
+  SnapshotLineId String?
+  ReplacementRequestedQty Int @default(0)
+  Case MaterialNgCase? @relation(fields: [CaseId], references: [Id], onDelete: Restrict)
+  SnapshotLine ProductionBomSnapshotLine? @relation(fields: [SnapshotLineId], references: [Id], onDelete: Restrict)
+  Replacements Shopping[]
+  @@unique([CaseId, MaterialId])
   Id           Int      @id @default(autoincrement())
   MaterialId   String
   Qty          Int      @default(0)
@@ -332,6 +344,9 @@ model MaterialNG {
 }
 
 model Forecast {
+  BomSnapshots ProductionBomSnapshot[]
+  MaterialNgCases MaterialNgCase[]
+  TraceEvents ProductionTraceEvent[]
   Id             Int      @id @default(autoincrement())
   PoId           String   @unique
   Date           DateTime
@@ -372,6 +387,9 @@ enum ProductionStatus {
 
 // --- HEADER JADWAL PRODUKSI ---
 model ProductionRelease {
+  BomSnapshots ProductionBomSnapshot[]
+  MaterialNgCases MaterialNgCase[]
+  TraceEvents ProductionTraceEvent[]
   Id            String   @id @default(uuid())
   ReleaseNumber String   @unique
   PlanDate      DateTime
@@ -423,6 +441,14 @@ model ProductionReleaseAttachment {
 }
 
 model Shopping {
+  Purpose ShoppingPurpose @default(LEGACY_UNCLASSIFIED)
+  Destination String?
+  SnapshotLineId String?
+  MaterialNgId Int?
+  CommandId String?
+  SnapshotLine ProductionBomSnapshotLine? @relation(fields: [SnapshotLineId], references: [Id], onDelete: Restrict)
+  MaterialNg MaterialNG? @relation(fields: [MaterialNgId], references: [Id], onDelete: Restrict)
+  Command BusinessCommand? @relation(fields: [CommandId], references: [Id], onDelete: Restrict)
   Id          String       @id
   Description String?
   Type        TypeShopping
@@ -433,7 +459,7 @@ model Shopping {
   QtyPick     Int
   MaterialId  String
 
-  ForecastData Forecast? @relation(fields: [ForecastId], references: [PoId], onDelete: Cascade)
+  ForecastData Forecast? @relation(fields: [ForecastId], references: [PoId], onDelete: Restrict)
   MaterialData Material  @relation(fields: [MaterialId], references: [PartNumber])
 
   @@index([ForecastId], map: "Shopping_forecastId_fkey")
@@ -477,6 +503,7 @@ model OutboxEvent {
 }
 
 model ProductionReport {
+  MaterialNgCases MaterialNgCase[]
   Id              Int       @id @default(autoincrement())
   Date            String?
   Time            String?
@@ -520,6 +547,7 @@ model ProductionReport {
 }
 
 model LabelData {
+  MaterialNgCases MaterialNgCase[]
   RequiresAssembly Boolean?
   AssemblySessions AssemblySession[]
   Id               Int               @id @default(autoincrement())
@@ -549,6 +577,7 @@ enum AssemblyStatus {
 }
 
 model AssemblySession {
+  MaterialNgCases MaterialNgCase[]
   Id                String         @id @default(uuid())
   LabelDataId       Int
   ManPowerUid       String
@@ -630,6 +659,8 @@ model DashboardSetting {
 // --- AUDIT LOG ---
 
 model LogProcess {
+  AuditEvents ActionAuditEvent[]
+  TraceEvents ProductionTraceEvent[]
   ProcessId         String             @id @db.VarChar(50)
   FunctionId        String             @db.VarChar(50)
   FunctionName      String             @db.VarChar(255)
@@ -645,6 +676,26 @@ model LogProcess {
   @@index([FunctionId])
   @@index([ProcessDate])
   @@index([ProcessStatus])
+}
+
+// Operational evidence only; before/after values are selected by database triggers.
+model ActionAuditEvent {
+  Id String @id @default(dbgenerated("(gen_random_uuid())::text"))
+  SourceType String
+  SourceId String
+  Action String
+  Actor String?
+  ActorSource String
+  RequestId String?
+  ProcessId String?
+  Before Json?
+  After Json?
+  CreatedAt DateTime @default(now())
+  Process LogProcess? @relation(fields: [ProcessId], references: [ProcessId], onDelete: Restrict)
+  @@index([CreatedAt, Id])
+  @@index([ProcessId, CreatedAt])
+  @@index([RequestId, CreatedAt])
+  @@index([SourceType, SourceId, CreatedAt])
 }
 
 model LogProcessDetail {
@@ -829,4 +880,175 @@ model DisplayConfig {
   Loop        Boolean   @default(true)
   FilePath    String?
   Line        String?
+}
+
+enum BomRevisionStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  CANCELLED
+}
+
+enum ShoppingPurpose {
+  STANDARD
+  NG_REPLACEMENT
+  NON_PRODUCTION
+  LEGACY_UNCLASSIFIED
+}
+
+enum MaterialNgCaseStatus {
+  OPEN
+  FULFILLED
+  CLOSED
+  CANCELLED
+}
+
+model BomRevision {
+  Id String @id @default(uuid())
+  FinishGoodId Int
+  Revision Int
+  Status BomRevisionStatus @default(DRAFT)
+  BaseRevisionId String?
+  Reason String
+  Version Int @default(1)
+  CreatedBy String
+  LastEditedBy String
+  CreatedAt DateTime @default(now())
+  UpdatedAt DateTime @updatedAt
+  SubmittedBy String?
+  SubmittedAt DateTime?
+  ApprovedBy String?
+  ApprovedAt DateTime?
+  FinishGood FinishGood @relation("RevisionFinishGood", fields: [FinishGoodId], references: [Id], onDelete: Restrict)
+  ActiveFor FinishGood? @relation("ActiveBom")
+  BaseRevision BomRevision? @relation("RevisionBase", fields: [BaseRevisionId], references: [Id], onDelete: Restrict)
+  DerivedRevisions BomRevision[] @relation("RevisionBase")
+  Lines BomRevisionLine[]
+  Snapshots ProductionBomSnapshot[]
+  Events BomRevisionEvent[]
+  @@unique([FinishGoodId, Revision])
+  @@index([Status, CreatedAt])
+}
+
+model BomRevisionLine {
+  Id String @id @default(uuid())
+  RevisionId String
+  MaterialId Int
+  Qty Int
+  PartNumber String
+  PartName String
+  UnitName String?
+  Revision BomRevision @relation(fields: [RevisionId], references: [Id], onDelete: Restrict)
+  Material Material @relation(fields: [MaterialId], references: [Id], onDelete: Restrict)
+  @@unique([RevisionId, MaterialId])
+}
+
+model BomRevisionEvent {
+  Id String @id @default(uuid())
+  RevisionId String
+  Action String
+  Actor String
+  Reason String
+  Version Int
+  CreatedAt DateTime @default(now())
+  Revision BomRevision @relation(fields: [RevisionId], references: [Id], onDelete: Restrict)
+  @@index([RevisionId, CreatedAt])
+}
+
+model ProductionBomSnapshot {
+  Id String @id @default(uuid())
+  ForecastId String
+  ReleaseId String
+  RevisionId String
+  Version Int
+  PreviousId String? @unique
+  TargetQty Int
+  FinishGoodPartNumber String
+  FinishGoodPartName String
+  CreatedBy String
+  CreatedAt DateTime @default(now())
+  Forecast Forecast @relation(fields: [ForecastId], references: [PoId], onDelete: Restrict)
+  Release ProductionRelease @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
+  Revision BomRevision @relation(fields: [RevisionId], references: [Id], onDelete: Restrict)
+  Previous ProductionBomSnapshot? @relation("PreviousSnapshot", fields: [PreviousId], references: [Id], onDelete: Restrict)
+  Next ProductionBomSnapshot? @relation("PreviousSnapshot")
+  Lines ProductionBomSnapshotLine[]
+  MaterialNgCases MaterialNgCase[]
+  @@unique([ForecastId, ReleaseId, Version])
+  @@index([ReleaseId])
+}
+
+model ProductionBomSnapshotLine {
+  Id String @id @default(uuid())
+  SnapshotId String
+  MaterialId Int
+  QtyPerUnit Int
+  RequiredQty Int
+  PartNumber String
+  PartName String
+  UnitName String?
+  Snapshot ProductionBomSnapshot @relation(fields: [SnapshotId], references: [Id], onDelete: Restrict)
+  Material Material @relation(fields: [MaterialId], references: [Id], onDelete: Restrict)
+  Shopping Shopping[]
+  MaterialNG MaterialNG[]
+  @@unique([SnapshotId, MaterialId])
+}
+
+model MaterialNgCase {
+  Id String @id @default(uuid())
+  CaseNumber String @unique
+  ForecastId String
+  ReleaseId String
+  SnapshotId String
+  Stage String
+  Reason String
+  Status MaterialNgCaseStatus @default(OPEN)
+  CreatedBy String
+  CreatedAt DateTime @default(now())
+  ClosedBy String?
+  ClosedAt DateTime?
+  CloseReason String?
+  LabelId Int?
+  AssemblySessionId String?
+  ProductionReportId Int?
+  Forecast Forecast @relation(fields: [ForecastId], references: [PoId], onDelete: Restrict)
+  Release ProductionRelease @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
+  Snapshot ProductionBomSnapshot @relation(fields: [SnapshotId], references: [Id], onDelete: Restrict)
+  Label LabelData? @relation(fields: [LabelId], references: [Id], onDelete: Restrict)
+  AssemblySession AssemblySession? @relation(fields: [AssemblySessionId], references: [Id], onDelete: Restrict)
+  ProductionReport ProductionReport? @relation(fields: [ProductionReportId], references: [Id], onDelete: Restrict)
+  Details MaterialNG[]
+  @@index([ForecastId, CreatedAt])
+  @@index([ReleaseId, Status])
+}
+
+model BusinessCommand {
+  Id String @id @default(uuid())
+  Scope String
+  RequestId String
+  Fingerprint String
+  Actor String
+  Result Json?
+  CreatedAt DateTime @default(now())
+  Shopping Shopping[]
+  @@unique([Scope, RequestId])
+}
+
+model ProductionTraceEvent {
+  Id String @id @default(uuid())
+  ForecastId String
+  ReleaseId String?
+  Type String
+  SourceType String
+  SourceId String
+  Actor String
+  CorrelationId String
+  ProcessId String?
+  Metadata Json?
+  CreatedAt DateTime @default(now())
+  Forecast Forecast @relation(fields: [ForecastId], references: [PoId], onDelete: Restrict)
+  Release ProductionRelease? @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
+  Process LogProcess? @relation(fields: [ProcessId], references: [ProcessId], onDelete: Restrict)
+  @@index([ForecastId, CreatedAt, Id])
+  @@index([CorrelationId])
 }

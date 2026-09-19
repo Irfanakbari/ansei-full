@@ -14,14 +14,33 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '22'
-  PNPM_VERSION: '10.0.0'
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10.0.0"
   IMAGE_NAME: ansei-app
 
 jobs:
   validate:
     name: Validate ANSEI workspace
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:phase3-disposable-only@127.0.0.1:56835/ansei_phase3
+      NODE_OPTIONS: --experimental-vm-modules
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: phase3-disposable-only
+          POSTGRES_DB: ansei_phase3
+        ports: ["56835:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6385:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -48,11 +67,24 @@ jobs:
       - name: Generate Prisma client
         run: pnpm prisma:generate
 
+      - name: Prepare disposable integration database
+        run: pnpm --filter @ansei/api exec prisma migrate deploy
+
+      - name: Verify integration concurrency and recovery on PostgreSQL and Redis
+        env:
+          PHASE3_DATABASE_TEST: "1"
+        run: |
+          pnpm --filter @ansei/api exec jest src/common/outbox/phase-three.database.spec.ts --runInBand --forceExit
+          pnpm --filter @ansei/printer exec jest src/phase-three.database.spec.ts --runInBand
+
+      - name: Verify retained browser command identities
+        run: pnpm --filter @ansei/web exec node scripts/test-command-identity.mjs
+
       - name: Lint API
         run: pnpm lint:api
 
       - name: Test API
-        run: pnpm --filter @ansei/api exec jest --runInBand --passWithNoTests
+        run: pnpm --filter @ansei/api exec jest --runInBand --forceExit
 
       - name: Build API
         run: pnpm build:api

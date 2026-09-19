@@ -1,3 +1,5 @@
+import { OutboxController } from './outbox.controller';
+import { OutboxStateService } from './outbox-state.service';
 import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { OutboxService } from './outbox.service';
@@ -13,8 +15,10 @@ import { LogProcessService } from '../log-process/log-process.service';
     BullModule.registerQueue({ name: OUTBOX_QUEUE }, { name: 'printer_queue' }),
     forwardRef(() => MaterialDeliveryNoteModule),
   ],
+  controllers: [OutboxController],
   providers: [
     OutboxService,
+    OutboxStateService,
     OutboxDispatcher,
     OutboxProcessor,
     SmtpService,

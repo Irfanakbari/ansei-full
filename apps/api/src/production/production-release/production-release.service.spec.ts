@@ -1,3 +1,9 @@
+// Snapshot transaction invariants are exercised against PostgreSQL in phase-one.database.spec.ts.
+jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
+  snapshotRelease: () => Promise.resolve(undefined),
+  latestSnapshot: () => Promise.resolve(null),
+  assertNoOutstandingReplacement: () => Promise.resolve(undefined),
+}));
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductionReleaseService } from './production-release.service';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -20,6 +26,7 @@ describe('ProductionReleaseService', () => {
 
   beforeEach(async () => {
     prismaService = {
+      productionTraceEvent: { createMany: jest.fn() },
       $executeRaw: jest.fn(),
       assemblySession: { count: jest.fn().mockResolvedValue(0) },
       productionRelease: {

@@ -1,4 +1,5 @@
 import {
+  ApiHeader,
   ApiTags,
   ApiBearerAuth,
   ApiOperation,
@@ -163,11 +164,13 @@ export class ForecastController {
   @ApiOperation({ summary: 'Print forecast part tag manually' })
   @ApiResponse({
     status: 200,
-    description: 'Print event emitted successfully',
+    description:
+      'Durable print request accepted; integrationId identifies its delivery status',
     schema: {
       type: 'object',
       properties: {
         message: { type: 'string' },
+        integrationId: { type: 'string' },
         poId: { type: 'string' },
         qtyOrder: { type: 'number' },
         partNumber: { type: 'string' },
@@ -182,6 +185,11 @@ export class ForecastController {
     },
   })
   @ApiResponse({ status: 404, description: 'Forecast not found' })
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    required: true,
+    schema: { type: 'string', format: 'uuid' },
+  })
   @Post(':id/print-tag')
   @Permission('IPCS.FORECAST_UPDATE')
   async printTag(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {

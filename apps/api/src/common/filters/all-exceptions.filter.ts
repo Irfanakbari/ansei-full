@@ -4,8 +4,10 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Optional,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { ActionAuditService } from '../logging/action-audit.service';
 import { OriginalErrorFileLogService } from '../logging/original-error-file-log.service';
 import {
   createErrorResponse,
@@ -18,6 +20,7 @@ type ErrorRequest = Request & { requestId?: string };
 export class AllExceptionsFilter implements ExceptionFilter {
   constructor(
     private readonly originalErrorFileLogService: OriginalErrorFileLogService,
+    @Optional() private readonly actionAudit?: ActionAuditService,
   ) {}
 
   async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
@@ -34,6 +37,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.getResponse()
         : 'Internal server error';
+
+    await this.actionAudit?.failure(request, status);
 
     const responseBody = this.isRecord(exceptionResponse)
       ? exceptionResponse
@@ -67,6 +72,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
             ? responseBody.error
             : undefined,
         details: Array.isArray(rawMessage) ? rawMessage : undefined,
+        code:
+          typeof responseBody?.code === 'string'
+            ? responseBody.code
+            : undefined,
       }),
     );
   }

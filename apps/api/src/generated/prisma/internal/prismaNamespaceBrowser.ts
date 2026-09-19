@@ -80,6 +80,7 @@ export const ModelName = {
   EmailNotification: 'EmailNotification',
   DashboardSetting: 'DashboardSetting',
   LogProcess: 'LogProcess',
+  ActionAuditEvent: 'ActionAuditEvent',
   LogProcessDetail: 'LogProcessDetail',
   MTCUserSession: 'MTCUserSession',
   MTCUserManagement: 'MTCUserManagement',
@@ -90,7 +91,15 @@ export const ModelName = {
   MaterialDeliveryNoteDetail: 'MaterialDeliveryNoteDetail',
   PrinterSetting: 'PrinterSetting',
   ApiKey: 'ApiKey',
-  DisplayConfig: 'DisplayConfig'
+  DisplayConfig: 'DisplayConfig',
+  BomRevision: 'BomRevision',
+  BomRevisionLine: 'BomRevisionLine',
+  BomRevisionEvent: 'BomRevisionEvent',
+  ProductionBomSnapshot: 'ProductionBomSnapshot',
+  ProductionBomSnapshotLine: 'ProductionBomSnapshotLine',
+  MaterialNgCase: 'MaterialNgCase',
+  BusinessCommand: 'BusinessCommand',
+  ProductionTraceEvent: 'ProductionTraceEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -149,6 +158,7 @@ export type MaterialScalarFieldEnum = (typeof MaterialScalarFieldEnum)[keyof typ
 
 
 export const FinishGoodScalarFieldEnum = {
+  ActiveBomRevisionId: 'ActiveBomRevisionId',
   Id: 'Id',
   PartNumber: 'PartNumber',
   PartName: 'PartName',
@@ -292,6 +302,9 @@ export type IncomingMaterialScalarFieldEnum = (typeof IncomingMaterialScalarFiel
 
 
 export const MaterialNGScalarFieldEnum = {
+  CaseId: 'CaseId',
+  SnapshotLineId: 'SnapshotLineId',
+  ReplacementRequestedQty: 'ReplacementRequestedQty',
   Id: 'Id',
   MaterialId: 'MaterialId',
   Qty: 'Qty',
@@ -360,6 +373,11 @@ export type ProductionReleaseAttachmentScalarFieldEnum = (typeof ProductionRelea
 
 
 export const ShoppingScalarFieldEnum = {
+  Purpose: 'Purpose',
+  Destination: 'Destination',
+  SnapshotLineId: 'SnapshotLineId',
+  MaterialNgId: 'MaterialNgId',
+  CommandId: 'CommandId',
   Id: 'Id',
   Description: 'Description',
   Type: 'Type',
@@ -555,6 +573,23 @@ export const LogProcessScalarFieldEnum = {
 export type LogProcessScalarFieldEnum = (typeof LogProcessScalarFieldEnum)[keyof typeof LogProcessScalarFieldEnum]
 
 
+export const ActionAuditEventScalarFieldEnum = {
+  Id: 'Id',
+  SourceType: 'SourceType',
+  SourceId: 'SourceId',
+  Action: 'Action',
+  Actor: 'Actor',
+  ActorSource: 'ActorSource',
+  RequestId: 'RequestId',
+  ProcessId: 'ProcessId',
+  Before: 'Before',
+  After: 'After',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type ActionAuditEventScalarFieldEnum = (typeof ActionAuditEventScalarFieldEnum)[keyof typeof ActionAuditEventScalarFieldEnum]
+
+
 export const LogProcessDetailScalarFieldEnum = {
   ProcessDetailId: 'ProcessDetailId',
   ProcessId: 'ProcessId',
@@ -711,6 +746,136 @@ export const DisplayConfigScalarFieldEnum = {
 export type DisplayConfigScalarFieldEnum = (typeof DisplayConfigScalarFieldEnum)[keyof typeof DisplayConfigScalarFieldEnum]
 
 
+export const BomRevisionScalarFieldEnum = {
+  Id: 'Id',
+  FinishGoodId: 'FinishGoodId',
+  Revision: 'Revision',
+  Status: 'Status',
+  BaseRevisionId: 'BaseRevisionId',
+  Reason: 'Reason',
+  Version: 'Version',
+  CreatedBy: 'CreatedBy',
+  LastEditedBy: 'LastEditedBy',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt',
+  SubmittedBy: 'SubmittedBy',
+  SubmittedAt: 'SubmittedAt',
+  ApprovedBy: 'ApprovedBy',
+  ApprovedAt: 'ApprovedAt'
+} as const
+
+export type BomRevisionScalarFieldEnum = (typeof BomRevisionScalarFieldEnum)[keyof typeof BomRevisionScalarFieldEnum]
+
+
+export const BomRevisionLineScalarFieldEnum = {
+  Id: 'Id',
+  RevisionId: 'RevisionId',
+  MaterialId: 'MaterialId',
+  Qty: 'Qty',
+  PartNumber: 'PartNumber',
+  PartName: 'PartName',
+  UnitName: 'UnitName'
+} as const
+
+export type BomRevisionLineScalarFieldEnum = (typeof BomRevisionLineScalarFieldEnum)[keyof typeof BomRevisionLineScalarFieldEnum]
+
+
+export const BomRevisionEventScalarFieldEnum = {
+  Id: 'Id',
+  RevisionId: 'RevisionId',
+  Action: 'Action',
+  Actor: 'Actor',
+  Reason: 'Reason',
+  Version: 'Version',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type BomRevisionEventScalarFieldEnum = (typeof BomRevisionEventScalarFieldEnum)[keyof typeof BomRevisionEventScalarFieldEnum]
+
+
+export const ProductionBomSnapshotScalarFieldEnum = {
+  Id: 'Id',
+  ForecastId: 'ForecastId',
+  ReleaseId: 'ReleaseId',
+  RevisionId: 'RevisionId',
+  Version: 'Version',
+  PreviousId: 'PreviousId',
+  TargetQty: 'TargetQty',
+  FinishGoodPartNumber: 'FinishGoodPartNumber',
+  FinishGoodPartName: 'FinishGoodPartName',
+  CreatedBy: 'CreatedBy',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type ProductionBomSnapshotScalarFieldEnum = (typeof ProductionBomSnapshotScalarFieldEnum)[keyof typeof ProductionBomSnapshotScalarFieldEnum]
+
+
+export const ProductionBomSnapshotLineScalarFieldEnum = {
+  Id: 'Id',
+  SnapshotId: 'SnapshotId',
+  MaterialId: 'MaterialId',
+  QtyPerUnit: 'QtyPerUnit',
+  RequiredQty: 'RequiredQty',
+  PartNumber: 'PartNumber',
+  PartName: 'PartName',
+  UnitName: 'UnitName'
+} as const
+
+export type ProductionBomSnapshotLineScalarFieldEnum = (typeof ProductionBomSnapshotLineScalarFieldEnum)[keyof typeof ProductionBomSnapshotLineScalarFieldEnum]
+
+
+export const MaterialNgCaseScalarFieldEnum = {
+  Id: 'Id',
+  CaseNumber: 'CaseNumber',
+  ForecastId: 'ForecastId',
+  ReleaseId: 'ReleaseId',
+  SnapshotId: 'SnapshotId',
+  Stage: 'Stage',
+  Reason: 'Reason',
+  Status: 'Status',
+  CreatedBy: 'CreatedBy',
+  CreatedAt: 'CreatedAt',
+  ClosedBy: 'ClosedBy',
+  ClosedAt: 'ClosedAt',
+  CloseReason: 'CloseReason',
+  LabelId: 'LabelId',
+  AssemblySessionId: 'AssemblySessionId',
+  ProductionReportId: 'ProductionReportId'
+} as const
+
+export type MaterialNgCaseScalarFieldEnum = (typeof MaterialNgCaseScalarFieldEnum)[keyof typeof MaterialNgCaseScalarFieldEnum]
+
+
+export const BusinessCommandScalarFieldEnum = {
+  Id: 'Id',
+  Scope: 'Scope',
+  RequestId: 'RequestId',
+  Fingerprint: 'Fingerprint',
+  Actor: 'Actor',
+  Result: 'Result',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type BusinessCommandScalarFieldEnum = (typeof BusinessCommandScalarFieldEnum)[keyof typeof BusinessCommandScalarFieldEnum]
+
+
+export const ProductionTraceEventScalarFieldEnum = {
+  Id: 'Id',
+  ForecastId: 'ForecastId',
+  ReleaseId: 'ReleaseId',
+  Type: 'Type',
+  SourceType: 'SourceType',
+  SourceId: 'SourceId',
+  Actor: 'Actor',
+  CorrelationId: 'CorrelationId',
+  ProcessId: 'ProcessId',
+  Metadata: 'Metadata',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type ProductionTraceEventScalarFieldEnum = (typeof ProductionTraceEventScalarFieldEnum)[keyof typeof ProductionTraceEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -724,6 +889,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

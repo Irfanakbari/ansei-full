@@ -1,7 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Modal, Form, InputNumber, App, Descriptions, Alert, Space } from 'antd';
 import { SwapOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,11 +26,14 @@ const TransferToRackModal: React.FC<Props> = ({ visible, onClose, material, onSu
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const inFlight = useRef(false);
     const [previewQty, setPreviewQty] = useState<number>(0);
 
     const { result } = useSelector((state: RootState) => state.transfer);
 
     const handleOk = async () => {
+        if (inFlight.current) return;
+        inFlight.current = true;
         try {
             const values = await form.validateFields();
             setLoading(true);
@@ -49,16 +52,14 @@ const TransferToRackModal: React.FC<Props> = ({ visible, onClose, material, onSu
             form.resetFields();
             setPreviewQty(0);
             onSuccess?.();
-            // Delay close to show result
-            setTimeout(() => {
-                onClose();
-                dispatch(clearTransferResult());
-            }, 1500);
+            onClose();
+            dispatch(clearTransferResult());
         } catch (error: unknown) {
             const err = error as Error;
             if (err?.message?.includes('validateFields')) return;
             message.error(err?.message || String(error) || 'Failed to transfer to rack');
         } finally {
+            inFlight.current = false;
             setLoading(false);
         }
     };

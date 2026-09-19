@@ -1,3 +1,4 @@
+import { auditedTransaction } from '../../common/helpers/audited-transaction.helper';
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -215,7 +216,7 @@ export class PokayokeService {
         location: 'pokayoke.service.ts:154',
       });
 
-      const scanResult = await this.prisma.$transaction(async (tx) => {
+      const scanResult = await auditedTransaction(this.prisma, async (tx) => {
         await lockProductionFlow(tx);
         const { label } = await assertLabelReady(tx, labelData.Id, false);
         if (label.Scanned) {
@@ -274,6 +275,18 @@ export class PokayokeService {
           tx,
         );
 
+        await tx.productionTraceEvent.create({
+          data: {
+            ForecastId: labelData.ForecastId,
+            ReleaseId: labelData.ProductionReleaseId,
+            Type: 'POKAYOKE_' + statusValue,
+            SourceType: 'PokayokeScanHistory',
+            SourceId: String(history.Id),
+            Actor: createdBy,
+            CorrelationId: processId,
+            ProcessId: processId,
+          },
+        });
         return history;
       });
 

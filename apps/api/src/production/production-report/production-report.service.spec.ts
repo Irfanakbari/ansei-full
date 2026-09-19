@@ -10,6 +10,8 @@ describe('ProductionReportService', () => {
   let logService: jest.Mocked<LogProcessService>;
 
   const mockPrismaService = {
+    $transaction: jest.fn(),
+    productionTraceEvent: { create: jest.fn() },
     productionReport: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
@@ -20,6 +22,9 @@ describe('ProductionReportService', () => {
       count: jest.fn(),
     },
     forecast: {
+      findUniqueOrThrow: jest
+        .fn()
+        .mockResolvedValue({ ProductionReleaseId: 'release' }),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
       findMany: jest.fn(),
@@ -62,6 +67,9 @@ describe('ProductionReportService', () => {
 
     // Reset all mocks
     jest.clearAllMocks();
+    mockPrismaService.$transaction.mockImplementation(
+      (work: (tx: unknown) => Promise<unknown>) => work(mockPrismaService),
+    );
   });
 
   describe('findAll', () => {
@@ -177,6 +185,8 @@ describe('ProductionReportService', () => {
       expect(mockLogService.completeProcess).toHaveBeenCalledWith(
         'PR123',
         'SUCCESS',
+        'Production report recorded',
+        mockPrismaService,
       );
     });
 
@@ -270,6 +280,8 @@ describe('ProductionReportService', () => {
       expect(mockLogService.completeProcess).toHaveBeenCalledWith(
         'PR123',
         'SUCCESS',
+        'Production report recorded',
+        mockPrismaService,
       );
     });
 

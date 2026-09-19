@@ -40,6 +40,7 @@ export default function ForecastPage() {
     const [detailData, setDetailData] = useState<ForecastEntity | null>(null);
     const [editData, setEditData] = useState<ForecastEntity | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
+    const printInFlight = useRef(false);
     const [sortedInfo, setSortedInfo] = useState<any>({});
 
     const searchInput = useRef<InputRef>(null);
@@ -105,7 +106,8 @@ export default function ForecastPage() {
     };
 
     const handlePrintTag = async () => {
-        if (selectedRecord) {
+        if (selectedRecord && !printInFlight.current) {
+            printInFlight.current = true;
             try {
                 setIsPrinting(true);
                 const result = await dispatch(printForecastTag(selectedRecord.PoId));
@@ -119,6 +121,7 @@ export default function ForecastPage() {
                 const err = error as Error;
                 message.error(err?.message || String(error) || 'Failed to print tag');
             } finally {
+                printInFlight.current = false;
                 setIsPrinting(false);
             }
         }

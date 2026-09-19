@@ -1,3 +1,8 @@
+import { isEmail } from 'class-validator';
+import {
+  auditedTransaction,
+  auditedWrite,
+} from '../common/helpers/audited-transaction.helper';
 import {
   Injectable,
   NotFoundException,
@@ -155,7 +160,7 @@ export class MaterialDeliveryNoteService {
       // Create DN with details in transaction
       const processId = logProcess.ProcessId;
 
-      const dn = await this.prisma.$transaction(async (tx) => {
+      const dn = await auditedTransaction(this.prisma, async (tx) => {
         // Create header
         const header = await tx.materialDeliveryNote.create({
           data: {
@@ -351,13 +356,15 @@ export class MaterialDeliveryNoteService {
         location: 'material-delivery-note.service.ts:227',
       });
 
-      const updated = await this.prisma.materialDeliveryNote.update({
-        where: { Id: id },
-        data: {
-          Destination: dto.destination ?? existing.Destination,
-          Notes: dto.notes ?? existing.Notes,
-        },
-      });
+      const updated = await auditedWrite(this.prisma, (tx) =>
+        tx.materialDeliveryNote.update({
+          where: { Id: id },
+          data: {
+            Destination: dto.destination ?? existing.Destination,
+            Notes: dto.notes ?? existing.Notes,
+          },
+        }),
+      );
 
       await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
 
@@ -407,9 +414,11 @@ export class MaterialDeliveryNoteService {
         location: 'material-delivery-note.service.ts:273',
       });
 
-      await this.prisma.materialDeliveryNote.delete({
-        where: { Id: id },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.materialDeliveryNote.delete({
+          where: { Id: id },
+        }),
+      );
 
       await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
 
@@ -532,10 +541,12 @@ export class MaterialDeliveryNoteService {
         }
 
         // Update QtyPicking
-        await this.prisma.materialDeliveryNoteDetail.update({
-          where: { Id: detail.Id },
-          data: { QtyPicking: item.qtyPicking },
-        });
+        await auditedWrite(this.prisma, (tx) =>
+          tx.materialDeliveryNoteDetail.update({
+            where: { Id: detail.Id },
+            data: { QtyPicking: item.qtyPicking },
+          }),
+        );
 
         updatedDetails.push(`${item.materialId}: ${item.qtyPicking}`);
 
@@ -881,14 +892,16 @@ export class MaterialDeliveryNoteService {
       });
 
       // Update to RECEIVED
-      await this.prisma.materialDeliveryNote.update({
-        where: { Id: id },
-        data: {
-          Status: DeliveryNoteStatus.RECEIVED,
-          ReceivedAt: new Date(),
-          ReceivedBy: receivedBy,
-        },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.materialDeliveryNote.update({
+          where: { Id: id },
+          data: {
+            Status: DeliveryNoteStatus.RECEIVED,
+            ReceivedAt: new Date(),
+            ReceivedBy: receivedBy,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -948,10 +961,12 @@ export class MaterialDeliveryNoteService {
         location: 'material-delivery-note.service.ts:645',
       });
 
-      await this.prisma.materialDeliveryNote.update({
-        where: { Id: id },
-        data: { Status: DeliveryNoteStatus.CANCELLED },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.materialDeliveryNote.update({
+          where: { Id: id },
+          data: { Status: DeliveryNoteStatus.CANCELLED },
+        }),
+      );
 
       await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
 
@@ -1537,7 +1552,11 @@ export class MaterialDeliveryNoteService {
       .map((email) => email.trim().toLowerCase())
       .filter(Boolean)
       .sort();
-    const event = await this.prisma.$transaction(async (tx) => {
+    if ([...to, ...cc].some((address) => !isEmail(address)))
+      throw new BadRequestException(
+        'Every recipient must be a valid email address.',
+      );
+    const event = await auditedTransaction(this.prisma, async (tx) => {
       const dn = await tx.materialDeliveryNote.findUnique({
         where: { Id: id },
         include: {
@@ -1563,11 +1582,24 @@ export class MaterialDeliveryNoteService {
         dn.ReceivedAt,
         dn.Details,
       ]);
-      const recipientFingerprint = OutboxService.fingerprint([to, cc]);
+      const recipientFingerprint = OutboxService.fingerprint([
+        to,
+        cc,
+        dto.subject ?? null,
+        dto.message ?? null,
+      ]);
       return this.outboxService.create(tx, {
         idempotencyKey: `delivery-note-email:${id}:${documentVersion}:${recipientFingerprint}`,
         type: 'DELIVERY_NOTE_EMAIL',
-        payload: { deliveryNoteId: id, documentVersion, to, cc, sentBy },
+        payload: {
+          deliveryNoteId: id,
+          documentVersion,
+          to,
+          cc,
+          sentBy,
+          ...(dto.subject ? { subject: dto.subject } : {}),
+          ...(dto.message ? { message: dto.message } : {}),
+        },
         actor: sentBy,
         referenceType: 'MATERIAL_DELIVERY_NOTE',
         referenceId: id,

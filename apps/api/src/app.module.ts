@@ -1,4 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { BomRevisionsModule } from './master/bom-revisions/bom-revisions.module';
+import { MaterialNgModule } from './production/material-ng-cases/material-ng.module';
+import { TraceabilityModule } from './traceability/traceability.module';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AssemblyModule } from './production/assembly/assembly.module';
@@ -46,6 +49,9 @@ import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
+    BomRevisionsModule,
+    MaterialNgModule,
+    TraceabilityModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validate: validateEnvironment,

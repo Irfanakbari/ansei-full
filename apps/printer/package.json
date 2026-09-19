@@ -1,6 +1,6 @@
 {
   "name": "@ansei/printer",
-  "version": "1.13.0",
+  "version": "4.0.0",
   "description": "ANSEI Printer Service via BullMQ",
   "private": true,
   "scripts": {

@@ -1,6 +1,10 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-16 */
 'use client';
 
+import { useDispatch as useCommandDispatch } from 'react-redux';
+import type { AppDispatch as CommandDispatch } from '@/store';
+import { createProductionReport } from '@/store/features/production/productionReport/productionReportSlice';
+import { useVuteqSso } from '@vuteq/sso-client-react/react';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Modal,
@@ -97,7 +101,14 @@ export default function OperatorReportModal({
     initialTab = 'form',
 }: Props) {
     const { message } = App.useApp();
+    const { session, loading: sessionLoading } = useVuteqSso();
+    const canCreateReport = !!session && (
+        session.globalRoles.includes('SUPER_ADMINISTRATOR') ||
+        session.roles.includes('SUPER') || session.permissions.includes('SUPER') ||
+        session.permissions.includes('IPCS.PRODUCTION_REPORT_CREATE')
+    );
     const [activeTab, setActiveTab] = useState<'form' | 'history'>(initialTab);
+    const commandDispatch = useCommandDispatch<CommandDispatch>();
     const [form] = Form.useForm();
 
     // State for forecasts dropdown
@@ -236,17 +247,7 @@ export default function OperatorReportModal({
                 stampDate: values.stampDate ? values.stampDate.format('YYYY-MM-DD') : undefined,
             };
 
-            const response = await fetch('/api/display/production-report', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Gagal menyimpan laporan produksi');
-            }
+            await commandDispatch(createProductionReport(payload)).unwrap();
 
             message.success('Laporan produksi berhasil disimpan!');
             form.resetFields();
@@ -375,9 +376,12 @@ export default function OperatorReportModal({
                                 type="primary"
                                 icon={<CheckCircleOutlined />}
                                 loading={submitting}
-                                onClick={handleSubmit}
+                                disabled={sessionLoading || (!!session && !canCreateReport)}
+                                href={!session && !sessionLoading ? '/auth/login' : undefined}
+                                title={!canCreateReport ? 'Login with production report creation permission to save a report' : undefined}
+                                onClick={session ? handleSubmit : undefined}
                             >
-                                Simpan Laporan
+                                {session ? 'Simpan Laporan' : 'Login untuk menyimpan'}
                             </Button>
                         </Space>
                     </div>

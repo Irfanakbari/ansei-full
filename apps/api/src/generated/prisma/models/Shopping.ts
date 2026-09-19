@@ -27,14 +27,21 @@ export type AggregateShopping = {
 }
 
 export type ShoppingAvgAggregateOutputType = {
+  MaterialNgId: number | null
   QtyPick: number | null
 }
 
 export type ShoppingSumAggregateOutputType = {
+  MaterialNgId: number | null
   QtyPick: number | null
 }
 
 export type ShoppingMinAggregateOutputType = {
+  Purpose: $Enums.ShoppingPurpose | null
+  Destination: string | null
+  SnapshotLineId: string | null
+  MaterialNgId: number | null
+  CommandId: string | null
   Id: string | null
   Description: string | null
   Type: $Enums.TypeShopping | null
@@ -47,6 +54,11 @@ export type ShoppingMinAggregateOutputType = {
 }
 
 export type ShoppingMaxAggregateOutputType = {
+  Purpose: $Enums.ShoppingPurpose | null
+  Destination: string | null
+  SnapshotLineId: string | null
+  MaterialNgId: number | null
+  CommandId: string | null
   Id: string | null
   Description: string | null
   Type: $Enums.TypeShopping | null
@@ -59,6 +71,11 @@ export type ShoppingMaxAggregateOutputType = {
 }
 
 export type ShoppingCountAggregateOutputType = {
+  Purpose: number
+  Destination: number
+  SnapshotLineId: number
+  MaterialNgId: number
+  CommandId: number
   Id: number
   Description: number
   Type: number
@@ -73,14 +90,21 @@ export type ShoppingCountAggregateOutputType = {
 
 
 export type ShoppingAvgAggregateInputType = {
+  MaterialNgId?: true
   QtyPick?: true
 }
 
 export type ShoppingSumAggregateInputType = {
+  MaterialNgId?: true
   QtyPick?: true
 }
 
 export type ShoppingMinAggregateInputType = {
+  Purpose?: true
+  Destination?: true
+  SnapshotLineId?: true
+  MaterialNgId?: true
+  CommandId?: true
   Id?: true
   Description?: true
   Type?: true
@@ -93,6 +117,11 @@ export type ShoppingMinAggregateInputType = {
 }
 
 export type ShoppingMaxAggregateInputType = {
+  Purpose?: true
+  Destination?: true
+  SnapshotLineId?: true
+  MaterialNgId?: true
+  CommandId?: true
   Id?: true
   Description?: true
   Type?: true
@@ -105,6 +134,11 @@ export type ShoppingMaxAggregateInputType = {
 }
 
 export type ShoppingCountAggregateInputType = {
+  Purpose?: true
+  Destination?: true
+  SnapshotLineId?: true
+  MaterialNgId?: true
+  CommandId?: true
   Id?: true
   Description?: true
   Type?: true
@@ -204,6 +238,11 @@ export type ShoppingGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 export type ShoppingGroupByOutputType = {
+  Purpose: $Enums.ShoppingPurpose
+  Destination: string | null
+  SnapshotLineId: string | null
+  MaterialNgId: number | null
+  CommandId: string | null
   Id: string
   Description: string | null
   Type: $Enums.TypeShopping
@@ -239,6 +278,11 @@ export type ShoppingWhereInput = {
   AND?: Prisma.ShoppingWhereInput | Prisma.ShoppingWhereInput[]
   OR?: Prisma.ShoppingWhereInput[]
   NOT?: Prisma.ShoppingWhereInput | Prisma.ShoppingWhereInput[]
+  Purpose?: Prisma.EnumShoppingPurposeFilter<"Shopping"> | $Enums.ShoppingPurpose
+  Destination?: Prisma.StringNullableFilter<"Shopping"> | string | null
+  SnapshotLineId?: Prisma.StringNullableFilter<"Shopping"> | string | null
+  MaterialNgId?: Prisma.IntNullableFilter<"Shopping"> | number | null
+  CommandId?: Prisma.StringNullableFilter<"Shopping"> | string | null
   Id?: Prisma.StringFilter<"Shopping"> | string
   Description?: Prisma.StringNullableFilter<"Shopping"> | string | null
   Type?: Prisma.EnumTypeShoppingFilter<"Shopping"> | $Enums.TypeShopping
@@ -248,11 +292,19 @@ export type ShoppingWhereInput = {
   CreatedBy?: Prisma.StringFilter<"Shopping"> | string
   QtyPick?: Prisma.IntFilter<"Shopping"> | number
   MaterialId?: Prisma.StringFilter<"Shopping"> | string
+  SnapshotLine?: Prisma.XOR<Prisma.ProductionBomSnapshotLineNullableScalarRelationFilter, Prisma.ProductionBomSnapshotLineWhereInput> | null
+  MaterialNg?: Prisma.XOR<Prisma.MaterialNGNullableScalarRelationFilter, Prisma.MaterialNGWhereInput> | null
+  Command?: Prisma.XOR<Prisma.BusinessCommandNullableScalarRelationFilter, Prisma.BusinessCommandWhereInput> | null
   ForecastData?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
   MaterialData?: Prisma.XOR<Prisma.MaterialScalarRelationFilter, Prisma.MaterialWhereInput>
 }
 
 export type ShoppingOrderByWithRelationInput = {
+  Purpose?: Prisma.SortOrder
+  Destination?: Prisma.SortOrderInput | Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrderInput | Prisma.SortOrder
+  MaterialNgId?: Prisma.SortOrderInput | Prisma.SortOrder
+  CommandId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrderInput | Prisma.SortOrder
   Type?: Prisma.SortOrder
@@ -262,6 +314,9 @@ export type ShoppingOrderByWithRelationInput = {
   CreatedBy?: Prisma.SortOrder
   QtyPick?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineOrderByWithRelationInput
+  MaterialNg?: Prisma.MaterialNGOrderByWithRelationInput
+  Command?: Prisma.BusinessCommandOrderByWithRelationInput
   ForecastData?: Prisma.ForecastOrderByWithRelationInput
   MaterialData?: Prisma.MaterialOrderByWithRelationInput
 }
@@ -271,6 +326,11 @@ export type ShoppingWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ShoppingWhereInput | Prisma.ShoppingWhereInput[]
   OR?: Prisma.ShoppingWhereInput[]
   NOT?: Prisma.ShoppingWhereInput | Prisma.ShoppingWhereInput[]
+  Purpose?: Prisma.EnumShoppingPurposeFilter<"Shopping"> | $Enums.ShoppingPurpose
+  Destination?: Prisma.StringNullableFilter<"Shopping"> | string | null
+  SnapshotLineId?: Prisma.StringNullableFilter<"Shopping"> | string | null
+  MaterialNgId?: Prisma.IntNullableFilter<"Shopping"> | number | null
+  CommandId?: Prisma.StringNullableFilter<"Shopping"> | string | null
   Description?: Prisma.StringNullableFilter<"Shopping"> | string | null
   Type?: Prisma.EnumTypeShoppingFilter<"Shopping"> | $Enums.TypeShopping
   CreatedAt?: Prisma.DateTimeFilter<"Shopping"> | Date | string
@@ -279,11 +339,19 @@ export type ShoppingWhereUniqueInput = Prisma.AtLeast<{
   CreatedBy?: Prisma.StringFilter<"Shopping"> | string
   QtyPick?: Prisma.IntFilter<"Shopping"> | number
   MaterialId?: Prisma.StringFilter<"Shopping"> | string
+  SnapshotLine?: Prisma.XOR<Prisma.ProductionBomSnapshotLineNullableScalarRelationFilter, Prisma.ProductionBomSnapshotLineWhereInput> | null
+  MaterialNg?: Prisma.XOR<Prisma.MaterialNGNullableScalarRelationFilter, Prisma.MaterialNGWhereInput> | null
+  Command?: Prisma.XOR<Prisma.BusinessCommandNullableScalarRelationFilter, Prisma.BusinessCommandWhereInput> | null
   ForecastData?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
   MaterialData?: Prisma.XOR<Prisma.MaterialScalarRelationFilter, Prisma.MaterialWhereInput>
 }, "Id">
 
 export type ShoppingOrderByWithAggregationInput = {
+  Purpose?: Prisma.SortOrder
+  Destination?: Prisma.SortOrderInput | Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrderInput | Prisma.SortOrder
+  MaterialNgId?: Prisma.SortOrderInput | Prisma.SortOrder
+  CommandId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrderInput | Prisma.SortOrder
   Type?: Prisma.SortOrder
@@ -304,6 +372,11 @@ export type ShoppingScalarWhereWithAggregatesInput = {
   AND?: Prisma.ShoppingScalarWhereWithAggregatesInput | Prisma.ShoppingScalarWhereWithAggregatesInput[]
   OR?: Prisma.ShoppingScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ShoppingScalarWhereWithAggregatesInput | Prisma.ShoppingScalarWhereWithAggregatesInput[]
+  Purpose?: Prisma.EnumShoppingPurposeWithAggregatesFilter<"Shopping"> | $Enums.ShoppingPurpose
+  Destination?: Prisma.StringNullableWithAggregatesFilter<"Shopping"> | string | null
+  SnapshotLineId?: Prisma.StringNullableWithAggregatesFilter<"Shopping"> | string | null
+  MaterialNgId?: Prisma.IntNullableWithAggregatesFilter<"Shopping"> | number | null
+  CommandId?: Prisma.StringNullableWithAggregatesFilter<"Shopping"> | string | null
   Id?: Prisma.StringWithAggregatesFilter<"Shopping"> | string
   Description?: Prisma.StringNullableWithAggregatesFilter<"Shopping"> | string | null
   Type?: Prisma.EnumTypeShoppingWithAggregatesFilter<"Shopping"> | $Enums.TypeShopping
@@ -316,6 +389,8 @@ export type ShoppingScalarWhereWithAggregatesInput = {
 }
 
 export type ShoppingCreateInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
   Id: string
   Description?: string | null
   Type: $Enums.TypeShopping
@@ -323,11 +398,19 @@ export type ShoppingCreateInput = {
   UpdatedAt?: Date | string
   CreatedBy: string
   QtyPick: number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineCreateNestedOneWithoutShoppingInput
+  MaterialNg?: Prisma.MaterialNGCreateNestedOneWithoutReplacementsInput
+  Command?: Prisma.BusinessCommandCreateNestedOneWithoutShoppingInput
   ForecastData?: Prisma.ForecastCreateNestedOneWithoutShoppingInput
   MaterialData: Prisma.MaterialCreateNestedOneWithoutShoppingInput
 }
 
 export type ShoppingUncheckedCreateInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  MaterialNgId?: number | null
+  CommandId?: string | null
   Id: string
   Description?: string | null
   Type: $Enums.TypeShopping
@@ -340,6 +423,8 @@ export type ShoppingUncheckedCreateInput = {
 }
 
 export type ShoppingUpdateInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -347,11 +432,19 @@ export type ShoppingUpdateInput = {
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineUpdateOneWithoutShoppingNestedInput
+  MaterialNg?: Prisma.MaterialNGUpdateOneWithoutReplacementsNestedInput
+  Command?: Prisma.BusinessCommandUpdateOneWithoutShoppingNestedInput
   ForecastData?: Prisma.ForecastUpdateOneWithoutShoppingNestedInput
   MaterialData?: Prisma.MaterialUpdateOneRequiredWithoutShoppingNestedInput
 }
 
 export type ShoppingUncheckedUpdateInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -364,6 +457,11 @@ export type ShoppingUncheckedUpdateInput = {
 }
 
 export type ShoppingCreateManyInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  MaterialNgId?: number | null
+  CommandId?: string | null
   Id: string
   Description?: string | null
   Type: $Enums.TypeShopping
@@ -376,6 +474,8 @@ export type ShoppingCreateManyInput = {
 }
 
 export type ShoppingUpdateManyMutationInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -386,6 +486,11 @@ export type ShoppingUpdateManyMutationInput = {
 }
 
 export type ShoppingUncheckedUpdateManyInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -408,6 +513,11 @@ export type ShoppingOrderByRelationAggregateInput = {
 }
 
 export type ShoppingCountOrderByAggregateInput = {
+  Purpose?: Prisma.SortOrder
+  Destination?: Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrder
+  MaterialNgId?: Prisma.SortOrder
+  CommandId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrder
   Type?: Prisma.SortOrder
@@ -420,10 +530,16 @@ export type ShoppingCountOrderByAggregateInput = {
 }
 
 export type ShoppingAvgOrderByAggregateInput = {
+  MaterialNgId?: Prisma.SortOrder
   QtyPick?: Prisma.SortOrder
 }
 
 export type ShoppingMaxOrderByAggregateInput = {
+  Purpose?: Prisma.SortOrder
+  Destination?: Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrder
+  MaterialNgId?: Prisma.SortOrder
+  CommandId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrder
   Type?: Prisma.SortOrder
@@ -436,6 +552,11 @@ export type ShoppingMaxOrderByAggregateInput = {
 }
 
 export type ShoppingMinOrderByAggregateInput = {
+  Purpose?: Prisma.SortOrder
+  Destination?: Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrder
+  MaterialNgId?: Prisma.SortOrder
+  CommandId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrder
   Type?: Prisma.SortOrder
@@ -448,6 +569,7 @@ export type ShoppingMinOrderByAggregateInput = {
 }
 
 export type ShoppingSumOrderByAggregateInput = {
+  MaterialNgId?: Prisma.SortOrder
   QtyPick?: Prisma.SortOrder
 }
 
@@ -493,6 +615,48 @@ export type ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput = {
   deleteMany?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
 }
 
+export type ShoppingCreateNestedManyWithoutMaterialNgInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutMaterialNgInput, Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput> | Prisma.ShoppingCreateWithoutMaterialNgInput[] | Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutMaterialNgInput | Prisma.ShoppingCreateOrConnectWithoutMaterialNgInput[]
+  createMany?: Prisma.ShoppingCreateManyMaterialNgInputEnvelope
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+}
+
+export type ShoppingUncheckedCreateNestedManyWithoutMaterialNgInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutMaterialNgInput, Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput> | Prisma.ShoppingCreateWithoutMaterialNgInput[] | Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutMaterialNgInput | Prisma.ShoppingCreateOrConnectWithoutMaterialNgInput[]
+  createMany?: Prisma.ShoppingCreateManyMaterialNgInputEnvelope
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+}
+
+export type ShoppingUpdateManyWithoutMaterialNgNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutMaterialNgInput, Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput> | Prisma.ShoppingCreateWithoutMaterialNgInput[] | Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutMaterialNgInput | Prisma.ShoppingCreateOrConnectWithoutMaterialNgInput[]
+  upsert?: Prisma.ShoppingUpsertWithWhereUniqueWithoutMaterialNgInput | Prisma.ShoppingUpsertWithWhereUniqueWithoutMaterialNgInput[]
+  createMany?: Prisma.ShoppingCreateManyMaterialNgInputEnvelope
+  set?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  disconnect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  delete?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  update?: Prisma.ShoppingUpdateWithWhereUniqueWithoutMaterialNgInput | Prisma.ShoppingUpdateWithWhereUniqueWithoutMaterialNgInput[]
+  updateMany?: Prisma.ShoppingUpdateManyWithWhereWithoutMaterialNgInput | Prisma.ShoppingUpdateManyWithWhereWithoutMaterialNgInput[]
+  deleteMany?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
+}
+
+export type ShoppingUncheckedUpdateManyWithoutMaterialNgNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutMaterialNgInput, Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput> | Prisma.ShoppingCreateWithoutMaterialNgInput[] | Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutMaterialNgInput | Prisma.ShoppingCreateOrConnectWithoutMaterialNgInput[]
+  upsert?: Prisma.ShoppingUpsertWithWhereUniqueWithoutMaterialNgInput | Prisma.ShoppingUpsertWithWhereUniqueWithoutMaterialNgInput[]
+  createMany?: Prisma.ShoppingCreateManyMaterialNgInputEnvelope
+  set?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  disconnect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  delete?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  update?: Prisma.ShoppingUpdateWithWhereUniqueWithoutMaterialNgInput | Prisma.ShoppingUpdateWithWhereUniqueWithoutMaterialNgInput[]
+  updateMany?: Prisma.ShoppingUpdateManyWithWhereWithoutMaterialNgInput | Prisma.ShoppingUpdateManyWithWhereWithoutMaterialNgInput[]
+  deleteMany?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
+}
+
 export type ShoppingCreateNestedManyWithoutForecastDataInput = {
   create?: Prisma.XOR<Prisma.ShoppingCreateWithoutForecastDataInput, Prisma.ShoppingUncheckedCreateWithoutForecastDataInput> | Prisma.ShoppingCreateWithoutForecastDataInput[] | Prisma.ShoppingUncheckedCreateWithoutForecastDataInput[]
   connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutForecastDataInput | Prisma.ShoppingCreateOrConnectWithoutForecastDataInput[]
@@ -535,11 +699,101 @@ export type ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput = {
   deleteMany?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
 }
 
+export type EnumShoppingPurposeFieldUpdateOperationsInput = {
+  set?: $Enums.ShoppingPurpose
+}
+
 export type EnumTypeShoppingFieldUpdateOperationsInput = {
   set?: $Enums.TypeShopping
 }
 
+export type ShoppingCreateNestedManyWithoutSnapshotLineInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutSnapshotLineInput, Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput> | Prisma.ShoppingCreateWithoutSnapshotLineInput[] | Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutSnapshotLineInput | Prisma.ShoppingCreateOrConnectWithoutSnapshotLineInput[]
+  createMany?: Prisma.ShoppingCreateManySnapshotLineInputEnvelope
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+}
+
+export type ShoppingUncheckedCreateNestedManyWithoutSnapshotLineInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutSnapshotLineInput, Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput> | Prisma.ShoppingCreateWithoutSnapshotLineInput[] | Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutSnapshotLineInput | Prisma.ShoppingCreateOrConnectWithoutSnapshotLineInput[]
+  createMany?: Prisma.ShoppingCreateManySnapshotLineInputEnvelope
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+}
+
+export type ShoppingUpdateManyWithoutSnapshotLineNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutSnapshotLineInput, Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput> | Prisma.ShoppingCreateWithoutSnapshotLineInput[] | Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutSnapshotLineInput | Prisma.ShoppingCreateOrConnectWithoutSnapshotLineInput[]
+  upsert?: Prisma.ShoppingUpsertWithWhereUniqueWithoutSnapshotLineInput | Prisma.ShoppingUpsertWithWhereUniqueWithoutSnapshotLineInput[]
+  createMany?: Prisma.ShoppingCreateManySnapshotLineInputEnvelope
+  set?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  disconnect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  delete?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  update?: Prisma.ShoppingUpdateWithWhereUniqueWithoutSnapshotLineInput | Prisma.ShoppingUpdateWithWhereUniqueWithoutSnapshotLineInput[]
+  updateMany?: Prisma.ShoppingUpdateManyWithWhereWithoutSnapshotLineInput | Prisma.ShoppingUpdateManyWithWhereWithoutSnapshotLineInput[]
+  deleteMany?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
+}
+
+export type ShoppingUncheckedUpdateManyWithoutSnapshotLineNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutSnapshotLineInput, Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput> | Prisma.ShoppingCreateWithoutSnapshotLineInput[] | Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutSnapshotLineInput | Prisma.ShoppingCreateOrConnectWithoutSnapshotLineInput[]
+  upsert?: Prisma.ShoppingUpsertWithWhereUniqueWithoutSnapshotLineInput | Prisma.ShoppingUpsertWithWhereUniqueWithoutSnapshotLineInput[]
+  createMany?: Prisma.ShoppingCreateManySnapshotLineInputEnvelope
+  set?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  disconnect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  delete?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  update?: Prisma.ShoppingUpdateWithWhereUniqueWithoutSnapshotLineInput | Prisma.ShoppingUpdateWithWhereUniqueWithoutSnapshotLineInput[]
+  updateMany?: Prisma.ShoppingUpdateManyWithWhereWithoutSnapshotLineInput | Prisma.ShoppingUpdateManyWithWhereWithoutSnapshotLineInput[]
+  deleteMany?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
+}
+
+export type ShoppingCreateNestedManyWithoutCommandInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutCommandInput, Prisma.ShoppingUncheckedCreateWithoutCommandInput> | Prisma.ShoppingCreateWithoutCommandInput[] | Prisma.ShoppingUncheckedCreateWithoutCommandInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutCommandInput | Prisma.ShoppingCreateOrConnectWithoutCommandInput[]
+  createMany?: Prisma.ShoppingCreateManyCommandInputEnvelope
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+}
+
+export type ShoppingUncheckedCreateNestedManyWithoutCommandInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutCommandInput, Prisma.ShoppingUncheckedCreateWithoutCommandInput> | Prisma.ShoppingCreateWithoutCommandInput[] | Prisma.ShoppingUncheckedCreateWithoutCommandInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutCommandInput | Prisma.ShoppingCreateOrConnectWithoutCommandInput[]
+  createMany?: Prisma.ShoppingCreateManyCommandInputEnvelope
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+}
+
+export type ShoppingUpdateManyWithoutCommandNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutCommandInput, Prisma.ShoppingUncheckedCreateWithoutCommandInput> | Prisma.ShoppingCreateWithoutCommandInput[] | Prisma.ShoppingUncheckedCreateWithoutCommandInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutCommandInput | Prisma.ShoppingCreateOrConnectWithoutCommandInput[]
+  upsert?: Prisma.ShoppingUpsertWithWhereUniqueWithoutCommandInput | Prisma.ShoppingUpsertWithWhereUniqueWithoutCommandInput[]
+  createMany?: Prisma.ShoppingCreateManyCommandInputEnvelope
+  set?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  disconnect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  delete?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  update?: Prisma.ShoppingUpdateWithWhereUniqueWithoutCommandInput | Prisma.ShoppingUpdateWithWhereUniqueWithoutCommandInput[]
+  updateMany?: Prisma.ShoppingUpdateManyWithWhereWithoutCommandInput | Prisma.ShoppingUpdateManyWithWhereWithoutCommandInput[]
+  deleteMany?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
+}
+
+export type ShoppingUncheckedUpdateManyWithoutCommandNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCreateWithoutCommandInput, Prisma.ShoppingUncheckedCreateWithoutCommandInput> | Prisma.ShoppingCreateWithoutCommandInput[] | Prisma.ShoppingUncheckedCreateWithoutCommandInput[]
+  connectOrCreate?: Prisma.ShoppingCreateOrConnectWithoutCommandInput | Prisma.ShoppingCreateOrConnectWithoutCommandInput[]
+  upsert?: Prisma.ShoppingUpsertWithWhereUniqueWithoutCommandInput | Prisma.ShoppingUpsertWithWhereUniqueWithoutCommandInput[]
+  createMany?: Prisma.ShoppingCreateManyCommandInputEnvelope
+  set?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  disconnect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  delete?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  connect?: Prisma.ShoppingWhereUniqueInput | Prisma.ShoppingWhereUniqueInput[]
+  update?: Prisma.ShoppingUpdateWithWhereUniqueWithoutCommandInput | Prisma.ShoppingUpdateWithWhereUniqueWithoutCommandInput[]
+  updateMany?: Prisma.ShoppingUpdateManyWithWhereWithoutCommandInput | Prisma.ShoppingUpdateManyWithWhereWithoutCommandInput[]
+  deleteMany?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
+}
+
 export type ShoppingCreateWithoutMaterialDataInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
   Id: string
   Description?: string | null
   Type: $Enums.TypeShopping
@@ -547,10 +801,18 @@ export type ShoppingCreateWithoutMaterialDataInput = {
   UpdatedAt?: Date | string
   CreatedBy: string
   QtyPick: number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineCreateNestedOneWithoutShoppingInput
+  MaterialNg?: Prisma.MaterialNGCreateNestedOneWithoutReplacementsInput
+  Command?: Prisma.BusinessCommandCreateNestedOneWithoutShoppingInput
   ForecastData?: Prisma.ForecastCreateNestedOneWithoutShoppingInput
 }
 
 export type ShoppingUncheckedCreateWithoutMaterialDataInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  MaterialNgId?: number | null
+  CommandId?: string | null
   Id: string
   Description?: string | null
   Type: $Enums.TypeShopping
@@ -591,6 +853,11 @@ export type ShoppingScalarWhereInput = {
   AND?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
   OR?: Prisma.ShoppingScalarWhereInput[]
   NOT?: Prisma.ShoppingScalarWhereInput | Prisma.ShoppingScalarWhereInput[]
+  Purpose?: Prisma.EnumShoppingPurposeFilter<"Shopping"> | $Enums.ShoppingPurpose
+  Destination?: Prisma.StringNullableFilter<"Shopping"> | string | null
+  SnapshotLineId?: Prisma.StringNullableFilter<"Shopping"> | string | null
+  MaterialNgId?: Prisma.IntNullableFilter<"Shopping"> | number | null
+  CommandId?: Prisma.StringNullableFilter<"Shopping"> | string | null
   Id?: Prisma.StringFilter<"Shopping"> | string
   Description?: Prisma.StringNullableFilter<"Shopping"> | string | null
   Type?: Prisma.EnumTypeShoppingFilter<"Shopping"> | $Enums.TypeShopping
@@ -602,7 +869,9 @@ export type ShoppingScalarWhereInput = {
   MaterialId?: Prisma.StringFilter<"Shopping"> | string
 }
 
-export type ShoppingCreateWithoutForecastDataInput = {
+export type ShoppingCreateWithoutMaterialNgInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
   Id: string
   Description?: string | null
   Type: $Enums.TypeShopping
@@ -610,10 +879,76 @@ export type ShoppingCreateWithoutForecastDataInput = {
   UpdatedAt?: Date | string
   CreatedBy: string
   QtyPick: number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineCreateNestedOneWithoutShoppingInput
+  Command?: Prisma.BusinessCommandCreateNestedOneWithoutShoppingInput
+  ForecastData?: Prisma.ForecastCreateNestedOneWithoutShoppingInput
+  MaterialData: Prisma.MaterialCreateNestedOneWithoutShoppingInput
+}
+
+export type ShoppingUncheckedCreateWithoutMaterialNgInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  CommandId?: string | null
+  Id: string
+  Description?: string | null
+  Type: $Enums.TypeShopping
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  ForecastId?: string | null
+  CreatedBy: string
+  QtyPick: number
+  MaterialId: string
+}
+
+export type ShoppingCreateOrConnectWithoutMaterialNgInput = {
+  where: Prisma.ShoppingWhereUniqueInput
+  create: Prisma.XOR<Prisma.ShoppingCreateWithoutMaterialNgInput, Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput>
+}
+
+export type ShoppingCreateManyMaterialNgInputEnvelope = {
+  data: Prisma.ShoppingCreateManyMaterialNgInput | Prisma.ShoppingCreateManyMaterialNgInput[]
+  skipDuplicates?: boolean
+}
+
+export type ShoppingUpsertWithWhereUniqueWithoutMaterialNgInput = {
+  where: Prisma.ShoppingWhereUniqueInput
+  update: Prisma.XOR<Prisma.ShoppingUpdateWithoutMaterialNgInput, Prisma.ShoppingUncheckedUpdateWithoutMaterialNgInput>
+  create: Prisma.XOR<Prisma.ShoppingCreateWithoutMaterialNgInput, Prisma.ShoppingUncheckedCreateWithoutMaterialNgInput>
+}
+
+export type ShoppingUpdateWithWhereUniqueWithoutMaterialNgInput = {
+  where: Prisma.ShoppingWhereUniqueInput
+  data: Prisma.XOR<Prisma.ShoppingUpdateWithoutMaterialNgInput, Prisma.ShoppingUncheckedUpdateWithoutMaterialNgInput>
+}
+
+export type ShoppingUpdateManyWithWhereWithoutMaterialNgInput = {
+  where: Prisma.ShoppingScalarWhereInput
+  data: Prisma.XOR<Prisma.ShoppingUpdateManyMutationInput, Prisma.ShoppingUncheckedUpdateManyWithoutMaterialNgInput>
+}
+
+export type ShoppingCreateWithoutForecastDataInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  Id: string
+  Description?: string | null
+  Type: $Enums.TypeShopping
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  CreatedBy: string
+  QtyPick: number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineCreateNestedOneWithoutShoppingInput
+  MaterialNg?: Prisma.MaterialNGCreateNestedOneWithoutReplacementsInput
+  Command?: Prisma.BusinessCommandCreateNestedOneWithoutShoppingInput
   MaterialData: Prisma.MaterialCreateNestedOneWithoutShoppingInput
 }
 
 export type ShoppingUncheckedCreateWithoutForecastDataInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  MaterialNgId?: number | null
+  CommandId?: string | null
   Id: string
   Description?: string | null
   Type: $Enums.TypeShopping
@@ -650,7 +985,128 @@ export type ShoppingUpdateManyWithWhereWithoutForecastDataInput = {
   data: Prisma.XOR<Prisma.ShoppingUpdateManyMutationInput, Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataInput>
 }
 
+export type ShoppingCreateWithoutSnapshotLineInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  Id: string
+  Description?: string | null
+  Type: $Enums.TypeShopping
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  CreatedBy: string
+  QtyPick: number
+  MaterialNg?: Prisma.MaterialNGCreateNestedOneWithoutReplacementsInput
+  Command?: Prisma.BusinessCommandCreateNestedOneWithoutShoppingInput
+  ForecastData?: Prisma.ForecastCreateNestedOneWithoutShoppingInput
+  MaterialData: Prisma.MaterialCreateNestedOneWithoutShoppingInput
+}
+
+export type ShoppingUncheckedCreateWithoutSnapshotLineInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  MaterialNgId?: number | null
+  CommandId?: string | null
+  Id: string
+  Description?: string | null
+  Type: $Enums.TypeShopping
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  ForecastId?: string | null
+  CreatedBy: string
+  QtyPick: number
+  MaterialId: string
+}
+
+export type ShoppingCreateOrConnectWithoutSnapshotLineInput = {
+  where: Prisma.ShoppingWhereUniqueInput
+  create: Prisma.XOR<Prisma.ShoppingCreateWithoutSnapshotLineInput, Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput>
+}
+
+export type ShoppingCreateManySnapshotLineInputEnvelope = {
+  data: Prisma.ShoppingCreateManySnapshotLineInput | Prisma.ShoppingCreateManySnapshotLineInput[]
+  skipDuplicates?: boolean
+}
+
+export type ShoppingUpsertWithWhereUniqueWithoutSnapshotLineInput = {
+  where: Prisma.ShoppingWhereUniqueInput
+  update: Prisma.XOR<Prisma.ShoppingUpdateWithoutSnapshotLineInput, Prisma.ShoppingUncheckedUpdateWithoutSnapshotLineInput>
+  create: Prisma.XOR<Prisma.ShoppingCreateWithoutSnapshotLineInput, Prisma.ShoppingUncheckedCreateWithoutSnapshotLineInput>
+}
+
+export type ShoppingUpdateWithWhereUniqueWithoutSnapshotLineInput = {
+  where: Prisma.ShoppingWhereUniqueInput
+  data: Prisma.XOR<Prisma.ShoppingUpdateWithoutSnapshotLineInput, Prisma.ShoppingUncheckedUpdateWithoutSnapshotLineInput>
+}
+
+export type ShoppingUpdateManyWithWhereWithoutSnapshotLineInput = {
+  where: Prisma.ShoppingScalarWhereInput
+  data: Prisma.XOR<Prisma.ShoppingUpdateManyMutationInput, Prisma.ShoppingUncheckedUpdateManyWithoutSnapshotLineInput>
+}
+
+export type ShoppingCreateWithoutCommandInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  Id: string
+  Description?: string | null
+  Type: $Enums.TypeShopping
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  CreatedBy: string
+  QtyPick: number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineCreateNestedOneWithoutShoppingInput
+  MaterialNg?: Prisma.MaterialNGCreateNestedOneWithoutReplacementsInput
+  ForecastData?: Prisma.ForecastCreateNestedOneWithoutShoppingInput
+  MaterialData: Prisma.MaterialCreateNestedOneWithoutShoppingInput
+}
+
+export type ShoppingUncheckedCreateWithoutCommandInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  MaterialNgId?: number | null
+  Id: string
+  Description?: string | null
+  Type: $Enums.TypeShopping
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  ForecastId?: string | null
+  CreatedBy: string
+  QtyPick: number
+  MaterialId: string
+}
+
+export type ShoppingCreateOrConnectWithoutCommandInput = {
+  where: Prisma.ShoppingWhereUniqueInput
+  create: Prisma.XOR<Prisma.ShoppingCreateWithoutCommandInput, Prisma.ShoppingUncheckedCreateWithoutCommandInput>
+}
+
+export type ShoppingCreateManyCommandInputEnvelope = {
+  data: Prisma.ShoppingCreateManyCommandInput | Prisma.ShoppingCreateManyCommandInput[]
+  skipDuplicates?: boolean
+}
+
+export type ShoppingUpsertWithWhereUniqueWithoutCommandInput = {
+  where: Prisma.ShoppingWhereUniqueInput
+  update: Prisma.XOR<Prisma.ShoppingUpdateWithoutCommandInput, Prisma.ShoppingUncheckedUpdateWithoutCommandInput>
+  create: Prisma.XOR<Prisma.ShoppingCreateWithoutCommandInput, Prisma.ShoppingUncheckedCreateWithoutCommandInput>
+}
+
+export type ShoppingUpdateWithWhereUniqueWithoutCommandInput = {
+  where: Prisma.ShoppingWhereUniqueInput
+  data: Prisma.XOR<Prisma.ShoppingUpdateWithoutCommandInput, Prisma.ShoppingUncheckedUpdateWithoutCommandInput>
+}
+
+export type ShoppingUpdateManyWithWhereWithoutCommandInput = {
+  where: Prisma.ShoppingScalarWhereInput
+  data: Prisma.XOR<Prisma.ShoppingUpdateManyMutationInput, Prisma.ShoppingUncheckedUpdateManyWithoutCommandInput>
+}
+
 export type ShoppingCreateManyMaterialDataInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  MaterialNgId?: number | null
+  CommandId?: string | null
   Id: string
   Description?: string | null
   Type: $Enums.TypeShopping
@@ -662,6 +1118,8 @@ export type ShoppingCreateManyMaterialDataInput = {
 }
 
 export type ShoppingUpdateWithoutMaterialDataInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -669,10 +1127,18 @@ export type ShoppingUpdateWithoutMaterialDataInput = {
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineUpdateOneWithoutShoppingNestedInput
+  MaterialNg?: Prisma.MaterialNGUpdateOneWithoutReplacementsNestedInput
+  Command?: Prisma.BusinessCommandUpdateOneWithoutShoppingNestedInput
   ForecastData?: Prisma.ForecastUpdateOneWithoutShoppingNestedInput
 }
 
 export type ShoppingUncheckedUpdateWithoutMaterialDataInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -684,6 +1150,11 @@ export type ShoppingUncheckedUpdateWithoutMaterialDataInput = {
 }
 
 export type ShoppingUncheckedUpdateManyWithoutMaterialDataInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -694,7 +1165,76 @@ export type ShoppingUncheckedUpdateManyWithoutMaterialDataInput = {
   QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
+export type ShoppingCreateManyMaterialNgInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  CommandId?: string | null
+  Id: string
+  Description?: string | null
+  Type: $Enums.TypeShopping
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  ForecastId?: string | null
+  CreatedBy: string
+  QtyPick: number
+  MaterialId: string
+}
+
+export type ShoppingUpdateWithoutMaterialNgInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineUpdateOneWithoutShoppingNestedInput
+  Command?: Prisma.BusinessCommandUpdateOneWithoutShoppingNestedInput
+  ForecastData?: Prisma.ForecastUpdateOneWithoutShoppingNestedInput
+  MaterialData?: Prisma.MaterialUpdateOneRequiredWithoutShoppingNestedInput
+}
+
+export type ShoppingUncheckedUpdateWithoutMaterialNgInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type ShoppingUncheckedUpdateManyWithoutMaterialNgInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
 export type ShoppingCreateManyForecastDataInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  MaterialNgId?: number | null
+  CommandId?: string | null
   Id: string
   Description?: string | null
   Type: $Enums.TypeShopping
@@ -706,6 +1246,8 @@ export type ShoppingCreateManyForecastDataInput = {
 }
 
 export type ShoppingUpdateWithoutForecastDataInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -713,10 +1255,18 @@ export type ShoppingUpdateWithoutForecastDataInput = {
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineUpdateOneWithoutShoppingNestedInput
+  MaterialNg?: Prisma.MaterialNGUpdateOneWithoutReplacementsNestedInput
+  Command?: Prisma.BusinessCommandUpdateOneWithoutShoppingNestedInput
   MaterialData?: Prisma.MaterialUpdateOneRequiredWithoutShoppingNestedInput
 }
 
 export type ShoppingUncheckedUpdateWithoutForecastDataInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -728,6 +1278,11 @@ export type ShoppingUncheckedUpdateWithoutForecastDataInput = {
 }
 
 export type ShoppingUncheckedUpdateManyWithoutForecastDataInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
@@ -738,9 +1293,142 @@ export type ShoppingUncheckedUpdateManyWithoutForecastDataInput = {
   MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
+export type ShoppingCreateManySnapshotLineInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  MaterialNgId?: number | null
+  CommandId?: string | null
+  Id: string
+  Description?: string | null
+  Type: $Enums.TypeShopping
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  ForecastId?: string | null
+  CreatedBy: string
+  QtyPick: number
+  MaterialId: string
+}
+
+export type ShoppingUpdateWithoutSnapshotLineInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialNg?: Prisma.MaterialNGUpdateOneWithoutReplacementsNestedInput
+  Command?: Prisma.BusinessCommandUpdateOneWithoutShoppingNestedInput
+  ForecastData?: Prisma.ForecastUpdateOneWithoutShoppingNestedInput
+  MaterialData?: Prisma.MaterialUpdateOneRequiredWithoutShoppingNestedInput
+}
+
+export type ShoppingUncheckedUpdateWithoutSnapshotLineInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type ShoppingUncheckedUpdateManyWithoutSnapshotLineInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CommandId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type ShoppingCreateManyCommandInput = {
+  Purpose?: $Enums.ShoppingPurpose
+  Destination?: string | null
+  SnapshotLineId?: string | null
+  MaterialNgId?: number | null
+  Id: string
+  Description?: string | null
+  Type: $Enums.TypeShopping
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  ForecastId?: string | null
+  CreatedBy: string
+  QtyPick: number
+  MaterialId: string
+}
+
+export type ShoppingUpdateWithoutCommandInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineUpdateOneWithoutShoppingNestedInput
+  MaterialNg?: Prisma.MaterialNGUpdateOneWithoutReplacementsNestedInput
+  ForecastData?: Prisma.ForecastUpdateOneWithoutShoppingNestedInput
+  MaterialData?: Prisma.MaterialUpdateOneRequiredWithoutShoppingNestedInput
+}
+
+export type ShoppingUncheckedUpdateWithoutCommandInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type ShoppingUncheckedUpdateManyWithoutCommandInput = {
+  Purpose?: Prisma.EnumShoppingPurposeFieldUpdateOperationsInput | $Enums.ShoppingPurpose
+  Destination?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.EnumTypeShoppingFieldUpdateOperationsInput | $Enums.TypeShopping
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPick?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
 
 
 export type ShoppingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  Purpose?: boolean
+  Destination?: boolean
+  SnapshotLineId?: boolean
+  MaterialNgId?: boolean
+  CommandId?: boolean
   Id?: boolean
   Description?: boolean
   Type?: boolean
@@ -750,11 +1438,19 @@ export type ShoppingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   CreatedBy?: boolean
   QtyPick?: boolean
   MaterialId?: boolean
+  SnapshotLine?: boolean | Prisma.Shopping$SnapshotLineArgs<ExtArgs>
+  MaterialNg?: boolean | Prisma.Shopping$MaterialNgArgs<ExtArgs>
+  Command?: boolean | Prisma.Shopping$CommandArgs<ExtArgs>
   ForecastData?: boolean | Prisma.Shopping$ForecastDataArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shopping"]>
 
 export type ShoppingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  Purpose?: boolean
+  Destination?: boolean
+  SnapshotLineId?: boolean
+  MaterialNgId?: boolean
+  CommandId?: boolean
   Id?: boolean
   Description?: boolean
   Type?: boolean
@@ -764,11 +1460,19 @@ export type ShoppingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   CreatedBy?: boolean
   QtyPick?: boolean
   MaterialId?: boolean
+  SnapshotLine?: boolean | Prisma.Shopping$SnapshotLineArgs<ExtArgs>
+  MaterialNg?: boolean | Prisma.Shopping$MaterialNgArgs<ExtArgs>
+  Command?: boolean | Prisma.Shopping$CommandArgs<ExtArgs>
   ForecastData?: boolean | Prisma.Shopping$ForecastDataArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shopping"]>
 
 export type ShoppingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  Purpose?: boolean
+  Destination?: boolean
+  SnapshotLineId?: boolean
+  MaterialNgId?: boolean
+  CommandId?: boolean
   Id?: boolean
   Description?: boolean
   Type?: boolean
@@ -778,11 +1482,19 @@ export type ShoppingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   CreatedBy?: boolean
   QtyPick?: boolean
   MaterialId?: boolean
+  SnapshotLine?: boolean | Prisma.Shopping$SnapshotLineArgs<ExtArgs>
+  MaterialNg?: boolean | Prisma.Shopping$MaterialNgArgs<ExtArgs>
+  Command?: boolean | Prisma.Shopping$CommandArgs<ExtArgs>
   ForecastData?: boolean | Prisma.Shopping$ForecastDataArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shopping"]>
 
 export type ShoppingSelectScalar = {
+  Purpose?: boolean
+  Destination?: boolean
+  SnapshotLineId?: boolean
+  MaterialNgId?: boolean
+  CommandId?: boolean
   Id?: boolean
   Description?: boolean
   Type?: boolean
@@ -794,16 +1506,25 @@ export type ShoppingSelectScalar = {
   MaterialId?: boolean
 }
 
-export type ShoppingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Description" | "Type" | "CreatedAt" | "UpdatedAt" | "ForecastId" | "CreatedBy" | "QtyPick" | "MaterialId", ExtArgs["result"]["shopping"]>
+export type ShoppingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Purpose" | "Destination" | "SnapshotLineId" | "MaterialNgId" | "CommandId" | "Id" | "Description" | "Type" | "CreatedAt" | "UpdatedAt" | "ForecastId" | "CreatedBy" | "QtyPick" | "MaterialId", ExtArgs["result"]["shopping"]>
 export type ShoppingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  SnapshotLine?: boolean | Prisma.Shopping$SnapshotLineArgs<ExtArgs>
+  MaterialNg?: boolean | Prisma.Shopping$MaterialNgArgs<ExtArgs>
+  Command?: boolean | Prisma.Shopping$CommandArgs<ExtArgs>
   ForecastData?: boolean | Prisma.Shopping$ForecastDataArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }
 export type ShoppingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  SnapshotLine?: boolean | Prisma.Shopping$SnapshotLineArgs<ExtArgs>
+  MaterialNg?: boolean | Prisma.Shopping$MaterialNgArgs<ExtArgs>
+  Command?: boolean | Prisma.Shopping$CommandArgs<ExtArgs>
   ForecastData?: boolean | Prisma.Shopping$ForecastDataArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }
 export type ShoppingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  SnapshotLine?: boolean | Prisma.Shopping$SnapshotLineArgs<ExtArgs>
+  MaterialNg?: boolean | Prisma.Shopping$MaterialNgArgs<ExtArgs>
+  Command?: boolean | Prisma.Shopping$CommandArgs<ExtArgs>
   ForecastData?: boolean | Prisma.Shopping$ForecastDataArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }
@@ -811,10 +1532,18 @@ export type ShoppingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $ShoppingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Shopping"
   objects: {
+    SnapshotLine: Prisma.$ProductionBomSnapshotLinePayload<ExtArgs> | null
+    MaterialNg: Prisma.$MaterialNGPayload<ExtArgs> | null
+    Command: Prisma.$BusinessCommandPayload<ExtArgs> | null
     ForecastData: Prisma.$ForecastPayload<ExtArgs> | null
     MaterialData: Prisma.$MaterialPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    Purpose: $Enums.ShoppingPurpose
+    Destination: string | null
+    SnapshotLineId: string | null
+    MaterialNgId: number | null
+    CommandId: string | null
     Id: string
     Description: string | null
     Type: $Enums.TypeShopping
@@ -907,8 +1636,8 @@ export interface ShoppingDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    * // Get first 10 Shoppings
    * const shoppings = await prisma.shopping.findMany({ take: 10 })
    * 
-   * // Only select the `Id`
-   * const shoppingWithIdOnly = await prisma.shopping.findMany({ select: { Id: true } })
+   * // Only select the `Destination`
+   * const shoppingWithDestinationOnly = await prisma.shopping.findMany({ select: { Destination: true } })
    * 
    */
   findMany<T extends ShoppingFindManyArgs>(args?: Prisma.SelectSubset<T, ShoppingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShoppingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -952,9 +1681,9 @@ export interface ShoppingDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   ]
    * })
    * 
-   * // Create many Shoppings and only return the `Id`
-   * const shoppingWithIdOnly = await prisma.shopping.createManyAndReturn({
-   *   select: { Id: true },
+   * // Create many Shoppings and only return the `Destination`
+   * const shoppingWithDestinationOnly = await prisma.shopping.createManyAndReturn({
+   *   select: { Destination: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -1043,9 +1772,9 @@ export interface ShoppingDelegate<ExtArgs extends runtime.Types.Extensions.Inter
    *   ]
    * })
    * 
-   * // Update zero or more Shoppings and only return the `Id`
-   * const shoppingWithIdOnly = await prisma.shopping.updateManyAndReturn({
-   *   select: { Id: true },
+   * // Update zero or more Shoppings and only return the `Destination`
+   * const shoppingWithDestinationOnly = await prisma.shopping.updateManyAndReturn({
+   *   select: { Destination: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1218,6 +1947,9 @@ readonly fields: ShoppingFieldRefs;
  */
 export interface Prisma__ShoppingClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  SnapshotLine<T extends Prisma.Shopping$SnapshotLineArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Shopping$SnapshotLineArgs<ExtArgs>>): Prisma.Prisma__ProductionBomSnapshotLineClient<runtime.Types.Result.GetResult<Prisma.$ProductionBomSnapshotLinePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  MaterialNg<T extends Prisma.Shopping$MaterialNgArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Shopping$MaterialNgArgs<ExtArgs>>): Prisma.Prisma__MaterialNGClient<runtime.Types.Result.GetResult<Prisma.$MaterialNGPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Command<T extends Prisma.Shopping$CommandArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Shopping$CommandArgs<ExtArgs>>): Prisma.Prisma__BusinessCommandClient<runtime.Types.Result.GetResult<Prisma.$BusinessCommandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ForecastData<T extends Prisma.Shopping$ForecastDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Shopping$ForecastDataArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   MaterialData<T extends Prisma.MaterialDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MaterialDefaultArgs<ExtArgs>>): Prisma.Prisma__MaterialClient<runtime.Types.Result.GetResult<Prisma.$MaterialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1249,6 +1981,11 @@ export interface Prisma__ShoppingClient<T, Null = never, ExtArgs extends runtime
  * Fields of the Shopping model
  */
 export interface ShoppingFieldRefs {
+  readonly Purpose: Prisma.FieldRef<"Shopping", 'ShoppingPurpose'>
+  readonly Destination: Prisma.FieldRef<"Shopping", 'String'>
+  readonly SnapshotLineId: Prisma.FieldRef<"Shopping", 'String'>
+  readonly MaterialNgId: Prisma.FieldRef<"Shopping", 'Int'>
+  readonly CommandId: Prisma.FieldRef<"Shopping", 'String'>
   readonly Id: Prisma.FieldRef<"Shopping", 'String'>
   readonly Description: Prisma.FieldRef<"Shopping", 'String'>
   readonly Type: Prisma.FieldRef<"Shopping", 'TypeShopping'>
@@ -1656,6 +2393,63 @@ export type ShoppingDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Shoppings to delete.
    */
   limit?: number
+}
+
+/**
+ * Shopping.SnapshotLine
+ */
+export type Shopping$SnapshotLineArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionBomSnapshotLine
+   */
+  select?: Prisma.ProductionBomSnapshotLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionBomSnapshotLine
+   */
+  omit?: Prisma.ProductionBomSnapshotLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBomSnapshotLineInclude<ExtArgs> | null
+  where?: Prisma.ProductionBomSnapshotLineWhereInput
+}
+
+/**
+ * Shopping.MaterialNg
+ */
+export type Shopping$MaterialNgArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MaterialNG
+   */
+  select?: Prisma.MaterialNGSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MaterialNG
+   */
+  omit?: Prisma.MaterialNGOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MaterialNGInclude<ExtArgs> | null
+  where?: Prisma.MaterialNGWhereInput
+}
+
+/**
+ * Shopping.Command
+ */
+export type Shopping$CommandArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BusinessCommand
+   */
+  select?: Prisma.BusinessCommandSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BusinessCommand
+   */
+  omit?: Prisma.BusinessCommandOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BusinessCommandInclude<ExtArgs> | null
+  where?: Prisma.BusinessCommandWhereInput
 }
 
 /**

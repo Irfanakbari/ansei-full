@@ -1,4 +1,11 @@
+// Snapshot transaction invariants are exercised against PostgreSQL in phase-one.database.spec.ts.
+jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
+  snapshotRelease: () => Promise.resolve(undefined),
+  latestSnapshot: jest.fn().mockResolvedValue(null),
+  assertNoOutstandingReplacement: () => Promise.resolve(undefined),
+}));
 import { Test, TestingModule } from '@nestjs/testing';
+import * as snapshots from '../../common/helpers/bom-snapshot.helper';
 import { ForecastService } from './forecast.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -254,7 +261,20 @@ describe('ForecastService', () => {
       );
     });
 
-    it('regenerates labels for a changed PO and finish good', async () => {
+    it('preserves snapshotted PO identity before any shopping activity', async () => {
+      jest
+        .mocked(snapshots.latestSnapshot)
+        .mockResolvedValueOnce({ Id: 'snapshot' } as Awaited<
+          ReturnType<typeof snapshots.latestSnapshot>
+        >);
+      await expect(
+        service.update('1', { poId: 'PO-NEW' }, 'admin'),
+      ).rejects.toThrow('snapshotted PO');
+      expect(prismaService.forecast.update).not.toHaveBeenCalled();
+      expect(prismaService.labelData.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it('regenerates labels for a changed PO and finish good without historical snapshots', async () => {
       prismaService.forecast.update.mockResolvedValue({
         ...forecast,
         PoId: 'PO-NEW',

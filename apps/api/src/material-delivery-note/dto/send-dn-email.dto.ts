@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsArray, ArrayNotEmpty } from 'class-validator';
+import { IsString, IsOptional, MaxLength, Matches } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class SendDeliveryNoteEmailDto {
@@ -28,6 +28,8 @@ export class SendDeliveryNoteEmailDto {
   })
   @IsOptional()
   @IsString()
+  @MaxLength(200)
+  @Matches(/^[^\r\n]*$/)
   subject?: string;
 
   @ApiPropertyOptional({
@@ -38,5 +40,6 @@ export class SendDeliveryNoteEmailDto {
   })
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   message?: string;
 }

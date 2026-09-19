@@ -1,4 +1,13 @@
 import {
+  claimCommand,
+  finishCommand,
+  requestCommandKey,
+} from '../../common/helpers/business-command.helper';
+import {
+  auditedTransaction,
+  auditedWrite,
+} from '../../common/helpers/audited-transaction.helper';
+import {
   Injectable,
   NotFoundException,
   BadRequestException,
@@ -168,6 +177,11 @@ export class ProductionReportService {
         ForecastData: {
           select: {
             PoId: true,
+            BomSnapshots: {
+              select: { Id: true, Version: true, RevisionId: true },
+              orderBy: { CreatedAt: 'desc' },
+              take: 1,
+            },
             PoNumber: true,
             VendorName: true,
           },
@@ -183,6 +197,7 @@ export class ProductionReportService {
   }
 
   async create(dto: CreateProductionReportDto, createdBy: string) {
+    const requestId = requestCommandKey();
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -192,9 +207,36 @@ export class ProductionReportService {
         createdBy,
       });
 
+      if (requestId) {
+        const previous = await this.prisma.businessCommand.findUnique({
+          where: {
+            Scope_RequestId: {
+              Scope: 'PRODUCTION_REPORT_CREATE',
+              RequestId: requestId,
+            },
+          },
+        });
+        if (previous)
+          return auditedTransaction(this.prisma, async (tx) => {
+            const { command } = await claimCommand(
+              tx,
+              'PRODUCTION_REPORT_CREATE',
+              requestId,
+              createdBy,
+              dto,
+            );
+            await this.logService.completeProcess(
+              logProcess!.ProcessId,
+              'SUCCESS',
+              'Production report replay',
+              tx,
+            );
+            return command.Result;
+          });
+      }
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Starting create production report: ManPower=${dto.manPowerUid}, FinishGood=${dto.finishGoodId}, Qty=${dto.qty}`,
+        message: `Starting production report creation`,
         type: 'INFO',
         location: 'production-report.service.ts:120',
       });
@@ -244,41 +286,79 @@ export class ProductionReportService {
         location: 'production-report.service.ts:145',
       });
 
-      const result = await this.prisma.productionReport.create({
-        data: createData,
-        include: {
-          ManPowerData: {
-            select: {
-              Uid: true,
-              Nik: true,
-              Name: true,
+      const processId = logProcess.ProcessId;
+      const result = await auditedTransaction(this.prisma, async (tx) => {
+        const claimed = requestId
+          ? await claimCommand(
+              tx,
+              'PRODUCTION_REPORT_CREATE',
+              requestId,
+              createdBy,
+              dto,
+            )
+          : null;
+        if (claimed?.duplicate) {
+          await this.logService.completeProcess(
+            processId,
+            'SUCCESS',
+            'Production report replay',
+            tx,
+          );
+          return claimed.command.Result;
+        }
+        const report = await tx.productionReport.create({
+          data: createData,
+          include: {
+            ManPowerData: {
+              select: {
+                Uid: true,
+                Nik: true,
+                Name: true,
+              },
+            },
+            FGData: {
+              select: {
+                PartNumber: true,
+                PartName: true,
+              },
+            },
+            ForecastData: {
+              select: {
+                PoId: true,
+                PoNumber: true,
+                VendorName: true,
+              },
             },
           },
-          FGData: {
-            select: {
-              PartNumber: true,
-              PartName: true,
+        });
+
+        if (report.ForecastId) {
+          const forecast = await tx.forecast.findUniqueOrThrow({
+            where: { PoId: report.ForecastId },
+          });
+          await tx.productionTraceEvent.create({
+            data: {
+              ForecastId: report.ForecastId,
+              ReleaseId: forecast.ProductionReleaseId,
+              Type: 'PRODUCTION_REPORT_CREATED',
+              SourceType: 'ProductionReport',
+              SourceId: String(report.Id),
+              Actor: createdBy,
+              CorrelationId: processId,
+              ProcessId: processId,
+              Metadata: { qty: report.Qty, finishedGoodNgQty: report.NgQty },
             },
-          },
-          ForecastData: {
-            select: {
-              PoId: true,
-              PoNumber: true,
-              VendorName: true,
-            },
-          },
-        },
+          });
+        }
+        await this.logService.completeProcess(
+          processId,
+          'SUCCESS',
+          'Production report recorded',
+          tx,
+        );
+        if (claimed) await finishCommand(tx, claimed.command.Id, report);
+        return report;
       });
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Production report created successfully: ID=${result.Id}, Qty=${result.Qty}, NgQty=${result.NgQty}`,
-        type: 'INFO',
-        location: 'production-report.service.ts:168',
-      });
-
-      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
-
       return result;
     } catch (error) {
       if (logProcess) {
@@ -337,25 +417,27 @@ export class ProductionReportService {
       // Build update data
       const updateData = this.buildUpdateData(dto);
 
-      const result = await this.prisma.productionReport.update({
-        where: { Id: id },
-        data: updateData,
-        include: {
-          ManPowerData: {
-            select: {
-              Uid: true,
-              Nik: true,
-              Name: true,
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.productionReport.update({
+          where: { Id: id },
+          data: updateData,
+          include: {
+            ManPowerData: {
+              select: {
+                Uid: true,
+                Nik: true,
+                Name: true,
+              },
+            },
+            FGData: {
+              select: {
+                PartNumber: true,
+                PartName: true,
+              },
             },
           },
-          FGData: {
-            select: {
-              PartNumber: true,
-              PartName: true,
-            },
-          },
-        },
-      });
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -420,9 +502,11 @@ export class ProductionReportService {
         location: 'production-report.service.ts:298',
       });
 
-      await this.prisma.productionReport.delete({
-        where: { Id: id },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.productionReport.delete({
+          where: { Id: id },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -488,28 +572,30 @@ export class ProductionReportService {
 
       const now = new Date();
 
-      const result = await this.prisma.productionReport.update({
-        where: { Id: id },
-        data: {
-          ValidatedAt: now,
-          ValidatedBy: validatedBy,
-        },
-        include: {
-          ManPowerData: {
-            select: {
-              Uid: true,
-              Nik: true,
-              Name: true,
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.productionReport.update({
+          where: { Id: id },
+          data: {
+            ValidatedAt: now,
+            ValidatedBy: validatedBy,
+          },
+          include: {
+            ManPowerData: {
+              select: {
+                Uid: true,
+                Nik: true,
+                Name: true,
+              },
+            },
+            FGData: {
+              select: {
+                PartNumber: true,
+                PartName: true,
+              },
             },
           },
-          FGData: {
-            select: {
-              PartNumber: true,
-              PartName: true,
-            },
-          },
-        },
-      });
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -567,28 +653,30 @@ export class ProductionReportService {
         );
       }
 
-      const result = await this.prisma.productionReport.update({
-        where: { Id: id },
-        data: {
-          ValidatedAt: null,
-          ValidatedBy: null,
-        },
-        include: {
-          ManPowerData: {
-            select: {
-              Uid: true,
-              Nik: true,
-              Name: true,
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.productionReport.update({
+          where: { Id: id },
+          data: {
+            ValidatedAt: null,
+            ValidatedBy: null,
+          },
+          include: {
+            ManPowerData: {
+              select: {
+                Uid: true,
+                Nik: true,
+                Name: true,
+              },
+            },
+            FGData: {
+              select: {
+                PartNumber: true,
+                PartName: true,
+              },
             },
           },
-          FGData: {
-            select: {
-              PartNumber: true,
-              PartName: true,
-            },
-          },
-        },
-      });
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

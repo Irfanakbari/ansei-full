@@ -27,16 +27,21 @@ export type AggregateMaterialNG = {
 }
 
 export type MaterialNGAvgAggregateOutputType = {
+  ReplacementRequestedQty: number | null
   Id: number | null
   Qty: number | null
 }
 
 export type MaterialNGSumAggregateOutputType = {
+  ReplacementRequestedQty: number | null
   Id: number | null
   Qty: number | null
 }
 
 export type MaterialNGMinAggregateOutputType = {
+  CaseId: string | null
+  SnapshotLineId: string | null
+  ReplacementRequestedQty: number | null
   Id: number | null
   MaterialId: string | null
   Qty: number | null
@@ -46,6 +51,9 @@ export type MaterialNGMinAggregateOutputType = {
 }
 
 export type MaterialNGMaxAggregateOutputType = {
+  CaseId: string | null
+  SnapshotLineId: string | null
+  ReplacementRequestedQty: number | null
   Id: number | null
   MaterialId: string | null
   Qty: number | null
@@ -55,6 +63,9 @@ export type MaterialNGMaxAggregateOutputType = {
 }
 
 export type MaterialNGCountAggregateOutputType = {
+  CaseId: number
+  SnapshotLineId: number
+  ReplacementRequestedQty: number
   Id: number
   MaterialId: number
   Qty: number
@@ -66,16 +77,21 @@ export type MaterialNGCountAggregateOutputType = {
 
 
 export type MaterialNGAvgAggregateInputType = {
+  ReplacementRequestedQty?: true
   Id?: true
   Qty?: true
 }
 
 export type MaterialNGSumAggregateInputType = {
+  ReplacementRequestedQty?: true
   Id?: true
   Qty?: true
 }
 
 export type MaterialNGMinAggregateInputType = {
+  CaseId?: true
+  SnapshotLineId?: true
+  ReplacementRequestedQty?: true
   Id?: true
   MaterialId?: true
   Qty?: true
@@ -85,6 +101,9 @@ export type MaterialNGMinAggregateInputType = {
 }
 
 export type MaterialNGMaxAggregateInputType = {
+  CaseId?: true
+  SnapshotLineId?: true
+  ReplacementRequestedQty?: true
   Id?: true
   MaterialId?: true
   Qty?: true
@@ -94,6 +113,9 @@ export type MaterialNGMaxAggregateInputType = {
 }
 
 export type MaterialNGCountAggregateInputType = {
+  CaseId?: true
+  SnapshotLineId?: true
+  ReplacementRequestedQty?: true
   Id?: true
   MaterialId?: true
   Qty?: true
@@ -190,6 +212,9 @@ export type MaterialNGGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 export type MaterialNGGroupByOutputType = {
+  CaseId: string | null
+  SnapshotLineId: string | null
+  ReplacementRequestedQty: number
   Id: number
   MaterialId: string
   Qty: number
@@ -222,39 +247,61 @@ export type MaterialNGWhereInput = {
   AND?: Prisma.MaterialNGWhereInput | Prisma.MaterialNGWhereInput[]
   OR?: Prisma.MaterialNGWhereInput[]
   NOT?: Prisma.MaterialNGWhereInput | Prisma.MaterialNGWhereInput[]
+  CaseId?: Prisma.StringNullableFilter<"MaterialNG"> | string | null
+  SnapshotLineId?: Prisma.StringNullableFilter<"MaterialNG"> | string | null
+  ReplacementRequestedQty?: Prisma.IntFilter<"MaterialNG"> | number
   Id?: Prisma.IntFilter<"MaterialNG"> | number
   MaterialId?: Prisma.StringFilter<"MaterialNG"> | string
   Qty?: Prisma.IntFilter<"MaterialNG"> | number
   CreatedAt?: Prisma.DateTimeFilter<"MaterialNG"> | Date | string
   CreatedBy?: Prisma.StringFilter<"MaterialNG"> | string
   Description?: Prisma.StringFilter<"MaterialNG"> | string
+  Case?: Prisma.XOR<Prisma.MaterialNgCaseNullableScalarRelationFilter, Prisma.MaterialNgCaseWhereInput> | null
+  SnapshotLine?: Prisma.XOR<Prisma.ProductionBomSnapshotLineNullableScalarRelationFilter, Prisma.ProductionBomSnapshotLineWhereInput> | null
+  Replacements?: Prisma.ShoppingListRelationFilter
   MaterialData?: Prisma.XOR<Prisma.MaterialScalarRelationFilter, Prisma.MaterialWhereInput>
 }
 
 export type MaterialNGOrderByWithRelationInput = {
+  CaseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ReplacementRequestedQty?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   Description?: Prisma.SortOrder
+  Case?: Prisma.MaterialNgCaseOrderByWithRelationInput
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineOrderByWithRelationInput
+  Replacements?: Prisma.ShoppingOrderByRelationAggregateInput
   MaterialData?: Prisma.MaterialOrderByWithRelationInput
 }
 
 export type MaterialNGWhereUniqueInput = Prisma.AtLeast<{
   Id?: number
+  CaseId_MaterialId?: Prisma.MaterialNGCaseIdMaterialIdCompoundUniqueInput
   AND?: Prisma.MaterialNGWhereInput | Prisma.MaterialNGWhereInput[]
   OR?: Prisma.MaterialNGWhereInput[]
   NOT?: Prisma.MaterialNGWhereInput | Prisma.MaterialNGWhereInput[]
+  CaseId?: Prisma.StringNullableFilter<"MaterialNG"> | string | null
+  SnapshotLineId?: Prisma.StringNullableFilter<"MaterialNG"> | string | null
+  ReplacementRequestedQty?: Prisma.IntFilter<"MaterialNG"> | number
   MaterialId?: Prisma.StringFilter<"MaterialNG"> | string
   Qty?: Prisma.IntFilter<"MaterialNG"> | number
   CreatedAt?: Prisma.DateTimeFilter<"MaterialNG"> | Date | string
   CreatedBy?: Prisma.StringFilter<"MaterialNG"> | string
   Description?: Prisma.StringFilter<"MaterialNG"> | string
+  Case?: Prisma.XOR<Prisma.MaterialNgCaseNullableScalarRelationFilter, Prisma.MaterialNgCaseWhereInput> | null
+  SnapshotLine?: Prisma.XOR<Prisma.ProductionBomSnapshotLineNullableScalarRelationFilter, Prisma.ProductionBomSnapshotLineWhereInput> | null
+  Replacements?: Prisma.ShoppingListRelationFilter
   MaterialData?: Prisma.XOR<Prisma.MaterialScalarRelationFilter, Prisma.MaterialWhereInput>
-}, "Id">
+}, "Id" | "CaseId_MaterialId">
 
 export type MaterialNGOrderByWithAggregationInput = {
+  CaseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ReplacementRequestedQty?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
@@ -272,6 +319,9 @@ export type MaterialNGScalarWhereWithAggregatesInput = {
   AND?: Prisma.MaterialNGScalarWhereWithAggregatesInput | Prisma.MaterialNGScalarWhereWithAggregatesInput[]
   OR?: Prisma.MaterialNGScalarWhereWithAggregatesInput[]
   NOT?: Prisma.MaterialNGScalarWhereWithAggregatesInput | Prisma.MaterialNGScalarWhereWithAggregatesInput[]
+  CaseId?: Prisma.StringNullableWithAggregatesFilter<"MaterialNG"> | string | null
+  SnapshotLineId?: Prisma.StringNullableWithAggregatesFilter<"MaterialNG"> | string | null
+  ReplacementRequestedQty?: Prisma.IntWithAggregatesFilter<"MaterialNG"> | number
   Id?: Prisma.IntWithAggregatesFilter<"MaterialNG"> | number
   MaterialId?: Prisma.StringWithAggregatesFilter<"MaterialNG"> | string
   Qty?: Prisma.IntWithAggregatesFilter<"MaterialNG"> | number
@@ -281,40 +331,59 @@ export type MaterialNGScalarWhereWithAggregatesInput = {
 }
 
 export type MaterialNGCreateInput = {
+  ReplacementRequestedQty?: number
   Qty?: number
   CreatedAt?: Date | string
   CreatedBy: string
   Description: string
+  Case?: Prisma.MaterialNgCaseCreateNestedOneWithoutDetailsInput
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineCreateNestedOneWithoutMaterialNGInput
+  Replacements?: Prisma.ShoppingCreateNestedManyWithoutMaterialNgInput
   MaterialData: Prisma.MaterialCreateNestedOneWithoutMaterialNGInput
 }
 
 export type MaterialNGUncheckedCreateInput = {
+  CaseId?: string | null
+  SnapshotLineId?: string | null
+  ReplacementRequestedQty?: number
   Id?: number
   MaterialId: string
   Qty?: number
   CreatedAt?: Date | string
   CreatedBy: string
   Description: string
+  Replacements?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialNgInput
 }
 
 export type MaterialNGUpdateInput = {
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.StringFieldUpdateOperationsInput | string
+  Case?: Prisma.MaterialNgCaseUpdateOneWithoutDetailsNestedInput
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineUpdateOneWithoutMaterialNGNestedInput
+  Replacements?: Prisma.ShoppingUpdateManyWithoutMaterialNgNestedInput
   MaterialData?: Prisma.MaterialUpdateOneRequiredWithoutMaterialNGNestedInput
 }
 
 export type MaterialNGUncheckedUpdateInput = {
+  CaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.StringFieldUpdateOperationsInput | string
+  Replacements?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialNgNestedInput
 }
 
 export type MaterialNGCreateManyInput = {
+  CaseId?: string | null
+  SnapshotLineId?: string | null
+  ReplacementRequestedQty?: number
   Id?: number
   MaterialId: string
   Qty?: number
@@ -324,6 +393,7 @@ export type MaterialNGCreateManyInput = {
 }
 
 export type MaterialNGUpdateManyMutationInput = {
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -331,6 +401,9 @@ export type MaterialNGUpdateManyMutationInput = {
 }
 
 export type MaterialNGUncheckedUpdateManyInput = {
+  CaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
@@ -349,7 +422,15 @@ export type MaterialNGOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type MaterialNGCaseIdMaterialIdCompoundUniqueInput = {
+  CaseId: string
+  MaterialId: string
+}
+
 export type MaterialNGCountOrderByAggregateInput = {
+  CaseId?: Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrder
+  ReplacementRequestedQty?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
@@ -359,11 +440,15 @@ export type MaterialNGCountOrderByAggregateInput = {
 }
 
 export type MaterialNGAvgOrderByAggregateInput = {
+  ReplacementRequestedQty?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
 }
 
 export type MaterialNGMaxOrderByAggregateInput = {
+  CaseId?: Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrder
+  ReplacementRequestedQty?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
@@ -373,6 +458,9 @@ export type MaterialNGMaxOrderByAggregateInput = {
 }
 
 export type MaterialNGMinOrderByAggregateInput = {
+  CaseId?: Prisma.SortOrder
+  SnapshotLineId?: Prisma.SortOrder
+  ReplacementRequestedQty?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   MaterialId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
@@ -382,8 +470,14 @@ export type MaterialNGMinOrderByAggregateInput = {
 }
 
 export type MaterialNGSumOrderByAggregateInput = {
+  ReplacementRequestedQty?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
+}
+
+export type MaterialNGNullableScalarRelationFilter = {
+  is?: Prisma.MaterialNGWhereInput | null
+  isNot?: Prisma.MaterialNGWhereInput | null
 }
 
 export type MaterialNGCreateNestedManyWithoutMaterialDataInput = {
@@ -428,19 +522,127 @@ export type MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput = {
   deleteMany?: Prisma.MaterialNGScalarWhereInput | Prisma.MaterialNGScalarWhereInput[]
 }
 
+export type MaterialNGCreateNestedOneWithoutReplacementsInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutReplacementsInput, Prisma.MaterialNGUncheckedCreateWithoutReplacementsInput>
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutReplacementsInput
+  connect?: Prisma.MaterialNGWhereUniqueInput
+}
+
+export type MaterialNGUpdateOneWithoutReplacementsNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutReplacementsInput, Prisma.MaterialNGUncheckedCreateWithoutReplacementsInput>
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutReplacementsInput
+  upsert?: Prisma.MaterialNGUpsertWithoutReplacementsInput
+  disconnect?: Prisma.MaterialNGWhereInput | boolean
+  delete?: Prisma.MaterialNGWhereInput | boolean
+  connect?: Prisma.MaterialNGWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MaterialNGUpdateToOneWithWhereWithoutReplacementsInput, Prisma.MaterialNGUpdateWithoutReplacementsInput>, Prisma.MaterialNGUncheckedUpdateWithoutReplacementsInput>
+}
+
+export type MaterialNGCreateNestedManyWithoutSnapshotLineInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutSnapshotLineInput, Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput> | Prisma.MaterialNGCreateWithoutSnapshotLineInput[] | Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput[]
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutSnapshotLineInput | Prisma.MaterialNGCreateOrConnectWithoutSnapshotLineInput[]
+  createMany?: Prisma.MaterialNGCreateManySnapshotLineInputEnvelope
+  connect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+}
+
+export type MaterialNGUncheckedCreateNestedManyWithoutSnapshotLineInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutSnapshotLineInput, Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput> | Prisma.MaterialNGCreateWithoutSnapshotLineInput[] | Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput[]
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutSnapshotLineInput | Prisma.MaterialNGCreateOrConnectWithoutSnapshotLineInput[]
+  createMany?: Prisma.MaterialNGCreateManySnapshotLineInputEnvelope
+  connect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+}
+
+export type MaterialNGUpdateManyWithoutSnapshotLineNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutSnapshotLineInput, Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput> | Prisma.MaterialNGCreateWithoutSnapshotLineInput[] | Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput[]
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutSnapshotLineInput | Prisma.MaterialNGCreateOrConnectWithoutSnapshotLineInput[]
+  upsert?: Prisma.MaterialNGUpsertWithWhereUniqueWithoutSnapshotLineInput | Prisma.MaterialNGUpsertWithWhereUniqueWithoutSnapshotLineInput[]
+  createMany?: Prisma.MaterialNGCreateManySnapshotLineInputEnvelope
+  set?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  disconnect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  delete?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  connect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  update?: Prisma.MaterialNGUpdateWithWhereUniqueWithoutSnapshotLineInput | Prisma.MaterialNGUpdateWithWhereUniqueWithoutSnapshotLineInput[]
+  updateMany?: Prisma.MaterialNGUpdateManyWithWhereWithoutSnapshotLineInput | Prisma.MaterialNGUpdateManyWithWhereWithoutSnapshotLineInput[]
+  deleteMany?: Prisma.MaterialNGScalarWhereInput | Prisma.MaterialNGScalarWhereInput[]
+}
+
+export type MaterialNGUncheckedUpdateManyWithoutSnapshotLineNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutSnapshotLineInput, Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput> | Prisma.MaterialNGCreateWithoutSnapshotLineInput[] | Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput[]
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutSnapshotLineInput | Prisma.MaterialNGCreateOrConnectWithoutSnapshotLineInput[]
+  upsert?: Prisma.MaterialNGUpsertWithWhereUniqueWithoutSnapshotLineInput | Prisma.MaterialNGUpsertWithWhereUniqueWithoutSnapshotLineInput[]
+  createMany?: Prisma.MaterialNGCreateManySnapshotLineInputEnvelope
+  set?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  disconnect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  delete?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  connect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  update?: Prisma.MaterialNGUpdateWithWhereUniqueWithoutSnapshotLineInput | Prisma.MaterialNGUpdateWithWhereUniqueWithoutSnapshotLineInput[]
+  updateMany?: Prisma.MaterialNGUpdateManyWithWhereWithoutSnapshotLineInput | Prisma.MaterialNGUpdateManyWithWhereWithoutSnapshotLineInput[]
+  deleteMany?: Prisma.MaterialNGScalarWhereInput | Prisma.MaterialNGScalarWhereInput[]
+}
+
+export type MaterialNGCreateNestedManyWithoutCaseInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutCaseInput, Prisma.MaterialNGUncheckedCreateWithoutCaseInput> | Prisma.MaterialNGCreateWithoutCaseInput[] | Prisma.MaterialNGUncheckedCreateWithoutCaseInput[]
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutCaseInput | Prisma.MaterialNGCreateOrConnectWithoutCaseInput[]
+  createMany?: Prisma.MaterialNGCreateManyCaseInputEnvelope
+  connect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+}
+
+export type MaterialNGUncheckedCreateNestedManyWithoutCaseInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutCaseInput, Prisma.MaterialNGUncheckedCreateWithoutCaseInput> | Prisma.MaterialNGCreateWithoutCaseInput[] | Prisma.MaterialNGUncheckedCreateWithoutCaseInput[]
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutCaseInput | Prisma.MaterialNGCreateOrConnectWithoutCaseInput[]
+  createMany?: Prisma.MaterialNGCreateManyCaseInputEnvelope
+  connect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+}
+
+export type MaterialNGUpdateManyWithoutCaseNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutCaseInput, Prisma.MaterialNGUncheckedCreateWithoutCaseInput> | Prisma.MaterialNGCreateWithoutCaseInput[] | Prisma.MaterialNGUncheckedCreateWithoutCaseInput[]
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutCaseInput | Prisma.MaterialNGCreateOrConnectWithoutCaseInput[]
+  upsert?: Prisma.MaterialNGUpsertWithWhereUniqueWithoutCaseInput | Prisma.MaterialNGUpsertWithWhereUniqueWithoutCaseInput[]
+  createMany?: Prisma.MaterialNGCreateManyCaseInputEnvelope
+  set?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  disconnect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  delete?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  connect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  update?: Prisma.MaterialNGUpdateWithWhereUniqueWithoutCaseInput | Prisma.MaterialNGUpdateWithWhereUniqueWithoutCaseInput[]
+  updateMany?: Prisma.MaterialNGUpdateManyWithWhereWithoutCaseInput | Prisma.MaterialNGUpdateManyWithWhereWithoutCaseInput[]
+  deleteMany?: Prisma.MaterialNGScalarWhereInput | Prisma.MaterialNGScalarWhereInput[]
+}
+
+export type MaterialNGUncheckedUpdateManyWithoutCaseNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialNGCreateWithoutCaseInput, Prisma.MaterialNGUncheckedCreateWithoutCaseInput> | Prisma.MaterialNGCreateWithoutCaseInput[] | Prisma.MaterialNGUncheckedCreateWithoutCaseInput[]
+  connectOrCreate?: Prisma.MaterialNGCreateOrConnectWithoutCaseInput | Prisma.MaterialNGCreateOrConnectWithoutCaseInput[]
+  upsert?: Prisma.MaterialNGUpsertWithWhereUniqueWithoutCaseInput | Prisma.MaterialNGUpsertWithWhereUniqueWithoutCaseInput[]
+  createMany?: Prisma.MaterialNGCreateManyCaseInputEnvelope
+  set?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  disconnect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  delete?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  connect?: Prisma.MaterialNGWhereUniqueInput | Prisma.MaterialNGWhereUniqueInput[]
+  update?: Prisma.MaterialNGUpdateWithWhereUniqueWithoutCaseInput | Prisma.MaterialNGUpdateWithWhereUniqueWithoutCaseInput[]
+  updateMany?: Prisma.MaterialNGUpdateManyWithWhereWithoutCaseInput | Prisma.MaterialNGUpdateManyWithWhereWithoutCaseInput[]
+  deleteMany?: Prisma.MaterialNGScalarWhereInput | Prisma.MaterialNGScalarWhereInput[]
+}
+
 export type MaterialNGCreateWithoutMaterialDataInput = {
+  ReplacementRequestedQty?: number
   Qty?: number
   CreatedAt?: Date | string
   CreatedBy: string
   Description: string
+  Case?: Prisma.MaterialNgCaseCreateNestedOneWithoutDetailsInput
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineCreateNestedOneWithoutMaterialNGInput
+  Replacements?: Prisma.ShoppingCreateNestedManyWithoutMaterialNgInput
 }
 
 export type MaterialNGUncheckedCreateWithoutMaterialDataInput = {
+  CaseId?: string | null
+  SnapshotLineId?: string | null
+  ReplacementRequestedQty?: number
   Id?: number
   Qty?: number
   CreatedAt?: Date | string
   CreatedBy: string
   Description: string
+  Replacements?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialNgInput
 }
 
 export type MaterialNGCreateOrConnectWithoutMaterialDataInput = {
@@ -473,6 +675,9 @@ export type MaterialNGScalarWhereInput = {
   AND?: Prisma.MaterialNGScalarWhereInput | Prisma.MaterialNGScalarWhereInput[]
   OR?: Prisma.MaterialNGScalarWhereInput[]
   NOT?: Prisma.MaterialNGScalarWhereInput | Prisma.MaterialNGScalarWhereInput[]
+  CaseId?: Prisma.StringNullableFilter<"MaterialNG"> | string | null
+  SnapshotLineId?: Prisma.StringNullableFilter<"MaterialNG"> | string | null
+  ReplacementRequestedQty?: Prisma.IntFilter<"MaterialNG"> | number
   Id?: Prisma.IntFilter<"MaterialNG"> | number
   MaterialId?: Prisma.StringFilter<"MaterialNG"> | string
   Qty?: Prisma.IntFilter<"MaterialNG"> | number
@@ -481,7 +686,170 @@ export type MaterialNGScalarWhereInput = {
   Description?: Prisma.StringFilter<"MaterialNG"> | string
 }
 
+export type MaterialNGCreateWithoutReplacementsInput = {
+  ReplacementRequestedQty?: number
+  Qty?: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  Description: string
+  Case?: Prisma.MaterialNgCaseCreateNestedOneWithoutDetailsInput
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineCreateNestedOneWithoutMaterialNGInput
+  MaterialData: Prisma.MaterialCreateNestedOneWithoutMaterialNGInput
+}
+
+export type MaterialNGUncheckedCreateWithoutReplacementsInput = {
+  CaseId?: string | null
+  SnapshotLineId?: string | null
+  ReplacementRequestedQty?: number
+  Id?: number
+  MaterialId: string
+  Qty?: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  Description: string
+}
+
+export type MaterialNGCreateOrConnectWithoutReplacementsInput = {
+  where: Prisma.MaterialNGWhereUniqueInput
+  create: Prisma.XOR<Prisma.MaterialNGCreateWithoutReplacementsInput, Prisma.MaterialNGUncheckedCreateWithoutReplacementsInput>
+}
+
+export type MaterialNGUpsertWithoutReplacementsInput = {
+  update: Prisma.XOR<Prisma.MaterialNGUpdateWithoutReplacementsInput, Prisma.MaterialNGUncheckedUpdateWithoutReplacementsInput>
+  create: Prisma.XOR<Prisma.MaterialNGCreateWithoutReplacementsInput, Prisma.MaterialNGUncheckedCreateWithoutReplacementsInput>
+  where?: Prisma.MaterialNGWhereInput
+}
+
+export type MaterialNGUpdateToOneWithWhereWithoutReplacementsInput = {
+  where?: Prisma.MaterialNGWhereInput
+  data: Prisma.XOR<Prisma.MaterialNGUpdateWithoutReplacementsInput, Prisma.MaterialNGUncheckedUpdateWithoutReplacementsInput>
+}
+
+export type MaterialNGUpdateWithoutReplacementsInput = {
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.StringFieldUpdateOperationsInput | string
+  Case?: Prisma.MaterialNgCaseUpdateOneWithoutDetailsNestedInput
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineUpdateOneWithoutMaterialNGNestedInput
+  MaterialData?: Prisma.MaterialUpdateOneRequiredWithoutMaterialNGNestedInput
+}
+
+export type MaterialNGUncheckedUpdateWithoutReplacementsInput = {
+  CaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type MaterialNGCreateWithoutSnapshotLineInput = {
+  ReplacementRequestedQty?: number
+  Qty?: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  Description: string
+  Case?: Prisma.MaterialNgCaseCreateNestedOneWithoutDetailsInput
+  Replacements?: Prisma.ShoppingCreateNestedManyWithoutMaterialNgInput
+  MaterialData: Prisma.MaterialCreateNestedOneWithoutMaterialNGInput
+}
+
+export type MaterialNGUncheckedCreateWithoutSnapshotLineInput = {
+  CaseId?: string | null
+  ReplacementRequestedQty?: number
+  Id?: number
+  MaterialId: string
+  Qty?: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  Description: string
+  Replacements?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialNgInput
+}
+
+export type MaterialNGCreateOrConnectWithoutSnapshotLineInput = {
+  where: Prisma.MaterialNGWhereUniqueInput
+  create: Prisma.XOR<Prisma.MaterialNGCreateWithoutSnapshotLineInput, Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput>
+}
+
+export type MaterialNGCreateManySnapshotLineInputEnvelope = {
+  data: Prisma.MaterialNGCreateManySnapshotLineInput | Prisma.MaterialNGCreateManySnapshotLineInput[]
+  skipDuplicates?: boolean
+}
+
+export type MaterialNGUpsertWithWhereUniqueWithoutSnapshotLineInput = {
+  where: Prisma.MaterialNGWhereUniqueInput
+  update: Prisma.XOR<Prisma.MaterialNGUpdateWithoutSnapshotLineInput, Prisma.MaterialNGUncheckedUpdateWithoutSnapshotLineInput>
+  create: Prisma.XOR<Prisma.MaterialNGCreateWithoutSnapshotLineInput, Prisma.MaterialNGUncheckedCreateWithoutSnapshotLineInput>
+}
+
+export type MaterialNGUpdateWithWhereUniqueWithoutSnapshotLineInput = {
+  where: Prisma.MaterialNGWhereUniqueInput
+  data: Prisma.XOR<Prisma.MaterialNGUpdateWithoutSnapshotLineInput, Prisma.MaterialNGUncheckedUpdateWithoutSnapshotLineInput>
+}
+
+export type MaterialNGUpdateManyWithWhereWithoutSnapshotLineInput = {
+  where: Prisma.MaterialNGScalarWhereInput
+  data: Prisma.XOR<Prisma.MaterialNGUpdateManyMutationInput, Prisma.MaterialNGUncheckedUpdateManyWithoutSnapshotLineInput>
+}
+
+export type MaterialNGCreateWithoutCaseInput = {
+  ReplacementRequestedQty?: number
+  Qty?: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  Description: string
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineCreateNestedOneWithoutMaterialNGInput
+  Replacements?: Prisma.ShoppingCreateNestedManyWithoutMaterialNgInput
+  MaterialData: Prisma.MaterialCreateNestedOneWithoutMaterialNGInput
+}
+
+export type MaterialNGUncheckedCreateWithoutCaseInput = {
+  SnapshotLineId?: string | null
+  ReplacementRequestedQty?: number
+  Id?: number
+  MaterialId: string
+  Qty?: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  Description: string
+  Replacements?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialNgInput
+}
+
+export type MaterialNGCreateOrConnectWithoutCaseInput = {
+  where: Prisma.MaterialNGWhereUniqueInput
+  create: Prisma.XOR<Prisma.MaterialNGCreateWithoutCaseInput, Prisma.MaterialNGUncheckedCreateWithoutCaseInput>
+}
+
+export type MaterialNGCreateManyCaseInputEnvelope = {
+  data: Prisma.MaterialNGCreateManyCaseInput | Prisma.MaterialNGCreateManyCaseInput[]
+  skipDuplicates?: boolean
+}
+
+export type MaterialNGUpsertWithWhereUniqueWithoutCaseInput = {
+  where: Prisma.MaterialNGWhereUniqueInput
+  update: Prisma.XOR<Prisma.MaterialNGUpdateWithoutCaseInput, Prisma.MaterialNGUncheckedUpdateWithoutCaseInput>
+  create: Prisma.XOR<Prisma.MaterialNGCreateWithoutCaseInput, Prisma.MaterialNGUncheckedCreateWithoutCaseInput>
+}
+
+export type MaterialNGUpdateWithWhereUniqueWithoutCaseInput = {
+  where: Prisma.MaterialNGWhereUniqueInput
+  data: Prisma.XOR<Prisma.MaterialNGUpdateWithoutCaseInput, Prisma.MaterialNGUncheckedUpdateWithoutCaseInput>
+}
+
+export type MaterialNGUpdateManyWithWhereWithoutCaseInput = {
+  where: Prisma.MaterialNGScalarWhereInput
+  data: Prisma.XOR<Prisma.MaterialNGUpdateManyMutationInput, Prisma.MaterialNGUncheckedUpdateManyWithoutCaseInput>
+}
+
 export type MaterialNGCreateManyMaterialDataInput = {
+  CaseId?: string | null
+  SnapshotLineId?: string | null
+  ReplacementRequestedQty?: number
   Id?: number
   Qty?: number
   CreatedAt?: Date | string
@@ -490,21 +858,32 @@ export type MaterialNGCreateManyMaterialDataInput = {
 }
 
 export type MaterialNGUpdateWithoutMaterialDataInput = {
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.StringFieldUpdateOperationsInput | string
+  Case?: Prisma.MaterialNgCaseUpdateOneWithoutDetailsNestedInput
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineUpdateOneWithoutMaterialNGNestedInput
+  Replacements?: Prisma.ShoppingUpdateManyWithoutMaterialNgNestedInput
 }
 
 export type MaterialNGUncheckedUpdateWithoutMaterialDataInput = {
+  CaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.StringFieldUpdateOperationsInput | string
+  Replacements?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialNgNestedInput
 }
 
 export type MaterialNGUncheckedUpdateManyWithoutMaterialDataInput = {
+  CaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -512,39 +891,178 @@ export type MaterialNGUncheckedUpdateManyWithoutMaterialDataInput = {
   Description?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
+export type MaterialNGCreateManySnapshotLineInput = {
+  CaseId?: string | null
+  ReplacementRequestedQty?: number
+  Id?: number
+  MaterialId: string
+  Qty?: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  Description: string
+}
+
+export type MaterialNGUpdateWithoutSnapshotLineInput = {
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.StringFieldUpdateOperationsInput | string
+  Case?: Prisma.MaterialNgCaseUpdateOneWithoutDetailsNestedInput
+  Replacements?: Prisma.ShoppingUpdateManyWithoutMaterialNgNestedInput
+  MaterialData?: Prisma.MaterialUpdateOneRequiredWithoutMaterialNGNestedInput
+}
+
+export type MaterialNGUncheckedUpdateWithoutSnapshotLineInput = {
+  CaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.StringFieldUpdateOperationsInput | string
+  Replacements?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialNgNestedInput
+}
+
+export type MaterialNGUncheckedUpdateManyWithoutSnapshotLineInput = {
+  CaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type MaterialNGCreateManyCaseInput = {
+  SnapshotLineId?: string | null
+  ReplacementRequestedQty?: number
+  Id?: number
+  MaterialId: string
+  Qty?: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  Description: string
+}
+
+export type MaterialNGUpdateWithoutCaseInput = {
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.StringFieldUpdateOperationsInput | string
+  SnapshotLine?: Prisma.ProductionBomSnapshotLineUpdateOneWithoutMaterialNGNestedInput
+  Replacements?: Prisma.ShoppingUpdateManyWithoutMaterialNgNestedInput
+  MaterialData?: Prisma.MaterialUpdateOneRequiredWithoutMaterialNGNestedInput
+}
+
+export type MaterialNGUncheckedUpdateWithoutCaseInput = {
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.StringFieldUpdateOperationsInput | string
+  Replacements?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialNgNestedInput
+}
+
+export type MaterialNGUncheckedUpdateManyWithoutCaseInput = {
+  SnapshotLineId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReplacementRequestedQty?: Prisma.IntFieldUpdateOperationsInput | number
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialId?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Description?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+
+/**
+ * Count Type MaterialNGCountOutputType
+ */
+
+export type MaterialNGCountOutputType = {
+  Replacements: number
+}
+
+export type MaterialNGCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Replacements?: boolean | MaterialNGCountOutputTypeCountReplacementsArgs
+}
+
+/**
+ * MaterialNGCountOutputType without action
+ */
+export type MaterialNGCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MaterialNGCountOutputType
+   */
+  select?: Prisma.MaterialNGCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * MaterialNGCountOutputType without action
+ */
+export type MaterialNGCountOutputTypeCountReplacementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ShoppingWhereInput
+}
 
 
 export type MaterialNGSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  CaseId?: boolean
+  SnapshotLineId?: boolean
+  ReplacementRequestedQty?: boolean
   Id?: boolean
   MaterialId?: boolean
   Qty?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   Description?: boolean
+  Case?: boolean | Prisma.MaterialNG$CaseArgs<ExtArgs>
+  SnapshotLine?: boolean | Prisma.MaterialNG$SnapshotLineArgs<ExtArgs>
+  Replacements?: boolean | Prisma.MaterialNG$ReplacementsArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.MaterialNGCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["materialNG"]>
 
 export type MaterialNGSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  CaseId?: boolean
+  SnapshotLineId?: boolean
+  ReplacementRequestedQty?: boolean
   Id?: boolean
   MaterialId?: boolean
   Qty?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   Description?: boolean
+  Case?: boolean | Prisma.MaterialNG$CaseArgs<ExtArgs>
+  SnapshotLine?: boolean | Prisma.MaterialNG$SnapshotLineArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["materialNG"]>
 
 export type MaterialNGSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  CaseId?: boolean
+  SnapshotLineId?: boolean
+  ReplacementRequestedQty?: boolean
   Id?: boolean
   MaterialId?: boolean
   Qty?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   Description?: boolean
+  Case?: boolean | Prisma.MaterialNG$CaseArgs<ExtArgs>
+  SnapshotLine?: boolean | Prisma.MaterialNG$SnapshotLineArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["materialNG"]>
 
 export type MaterialNGSelectScalar = {
+  CaseId?: boolean
+  SnapshotLineId?: boolean
+  ReplacementRequestedQty?: boolean
   Id?: boolean
   MaterialId?: boolean
   Qty?: boolean
@@ -553,23 +1071,37 @@ export type MaterialNGSelectScalar = {
   Description?: boolean
 }
 
-export type MaterialNGOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "MaterialId" | "Qty" | "CreatedAt" | "CreatedBy" | "Description", ExtArgs["result"]["materialNG"]>
+export type MaterialNGOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"CaseId" | "SnapshotLineId" | "ReplacementRequestedQty" | "Id" | "MaterialId" | "Qty" | "CreatedAt" | "CreatedBy" | "Description", ExtArgs["result"]["materialNG"]>
 export type MaterialNGInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Case?: boolean | Prisma.MaterialNG$CaseArgs<ExtArgs>
+  SnapshotLine?: boolean | Prisma.MaterialNG$SnapshotLineArgs<ExtArgs>
+  Replacements?: boolean | Prisma.MaterialNG$ReplacementsArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
+  _count?: boolean | Prisma.MaterialNGCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MaterialNGIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Case?: boolean | Prisma.MaterialNG$CaseArgs<ExtArgs>
+  SnapshotLine?: boolean | Prisma.MaterialNG$SnapshotLineArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }
 export type MaterialNGIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Case?: boolean | Prisma.MaterialNG$CaseArgs<ExtArgs>
+  SnapshotLine?: boolean | Prisma.MaterialNG$SnapshotLineArgs<ExtArgs>
   MaterialData?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
 }
 
 export type $MaterialNGPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "MaterialNG"
   objects: {
+    Case: Prisma.$MaterialNgCasePayload<ExtArgs> | null
+    SnapshotLine: Prisma.$ProductionBomSnapshotLinePayload<ExtArgs> | null
+    Replacements: Prisma.$ShoppingPayload<ExtArgs>[]
     MaterialData: Prisma.$MaterialPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    CaseId: string | null
+    SnapshotLineId: string | null
+    ReplacementRequestedQty: number
     Id: number
     MaterialId: string
     Qty: number
@@ -659,8 +1191,8 @@ export interface MaterialNGDelegate<ExtArgs extends runtime.Types.Extensions.Int
    * // Get first 10 MaterialNGS
    * const materialNGS = await prisma.materialNG.findMany({ take: 10 })
    * 
-   * // Only select the `Id`
-   * const materialNGWithIdOnly = await prisma.materialNG.findMany({ select: { Id: true } })
+   * // Only select the `CaseId`
+   * const materialNGWithCaseIdOnly = await prisma.materialNG.findMany({ select: { CaseId: true } })
    * 
    */
   findMany<T extends MaterialNGFindManyArgs>(args?: Prisma.SelectSubset<T, MaterialNGFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNGPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -704,9 +1236,9 @@ export interface MaterialNGDelegate<ExtArgs extends runtime.Types.Extensions.Int
    *   ]
    * })
    * 
-   * // Create many MaterialNGS and only return the `Id`
-   * const materialNGWithIdOnly = await prisma.materialNG.createManyAndReturn({
-   *   select: { Id: true },
+   * // Create many MaterialNGS and only return the `CaseId`
+   * const materialNGWithCaseIdOnly = await prisma.materialNG.createManyAndReturn({
+   *   select: { CaseId: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -795,9 +1327,9 @@ export interface MaterialNGDelegate<ExtArgs extends runtime.Types.Extensions.Int
    *   ]
    * })
    * 
-   * // Update zero or more MaterialNGS and only return the `Id`
-   * const materialNGWithIdOnly = await prisma.materialNG.updateManyAndReturn({
-   *   select: { Id: true },
+   * // Update zero or more MaterialNGS and only return the `CaseId`
+   * const materialNGWithCaseIdOnly = await prisma.materialNG.updateManyAndReturn({
+   *   select: { CaseId: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -970,6 +1502,9 @@ readonly fields: MaterialNGFieldRefs;
  */
 export interface Prisma__MaterialNGClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  Case<T extends Prisma.MaterialNG$CaseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MaterialNG$CaseArgs<ExtArgs>>): Prisma.Prisma__MaterialNgCaseClient<runtime.Types.Result.GetResult<Prisma.$MaterialNgCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  SnapshotLine<T extends Prisma.MaterialNG$SnapshotLineArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MaterialNG$SnapshotLineArgs<ExtArgs>>): Prisma.Prisma__ProductionBomSnapshotLineClient<runtime.Types.Result.GetResult<Prisma.$ProductionBomSnapshotLinePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Replacements<T extends Prisma.MaterialNG$ReplacementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MaterialNG$ReplacementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShoppingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   MaterialData<T extends Prisma.MaterialDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MaterialDefaultArgs<ExtArgs>>): Prisma.Prisma__MaterialClient<runtime.Types.Result.GetResult<Prisma.$MaterialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1000,6 +1535,9 @@ export interface Prisma__MaterialNGClient<T, Null = never, ExtArgs extends runti
  * Fields of the MaterialNG model
  */
 export interface MaterialNGFieldRefs {
+  readonly CaseId: Prisma.FieldRef<"MaterialNG", 'String'>
+  readonly SnapshotLineId: Prisma.FieldRef<"MaterialNG", 'String'>
+  readonly ReplacementRequestedQty: Prisma.FieldRef<"MaterialNG", 'Int'>
   readonly Id: Prisma.FieldRef<"MaterialNG", 'Int'>
   readonly MaterialId: Prisma.FieldRef<"MaterialNG", 'String'>
   readonly Qty: Prisma.FieldRef<"MaterialNG", 'Int'>
@@ -1404,6 +1942,68 @@ export type MaterialNGDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many MaterialNGS to delete.
    */
   limit?: number
+}
+
+/**
+ * MaterialNG.Case
+ */
+export type MaterialNG$CaseArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MaterialNgCase
+   */
+  select?: Prisma.MaterialNgCaseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MaterialNgCase
+   */
+  omit?: Prisma.MaterialNgCaseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MaterialNgCaseInclude<ExtArgs> | null
+  where?: Prisma.MaterialNgCaseWhereInput
+}
+
+/**
+ * MaterialNG.SnapshotLine
+ */
+export type MaterialNG$SnapshotLineArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionBomSnapshotLine
+   */
+  select?: Prisma.ProductionBomSnapshotLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionBomSnapshotLine
+   */
+  omit?: Prisma.ProductionBomSnapshotLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionBomSnapshotLineInclude<ExtArgs> | null
+  where?: Prisma.ProductionBomSnapshotLineWhereInput
+}
+
+/**
+ * MaterialNG.Replacements
+ */
+export type MaterialNG$ReplacementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Shopping
+   */
+  select?: Prisma.ShoppingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Shopping
+   */
+  omit?: Prisma.ShoppingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShoppingInclude<ExtArgs> | null
+  where?: Prisma.ShoppingWhereInput
+  orderBy?: Prisma.ShoppingOrderByWithRelationInput | Prisma.ShoppingOrderByWithRelationInput[]
+  cursor?: Prisma.ShoppingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ShoppingScalarFieldEnum | Prisma.ShoppingScalarFieldEnum[]
 }
 
 /**

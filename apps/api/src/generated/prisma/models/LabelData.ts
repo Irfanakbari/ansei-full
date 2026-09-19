@@ -252,6 +252,7 @@ export type LabelDataWhereInput = {
   QtyThisBox?: Prisma.IntFilter<"LabelData"> | number
   ProductionReleaseId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   PokayokeScanHistoryId?: Prisma.StringNullableFilter<"LabelData"> | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
   AssemblySessions?: Prisma.AssemblySessionListRelationFilter
   DeliveryHistory?: Prisma.XOR<Prisma.DeliveryHistoryNullableScalarRelationFilter, Prisma.DeliveryHistoryWhereInput> | null
   PokayokeHistory?: Prisma.PokayokeScanHistoryListRelationFilter
@@ -270,6 +271,7 @@ export type LabelDataOrderByWithRelationInput = {
   QtyThisBox?: Prisma.SortOrder
   ProductionReleaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   PokayokeScanHistoryId?: Prisma.SortOrderInput | Prisma.SortOrder
+  MaterialNgCases?: Prisma.MaterialNgCaseOrderByRelationAggregateInput
   AssemblySessions?: Prisma.AssemblySessionOrderByRelationAggregateInput
   DeliveryHistory?: Prisma.DeliveryHistoryOrderByWithRelationInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryOrderByRelationAggregateInput
@@ -291,6 +293,7 @@ export type LabelDataWhereUniqueInput = Prisma.AtLeast<{
   QtyThisBox?: Prisma.IntFilter<"LabelData"> | number
   ProductionReleaseId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   PokayokeScanHistoryId?: Prisma.StringNullableFilter<"LabelData"> | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
   AssemblySessions?: Prisma.AssemblySessionListRelationFilter
   DeliveryHistory?: Prisma.XOR<Prisma.DeliveryHistoryNullableScalarRelationFilter, Prisma.DeliveryHistoryWhereInput> | null
   PokayokeHistory?: Prisma.PokayokeScanHistoryListRelationFilter
@@ -337,6 +340,7 @@ export type LabelDataCreateInput = {
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
@@ -355,6 +359,7 @@ export type LabelDataUncheckedCreateInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
@@ -366,6 +371,7 @@ export type LabelDataUpdateInput = {
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
@@ -384,6 +390,7 @@ export type LabelDataUncheckedUpdateInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
@@ -661,12 +668,29 @@ export type LabelDataUpdateOneRequiredWithoutDeliveryHistoryNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LabelDataUpdateToOneWithWhereWithoutDeliveryHistoryInput, Prisma.LabelDataUpdateWithoutDeliveryHistoryInput>, Prisma.LabelDataUncheckedUpdateWithoutDeliveryHistoryInput>
 }
 
+export type LabelDataCreateNestedOneWithoutMaterialNgCasesInput = {
+  create?: Prisma.XOR<Prisma.LabelDataCreateWithoutMaterialNgCasesInput, Prisma.LabelDataUncheckedCreateWithoutMaterialNgCasesInput>
+  connectOrCreate?: Prisma.LabelDataCreateOrConnectWithoutMaterialNgCasesInput
+  connect?: Prisma.LabelDataWhereUniqueInput
+}
+
+export type LabelDataUpdateOneWithoutMaterialNgCasesNestedInput = {
+  create?: Prisma.XOR<Prisma.LabelDataCreateWithoutMaterialNgCasesInput, Prisma.LabelDataUncheckedCreateWithoutMaterialNgCasesInput>
+  connectOrCreate?: Prisma.LabelDataCreateOrConnectWithoutMaterialNgCasesInput
+  upsert?: Prisma.LabelDataUpsertWithoutMaterialNgCasesInput
+  disconnect?: Prisma.LabelDataWhereInput | boolean
+  delete?: Prisma.LabelDataWhereInput | boolean
+  connect?: Prisma.LabelDataWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LabelDataUpdateToOneWithWhereWithoutMaterialNgCasesInput, Prisma.LabelDataUpdateWithoutMaterialNgCasesInput>, Prisma.LabelDataUncheckedUpdateWithoutMaterialNgCasesInput>
+}
+
 export type LabelDataCreateWithoutPartDataInput = {
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
@@ -683,6 +707,7 @@ export type LabelDataUncheckedCreateWithoutPartDataInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
@@ -735,6 +760,7 @@ export type LabelDataCreateWithoutPODataInput = {
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
@@ -751,6 +777,7 @@ export type LabelDataUncheckedCreateWithoutPODataInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
@@ -788,6 +815,7 @@ export type LabelDataCreateWithoutProductionReleaseInput = {
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
@@ -804,6 +832,7 @@ export type LabelDataUncheckedCreateWithoutProductionReleaseInput = {
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
@@ -841,6 +870,7 @@ export type LabelDataCreateWithoutAssemblySessionsInput = {
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutLabelInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
@@ -858,6 +888,7 @@ export type LabelDataUncheckedCreateWithoutAssemblySessionsInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutLabelInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
 }
@@ -884,6 +915,7 @@ export type LabelDataUpdateWithoutAssemblySessionsInput = {
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutLabelNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
@@ -901,6 +933,7 @@ export type LabelDataUncheckedUpdateWithoutAssemblySessionsInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutLabelNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
 }
@@ -911,6 +944,7 @@ export type LabelDataCreateWithoutPokayokeHistoryInput = {
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
@@ -928,6 +962,7 @@ export type LabelDataUncheckedCreateWithoutPokayokeHistoryInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
 }
@@ -954,6 +989,7 @@ export type LabelDataUpdateWithoutPokayokeHistoryInput = {
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
@@ -971,6 +1007,7 @@ export type LabelDataUncheckedUpdateWithoutPokayokeHistoryInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
 }
@@ -981,6 +1018,7 @@ export type LabelDataCreateWithoutDeliveryHistoryInput = {
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
@@ -998,6 +1036,7 @@ export type LabelDataUncheckedCreateWithoutDeliveryHistoryInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutLabelInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
 }
@@ -1024,6 +1063,7 @@ export type LabelDataUpdateWithoutDeliveryHistoryInput = {
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
@@ -1041,7 +1081,82 @@ export type LabelDataUncheckedUpdateWithoutDeliveryHistoryInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
+  PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
+}
+
+export type LabelDataCreateWithoutMaterialNgCasesInput = {
+  RequiresAssembly?: boolean | null
+  LabelNumber: string
+  Scanned?: boolean
+  QtyThisBox?: number
+  PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
+  PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
+  PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
+  POData: Prisma.ForecastCreateNestedOneWithoutLabelDataInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLabelDatasInput
+}
+
+export type LabelDataUncheckedCreateWithoutMaterialNgCasesInput = {
+  RequiresAssembly?: boolean | null
+  Id?: number
+  LabelNumber: string
+  FinishGoodId: string
+  ForecastId: string
+  Scanned?: boolean
+  QtyThisBox?: number
+  ProductionReleaseId?: string | null
+  PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
+  PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
+}
+
+export type LabelDataCreateOrConnectWithoutMaterialNgCasesInput = {
+  where: Prisma.LabelDataWhereUniqueInput
+  create: Prisma.XOR<Prisma.LabelDataCreateWithoutMaterialNgCasesInput, Prisma.LabelDataUncheckedCreateWithoutMaterialNgCasesInput>
+}
+
+export type LabelDataUpsertWithoutMaterialNgCasesInput = {
+  update: Prisma.XOR<Prisma.LabelDataUpdateWithoutMaterialNgCasesInput, Prisma.LabelDataUncheckedUpdateWithoutMaterialNgCasesInput>
+  create: Prisma.XOR<Prisma.LabelDataCreateWithoutMaterialNgCasesInput, Prisma.LabelDataUncheckedCreateWithoutMaterialNgCasesInput>
+  where?: Prisma.LabelDataWhereInput
+}
+
+export type LabelDataUpdateToOneWithWhereWithoutMaterialNgCasesInput = {
+  where?: Prisma.LabelDataWhereInput
+  data: Prisma.XOR<Prisma.LabelDataUpdateWithoutMaterialNgCasesInput, Prisma.LabelDataUncheckedUpdateWithoutMaterialNgCasesInput>
+}
+
+export type LabelDataUpdateWithoutMaterialNgCasesInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
+  PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
+  PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
+  PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
+  POData?: Prisma.ForecastUpdateOneRequiredWithoutLabelDataNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLabelDatasNestedInput
+}
+
+export type LabelDataUncheckedUpdateWithoutMaterialNgCasesInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
+  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
+  ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
 }
 
@@ -1062,6 +1177,7 @@ export type LabelDataUpdateWithoutPartDataInput = {
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
@@ -1078,6 +1194,7 @@ export type LabelDataUncheckedUpdateWithoutPartDataInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
@@ -1111,6 +1228,7 @@ export type LabelDataUpdateWithoutPODataInput = {
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
@@ -1127,6 +1245,7 @@ export type LabelDataUncheckedUpdateWithoutPODataInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
@@ -1160,6 +1279,7 @@ export type LabelDataUpdateWithoutProductionReleaseInput = {
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
@@ -1176,6 +1296,7 @@ export type LabelDataUncheckedUpdateWithoutProductionReleaseInput = {
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutLabelNestedInput
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
@@ -1198,11 +1319,13 @@ export type LabelDataUncheckedUpdateManyWithoutProductionReleaseInput = {
  */
 
 export type LabelDataCountOutputType = {
+  MaterialNgCases: number
   AssemblySessions: number
   PokayokeHistory: number
 }
 
 export type LabelDataCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  MaterialNgCases?: boolean | LabelDataCountOutputTypeCountMaterialNgCasesArgs
   AssemblySessions?: boolean | LabelDataCountOutputTypeCountAssemblySessionsArgs
   PokayokeHistory?: boolean | LabelDataCountOutputTypeCountPokayokeHistoryArgs
 }
@@ -1215,6 +1338,13 @@ export type LabelDataCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
    * Select specific fields to fetch from the LabelDataCountOutputType
    */
   select?: Prisma.LabelDataCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * LabelDataCountOutputType without action
+ */
+export type LabelDataCountOutputTypeCountMaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MaterialNgCaseWhereInput
 }
 
 /**
@@ -1242,6 +1372,7 @@ export type LabelDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   QtyThisBox?: boolean
   ProductionReleaseId?: boolean
   PokayokeScanHistoryId?: boolean
+  MaterialNgCases?: boolean | Prisma.LabelData$MaterialNgCasesArgs<ExtArgs>
   AssemblySessions?: boolean | Prisma.LabelData$AssemblySessionsArgs<ExtArgs>
   DeliveryHistory?: boolean | Prisma.LabelData$DeliveryHistoryArgs<ExtArgs>
   PokayokeHistory?: boolean | Prisma.LabelData$PokayokeHistoryArgs<ExtArgs>
@@ -1295,6 +1426,7 @@ export type LabelDataSelectScalar = {
 
 export type LabelDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"RequiresAssembly" | "Id" | "LabelNumber" | "FinishGoodId" | "ForecastId" | "Scanned" | "QtyThisBox" | "ProductionReleaseId" | "PokayokeScanHistoryId", ExtArgs["result"]["labelData"]>
 export type LabelDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  MaterialNgCases?: boolean | Prisma.LabelData$MaterialNgCasesArgs<ExtArgs>
   AssemblySessions?: boolean | Prisma.LabelData$AssemblySessionsArgs<ExtArgs>
   DeliveryHistory?: boolean | Prisma.LabelData$DeliveryHistoryArgs<ExtArgs>
   PokayokeHistory?: boolean | Prisma.LabelData$PokayokeHistoryArgs<ExtArgs>
@@ -1317,6 +1449,7 @@ export type LabelDataIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
 export type $LabelDataPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LabelData"
   objects: {
+    MaterialNgCases: Prisma.$MaterialNgCasePayload<ExtArgs>[]
     AssemblySessions: Prisma.$AssemblySessionPayload<ExtArgs>[]
     DeliveryHistory: Prisma.$DeliveryHistoryPayload<ExtArgs> | null
     PokayokeHistory: Prisma.$PokayokeScanHistoryPayload<ExtArgs>[]
@@ -1728,6 +1861,7 @@ readonly fields: LabelDataFieldRefs;
  */
 export interface Prisma__LabelDataClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  MaterialNgCases<T extends Prisma.LabelData$MaterialNgCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelData$MaterialNgCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNgCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   AssemblySessions<T extends Prisma.LabelData$AssemblySessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelData$AssemblySessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssemblySessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   DeliveryHistory<T extends Prisma.LabelData$DeliveryHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelData$DeliveryHistoryArgs<ExtArgs>>): Prisma.Prisma__DeliveryHistoryClient<runtime.Types.Result.GetResult<Prisma.$DeliveryHistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   PokayokeHistory<T extends Prisma.LabelData$PokayokeHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelData$PokayokeHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PokayokeScanHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2170,6 +2304,30 @@ export type LabelDataDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many LabelData to delete.
    */
   limit?: number
+}
+
+/**
+ * LabelData.MaterialNgCases
+ */
+export type LabelData$MaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MaterialNgCase
+   */
+  select?: Prisma.MaterialNgCaseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MaterialNgCase
+   */
+  omit?: Prisma.MaterialNgCaseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MaterialNgCaseInclude<ExtArgs> | null
+  where?: Prisma.MaterialNgCaseWhereInput
+  orderBy?: Prisma.MaterialNgCaseOrderByWithRelationInput | Prisma.MaterialNgCaseOrderByWithRelationInput[]
+  cursor?: Prisma.MaterialNgCaseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MaterialNgCaseScalarFieldEnum | Prisma.MaterialNgCaseScalarFieldEnum[]
 }
 
 /**

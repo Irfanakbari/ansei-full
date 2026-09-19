@@ -1,7 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
-import { get, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
+import { get, post, getApiErrorMessage, type ApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Part type enum
 export type PartType = 'ONE' | 'TWO' | 'THREE' | 'FOUR';
@@ -250,3 +250,17 @@ const productionReportSlice = createSlice({
 
 export const { setFilters, resetFilters, setPage, setLimit } = productionReportSlice.actions;
 export default productionReportSlice.reducer;
+export interface CreateProductionReportInput {
+    productionStamp: string; qty: number; ngQty: number; manPowerUid: string; finishGoodId: string;
+    recordType?: PartType; forecastId?: string; poId?: string; poNumber?: string;
+    date?: string; time?: string; startTime?: string; endTime?: string; startStamp?: string; endStamp?: string; stopMinute?: number;
+    latchDate?: string; cableHDate?: string; cableLDate?: string; coverDate?: string; rodDate?: string;
+    sponsDate?: string; sponsRearDate?: string; clipDate?: string; leverDate?: string; smallPadDate?: string;
+    actuatorDate?: string; backPlateDate?: string; stampDate?: string;
+}
+export const createProductionReport = createAsyncThunk<void, CreateProductionReportInput, { rejectValue: string }>(
+    'productionReport/create', async (body, { rejectWithValue }) => {
+        try { await post('/production/production-report', body); }
+        catch (error) { return rejectWithValue(getApiErrorMessage(error, 'Failed to create production report')); }
+    },
+);

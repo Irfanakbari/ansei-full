@@ -34,7 +34,7 @@ export class PreDeliveryService {
    */
   private async getAllForecastIdsWithShopping(): Promise<string[]> {
     const shoppings = await this.prisma.shopping.findMany({
-      where: { ForecastId: { not: null } },
+      where: { ForecastId: { not: null }, Purpose: 'STANDARD' },
       select: { ForecastId: true },
     });
 
@@ -177,6 +177,11 @@ export class PreDeliveryService {
           POData: {
             select: {
               PoId: true,
+              BomSnapshots: {
+                select: { Id: true },
+                orderBy: { CreatedAt: 'desc' },
+                take: 1,
+              },
               VendorName: true,
               DeliveryDate: true,
             },
@@ -201,6 +206,8 @@ export class PreDeliveryService {
         finishGoodId: item.FinishGoodId,
         finishGoodName: item.PartData?.PartName ?? null,
         forecastId: item.ForecastId,
+        bomSnapshotId: item.POData?.BomSnapshots?.[0]?.Id ?? null,
+        traceabilityUrl: `/apps/traceability?poId=${encodeURIComponent(item.ForecastId)}&label=${encodeURIComponent(item.LabelNumber)}`,
         vendorName: item.POData?.VendorName ?? null,
         scanned: item.Scanned,
         qtyThisBox: item.QtyThisBox,

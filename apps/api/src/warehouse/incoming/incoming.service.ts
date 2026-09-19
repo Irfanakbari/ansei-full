@@ -1,4 +1,13 @@
 import {
+  claimCommand,
+  finishCommand,
+  requestCommandKey,
+} from '../../common/helpers/business-command.helper';
+import {
+  auditedTransaction,
+  auditedWrite,
+} from '../../common/helpers/audited-transaction.helper';
+import {
   Injectable,
   NotFoundException,
   BadRequestException,
@@ -153,7 +162,7 @@ export class IncomingService {
       });
 
       const processId = logProcess.ProcessId;
-      const result = await this.prisma.$transaction(async (tx) => {
+      const result = await auditedTransaction(this.prisma, async (tx) => {
         // Create Incoming header
         const incoming = await tx.incoming.create({
           data: {
@@ -263,7 +272,7 @@ export class IncomingService {
       });
 
       const processId = logProcess.ProcessId;
-      const result = await this.prisma.$transaction(async (tx) => {
+      const result = await auditedTransaction(this.prisma, async (tx) => {
         // Update Incoming header
         const updateData: Record<string, unknown> = {};
         if (dto.description !== undefined)
@@ -366,7 +375,7 @@ export class IncomingService {
         location: 'incoming.service.ts:213',
       });
 
-      await this.prisma.$transaction(async (tx) => {
+      await auditedTransaction(this.prisma, async (tx) => {
         // Delete IncomingMaterial first
         await tx.incomingMaterial.deleteMany({
           where: { IncomingId: id },
@@ -393,6 +402,7 @@ export class IncomingService {
    * Receive incoming - close and approve, move to warehouse inventory
    */
   async receive(id: string, receivedBy: string) {
+    const requestId = requestCommandKey();
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -402,6 +412,33 @@ export class IncomingService {
         createdBy: receivedBy,
       });
 
+      if (requestId) {
+        const previous = await this.prisma.businessCommand.findUnique({
+          where: {
+            Scope_RequestId: {
+              Scope: 'INCOMING_RECEIVE',
+              RequestId: requestId,
+            },
+          },
+        });
+        if (previous)
+          return auditedTransaction(this.prisma, async (tx) => {
+            const { command } = await claimCommand(
+              tx,
+              'INCOMING_RECEIVE',
+              requestId,
+              receivedBy,
+              { id },
+            );
+            await this.logService.completeProcess(
+              logProcess!.ProcessId,
+              'SUCCESS',
+              'Incoming receive replay',
+              tx,
+            );
+            return command.Result;
+          });
+      }
       const existing = await this.prisma.incoming.findUnique({
         where: { Id: id },
         include: {
@@ -475,10 +512,28 @@ export class IncomingService {
       const processId = logProcess.ProcessId;
 
       // Use transaction to update inventory and incoming
-      await withInventoryTransaction(
+      return await withInventoryTransaction(
         this.prisma,
         ItemCategory.MATERIAL,
         async (tx) => {
+          const claimed = requestId
+            ? await claimCommand(
+                tx,
+                'INCOMING_RECEIVE',
+                requestId,
+                receivedBy,
+                { id },
+              )
+            : null;
+          if (claimed?.duplicate) {
+            await this.logService.completeProcess(
+              processId,
+              'SUCCESS',
+              'Incoming receive replay',
+              tx,
+            );
+            return claimed.command.Result;
+          }
           await assertNoActiveInventoryCounting(
             tx,
             ItemCategory.MATERIAL,
@@ -496,6 +551,7 @@ export class IncomingService {
               'Incoming has already been received or is being processed.',
             );
           }
+          totalQty = 0; // Reset per serializable transaction attempt.
           const currentUnmatched = current.IncomingMaterial.filter(
             (item) => item.QtyChecked !== item.Qty,
           );
@@ -610,18 +666,19 @@ export class IncomingService {
             undefined,
             tx,
           );
+          const response = {
+            id: current.Id,
+            poId: current.PoId,
+            status: 'APPROVED',
+            approvedAt: now,
+            totalItems: current.IncomingMaterial.length,
+            totalQty,
+            inventoryUpdated: true,
+          };
+          if (claimed) await finishCommand(tx, claimed.command.Id, response);
+          return response;
         },
       );
-
-      return {
-        id: existing.Id,
-        poId: existing.PoId,
-        status: 'APPROVED',
-        approvedAt: now,
-        totalItems: existing.IncomingMaterial.length,
-        totalQty,
-        inventoryUpdated: true,
-      };
     } catch (error) {
       if (logProcess) {
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
@@ -704,7 +761,7 @@ export class IncomingService {
       }
 
       // Use transaction to update all QtyChecked values
-      await this.prisma.$transaction(async (tx) => {
+      await auditedTransaction(this.prisma, async (tx) => {
         for (const checkItem of dto.materials) {
           // Find the material data
           const materialData = existing.IncomingMaterial.find(
@@ -987,13 +1044,15 @@ export class IncomingService {
       });
 
       // Create attachment record in Incoming table (update FileName and FilePath)
-      const updated = await this.prisma.incoming.update({
-        where: { Id: incomingId },
-        data: {
-          FileName: newFileName,
-          FilePath: fileUrl,
-        },
-      });
+      const updated = await auditedWrite(this.prisma, (tx) =>
+        tx.incoming.update({
+          where: { Id: incomingId },
+          data: {
+            FileName: newFileName,
+            FilePath: fileUrl,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -1103,13 +1162,15 @@ export class IncomingService {
       }
 
       // Clear FileName and FilePath in database
-      await this.prisma.incoming.update({
-        where: { Id: incoming.Id },
-        data: {
-          FileName: null,
-          FilePath: null,
-        },
-      });
+      await auditedWrite(this.prisma, (tx) =>
+        tx.incoming.update({
+          where: { Id: incoming.Id },
+          data: {
+            FileName: null,
+            FilePath: null,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

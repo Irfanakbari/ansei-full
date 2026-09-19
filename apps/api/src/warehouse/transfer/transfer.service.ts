@@ -9,6 +9,10 @@ import {
 } from '../../generated/prisma/enums';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 import { withInventoryTransaction } from '../../common/helpers/inventory-transaction.helper';
+import {
+  claimCommand,
+  finishCommand,
+} from '../../common/helpers/business-command.helper';
 
 export interface TransferResult {
   partNumber: string;
@@ -31,7 +35,13 @@ export class TransferService {
     partNumber: string,
     qty: number,
     transferredBy: string,
+    requestId?: string,
   ): Promise<TransferResult> {
+    if (!Number.isSafeInteger(qty) || qty <= 0 || qty > 2147483647) {
+      throw new BadRequestException(
+        'Transfer quantity must be a positive integer.',
+      );
+    }
     let logProcess: LogProcessModel | undefined;
     try {
       logProcess = await this.logService.startProcess({
@@ -53,6 +63,24 @@ export class TransferService {
         this.prisma,
         ItemCategory.MATERIAL,
         async (tx) => {
+          const claimed = requestId
+            ? await claimCommand(
+                tx,
+                'TRANSFER_TO_RACK',
+                requestId,
+                transferredBy,
+                { partNumber, qty },
+              )
+            : null;
+          if (claimed?.duplicate) {
+            await this.logService.completeProcess(
+              processId,
+              'SUCCESS',
+              'Transfer replay: stock unchanged',
+              tx,
+            );
+            return claimed.command.Result as unknown as TransferResult;
+          }
           await assertNoActiveInventoryCounting(
             tx,
             ItemCategory.MATERIAL,
@@ -79,6 +107,27 @@ export class TransferService {
           }
           const warehouseBefore = material.QtyWarehouse;
           const rackBefore = material.QtyRack;
+          for (const [location, cached] of [
+            [LocationType.WAREHOUSE, warehouseBefore],
+            [LocationType.RACK, rackBefore],
+          ] as const) {
+            const balance = await tx.inventoryLedger.aggregate({
+              where: {
+                ItemCategory: ItemCategory.MATERIAL,
+                MaterialId: partNumber,
+                Location: location,
+              },
+              _sum: { QtyIn: true, QtyOut: true },
+            });
+            if (
+              (balance._sum.QtyIn ?? 0) - (balance._sum.QtyOut ?? 0) !==
+              cached
+            ) {
+              throw new BadRequestException(
+                'Inventory balance does not match the ledger. Reconcile stock before transferring.',
+              );
+            }
+          }
           const warehouseAfter = warehouseBefore - qty;
           const rackAfter = rackBefore + qty;
           const referenceDoc = `TRANSFER-TO-RACK-${crypto.randomUUID()}`;
@@ -165,6 +214,13 @@ export class TransferService {
             undefined,
             tx,
           );
+          if (claimed)
+            await finishCommand(tx, claimed.command.Id, {
+              warehouseBefore,
+              warehouseAfter,
+              rackBefore,
+              rackAfter,
+            });
           return { warehouseBefore, warehouseAfter, rackBefore, rackAfter };
         },
       );

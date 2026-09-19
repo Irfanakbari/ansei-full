@@ -1,3 +1,4 @@
+import { ApiHeader } from '@nestjs/swagger';
 import {
   ApiBearerAuth,
   ApiConsumes,
@@ -134,6 +135,13 @@ export class IncomingController {
     return this.incomingService.remove(id, user.username);
   }
 
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    required: true,
+    schema: { type: 'string', format: 'uuid' },
+    description:
+      'Reuse for retries of the same command; generate a new key for a new action.',
+  })
   @Post(':id/receive')
   @Permission('IPCS.INCOMING_UPDATE')
   @ApiResponse({

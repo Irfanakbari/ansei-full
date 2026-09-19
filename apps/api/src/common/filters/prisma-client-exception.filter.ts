@@ -3,9 +3,11 @@ import {
   Catch,
   ExceptionFilter,
   HttpStatus,
+  Optional,
 } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client';
 import type { Request, Response } from 'express';
+import { ActionAuditService } from '../logging/action-audit.service';
 import { OriginalErrorFileLogService } from '../logging/original-error-file-log.service';
 import {
   createErrorResponse,
@@ -18,6 +20,7 @@ type ErrorRequest = Request & { requestId?: string };
 export class PrismaClientExceptionFilter implements ExceptionFilter {
   constructor(
     private readonly originalErrorFileLogService: OriginalErrorFileLogService,
+    @Optional() private readonly actionAudit?: ActionAuditService,
   ) {}
 
   async catch(
@@ -27,6 +30,16 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<ErrorRequest>();
+    await this.actionAudit?.failure(
+      request,
+      ['P2000', 'P2003'].includes(exception.code)
+        ? 400
+        : exception.code === 'P2025'
+          ? 404
+          : exception.code === 'P2002'
+            ? 409
+            : 500,
+    );
     switch (exception.code) {
       case 'P2000': // Input Value too long
         this.send(

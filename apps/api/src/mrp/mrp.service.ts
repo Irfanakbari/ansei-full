@@ -1,3 +1,4 @@
+import { latestSnapshot } from '../common/helpers/bom-snapshot.helper';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
@@ -14,7 +15,14 @@ import ExcelJS from 'exceljs';
 type BomDataMap = Map<number, Array<{ finishGoodId: number; qty: number }>>;
 type ForecastDataMap = Map<
   string,
-  Map<string, { finishGoodId: string; outstandingQty: number }>
+  Map<
+    string,
+    {
+      finishGoodId: string;
+      outstandingQty: number;
+      snapshotBom?: Map<number, number>;
+    }
+  >
 >;
 
 @Injectable()
@@ -283,6 +291,7 @@ export class MrpService {
    */
   private async getBillOfMaterialsData(): Promise<BomDataMap> {
     const boms = await this.prisma.billOfMaterials.findMany({
+      where: { FGData: { ActiveBomRevisionId: { not: null } } },
       select: {
         FinishGoodId: true,
         MaterialId: true,
@@ -350,6 +359,8 @@ export class MrpService {
         PoId: true,
         FinishGoodId: true,
         DeliveryDate: true,
+        ProductionReleaseId: true,
+        ProductionRelease: { select: { Status: true } },
         Qty: true,
         DeliveryHistory: {
           select: {
@@ -361,7 +372,14 @@ export class MrpService {
 
     const result = new Map<
       string,
-      Map<string, { finishGoodId: string; outstandingQty: number }>
+      Map<
+        string,
+        {
+          finishGoodId: string;
+          outstandingQty: number;
+          snapshotBom?: Map<number, number>;
+        }
+      >
     >();
 
     for (const forecast of forecasts) {
@@ -382,6 +400,20 @@ export class MrpService {
         result.get(dateStr)!.set(forecast.PoId, {
           finishGoodId: forecast.FinishGoodId,
           outstandingQty,
+          snapshotBom:
+            forecast.ProductionReleaseId &&
+            forecast.ProductionRelease?.Status !== 'DRAFT'
+              ? new Map(
+                  (
+                    await latestSnapshot(
+                      this.prisma,
+                      forecast.PoId,
+                      forecast.ProductionReleaseId,
+                    )
+                  )?.Lines.map((line) => [line.MaterialId, line.QtyPerUnit]) ??
+                    [],
+                )
+              : undefined,
         });
       }
     }
@@ -411,6 +443,7 @@ export class MrpService {
       by: ['ForecastId', 'MaterialId'],
       where: {
         ForecastId: { in: Array.from(allForecastIds) },
+        Purpose: 'STANDARD',
       },
       _sum: {
         QtyPick: true,
@@ -451,11 +484,7 @@ export class MrpService {
     }
 
     // Get the BOM entries for this material
-    const bomEntries = bomData.get(materialId);
-
-    if (!bomEntries || bomEntries.length === 0) {
-      return 0;
-    }
+    const bomEntries = bomData.get(materialId) ?? [];
 
     // Create a map of finishGoodPartNumber -> bomQty for this material
     const finishGoodBomMap = new Map<string, number>();
@@ -469,8 +498,13 @@ export class MrpService {
     let totalDemand = 0;
 
     // For each Forecast on this date
-    for (const [poId, { finishGoodId, outstandingQty }] of dayForecasts) {
-      const bomQty = finishGoodBomMap.get(finishGoodId);
+    for (const [
+      poId,
+      { finishGoodId, outstandingQty, snapshotBom },
+    ] of dayForecasts) {
+      const bomQty = snapshotBom
+        ? snapshotBom.get(materialId)
+        : finishGoodBomMap.get(finishGoodId);
       if (bomQty !== undefined) {
         // This FinishGood uses this Material
         const baseRequired = outstandingQty * bomQty;

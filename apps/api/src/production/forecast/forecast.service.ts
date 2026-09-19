@@ -1,4 +1,12 @@
 import {
+  auditedTransaction,
+  auditedWrite,
+} from '../../common/helpers/audited-transaction.helper';
+import {
+  latestSnapshot,
+  snapshotRelease,
+} from '../../common/helpers/bom-snapshot.helper';
+import {
   Injectable,
   NotFoundException,
   BadRequestException,
@@ -174,22 +182,24 @@ export class ForecastService {
         location: 'forecast.service.ts:75',
       });
 
-      const result = await this.prisma.forecast.create({
-        data: {
-          PoId: dto.poId,
-          Date: dto.date,
-          VendorCode: dto.vendorCode,
-          VendorName: dto.vendorName,
-          ReceivingArea: dto.receivingArea,
-          DeliveryDate: dto.deliveryDate,
-          DeliveryPeriod: dto.deliveryPeriod,
-          Classification: dto.classification,
-          PoNumber: dto.poNumber,
-          Item: dto.item,
-          Qty: dto.qty,
-          FinishGoodId: dto.finishGoodId,
-        },
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.forecast.create({
+          data: {
+            PoId: dto.poId,
+            Date: dto.date,
+            VendorCode: dto.vendorCode,
+            VendorName: dto.vendorName,
+            ReceivingArea: dto.receivingArea,
+            DeliveryDate: dto.deliveryDate,
+            DeliveryPeriod: dto.deliveryPeriod,
+            Classification: dto.classification,
+            PoNumber: dto.poNumber,
+            Item: dto.item,
+            Qty: dto.qty,
+            FinishGoodId: dto.finishGoodId,
+          },
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -249,24 +259,29 @@ export class ForecastService {
         location: 'forecast.service.ts:503',
       });
 
-      // Emit immediately without transaction coupling, matching the requirement
-      await this.printerService.printPartTagAnsei({
-        poId: forecast.PoId,
-        qtyOrder: forecast.Qty,
-        partNumber: forecast.PartData?.PartNumber ?? '',
-        partName: forecast.PartData?.PartName ?? '',
-        vendorCode: forecast.VendorCode,
-        classificationCode: forecast.Classification,
-        deliveryDate: forecast.DeliveryDate,
-        qtyPerbox,
-        poNumber: forecast.PoNumber,
-        receivingArea: forecast.ReceivingArea,
-      });
+      // Persist a tracked request; the worker records the transport outcome.
+      const integration = await this.printerService.printPartTagAnsei(
+        {
+          poId: forecast.PoId,
+          qtyOrder: forecast.Qty,
+          partNumber: forecast.PartData?.PartNumber ?? '',
+          partName: forecast.PartData?.PartName ?? '',
+          vendorCode: forecast.VendorCode,
+          classificationCode: forecast.Classification,
+          deliveryDate: forecast.DeliveryDate,
+          qtyPerbox,
+          poNumber: forecast.PoNumber,
+          receivingArea: forecast.ReceivingArea,
+        },
+        requestedBy,
+      );
 
       await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
 
       return {
-        message: 'Data PO ditemukan, proses pencetakan akan dilakukan segera',
+        message:
+          'Print request recorded. Monitor delivery in System Logs > Integrations.',
+        integrationId: integration.id,
         poId: forecast.PoId,
         qtyOrder: forecast.Qty,
         partNumber: forecast.PartData?.PartNumber ?? '',
@@ -303,7 +318,7 @@ export class ForecastService {
       });
 
       const processId = logProcess.ProcessId;
-      return await this.prisma.$transaction(async (tx) => {
+      return await auditedTransaction(this.prisma, async (tx) => {
         await lockProductionFlow(tx);
         // Try to find by ID or PoId
         const numericId = parseInt(id, 10);
@@ -316,6 +331,21 @@ export class ForecastService {
         }
 
         await this.assertForecastEditable(tx, existing);
+        if (
+          existing.ProductionReleaseId &&
+          ((dto.poId !== undefined && dto.poId !== existing.PoId) ||
+            (dto.finishGoodId !== undefined &&
+              dto.finishGoodId !== existing.FinishGoodId)) &&
+          (await latestSnapshot(
+            tx,
+            existing.PoId,
+            existing.ProductionReleaseId,
+          ))
+        ) {
+          throw new ConflictException(
+            'A snapshotted PO cannot change its PO or finish-good identity. Add a new PO through the release amendment workflow.',
+          );
+        }
         const nextQty = dto.qty ?? existing.Qty;
         if (!Number.isInteger(nextQty) || nextQty <= 0) {
           throw new BadRequestException(
@@ -406,6 +436,8 @@ export class ForecastService {
             where: { ProductionReleaseId: release.Id },
             _sum: { Qty: true },
           });
+          if (release.Status === 'RELEASED')
+            await snapshotRelease(tx, release.Id, updatedBy, processId);
           await tx.productionRelease.update({
             where: { Id: release.Id },
             data: { TotalTargetQty: total._sum.Qty ?? 0 },
@@ -448,7 +480,7 @@ export class ForecastService {
       });
 
       const processId = logProcess.ProcessId;
-      return await this.prisma.$transaction(async (tx) => {
+      return await auditedTransaction(this.prisma, async (tx) => {
         await lockProductionFlow(tx);
         const numericId = parseInt(id, 10);
         const existing = !isNaN(numericId)
@@ -664,23 +696,25 @@ export class ForecastService {
       );
 
       // Create forecast records with skipDuplicates
-      const result = await this.prisma.forecast.createMany({
-        data: transformedData.map((d) => ({
-          PoId: d.poId,
-          Date: d.date,
-          VendorCode: d.vendorCode,
-          VendorName: d.vendorName,
-          ReceivingArea: d.receivingArea,
-          DeliveryDate: d.deliveryDate,
-          DeliveryPeriod: d.deliveryPeriod,
-          Classification: d.classification,
-          PoNumber: d.poNumber,
-          Item: d.item,
-          Qty: d.qty,
-          FinishGoodId: d.finishGoodId,
-        })),
-        skipDuplicates: true,
-      });
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.forecast.createMany({
+          data: transformedData.map((d) => ({
+            PoId: d.poId,
+            Date: d.date,
+            VendorCode: d.vendorCode,
+            VendorName: d.vendorName,
+            ReceivingArea: d.receivingArea,
+            DeliveryDate: d.deliveryDate,
+            DeliveryPeriod: d.deliveryPeriod,
+            Classification: d.classification,
+            PoNumber: d.poNumber,
+            Item: d.item,
+            Qty: d.qty,
+            FinishGoodId: d.finishGoodId,
+          })),
+          skipDuplicates: true,
+        }),
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

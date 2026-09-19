@@ -452,6 +452,7 @@ export type ProductionReportWhereInput = {
   ManPowerUid?: Prisma.StringFilter<"ProductionReport"> | string
   FinishGoodId?: Prisma.StringFilter<"ProductionReport"> | string
   ForecastId?: Prisma.StringNullableFilter<"ProductionReport"> | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
   ManPowerData?: Prisma.XOR<Prisma.ManPowerScalarRelationFilter, Prisma.ManPowerWhereInput>
   FGData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
   ForecastData?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
@@ -491,6 +492,7 @@ export type ProductionReportOrderByWithRelationInput = {
   ManPowerUid?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
   ForecastId?: Prisma.SortOrderInput | Prisma.SortOrder
+  MaterialNgCases?: Prisma.MaterialNgCaseOrderByRelationAggregateInput
   ManPowerData?: Prisma.ManPowerOrderByWithRelationInput
   FGData?: Prisma.FinishGoodOrderByWithRelationInput
   ForecastData?: Prisma.ForecastOrderByWithRelationInput
@@ -534,6 +536,7 @@ export type ProductionReportWhereUniqueInput = Prisma.AtLeast<{
   ManPowerUid?: Prisma.StringFilter<"ProductionReport"> | string
   FinishGoodId?: Prisma.StringFilter<"ProductionReport"> | string
   ForecastId?: Prisma.StringNullableFilter<"ProductionReport"> | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
   ManPowerData?: Prisma.XOR<Prisma.ManPowerScalarRelationFilter, Prisma.ManPowerWhereInput>
   FGData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
   ForecastData?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
@@ -649,6 +652,7 @@ export type ProductionReportCreateInput = {
   ValidatedBy?: string | null
   RecordType?: $Enums.PartType | null
   Qty?: number
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutProductionReportInput
   ManPowerData: Prisma.ManPowerCreateNestedOneWithoutProductionReportInput
   FGData: Prisma.FinishGoodCreateNestedOneWithoutProductionReportInput
   ForecastData?: Prisma.ForecastCreateNestedOneWithoutProductionReportInput
@@ -688,6 +692,7 @@ export type ProductionReportUncheckedCreateInput = {
   ManPowerUid: string
   FinishGoodId: string
   ForecastId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutProductionReportInput
 }
 
 export type ProductionReportUpdateInput = {
@@ -720,6 +725,7 @@ export type ProductionReportUpdateInput = {
   ValidatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RecordType?: Prisma.NullableEnumPartTypeFieldUpdateOperationsInput | $Enums.PartType | null
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutProductionReportNestedInput
   ManPowerData?: Prisma.ManPowerUpdateOneRequiredWithoutProductionReportNestedInput
   FGData?: Prisma.FinishGoodUpdateOneRequiredWithoutProductionReportNestedInput
   ForecastData?: Prisma.ForecastUpdateOneWithoutProductionReportNestedInput
@@ -759,6 +765,7 @@ export type ProductionReportUncheckedUpdateInput = {
   ManPowerUid?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutProductionReportNestedInput
 }
 
 export type ProductionReportCreateManyInput = {
@@ -1004,6 +1011,11 @@ export type ProductionReportSumOrderByAggregateInput = {
   Qty?: Prisma.SortOrder
 }
 
+export type ProductionReportNullableScalarRelationFilter = {
+  is?: Prisma.ProductionReportWhereInput | null
+  isNot?: Prisma.ProductionReportWhereInput | null
+}
+
 export type ProductionReportCreateNestedManyWithoutFGDataInput = {
   create?: Prisma.XOR<Prisma.ProductionReportCreateWithoutFGDataInput, Prisma.ProductionReportUncheckedCreateWithoutFGDataInput> | Prisma.ProductionReportCreateWithoutFGDataInput[] | Prisma.ProductionReportUncheckedCreateWithoutFGDataInput[]
   connectOrCreate?: Prisma.ProductionReportCreateOrConnectWithoutFGDataInput | Prisma.ProductionReportCreateOrConnectWithoutFGDataInput[]
@@ -1134,6 +1146,22 @@ export type NullableEnumPartTypeFieldUpdateOperationsInput = {
   set?: $Enums.PartType | null
 }
 
+export type ProductionReportCreateNestedOneWithoutMaterialNgCasesInput = {
+  create?: Prisma.XOR<Prisma.ProductionReportCreateWithoutMaterialNgCasesInput, Prisma.ProductionReportUncheckedCreateWithoutMaterialNgCasesInput>
+  connectOrCreate?: Prisma.ProductionReportCreateOrConnectWithoutMaterialNgCasesInput
+  connect?: Prisma.ProductionReportWhereUniqueInput
+}
+
+export type ProductionReportUpdateOneWithoutMaterialNgCasesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionReportCreateWithoutMaterialNgCasesInput, Prisma.ProductionReportUncheckedCreateWithoutMaterialNgCasesInput>
+  connectOrCreate?: Prisma.ProductionReportCreateOrConnectWithoutMaterialNgCasesInput
+  upsert?: Prisma.ProductionReportUpsertWithoutMaterialNgCasesInput
+  disconnect?: Prisma.ProductionReportWhereInput | boolean
+  delete?: Prisma.ProductionReportWhereInput | boolean
+  connect?: Prisma.ProductionReportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReportUpdateToOneWithWhereWithoutMaterialNgCasesInput, Prisma.ProductionReportUpdateWithoutMaterialNgCasesInput>, Prisma.ProductionReportUncheckedUpdateWithoutMaterialNgCasesInput>
+}
+
 export type ProductionReportCreateWithoutFGDataInput = {
   Date?: string | null
   Time?: string | null
@@ -1164,6 +1192,7 @@ export type ProductionReportCreateWithoutFGDataInput = {
   ValidatedBy?: string | null
   RecordType?: $Enums.PartType | null
   Qty?: number
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutProductionReportInput
   ManPowerData: Prisma.ManPowerCreateNestedOneWithoutProductionReportInput
   ForecastData?: Prisma.ForecastCreateNestedOneWithoutProductionReportInput
 }
@@ -1201,6 +1230,7 @@ export type ProductionReportUncheckedCreateWithoutFGDataInput = {
   Qty?: number
   ManPowerUid: string
   ForecastId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutProductionReportInput
 }
 
 export type ProductionReportCreateOrConnectWithoutFGDataInput = {
@@ -1298,6 +1328,7 @@ export type ProductionReportCreateWithoutManPowerDataInput = {
   ValidatedBy?: string | null
   RecordType?: $Enums.PartType | null
   Qty?: number
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutProductionReportInput
   FGData: Prisma.FinishGoodCreateNestedOneWithoutProductionReportInput
   ForecastData?: Prisma.ForecastCreateNestedOneWithoutProductionReportInput
 }
@@ -1335,6 +1366,7 @@ export type ProductionReportUncheckedCreateWithoutManPowerDataInput = {
   Qty?: number
   FinishGoodId: string
   ForecastId?: string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutProductionReportInput
 }
 
 export type ProductionReportCreateOrConnectWithoutManPowerDataInput = {
@@ -1393,6 +1425,7 @@ export type ProductionReportCreateWithoutForecastDataInput = {
   ValidatedBy?: string | null
   RecordType?: $Enums.PartType | null
   Qty?: number
+  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutProductionReportInput
   ManPowerData: Prisma.ManPowerCreateNestedOneWithoutProductionReportInput
   FGData: Prisma.FinishGoodCreateNestedOneWithoutProductionReportInput
 }
@@ -1430,6 +1463,7 @@ export type ProductionReportUncheckedCreateWithoutForecastDataInput = {
   Qty?: number
   ManPowerUid: string
   FinishGoodId: string
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutProductionReportInput
 }
 
 export type ProductionReportCreateOrConnectWithoutForecastDataInput = {
@@ -1456,6 +1490,164 @@ export type ProductionReportUpdateWithWhereUniqueWithoutForecastDataInput = {
 export type ProductionReportUpdateManyWithWhereWithoutForecastDataInput = {
   where: Prisma.ProductionReportScalarWhereInput
   data: Prisma.XOR<Prisma.ProductionReportUpdateManyMutationInput, Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataInput>
+}
+
+export type ProductionReportCreateWithoutMaterialNgCasesInput = {
+  Date?: string | null
+  Time?: string | null
+  ProductionStamp: Date | string
+  NgQty?: number
+  StartTime?: string | null
+  StartStamp?: Date | string | null
+  EndTime?: string | null
+  EndStamp?: Date | string | null
+  StopMinute?: number | null
+  LatchDate?: string | null
+  CableHDate?: string | null
+  CableLDate?: string | null
+  CoverDate?: string | null
+  RodDate?: string | null
+  SponsDate?: string | null
+  SponsRearDate?: string | null
+  ClipDate?: string | null
+  LeverDate?: string | null
+  SmallPadDate?: string | null
+  ActuatorDate?: string | null
+  BackPlateDate?: string | null
+  StampDate?: string | null
+  PoNumber?: string | null
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  ValidatedAt?: Date | string | null
+  ValidatedBy?: string | null
+  RecordType?: $Enums.PartType | null
+  Qty?: number
+  ManPowerData: Prisma.ManPowerCreateNestedOneWithoutProductionReportInput
+  FGData: Prisma.FinishGoodCreateNestedOneWithoutProductionReportInput
+  ForecastData?: Prisma.ForecastCreateNestedOneWithoutProductionReportInput
+}
+
+export type ProductionReportUncheckedCreateWithoutMaterialNgCasesInput = {
+  Id?: number
+  Date?: string | null
+  Time?: string | null
+  ProductionStamp: Date | string
+  NgQty?: number
+  StartTime?: string | null
+  StartStamp?: Date | string | null
+  EndTime?: string | null
+  EndStamp?: Date | string | null
+  StopMinute?: number | null
+  LatchDate?: string | null
+  CableHDate?: string | null
+  CableLDate?: string | null
+  CoverDate?: string | null
+  RodDate?: string | null
+  SponsDate?: string | null
+  SponsRearDate?: string | null
+  ClipDate?: string | null
+  LeverDate?: string | null
+  SmallPadDate?: string | null
+  ActuatorDate?: string | null
+  BackPlateDate?: string | null
+  StampDate?: string | null
+  PoNumber?: string | null
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  ValidatedAt?: Date | string | null
+  ValidatedBy?: string | null
+  RecordType?: $Enums.PartType | null
+  Qty?: number
+  ManPowerUid: string
+  FinishGoodId: string
+  ForecastId?: string | null
+}
+
+export type ProductionReportCreateOrConnectWithoutMaterialNgCasesInput = {
+  where: Prisma.ProductionReportWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionReportCreateWithoutMaterialNgCasesInput, Prisma.ProductionReportUncheckedCreateWithoutMaterialNgCasesInput>
+}
+
+export type ProductionReportUpsertWithoutMaterialNgCasesInput = {
+  update: Prisma.XOR<Prisma.ProductionReportUpdateWithoutMaterialNgCasesInput, Prisma.ProductionReportUncheckedUpdateWithoutMaterialNgCasesInput>
+  create: Prisma.XOR<Prisma.ProductionReportCreateWithoutMaterialNgCasesInput, Prisma.ProductionReportUncheckedCreateWithoutMaterialNgCasesInput>
+  where?: Prisma.ProductionReportWhereInput
+}
+
+export type ProductionReportUpdateToOneWithWhereWithoutMaterialNgCasesInput = {
+  where?: Prisma.ProductionReportWhereInput
+  data: Prisma.XOR<Prisma.ProductionReportUpdateWithoutMaterialNgCasesInput, Prisma.ProductionReportUncheckedUpdateWithoutMaterialNgCasesInput>
+}
+
+export type ProductionReportUpdateWithoutMaterialNgCasesInput = {
+  Date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ProductionStamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  NgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  StartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  StartStamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  EndTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EndStamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StopMinute?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  LatchDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CableHDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CableLDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  RodDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SponsDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SponsRearDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ClipDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  LeverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SmallPadDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ActuatorDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  BackPlateDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  StampDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  PoNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ValidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ValidatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  RecordType?: Prisma.NullableEnumPartTypeFieldUpdateOperationsInput | $Enums.PartType | null
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  ManPowerData?: Prisma.ManPowerUpdateOneRequiredWithoutProductionReportNestedInput
+  FGData?: Prisma.FinishGoodUpdateOneRequiredWithoutProductionReportNestedInput
+  ForecastData?: Prisma.ForecastUpdateOneWithoutProductionReportNestedInput
+}
+
+export type ProductionReportUncheckedUpdateWithoutMaterialNgCasesInput = {
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  Date?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Time?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ProductionStamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  NgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  StartTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  StartStamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  EndTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EndStamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StopMinute?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  LatchDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CableHDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CableLDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CoverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  RodDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SponsDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SponsRearDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ClipDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  LeverDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SmallPadDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ActuatorDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  BackPlateDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  StampDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  PoNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ValidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ValidatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  RecordType?: Prisma.NullableEnumPartTypeFieldUpdateOperationsInput | $Enums.PartType | null
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  ManPowerUid?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
+  ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ProductionReportCreateManyFGDataInput = {
@@ -1523,6 +1715,7 @@ export type ProductionReportUpdateWithoutFGDataInput = {
   ValidatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RecordType?: Prisma.NullableEnumPartTypeFieldUpdateOperationsInput | $Enums.PartType | null
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutProductionReportNestedInput
   ManPowerData?: Prisma.ManPowerUpdateOneRequiredWithoutProductionReportNestedInput
   ForecastData?: Prisma.ForecastUpdateOneWithoutProductionReportNestedInput
 }
@@ -1560,6 +1753,7 @@ export type ProductionReportUncheckedUpdateWithoutFGDataInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ManPowerUid?: Prisma.StringFieldUpdateOperationsInput | string
   ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutProductionReportNestedInput
 }
 
 export type ProductionReportUncheckedUpdateManyWithoutFGDataInput = {
@@ -1662,6 +1856,7 @@ export type ProductionReportUpdateWithoutManPowerDataInput = {
   ValidatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RecordType?: Prisma.NullableEnumPartTypeFieldUpdateOperationsInput | $Enums.PartType | null
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutProductionReportNestedInput
   FGData?: Prisma.FinishGoodUpdateOneRequiredWithoutProductionReportNestedInput
   ForecastData?: Prisma.ForecastUpdateOneWithoutProductionReportNestedInput
 }
@@ -1699,6 +1894,7 @@ export type ProductionReportUncheckedUpdateWithoutManPowerDataInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ForecastId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutProductionReportNestedInput
 }
 
 export type ProductionReportUncheckedUpdateManyWithoutManPowerDataInput = {
@@ -1801,6 +1997,7 @@ export type ProductionReportUpdateWithoutForecastDataInput = {
   ValidatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RecordType?: Prisma.NullableEnumPartTypeFieldUpdateOperationsInput | $Enums.PartType | null
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutProductionReportNestedInput
   ManPowerData?: Prisma.ManPowerUpdateOneRequiredWithoutProductionReportNestedInput
   FGData?: Prisma.FinishGoodUpdateOneRequiredWithoutProductionReportNestedInput
 }
@@ -1838,6 +2035,7 @@ export type ProductionReportUncheckedUpdateWithoutForecastDataInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ManPowerUid?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
+  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutProductionReportNestedInput
 }
 
 export type ProductionReportUncheckedUpdateManyWithoutForecastDataInput = {
@@ -1876,6 +2074,35 @@ export type ProductionReportUncheckedUpdateManyWithoutForecastDataInput = {
 }
 
 
+/**
+ * Count Type ProductionReportCountOutputType
+ */
+
+export type ProductionReportCountOutputType = {
+  MaterialNgCases: number
+}
+
+export type ProductionReportCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  MaterialNgCases?: boolean | ProductionReportCountOutputTypeCountMaterialNgCasesArgs
+}
+
+/**
+ * ProductionReportCountOutputType without action
+ */
+export type ProductionReportCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionReportCountOutputType
+   */
+  select?: Prisma.ProductionReportCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ProductionReportCountOutputType without action
+ */
+export type ProductionReportCountOutputTypeCountMaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MaterialNgCaseWhereInput
+}
+
 
 export type ProductionReportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
@@ -1911,9 +2138,11 @@ export type ProductionReportSelect<ExtArgs extends runtime.Types.Extensions.Inte
   ManPowerUid?: boolean
   FinishGoodId?: boolean
   ForecastId?: boolean
+  MaterialNgCases?: boolean | Prisma.ProductionReport$MaterialNgCasesArgs<ExtArgs>
   ManPowerData?: boolean | Prisma.ManPowerDefaultArgs<ExtArgs>
   FGData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
   ForecastData?: boolean | Prisma.ProductionReport$ForecastDataArgs<ExtArgs>
+  _count?: boolean | Prisma.ProductionReportCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionReport"]>
 
 export type ProductionReportSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2032,9 +2261,11 @@ export type ProductionReportSelectScalar = {
 
 export type ProductionReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Date" | "Time" | "ProductionStamp" | "NgQty" | "StartTime" | "StartStamp" | "EndTime" | "EndStamp" | "StopMinute" | "LatchDate" | "CableHDate" | "CableLDate" | "CoverDate" | "RodDate" | "SponsDate" | "SponsRearDate" | "ClipDate" | "LeverDate" | "SmallPadDate" | "ActuatorDate" | "BackPlateDate" | "StampDate" | "PoNumber" | "CreatedAt" | "UpdatedAt" | "ValidatedAt" | "ValidatedBy" | "RecordType" | "Qty" | "ManPowerUid" | "FinishGoodId" | "ForecastId", ExtArgs["result"]["productionReport"]>
 export type ProductionReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  MaterialNgCases?: boolean | Prisma.ProductionReport$MaterialNgCasesArgs<ExtArgs>
   ManPowerData?: boolean | Prisma.ManPowerDefaultArgs<ExtArgs>
   FGData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
   ForecastData?: boolean | Prisma.ProductionReport$ForecastDataArgs<ExtArgs>
+  _count?: boolean | Prisma.ProductionReportCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductionReportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ManPowerData?: boolean | Prisma.ManPowerDefaultArgs<ExtArgs>
@@ -2050,6 +2281,7 @@ export type ProductionReportIncludeUpdateManyAndReturn<ExtArgs extends runtime.T
 export type $ProductionReportPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductionReport"
   objects: {
+    MaterialNgCases: Prisma.$MaterialNgCasePayload<ExtArgs>[]
     ManPowerData: Prisma.$ManPowerPayload<ExtArgs>
     FGData: Prisma.$FinishGoodPayload<ExtArgs>
     ForecastData: Prisma.$ForecastPayload<ExtArgs> | null
@@ -2482,6 +2714,7 @@ readonly fields: ProductionReportFieldRefs;
  */
 export interface Prisma__ProductionReportClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  MaterialNgCases<T extends Prisma.ProductionReport$MaterialNgCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionReport$MaterialNgCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNgCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ManPowerData<T extends Prisma.ManPowerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ManPowerDefaultArgs<ExtArgs>>): Prisma.Prisma__ManPowerClient<runtime.Types.Result.GetResult<Prisma.$ManPowerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   FGData<T extends Prisma.FinishGoodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGoodDefaultArgs<ExtArgs>>): Prisma.Prisma__FinishGoodClient<runtime.Types.Result.GetResult<Prisma.$FinishGoodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ForecastData<T extends Prisma.ProductionReport$ForecastDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionReport$ForecastDataArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2945,6 +3178,30 @@ export type ProductionReportDeleteManyArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many ProductionReports to delete.
    */
   limit?: number
+}
+
+/**
+ * ProductionReport.MaterialNgCases
+ */
+export type ProductionReport$MaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MaterialNgCase
+   */
+  select?: Prisma.MaterialNgCaseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MaterialNgCase
+   */
+  omit?: Prisma.MaterialNgCaseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MaterialNgCaseInclude<ExtArgs> | null
+  where?: Prisma.MaterialNgCaseWhereInput
+  orderBy?: Prisma.MaterialNgCaseOrderByWithRelationInput | Prisma.MaterialNgCaseOrderByWithRelationInput[]
+  cursor?: Prisma.MaterialNgCaseWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MaterialNgCaseScalarFieldEnum | Prisma.MaterialNgCaseScalarFieldEnum[]
 }
 
 /**

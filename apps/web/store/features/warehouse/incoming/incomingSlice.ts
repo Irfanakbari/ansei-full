@@ -1,7 +1,7 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-07-14*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
-import { get, getApiErrorMessage, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
+import { get, post, getApiErrorMessage, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 // Attachment entity interface
 export interface AttachmentEntity {
@@ -187,14 +187,10 @@ export const receiveIncoming = createAsyncThunk(
     'incoming/receive',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth(`/api/warehouse/incoming/${id}/receive`, {
-                method: 'POST',
-            });
-            const data = await response.json();
-            if (!response.ok) return rejectWithValue(data.message || 'Failed to receive incoming');
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            const response = await post<ApiSuccessEnvelope<{ id: string; approvedAt: string; inventoryUpdated: boolean }>>(`/warehouse/incoming/${encodeURIComponent(id)}/receive`, {});
+            return response.data;
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to receive incoming'));
         }
     }
 );
@@ -350,10 +346,8 @@ const incomingSlice = createSlice({
             })
             // Receive
             .addCase(receiveIncoming.fulfilled, (state, action) => {
-                const index = state.data.findIndex(item => item.Id === action.payload.Id);
-                if (index !== -1) {
-                    state.data[index] = action.payload;
-                }
+                const item = state.data.find(item => item.Id === action.payload.id);
+                if (item) { item.Closed = true; item.ApprovedAt = action.payload.approvedAt; }
             })
             // Clear detail
             .addCase(clearIncomingDetail.fulfilled, (state) => {

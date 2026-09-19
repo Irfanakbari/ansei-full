@@ -1,3 +1,10 @@
+// These unit tests inject frozen requirement fixtures; real snapshot persistence is exercised by phase-one.database.spec.ts.
+jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
+  ...jest.requireActual('../../common/helpers/bom-snapshot.helper'),
+  snapshotBomEntries: (tx: {
+    snapshotRequirements: { findMany: () => Promise<unknown> };
+  }) => tx.snapshotRequirements.findMany(),
+}));
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { DeliveryService } from './delivery.service';
@@ -10,6 +17,7 @@ describe('DeliveryService', () => {
   let logService: any;
 
   const createMockTx = () => ({
+    productionTraceEvent: { create: jest.fn() },
     $executeRaw: jest.fn(),
     assemblySession: { findFirst: jest.fn().mockResolvedValue(null) },
     labelData: {
@@ -32,7 +40,7 @@ describe('DeliveryService', () => {
         ProductionRelease: { Status: 'RELEASED' },
       }),
     },
-    billOfMaterials: {
+    snapshotRequirements: {
       findMany: jest
         .fn()
         .mockResolvedValue([{ Qty: 1, MaterialData: { PartNumber: 'MAT-1' } }]),
@@ -61,7 +69,7 @@ describe('DeliveryService', () => {
     forecast: { findUnique: jest.fn() },
     finishGood: { findUnique: jest.fn() },
     productionRelease: { findUnique: jest.fn() },
-    billOfMaterials: { findMany: jest.fn() },
+    snapshotRequirements: { findMany: jest.fn() },
     shopping: { findMany: jest.fn() },
     deliveryHistory: {
       create: jest.fn(),
@@ -134,7 +142,7 @@ describe('DeliveryService', () => {
       mockPrismaService.productionRelease.findUnique.mockResolvedValue(
         mockProductionRelease,
       );
-      mockPrismaService.billOfMaterials.findMany.mockResolvedValue([]);
+      mockPrismaService.snapshotRequirements.findMany.mockResolvedValue([]);
       mockPrismaService.shopping.findMany.mockResolvedValue([]);
       mockPrismaService.finishGood.findUnique.mockResolvedValue(mockFinishGood);
       mockPrismaService.deliveryHistory.findFirst.mockResolvedValue(null); // No duplicate
@@ -190,7 +198,7 @@ describe('DeliveryService', () => {
           Id: 'release-1',
           Status: 'RELEASED',
         });
-        mockPrismaService.billOfMaterials.findMany.mockResolvedValue([]);
+        mockPrismaService.snapshotRequirements.findMany.mockResolvedValue([]);
         mockPrismaService.shopping.findMany.mockResolvedValue([]);
         mockPrismaService.deliveryHistory.findFirst.mockResolvedValue(null);
         const tx = createMockTx();

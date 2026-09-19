@@ -2,6 +2,22 @@
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import { get, getApiErrorMessage, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
 
+export interface ActionAuditEvent {
+    Id: string; SourceType: string; SourceId: string; Action: string;
+    Actor: string | null; ActorSource: string; RequestId: string | null; ProcessId: string | null;
+    Before: Record<string, unknown> | null; After: Record<string, unknown> | null; CreatedAt: string;
+}
+export interface ActionAuditQuery {
+    page?: number; limit?: number; processId?: string; requestId?: string;
+    sourceType?: string; sourceId?: string; action?: string; from?: string; to?: string;
+}
+export const fetchActionAudit = createAsyncThunk<PaginatedApiSuccessEnvelope<ActionAuditEvent>, ActionAuditQuery, { rejectValue: string }>(
+    'systemLog/actions', async (query, { rejectWithValue }) => {
+        try { return await get<PaginatedApiSuccessEnvelope<ActionAuditEvent>>('/system-log/actions', { params: { ...query } }); }
+        catch (error) { return rejectWithValue(getApiErrorMessage(error, 'Failed to load action audit')); }
+    },
+);
+
 export interface LogProcessDto {
     processId: string;
     functionId: string;

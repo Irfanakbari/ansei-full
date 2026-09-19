@@ -1,3 +1,4 @@
+import { auditContext, bindAuditContext } from './audit-context.helper';
 import { ConflictException } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client';
 import { ItemCategory } from '../../generated/prisma/enums';
@@ -28,6 +29,7 @@ export async function withInventoryTransaction<T>(
     try {
       return await prisma.$transaction(
         async (tx) => {
+          await bindAuditContext(tx);
           await lockInventoryCategory(tx, category);
           return operation(tx);
         },
@@ -37,6 +39,25 @@ export async function withInventoryTransaction<T>(
       const isRetryable =
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2034';
+      const context = auditContext.getStore();
+      if (isRetryable && context) {
+        await prisma.actionAuditEvent.create({
+          data: {
+            SourceType: 'InventoryTransaction',
+            SourceId: category,
+            Action: 'RETRY',
+            Actor: context.actor,
+            ActorSource: context.actor ? 'REQUEST_CONTEXT' : 'UNATTRIBUTED',
+            ProcessId: context.processId,
+            RequestId: context.requestId,
+            After: {
+              failedAttempt: attempt,
+              maximumAttempts: MAX_TRANSACTION_ATTEMPTS,
+              willRetry: attempt < MAX_TRANSACTION_ATTEMPTS,
+            },
+          },
+        });
+      }
       if (!isRetryable || attempt === MAX_TRANSACTION_ATTEMPTS) {
         if (isRetryable) {
           throw new ConflictException(

@@ -27,6 +27,7 @@ export class TransferController {
       partNumber,
       dto.qty,
       user.username,
+      dto.requestId,
     );
   }
 }

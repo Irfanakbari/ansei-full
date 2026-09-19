@@ -185,6 +185,11 @@ export type DashboardSetting = Prisma.DashboardSettingModel
  */
 export type LogProcess = Prisma.LogProcessModel
 /**
+ * Model ActionAuditEvent
+ * 
+ */
+export type ActionAuditEvent = Prisma.ActionAuditEventModel
+/**
  * Model LogProcessDetail
  * 
  */
@@ -239,3 +244,43 @@ export type ApiKey = Prisma.ApiKeyModel
  * 
  */
 export type DisplayConfig = Prisma.DisplayConfigModel
+/**
+ * Model BomRevision
+ * 
+ */
+export type BomRevision = Prisma.BomRevisionModel
+/**
+ * Model BomRevisionLine
+ * 
+ */
+export type BomRevisionLine = Prisma.BomRevisionLineModel
+/**
+ * Model BomRevisionEvent
+ * 
+ */
+export type BomRevisionEvent = Prisma.BomRevisionEventModel
+/**
+ * Model ProductionBomSnapshot
+ * 
+ */
+export type ProductionBomSnapshot = Prisma.ProductionBomSnapshotModel
+/**
+ * Model ProductionBomSnapshotLine
+ * 
+ */
+export type ProductionBomSnapshotLine = Prisma.ProductionBomSnapshotLineModel
+/**
+ * Model MaterialNgCase
+ * 
+ */
+export type MaterialNgCase = Prisma.MaterialNgCaseModel
+/**
+ * Model BusinessCommand
+ * 
+ */
+export type BusinessCommand = Prisma.BusinessCommandModel
+/**
+ * Model ProductionTraceEvent
+ * 
+ */
+export type ProductionTraceEvent = Prisma.ProductionTraceEventModel
