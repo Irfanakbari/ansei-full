@@ -1,17 +1,18 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
-import React, { useState } from 'react';
-import { Modal, Form, Input, App } from 'antd';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store';
-import { createSatuan, fetchSatuan } from '@/store/features/master/satuanSlice';
+import React, {useState} from 'react';
+import {Modal, Form, Input, App} from 'antd';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '@/store';
+import {createSatuan} from '@/store/features/master/satuanSlice';
 
 interface Props {
     visible: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-const CreateSatuanModal: React.FC<Props> = ({ visible, onClose }) => {
-    const { message } = App.useApp();
+const CreateSatuanModal: React.FC<Props> = ({visible, onClose, onSuccess}) => {
+    const {message} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -35,7 +36,7 @@ const CreateSatuanModal: React.FC<Props> = ({ visible, onClose }) => {
 
             }
             message.success('Unit created successfully');
-            dispatch(fetchSatuan());
+            onSuccess?.();
             form.resetFields();
             onClose();
         } catch (error: unknown) {
@@ -64,8 +65,8 @@ const CreateSatuanModal: React.FC<Props> = ({ visible, onClose }) => {
             zIndex={1050}
         >
             <Form form={form} layout="vertical">
-                <Form.Item name="name" label="Unit Name" rules={[{ required: true, message: 'Please enter unit name' }]}>
-                    <Input placeholder="Enter unit name" />
+                <Form.Item name="name" label="Unit Name" rules={[{required: true, message: 'Please enter unit name'}]}>
+                    <Input placeholder="Enter unit name"/>
                 </Form.Item>
             </Form>
         </Modal>

@@ -1,17 +1,18 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
-import React, { useState } from 'react';
-import { Modal, Form, Input, InputNumber, Switch, App } from 'antd';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store';
-import { createFinishGood, fetchFinishGood } from '@/store/features/master/finishGoodSlice';
+import React, {useState} from 'react';
+import {Modal, Form, Input, InputNumber, Switch, App} from 'antd';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '@/store';
+import {createFinishGood} from '@/store/features/master/finishGoodSlice';
 
 interface Props {
     visible: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-const CreateFinishGoodModal: React.FC<Props> = ({ visible, onClose }) => {
-    const { message } = App.useApp();
+const CreateFinishGoodModal: React.FC<Props> = ({visible, onClose, onSuccess}) => {
+    const {message} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -40,7 +41,7 @@ const CreateFinishGoodModal: React.FC<Props> = ({ visible, onClose }) => {
 
             }
             message.success('Finish good created successfully');
-            dispatch(fetchFinishGood());
+            onSuccess?.();
             form.resetFields();
             onClose();
         } catch (error: unknown) {
@@ -68,24 +69,28 @@ const CreateFinishGoodModal: React.FC<Props> = ({ visible, onClose }) => {
             width={500}
             zIndex={1050}
         >
-            <Form form={form} layout="vertical" initialValues={{ isPassthrough: false }}>
-                <Form.Item name="partNumber" label="Part Number" rules={[{ required: true, message: 'Please enter part number' }]}>
-                    <Input placeholder="Enter part number" />
+            <Form form={form} layout="vertical" initialValues={{isPassthrough: false}}>
+                <Form.Item name="partNumber" label="Part Number"
+                           rules={[{required: true, message: 'Please enter part number'}]}>
+                    <Input placeholder="Enter part number"/>
                 </Form.Item>
-                <Form.Item name="partName" label="Part Name" rules={[{ required: true, message: 'Please enter part name' }]}>
-                    <Input placeholder="Enter part name" />
+                <Form.Item name="partName" label="Part Name"
+                           rules={[{required: true, message: 'Please enter part name'}]}>
+                    <Input placeholder="Enter part name"/>
                 </Form.Item>
-                <Form.Item name="isPassthrough" label="Passthrough (skip Assy)" valuePropName="checked" extra="Applies to labels created in the next production release.">
-                    <Switch checkedChildren="Yes" unCheckedChildren="No" />
+                <Form.Item name="isPassthrough" label="Passthrough (skip Assy)" valuePropName="checked"
+                           extra="Applies to labels created in the next production release.">
+                    <Switch checkedChildren="Yes" unCheckedChildren="No"/>
                 </Form.Item>
                 <Form.Item name="alias" label="Alias">
-                    <Input placeholder="Enter alias (optional)" />
+                    <Input placeholder="Enter alias (optional)"/>
                 </Form.Item>
                 <Form.Item name="price" label="Price">
-                    <InputNumber placeholder="0" min={0} style={{ width: '100%' }} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} />
+                    <InputNumber placeholder="0" min={0} style={{width: '100%'}}
+                                 formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}/>
                 </Form.Item>
                 <Form.Item name="qty" label="Qty">
-                    <InputNumber placeholder="0" min={0} style={{ width: '100%' }} />
+                    <InputNumber placeholder="0" min={0} style={{width: '100%'}}/>
                 </Form.Item>
             </Form>
         </Modal>

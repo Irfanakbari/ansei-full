@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsNumber, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsDateString,
+  IsInt,
+  Min,
+} from 'class-validator';
 
 export class CreateForecastDto {
   /** PO ID dari customer */
@@ -32,8 +39,13 @@ export class CreateForecastDto {
   @IsDateString()
   deliveryDate: Date;
 
-  @ApiProperty({ description: 'Periode pengiriman', example: 1 })
-  @IsNumber()
+  @ApiProperty({
+    description: 'Delivery cycle / ritase count (number of delivery trips)',
+    example: 5,
+    minimum: 1,
+  })
+  @IsInt()
+  @Min(1)
   deliveryPeriod: number;
 
   @ApiProperty({ description: 'Klasifikasi', example: 'REGULER' })

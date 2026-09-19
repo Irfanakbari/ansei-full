@@ -1,21 +1,24 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-06-16 */
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Table, Card, Breadcrumb, App, Input, Button, Space, Tag, Tooltip, Progress } from 'antd';
-import type { InputRef } from 'antd';
-import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, StopOutlined, TagsOutlined } from '@ant-design/icons';
+import React, {useState, useEffect, useRef} from 'react';
+import {Table, Card, Breadcrumb, Input, Button, Space, Tag, Tooltip, Progress} from 'antd';
+import type {InputRef} from 'antd';
+import {ReloadOutlined, SearchOutlined, PlusOutlined, StopOutlined, TagsOutlined} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { ProductionReleaseEntity, fetchProductionRelease, deleteProductionRelease, clearDetail } from '@/store/features/production/productionRelease/productionReleaseSlice';
-import DetailProductionReleaseModal from './_components/DetailProductionReleaseModal';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
+import {
+    ProductionReleaseEntity,
+    fetchProductionRelease
+} from '@/store/features/production/productionRelease/productionReleaseSlice';
 import CreateProductionReleaseModal from './_components/CreateProductionReleaseModal';
-import EditProductionReleaseModal from './_components/EditProductionReleaseModal';
+import ProductionReleaseModal from './_components/ProductionReleaseModal';
 import ManageForecastsModal from './_components/ManageForecastsModal';
 import CancelProductionReleaseModal from './_components/CancelProductionReleaseModal';
-import { formatDateTime } from '@/lib/utils/dateTime';
+import {formatDateTime} from '@/lib/utils/dateTime';
+import GoldenArrowAction from '@/components/GoldenArrowAction';
 
 const STATUS_COLORS: Record<string, string> = {
     PENDING: 'warning',
@@ -25,20 +28,21 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function ProductionReleasePage() {
-    const { message, modal } = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, pagination } = useSelector((state: RootState) => state.productionRelease);
+    const {data, loading, pagination} = useSelector((state: RootState) => state.productionRelease);
 
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-    const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
+    const [selectedRecord, setSelectedRecord] = useState<ProductionReleaseEntity | null>(null);
+    const [modalData, setModalData] = useState<ProductionReleaseEntity | null>(null);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isManageModalVisible, setIsManageModalVisible] = useState(false);
     const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
-    const [detailData, setDetailData] = useState<ProductionReleaseEntity | null>(null);
-    const [editData, setEditData] = useState<ProductionReleaseEntity | null>(null);
     const [sortedInfo, setSortedInfo] = useState<any>({});
-    const [query, setQuery] = useState({ page: 1, limit: 50, search: undefined as string | undefined, status: undefined as string | undefined });
+    const [query, setQuery] = useState({
+        page: 1,
+        limit: 50,
+        search: undefined as string | undefined,
+        status: undefined as string | undefined
+    });
 
     const searchInput = useRef<InputRef>(null);
 
@@ -46,92 +50,45 @@ export default function ProductionReleasePage() {
         dispatch(fetchProductionRelease(query));
     }, [dispatch, query]);
 
-    const selectedRecord = Array.isArray(data) ? data.find((item) => item.Id === selectedRowKeys[0]) : undefined;
-
-    const handleViewDetail = () => {
-        if (selectedRecord) {
-            setDetailData(selectedRecord);
-            setIsDetailModalVisible(true);
-        }
-    };
-
-    const handleCloseDetailModal = () => {
-        setIsDetailModalVisible(false);
-        setDetailData(null);
-        dispatch(clearDetail());
-    };
-
-    const handleEdit = () => {
-        if (selectedRecord) {
-            setEditData(selectedRecord);
-            setIsEditModalVisible(true);
-        }
-    };
-
-    const handleCloseEditModal = () => {
-        setIsEditModalVisible(false);
-        setEditData(null);
-    };
-
-    const handleDelete = () => {
-        if (selectedRecord) {
-            modal.confirm({
-                title: 'Delete Production Release?',
-                icon: <DeleteOutlined />,
-                content: `Delete release ${selectedRecord.ReleaseNumber}?`,
-                okText: 'Delete',
-                okType: 'danger',
-                cancelText: 'Cancel',
-                centered: true,
-                onOk: async () => {
-                    try {
-                        const result = await dispatch(deleteProductionRelease(selectedRecord.Id));
-
-                        if (deleteProductionRelease.rejected.match(result)) {
-                            throw new Error((result.payload as string) || 'Failed to delete production release');
-                        }
-                        message.success('Production release deleted successfully');
-                        setSelectedRowKeys([]);
-                        dispatch(fetchProductionRelease(query));
-                    } catch (error: unknown) {
-                        const err = error as Error;
-                        message.error(err?.message || String(error) || 'Failed to delete production release');
-                    }
-                },
-            });
-        }
-    };
-
     const handleTableChange = (tablePagination: any, filters: any, sorter: any) => {
         setSortedInfo(sorter);
         const search = String(filters.ReleaseNumber?.[0] ?? '') || undefined;
         const status = String(filters.Status?.[0] ?? '') || undefined;
-        setQuery({ page: search !== query.search || status !== query.status ? 1 : tablePagination.current ?? 1, limit: tablePagination.pageSize ?? 50, search, status });
+        setQuery({
+            page: search !== query.search || status !== query.status ? 1 : tablePagination.current ?? 1,
+            limit: tablePagination.pageSize ?? 50,
+            search,
+            status
+        });
     };
 
     const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: any) => (
+            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
                 <Input
                     ref={searchInput as any}
                     placeholder={`Search ${dataIndex}`}
                     value={selectedKeys[0]}
                     onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={() => confirm()}
-                    style={{ marginBottom: 8, display: 'block' }}
+                    style={{marginBottom: 8, display: 'block'}}
                 />
                 <Space>
-                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined/>} size="small"
+                            style={{width: 90}}>
                         Search
                     </Button>
-                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
+                    <Button onClick={() => {
+                        if (clearFilters) clearFilters();
+                        confirm();
+                    }} size="small" style={{width: 90}}>
                         Reset
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+            <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
         ),
     });
 
@@ -141,10 +98,19 @@ export default function ProductionReleasePage() {
             dataIndex: 'ReleaseNumber',
             key: 'ReleaseNumber',
             ellipsis: true,
-            render: (val: string) => <Tooltip title={val}><code style={{ fontSize: 11 }}>{val}</code></Tooltip>,
-             ...getColumnSearchProps('ReleaseNumber'),
-             filteredValue: query.search ? [query.search] : null,
-         },
+            render: (val: string, record: ProductionReleaseEntity) => (
+                <Space size={4}>
+                    <GoldenArrowAction tooltip="View production release"
+                                       ariaLabel={`View production release ${record.ReleaseNumber}`} onClick={() => {
+                        setSelectedRecord(record);
+                        setModalData(record);
+                    }}/>
+                    <Tooltip title={val}><code style={{fontSize: 11}}>{val}</code></Tooltip>
+                </Space>
+            ),
+            ...getColumnSearchProps('ReleaseNumber'),
+            filteredValue: query.search ? [query.search] : null,
+        },
         {
             title: 'Plan Date',
             dataIndex: 'PlanDate',
@@ -165,15 +131,15 @@ export default function ProductionReleasePage() {
             dataIndex: 'Status',
             key: 'Status',
             filters: [
-                { text: 'DRAFT', value: 'DRAFT' },
-                { text: 'RELEASED', value: 'RELEASED' },
-                { text: 'COMPLETED', value: 'COMPLETED' },
-                { text: 'CANCELLED', value: 'CANCELLED' },
+                {text: 'DRAFT', value: 'DRAFT'},
+                {text: 'RELEASED', value: 'RELEASED'},
+                {text: 'COMPLETED', value: 'COMPLETED'},
+                {text: 'CANCELLED', value: 'CANCELLED'},
             ],
             filteredValue: query.status ? [query.status] : null,
             render: (_: any, record: ProductionReleaseEntity) => (
                 <div>
-                    <Tag color={STATUS_COLORS[record.Status] || 'default'} style={{ marginBottom: 4 }}>
+                    <Tag color={STATUS_COLORS[record.Status] || 'default'} style={{marginBottom: 4}}>
                         {record.Status}
                     </Tag>
                     {/* Only show progress bar if status is RELEASED */}
@@ -190,25 +156,22 @@ export default function ProductionReleasePage() {
     ];
 
     return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
-            <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Production' }, { title: 'Production Release' }]} />
+        <Card variant="borderless" styles={{body: {padding: 0}}}>
+            <Breadcrumb style={{marginBottom: 16}}
+                        items={[{title: 'Home'}, {title: 'Production'}, {title: 'Production Release'}]}/>
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchProductionRelease(query))} />
-                <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
-                <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Manage Forecasts" icon={<TagsOutlined />} onClick={() => setIsManageModalVisible(true)} enable={selectedRecord?.Status === 'RELEASED'} />
-                <ButtonToolbar title="Cancel Release" icon={<StopOutlined />} onClick={() => setIsCancelModalVisible(true)} enable={selectedRecord?.Status === 'RELEASED'} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>}
+                               onClick={() => dispatch(fetchProductionRelease(query))}/>
+                <ButtonToolbar title="Create" icon={<PlusOutlined/>} onClick={() => setIsCreateModalVisible(true)}/>
+                <ButtonToolbar title="Manage Forecasts" icon={<TagsOutlined/>}
+                               onClick={() => setIsManageModalVisible(true)}
+                               enable={selectedRecord?.Status === 'RELEASED'}/>
+                <ButtonToolbar title="Cancel Release" icon={<StopOutlined/>}
+                               onClick={() => setIsCancelModalVisible(true)}
+                               enable={selectedRecord?.Status === 'RELEASED'}/>
             </ToolbarWrapper>
 
             <Table
-                rowSelection={{
-                    selectedRowKeys,
-                    onChange: (keys) => setSelectedRowKeys(keys),
-                    checkStrictly: true,
-                    type: 'radio',
-                }}
                 columns={columns}
                 dataSource={data}
                 size="small"
@@ -223,18 +186,22 @@ export default function ProductionReleasePage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
+                onRow={(record) => ({onClick: () => setSelectedRecord(record)})}
+                rowClassName={(record) => record.Id === selectedRecord?.Id ? 'ant-table-row-selected' : ''}
+                scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"
-                style={{ fontSize: '11px' }}
+                style={{fontSize: '11px'}}
             />
 
-            {detailData && (
-                <DetailProductionReleaseModal
-                    visible={isDetailModalVisible}
-                    onClose={handleCloseDetailModal}
-                    data={detailData}
-                />
-            )}
+            <ProductionReleaseModal open={modalData !== null} data={modalData} onClose={() => setModalData(null)}
+                                    onUpdated={() => {
+                                        setModalData(null);
+                                        void dispatch(fetchProductionRelease(query));
+                                    }} onDeleted={() => {
+                setSelectedRecord(null);
+                setModalData(null);
+                void dispatch(fetchProductionRelease(query));
+            }}/>
 
             <CreateProductionReleaseModal
                 visible={isCreateModalVisible}
@@ -242,17 +209,16 @@ export default function ProductionReleasePage() {
                 onSuccess={() => dispatch(fetchProductionRelease(query))}
             />
 
-            {editData && (
-                <EditProductionReleaseModal
-                    visible={isEditModalVisible}
-                    onClose={handleCloseEditModal}
-                    data={editData}
-                    onSuccess={() => dispatch(fetchProductionRelease(query))}
-                />
-            )}
-
-            <ManageForecastsModal open={isManageModalVisible} release={selectedRecord ?? null} onClose={() => setIsManageModalVisible(false)} onSuccess={() => { setSelectedRowKeys([]); dispatch(fetchProductionRelease(query)); }} />
-            <CancelProductionReleaseModal open={isCancelModalVisible} release={selectedRecord ?? null} onClose={() => setIsCancelModalVisible(false)} onSuccess={() => { setSelectedRowKeys([]); dispatch(fetchProductionRelease(query)); }} />
+            <ManageForecastsModal open={isManageModalVisible} release={selectedRecord}
+                                  onClose={() => setIsManageModalVisible(false)} onSuccess={() => {
+                setSelectedRecord(null);
+                dispatch(fetchProductionRelease(query));
+            }}/>
+            <CancelProductionReleaseModal open={isCancelModalVisible} release={selectedRecord}
+                                          onClose={() => setIsCancelModalVisible(false)} onSuccess={() => {
+                setSelectedRecord(null);
+                dispatch(fetchProductionRelease(query));
+            }}/>
 
         </Card>
     );

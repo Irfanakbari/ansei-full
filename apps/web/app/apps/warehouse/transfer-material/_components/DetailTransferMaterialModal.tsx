@@ -1,23 +1,25 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Modal, Table, Tag, Button, Space, Descriptions, Statistic, Card, Row, Col, App, InputNumber } from 'antd';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store';
+import React, {useState, useEffect} from 'react';
+import {Modal, Table, Tag, Button, Space, Descriptions, Statistic, Card, Row, Col, App, InputNumber} from 'antd';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
 import {
     pickTransferMaterial,
     TransferMaterialEntity,
     TransferMaterialDetailEntity,
     PickMaterialDto,
+    deleteTransferMaterial,
 } from '@/store/features/warehouse/transferMaterial/transferMaterialSlice';
-import { SaveOutlined, SyncOutlined, ScissorOutlined } from '@ant-design/icons';
+import {SaveOutlined, SyncOutlined, ScissorOutlined, DeleteOutlined} from '@ant-design/icons';
 
 interface Props {
     visible: boolean;
     onClose: () => void;
     data: TransferMaterialEntity;
     onRefresh?: () => void;
+    onDeleted: () => void;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -27,15 +29,50 @@ const STATUS_COLORS: Record<string, string> = {
     CANCELLED: 'error',
 };
 
-const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, onRefresh }) => {
-    const { message: antMessage } = App.useApp();
+const DetailTransferMaterialModal: React.FC<Props> = ({visible, onClose, data, onRefresh, onDeleted}) => {
+    const {message: antMessage, modal} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
+    const {user} = useSelector((state: RootState) => state.auth);
 
     const [isPickingMode, setIsPickingMode] = useState(false);
     const [localDetails, setLocalDetails] = useState<TransferMaterialDetailEntity[]>([]);
     const [editingKey, setEditingKey] = useState<string | null>(null);
     const [editingValue, setEditingValue] = useState<number>(0);
     const [updatingKey, setUpdatingKey] = useState<string | null>(null);
+    const [deleting, setDeleting] = useState(false);
+    const can = (permission: string) => Boolean(
+        user?.RoleName === 'SUPER' ||
+        user?.GlobalRoles?.includes('SUPER_ADMINISTRATOR') ||
+        user?.Permission?.some((value) => value === 'SUPER' || value === '*' || value === permission)
+    );
+    const canUpdate = can('IPCS.TRANSFER_MATERIAL_UPDATE');
+    const canDelete = can('IPCS.TRANSFER_MATERIAL_DELETE');
+
+    const handleDelete = () => {
+        if (data.Status !== 'DRAFT' || !canDelete || deleting) return;
+        modal.confirm({
+            title: 'Delete Transfer Material?',
+            icon: <DeleteOutlined/>,
+            content: `Delete delivery note ${data.DeliveryNoteNum}?`,
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
+            onOk: async () => {
+                setDeleting(true);
+                try {
+                    await dispatch(deleteTransferMaterial(data.Id)).unwrap();
+                    antMessage.success('Transfer material deleted successfully');
+                    onDeleted();
+                } catch (error: unknown) {
+                    antMessage.error(typeof error === 'string' ? error : 'Failed to delete transfer material');
+                    throw error;
+                } finally {
+                    setDeleting(false);
+                }
+            },
+        });
+    };
 
     // Sync local details when data changes
     useEffect(() => {
@@ -66,7 +103,7 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                     qtyPicking: editingValue,
                 }],
             };
-            const result = await dispatch(pickTransferMaterial({ id: data.Id, dto }));
+            const result = await dispatch(pickTransferMaterial({id: data.Id, dto}));
             if (pickTransferMaterial.rejected.match(result)) {
                 throw new Error((result.payload as string) || 'Failed to update picking qty');
             }
@@ -75,7 +112,7 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
             // Update local state immediately
             setLocalDetails(prev =>
                 prev.map(d =>
-                    d.MaterialId === materialId ? { ...d, QtyPicking: editingValue } : d
+                    d.MaterialId === materialId ? {...d, QtyPicking: editingValue} : d
                 )
             );
 
@@ -120,7 +157,7 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                     qtyPicking: item.QtyPicking,
                 })),
             };
-            const result = await dispatch(pickTransferMaterial({ id: data.Id, dto }));
+            const result = await dispatch(pickTransferMaterial({id: data.Id, dto}));
             if (pickTransferMaterial.rejected.match(result)) {
                 throw new Error((result.payload as string) || 'Failed to save picking');
             }
@@ -144,8 +181,8 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
             key: 'transfer-material-col',
             render: (_: unknown, record: TransferMaterialDetailEntity) => (
                 <div key={`material-${record.MaterialId}`}>
-                    <code style={{ fontSize: 11 }}>{record.MaterialId}</code>
-                    <div style={{ fontSize: 10, color: '#666' }}>
+                    <code style={{fontSize: 11}}>{record.MaterialId}</code>
+                    <div style={{fontSize: 10, color: '#666'}}>
                         {record.MaterialData?.PartName || '-'}
                     </div>
                 </div>
@@ -180,12 +217,12 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                             max={record.MaterialData?.QtyWarehouse || 9999}
                             value={editingValue}
                             onChange={(value) => setEditingValue(value || 0)}
-                            style={{ width: 80 }}
+                            style={{width: 80}}
                         />
                     );
                 }
                 return (
-                    <a onClick={() => handleStartEdit(record.MaterialId)} style={{ cursor: 'pointer' }}>
+                    <a onClick={() => handleStartEdit(record.MaterialId)} style={{cursor: 'pointer'}}>
                         {val > 0 ? val : <Tag color="orange">Not Set</Tag>}
                     </a>
                 );
@@ -219,7 +256,7 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                         <Button
                             type="primary"
                             size="small"
-                            icon={<SaveOutlined />}
+                            icon={<SaveOutlined/>}
                             loading={updatingKey === record.MaterialId}
                             onClick={() => handleSaveEdit(record.MaterialId)}
                         >
@@ -242,12 +279,21 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
             title={`Transfer Material: ${data?.DeliveryNoteNum || '-'}`}
             open={visible}
             onCancel={onClose}
-            footer={null}
+            footer={
+                <Space>
+                    {isDraft && canDelete && (
+                        <Button danger icon={<DeleteOutlined/>} onClick={handleDelete} loading={deleting}>
+                            Delete
+                        </Button>
+                    )}
+                    <Button onClick={onClose}>Close</Button>
+                </Space>
+            }
             centered
             width={900}
             zIndex={1050}
         >
-            <Descriptions size="small" column={4} style={{ marginBottom: 16 }}>
+            <Descriptions size="small" column={4} style={{marginBottom: 16}}>
                 <Descriptions.Item label="Destination">
                     {data?.Destination || '-'}
                 </Descriptions.Item>
@@ -262,13 +308,13 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                 </Descriptions.Item>
             </Descriptions>
 
-            <Row gutter={16} style={{ marginBottom: 16 }}>
+            <Row gutter={16} style={{marginBottom: 16}}>
                 <Col span={6}>
                     <Card size="small">
                         <Statistic
                             title="Total Items"
                             value={localDetails.length}
-                            prefix={<SyncOutlined />}
+                            prefix={<SyncOutlined/>}
                         />
                     </Card>
                 </Col>
@@ -277,7 +323,7 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                         <Statistic
                             title="Picked"
                             value={pickedCount}
-                            styles={{ content: { color: '#3f8600' } }}
+                            styles={{content: {color: '#3f8600'}}}
                         />
                     </Card>
                 </Col>
@@ -286,19 +332,19 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                         <Statistic
                             title="Received"
                             value={receivedCount}
-                            styles={{ content: { color: '#1890ff' } }}
+                            styles={{content: {color: '#1890ff'}}}
                         />
                     </Card>
                 </Col>
                 <Col span={6}>
                     <Card size="small">
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
                             {!isPickingMode ? (
                                 <Button
                                     type="primary"
-                                    icon={<ScissorOutlined />}
+                                    icon={<ScissorOutlined/>}
                                     onClick={handleStartPickingMode}
-                                    disabled={!isDraft}
+                                    disabled={!isDraft || !canUpdate}
                                 >
                                     Start Picking
                                 </Button>
@@ -306,7 +352,7 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                                 <Space>
                                     <Button
                                         type="primary"
-                                        icon={<SaveOutlined />}
+                                        icon={<SaveOutlined/>}
                                         onClick={handleSaveAllPicking}
                                         loading={updatingKey !== null}
                                     >
@@ -323,13 +369,19 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
             </Row>
 
             {data?.Notes && (
-                <div style={{ marginBottom: 16, padding: 8, background: '#f5f5f5', borderRadius: 4 }}>
+                <div style={{marginBottom: 16, padding: 8, background: '#f5f5f5', borderRadius: 4}}>
                     <strong>Notes:</strong> {data.Notes}
                 </div>
             )}
 
             {isPickingMode && (
-                <div style={{ marginBottom: 8, padding: 8, background: '#e6f7ff', borderRadius: 4, border: '1px solid #91d5ff' }}>
+                <div style={{
+                    marginBottom: 8,
+                    padding: 8,
+                    background: '#e6f7ff',
+                    borderRadius: 4,
+                    border: '1px solid #91d5ff'
+                }}>
                     <strong>Picking Mode:</strong> Click Edit to change picking qty per item, then Save All to save.
                 </div>
             )}
@@ -339,9 +391,9 @@ const DetailTransferMaterialModal: React.FC<Props> = ({ visible, onClose, data, 
                 dataSource={localDetails}
                 rowKey="MaterialId"
                 size="small"
-                pagination={{ pageSize: 20 }}
-                scroll={{ x: 'max-content', y: 400 }}
-                style={{ maxHeight: 450 }}
+                pagination={{pageSize: 20}}
+                scroll={{x: 'max-content', y: 400}}
+                style={{maxHeight: 450}}
             />
         </Modal>
     );

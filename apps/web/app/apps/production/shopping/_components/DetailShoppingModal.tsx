@@ -2,10 +2,11 @@
 "use client";
 
 import React from 'react';
-import { Modal, Descriptions, Tag, Space, Button } from 'antd';
-import { EyeOutlined, ArrowRightOutlined } from '@ant-design/icons';
-import { ShoppingEntity } from '@/store/features/production/shopping/shoppingSlice';
+import {Modal, Descriptions, Tag, Space} from 'antd';
+import {EyeOutlined} from '@ant-design/icons';
+import {ShoppingEntity} from '@/store/features/production/shopping/shoppingSlice';
 import FinishGoodLinkedModal from '@/components/production/FinishGoodLinkedModal';
+import GoldenArrowAction from '@/components/GoldenArrowAction';
 
 interface Props {
     visible: boolean;
@@ -25,13 +26,13 @@ const formatDT = (val: string | null | undefined) => {
     });
 };
 
-const DetailShoppingModal: React.FC<Props> = ({ visible, onClose, data }) => {
+const DetailShoppingModal: React.FC<Props> = ({visible, onClose, data}) => {
     const [linkedFinishGood, setLinkedFinishGood] = React.useState<string | null>(null);
     return (
         <Modal
             title={
                 <Space>
-                    <EyeOutlined />
+                    <EyeOutlined/>
                     <span>Shopping Detail · {data.ForecastId || 'Non-production'}</span>
                 </Space>
             }
@@ -55,23 +56,32 @@ const DetailShoppingModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 <Descriptions.Item label="Qty Pick">
                     <strong>{data.QtyPick}</strong>
                 </Descriptions.Item>
+                <Descriptions.Item label="Pick Type">
+                    {data.Type || '-'}
+                </Descriptions.Item>
                 <Descriptions.Item label="Material" span={2}>
                     {data.MaterialData?.PartNumber} - {data.MaterialData?.PartName}
                 </Descriptions.Item>
                 {data.ForecastData?.FinishGoodId && (
                     <Descriptions.Item label="Finish Good" span={2}>
                         <Space size={4}>
-                            <Button type="text" size="small" aria-label={`View Finish Good ${data.ForecastData.FinishGoodId}`} icon={<ArrowRightOutlined style={{ color: '#d4a106', fontSize: 12 }} />} onClick={() => setLinkedFinishGood(data.ForecastData.FinishGoodId)} style={{ width: 20, minWidth: 20, height: 20, padding: 0 }} />
+                            <GoldenArrowAction tooltip="View Finish Good details"
+                                               ariaLabel={`View Finish Good ${data.ForecastData.FinishGoodId}`}
+                                               onClick={() => setLinkedFinishGood(data.ForecastData.FinishGoodId)}/>
                             <span>{data.ForecastData.FinishGoodId}</span>
                         </Space>
                     </Descriptions.Item>
                 )}
-                {data.Destination && <Descriptions.Item label="Destination" span={2}>{data.Destination}</Descriptions.Item>}
+                {data.Destination &&
+                    <Descriptions.Item label="Destination" span={2}>{data.Destination}</Descriptions.Item>}
                 <Descriptions.Item label="Rack Qty">
                     {data.MaterialData?.QtyRack}
                 </Descriptions.Item>
                 <Descriptions.Item label="Created At">
                     {formatDT(data.CreatedAt)}
+                </Descriptions.Item>
+                <Descriptions.Item label="Updated At" span={2}>
+                    {formatDT(data.UpdatedAt)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Description" span={2}>
                     {data.Description || '-'}
@@ -80,7 +90,8 @@ const DetailShoppingModal: React.FC<Props> = ({ visible, onClose, data }) => {
                     {data.CreatedByName || '-'}
                 </Descriptions.Item>
             </Descriptions>
-            <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood} onClose={() => setLinkedFinishGood(null)} />
+            <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood}
+                                   onClose={() => setLinkedFinishGood(null)}/>
         </Modal>
     );
 };

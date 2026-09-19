@@ -1,17 +1,18 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
-import React, { useState } from 'react';
-import { Modal, Form, Input, App } from 'antd';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store';
-import { createSupplier, fetchSupplier } from '@/store/features/master/supplierSlice';
+import React, {useState} from 'react';
+import {Modal, Form, Input, App} from 'antd';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '@/store';
+import {createSupplier} from '@/store/features/master/supplierSlice';
 
 interface Props {
     visible: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-const CreateSupplierModal: React.FC<Props> = ({ visible, onClose }) => {
-    const { message } = App.useApp();
+const CreateSupplierModal: React.FC<Props> = ({visible, onClose, onSuccess}) => {
+    const {message} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -35,7 +36,7 @@ const CreateSupplierModal: React.FC<Props> = ({ visible, onClose }) => {
 
             }
             message.success('Supplier created successfully');
-            dispatch(fetchSupplier());
+            onSuccess?.();
             form.resetFields();
             onClose();
         } catch (error: unknown) {
@@ -64,8 +65,9 @@ const CreateSupplierModal: React.FC<Props> = ({ visible, onClose }) => {
             zIndex={1050}
         >
             <Form form={form} layout="vertical">
-                <Form.Item name="name" label="Supplier Name" rules={[{ required: true, message: 'Please enter supplier name' }]}>
-                    <Input placeholder="Enter supplier name" />
+                <Form.Item name="name" label="Supplier Name"
+                           rules={[{required: true, message: 'Please enter supplier name'}]}>
+                    <Input placeholder="Enter supplier name"/>
                 </Form.Item>
             </Form>
         </Modal>

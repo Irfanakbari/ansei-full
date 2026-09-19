@@ -47,7 +47,7 @@ import {
 import CreditInformationModal from "./_components/CreditInformationModal";
 import "../batik.css";
 
-const APP_VERSION = "4.0.4";
+const APP_VERSION = "4.9.0";
 const APP_YEAR = "2026";
 
 const LATEST_RELEASE_SUMMARY = [
@@ -510,6 +510,8 @@ const getMenuKeyFromPath = (path: string): string => {
     return "wh-inventory-counting";
   if (path.startsWith("/apps/production/forecast")) return "prod-forecast";
   if (path.startsWith("/apps/production/assembly")) return "prod-assembly";
+  if (path.startsWith("/apps/production/material-ng"))
+    return "prod-material-ng";
   if (path.startsWith("/apps/production/production-release"))
     return "prod-release";
   if (path.startsWith("/apps/production/shopping")) return "prod-shopping";

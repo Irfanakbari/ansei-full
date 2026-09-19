@@ -1,11 +1,11 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope } from '../../utils/apiService';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope} from '../../utils/apiService';
 
 export interface PermissionData {
     Id: number;
     Action: string;
-    Description: string;
+    Description: string | null;
 }
 
 interface PermissionsState {
@@ -22,7 +22,7 @@ const initialState: PermissionsState = {
 
 export const fetchPermissions = createAsyncThunk<ApiSuccessEnvelope<PermissionData[]>, void, { rejectValue: string }>(
     'permissions/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (_, {rejectWithValue}) => {
         try {
             return await get<ApiSuccessEnvelope<PermissionData[]>>('/permissions');
         } catch (error: unknown) {
@@ -31,9 +31,12 @@ export const fetchPermissions = createAsyncThunk<ApiSuccessEnvelope<PermissionDa
     }
 );
 
-export const createPermission = createAsyncThunk<ApiSuccessEnvelope<PermissionData>, { Action: string; Description: string }, { rejectValue: string }>(
+export const createPermission = createAsyncThunk<ApiSuccessEnvelope<PermissionData>, {
+    Action: string;
+    Description?: string
+}, { rejectValue: string }>(
     'permissions/create',
-    async (permissionData: { Action: string; Description: string }, { rejectWithValue }) => {
+    async (permissionData, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<PermissionData>, typeof permissionData>('/permissions', permissionData);
         } catch (error: unknown) {
@@ -42,9 +45,12 @@ export const createPermission = createAsyncThunk<ApiSuccessEnvelope<PermissionDa
     }
 );
 
-export const updatePermission = createAsyncThunk<ApiSuccessEnvelope<PermissionData>, { id: number; permissionData: { Action: string; Description: string } }, { rejectValue: string }>(
+export const updatePermission = createAsyncThunk<ApiSuccessEnvelope<PermissionData>, {
+    id: number;
+    permissionData: { Action: string; Description?: string }
+}, { rejectValue: string }>(
     'permissions/update',
-    async ({ id, permissionData }: { id: number; permissionData: { Action: string; Description: string } }, { rejectWithValue }) => {
+    async ({id, permissionData}, {rejectWithValue}) => {
         try {
             return await patch<ApiSuccessEnvelope<PermissionData>, typeof permissionData>(`/permissions/${id}`, permissionData);
         } catch (error: unknown) {
@@ -55,7 +61,7 @@ export const updatePermission = createAsyncThunk<ApiSuccessEnvelope<PermissionDa
 
 export const deletePermission = createAsyncThunk<number, number, { rejectValue: string }>(
     'permissions/delete',
-    async (id: number, { rejectWithValue }) => {
+    async (id: number, {rejectWithValue}) => {
         try {
             await del<ApiSuccessEnvelope<unknown>>(`/permissions/${id}`);
             return id;
@@ -71,7 +77,10 @@ const permissionsSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(fetchPermissions.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(fetchPermissions.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchPermissions.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];

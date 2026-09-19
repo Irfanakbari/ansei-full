@@ -1,15 +1,16 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-09*/
 "use client";
 
-import React, { useEffect, useRef } from 'react';
-import { Table, Card, Breadcrumb, App, Input, Button, Select, Tag, Tooltip, Space } from 'antd';
-import type { InputRef } from 'antd';
-import { ReloadOutlined, SearchOutlined, ScanOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import React, {useEffect, useRef} from 'react';
+import {Table, Card, Breadcrumb, App, Input, Button, Select, Tag, Tooltip, Space} from 'antd';
+import type {InputRef} from 'antd';
+import {ReloadOutlined, SearchOutlined, ScanOutlined} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { fetchPokayoke, PokayokeScanEntity, setFilters } from '@/store/features/production/pokayoke/pokayokeSlice';
+import GoldenArrowAction from '@/components/GoldenArrowAction';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
+import {fetchPokayoke, PokayokeScanEntity, setFilters} from '@/store/features/production/pokayoke/pokayokeSlice';
 import ScanPokayokeModal from './_components/ScanPokayokeModal';
 import FinishGoodLinkedModal from '@/components/production/FinishGoodLinkedModal';
 
@@ -31,9 +32,9 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function PokayokePage() {
-    const { message: antMessage } = App.useApp();
+    const {message: antMessage} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, pagination, filters } = useSelector((state: RootState) => state.pokayoke);
+    const {data, loading, pagination, filters} = useSelector((state: RootState) => state.pokayoke);
     const searchInput = useRef<InputRef>(null);
     const [isScanModalVisible, setIsScanModalVisible] = React.useState(false);
     const [linkedFinishGood, setLinkedFinishGood] = React.useState<string | null>(null);
@@ -44,28 +45,32 @@ export default function PokayokePage() {
 
     // Column search filter
     const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: any) => (
+            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
                 <Input
                     ref={searchInput as any}
                     placeholder={`Search ${dataIndex}`}
                     value={selectedKeys[0]}
                     onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={() => confirm()}
-                    style={{ marginBottom: 8, display: 'block' }}
+                    style={{marginBottom: 8, display: 'block'}}
                 />
                 <Space>
-                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 80 }}>
+                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined/>} size="small"
+                            style={{width: 80}}>
                         Search
                     </Button>
-                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 80 }}>
+                    <Button onClick={() => {
+                        if (clearFilters) clearFilters();
+                        confirm();
+                    }} size="small" style={{width: 80}}>
                         Reset
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+            <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
         ),
         onFilter: (value: any, record: any) => {
             return record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase());
@@ -74,31 +79,34 @@ export default function PokayokePage() {
 
     // Status filter dropdown
     const getStatusFilterProps = () => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: any) => (
+            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
                 <Select
                     placeholder="Select status"
                     value={selectedKeys[0]}
                     onChange={(val) => setSelectedKeys(val ? [val] : [])}
-                    style={{ width: '100%', marginBottom: 8 }}
+                    style={{width: '100%', marginBottom: 8}}
                     allowClear
                     options={[
-                        { value: 'SUKSES', label: 'SUKSES' },
-                        { value: 'GAGAL', label: 'GAGAL' },
+                        {value: 'SUKSES', label: 'SUKSES'},
+                        {value: 'GAGAL', label: 'GAGAL'},
                     ]}
                 />
                 <Space>
-                    <Button type="primary" onClick={() => confirm()} size="small" style={{ width: 60 }}>
+                    <Button type="primary" onClick={() => confirm()} size="small" style={{width: 60}}>
                         OK
                     </Button>
-                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 60 }}>
+                    <Button onClick={() => {
+                        if (clearFilters) clearFilters();
+                        confirm();
+                    }} size="small" style={{width: 60}}>
                         Reset
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+            <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
         ),
         onFilter: (value: any, record: PokayokeScanEntity) => {
             return record.status === value;
@@ -113,7 +121,7 @@ export default function PokayokePage() {
             ...getColumnSearchProps('labelNumber'),
             render: (val: string) => (
                 <Tooltip title={val}>
-                    <code style={{ fontSize: 11 }}>{val}</code>
+                    <code style={{fontSize: 11}}>{val}</code>
                 </Tooltip>
             ),
         },
@@ -122,7 +130,7 @@ export default function PokayokePage() {
             dataIndex: 'poId',
             key: 'poId',
             ...getColumnSearchProps('poId'),
-            render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
+            render: (val: string) => <code style={{fontSize: 10}}>{val}</code>,
         },
         {
             title: 'Finish Good',
@@ -131,8 +139,9 @@ export default function PokayokePage() {
             ...getColumnSearchProps('partNumber'),
             render: (val: string, record: PokayokeScanEntity) => (
                 <Space size={4}>
-                    <Button type="text" size="small" aria-label={`View Finish Good ${val}`} icon={<ArrowRightOutlined style={{ color: '#d4a106', fontSize: 12 }} />} onClick={() => setLinkedFinishGood(val)} style={{ width: 20, minWidth: 20, height: 20, padding: 0 }} />
-                    <Tooltip title={`${val} - ${record.partName}`}><code style={{ fontSize: 10 }}>{val}</code></Tooltip>
+                    <GoldenArrowAction tooltip="View Finish Good details" ariaLabel={`View Finish Good ${val}`}
+                                       onClick={() => setLinkedFinishGood(val)}/>
+                    <Tooltip title={`${val} - ${record.partName}`}><code style={{fontSize: 10}}>{val}</code></Tooltip>
                 </Space>
             ),
         },
@@ -160,26 +169,26 @@ export default function PokayokePage() {
     };
 
     return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
+        <Card variant="borderless" styles={{body: {padding: 0}}}>
             <Breadcrumb
-                style={{ marginBottom: 16 }}
+                style={{marginBottom: 16}}
                 items={[
-                    { title: 'Home' },
-                    { title: 'Production' },
-                    { title: 'Process' },
-                    { title: 'Pokayoke Validation' },
+                    {title: 'Home'},
+                    {title: 'Production'},
+                    {title: 'Process'},
+                    {title: 'Pokayoke Validation'},
                 ]}
             />
 
             <ToolbarWrapper>
                 <ButtonToolbar
                     title="Refresh"
-                    icon={<ReloadOutlined />}
+                    icon={<ReloadOutlined/>}
                     onClick={() => dispatch(fetchPokayoke(filters))}
                 />
                 <ButtonToolbar
                     title="Scan"
-                    icon={<ScanOutlined />}
+                    icon={<ScanOutlined/>}
                     onClick={() => setIsScanModalVisible(true)}
                 />
             </ToolbarWrapper>
@@ -189,7 +198,7 @@ export default function PokayokePage() {
                 dataSource={data}
                 size="small"
                 loading={loading}
-                onChange={(page) => dispatch(setFilters({ page: page.current, limit: page.pageSize }))}
+                onChange={(page) => dispatch(setFilters({page: page.current, limit: page.pageSize}))}
                 pagination={{
                     size: 'small',
                     current: pagination.page,
@@ -199,7 +208,7 @@ export default function PokayokePage() {
                     showTotal: (total: number) => `Total ${total} records`,
                 }}
                 rowKey="id"
-                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
+                scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"
             />
 
@@ -208,7 +217,8 @@ export default function PokayokePage() {
                 onClose={() => setIsScanModalVisible(false)}
                 onSuccess={handleScanSuccess}
             />
-            <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood} onClose={() => setLinkedFinishGood(null)} />
+            <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood}
+                                   onClose={() => setLinkedFinishGood(null)}/>
         </Card>
     );
 }

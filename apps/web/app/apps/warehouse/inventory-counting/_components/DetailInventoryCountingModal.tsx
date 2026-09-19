@@ -1,19 +1,35 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-17 */
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Modal, Table, Tag, Button, Space, Input, Descriptions, Statistic, Card, Row, Col, App, Select, InputNumber } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+import React, {useState, useEffect, useMemo} from 'react';
+import {
+    Modal,
+    Table,
+    Tag,
+    Button,
+    Space,
+    Input,
+    Descriptions,
+    Statistic,
+    Card,
+    Row,
+    Col,
+    App,
+    Select,
+    InputNumber
+} from 'antd';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
 import {
     updateActualStock,
     fetchInventoryCountingDetails,
     generateTemporaryReport,
     generateFinalReport,
+    deleteInventoryCounting,
     InventoryCountingEntity,
     InventoryCountingDetailEntity,
 } from '@/store/features/warehouse/inventoryCounting/inventoryCountingSlice';
-import { SaveOutlined, CheckCircleOutlined, DownloadOutlined, SearchOutlined } from '@ant-design/icons';
+import {SaveOutlined, CheckCircleOutlined, DownloadOutlined, SearchOutlined, DeleteOutlined} from '@ant-design/icons';
 import ReviewApprovalModal from './ReviewApprovalModal';
 
 export interface MergedCountingDetail extends InventoryCountingDetailEntity {
@@ -26,6 +42,7 @@ interface Props {
     onClose: () => void;
     data: InventoryCountingEntity;
     onRefresh?: () => void;
+    onDeleted: () => void;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -35,32 +52,61 @@ const STATUS_COLORS: Record<string, string> = {
     CANCELLED: 'error',
 };
 
-const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data, onRefresh }) => {
-    const { message: antMessage } = App.useApp();
+const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, onRefresh, onDeleted}) => {
+    const {message: antMessage, modal} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { user } = useSelector((state: RootState) => state.auth);
+    const {user} = useSelector((state: RootState) => state.auth);
 
     const [details, setDetails] = useState<MergedCountingDetail[]>([]);
     const [editedValues, setEditedValues] = useState<Record<number, { wh?: number, rack?: number }>>({});
     const [updating, setUpdating] = useState(false);
-    
+
     // Filters
     const [searchText, setSearchText] = useState('');
     const [locationFilter, setLocationFilter] = useState('all');
 
     const [loading, setLoading] = useState(false);
     const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
-    
+
     // Tolerance state
     const [downloadingTemp, setDownloadingTemp] = useState(false);
     const [downloadingFinal, setDownloadingFinal] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
-    const canApprove = Boolean(
+    const can = (permission: string) => Boolean(
         user?.RoleName === 'SUPER' ||
-        user?.Permission?.includes('SUPER') ||
-        user?.Permission?.includes('*') ||
-        user?.Permission?.includes('IPCS.INVENTORY_COUNTING_APPROVE')
+        user?.GlobalRoles?.includes('SUPER_ADMINISTRATOR') ||
+        user?.Permission?.some((value) => value === 'SUPER' || value === '*' || value === permission)
     );
+    const canUpdate = can('IPCS.INVENTORY_COUNTING_UPDATE');
+    const canDelete = can('IPCS.INVENTORY_COUNTING_DELETE');
+    const canApprove = can('IPCS.INVENTORY_COUNTING_APPROVE');
+
+    const handleDelete = () => {
+        if (data.Status !== 'DRAFT' || !canDelete || deleting) return;
+        modal.confirm({
+            title: 'Delete Inventory Counting?',
+            icon: <DeleteOutlined/>,
+            content: `Delete ${data.OpnameNumber}?`,
+            okText: 'Delete',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
+            onOk: async () => {
+                setDeleting(true);
+                try {
+                    await dispatch(deleteInventoryCounting(data.Id)).unwrap();
+                    antMessage.success('Inventory counting deleted successfully');
+                    onDeleted();
+                } catch (error: unknown) {
+                    antMessage.error(typeof error === 'string' ? error : 'Failed to delete inventory counting');
+                    throw error;
+                } finally {
+                    setDeleting(false);
+                }
+            },
+        });
+    };
 
     // Fetch details when modal opens
     useEffect(() => {
@@ -139,9 +185,9 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
         return details.filter(d => {
             const matchLoc = locationFilter === 'all' || d.Location === locationFilter;
             const searchStr = searchText.toLowerCase();
-            const matchSearch = searchStr.length < 1 || 
-                (d.MaterialId?.toLowerCase().includes(searchStr)) || 
-                (d.FinishGoodId?.toLowerCase().includes(searchStr)) || 
+            const matchSearch = searchStr.length < 1 ||
+                (d.MaterialId?.toLowerCase().includes(searchStr)) ||
+                (d.FinishGoodId?.toLowerCase().includes(searchStr)) ||
                 (d.Notes?.toLowerCase().includes(searchStr));
             return matchLoc && matchSearch;
         });
@@ -193,8 +239,8 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
 
                 const detailIdToUpdate = record.warehouseDetailId || record.rackDetailId || record.Id;
                 const dto = data?.Category === 'MATERIAL'
-                    ? { actualQty: warehouseVal, actualQtyRack: rackVal }
-                    : { actualQty: warehouseVal };
+                    ? {actualQty: warehouseVal, actualQtyRack: rackVal}
+                    : {actualQty: warehouseVal};
 
                 const result = await dispatch(updateActualStock({
                     inventoryCountingId: data.Id,
@@ -230,7 +276,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
     const handleDownloadTempReport = async () => {
         setDownloadingTemp(true);
         try {
-            const result = await dispatch(generateTemporaryReport({ inventoryCountingId: data.Id }));
+            const result = await dispatch(generateTemporaryReport({inventoryCountingId: data.Id}));
             if (generateTemporaryReport.rejected.match(result)) {
                 throw new Error(result.payload as string);
             }
@@ -250,7 +296,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
 
         setDownloadingFinal(true);
         try {
-            await dispatch(generateFinalReport({ inventoryCountingId: data.Id })).unwrap();
+            await dispatch(generateFinalReport({inventoryCountingId: data.Id})).unwrap();
             antMessage.success('Final report downloaded');
         } catch (error: unknown) {
             antMessage.error(typeof error === 'string' ? error : 'Failed to download final report');
@@ -268,7 +314,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                     width: 180,
                     fixed: 'left' as const,
                     render: (_: unknown, record: MergedCountingDetail) => (
-                        <code style={{ fontSize: 11 }}>
+                        <code style={{fontSize: 11}}>
                             {record.FinishGoodId || record.MaterialId || '-'}
                         </code>
                     ),
@@ -308,7 +354,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                             <InputNumber
                                 value={editVal !== undefined ? editVal : (val ?? 0)}
                                 onChange={(v) => handleActualChange(record.Id, 'wh', v)}
-                                style={{ width: 80 }}
+                                style={{width: 80}}
                                 min={0}
                             />
                         );
@@ -341,7 +387,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                 width: 150,
                 fixed: 'left' as const,
                 render: (_: unknown, record: MergedCountingDetail) => (
-                    <code style={{ fontSize: 11 }}>
+                    <code style={{fontSize: 11}}>
                         {record.MaterialId || record.FinishGoodId || '-'}
                     </code>
                 ),
@@ -373,13 +419,13 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         width: 100,
                         align: 'center' as const,
                         render: (val: number | null, record: MergedCountingDetail) => {
-                            if (data?.Status !== 'IN_PROGRESS') return val ?? '-';
+                            if (data?.Status !== 'IN_PROGRESS' || !canUpdate) return val ?? '-';
                             const editVal = editedValues[record.Id]?.wh;
                             return (
                                 <InputNumber
                                     value={editVal !== undefined ? editVal : val}
                                     onChange={(v) => handleActualChange(record.Id, 'wh', v)}
-                                    style={{ width: 80 }}
+                                    style={{width: 80}}
                                     min={0}
                                 />
                             );
@@ -423,13 +469,13 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         width: 100,
                         align: 'center' as const,
                         render: (val: number | null, record: MergedCountingDetail) => {
-                            if (data?.Status !== 'IN_PROGRESS') return val ?? '-';
+                            if (data?.Status !== 'IN_PROGRESS' || !canUpdate) return val ?? '-';
                             const editVal = editedValues[record.Id]?.rack;
                             return (
                                 <InputNumber
                                     value={editVal !== undefined ? editVal : val}
                                     onChange={(v) => handleActualChange(record.Id, 'rack', v)}
-                                    style={{ width: 80 }}
+                                    style={{width: 80}}
                                     min={0}
                                 />
                             );
@@ -455,7 +501,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                 ],
             },
         ];
-    }, [data?.Category, data?.Status, editedValues]);
+    }, [canUpdate, data?.Category, data?.Status, editedValues]);
 
     return (
         <Modal
@@ -463,16 +509,21 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
             open={visible}
             onCancel={onClose}
             footer={
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: 12, color: '#888' }}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div style={{fontSize: 12, color: '#888'}}>
                         {data?.Status === 'IN_PROGRESS' && !canApprove && (
                             <span>* Approving counting session requires <code>IPCS.INVENTORY_COUNTING_APPROVE</code> permission</span>
                         )}
                     </div>
                     <Space>
+                        {data?.Status === 'DRAFT' && canDelete && (
+                            <Button danger icon={<DeleteOutlined/>} onClick={handleDelete} loading={deleting}>
+                                Delete
+                            </Button>
+                        )}
                         <Button onClick={onClose}>Close</Button>
                         <Button
-                            icon={<DownloadOutlined />}
+                            icon={<DownloadOutlined/>}
                             onClick={handleDownloadTempReport}
                             loading={downloadingTemp}
                         >
@@ -481,7 +532,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         {data?.Status === 'COMPLETED' && (
                             <Button
                                 type="primary"
-                                icon={<DownloadOutlined />}
+                                icon={<DownloadOutlined/>}
                                 onClick={handleDownloadFinalReport}
                                 loading={downloadingFinal}
                             >
@@ -491,7 +542,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                         {data?.Status === 'IN_PROGRESS' && canApprove && (
                             <Button
                                 type="primary"
-                                icon={<CheckCircleOutlined />}
+                                icon={<CheckCircleOutlined/>}
                                 onClick={() => setIsReviewModalVisible(true)}
                             >
                                 Review & Approval
@@ -504,7 +555,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
             width={1050}
             zIndex={1050}
         >
-            <Descriptions size="small" column={5} style={{ marginBottom: 16 }}>
+            <Descriptions size="small" column={5} style={{marginBottom: 16}}>
                 <Descriptions.Item label="Category">
                     <Tag color={data?.Category === 'MATERIAL' ? 'blue' : 'purple'}>
                         {data?.Category ? data.Category.replace('_', ' ') : '-'}
@@ -518,56 +569,57 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                 <Descriptions.Item label="Tolerance">
                     <Tag color="blue">{data?.Tolerance ?? 0}%</Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="Created By">{data?.CreatedByName || data?.CreatedBy || '-'}</Descriptions.Item>
+                <Descriptions.Item
+                    label="Created By">{data?.CreatedByName || data?.CreatedBy || '-'}</Descriptions.Item>
                 <Descriptions.Item label="Created At">
                     {data?.CreatedAt ? new Date(data.CreatedAt).toLocaleString('id-ID') : '-'}
                 </Descriptions.Item>
             </Descriptions>
 
-            <Row gutter={12} style={{ marginBottom: 16 }}>
+            <Row gutter={12} style={{marginBottom: 16}}>
                 <Col span={8}>
                     <Card size="small">
-                        <Statistic title="Total Items" value={totalItems} />
+                        <Statistic title="Total Items" value={totalItems}/>
                     </Card>
                 </Col>
                 <Col span={8}>
                     <Card size="small">
-                        <Statistic title="Completed" value={completedItems} styles={{ content: { color: '#3f8600' } }} />
+                        <Statistic title="Completed" value={completedItems} styles={{content: {color: '#3f8600'}}}/>
                     </Card>
                 </Col>
                 <Col span={8}>
                     <Card size="small">
-                        <Statistic title="Progress" value={progressPercent} suffix="%" />
+                        <Statistic title="Progress" value={progressPercent} suffix="%"/>
                     </Card>
                 </Col>
             </Row>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center' }}>
+            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 12, alignItems: 'center'}}>
                 <Space>
                     <Input
                         placeholder="Search part..."
                         value={searchText}
                         onChange={e => setSearchText(e.target.value)}
-                        prefix={<SearchOutlined />}
-                        style={{ width: 200 }}
+                        prefix={<SearchOutlined/>}
+                        style={{width: 200}}
                         allowClear
                     />
                     {locations.length > 1 && (
                         <Select
                             value={locationFilter}
                             onChange={setLocationFilter}
-                            style={{ width: 120 }}
+                            style={{width: 120}}
                             options={[
-                                { value: 'all', label: 'All Locations' },
-                                ...locations.map(l => ({ value: l, label: l }))
+                                {value: 'all', label: 'All Locations'},
+                                ...locations.map(l => ({value: l, label: l}))
                             ]}
                         />
                     )}
                 </Space>
-                {data?.Status === 'IN_PROGRESS' && (
-                    <Button 
-                        type="primary" 
-                        icon={<SaveOutlined />} 
+                {data?.Status === 'IN_PROGRESS' && canUpdate && (
+                    <Button
+                        type="primary"
+                        icon={<SaveOutlined/>}
                         onClick={handleSavePageChanges}
                         loading={updating}
                         disabled={Object.keys(editedValues).length === 0}
@@ -577,15 +629,15 @@ const DetailInventoryCountingModal: React.FC<Props> = ({ visible, onClose, data,
                 )}
             </div>
 
-            <div style={{ maxHeight: 'calc(100vh - 340px)', overflow: 'auto' }}>
+            <div style={{maxHeight: 'calc(100vh - 340px)', overflow: 'auto'}}>
                 <Table
                     columns={columns}
                     dataSource={filteredDetails}
                     rowKey="Id"
                     size="small"
                     loading={loading || updating}
-                    pagination={{ pageSize: 50, size: 'small' }}
-                    scroll={{ x: 750, y: 400 }}
+                    pagination={{pageSize: 50, size: 'small'}}
+                    scroll={{x: 750, y: 400}}
                 />
             </div>
 

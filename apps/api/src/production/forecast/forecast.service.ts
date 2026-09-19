@@ -51,7 +51,7 @@ export class ForecastService {
    * D = 3: Vendor name
    * E = 4: Receiving area
    * F = 5: Del date / Delivery date (YYYYMMDD)
-   * G = 6: Del periode / Delivery period
+   * G = 6: Delivery cycle / ritase count
    * H = 7: Classification
    * I = 8: PO No
    * J = 9: Item
@@ -172,6 +172,7 @@ export class ForecastService {
     let logProcess: LogProcessModel | undefined;
 
     try {
+      this.assertValidDeliveryPeriod(dto.deliveryPeriod);
       logProcess = await this.logService.startProcess({
         functionId: 'FORECAST_001',
         functionName: 'ForecastService.Create',
@@ -314,6 +315,9 @@ export class ForecastService {
     let logProcess: LogProcessModel | undefined;
 
     try {
+      if (dto.deliveryPeriod !== undefined) {
+        this.assertValidDeliveryPeriod(dto.deliveryPeriod);
+      }
       logProcess = await this.logService.startProcess({
         functionId: 'FORECAST_002',
         functionName: 'ForecastService.Update',
@@ -586,6 +590,14 @@ export class ForecastService {
     }
   }
 
+  private assertValidDeliveryPeriod(deliveryPeriod: number): void {
+    if (!Number.isInteger(deliveryPeriod) || deliveryPeriod < 1) {
+      throw new BadRequestException(
+        'Delivery cycle / ritase must be a positive integer.',
+      );
+    }
+  }
+
   /**
    * Import forecast data from Excel file.
    * Reads columns by position (A=0, B=1, C=2, etc.) instead of header names.
@@ -613,11 +625,13 @@ export class ForecastService {
       const rawData = await this.excelService.readExcelByPosition(file);
 
       // Filter out empty rows (rows where all values are empty strings)
-      const filteredData = rawData.filter((row: ForecastExcelRow) => {
-        return Object.values(row).some(
-          (val) => val !== undefined && String(val).trim() !== '',
+      const filteredData = rawData
+        .map((row: ForecastExcelRow, index) => ({ row, rowNumber: index + 2 }))
+        .filter(({ row }) =>
+          Object.values(row).some(
+            (val) => val !== undefined && String(val).trim() !== '',
+          ),
         );
-      });
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -633,57 +647,76 @@ export class ForecastService {
       }
 
       // Transform data based on column position
-      const transformedData = filteredData.map((rowData: ForecastExcelRow) => {
-        const poId = String(rowData[this.COLUMN_MAP.PO_ID] ?? '').trim();
-        const dateVal = rowData[this.COLUMN_MAP.DATE];
-        const vendorCode = String(
-          rowData[this.COLUMN_MAP.VENDOR_CODE] ?? '',
-        ).trim();
-        const vendorName = String(
-          rowData[this.COLUMN_MAP.VENDOR_NAME] ?? '',
-        ).trim();
-        const receivingArea = String(
-          rowData[this.COLUMN_MAP.RECEIVING_AREA] ?? '',
-        ).trim();
-        const delDateVal = rowData[this.COLUMN_MAP.DEL_DATE];
-        const deliveryPeriod =
-          parseInt(String(rowData[this.COLUMN_MAP.DEL_PERIOD] ?? '0'), 10) || 0;
-        const classification = String(
-          rowData[this.COLUMN_MAP.CLASSIFICATION] ?? '',
-        ).trim();
-        const poNumber = String(rowData[this.COLUMN_MAP.PO_NO] ?? '').trim();
-        const item =
-          parseInt(String(rowData[this.COLUMN_MAP.ITEM] ?? '0'), 10) || 0;
-        const qty =
-          parseInt(String(rowData[this.COLUMN_MAP.QUANTITY] ?? '0'), 10) || 0;
-        const finishGoodId = String(
-          rowData[this.COLUMN_MAP.PART_NO] ?? '',
-        ).trim();
+      const transformedData = filteredData.map(
+        ({ row: rowData, rowNumber }) => {
+          const poId = String(rowData[this.COLUMN_MAP.PO_ID] ?? '').trim();
+          const dateVal = rowData[this.COLUMN_MAP.DATE];
+          const vendorCode = String(
+            rowData[this.COLUMN_MAP.VENDOR_CODE] ?? '',
+          ).trim();
+          const vendorName = String(
+            rowData[this.COLUMN_MAP.VENDOR_NAME] ?? '',
+          ).trim();
+          const receivingArea = String(
+            rowData[this.COLUMN_MAP.RECEIVING_AREA] ?? '',
+          ).trim();
+          const delDateVal = rowData[this.COLUMN_MAP.DEL_DATE];
+          const deliveryPeriodValue = rowData[this.COLUMN_MAP.DEL_PERIOD];
+          const deliveryPeriod =
+            typeof deliveryPeriodValue === 'number'
+              ? deliveryPeriodValue
+              : Number(String(deliveryPeriodValue ?? '').trim());
+          const hasStrictIntegerFormat =
+            typeof deliveryPeriodValue === 'number' ||
+            /^\d+$/.test(String(deliveryPeriodValue ?? '').trim());
+          const classification = String(
+            rowData[this.COLUMN_MAP.CLASSIFICATION] ?? '',
+          ).trim();
+          const poNumber = String(rowData[this.COLUMN_MAP.PO_NO] ?? '').trim();
+          const item =
+            parseInt(String(rowData[this.COLUMN_MAP.ITEM] ?? '0'), 10) || 0;
+          const qty =
+            parseInt(String(rowData[this.COLUMN_MAP.QUANTITY] ?? '0'), 10) || 0;
+          const finishGoodId = String(
+            rowData[this.COLUMN_MAP.PART_NO] ?? '',
+          ).trim();
 
-        // Validate required fields
-        if (!poId) {
-          throw new BadRequestException('PO ID is required in column A');
-        }
+          // Validate required fields
+          if (!poId) {
+            throw new BadRequestException('PO ID is required in column A');
+          }
+          if (
+            deliveryPeriodValue === undefined ||
+            String(deliveryPeriodValue).trim() === '' ||
+            !hasStrictIntegerFormat ||
+            !Number.isInteger(deliveryPeriod) ||
+            deliveryPeriod < 1
+          ) {
+            throw new BadRequestException(
+              `Spreadsheet row ${rowNumber}, column G (Delivery Cycle / Ritase) must contain a positive integer.`,
+            );
+          }
 
-        return {
-          poId,
-          date: dateVal
-            ? this.excelService.parseDateYYYYMMDD(dateVal)
-            : new Date(),
-          vendorCode,
-          vendorName,
-          receivingArea,
-          deliveryDate: delDateVal
-            ? this.excelService.parseDateYYYYMMDD(delDateVal)
-            : new Date(),
-          deliveryPeriod,
-          classification,
-          poNumber,
-          item,
-          qty,
-          finishGoodId,
-        };
-      });
+          return {
+            poId,
+            date: dateVal
+              ? this.excelService.parseDateYYYYMMDD(dateVal)
+              : new Date(),
+            vendorCode,
+            vendorName,
+            receivingArea,
+            deliveryDate: delDateVal
+              ? this.excelService.parseDateYYYYMMDD(delDateVal)
+              : new Date(),
+            deliveryPeriod,
+            classification,
+            poNumber,
+            item,
+            qty,
+            finishGoodId,
+          };
+        },
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

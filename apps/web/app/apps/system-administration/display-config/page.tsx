@@ -1,171 +1,123 @@
-/* By Irfan Akbari Vuteq Indonesia - 2026-07-21 */
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Table, Card, Breadcrumb, App, Tag } from 'antd';
-import { ReloadOutlined, EditOutlined, DeleteOutlined, PlusOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import ToolbarWrapper from '@/components/ToolbarWrapper';
-import ButtonToolbar from '@/components/ButtonToolbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+import {useCallback, useEffect, useRef, useState} from "react";
+import {PlusOutlined, ReloadOutlined, SearchOutlined} from "@ant-design/icons";
+import {Breadcrumb, Button, Card, Input, Space, Table, Tag} from "antd";
+import type {InputRef, TableProps} from "antd";
+import {useDispatch, useSelector} from "react-redux";
+import ButtonToolbar from "@/components/ButtonToolbar";
+import GoldenArrowAction from "@/components/GoldenArrowAction";
+import ToolbarWrapper from "@/components/ToolbarWrapper";
+import {useSingleRowSelection} from "@/hooks/useSingleRowSelection";
+import {formatDateTime} from "@/lib/utils/dateTime";
+import {AppDispatch, RootState} from "@/store";
 import {
-    fetchDisplayConfig,
-    deleteDisplayConfig,
     DisplayConfigEntity,
-    setDisplayConfigQuery,
-} from '@/store/features/settings/displayConfig/displayConfigSlice';
-import CreateEditDisplayConfigModal from './_components/CreateEditDisplayConfigModal';
-import { formatDateTime } from '@/lib/utils/dateTime';
+    fetchDisplayConfig,
+    setDisplayConfigQuery
+} from "@/store/features/settings/displayConfig/displayConfigSlice";
+import CreateEditDisplayConfigModal from "./_components/CreateEditDisplayConfigModal";
+import DisplayConfigModal from "./_components/DisplayConfigModal";
 
-const DisplayConfigPage: React.FC = () => {
+export default function DisplayConfigPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, query, pagination } = useSelector((state: RootState) => state.displayConfig);
-    const { message, modal } = App.useApp();
-
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingData, setEditingData] = useState<DisplayConfigEntity | null>(null);
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const {data, loading, query, pagination} = useSelector((state: RootState) => state.displayConfig);
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+    const [modalData, setModalData] = useState<DisplayConfigEntity | null>(null);
+    const searchInput = useRef<InputRef>(null);
+    const {selectRecord, clearSelection, isSelected} = useSingleRowSelection(data, (record) => record.Id);
+    const refresh = useCallback(() => void dispatch(fetchDisplayConfig(query)), [dispatch, query]);
 
     useEffect(() => {
-        dispatch(fetchDisplayConfig(query));
-    }, [dispatch, query]);
+        refresh();
+    }, [refresh]);
 
-    const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
-
-    const handleCreate = () => {
-        setEditingData(null);
-        setIsModalVisible(true);
-    };
-
-    const handleEdit = () => {
-        if (selectedRecord) {
-            setEditingData(selectedRecord);
-            setIsModalVisible(true);
-        }
-    };
-
-    const handleDelete = () => {
-        if (selectedRecord) {
-            modal.confirm({
-                title: 'Delete Display Config?',
-                icon: <ExclamationCircleOutlined />,
-                content: `Delete display config "${selectedRecord.Description}" with URL ${selectedRecord.Url}?`,
-                okText: 'Delete',
-                okType: 'danger',
-                cancelText: 'Cancel',
-                centered: true,
-                onOk: async () => {
-                    try {
-                        const result = await dispatch(deleteDisplayConfig(selectedRecord.Id));
-
-                        if (deleteDisplayConfig.rejected.match(result)) {
-                            throw new Error((result.payload as string) || 'Failed to delete display config');
-                        }
-                        message.success('Display config deleted successfully');
-                        setSelectedRowKeys([]);
-                        dispatch(fetchDisplayConfig(query));
-                    } catch (error: unknown) {
-                        const err = error as Error;
-                        message.error(err?.message || String(error) || 'Failed to delete display config');
-                    }
-                },
-            });
-        }
-    };
-
-    const columns = [
+    const columns: TableProps<DisplayConfigEntity>["columns"] = [
         {
-            title: 'Description',
-            dataIndex: 'Description',
-            key: 'Description',
-        },
-        {
-            title: 'URL',
-            dataIndex: 'Url',
-            key: 'Url',
-            ellipsis: true,
-        },
-        {
-            title: 'Auto Open',
-            dataIndex: 'IsOpen',
-            key: 'IsOpen',
-            align: 'center' as const,
-            render: (IsOpen: boolean) => (
-                <Tag color={IsOpen ? 'green' : 'default'}>
-                    {IsOpen ? 'Yes' : 'No'}
-                </Tag>
+            title: "Description",
+            dataIndex: "Description",
+            key: "Description",
+            filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+                <div style={{padding: 8}} onKeyDown={(event) => event.stopPropagation()}>
+                    <Input ref={searchInput} placeholder="Search Description" value={String(selectedKeys[0] ?? "")}
+                           onChange={(event) => setSelectedKeys(event.target.value ? [event.target.value] : [])}
+                           onPressEnter={() => confirm()} style={{marginBottom: 8, display: "block"}}/>
+                    <Space>
+                        <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined/>} size="small"
+                                style={{width: 90}}>Search</Button>
+                        <Button onClick={() => {
+                            clearFilters?.();
+                            confirm();
+                        }} size="small" style={{width: 90}}>Reset</Button>
+                    </Space>
+                </div>
             ),
+            filterIcon: (filtered) => <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>,
+            filteredValue: query.search ? [query.search] : null,
+            render: (value, record) => (
+                <Space size={4}>
+                    <GoldenArrowAction tooltip="View display config details"
+                                       ariaLabel={`View display config details for ${record.Description}`}
+                                       onClick={() => {
+                                           selectRecord(record);
+                                           setModalData(record);
+                                       }}/>
+                    <span>{value}</span>
+                </Space>
+            )
+        },
+        {title: "URL", dataIndex: "Url", key: "Url", ellipsis: true},
+        {
+            title: "Auto Open",
+            dataIndex: "IsOpen",
+            key: "IsOpen",
+            align: "center",
+            render: (value: boolean) => <Tag color={value ? "green" : "default"}>{value ? "Yes" : "No"}</Tag>
         },
         {
-            title: 'Loop',
-            dataIndex: 'Loop',
-            key: 'Loop',
-            align: 'center' as const,
-            render: (Loop: boolean) => (
-                <Tag color={Loop ? 'green' : 'default'}>
-                    {Loop ? 'Yes' : 'No'}
-                </Tag>
-            ),
+            title: "Loop",
+            dataIndex: "Loop",
+            key: "Loop",
+            align: "center",
+            render: (value: boolean) => <Tag color={value ? "green" : "default"}>{value ? "Yes" : "No"}</Tag>
         },
-        {
-            title: 'Created At',
-            dataIndex: 'CreatedAt',
-            key: 'CreatedAt',
-            render: formatDateTime,
-        },
+        {title: "Created At", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
     ];
 
     return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
-            <Breadcrumb
-                style={{ marginBottom: 16 }}
-                items={[
-                    { title: 'Home' },
-                    { title: 'System Administration' },
-                    { title: 'Display Config' },
-                ]}
-            />
+        <Card variant="borderless" styles={{body: {padding: 0}}}>
+            <Breadcrumb style={{marginBottom: 16}}
+                        items={[{title: "Home"}, {title: "System Administration"}, {title: "Display Config"}]}/>
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchDisplayConfig(query))} />
-                <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={handleCreate} />
-                <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>} onClick={refresh}/>
+                <ButtonToolbar title="Create" icon={<PlusOutlined/>} onClick={() => setIsCreateModalVisible(true)}/>
             </ToolbarWrapper>
-
-            <Table
-                rowSelection={{
-                    selectedRowKeys,
-                    onChange: (keys) => setSelectedRowKeys(keys),
-                    checkStrictly: true,
-                    type: 'radio',
-                }}
-                columns={columns}
-                dataSource={data}
-                size="small"
-                loading={loading}
-                onChange={(p) => dispatch(setDisplayConfigQuery({ page: p.current, limit: p.pageSize }))}
-                pagination={{
-                    size: 'small',
-                    current: pagination.page,
-                    pageSize: pagination.limit,
-                    total: pagination.totalItems,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Total ${total} records`,
-                }}
-                rowKey="Id"
-                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
-                className="small-table"
-                style={{ fontSize: '11px' }}
-            />
-
-            <CreateEditDisplayConfigModal
-                visible={isModalVisible}
-                onClose={() => setIsModalVisible(false)}
-                onSuccess={() => dispatch(fetchDisplayConfig(query))}
-                data={editingData}
-            />
+            <Table columns={columns} dataSource={data} size="small" loading={loading}
+                   onChange={(pageInfo, filters) => dispatch(setDisplayConfigQuery({
+                       page: filters.Description ? 1 : pageInfo.current,
+                       limit: pageInfo.pageSize,
+                       search: String(filters.Description?.[0] ?? "")
+                   }))}
+                   pagination={{
+                       size: "small",
+                       current: pagination.page,
+                       pageSize: pagination.limit,
+                       total: pagination.totalItems,
+                       showSizeChanger: true,
+                       showTotal: (total) => `Total ${total} records`
+                   }}
+                   rowKey="Id" onRow={(record) => ({onClick: () => selectRecord(record)})}
+                   rowClassName={(record) => isSelected(record) ? "ant-table-row-selected" : ""}
+                   scroll={{x: "max-content", y: "calc(100vh - 380px)"}} className="small-table"
+                   style={{fontSize: 11}}/>
+            <CreateEditDisplayConfigModal visible={isCreateModalVisible} onClose={() => setIsCreateModalVisible(false)}
+                                          onSuccess={refresh} data={null}/>
+            <DisplayConfigModal visible={modalData !== null} data={modalData} onClose={() => setModalData(null)}
+                                onUpdated={refresh} onDeleted={() => {
+                clearSelection();
+                setModalData(null);
+                refresh();
+            }}/>
         </Card>
     );
-};
-
-export default DisplayConfigPage;
+}

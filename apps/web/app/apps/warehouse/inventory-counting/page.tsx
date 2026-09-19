@@ -1,17 +1,25 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { Table, Card, Breadcrumb, Tag, App, Progress, Tooltip, Dropdown } from 'antd';
-import type { TableProps } from 'antd';
-import { ReloadOutlined, PlusOutlined, EyeOutlined, DeleteOutlined, PlayCircleOutlined, StopOutlined, FileExcelOutlined, CameraOutlined, DownOutlined, DownloadOutlined } from '@ant-design/icons';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Table, Card, Breadcrumb, Tag, App, Progress, Tooltip, Dropdown, Space} from 'antd';
+import type {TableProps} from 'antd';
+import {
+    ReloadOutlined,
+    PlusOutlined,
+    PlayCircleOutlined,
+    StopOutlined,
+    FileExcelOutlined,
+    CameraOutlined,
+    DownOutlined,
+    DownloadOutlined
+} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
 import {
     fetchInventoryCounting,
-    deleteInventoryCounting,
     startInventoryCounting,
     setFilters,
     downloadWorksheet,
@@ -22,7 +30,9 @@ import {
 import CreateInventoryCountingModal from './_components/CreateInventoryCountingModal';
 import DetailInventoryCountingModal from './_components/DetailInventoryCountingModal';
 import ReviewApprovalModal from './_components/ReviewApprovalModal';
-import { formatDateTime } from '@/lib/utils/dateTime';
+import {formatDateTime} from '@/lib/utils/dateTime';
+import GoldenArrowAction from '@/components/GoldenArrowAction';
+import {useSingleRowSelection} from '@/hooks/useSingleRowSelection';
 
 const STATUS_COLORS: Record<string, string> = {
     DRAFT: 'default',
@@ -37,12 +47,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function InventoryCountingPage() {
-    const { message, modal } = App.useApp();
+    const {message, modal} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, pagination, filters } = useSelector((state: RootState) => state.inventoryCounting);
-    const { user } = useSelector((state: RootState) => state.auth);
+    const {data, loading, pagination, filters} = useSelector((state: RootState) => state.inventoryCounting);
+    const {user} = useSelector((state: RootState) => state.auth);
 
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
     const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
@@ -50,18 +59,25 @@ export default function InventoryCountingPage() {
     const [downloadingWs, setDownloadingWs] = useState(false);
     const [downloadingSnapshot, setDownloadingSnapshot] = useState(false);
 
-    const canApprove = Boolean(
+    const getInventoryCountingKey = useCallback((record: InventoryCountingEntity) => record.Id, []);
+    const {
+        selectedRecord,
+        selectRecord,
+        clearSelection,
+        isSelected
+    } = useSingleRowSelection(data, getInventoryCountingKey);
+    const can = (permission: string) => Boolean(
         user?.RoleName === 'SUPER' ||
-        user?.Permission?.includes('SUPER') ||
-        user?.Permission?.includes('*') ||
-        user?.Permission?.includes('IPCS.INVENTORY_COUNTING_APPROVE')
+        user?.GlobalRoles?.includes('SUPER_ADMINISTRATOR') ||
+        user?.Permission?.some((value) => value === 'SUPER' || value === '*' || value === permission)
     );
+    const canRead = can('IPCS.INVENTORY_COUNTING_READ');
+    const canUpdate = can('IPCS.INVENTORY_COUNTING_UPDATE');
+    const canApprove = can('IPCS.INVENTORY_COUNTING_APPROVE');
 
     useEffect(() => {
         dispatch(fetchInventoryCounting(filters));
     }, [dispatch, filters]);
-
-    const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
 
     const handleTableChange: TableProps<InventoryCountingEntity>['onChange'] = (pagination, tableFilters) => {
         const newFilters: InventoryCountingQuery = {
@@ -121,47 +137,11 @@ export default function InventoryCountingPage() {
         }
     };
 
-    const handleViewDetail = () => {
-        if (selectedRecord) {
-            // Langsung set detailData dari selectedRecord (sudah ada details dari list)
-            setDetailData(selectedRecord);
-            setIsDetailModalVisible(true);
-        }
-    };
-
-    const handleDelete = () => {
-        if (selectedRecord) {
-            modal.confirm({
-                title: 'Delete Inventory Counting?',
-                icon: <DeleteOutlined />,
-                content: `Delete ${selectedRecord.OpnameNumber}? Can only be deleted when status is DRAFT.`,
-                okText: 'Delete',
-                okType: 'danger',
-                cancelText: 'Cancel',
-                centered: true,
-                onOk: async () => {
-                    try {
-                        const result = await dispatch(deleteInventoryCounting(selectedRecord.Id));
-                        if (deleteInventoryCounting.rejected.match(result)) {
-                            throw new Error((result.payload as string) || 'Failed to delete inventory counting');
-                        }
-                        message.success('Inventory counting deleted successfully');
-                        setSelectedRowKeys([]);
-                        dispatch(fetchInventoryCounting(filters));
-                    } catch (error: unknown) {
-                        const err = error as Error;
-                        message.error(err?.message || String(error) || 'Failed to delete inventory counting');
-                    }
-                },
-            });
-        }
-    };
-
     const handleStart = () => {
         if (selectedRecord) {
             modal.confirm({
                 title: 'Start Inventory Counting?',
-                icon: <PlayCircleOutlined />,
+                icon: <PlayCircleOutlined/>,
                 content: `Start ${selectedRecord.OpnameNumber}? Status will change to IN_PROGRESS.`,
                 okText: 'Start',
                 okType: 'primary',
@@ -196,7 +176,21 @@ export default function InventoryCountingPage() {
             dataIndex: 'OpnameNumber',
             key: 'OpnameNumber',
             ellipsis: true,
-            render: (val: string) => <Tooltip title={val || '-'}><code style={{ fontSize: 11 }}>{val || '-'}</code></Tooltip>,
+            render: (val: string, record: InventoryCountingEntity) => (
+                <Space size={4}>
+                    <GoldenArrowAction
+                        tooltip="View inventory counting details"
+                        ariaLabel={`View inventory counting details for ${record.OpnameNumber}`}
+                        disabled={!canRead}
+                        onClick={() => {
+                            selectRecord(record);
+                            setDetailData(record);
+                            setIsDetailModalVisible(true);
+                        }}
+                    />
+                    <Tooltip title={val || '-'}><code style={{fontSize: 11}}>{val || '-'}</code></Tooltip>
+                </Space>
+            ),
         },
         {
             title: 'Category',
@@ -208,8 +202,8 @@ export default function InventoryCountingPage() {
                 </Tag>
             ),
             filters: [
-                { text: 'MATERIAL', value: 'MATERIAL' },
-                { text: 'FINISH_GOOD', value: 'FINISH_GOOD' },
+                {text: 'MATERIAL', value: 'MATERIAL'},
+                {text: 'FINISH_GOOD', value: 'FINISH_GOOD'},
             ],
             filteredValue: filters.category ? [filters.category] : null,
         },
@@ -233,16 +227,16 @@ export default function InventoryCountingPage() {
                             percent={record.TotalItems > 0 ? Math.round(((record.CompletedItems || 0) / record.TotalItems) * 100) : 0}
                             size="small"
                             status="active"
-                            style={{ marginTop: 4 }}
+                            style={{marginTop: 4}}
                         />
                     )}
                 </div>
             ),
             filters: [
-                { text: 'DRAFT', value: 'DRAFT' },
-                { text: 'IN_PROGRESS', value: 'IN_PROGRESS' },
-                { text: 'COMPLETED', value: 'COMPLETED' },
-                { text: 'CANCELLED', value: 'CANCELLED' },
+                {text: 'DRAFT', value: 'DRAFT'},
+                {text: 'IN_PROGRESS', value: 'IN_PROGRESS'},
+                {text: 'COMPLETED', value: 'COMPLETED'},
+                {text: 'CANCELLED', value: 'CANCELLED'},
             ],
             filteredValue: filters.status ? [filters.status] : null,
         },
@@ -278,26 +272,27 @@ export default function InventoryCountingPage() {
     ];
 
     return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
+        <Card variant="borderless" styles={{body: {padding: 0}}}>
             <Breadcrumb
-                style={{ marginBottom: 16 }}
+                style={{marginBottom: 16}}
                 items={[
-                    { title: 'Home' },
-                    { title: 'Warehouse' },
-                    { title: 'Inventory Counting' },
+                    {title: 'Home'},
+                    {title: 'Warehouse'},
+                    {title: 'Inventory Counting'},
                 ]}
             />
 
             <ToolbarWrapper>
                 <ButtonToolbar
                     title="Refresh"
-                    icon={<ReloadOutlined />}
+                    icon={<ReloadOutlined/>}
                     onClick={handleRefresh}
                 />
                 <ButtonToolbar
                     title="Create"
-                    icon={<PlusOutlined />}
+                    icon={<PlusOutlined/>}
                     onClick={() => setIsCreateModalVisible(true)}
+                    enable={can('IPCS.INVENTORY_COUNTING_CREATE')}
                 />
                 <Dropdown
                     menu={{
@@ -305,40 +300,28 @@ export default function InventoryCountingPage() {
                             {
                                 key: 'start',
                                 label: 'Start',
-                                icon: <PlayCircleOutlined />,
+                                icon: <PlayCircleOutlined/>,
                                 onClick: handleStart,
-                                disabled: !(selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'),
+                                disabled: !(selectedRecord?.Status === 'DRAFT' && canUpdate),
                             },
                             {
                                 key: 'approve',
                                 label: 'Approve & Close',
-                                icon: <StopOutlined />,
+                                icon: <StopOutlined/>,
                                 onClick: handleOpenApproval,
-                                disabled: !(selectedRowKeys.length === 1 && selectedRecord?.Status === 'IN_PROGRESS' && canApprove),
+                                disabled: !(selectedRecord?.Status === 'IN_PROGRESS' && canApprove),
                             },
                         ],
                     }}
                     trigger={['click', 'hover']}
-                    disabled={selectedRowKeys.length !== 1 || (selectedRecord?.Status !== 'DRAFT' && selectedRecord?.Status !== 'IN_PROGRESS')}
+                    disabled={!selectedRecord || (selectedRecord.Status === 'DRAFT' ? !canUpdate : selectedRecord.Status === 'IN_PROGRESS' ? !canApprove : true)}
                 >
-                    <span className={`p-1 text-xs flex flex-row items-center justify-center gap-1 transition-colors ${selectedRowKeys.length !== 1 || (selectedRecord?.Status !== 'DRAFT' && selectedRecord?.Status !== 'IN_PROGRESS') ? "text-[#93A8B8] cursor-not-allowed" : "text-white hover:cursor-pointer hover:bg-[#3A4E61]"}`}>
-                        <PlayCircleOutlined />
-                        <span>Update Status <DownOutlined style={{ fontSize: '10px' }}/></span>
+                    <span
+                        className={`p-1 text-xs flex flex-row items-center justify-center gap-1 transition-colors ${!selectedRecord || (selectedRecord.Status === 'DRAFT' ? !canUpdate : selectedRecord.Status === 'IN_PROGRESS' ? !canApprove : true) ? "text-[#93A8B8] cursor-not-allowed" : "text-white hover:cursor-pointer hover:bg-[#3A4E61]"}`}>
+                        <PlayCircleOutlined/>
+                        <span>Update Status <DownOutlined style={{fontSize: '10px'}}/></span>
                     </span>
                 </Dropdown>
-
-                <ButtonToolbar
-                    title="Delete"
-                    icon={<DeleteOutlined />}
-                    onClick={handleDelete}
-                    enable={selectedRowKeys.length === 1 && selectedRecord?.Status === 'DRAFT'}
-                />
-                <ButtonToolbar
-                    title="Detail"
-                    icon={<EyeOutlined />}
-                    onClick={handleViewDetail}
-                    enable={selectedRowKeys.length === 1}
-                />
 
                 <Dropdown
                     menu={{
@@ -346,40 +329,35 @@ export default function InventoryCountingPage() {
                             {
                                 key: 'worksheet',
                                 label: 'Worksheet',
-                                icon: <FileExcelOutlined />,
+                                icon: <FileExcelOutlined/>,
                                 onClick: handleDownloadWorksheet,
-                                disabled: selectedRowKeys.length !== 1,
+                                disabled: !selectedRecord || !canRead,
                             },
                             {
                                 key: 'snapshot',
                                 label: 'Snapshot',
-                                icon: <CameraOutlined />,
+                                icon: <CameraOutlined/>,
                                 onClick: handleDownloadSnapshot,
-                                disabled: selectedRowKeys.length !== 1,
+                                disabled: !selectedRecord || !canRead,
                             },
                         ],
                     }}
                     trigger={['click', 'hover']}
-                    disabled={selectedRowKeys.length !== 1 || downloadingWs || downloadingSnapshot}
+                    disabled={!selectedRecord || !canRead || downloadingWs || downloadingSnapshot}
                 >
-                    <span className={`p-1 text-xs flex flex-row items-center justify-center gap-1 transition-colors ${selectedRowKeys.length !== 1 || downloadingWs || downloadingSnapshot ? "text-[#93A8B8] cursor-not-allowed" : "text-white hover:cursor-pointer hover:bg-[#3A4E61]"}`}>
+                    <span
+                        className={`p-1 text-xs flex flex-row items-center justify-center gap-1 transition-colors ${!selectedRecord || !canRead || downloadingWs || downloadingSnapshot ? "text-[#93A8B8] cursor-not-allowed" : "text-white hover:cursor-pointer hover:bg-[#3A4E61]"}`}>
                         {downloadingWs || downloadingSnapshot ? (
-                            <ReloadOutlined spin />
+                            <ReloadOutlined spin/>
                         ) : (
-                            <DownloadOutlined />
+                            <DownloadOutlined/>
                         )}
-                        <span>Downloads <DownOutlined style={{ fontSize: '10px' }}/></span>
+                        <span>Downloads <DownOutlined style={{fontSize: '10px'}}/></span>
                     </span>
                 </Dropdown>
             </ToolbarWrapper>
 
             <Table
-                rowSelection={{
-                    selectedRowKeys,
-                    onChange: (keys) => setSelectedRowKeys(keys),
-                    checkStrictly: true,
-                    type: 'radio',
-                }}
                 columns={columns}
                 dataSource={data}
                 size="small"
@@ -396,7 +374,9 @@ export default function InventoryCountingPage() {
                     showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total}`,
                 }}
                 rowKey="Id"
-                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
+                onRow={(record) => ({onClick: () => selectRecord(record)})}
+                rowClassName={(record) => isSelected(record) ? 'ant-table-row-selected' : ''}
+                scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"
             />
 
@@ -417,6 +397,12 @@ export default function InventoryCountingPage() {
                     }}
                     data={detailData}
                     onRefresh={() => dispatch(fetchInventoryCounting(filters))}
+                    onDeleted={() => {
+                        clearSelection();
+                        setIsDetailModalVisible(false);
+                        setDetailData(null);
+                        void dispatch(fetchInventoryCounting(filters));
+                    }}
                 />
             )}
 
@@ -425,7 +411,7 @@ export default function InventoryCountingPage() {
                 onClose={() => setIsReviewModalVisible(false)}
                 data={selectedRecord || null}
                 onSuccess={() => {
-                    setSelectedRowKeys([]);
+                    clearSelection();
                     dispatch(fetchInventoryCounting(filters));
                 }}
             />

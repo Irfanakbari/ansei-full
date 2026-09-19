@@ -1,16 +1,16 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-06-08 */
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Table, Card, Breadcrumb, Input, Button, Space, Tag } from 'antd';
-import type { InputRef } from 'antd';
-import type { SorterResult } from 'antd/es/table/interface';
-import { ReloadOutlined, SearchOutlined, SwapOutlined } from '@ant-design/icons';
+import React, {useState, useEffect, useRef} from 'react';
+import {Table, Card, Breadcrumb, Input, Button, Space, Tag} from 'antd';
+import type {InputRef} from 'antd';
+import type {SorterResult} from 'antd/es/table/interface';
+import {ReloadOutlined, SearchOutlined, SwapOutlined} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { fetchMaterial } from '@/store/features/master/materialSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
+import {fetchMaterial} from '@/store/features/master/materialSlice';
 import TransferToRackModal from './_components/TransferToRackModal';
 
 interface MaterialWithQty {
@@ -23,7 +23,7 @@ interface MaterialWithQty {
 
 export default function TransferPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const { data: materials, loading } = useSelector((state: RootState) => state.material);
+    const {data: materials, loading} = useSelector((state: RootState) => state.material);
 
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
@@ -56,28 +56,32 @@ export default function TransferPage() {
     };
 
     const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: any) => (
+            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
                 <Input
                     ref={searchInput as any}
                     placeholder={`Search ${dataIndex}`}
                     value={selectedKeys[0]}
                     onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={() => confirm()}
-                    style={{ marginBottom: 8, display: 'block' }}
+                    style={{marginBottom: 8, display: 'block'}}
                 />
                 <Space>
-                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined/>} size="small"
+                            style={{width: 90}}>
                         Search
                     </Button>
-                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
+                    <Button onClick={() => {
+                        if (clearFilters) clearFilters();
+                        confirm();
+                    }} size="small" style={{width: 90}}>
                         Reset
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+            <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
         ),
         onFilter: (value: any, record: any) => {
             return record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase());
@@ -89,7 +93,7 @@ export default function TransferPage() {
             title: 'Part Number',
             dataIndex: 'PartNumber',
             key: 'PartNumber',
-            render: (val: string) => <code style={{ fontSize: 11 }}>{val}</code>,
+            render: (val: string) => <code style={{fontSize: 11}}>{val}</code>,
             ...getColumnSearchProps('PartNumber'),
         },
         {
@@ -127,25 +131,20 @@ export default function TransferPage() {
     ];
 
     return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
-            <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Warehouse' }, { title: 'Transfer to Rack' }]} />
+        <Card variant="borderless" styles={{body: {padding: 0}}}>
+            <Breadcrumb style={{marginBottom: 16}}
+                        items={[{title: 'Home'}, {title: 'Warehouse'}, {title: 'Transfer to Rack'}]}/>
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchMaterial())} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>} onClick={() => dispatch(fetchMaterial())}/>
                 <ButtonToolbar
                     title="Transfer to Rack"
-                    icon={<SwapOutlined />}
+                    icon={<SwapOutlined/>}
                     onClick={handleTransfer}
                     enable={selectedRowKeys.length === 1 && (selectedRecord?.QtyWarehouse ?? 0) > 0}
                 />
             </ToolbarWrapper>
 
             <Table
-                rowSelection={{
-                    selectedRowKeys,
-                    onChange: (keys) => setSelectedRowKeys(keys),
-                    checkStrictly: true,
-                    type: 'radio',
-                }}
                 columns={columns}
                 dataSource={materials}
                 size="small"
@@ -158,9 +157,11 @@ export default function TransferPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
+                onRow={(record) => ({onClick: () => setSelectedRowKeys([record.Id])})}
+                rowClassName={(record) => selectedRowKeys[0] === record.Id ? 'ant-table-row-selected' : ''}
+                scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"
-                style={{ fontSize: '11px' }}
+                style={{fontSize: '11px'}}
             />
 
             {selectedRecord && (

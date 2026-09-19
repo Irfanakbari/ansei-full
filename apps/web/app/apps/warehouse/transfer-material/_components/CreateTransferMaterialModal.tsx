@@ -1,13 +1,16 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-11*/
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Button, Space, Table, InputNumber, App, Row, Col, Select } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { createTransferMaterial, CreateTransferMaterialDto } from '@/store/features/warehouse/transferMaterial/transferMaterialSlice';
-import { fetchMaterial } from '@/store/features/master/materialSlice';
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import React, {useState, useEffect} from 'react';
+import {Modal, Form, Input, Button, Space, Table, InputNumber, App, Row, Col, Select} from 'antd';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
+import {
+    createTransferMaterial,
+    CreateTransferMaterialDto
+} from '@/store/features/warehouse/transferMaterial/transferMaterialSlice';
+import {fetchMaterial} from '@/store/features/master/materialSlice';
+import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
 
 interface Props {
     visible: boolean;
@@ -22,28 +25,28 @@ interface ItemRow {
     FinishGoodPartTemp?: string;
 }
 
-const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSuccess }) => {
-    const { message: antMessage } = App.useApp();
+const CreateTransferMaterialModal: React.FC<Props> = ({visible, onClose, onSuccess}) => {
+    const {message: antMessage} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [items, setItems] = useState<ItemRow[]>([
-        { key: '1', materialId: '', qtyRequested: 1 },
+        {key: '1', materialId: '', qtyRequested: 1},
     ]);
 
-    const { data: materials, loading: materialLoading } = useSelector((state: RootState) => state.material);
+    const {data: materials, loading: materialLoading} = useSelector((state: RootState) => state.material);
 
     // Fetch materials when modal opens
     useEffect(() => {
         if (visible) {
-            dispatch(fetchMaterial({ page: 1, limit: 100 }));
+            dispatch(fetchMaterial({page: 1, limit: 100}));
         }
     }, [visible, dispatch]);
 
     const handleAddItem = () => {
         setItems([
             ...items,
-            { key: Date.now().toString(), materialId: '', qtyRequested: 1 },
+            {key: Date.now().toString(), materialId: '', qtyRequested: 1},
         ]);
     };
 
@@ -55,7 +58,7 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
 
     const handleItemChange = (key: string, field: keyof ItemRow, value: string | number) => {
         setItems(items.map(item =>
-            item.key === key ? { ...item, [field]: value } : item
+            item.key === key ? {...item, [field]: value} : item
         ));
     };
 
@@ -76,7 +79,7 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
                     materialId: item.materialId,
                     qtyRequested: item.qtyRequested,
                     ...(item.FinishGoodPartTemp?.trim()
-                        ? { FinishGoodPartTemp: item.FinishGoodPartTemp.trim() }
+                        ? {FinishGoodPartTemp: item.FinishGoodPartTemp.trim()}
                         : {}),
                 })),
             };
@@ -85,7 +88,7 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
             if (createTransferMaterial.fulfilled.match(resultAction)) {
                 antMessage.success('Transfer material created successfully');
                 form.resetFields();
-                setItems([{ key: '1', materialId: '', qtyRequested: 1 }]);
+                setItems([{key: '1', materialId: '', qtyRequested: 1}]);
                 onClose();
                 onSuccess?.();
             } else if (createTransferMaterial.rejected.match(resultAction)) {
@@ -103,8 +106,8 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
         value: m.PartNumber,
         label: (
             <div>
-                <code style={{ fontSize: 11 }}>{m.PartNumber}</code>
-                <span style={{ fontSize: 10, color: '#666', marginLeft: 8 }}> - {m.PartName}</span>
+                <code style={{fontSize: 11}}>{m.PartNumber}</code>
+                <span style={{fontSize: 10, color: '#666', marginLeft: 8}}> - {m.PartName}</span>
             </div>
         ),
     }));
@@ -117,17 +120,17 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
             width: 350,
             render: (_: any, record: ItemRow) => (
                 <Select
-                    showSearch
+                    showSearch={{
+                        optionFilterProp: 'label',
+                        filterOption: (input, option) =>
+                            (option?.label?.props?.children?.[0]?.props?.children || '').toLowerCase().includes(input.toLowerCase()),
+                    }}
                     placeholder="Select Material"
-                    optionFilterProp="label"
                     value={record.materialId || undefined}
                     onChange={(value) => handleItemChange(record.key, 'materialId', value)}
                     options={materialOptions}
                     loading={materialLoading}
-                    style={{ width: '100%' }}
-                    filterOption={(input, option) =>
-                        (option?.label?.props?.children?.[0]?.props?.children || '').toLowerCase().includes(input.toLowerCase())
-                    }
+                    style={{width: '100%'}}
                 />
             ),
         },
@@ -154,7 +157,7 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
                     min={1}
                     value={record.qtyRequested}
                     onChange={(value) => handleItemChange(record.key, 'qtyRequested', value || 1)}
-                    style={{ width: '100%' }}
+                    style={{width: '100%'}}
                 />
             ),
         },
@@ -167,7 +170,7 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
                     <Button
                         type="text"
                         danger
-                        icon={<DeleteOutlined />}
+                        icon={<DeleteOutlined/>}
                         onClick={() => handleRemoveItem(record.key)}
                     />
                 ) : null
@@ -181,7 +184,7 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
             open={visible}
             onCancel={() => {
                 form.resetFields();
-                setItems([{ key: '1', materialId: '', qtyRequested: 1 }]);
+                setItems([{key: '1', materialId: '', qtyRequested: 1}]);
                 onClose();
             }}
             footer={null}
@@ -199,9 +202,9 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
                         <Form.Item
                             name="destination"
                             label="Destination"
-                            rules={[{ required: true, message: 'Please enter destination' }]}
+                            rules={[{required: true, message: 'Please enter destination'}]}
                         >
-                            <Input placeholder="Example: Subcont Warehouse A" size="large" />
+                            <Input placeholder="Example: Subcont Warehouse A" size="large"/>
                         </Form.Item>
                     </Col>
                     <Col span={8}>
@@ -209,13 +212,13 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
                             name="notes"
                             label="Notes"
                         >
-                            <Input.TextArea rows={1} placeholder="Notes (optional)" />
+                            <Input.TextArea rows={1} placeholder="Notes (optional)"/>
                         </Form.Item>
                     </Col>
                 </Row>
 
-                <div style={{ marginBottom: 8 }}>
-                    <span style={{ fontWeight: 500 }}>Items</span>
+                <div style={{marginBottom: 8}}>
+                    <span style={{fontWeight: 500}}>Items</span>
                 </div>
 
                 <Table
@@ -224,25 +227,25 @@ const CreateTransferMaterialModal: React.FC<Props> = ({ visible, onClose, onSucc
                     rowKey="key"
                     size="small"
                     pagination={false}
-                    scroll={{ x: 550 }}
-                    style={{ marginBottom: 16 }}
+                    scroll={{x: 550}}
+                    style={{marginBottom: 16}}
                 />
 
                 <Button
                     type="dashed"
-                    icon={<PlusOutlined />}
+                    icon={<PlusOutlined/>}
                     onClick={handleAddItem}
-                    style={{ marginBottom: 16 }}
+                    style={{marginBottom: 16}}
                     block
                 >
                     Add Item
                 </Button>
 
-                <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+                <Form.Item style={{marginBottom: 0, textAlign: 'right'}}>
                     <Space>
                         <Button onClick={() => {
                             form.resetFields();
-                            setItems([{ key: '1', materialId: '', qtyRequested: 1 }]);
+                            setItems([{key: '1', materialId: '', qtyRequested: 1}]);
                             onClose();
                         }}>
                             Cancel

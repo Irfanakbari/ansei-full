@@ -1,10 +1,11 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, App } from 'antd';
-import { createPrinterSetting } from '@/store/features/settings/printerSettingSlice';
-import { store } from '@/store';
+import React, {useState, useEffect} from 'react';
+import {Modal, Form, Input, App} from 'antd';
+import {createPrinterSetting} from '@/store/features/settings/printerSettingSlice';
+import {AppDispatch} from '@/store';
+import {useDispatch} from 'react-redux';
 
 interface Props {
     visible: boolean;
@@ -12,9 +13,15 @@ interface Props {
     onSuccess?: () => void;
 }
 
-const CreatePrinterSettingModal: React.FC<Props> = ({ visible, onClose, onSuccess }) => {
-    const { message } = App.useApp();
-    const [form] = Form.useForm();
+interface FormValues {
+    name: string;
+    ipAddress: string;
+}
+
+const CreatePrinterSettingModal: React.FC<Props> = ({visible, onClose, onSuccess}) => {
+    const {message} = App.useApp();
+    const dispatch = useDispatch<AppDispatch>();
+    const [form] = Form.useForm<FormValues>();
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -28,11 +35,7 @@ const CreatePrinterSettingModal: React.FC<Props> = ({ visible, onClose, onSucces
             const values = await form.validateFields();
             setLoading(true);
 
-            const result = await store.dispatch(createPrinterSetting(values));
-
-            if (createPrinterSetting.rejected.match(result)) {
-                throw new Error((result.payload as string) || 'Failed to create printer setting');
-            }
+            await dispatch(createPrinterSetting(values)).unwrap();
             message.success('Printer setting created successfully');
             form.resetFields();
             onClose();
@@ -61,32 +64,34 @@ const CreatePrinterSettingModal: React.FC<Props> = ({ visible, onClose, onSucces
             centered={true}
             onCancel={handleCancel}
             confirmLoading={loading}
+            mask={{closable: !loading}}
+            closable={!loading}
             width={400}
             okText="Save"
             cancelText="Cancel"
             zIndex={1050}
         >
-            <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
+            <Form form={form} layout="vertical" style={{marginTop: 16}}>
                 <Form.Item
                     name="name"
                     label="Printer Name"
-                    rules={[{ required: true, message: 'Printer name is required' }]}
+                    rules={[{required: true, message: 'Printer name is required'}]}
                 >
-                    <Input placeholder="Example: Warehouse Printer 1" />
+                    <Input placeholder="Example: Warehouse Printer 1"/>
                 </Form.Item>
 
                 <Form.Item
                     name="ipAddress"
                     label="IP Address"
                     rules={[
-                        { required: true, message: 'IP Address is required' },
+                        {required: true, message: 'IP Address is required'},
                         {
                             pattern: /^(\d{1,3}\.){3}\d{1,3}$/,
                             message: 'Invalid IP Address format',
                         },
                     ]}
                 >
-                    <Input placeholder="Example: 192.168.1.100" />
+                    <Input placeholder="Example: 192.168.1.100"/>
                 </Form.Item>
             </Form>
         </Modal>

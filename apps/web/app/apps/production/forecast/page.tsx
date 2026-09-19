@@ -1,23 +1,29 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Table, Card, Breadcrumb, App, Input, Button, DatePicker, Space, Tag, Tooltip } from 'antd';
-import type { InputRef, TableProps } from 'antd';
-import type { FilterDropdownProps } from 'antd/es/table/interface';
-import dayjs, { type Dayjs } from 'dayjs';
-import { ReloadOutlined, EyeOutlined, SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, PrinterOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import React, {useCallback, useState, useEffect, useRef} from 'react';
+import {Table, Card, Breadcrumb, App, Input, Button, DatePicker, Space, Tag, Tooltip} from 'antd';
+import type {InputRef, TableProps} from 'antd';
+import type {FilterDropdownProps} from 'antd/es/table/interface';
+import dayjs, {type Dayjs} from 'dayjs';
+import {ReloadOutlined, SearchOutlined, PlusOutlined, UploadOutlined, PrinterOutlined} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { ForecastEntity, fetchForecast, deleteForecast, clearDetail, printForecastTag, setForecastQuery } from '@/store/features/production/forecast/forecastSlice';
-import DetailForecastModal from './_components/DetailForecastModal';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
+import {
+    ForecastEntity,
+    fetchForecast,
+    printForecastTag,
+    setForecastQuery
+} from '@/store/features/production/forecast/forecastSlice';
 import CreateForecastModal from './_components/CreateForecastModal';
-import EditForecastModal from './_components/EditForecastModal';
 import ImportForecastModal from './_components/ImportForecastModal';
+import ForecastModal from './_components/ForecastModal';
 import FinishGoodLinkedModal from '@/components/production/FinishGoodLinkedModal';
-import { formatDateTime } from '@/lib/utils/dateTime';
+import GoldenArrowAction from '@/components/GoldenArrowAction';
+import {useSingleRowSelection} from '@/hooks/useSingleRowSelection';
+import {formatDateTime} from '@/lib/utils/dateTime';
 
 const STATUS_COLORS: Record<string, string> = {
     PENDING: 'warning',
@@ -27,83 +33,25 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function ForecastPage() {
-    const { message, modal } = App.useApp();
+    const {message} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, query, pagination } = useSelector((state: RootState) => state.forecast);
+    const {data, loading, query, pagination} = useSelector((state: RootState) => state.forecast);
 
-    const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-    const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isImportModalVisible, setIsImportModalVisible] = useState(false);
     const [linkedFinishGood, setLinkedFinishGood] = useState<ForecastEntity['PartData'] | null>(null);
-    const [detailData, setDetailData] = useState<ForecastEntity | null>(null);
-    const [editData, setEditData] = useState<ForecastEntity | null>(null);
+    const [modalData, setModalData] = useState<ForecastEntity | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
     const printInFlight = useRef(false);
     const [sortedInfo, setSortedInfo] = useState<any>({});
 
     const searchInput = useRef<InputRef>(null);
+    const getForecastKey = useCallback((record: ForecastEntity) => record.Id, []);
+    const {selectedRecord, selectRecord, clearSelection, isSelected} = useSingleRowSelection(data, getForecastKey);
 
     useEffect(() => {
         dispatch(fetchForecast(query));
     }, [dispatch, query]);
-
-    const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
-
-    const handleViewDetail = () => {
-        if (selectedRecord) {
-            setDetailData(selectedRecord);
-            setIsDetailModalVisible(true);
-        }
-    };
-
-    const handleCloseDetailModal = () => {
-        setIsDetailModalVisible(false);
-        setDetailData(null);
-        dispatch(clearDetail());
-    };
-
-    const handleEdit = () => {
-        if (selectedRecord) {
-            setEditData(selectedRecord);
-            setIsEditModalVisible(true);
-        }
-    };
-
-    const handleCloseEditModal = () => {
-        setIsEditModalVisible(false);
-        setEditData(null);
-    };
-
-    const handleDelete = () => {
-        if (selectedRecord) {
-            modal.confirm({
-                title: 'Delete Forecast?',
-                icon: <DeleteOutlined />,
-                content: `Delete forecast ${selectedRecord.PoId}?`,
-                okText: 'Delete',
-                okType: 'danger',
-                cancelText: 'Cancel',
-                centered: true,
-                onOk: async () => {
-                    try {
-                        const result = await dispatch(deleteForecast(selectedRecord.Id));
-
-                        if (deleteForecast.rejected.match(result)) {
-                            throw new Error((result.payload as string) || 'Failed to delete forecast');
-                        }
-                        message.success('Forecast deleted successfully');
-                        setSelectedRowKeys([]);
-                        dispatch(fetchForecast(query));
-                    } catch (error: unknown) {
-                        const err = error as Error;
-                        message.error(err?.message || String(error) || 'Failed to delete forecast');
-                    }
-                },
-            });
-        }
-    };
 
     const handlePrintTag = async () => {
         if (selectedRecord && !printInFlight.current) {
@@ -111,11 +59,11 @@ export default function ForecastPage() {
             try {
                 setIsPrinting(true);
                 const result = await dispatch(printForecastTag(selectedRecord.PoId));
-                
+
                 if (printForecastTag.rejected.match(result)) {
                     throw new Error((result.payload as string) || 'Failed to print tag');
                 }
-                
+
                 message.success(result.payload.message || 'Print job emitted successfully');
             } catch (error: unknown) {
                 const err = error as Error;
@@ -145,28 +93,32 @@ export default function ForecastPage() {
     };
 
     const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: any) => (
+            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
                 <Input
                     ref={searchInput as any}
                     placeholder={`Search ${dataIndex}`}
                     value={selectedKeys[0]}
                     onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={() => confirm()}
-                    style={{ marginBottom: 8, display: 'block' }}
+                    style={{marginBottom: 8, display: 'block'}}
                 />
                 <Space>
-                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined/>} size="small"
+                            style={{width: 90}}>
                         Search
                     </Button>
-                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
+                    <Button onClick={() => {
+                        if (clearFilters) clearFilters();
+                        confirm();
+                    }} size="small" style={{width: 90}}>
                         Reset
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+            <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
         ),
         filteredValue: query.search ? [query.search] : null,
         onFilter: (value: any, record: any) => {
@@ -180,7 +132,19 @@ export default function ForecastPage() {
             dataIndex: 'PoId',
             key: 'PoId',
             ellipsis: true,
-            render: (val: string) => <Tooltip title={val}><code style={{ fontSize: 11 }}>{val}</code></Tooltip>,
+            render: (val: string, record: ForecastEntity) => (
+                <Space size={4}>
+                    <GoldenArrowAction
+                        tooltip="View forecast details"
+                        ariaLabel={`View forecast details for ${record.PoId}`}
+                        onClick={() => {
+                            selectRecord(record);
+                            setModalData(record);
+                        }}
+                    />
+                    <Tooltip title={val}><code style={{fontSize: 11}}>{val}</code></Tooltip>
+                </Space>
+            ),
             ...getColumnSearchProps('PoId'),
         },
         {
@@ -189,19 +153,11 @@ export default function ForecastPage() {
             key: 'PartData',
             render: (_: any, record: ForecastEntity) => (
                 <Space size={4}>
-                    <Tooltip title="View Finish Good details">
-                        <Button
-                            type="text"
-                            size="small"
-                            aria-label={`View Finish Good details for ${record.PartData?.PartNumber || 'unknown part'}`}
-                            icon={<ArrowRightOutlined style={{ color: '#d4a106', fontSize: 12 }} />}
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                setLinkedFinishGood(record.PartData ?? null);
-                            }}
-                            style={{ width: 20, minWidth: 20, height: 20, padding: 0 }}
-                        />
-                    </Tooltip>
+                    <GoldenArrowAction
+                        tooltip="View Finish Good details"
+                        ariaLabel={`View Finish Good details for ${record.PartData?.PartNumber || 'unknown part'}`}
+                        onClick={() => setLinkedFinishGood(record.PartData ?? null)}
+                    />
                     <Tooltip title={`${record.PartData?.PartNumber} - ${record.PartData?.PartName}`}>
                         <span>{record.PartData?.PartNumber || '-'}</span>
                     </Tooltip>
@@ -229,14 +185,14 @@ export default function ForecastPage() {
             dataIndex: 'DeliveryDate',
             key: 'DeliveryDate',
             render: formatDateTime,
-            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: FilterDropdownProps) => {
+            filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: FilterDropdownProps) => {
                 const currentRange = selectedKeys as string[];
                 const pickerValue: [Dayjs, Dayjs] | null = currentRange.length === 2
                     ? [dayjs(currentRange[0]), dayjs(currentRange[1])]
                     : null;
 
                 return (
-                    <div style={{ padding: 8 }} onKeyDown={(event) => event.stopPropagation()}>
+                    <div style={{padding: 8}} onKeyDown={(event) => event.stopPropagation()}>
                         <DatePicker.RangePicker
                             value={pickerValue}
                             format="DD/MM/YYYY"
@@ -245,10 +201,10 @@ export default function ForecastPage() {
                                 const [from, to] = dates ?? [];
                                 setSelectedKeys(from && to ? [from.format('YYYY-MM-DD'), to.format('YYYY-MM-DD')] : []);
                             }}
-                            style={{ marginBottom: 8 }}
+                            style={{marginBottom: 8}}
                         />
                         <Space>
-                            <Button type="primary" size="small" onClick={() => confirm()} style={{ width: 90 }}>
+                            <Button type="primary" size="small" onClick={() => confirm()} style={{width: 90}}>
                                 Filter
                             </Button>
                             <Button
@@ -257,7 +213,7 @@ export default function ForecastPage() {
                                     clearFilters?.();
                                     confirm();
                                 }}
-                                style={{ width: 90 }}
+                                style={{width: 90}}
                             >
                                 Reset
                             </Button>
@@ -284,25 +240,18 @@ export default function ForecastPage() {
     ];
 
     return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
-            <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'Production' }, { title: 'Forecast' }]} />
+        <Card variant="borderless" styles={{body: {padding: 0}}}>
+            <Breadcrumb style={{marginBottom: 16}}
+                        items={[{title: 'Home'}, {title: 'Production'}, {title: 'Forecast'}]}/>
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchForecast(query))} />
-                <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
-                <ButtonToolbar title="Edit" icon={<EditOutlined />} onClick={handleEdit} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Detail" icon={<EyeOutlined />} onClick={handleViewDetail} enable={selectedRowKeys.length === 1} />
-                <ButtonToolbar title="Import" icon={<UploadOutlined />} onClick={() => setIsImportModalVisible(true)} />
-                <ButtonToolbar title="Print" icon={<PrinterOutlined />} onClick={handlePrintTag} loading={isPrinting} enable={selectedRowKeys.length === 1} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>} onClick={() => dispatch(fetchForecast(query))}/>
+                <ButtonToolbar title="Create" icon={<PlusOutlined/>} onClick={() => setIsCreateModalVisible(true)}/>
+                <ButtonToolbar title="Import" icon={<UploadOutlined/>} onClick={() => setIsImportModalVisible(true)}/>
+                <ButtonToolbar title="Print" icon={<PrinterOutlined/>} onClick={handlePrintTag} loading={isPrinting}
+                               enable={Boolean(selectedRecord)}/>
             </ToolbarWrapper>
 
             <Table
-                rowSelection={{
-                    selectedRowKeys,
-                    onChange: (keys) => setSelectedRowKeys(keys),
-                    checkStrictly: true,
-                    type: 'radio',
-                }}
                 columns={columns}
                 dataSource={data}
                 size="small"
@@ -317,18 +266,27 @@ export default function ForecastPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                scroll={{ x: 'max-content', y: 'calc(100vh - 380px)' }}
+                onRow={(record) => ({onClick: () => selectRecord(record)})}
+                rowClassName={(record) => isSelected(record) ? 'ant-table-row-selected' : ''}
+                scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"
-                style={{ fontSize: '11px' }}
+                style={{fontSize: '11px'}}
             />
 
-            {detailData && (
-                <DetailForecastModal
-                    visible={isDetailModalVisible}
-                    onClose={handleCloseDetailModal}
-                    data={detailData}
-                />
-            )}
+            <ForecastModal
+                visible={modalData !== null}
+                onClose={() => setModalData(null)}
+                data={modalData}
+                onUpdated={(forecast) => {
+                    setModalData(forecast);
+                    void dispatch(fetchForecast(query));
+                }}
+                onDeleted={() => {
+                    clearSelection();
+                    setModalData(null);
+                    void dispatch(fetchForecast(query));
+                }}
+            />
 
             <FinishGoodLinkedModal
                 open={linkedFinishGood !== null}
@@ -341,15 +299,6 @@ export default function ForecastPage() {
                 onClose={() => setIsCreateModalVisible(false)}
                 onSuccess={() => dispatch(fetchForecast(query))}
             />
-
-            {editData && (
-                <EditForecastModal
-                    visible={isEditModalVisible}
-                    onClose={handleCloseEditModal}
-                    data={editData}
-                    onSuccess={() => dispatch(fetchForecast(query))}
-                />
-            )}
 
             <ImportForecastModal
                 visible={isImportModalVisible}

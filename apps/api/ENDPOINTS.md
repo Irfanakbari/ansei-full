@@ -690,7 +690,7 @@ POST /warehouse/material/MAT-001/transfer-to-rack
   vendorName: string;         // Required - Vendor name
   receivingArea: string;       // Required - Receiving area
   deliveryDate: Date;         // Required - Delivery date (ISO string)
-  deliveryPeriod: number;     // Required - Delivery period (days)
+  deliveryPeriod: number;     // Required - Delivery cycle / ritase count (positive integer)
   classification: string;      // Required - Classification
   poNumber: string;           // Required - PO number
   item: number;              // Required - Item number

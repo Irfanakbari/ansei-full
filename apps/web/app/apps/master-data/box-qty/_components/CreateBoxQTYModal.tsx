@@ -1,23 +1,24 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, InputNumber, App, Select } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { createBoxQTY, fetchBoxQTY } from '@/store/features/master/boxQtySlice';
-import { fetchFinishGood } from '@/store/features/master/finishGoodSlice';
+import React, {useState, useEffect} from 'react';
+import {Modal, Form, InputNumber, App, Select} from 'antd';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
+import {createBoxQTY} from '@/store/features/master/boxQtySlice';
+import {fetchFinishGood} from '@/store/features/master/finishGoodSlice';
 
 interface Props {
     visible: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-const CreateBoxQTYModal: React.FC<Props> = ({ visible, onClose }) => {
-    const { message } = App.useApp();
+const CreateBoxQTYModal: React.FC<Props> = ({visible, onClose, onSuccess}) => {
+    const {message} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
-    const { data: finishGoods } = useSelector((state: RootState) => state.finishGood);
+    const {data: finishGoods} = useSelector((state: RootState) => state.finishGood);
 
     useEffect(() => {
         if (visible) {
@@ -41,7 +42,7 @@ const CreateBoxQTYModal: React.FC<Props> = ({ visible, onClose }) => {
                 throw new Error((result.payload as string) || 'Failed to create box QTY');
             }
             message.success('Box QTY created successfully');
-            dispatch(fetchBoxQTY());
+            onSuccess?.();
             form.resetFields();
             onClose();
         } catch (error: unknown) {
@@ -70,18 +71,19 @@ const CreateBoxQTYModal: React.FC<Props> = ({ visible, onClose }) => {
             zIndex={1050}
         >
             <Form form={form} layout="vertical">
-                <Form.Item name="partNumber" label="Finish Good" rules={[{ required: true, message: 'Please select finish good' }]}>
+                <Form.Item name="partNumber" label="Finish Good"
+                           rules={[{required: true, message: 'Please select finish good'}]}>
                     <Select
                         placeholder="Select finish good"
-                        showSearch={{ optionFilterProp: 'label' }}
+                        showSearch={{optionFilterProp: 'label'}}
                         options={finishGoods.map((finishGood) => ({
                             value: finishGood.PartNumber,
                             label: `${finishGood.PartNumber} - ${finishGood.PartName}`,
                         }))}
                     />
                 </Form.Item>
-                <Form.Item name="qty" label="Qty Per Box" rules={[{ required: true, message: 'Please enter qty' }]}>
-                    <InputNumber placeholder="0" min={1} style={{ width: '100%' }} />
+                <Form.Item name="qty" label="Qty Per Box" rules={[{required: true, message: 'Please enter qty'}]}>
+                    <InputNumber placeholder="0" min={1} style={{width: '100%'}}/>
                 </Form.Item>
             </Form>
         </Modal>

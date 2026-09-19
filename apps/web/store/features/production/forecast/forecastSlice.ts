@@ -1,6 +1,15 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, postFormData, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {
+    del,
+    get,
+    getApiErrorMessage,
+    patch,
+    post,
+    postFormData,
+    type ApiSuccessEnvelope,
+    type PaginatedApiSuccessEnvelope
+} from '@/store/utils/apiService';
 
 // FG Data interface
 export interface FGData {
@@ -57,16 +66,18 @@ const initialState: ForecastState = {
     loading: false,
     detailLoading: false,
     error: null,
-    query: { page: 1, limit: 50 },
-    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
+    query: {page: 1, limit: 50},
+    pagination: {page: 1, limit: 50, totalItems: 0, totalPages: 0},
 };
 
 // Fetch all forecasts
-export const fetchForecast = createAsyncThunk<PaginatedApiSuccessEnvelope<ForecastEntity>, ForecastQuery | undefined, { rejectValue: string }>(
+export const fetchForecast = createAsyncThunk<PaginatedApiSuccessEnvelope<ForecastEntity>, ForecastQuery | undefined, {
+    rejectValue: string
+}>(
     'forecast/fetchAll',
-    async (query = {}, { rejectWithValue }) => {
+    async (query = {}, {rejectWithValue}) => {
         try {
-            return await get<PaginatedApiSuccessEnvelope<ForecastEntity>>('/production/forecast', { params: { ...query } });
+            return await get<PaginatedApiSuccessEnvelope<ForecastEntity>>('/production/forecast', {params: {...query}});
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch forecast data'));
         }
@@ -76,7 +87,7 @@ export const fetchForecast = createAsyncThunk<PaginatedApiSuccessEnvelope<Foreca
 // Fetch forecast by ID
 export const fetchForecastById = createAsyncThunk(
     'forecast/fetchById',
-    async (id: number, { rejectWithValue }) => {
+    async (id: number, {rejectWithValue}) => {
         try {
             return await get<ApiSuccessEnvelope<ForecastEntity>>(`/production/forecast/${id}`);
         } catch (error: unknown) {
@@ -101,7 +112,7 @@ export const createForecast = createAsyncThunk(
         item: number;
         qty: number;
         finishGoodId: string;
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<ForecastEntity>, typeof forecastData>('/production/forecast', forecastData);
         } catch (error: unknown) {
@@ -113,10 +124,9 @@ export const createForecast = createAsyncThunk(
 // Update forecast
 export const updateForecast = createAsyncThunk(
     'forecast/update',
-    async ({ id, data: updateData }: {
+    async ({id, data: updateData}: {
         id: number;
         data: {
-            status?: string;
             poId?: string;
             date?: string;
             vendorCode?: string;
@@ -130,7 +140,7 @@ export const updateForecast = createAsyncThunk(
             qty?: number;
             finishGoodId?: string;
         }
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await patch<ApiSuccessEnvelope<ForecastEntity>, typeof updateData>(`/production/forecast/${id}`, updateData);
         } catch (error: unknown) {
@@ -142,7 +152,7 @@ export const updateForecast = createAsyncThunk(
 // Delete forecast
 export const deleteForecast = createAsyncThunk(
     'forecast/delete',
-    async (id: number, { rejectWithValue }) => {
+    async (id: number, {rejectWithValue}) => {
         try {
             await del<ApiSuccessEnvelope<unknown>>(`/production/forecast/${id}`);
             return id;
@@ -155,13 +165,14 @@ export const deleteForecast = createAsyncThunk(
 // Clear detail
 export const clearForecastDetail = createAsyncThunk(
     'forecast/clearDetail',
-    async () => {}
+    async () => {
+    }
 );
 
 // Import forecasts from Excel
 export const importForecast = createAsyncThunk(
     'forecast/import',
-    async (formData: FormData, { rejectWithValue }) => {
+    async (formData: FormData, {rejectWithValue}) => {
         try {
             return await postFormData<ApiSuccessEnvelope<unknown>>('/production/forecast/import', formData);
         } catch (error: unknown) {
@@ -173,9 +184,12 @@ export const importForecast = createAsyncThunk(
 // Print tag
 export const printForecastTag = createAsyncThunk(
     'forecast/printTag',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
-            return (await post<ApiSuccessEnvelope<{ message: string; integrationId: string }>, undefined>(`/production/forecast/${id}/print-tag`, undefined)).data;
+            return (await post<ApiSuccessEnvelope<{
+                message: string;
+                integrationId: string
+            }>, undefined>(`/production/forecast/${id}/print-tag`, undefined)).data;
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to print tag'));
         }
@@ -189,12 +203,17 @@ const forecastSlice = createSlice({
         clearDetail: (state) => {
             state.detail = null;
         },
-        setForecastQuery: (state, action: { payload: ForecastQuery }) => { state.query = { ...state.query, ...action.payload }; },
+        setForecastQuery: (state, action: { payload: ForecastQuery }) => {
+            state.query = {...state.query, ...action.payload};
+        },
     },
     extraReducers: (builder) => {
         builder
             // Fetch all
-            .addCase(fetchForecast.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(fetchForecast.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchForecast.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
@@ -205,7 +224,10 @@ const forecastSlice = createSlice({
                 state.error = action.payload as string;
             })
             // Fetch by ID
-            .addCase(fetchForecastById.pending, (state) => { state.detailLoading = true; state.error = null; })
+            .addCase(fetchForecastById.pending, (state) => {
+                state.detailLoading = true;
+                state.error = null;
+            })
             .addCase(fetchForecastById.fulfilled, (state, action) => {
                 state.detailLoading = false;
                 state.detail = action.payload.data;
@@ -215,7 +237,10 @@ const forecastSlice = createSlice({
                 state.error = action.payload as string;
             })
             // Create
-            .addCase(createForecast.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(createForecast.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(createForecast.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data.unshift(action.payload.data);
@@ -236,7 +261,10 @@ const forecastSlice = createSlice({
                 state.data = state.data.filter(item => item.Id !== action.payload);
             })
             // Import
-            .addCase(importForecast.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(importForecast.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(importForecast.fulfilled, (state) => {
                 state.loading = false;
                 // Refresh data after import
@@ -252,5 +280,5 @@ const forecastSlice = createSlice({
     },
 });
 
-export const { clearDetail, setForecastQuery } = forecastSlice.actions;
+export const {clearDetail, setForecastQuery} = forecastSlice.actions;
 export default forecastSlice.reducer;

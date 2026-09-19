@@ -1,23 +1,37 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-20 */
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Table, Card, Breadcrumb, App, Input, Space, Tag } from 'antd';
-import { DeleteOutlined, ReloadOutlined, ExclamationCircleOutlined, PlusOutlined, StopOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import React, {useState, useEffect} from 'react';
+import {Table, Card, Breadcrumb, App, Input, Space, Tag} from 'antd';
+import type {TableProps} from 'antd';
+import {
+    ReloadOutlined,
+    PlusOutlined,
+    StopOutlined,
+    CheckCircleOutlined
+} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { ApiKeyEntity, fetchApiKeys, deleteApiKey, revokeApiKey, reactivateApiKey } from '@/store/features/apiKeys/apiKeysSlice';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
+import {
+    ApiKeyEntity,
+    fetchApiKeys,
+    revokeApiKey,
+    reactivateApiKey
+} from '@/store/features/apiKeys/apiKeysSlice';
 import CreateApiKeyModal from './_components/CreateApiKeyModal';
-import { formatDateTime } from '@/lib/utils/dateTime';
+import ApiKeyDetailModal from './_components/ApiKeyDetailModal';
+import {formatDateTime} from '@/lib/utils/dateTime';
+import GoldenArrowAction from '@/components/GoldenArrowAction';
 
 export default function ApiKeyManagementPage() {
-    const { message, modal } = App.useApp();
+    const {message, modal} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, pagination } = useSelector((state: RootState) => state.apiKeys);
-    const [query, setQuery] = useState({ page: 1, limit: 50, search: '' });
+    const {data, loading, pagination} = useSelector((state: RootState) => state.apiKeys);
+    const [query, setQuery] = useState({page: 1, limit: 50, search: ''});
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+    const [detailData, setDetailData] = useState<ApiKeyEntity | null>(null);
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
@@ -25,11 +39,24 @@ export default function ApiKeyManagementPage() {
         dispatch(fetchApiKeys(query));
     }, [dispatch, query]);
 
-    const columns = [
+    const columns: TableProps<ApiKeyEntity>['columns'] = [
         {
             title: 'Name',
             dataIndex: 'Name',
             key: 'Name',
+            render: (value: string, record) => (
+                <Space size={4}>
+                    <GoldenArrowAction
+                        tooltip="View API Key details"
+                        ariaLabel={`View API Key details for ${value}`}
+                        onClick={() => {
+                            setSelectedRowKeys([record.Id]);
+                            setDetailData(record);
+                        }}
+                    />
+                    <span>{value}</span>
+                </Space>
+            ),
         },
         {
             title: 'Key Prefix',
@@ -40,10 +67,10 @@ export default function ApiKeyManagementPage() {
             title: 'User',
             dataIndex: 'UserId',
             key: 'UserId',
-            render: (_: any, record: ApiKeyEntity) => (
+            render: (_: string, record) => (
                 <Space orientation="vertical" size={0}>
                     <span>{record.User?.Name || '-'}</span>
-                    <span style={{ fontSize: 11, color: '#888' }}>{record.User?.Email}</span>
+                    <span style={{fontSize: 11, color: '#888'}}>{record.User?.Email}</span>
                 </Space>
             ),
         },
@@ -77,29 +104,6 @@ export default function ApiKeyManagementPage() {
         },
     ];
 
-    const handleDelete = () => {
-        if (selectedRowKeys.length === 1) {
-            modal.confirm({
-                title: 'Are you sure you want to delete this API Key?',
-                icon: <ExclamationCircleOutlined />,
-                content: `API Key Name: ${data.find(d => d.Id === selectedRowKeys[0])?.Name}`,
-                okText: 'Yes, Delete',
-                okType: 'danger',
-                cancelText: 'Cancel',
-                centered: true,
-                onOk: async () => {
-                    try {
-                        await dispatch(deleteApiKey(selectedRowKeys[0] as string)).unwrap();
-                        message.success('API Key successfully deleted');
-                        setSelectedRowKeys([]);
-                    } catch (error: any) {
-                        message.error(error || 'Failed to delete API Key');
-                    }
-                },
-            });
-        }
-    };
-
     const handleRevoke = () => {
         if (selectedRowKeys.length === 1) {
             const selectedRecord = data.find((item) => item.Id === selectedRowKeys[0]);
@@ -110,7 +114,7 @@ export default function ApiKeyManagementPage() {
 
             modal.confirm({
                 title: 'Are you sure you want to revoke this API Key?',
-                icon: <StopOutlined />,
+                icon: <StopOutlined/>,
                 content: `API Key Name: ${selectedRecord?.Name}`,
                 okText: 'Yes, Revoke',
                 okType: 'danger',
@@ -139,7 +143,7 @@ export default function ApiKeyManagementPage() {
 
             modal.confirm({
                 title: 'Are you sure you want to reactivate this API Key?',
-                icon: <CheckCircleOutlined />,
+                icon: <CheckCircleOutlined/>,
                 content: `API Key Name: ${selectedRecord?.Name}`,
                 okText: 'Yes, Reactivate',
                 cancelText: 'Cancel',
@@ -158,34 +162,32 @@ export default function ApiKeyManagementPage() {
     };
 
     return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
-            <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'System Administration' }, { title: 'API Key Management' }]} />
+        <Card variant="borderless" styles={{body: {padding: 0}}}>
+            <Breadcrumb style={{marginBottom: 16}}
+                        items={[{title: 'Home'}, {title: 'System Administration'}, {title: 'API Key Management'}]}/>
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => { dispatch(fetchApiKeys(query)); }} />
-                <ButtonToolbar title="Create" icon={<PlusOutlined />} onClick={() => setIsCreateModalVisible(true)} />
-                <ButtonToolbar title="Delete" icon={<DeleteOutlined />} onClick={handleDelete} enable={selectedRowKeys.length === 1} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>} onClick={() => {
+                    dispatch(fetchApiKeys(query));
+                }}/>
+                <ButtonToolbar title="Create" icon={<PlusOutlined/>} onClick={() => setIsCreateModalVisible(true)}/>
                 <ButtonToolbar
                     title="Revoke"
-                    icon={<StopOutlined />}
+                    icon={<StopOutlined/>}
                     onClick={handleRevoke}
                     enable={selectedRowKeys.length === 1 && data.find(d => d.Id === selectedRowKeys[0])?.IsActive === true}
                 />
                 <ButtonToolbar
                     title="Reactivate"
-                    icon={<CheckCircleOutlined />}
+                    icon={<CheckCircleOutlined/>}
                     onClick={handleReactivate}
                     enable={selectedRowKeys.length === 1 && data.find(d => d.Id === selectedRowKeys[0])?.IsActive === false}
                 />
             </ToolbarWrapper>
-            <Input.Search allowClear placeholder="Search name, description, user, email, or creator" style={{ width: 420, marginBottom: 12 }} onSearch={(search) => setQuery((current) => ({ ...current, page: 1, search }))} />
+            <Input.Search allowClear placeholder="Search name, description, user, email, or creator"
+                          style={{width: 420, marginBottom: 12}}
+                          onSearch={(search) => setQuery((current) => ({...current, page: 1, search}))}/>
 
             <Table
-                rowSelection={{
-                    selectedRowKeys,
-                    onChange: (keys) => setSelectedRowKeys(keys),
-                    checkStrictly: true,
-                    type: 'radio',
-                }}
                 columns={columns}
                 dataSource={data}
                 size="small"
@@ -199,16 +201,32 @@ export default function ApiKeyManagementPage() {
                     hideOnSinglePage: true,
                     showTotal: (total) => `Total ${total} items`,
                 }}
-                onChange={(pageConfig) => setQuery((current) => ({ ...current, page: pageConfig.current ?? 1, limit: pageConfig.pageSize ?? 50 }))}
+                onChange={(pageConfig) => setQuery((current) => ({
+                    ...current,
+                    page: pageConfig.current ?? 1,
+                    limit: pageConfig.pageSize ?? 50
+                }))}
                 rowKey="Id"
-                scroll={{ y: 'calc(100vh - 420px)' }}
+                onRow={(record) => ({onClick: () => setSelectedRowKeys([record.Id])})}
+                rowClassName={(record) => selectedRowKeys[0] === record.Id ? 'ant-table-row-selected' : ''}
+                scroll={{y: 'calc(100vh - 420px)'}}
                 className="small-table"
-                style={{ fontSize: '11px' }}
+                style={{fontSize: '11px'}}
             />
 
             <CreateApiKeyModal
                 visible={isCreateModalVisible}
                 onClose={() => setIsCreateModalVisible(false)}
+            />
+            <ApiKeyDetailModal
+                open={detailData !== null}
+                data={detailData}
+                onClose={() => setDetailData(null)}
+                onDeleted={() => {
+                    setDetailData(null);
+                    setSelectedRowKeys([]);
+                    void dispatch(fetchApiKeys(query));
+                }}
             />
         </Card>
     );

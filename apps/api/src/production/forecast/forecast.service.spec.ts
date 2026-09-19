@@ -4,6 +4,9 @@ jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
   latestSnapshot: jest.fn().mockResolvedValue(null),
   assertNoOutstandingReplacement: () => Promise.resolve(undefined),
 }));
+jest.mock('../../common/utils/upload-security.util', () => ({
+  validateUploadContent: jest.fn(),
+}));
 import { Test, TestingModule } from '@nestjs/testing';
 import * as snapshots from '../../common/helpers/bom-snapshot.helper';
 import { ForecastService } from './forecast.service';
@@ -191,6 +194,68 @@ describe('ForecastService', () => {
 
       expect(prismaService.forecast.create).toHaveBeenCalled();
     });
+
+    it.each([0, -1, 1.5])(
+      'rejects invalid delivery cycle / ritase %s',
+      async (deliveryPeriod) => {
+        await expect(
+          service.create(
+            {
+              poId: 'PO-NEW',
+              date: new Date(),
+              vendorCode: 'V001',
+              vendorName: 'Vendor A',
+              receivingArea: 'Area 1',
+              deliveryDate: new Date(),
+              deliveryPeriod,
+              classification: 'A',
+              poNumber: 'PO123',
+              item: 1,
+              qty: 100,
+              finishGoodId: 'FG-001',
+            },
+            'admin',
+          ),
+        ).rejects.toThrow('positive integer');
+        expect(prismaService.forecast.create).not.toHaveBeenCalled();
+      },
+    );
+  });
+
+  describe('importExcel', () => {
+    const file = {
+      originalname: 'forecast.xlsx',
+      mimetype:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      buffer: Buffer.from('xlsx'),
+    } as Express.Multer.File;
+
+    it.each([undefined, '', 1.5, '2 trips', 0, -1])(
+      'rejects %s delivery cycle / ritase values',
+      async (value) => {
+        excelService.readExcelByPosition.mockResolvedValue([
+          {
+            0: 'PO-NEW',
+            1: '20260901',
+            2: 'V001',
+            3: 'Vendor A',
+            4: 'Area 1',
+            5: '20260902',
+            6: value,
+            7: 'A',
+            8: 'PO123',
+            9: 1,
+            10: 100,
+            11: 'FG-001',
+          },
+        ]);
+
+        await expect(service.importExcel(file, 'admin')).rejects.toThrow(
+          'Spreadsheet row 2, column G',
+        );
+        expect(prismaService.forecast.createMany).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe('remove', () => {
@@ -403,6 +468,16 @@ describe('ForecastService', () => {
         await expect(service.update('1', { qty }, 'admin')).rejects.toThrow(
           'positive integer',
         );
+        expect(prismaService.forecast.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([0, -1, 1.5])(
+      'rejects invalid amended delivery cycle / ritase %s',
+      async (deliveryPeriod) => {
+        await expect(
+          service.update('1', { deliveryPeriod }, 'admin'),
+        ).rejects.toThrow('positive integer');
         expect(prismaService.forecast.update).not.toHaveBeenCalled();
       },
     );

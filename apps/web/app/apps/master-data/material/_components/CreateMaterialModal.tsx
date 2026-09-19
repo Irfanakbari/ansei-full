@@ -1,30 +1,31 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, App, Select } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-import { createMaterial, fetchMaterial } from '@/store/features/master/materialSlice';
-import { fetchSatuan } from '@/store/features/master/satuanSlice';
-import { fetchSupplier } from '@/store/features/master/supplierSlice';
+import React, {useState, useEffect} from 'react';
+import {Modal, Form, Input, InputNumber, App, Select} from 'antd';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
+import {createMaterial} from '@/store/features/master/materialSlice';
+import {fetchSatuan} from '@/store/features/master/satuanSlice';
+import {fetchSupplier} from '@/store/features/master/supplierSlice';
 
 interface Props {
     visible: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-const CreateMaterialModal: React.FC<Props> = ({ visible, onClose }) => {
-    const { message } = App.useApp();
+const CreateMaterialModal: React.FC<Props> = ({visible, onClose, onSuccess}) => {
+    const {message} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
 
-    const { data: satuan } = useSelector((state: RootState) => state.satuan);
-    const { data: suppliers } = useSelector((state: RootState) => state.supplier);
+    const {data: satuan} = useSelector((state: RootState) => state.satuan);
+    const {data: suppliers} = useSelector((state: RootState) => state.supplier);
 
     useEffect(() => {
         if (visible) {
             dispatch(fetchSatuan());
-            dispatch(fetchSupplier({ page: 1, limit: 100 }));
+            dispatch(fetchSupplier({page: 1, limit: 100}));
         }
     }, [visible, dispatch]);
 
@@ -53,7 +54,7 @@ const CreateMaterialModal: React.FC<Props> = ({ visible, onClose }) => {
 
             }
             message.success('Material created successfully');
-            dispatch(fetchMaterial());
+            onSuccess?.();
             form.resetFields();
             onClose();
         } catch (error: unknown) {
@@ -82,17 +83,19 @@ const CreateMaterialModal: React.FC<Props> = ({ visible, onClose }) => {
             zIndex={1050}
         >
             <Form form={form} layout="vertical">
-                <Form.Item name="partNumber" label="Part Number" rules={[{ required: true, message: 'Please enter part number' }]}>
-                    <Input placeholder="Enter part number" />
+                <Form.Item name="partNumber" label="Part Number"
+                           rules={[{required: true, message: 'Please enter part number'}]}>
+                    <Input placeholder="Enter part number"/>
                 </Form.Item>
-                <Form.Item name="partName" label="Part Name" rules={[{ required: true, message: 'Please enter part name' }]}>
-                    <Input placeholder="Enter part name" />
+                <Form.Item name="partName" label="Part Name"
+                           rules={[{required: true, message: 'Please enter part name'}]}>
+                    <Input placeholder="Enter part name"/>
                 </Form.Item>
                 <Form.Item name="supplier" label="Supplier">
                     <Select
                         placeholder="Select supplier"
                         allowClear
-                        showSearch={{ optionFilterProp: 'label' }}
+                        showSearch={{optionFilterProp: 'label'}}
                         options={suppliers.map((supplier) => ({
                             value: supplier.Name,
                             label: supplier.Name,
@@ -103,29 +106,29 @@ const CreateMaterialModal: React.FC<Props> = ({ visible, onClose }) => {
                     <Select
                         placeholder="Select unit"
                         allowClear
-                        showSearch={{ optionFilterProp: 'label' }}
-                        options={satuan.map((unit) => ({ value: unit.Id, label: unit.Name }))}
+                        showSearch={{optionFilterProp: 'label'}}
+                        options={satuan.map((unit) => ({value: unit.Id, label: unit.Name}))}
                     />
                 </Form.Item>
                 <Form.Item name="rackLocation" label="Rack Location">
-                    <Input placeholder="Enter rack location" />
+                    <Input placeholder="Enter rack location"/>
                 </Form.Item>
                 <Form.Item
                     name="minimumStock"
                     label="Minimum Stock"
                     initialValue={0}
-                    rules={[{ type: 'number', min: 0, message: 'Minimum stock cannot be negative' }]}
+                    rules={[{type: 'number', min: 0, message: 'Minimum stock cannot be negative'}]}
                 >
-                    <InputNumber placeholder="0" min={0} precision={0} style={{ width: '100%' }} />
+                    <InputNumber placeholder="0" min={0} precision={0} style={{width: '100%'}}/>
                 </Form.Item>
                 <Form.Item
                     name="maximumStock"
                     label="Maximum Stock"
                     initialValue={0}
                     extra="Use 0 when maximum stock is not configured"
-                    rules={[{ type: 'number', min: 0, message: 'Maximum stock cannot be negative' }]}
+                    rules={[{type: 'number', min: 0, message: 'Maximum stock cannot be negative'}]}
                 >
-                    <InputNumber placeholder="0" min={0} precision={0} style={{ width: '100%' }} />
+                    <InputNumber placeholder="0" min={0} precision={0} style={{width: '100%'}}/>
                 </Form.Item>
             </Form>
         </Modal>
