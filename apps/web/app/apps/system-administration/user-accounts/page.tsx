@@ -96,7 +96,13 @@ export default function UserAccountsPage() {
                        search
                    }));
                }}
-               onRow={(record) => ({onClick: () => selectRecord(record)})}
+               onRow={(record) => ({
+                   onClick: () => selectRecord(record),
+                   onDoubleClick: () => {
+                       selectRecord(record);
+                       setModalData(record);
+                   },
+               })}
                rowClassName={(record) => isSelected(record) ? "ant-table-row-selected" : ""}
                pagination={{
                    size: "small",

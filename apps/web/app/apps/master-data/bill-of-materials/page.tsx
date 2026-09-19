@@ -246,8 +246,7 @@ export default function BillOfMaterialsPage() {
                 onChange={handleTableChange}
                 onRow={(row) => ({
                     onClick: () => setSelected(row),
-                    onDoubleClick: () =>
-                        router.push(`/apps/master-data/bill-of-materials/${row.Id}`),
+                    onDoubleClick: () => setRevisionId(row.Id),
                 })}
                 rowClassName={(row) =>
                     selected?.Id === row.Id ? "ant-table-row-selected" : ""

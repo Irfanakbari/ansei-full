@@ -63,12 +63,6 @@ export default function FinishGoodPage() {
 
     const columns = [
         {
-            title: 'Passthrough',
-            dataIndex: 'IsPassthrough',
-            key: 'IsPassthrough',
-            render: (value: boolean) => value ? 'Yes — skip Assy' : 'No — Assy required'
-        },
-        {
             title: 'Part Number',
             dataIndex: 'PartNumber',
             key: 'PartNumber',
@@ -82,6 +76,12 @@ export default function FinishGoodPage() {
                                    }}/>
                 <span>{value}</span>
             </Space>
+        },
+        {
+            title: 'Passthrough',
+            dataIndex: 'IsPassthrough',
+            key: 'IsPassthrough',
+            render: (value: boolean) => value ? 'Yes — skip Assy' : 'No — Assy required'
         },
         {
             title: 'Part Name',
@@ -153,7 +153,13 @@ export default function FinishGoodPage() {
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"
-                onRow={(record) => ({onClick: () => selectRecord(record)})}
+                onRow={(record) => ({
+                    onClick: () => selectRecord(record),
+                    onDoubleClick: () => {
+                        selectRecord(record);
+                        setModalData(record);
+                    },
+                })}
                 rowClassName={(record) => isSelected(record) ? 'ant-table-row-selected' : ''}
                 scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"

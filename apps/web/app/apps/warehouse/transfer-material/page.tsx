@@ -392,7 +392,14 @@ export default function TransferMaterialPage() {
                     showTotal: (total: number, range: number[]) => `${range[0]}-${range[1]} of ${total}`,
                 }}
                 rowKey="Id"
-                onRow={(record) => ({onClick: () => selectRecord(record)})}
+                onRow={(record) => ({
+                    onClick: () => selectRecord(record),
+                    onDoubleClick: () => {
+                        selectRecord(record);
+                        setDetailData(record);
+                        setIsDetailModalVisible(true);
+                    },
+                })}
                 rowClassName={(record) => isSelected(record) ? 'ant-table-row-selected' : ''}
                 scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"

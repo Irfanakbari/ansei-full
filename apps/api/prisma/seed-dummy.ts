@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client';
 import {
+  BomRevisionStatus,
   ItemCategory,
   LocationType,
   NotificationType,
@@ -19,9 +20,23 @@ const DUMMY_PREFIX = 'DM-';
 const INITIAL_RACK_QTY = 10_000;
 const INITIAL_WAREHOUSE_QTY = 1_000;
 
+function deterministicUuid(kind: number, row: number): string {
+  return `00000000-0000-4${kind.toString(16).padStart(3, '0')}-8000-${row.toString(16).padStart(12, '0')}`;
+}
+
 async function clearSeededTables(): Promise<void> {
   await prisma.$executeRawUnsafe(`
     TRUNCATE TABLE
+      "ActionAuditEvent",
+      "LogProcessDetail",
+      "LogProcess",
+      "BusinessCommand",
+      "ProductionTraceEvent",
+      "ProductionBomSnapshotLine",
+      "ProductionBomSnapshot",
+      "BomRevisionEvent",
+      "BomRevisionLine",
+      "BomRevision",
       "InventoryLedger",
       "BillOfMaterials",
       "BoxQTY",
@@ -206,31 +221,199 @@ async function main(): Promise<void> {
     });
   }
 
-  let bomCount = 0;
-  for (let fgIndex = 0; fgIndex < finishGoods.length; fgIndex += 1) {
-    const selected = new Set<number>();
-    for (let offset = 0; offset < 5; offset += 1) {
-      const materialIndex = (fgIndex * 3 + offset * 7) % materials.length;
-      selected.add(materialIndex);
-    }
-    for (const materialIndex of selected) {
-      await prisma.billOfMaterials.upsert({
-        where: {
-          FinishGoodId_MaterialId: {
+  const bomSeedBase = dateUtc('2026-01-01');
+  await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT set_config('ansei.actor', ${ACTOR}, true), set_config('ansei.request_id', ${'seed-dummy-bom-revisions'}, true), set_config('ansei.process_id', ${''}, true)`;
+    for (let fgIndex = 0; fgIndex < finishGoods.length; fgIndex += 1) {
+      const maker = `${ACTOR}-maker-${String((fgIndex % 3) + 1).padStart(2, '0')}`;
+      const checker = `${ACTOR}-checker-${String((fgIndex % 3) + 1).padStart(2, '0')}`;
+      const revisionIds = [1, 2, 3].map((revision) =>
+        deterministicUuid(revision, fgIndex + 1),
+      );
+      const baselineMaterialIndexes = Array.from(
+        { length: 5 },
+        (_, offset) => (fgIndex * 3 + offset * 7) % materials.length,
+      );
+      const activeMaterialIndexes = [
+        ...baselineMaterialIndexes.slice(0, 4),
+        (baselineMaterialIndexes[4] + 1) % materials.length,
+      ];
+      const draftMaterialIndexes = [
+        ...activeMaterialIndexes.slice(0, 4),
+        (activeMaterialIndexes[4] + 1) % materials.length,
+      ];
+      const revisionMaterialIndexes = [
+        baselineMaterialIndexes,
+        activeMaterialIndexes,
+        draftMaterialIndexes,
+      ];
+      const createdTimes = [0, 30, 60].map((days) =>
+        addDays(bomSeedBase, fgIndex + days),
+      );
+
+      for (let revisionIndex = 0; revisionIndex < 3; revisionIndex += 1) {
+        const revision = revisionIndex + 1;
+        const revisionId = revisionIds[revisionIndex];
+        const createdAt = createdTimes[revisionIndex];
+        const materialIndexes = revisionMaterialIndexes[revisionIndex];
+        const reason =
+          revision === 1
+            ? 'Historical baseline import'
+            : revision === 2
+              ? 'Approved component and quantity change'
+              : 'Pending deterministic engineering change';
+        await tx.bomRevision.create({
+          data: {
+            Id: revisionId,
             FinishGoodId: finishGoods[fgIndex].Id,
-            MaterialId: materials[materialIndex].Id,
+            Revision: revision,
+            BaseRevisionId:
+              revision === 1 ? null : revisionIds[revisionIndex - 1],
+            Reason: reason,
+            Version: 1,
+            CreatedBy: maker,
+            LastEditedBy: maker,
+            CreatedAt: createdAt,
+            Lines: {
+              create: materialIndexes.map((materialIndex, lineIndex) => ({
+                Id: deterministicUuid(
+                  revision + 3,
+                  fgIndex * 15 + revisionIndex * 5 + lineIndex + 1,
+                ),
+                MaterialId: materials[materialIndex].Id,
+                Qty:
+                  1 +
+                  ((fgIndex +
+                    materialIndex +
+                    (revision > 1 && lineIndex === 0 ? 1 : 0)) %
+                    8),
+                PartNumber: materials[materialIndex].PartNumber,
+                PartName: materials[materialIndex].PartName,
+                UnitName:
+                  materialFamilies[materialIndex][0] === 'CONS'
+                    ? 'GRAM'
+                    : materialFamilies[materialIndex][0] === 'PACK'
+                      ? 'SET'
+                      : 'PCS',
+              })),
+            },
+            Events: {
+              create: {
+                Id: deterministicUuid(
+                  revision + 6,
+                  fgIndex * 9 + revisionIndex * 3 + 1,
+                ),
+                Action: revision === 1 ? 'BASELINE_IMPORTED' : 'CREATED',
+                Actor: maker,
+                Reason: reason,
+                Version: 1,
+                CreatedAt: createdAt,
+              },
+            },
           },
-        },
-        update: { Qty: 1 + ((fgIndex + materialIndex) % 8) },
-        create: {
-          FinishGoodId: finishGoods[fgIndex].Id,
-          MaterialId: materials[materialIndex].Id,
-          Qty: 1 + ((fgIndex + materialIndex) % 8),
-        },
+        });
+
+        const finalStatus =
+          revision < 3
+            ? BomRevisionStatus.APPROVED
+            : fgIndex < 10
+              ? BomRevisionStatus.DRAFT
+              : fgIndex < 20
+                ? BomRevisionStatus.SUBMITTED
+                : BomRevisionStatus.CANCELLED;
+        if (finalStatus === BomRevisionStatus.DRAFT) continue;
+
+        if (finalStatus === BomRevisionStatus.CANCELLED) {
+          const cancelledAt = addDays(createdAt, 1);
+          await tx.bomRevision.update({
+            where: { Id: revisionId },
+            data: {
+              Status: BomRevisionStatus.CANCELLED,
+              Version: 2,
+              Events: {
+                create: {
+                  Id: deterministicUuid(
+                    revision + 12,
+                    fgIndex * 9 + revisionIndex * 3 + 3,
+                  ),
+                  Action: 'CANCEL',
+                  Actor: maker,
+                  Reason: reason,
+                  Version: 2,
+                  CreatedAt: cancelledAt,
+                },
+              },
+            },
+          });
+          continue;
+        }
+
+        const submittedAt = addDays(createdAt, 1);
+        await tx.bomRevision.update({
+          where: { Id: revisionId },
+          data: {
+            Status: BomRevisionStatus.SUBMITTED,
+            Version: 2,
+            SubmittedBy: maker,
+            SubmittedAt: submittedAt,
+            Events: {
+              create: {
+                Id: deterministicUuid(
+                  revision + 9,
+                  fgIndex * 9 + revisionIndex * 3 + 2,
+                ),
+                Action: 'SUBMIT',
+                Actor: maker,
+                Reason: reason,
+                Version: 2,
+                CreatedAt: submittedAt,
+              },
+            },
+          },
+        });
+        if (finalStatus === BomRevisionStatus.SUBMITTED) continue;
+
+        const transitionedAt = addDays(createdAt, 2);
+        await tx.bomRevision.update({
+          where: { Id: revisionId },
+          data: {
+            Status: BomRevisionStatus.APPROVED,
+            Version: 3,
+            ApprovedBy: checker,
+            ApprovedAt: transitionedAt,
+            Events: {
+              create: {
+                Id: deterministicUuid(
+                  revision + 12,
+                  fgIndex * 9 + revisionIndex * 3 + 3,
+                ),
+                Action: 'APPROVE',
+                Actor: checker,
+                Reason: reason,
+                Version: 3,
+                CreatedAt: transitionedAt,
+              },
+            },
+          },
+        });
+      }
+
+      await tx.finishGood.update({
+        where: { Id: finishGoods[fgIndex].Id },
+        data: { ActiveBomRevisionId: revisionIds[1] },
       });
-      bomCount += 1;
+      const activeLines = await tx.bomRevisionLine.findMany({
+        where: { RevisionId: revisionIds[1] },
+      });
+      await tx.billOfMaterials.createMany({
+        data: activeLines.map((line) => ({
+          FinishGoodId: finishGoods[fgIndex].Id,
+          MaterialId: line.MaterialId,
+          Qty: line.Qty,
+        })),
+      });
     }
-  }
+  });
 
   for (let index = 0; index < 16; index += 1) {
     const nik = `${DUMMY_PREFIX}EMP-${String(index + 1).padStart(3, '0')}`;
@@ -366,7 +549,89 @@ async function main(): Promise<void> {
 
   assert(materials.length === 30, 'Expected 30 materials');
   assert(finishGoods.length === 30, 'Expected 30 finish goods');
-  assert(bomCount === 150, 'Expected 150 BOM rows');
+  const revisionCount = await prisma.bomRevision.count();
+  const revisionLineCount = await prisma.bomRevisionLine.count();
+  const revisionEventCount = await prisma.bomRevisionEvent.count();
+  const eventCounts = await prisma.bomRevisionEvent.groupBy({
+    by: ['Action'],
+    _count: { _all: true },
+  });
+  const eventCount = new Map(
+    eventCounts.map((row) => [row.Action, row._count._all]),
+  );
+  const statusCounts = await prisma.bomRevision.groupBy({
+    by: ['Status'],
+    _count: { _all: true },
+  });
+  const statusCount = new Map(
+    statusCounts.map((row) => [row.Status, row._count._all]),
+  );
+  const activeApprovedCount = await prisma.finishGood.count({
+    where: {
+      ActiveBomRevision: {
+        is: { Revision: 2, Status: BomRevisionStatus.APPROVED },
+      },
+    },
+  });
+  const legacyBomCount = await prisma.billOfMaterials.count();
+  const inconsistentProjection = await prisma.$queryRaw<
+    Array<{ count: bigint }>
+  >`
+    SELECT COUNT(*)::bigint AS count
+    FROM (
+      (
+        SELECT fg."Id", brl."MaterialId", brl."Qty"
+        FROM "FinishGood" fg
+        JOIN "BomRevisionLine" brl ON brl."RevisionId" = fg."ActiveBomRevisionId"
+        EXCEPT
+        SELECT "FinishGoodId", "MaterialId", "Qty" FROM "BillOfMaterials"
+      )
+      UNION ALL
+      (
+        SELECT "FinishGoodId", "MaterialId", "Qty" FROM "BillOfMaterials"
+        EXCEPT
+        SELECT fg."Id", brl."MaterialId", brl."Qty"
+        FROM "FinishGood" fg
+        JOIN "BomRevisionLine" brl ON brl."RevisionId" = fg."ActiveBomRevisionId"
+      )
+    ) projection_difference
+  `;
+  assert(revisionCount === 90, 'Expected 90 BOM revisions');
+  assert(revisionLineCount === 450, 'Expected 450 BOM revision lines');
+  assert(revisionEventCount === 230, 'Expected 230 BOM revision events');
+  assert(
+    eventCount.get('BASELINE_IMPORTED') === 30,
+    'Expected 30 baseline events',
+  );
+  assert(eventCount.get('CREATED') === 60, 'Expected 60 created events');
+  assert(eventCount.get('SUBMIT') === 70, 'Expected 70 submit events');
+  assert(eventCount.get('APPROVE') === 60, 'Expected 60 approve events');
+  assert(eventCount.get('CANCEL') === 10, 'Expected 10 cancel events');
+  assert(
+    statusCount.get(BomRevisionStatus.APPROVED) === 60,
+    'Expected 60 approved revisions',
+  );
+  assert(
+    statusCount.get(BomRevisionStatus.DRAFT) === 10,
+    'Expected 10 draft revisions',
+  );
+  assert(
+    statusCount.get(BomRevisionStatus.SUBMITTED) === 10,
+    'Expected 10 submitted revisions',
+  );
+  assert(
+    statusCount.get(BomRevisionStatus.CANCELLED) === 10,
+    'Expected 10 cancelled revisions',
+  );
+  assert(
+    activeApprovedCount === 30,
+    'Expected 30 active approved BOM pointers',
+  );
+  assert(legacyBomCount === 150, 'Expected 150 legacy BOM projection rows');
+  assert(
+    inconsistentProjection[0]?.count === 0n,
+    'Legacy BOM projection does not match active revision 2',
+  );
 
   const materialStockCount = await prisma.material.count({
     where: {
@@ -409,7 +674,13 @@ async function main(): Promise<void> {
       {
         materials: 30,
         finishGoods: 30,
-        bomRows: bomCount,
+        bomRevisions: revisionCount,
+        bomRevisionLines: revisionLineCount,
+        bomRevisionEvents: revisionEventCount,
+        bomRevisionEventActions: Object.fromEntries(eventCount),
+        bomRevisionStatuses: Object.fromEntries(statusCount),
+        activeApprovedBomPointers: activeApprovedCount,
+        legacyBomProjectionRows: legacyBomCount,
         boxQty: 30,
         manpower: 16,
         forecasts: forecastIndex - 1,

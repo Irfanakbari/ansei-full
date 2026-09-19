@@ -218,6 +218,9 @@ export default function TraceabilityView() {
                         );
                         setPage(1);
                     }}
+                    onRow={(record) => ({
+                        onDoubleClick: () => setModalPoId(record.PoId),
+                    })}
                 />
             )}
             {poId && data && (

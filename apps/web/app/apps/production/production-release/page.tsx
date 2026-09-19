@@ -186,7 +186,13 @@ export default function ProductionReleasePage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                onRow={(record) => ({onClick: () => setSelectedRecord(record)})}
+                onRow={(record) => ({
+                    onClick: () => setSelectedRecord(record),
+                    onDoubleClick: () => {
+                        setSelectedRecord(record);
+                        setModalData(record);
+                    },
+                })}
                 rowClassName={(record) => record.Id === selectedRecord?.Id ? 'ant-table-row-selected' : ''}
                 scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"

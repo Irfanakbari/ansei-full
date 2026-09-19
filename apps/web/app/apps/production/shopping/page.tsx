@@ -243,7 +243,10 @@ export default function ShoppingPage() {
                     showTotal: (total) => `Total ${total} records`,
                 }}
                 rowKey="Id"
-                onRow={(record) => ({onClick: () => selectRecord(record)})}
+                onRow={(record) => ({
+                    onClick: () => selectRecord(record),
+                    onDoubleClick: () => handleViewDetail(record),
+                })}
                 rowClassName={(record) => isSelected(record) ? "ant-table-row-selected" : ""}
                 scroll={{x: "max-content", y: "calc(100vh - 380px)"}}
                 className="small-table"

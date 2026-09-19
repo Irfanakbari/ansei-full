@@ -63,6 +63,17 @@ export default function ManPowerPage() {
 
     const columns = [
         {
+            title: 'NIK',
+            dataIndex: 'Nik',
+            key: 'Nik',
+            ...getColumnSearchProps('Nik'),
+            render: (value: string, record: ManPowerEntity) => <Space size={4}><GoldenArrowAction
+                tooltip="View man power details" ariaLabel={`View man power details for ${value}`} onClick={() => {
+                selectRecord(record);
+                setModalData(record);
+            }}/><span>{value}</span></Space>
+        },
+        {
             title: 'Photo',
             dataIndex: 'PicturePath',
             key: 'PicturePath',
@@ -83,17 +94,6 @@ export default function ManPowerPage() {
                 }
                 return <Avatar icon={<UserOutlined/>} size={32} shape="square"/>;
             },
-        },
-        {
-            title: 'NIK',
-            dataIndex: 'Nik',
-            key: 'Nik',
-            ...getColumnSearchProps('Nik'),
-            render: (value: string, record: ManPowerEntity) => <Space size={4}><GoldenArrowAction
-                tooltip="View man power details" ariaLabel={`View man power details for ${value}`} onClick={() => {
-                selectRecord(record);
-                setModalData(record);
-            }}/><span>{value}</span></Space>
         },
         {
             title: 'Name',
@@ -151,7 +151,13 @@ export default function ManPowerPage() {
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Uid"
-                onRow={(record) => ({onClick: () => selectRecord(record)})}
+                onRow={(record) => ({
+                    onClick: () => selectRecord(record),
+                    onDoubleClick: () => {
+                        selectRecord(record);
+                        setModalData(record);
+                    },
+                })}
                 rowClassName={(record) => isSelected(record) ? 'ant-table-row-selected' : ''}
                 scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"

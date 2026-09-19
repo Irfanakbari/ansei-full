@@ -84,7 +84,13 @@ export default function PermissionsSetupPage() {
                    Action: String(activeFilters.Action?.[0] ?? ""),
                    Description: String(activeFilters.Description?.[0] ?? "")
                })}
-               onRow={(record) => ({onClick: () => selectRecord(record)})}
+               onRow={(record) => ({
+                   onClick: () => selectRecord(record),
+                   onDoubleClick: () => {
+                       selectRecord(record);
+                       setModalData(record);
+                   },
+               })}
                rowClassName={(record) => isSelected(record) ? "ant-table-row-selected" : ""}
                pagination={{
                    size: "small",

@@ -421,7 +421,13 @@ export default function ProductionReportPage() {
                     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total}`,
                 }}
                 rowKey="id"
-                onRow={(record) => ({onClick: () => selectRecord(record)})}
+                onRow={(record) => ({
+                    onClick: () => selectRecord(record),
+                    onDoubleClick: () => {
+                        selectRecord(record);
+                        setDetailReport(record);
+                    },
+                })}
                 rowClassName={(record) => isSelected(record) ? "ant-table-row-selected" : ""}
                 scroll={{x: "max-content", y: "calc(100vh - 400px)"}}
                 className="small-table"

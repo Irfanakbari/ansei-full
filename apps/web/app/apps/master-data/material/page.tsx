@@ -187,7 +187,13 @@ export default function MaterialPage() {
                     showTotal: (total) => `Total ${total} items`,
                 }}
                 rowKey="Id"
-                onRow={(record) => ({onClick: () => selectRecord(record)})}
+                onRow={(record) => ({
+                    onClick: () => selectRecord(record),
+                    onDoubleClick: () => {
+                        selectRecord(record);
+                        setModalData(record);
+                    },
+                })}
                 rowClassName={(record) => isSelected(record) ? 'ant-table-row-selected' : ''}
                 scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"

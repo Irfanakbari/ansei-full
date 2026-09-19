@@ -49,10 +49,11 @@ export default function SatuanPage() {
             filterIcon: (filtered) => <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>,
             filteredValue: query.search ? [query.search] : null,
             render: (value, record) => <Space size={4}>
-                <GoldenArrowAction tooltip="View unit details" ariaLabel={`View unit details for ${value}`} onClick={() => {
-                    selectRecord(record);
-                    setModalData(record);
-                }}/>
+                <GoldenArrowAction tooltip="View unit details" ariaLabel={`View unit details for ${value}`}
+                                   onClick={() => {
+                                       selectRecord(record);
+                                       setModalData(record);
+                                   }}/>
                 <span>{value}</span>
             </Space>
         },
@@ -78,7 +79,13 @@ export default function SatuanPage() {
                 total: pagination.totalItems,
                 showSizeChanger: true,
                 showTotal: (total) => `Total ${total} items`
-            }} rowKey="Id" onRow={(record) => ({onClick: () => selectRecord(record)})}
+            }} rowKey="Id" onRow={(record) => ({
+                onClick: () => selectRecord(record),
+                onDoubleClick: () => {
+                    selectRecord(record);
+                    setModalData(record);
+                },
+            })}
                    rowClassName={(record) => isSelected(record) ? "ant-table-row-selected" : ""}
                    scroll={{x: "max-content", y: "calc(100vh - 380px)"}} className="small-table"
                    style={{fontSize: "11px"}}/>

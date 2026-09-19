@@ -207,7 +207,13 @@ export default function ApiKeyManagementPage() {
                     limit: pageConfig.pageSize ?? 50
                 }))}
                 rowKey="Id"
-                onRow={(record) => ({onClick: () => setSelectedRowKeys([record.Id])})}
+                onRow={(record) => ({
+                    onClick: () => setSelectedRowKeys([record.Id]),
+                    onDoubleClick: () => {
+                        setSelectedRowKeys([record.Id]);
+                        setDetailData(record);
+                    },
+                })}
                 rowClassName={(record) => selectedRowKeys[0] === record.Id ? 'ant-table-row-selected' : ''}
                 scroll={{y: 'calc(100vh - 420px)'}}
                 className="small-table"

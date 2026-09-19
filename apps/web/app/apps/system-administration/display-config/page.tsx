@@ -106,7 +106,13 @@ export default function DisplayConfigPage() {
                        showSizeChanger: true,
                        showTotal: (total) => `Total ${total} records`
                    }}
-                   rowKey="Id" onRow={(record) => ({onClick: () => selectRecord(record)})}
+                   rowKey="Id" onRow={(record) => ({
+                onClick: () => selectRecord(record),
+                onDoubleClick: () => {
+                    selectRecord(record);
+                    setModalData(record);
+                },
+            })}
                    rowClassName={(record) => isSelected(record) ? "ant-table-row-selected" : ""}
                    scroll={{x: "max-content", y: "calc(100vh - 380px)"}} className="small-table"
                    style={{fontSize: 11}}/>

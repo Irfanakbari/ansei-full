@@ -93,7 +93,13 @@ export default function PrinterConfigPage() {
                    limit: pageInfo.pageSize,
                    search: String(activeFilters.Name?.[0] ?? activeFilters.IpAddress?.[0] ?? activeFilters.CreatedBy?.[0] ?? "")
                }))}
-               onRow={(record) => ({onClick: () => selectRecord(record)})}
+               onRow={(record) => ({
+                   onClick: () => selectRecord(record),
+                   onDoubleClick: () => {
+                       selectRecord(record);
+                       setModalData(record);
+                   },
+               })}
                rowClassName={(record) => isSelected(record) ? "ant-table-row-selected" : ""}
                pagination={{
                    size: "small",
