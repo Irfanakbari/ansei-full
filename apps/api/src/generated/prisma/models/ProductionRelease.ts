@@ -30,12 +30,14 @@ export type ProductionReleaseAvgAggregateOutputType = {
   TotalTargetQty: number | null
   TotalGoodQty: number | null
   TotalNgQty: number | null
+  TotalProductionMinutes: number | null
 }
 
 export type ProductionReleaseSumAggregateOutputType = {
   TotalTargetQty: number | null
   TotalGoodQty: number | null
   TotalNgQty: number | null
+  TotalProductionMinutes: number | null
 }
 
 export type ProductionReleaseMinAggregateOutputType = {
@@ -47,6 +49,7 @@ export type ProductionReleaseMinAggregateOutputType = {
   TotalTargetQty: number | null
   TotalGoodQty: number | null
   TotalNgQty: number | null
+  TotalProductionMinutes: number | null
   CreatedAt: Date | null
   CreatedBy: string | null
   UpdatedAt: Date | null
@@ -62,6 +65,7 @@ export type ProductionReleaseMaxAggregateOutputType = {
   TotalTargetQty: number | null
   TotalGoodQty: number | null
   TotalNgQty: number | null
+  TotalProductionMinutes: number | null
   CreatedAt: Date | null
   CreatedBy: string | null
   UpdatedAt: Date | null
@@ -77,6 +81,7 @@ export type ProductionReleaseCountAggregateOutputType = {
   TotalTargetQty: number
   TotalGoodQty: number
   TotalNgQty: number
+  TotalProductionMinutes: number
   CreatedAt: number
   CreatedBy: number
   UpdatedAt: number
@@ -89,12 +94,14 @@ export type ProductionReleaseAvgAggregateInputType = {
   TotalTargetQty?: true
   TotalGoodQty?: true
   TotalNgQty?: true
+  TotalProductionMinutes?: true
 }
 
 export type ProductionReleaseSumAggregateInputType = {
   TotalTargetQty?: true
   TotalGoodQty?: true
   TotalNgQty?: true
+  TotalProductionMinutes?: true
 }
 
 export type ProductionReleaseMinAggregateInputType = {
@@ -106,6 +113,7 @@ export type ProductionReleaseMinAggregateInputType = {
   TotalTargetQty?: true
   TotalGoodQty?: true
   TotalNgQty?: true
+  TotalProductionMinutes?: true
   CreatedAt?: true
   CreatedBy?: true
   UpdatedAt?: true
@@ -121,6 +129,7 @@ export type ProductionReleaseMaxAggregateInputType = {
   TotalTargetQty?: true
   TotalGoodQty?: true
   TotalNgQty?: true
+  TotalProductionMinutes?: true
   CreatedAt?: true
   CreatedBy?: true
   UpdatedAt?: true
@@ -136,6 +145,7 @@ export type ProductionReleaseCountAggregateInputType = {
   TotalTargetQty?: true
   TotalGoodQty?: true
   TotalNgQty?: true
+  TotalProductionMinutes?: true
   CreatedAt?: true
   CreatedBy?: true
   UpdatedAt?: true
@@ -238,6 +248,7 @@ export type ProductionReleaseGroupByOutputType = {
   TotalTargetQty: number
   TotalGoodQty: number
   TotalNgQty: number
+  TotalProductionMinutes: number | null
   CreatedAt: Date
   CreatedBy: string
   UpdatedAt: Date
@@ -276,6 +287,7 @@ export type ProductionReleaseWhereInput = {
   TotalTargetQty?: Prisma.IntFilter<"ProductionRelease"> | number
   TotalGoodQty?: Prisma.IntFilter<"ProductionRelease"> | number
   TotalNgQty?: Prisma.IntFilter<"ProductionRelease"> | number
+  TotalProductionMinutes?: Prisma.IntNullableFilter<"ProductionRelease"> | number | null
   CreatedAt?: Prisma.DateTimeFilter<"ProductionRelease"> | Date | string
   CreatedBy?: Prisma.StringFilter<"ProductionRelease"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"ProductionRelease"> | Date | string
@@ -294,6 +306,7 @@ export type ProductionReleaseOrderByWithRelationInput = {
   TotalTargetQty?: Prisma.SortOrder
   TotalGoodQty?: Prisma.SortOrder
   TotalNgQty?: Prisma.SortOrder
+  TotalProductionMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
@@ -315,6 +328,7 @@ export type ProductionReleaseWhereUniqueInput = Prisma.AtLeast<{
   TotalTargetQty?: Prisma.IntFilter<"ProductionRelease"> | number
   TotalGoodQty?: Prisma.IntFilter<"ProductionRelease"> | number
   TotalNgQty?: Prisma.IntFilter<"ProductionRelease"> | number
+  TotalProductionMinutes?: Prisma.IntNullableFilter<"ProductionRelease"> | number | null
   CreatedAt?: Prisma.DateTimeFilter<"ProductionRelease"> | Date | string
   CreatedBy?: Prisma.StringFilter<"ProductionRelease"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"ProductionRelease"> | Date | string
@@ -333,6 +347,7 @@ export type ProductionReleaseOrderByWithAggregationInput = {
   TotalTargetQty?: Prisma.SortOrder
   TotalGoodQty?: Prisma.SortOrder
   TotalNgQty?: Prisma.SortOrder
+  TotalProductionMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
@@ -356,6 +371,7 @@ export type ProductionReleaseScalarWhereWithAggregatesInput = {
   TotalTargetQty?: Prisma.IntWithAggregatesFilter<"ProductionRelease"> | number
   TotalGoodQty?: Prisma.IntWithAggregatesFilter<"ProductionRelease"> | number
   TotalNgQty?: Prisma.IntWithAggregatesFilter<"ProductionRelease"> | number
+  TotalProductionMinutes?: Prisma.IntNullableWithAggregatesFilter<"ProductionRelease"> | number | null
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductionRelease"> | Date | string
   CreatedBy?: Prisma.StringWithAggregatesFilter<"ProductionRelease"> | string
   UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductionRelease"> | Date | string
@@ -371,6 +387,7 @@ export type ProductionReleaseCreateInput = {
   TotalTargetQty?: number
   TotalGoodQty?: number
   TotalNgQty?: number
+  TotalProductionMinutes?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
@@ -389,6 +406,7 @@ export type ProductionReleaseUncheckedCreateInput = {
   TotalTargetQty?: number
   TotalGoodQty?: number
   TotalNgQty?: number
+  TotalProductionMinutes?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
@@ -407,6 +425,7 @@ export type ProductionReleaseUpdateInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -425,6 +444,7 @@ export type ProductionReleaseUncheckedUpdateInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -443,6 +463,7 @@ export type ProductionReleaseCreateManyInput = {
   TotalTargetQty?: number
   TotalGoodQty?: number
   TotalNgQty?: number
+  TotalProductionMinutes?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
@@ -458,6 +479,7 @@ export type ProductionReleaseUpdateManyMutationInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -473,6 +495,7 @@ export type ProductionReleaseUncheckedUpdateManyInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -493,6 +516,7 @@ export type ProductionReleaseCountOrderByAggregateInput = {
   TotalTargetQty?: Prisma.SortOrder
   TotalGoodQty?: Prisma.SortOrder
   TotalNgQty?: Prisma.SortOrder
+  TotalProductionMinutes?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
@@ -503,6 +527,7 @@ export type ProductionReleaseAvgOrderByAggregateInput = {
   TotalTargetQty?: Prisma.SortOrder
   TotalGoodQty?: Prisma.SortOrder
   TotalNgQty?: Prisma.SortOrder
+  TotalProductionMinutes?: Prisma.SortOrder
 }
 
 export type ProductionReleaseMaxOrderByAggregateInput = {
@@ -514,6 +539,7 @@ export type ProductionReleaseMaxOrderByAggregateInput = {
   TotalTargetQty?: Prisma.SortOrder
   TotalGoodQty?: Prisma.SortOrder
   TotalNgQty?: Prisma.SortOrder
+  TotalProductionMinutes?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
@@ -529,6 +555,7 @@ export type ProductionReleaseMinOrderByAggregateInput = {
   TotalTargetQty?: Prisma.SortOrder
   TotalGoodQty?: Prisma.SortOrder
   TotalNgQty?: Prisma.SortOrder
+  TotalProductionMinutes?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
@@ -539,6 +566,7 @@ export type ProductionReleaseSumOrderByAggregateInput = {
   TotalTargetQty?: Prisma.SortOrder
   TotalGoodQty?: Prisma.SortOrder
   TotalNgQty?: Prisma.SortOrder
+  TotalProductionMinutes?: Prisma.SortOrder
 }
 
 export type ProductionReleaseCreateNestedOneWithoutForecastsInput = {
@@ -602,6 +630,7 @@ export type ProductionReleaseCreateWithoutForecastsInput = {
   TotalTargetQty?: number
   TotalGoodQty?: number
   TotalNgQty?: number
+  TotalProductionMinutes?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
@@ -619,6 +648,7 @@ export type ProductionReleaseUncheckedCreateWithoutForecastsInput = {
   TotalTargetQty?: number
   TotalGoodQty?: number
   TotalNgQty?: number
+  TotalProductionMinutes?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
@@ -652,6 +682,7 @@ export type ProductionReleaseUpdateWithoutForecastsInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -669,6 +700,7 @@ export type ProductionReleaseUncheckedUpdateWithoutForecastsInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -686,6 +718,7 @@ export type ProductionReleaseCreateWithoutAttachmentsInput = {
   TotalTargetQty?: number
   TotalGoodQty?: number
   TotalNgQty?: number
+  TotalProductionMinutes?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
@@ -703,6 +736,7 @@ export type ProductionReleaseUncheckedCreateWithoutAttachmentsInput = {
   TotalTargetQty?: number
   TotalGoodQty?: number
   TotalNgQty?: number
+  TotalProductionMinutes?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
@@ -736,6 +770,7 @@ export type ProductionReleaseUpdateWithoutAttachmentsInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -753,6 +788,7 @@ export type ProductionReleaseUncheckedUpdateWithoutAttachmentsInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -770,6 +806,7 @@ export type ProductionReleaseCreateWithoutLabelDatasInput = {
   TotalTargetQty?: number
   TotalGoodQty?: number
   TotalNgQty?: number
+  TotalProductionMinutes?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
@@ -787,6 +824,7 @@ export type ProductionReleaseUncheckedCreateWithoutLabelDatasInput = {
   TotalTargetQty?: number
   TotalGoodQty?: number
   TotalNgQty?: number
+  TotalProductionMinutes?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
@@ -820,6 +858,7 @@ export type ProductionReleaseUpdateWithoutLabelDatasInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -837,6 +876,7 @@ export type ProductionReleaseUncheckedUpdateWithoutLabelDatasInput = {
   TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
   TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -903,6 +943,7 @@ export type ProductionReleaseSelect<ExtArgs extends runtime.Types.Extensions.Int
   TotalTargetQty?: boolean
   TotalGoodQty?: boolean
   TotalNgQty?: boolean
+  TotalProductionMinutes?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   UpdatedAt?: boolean
@@ -922,6 +963,7 @@ export type ProductionReleaseSelectCreateManyAndReturn<ExtArgs extends runtime.T
   TotalTargetQty?: boolean
   TotalGoodQty?: boolean
   TotalNgQty?: boolean
+  TotalProductionMinutes?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   UpdatedAt?: boolean
@@ -937,6 +979,7 @@ export type ProductionReleaseSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   TotalTargetQty?: boolean
   TotalGoodQty?: boolean
   TotalNgQty?: boolean
+  TotalProductionMinutes?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   UpdatedAt?: boolean
@@ -952,13 +995,14 @@ export type ProductionReleaseSelectScalar = {
   TotalTargetQty?: boolean
   TotalGoodQty?: boolean
   TotalNgQty?: boolean
+  TotalProductionMinutes?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   UpdatedAt?: boolean
   IsNoAttachment?: boolean
 }
 
-export type ProductionReleaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "ReleaseNumber" | "PlanDate" | "Status" | "Notes" | "TotalTargetQty" | "TotalGoodQty" | "TotalNgQty" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "IsNoAttachment", ExtArgs["result"]["productionRelease"]>
+export type ProductionReleaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "ReleaseNumber" | "PlanDate" | "Status" | "Notes" | "TotalTargetQty" | "TotalGoodQty" | "TotalNgQty" | "TotalProductionMinutes" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "IsNoAttachment", ExtArgs["result"]["productionRelease"]>
 export type ProductionReleaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Forecasts?: boolean | Prisma.ProductionRelease$ForecastsArgs<ExtArgs>
   LabelDatas?: boolean | Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>
@@ -984,6 +1028,7 @@ export type $ProductionReleasePayload<ExtArgs extends runtime.Types.Extensions.I
     TotalTargetQty: number
     TotalGoodQty: number
     TotalNgQty: number
+    TotalProductionMinutes: number | null
     CreatedAt: Date
     CreatedBy: string
     UpdatedAt: Date
@@ -1422,6 +1467,7 @@ export interface ProductionReleaseFieldRefs {
   readonly TotalTargetQty: Prisma.FieldRef<"ProductionRelease", 'Int'>
   readonly TotalGoodQty: Prisma.FieldRef<"ProductionRelease", 'Int'>
   readonly TotalNgQty: Prisma.FieldRef<"ProductionRelease", 'Int'>
+  readonly TotalProductionMinutes: Prisma.FieldRef<"ProductionRelease", 'Int'>
   readonly CreatedAt: Prisma.FieldRef<"ProductionRelease", 'DateTime'>
   readonly CreatedBy: Prisma.FieldRef<"ProductionRelease", 'String'>
   readonly UpdatedAt: Prisma.FieldRef<"ProductionRelease", 'DateTime'>

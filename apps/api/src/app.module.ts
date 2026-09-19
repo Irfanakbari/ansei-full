@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { AssemblyModule } from './production/assembly/assembly.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -94,6 +95,7 @@ import { HealthModule } from './health/health.module';
     ForecastModule,
     ProductionReleaseModule,
     ProductionReportModule,
+    AssemblyModule,
     PreDeliveryModule,
     PokayokeModule,
     DeliveryModule,

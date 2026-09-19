@@ -1,5 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-06-16*/
 "use client";
+import { formatProductionDuration } from './productionDuration';
 
 import React, { useEffect } from 'react';
 import { Modal, Descriptions, Tag, Space, Table, Progress, Typography, Button, Popconfirm, App } from 'antd';
@@ -219,6 +220,9 @@ const DetailProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data 
                 </Descriptions.Item>
                 <Descriptions.Item label="Forecasts Count">
                     {data._count?.Forecasts || data.Forecasts?.length || 0}
+                </Descriptions.Item>
+                <Descriptions.Item label="Total Production Time" span={2}>
+                    {formatProductionDuration(data.TotalProductionMinutes)}
                 </Descriptions.Item>
                 <Descriptions.Item label="Created By" span={2}>
                     {data.CreatedByName || '-'}

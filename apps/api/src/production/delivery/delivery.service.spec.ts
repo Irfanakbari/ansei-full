@@ -10,9 +10,50 @@ describe('DeliveryService', () => {
   let logService: any;
 
   const createMockTx = () => ({
-    deliveryHistory: { create: jest.fn(), findUnique: jest.fn() },
+    $executeRaw: jest.fn(),
+    assemblySession: { findFirst: jest.fn().mockResolvedValue(null) },
+    labelData: {
+      findUnique: jest.fn().mockResolvedValue({
+        Id: 1,
+        LabelNumber: 'LBL001',
+        ForecastId: 'PO-001',
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
+        Scanned: true,
+        QtyThisBox: 100,
+      }),
+    },
+    forecast: {
+      findUnique: jest.fn().mockResolvedValue({
+        PoId: 'PO-001',
+        FinishGoodId: 'FG-001',
+        Qty: 100,
+        ProductionReleaseId: 'release-1',
+        ProductionRelease: { Status: 'RELEASED' },
+      }),
+    },
+    billOfMaterials: {
+      findMany: jest
+        .fn()
+        .mockResolvedValue([{ Qty: 1, MaterialData: { PartNumber: 'MAT-1' } }]),
+    },
+    shopping: {
+      findMany: jest
+        .fn()
+        .mockResolvedValue([
+          { Id: 'SHP-1', MaterialId: 'MAT-1', QtyPick: 100 },
+        ]),
+    },
+    deliveryHistory: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      aggregate: jest.fn().mockResolvedValue({ _sum: { Qty: 0 } }),
+    },
     finishGood: { findUnique: jest.fn(), update: jest.fn() },
-    inventoryLedger: { create: jest.fn() },
+    inventoryLedger: {
+      create: jest.fn(),
+      aggregate: jest.fn().mockResolvedValue({ _sum: { QtyIn: 100 } }),
+    },
   });
 
   const mockPrismaService = {
@@ -121,6 +162,78 @@ describe('DeliveryService', () => {
         service.create({ labelDataId: 999 }, 'admin'),
       ).rejects.toThrow(BadRequestException);
     });
+
+    it.each([
+      'closed',
+      'incomplete',
+      'missing-production',
+      'overdelivery',
+      'missing-assembly',
+    ])(
+      'rejects %s after rechecking inside the transaction without cutting stock',
+      async (scenario) => {
+        mockPrismaService.labelData.findUnique.mockResolvedValue({
+          Id: 1,
+          LabelNumber: 'LBL001',
+          ForecastId: 'PO-001',
+          FinishGoodId: 'FG-001',
+          QtyThisBox: 100,
+          Scanned: true,
+        });
+        mockPrismaService.forecast.findUnique.mockResolvedValue({
+          PoId: 'PO-001',
+          FinishGoodId: 'FG-001',
+          Qty: 100,
+          ProductionReleaseId: 'release-1',
+        });
+        mockPrismaService.productionRelease.findUnique.mockResolvedValue({
+          Id: 'release-1',
+          Status: 'RELEASED',
+        });
+        mockPrismaService.billOfMaterials.findMany.mockResolvedValue([]);
+        mockPrismaService.shopping.findMany.mockResolvedValue([]);
+        mockPrismaService.deliveryHistory.findFirst.mockResolvedValue(null);
+        const tx = createMockTx();
+        if (scenario === 'missing-assembly')
+          tx.labelData.findUnique.mockResolvedValue({
+            Id: 1,
+            LabelNumber: 'LBL001',
+            ForecastId: 'PO-001',
+            FinishGoodId: 'FG-001',
+            ProductionReleaseId: 'release-1',
+            Scanned: true,
+            QtyThisBox: 100,
+            RequiresAssembly: true,
+          });
+        if (scenario === 'closed')
+          tx.forecast.findUnique.mockResolvedValue({
+            PoId: 'PO-001',
+            FinishGoodId: 'FG-001',
+            Qty: 100,
+            ProductionReleaseId: 'release-1',
+            ProductionRelease: { Status: 'COMPLETED' },
+          });
+        if (scenario === 'incomplete')
+          tx.shopping.findMany.mockResolvedValue([
+            { Id: 'SHP-1', MaterialId: 'MAT-1', QtyPick: 99 },
+          ]);
+        if (scenario === 'missing-production')
+          tx.inventoryLedger.aggregate.mockResolvedValue({
+            _sum: { QtyIn: 0 },
+          });
+        if (scenario === 'overdelivery')
+          tx.deliveryHistory.aggregate.mockResolvedValue({ _sum: { Qty: 1 } });
+        mockPrismaService.$transaction.mockImplementation(
+          (callback: (client: typeof tx) => Promise<unknown>) => callback(tx),
+        );
+        await expect(
+          service.create({ labelDataId: 1 }, 'admin'),
+        ).rejects.toThrow(BadRequestException);
+        expect(tx.finishGood.update).not.toHaveBeenCalled();
+        expect(tx.inventoryLedger.create).not.toHaveBeenCalled();
+        expect(tx.deliveryHistory.create).not.toHaveBeenCalled();
+      },
+    );
 
     it('should throw error when label not scanned', async () => {
       const mockLabelData = { Id: 1, LabelNumber: 'LBL001', Scanned: false };

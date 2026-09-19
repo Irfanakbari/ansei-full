@@ -15,6 +15,9 @@ const pool = new Pool({ connectionString });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
 const allPermissions = [
+  { Action: 'IPCS.ASSEMBLY_READ', Description: 'Read assembly sessions' },
+  { Action: 'IPCS.ASSEMBLY_CREATE', Description: 'Start and complete assembly' },
+  { Action: 'IPCS.ASSEMBLY_CANCEL', Description: 'Cancel active assembly with reason' },
   { Action: 'DASHBOARD_VIEW', Description: 'View dashboard' },
   { Action: 'IPCS.MASTER_READ', Description: 'Read master data' },
   { Action: 'IPCS.MASTER_CREATE', Description: 'Create master data' },

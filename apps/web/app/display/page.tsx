@@ -21,6 +21,7 @@ import {
     fetchActiveDisplayConfig,
     fetchDisplayTarget,
 } from '@/store/features/display/displaySlice';
+import AssemblyScanPanel from './_components/AssemblyScanPanel';
 import OperatorReportModal from './_components/OperatorReportModal';
 
 export interface DisplayManPower {
@@ -111,6 +112,7 @@ export default function DisplayPage() {
     });
 
     // Modal and options state
+    const [assemblyLocked, setAssemblyLocked] = useState(false);
     const [isConfigOpen, setIsConfigOpen] = useState(false);
     const [isReportOpen, setIsReportOpen] = useState(false);
     const [reportInitialTab, setReportInitialTab] = useState<'form' | 'history'>('form');
@@ -312,12 +314,14 @@ export default function DisplayPage() {
     };
 
     const handleOpenConfig = () => {
+        if (assemblyLocked) { message.warning("Complete or cancel the active assembly before changing station settings. Refresh session if offline."); return; }
         setIsConfigOpen(true);
         setLoadingOptions(true);
         void refreshDataFromApi().finally(() => setLoadingOptions(false));
     };
 
     const handleSaveConfig = () => {
+        if (assemblyLocked) return;
         const values = form.getFieldsValue();
         const selectedMp = manPowerList.find((m) => m.Nik === values.nik) || null;
         const selectedFg = finishGoodsList.find((f) => f.PartNumber === values.partNumber) || null;
@@ -340,6 +344,7 @@ export default function DisplayPage() {
     };
 
     const handleClearConfig = () => {
+        if (assemblyLocked) return;
         try {
             localStorage.removeItem(STORAGE_KEY);
             setStationConfig({
@@ -631,6 +636,7 @@ export default function DisplayPage() {
                 </div>
             </section>
 
+            <AssemblyScanPanel nik={stationConfig.selectedNik ?? stationConfig.manpower?.Nik ?? null} paused={isConfigOpen || isReportOpen} onLocked={setAssemblyLocked} />
             {/* Config Modal */}
             <Modal
                 title={

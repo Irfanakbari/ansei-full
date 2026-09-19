@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
 import React, { useState } from 'react';
-import { Modal, Form, Input, InputNumber, App } from 'antd';
+import { Modal, Form, Input, InputNumber, Switch, App } from 'antd';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
 import { createFinishGood, fetchFinishGood } from '@/store/features/master/finishGoodSlice';
@@ -26,6 +26,7 @@ const CreateFinishGoodModal: React.FC<Props> = ({ visible, onClose }) => {
                 partName: values.partName,
                 alias: values.alias,
                 price: values.price,
+                isPassthrough: values.isPassthrough ?? false,
                 qty: values.qty || 0,
             };
 
@@ -67,12 +68,15 @@ const CreateFinishGoodModal: React.FC<Props> = ({ visible, onClose }) => {
             width={500}
             zIndex={1050}
         >
-            <Form form={form} layout="vertical">
+            <Form form={form} layout="vertical" initialValues={{ isPassthrough: false }}>
                 <Form.Item name="partNumber" label="Part Number" rules={[{ required: true, message: 'Please enter part number' }]}>
                     <Input placeholder="Enter part number" />
                 </Form.Item>
                 <Form.Item name="partName" label="Part Name" rules={[{ required: true, message: 'Please enter part name' }]}>
                     <Input placeholder="Enter part name" />
+                </Form.Item>
+                <Form.Item name="isPassthrough" label="Passthrough (skip Assy)" valuePropName="checked" extra="Applies to labels created in the next production release.">
+                    <Switch checkedChildren="Yes" unCheckedChildren="No" />
                 </Form.Item>
                 <Form.Item name="alias" label="Alias">
                     <Input placeholder="Enter alias (optional)" />

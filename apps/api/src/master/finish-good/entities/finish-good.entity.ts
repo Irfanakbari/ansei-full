@@ -4,6 +4,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
  * FinishGood Entity - Finish Good response format
  */
 export class FinishGoodEntity {
+  @ApiProperty({ description: 'Skip assembly after shopping' })
+  IsPassthrough: boolean;
+
   @ApiProperty({ description: 'ID finish good', example: 1 })
   Id: number;
 

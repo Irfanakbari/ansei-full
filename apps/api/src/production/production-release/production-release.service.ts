@@ -22,6 +22,10 @@ import { Prisma } from '../../generated/prisma/client';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 import { randomUUID } from 'node:crypto';
 import { validateUploadContent } from '../../common/utils/upload-security.util';
+import {
+  buildProductionLabels,
+  lockProductionFlow,
+} from '../../common/helpers/production-flow.helper';
 
 // Allowed file extensions and max size
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -439,7 +443,11 @@ export class ProductionReleaseService {
         FinishGoodId: true,
         ProductionReleaseId: true,
         PartData: {
-          select: { PartName: true, BoxQTY: { select: { Qty: true } } },
+          select: {
+            PartName: true,
+            IsPassthrough: true,
+            BoxQTY: { select: { Qty: true } },
+          },
         },
         _count: {
           select: {
@@ -452,7 +460,9 @@ export class ProductionReleaseService {
           select: {
             Id: true,
             Scanned: true,
-            _count: { select: { PokayokeHistory: true } },
+            _count: {
+              select: { PokayokeHistory: true, AssemblySessions: true },
+            },
             DeliveryHistory: { select: { Id: true } },
           },
         },
@@ -481,6 +491,7 @@ export class ProductionReleaseService {
           (label) =>
             label.Scanned ||
             label._count.PokayokeHistory > 0 ||
+            label._count.AssemblySessions > 0 ||
             label.DeliveryHistory,
         ),
     );
@@ -504,22 +515,16 @@ export class ProductionReleaseService {
           `Box Qty must be configured with a value greater than 0 for ${forecast.FinishGoodId} (PO ${forecast.PoId}).`,
         );
       }
-      return Array.from(
-        { length: Math.ceil(forecast.Qty / boxQty) },
-        (_, index) => {
-          const qty =
-            index === Math.ceil(forecast.Qty / boxQty) - 1
-              ? forecast.Qty % boxQty || boxQty
-              : boxQty;
-          return {
-            LabelNumber: `${forecast.PoId}${String(index + 1).padStart(3, '0')}${String(qty).padStart(5, '0')}`,
-            FinishGoodId: forecast.FinishGoodId,
-            ForecastId: forecast.PoId,
-            Scanned: false,
-            QtyThisBox: qty,
-            ProductionReleaseId: releaseId,
-          };
-        },
+      if (!Number.isInteger(forecast.Qty) || forecast.Qty <= 0) {
+        throw new BadRequestException(
+          'Forecast quantity must be a positive integer before release.',
+        );
+      }
+      return buildProductionLabels(
+        forecast,
+        releaseId,
+        boxQty,
+        !forecast.PartData.IsPassthrough,
       );
     });
   }
@@ -533,6 +538,7 @@ export class ProductionReleaseService {
     try {
       const releaseNumber = await this.prisma.$transaction(
         async (tx) => {
+          await lockProductionFlow(tx);
           const release = await this.requireReleased(tx, id);
           const forecastIds = (
             await tx.forecast.findMany({
@@ -594,6 +600,7 @@ export class ProductionReleaseService {
     try {
       await this.prisma.$transaction(
         async (tx) => {
+          await lockProductionFlow(tx);
           await this.requireReleased(tx, id);
           const forecasts = await this.getAmendmentForecasts(
             tx,
@@ -659,6 +666,7 @@ export class ProductionReleaseService {
     try {
       await this.prisma.$transaction(
         async (tx) => {
+          await lockProductionFlow(tx);
           await this.requireReleased(tx, id);
           const forecasts = await this.getAmendmentForecasts(
             tx,
@@ -742,6 +750,7 @@ export class ProductionReleaseService {
       const forecastIds = [...new Set(dto.forecastIds)];
       const result = await this.prisma.$transaction(
         async (tx) => {
+          await lockProductionFlow(tx);
           await assertNoActiveInventoryCounting(
             tx,
             undefined,
@@ -844,12 +853,35 @@ export class ProductionReleaseService {
 
       const result = await this.prisma.$transaction(
         async (tx) => {
+          await lockProductionFlow(tx);
           const existing = await tx.productionRelease.findUnique({
             where: { Id: id },
           });
           if (!existing) {
             throw new NotFoundException(
               `ProductionRelease with id ${id} not found`,
+            );
+          }
+          const isClosing =
+            existing.Status === ProductionStatus.RELEASED &&
+            dto.status === ProductionStatus.COMPLETED;
+          if (dto.totalProductionMinutes !== undefined && !isClosing) {
+            throw new BadRequestException(
+              'Production duration can only be recorded when closing a RELEASED production release.',
+            );
+          }
+          if (
+            dto.status !== undefined &&
+            dto.status !== existing.Status &&
+            !(
+              (existing.Status === ProductionStatus.DRAFT &&
+                dto.status === ProductionStatus.RELEASED) ||
+              (existing.Status === ProductionStatus.RELEASED &&
+                dto.status === ProductionStatus.COMPLETED)
+            )
+          ) {
+            throw new BadRequestException(
+              `Cannot change status from ${existing.Status} to ${dto.status}.`,
             );
           }
           if (
@@ -881,6 +913,9 @@ export class ProductionReleaseService {
 
           if (dto.forecastIds !== undefined) {
             const forecastIds = [...new Set(dto.forecastIds)];
+            if (forecastIds.length === 0) {
+              throw new BadRequestException('forecastIds cannot be empty');
+            }
             const forecasts = await tx.forecast.findMany({
               where: {
                 PoId: { in: forecastIds },
@@ -921,7 +956,11 @@ export class ProductionReleaseService {
               Qty: true,
               FinishGoodId: true,
               PartData: {
-                select: { PartName: true, BoxQTY: { select: { Qty: true } } },
+                select: {
+                  PartName: true,
+                  IsPassthrough: true,
+                  BoxQTY: { select: { Qty: true } },
+                },
               },
             },
           });
@@ -986,22 +1025,63 @@ export class ProductionReleaseService {
             dto.status === ProductionStatus.COMPLETED &&
             existing.Status !== ProductionStatus.COMPLETED
           ) {
-            const [scannedLabels, attachmentCount] = await Promise.all([
-              tx.labelData.findMany({
-                where: { ProductionReleaseId: id, Scanned: true },
-                select: { QtyThisBox: true },
+            const [forecasts, attachmentCount] = await Promise.all([
+              tx.forecast.findMany({
+                where: { ProductionReleaseId: id },
+                select: {
+                  PoId: true,
+                  Qty: true,
+                  FinishGoodId: true,
+                  DeliveryHistory: { select: { Qty: true } },
+                  LabelData: {
+                    select: {
+                      Scanned: true,
+                      QtyThisBox: true,
+                      FinishGoodId: true,
+                      ProductionReleaseId: true,
+                      DeliveryHistory: { select: { Qty: true } },
+                    },
+                  },
+                },
               }),
               tx.productionReleaseAttachment.count({
                 where: { ProductionReleaseId: id },
               }),
             ]);
-            const totalGoodQty = scannedLabels.reduce(
-              (sum, label) => sum + label.QtyThisBox,
-              0,
-            );
-            if (totalGoodQty < totalTargetQty) {
+            const activeAssy = await tx.assemblySession.count({
+              where: {
+                Status: 'IN_PROGRESS',
+                LabelData: { ProductionReleaseId: id },
+              },
+            });
+            if (activeAssy > 0)
               throw new BadRequestException(
-                `Cannot complete production release. Scanned label quantity is ${totalGoodQty} of ${totalTargetQty}; remaining ${totalTargetQty - totalGoodQty}.`,
+                'Cannot close release with active assembly sessions.',
+              );
+            const incomplete = forecasts.filter(
+              (forecast) =>
+                forecast.Qty <= 0 ||
+                forecast.LabelData.length === 0 ||
+                forecast.DeliveryHistory.reduce(
+                  (sum, delivery) => sum + delivery.Qty,
+                  0,
+                ) !== forecast.Qty ||
+                forecast.LabelData.reduce(
+                  (sum, label) => sum + label.QtyThisBox,
+                  0,
+                ) !== forecast.Qty ||
+                forecast.LabelData.some(
+                  (label) =>
+                    !label.Scanned ||
+                    label.QtyThisBox <= 0 ||
+                    label.ProductionReleaseId !== id ||
+                    label.FinishGoodId !== forecast.FinishGoodId ||
+                    label.DeliveryHistory?.Qty !== label.QtyThisBox,
+                ),
+            );
+            if (forecasts.length === 0 || incomplete.length > 0) {
+              throw new BadRequestException(
+                'Cannot complete production release. Every forecast/PO and every label must be fully delivered after POKAYOKE.',
               );
             }
             if (
@@ -1012,6 +1092,23 @@ export class ProductionReleaseService {
                 'Cannot complete production release without an attachment. Upload at least one attachment or select No Attachment.',
               );
             }
+            if (
+              typeof dto.totalProductionMinutes !== 'number' ||
+              !Number.isInteger(dto.totalProductionMinutes) ||
+              dto.totalProductionMinutes <= 0 ||
+              dto.totalProductionMinutes > 2147483647
+            ) {
+              throw new BadRequestException(
+                'Enter a valid total production duration of at least 1 minute before closing the release.',
+              );
+            }
+            await this.logService.addLog({
+              processId: logProcess!.ProcessId,
+              message: 'Production duration recorded with release closure.',
+              type: 'INFO',
+              location: 'ProductionReleaseService.update',
+              client: tx,
+            });
           }
 
           return tx.productionRelease.update({
@@ -1021,6 +1118,9 @@ export class ProductionReleaseService {
                 ? { PlanDate: new Date(dto.planDate) }
                 : {}),
               ...(dto.status !== undefined ? { Status: dto.status } : {}),
+              ...(isClosing
+                ? { TotalProductionMinutes: dto.totalProductionMinutes }
+                : {}),
               ...(dto.notes !== undefined ? { Notes: dto.notes } : {}),
               ...(dto.isNoAttachment !== undefined
                 ? { IsNoAttachment: dto.isNoAttachment }
@@ -1099,6 +1199,7 @@ export class ProductionReleaseService {
         PoId: true,
         Qty: true,
         FinishGoodId: true,
+        PartData: { select: { IsPassthrough: true } },
       },
     });
 
@@ -1116,6 +1217,7 @@ export class ProductionReleaseService {
       Scanned: boolean;
       QtyThisBox: number;
       ProductionReleaseId: string;
+      RequiresAssembly: boolean;
     }[] = [];
 
     for (const forecast of forecasts) {
@@ -1161,6 +1263,7 @@ export class ProductionReleaseService {
           Scanned: false,
           QtyThisBox: qtyInBox,
           ProductionReleaseId: releaseId,
+          RequiresAssembly: !forecast.PartData.IsPassthrough,
         });
       }
     }
@@ -1219,7 +1322,19 @@ export class ProductionReleaseService {
 
       // Use transaction to delete related data
       await this.prisma.$transaction(async (tx) => {
+        await lockProductionFlow(tx);
         const processId = logProcess!.ProcessId;
+        const existing = await tx.productionRelease.findUnique({
+          where: { Id: id },
+          include: {
+            _count: { select: { LabelDatas: true, Forecasts: true } },
+          },
+        });
+        if (!existing || existing.Status !== ProductionStatus.DRAFT) {
+          throw new BadRequestException(
+            'Only DRAFT releases can be deleted. Refresh and try again.',
+          );
+        }
 
         // Delete related LabelData first
         if (existing._count.LabelDatas > 0) {

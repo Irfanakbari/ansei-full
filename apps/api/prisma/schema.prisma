@@ -137,16 +137,17 @@ model Material {
 }
 
 model FinishGood {
-  Id         Int      @id @default(autoincrement())
-  PartNumber String   @unique
-  PartName   String
+  Id            Int     @id @default(autoincrement())
+  PartNumber    String  @unique
+  PartName      String
+  IsPassthrough Boolean @default(false)
 
   Alias String?
 
-  Price      Float?   @default(0)
-  CreatedAt  DateTime @default(now())
-  CreatedBy  String
-  UpdatedAt  DateTime @updatedAt
+  Price     Float?   @default(0)
+  CreatedAt DateTime @default(now())
+  CreatedBy String
+  UpdatedAt DateTime @updatedAt
 
   // cache stok fg
   Qty Int @default(0)
@@ -182,6 +183,7 @@ model BillOfMaterials {
 }
 
 model ManPower {
+  AssemblySessions AssemblySession[]
   Uid              String             @id @default(uuid(4))
   Nik              String             @unique
   PicturePath      String?
@@ -194,10 +196,10 @@ model ManPower {
 }
 
 model SkillMatrix {
-  Id          Int      @id @default(autoincrement())
+  Id          Int    @id @default(autoincrement())
   ManPowerUid String
   Label       String
-  Point       Int      // 1-4
+  Point       Int // 1-4
 
   ManPowerData ManPower @relation(fields: [ManPowerUid], references: [Uid], onDelete: Cascade)
 
@@ -351,7 +353,7 @@ model Forecast {
   PartData           FinishGood          @relation(fields: [FinishGoodId], references: [PartNumber], onDelete: Cascade)
   LabelData          LabelData[]
   Shopping           Shopping[]
-  ShoppingProductionResult ShoppingProductionResult?
+  ShoppingCompletion ShoppingCompletion?
   ProductionRelease  ProductionRelease?  @relation(fields: [ProductionReleaseId], references: [Id])
   ProductionReport   ProductionReport[]
 
@@ -378,9 +380,11 @@ model ProductionRelease {
   Notes  String?
 
   // Rekap total agar UI dashboard lebih ringan (tidak perlu sum dari child)
-  TotalTargetQty Int @default(0)
-  TotalGoodQty   Int @default(0)
-  TotalNgQty     Int @default(0)
+  TotalTargetQty         Int  @default(0)
+  TotalGoodQty           Int  @default(0)
+  TotalNgQty             Int  @default(0)
+  // Actual production duration entered at closure; null for historical releases.
+  TotalProductionMinutes Int?
 
   CreatedAt DateTime @default(now())
   CreatedBy String
@@ -389,9 +393,9 @@ model ProductionRelease {
   IsNoAttachment Boolean @default(false)
 
   // 1 Jadwal rilis BANYAK PO (Forecast)
-  Forecasts          Forecast[]
-  LabelDatas         LabelData[]
-  Attachments        ProductionReleaseAttachment[]
+  Forecasts   Forecast[]
+  LabelDatas  LabelData[]
+  Attachments ProductionReleaseAttachment[]
 
   @@index([PlanDate])
   @@index([Status])
@@ -400,11 +404,11 @@ model ProductionRelease {
 model ProductionReleaseAttachment {
   id Int @id @default(autoincrement())
 
-  FileName String?
-  FilePath String?
+  FileName         String?
+  FilePath         String?
   OriginalFileName String?
-  FileSize Int?
-  MimeType String?
+  FileSize         Int?
+  MimeType         String?
 
   CreatedAt DateTime @default(now())
   CreatedBy String?
@@ -436,7 +440,7 @@ model Shopping {
   @@index([MaterialId], map: "Shopping_materialId_fkey")
 }
 
-model ShoppingProductionResult {
+model ShoppingCompletion {
   ForecastId String   @id
   ShoppingId String   @unique
   CreatedAt  DateTime @default(now())
@@ -516,12 +520,14 @@ model ProductionReport {
 }
 
 model LabelData {
-  Id           Int     @id @default(autoincrement())
-  LabelNumber  String  @unique
-  FinishGoodId String
-  ForecastId   String //Ambil dari POID
-  Scanned      Boolean @default(false)
-  QtyThisBox   Int     @default(0)
+  RequiresAssembly Boolean?
+  AssemblySessions AssemblySession[]
+  Id               Int               @id @default(autoincrement())
+  LabelNumber      String            @unique
+  FinishGoodId     String
+  ForecastId       String //Ambil dari POID
+  Scanned          Boolean           @default(false)
+  QtyThisBox       Int               @default(0)
 
   DeliveryHistory       DeliveryHistory?
   PokayokeHistory       PokayokeScanHistory[]
@@ -534,6 +540,36 @@ model LabelData {
   @@index([FinishGoodId], map: "LabelData_finishGoodId_fkey")
   @@index([ForecastId], map: "LabelData_forecastId_fkey")
   @@index([ProductionReleaseId])
+}
+
+enum AssemblyStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model AssemblySession {
+  Id                String         @id @default(uuid())
+  LabelDataId       Int
+  ManPowerUid       String
+  ManPowerName      String
+  Status            AssemblyStatus @default(IN_PROGRESS)
+  StartedAt         DateTime       @default(now())
+  EndedAt           DateTime?
+  CancelledAt       DateTime?
+  CancelledBy       String?
+  CancelReason      String?
+  StartRequestId    String         @unique
+  CompleteRequestId String?        @unique
+  CreatedBy         String
+  CompletedBy       String?
+  Channel           String
+  LabelData         LabelData      @relation(fields: [LabelDataId], references: [Id], onDelete: Restrict)
+  ManPower          ManPower       @relation(fields: [ManPowerUid], references: [Uid], onDelete: Restrict)
+
+  @@index([LabelDataId, Status])
+  @@index([ManPowerUid, Status])
+  @@index([StartedAt])
 }
 
 model PokayokeScanHistory {

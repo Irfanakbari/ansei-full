@@ -58,6 +58,7 @@ export default function FinishGoodPage() {
     });
 
     const columns = [
+        { title: 'Passthrough', dataIndex: 'IsPassthrough', key: 'IsPassthrough', width: 150, render: (value: boolean) => value ? 'Yes — skip Assy' : 'No — Assy required' },
         {
             title: 'Part Number',
             dataIndex: 'PartNumber',

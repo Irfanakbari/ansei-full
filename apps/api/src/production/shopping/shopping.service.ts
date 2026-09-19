@@ -23,6 +23,7 @@ import {
 import type { Prisma } from '../../generated/prisma/client';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
+import { lockProductionFlow } from '../../common/helpers/production-flow.helper';
 
 /**
  * Interface for BOM summary response
@@ -627,7 +628,24 @@ export class ShoppingService {
 
     const result = await this.prisma.$transaction(async (tx) => {
       if (dto.forecastId && dto.type === TypeShopping.REGULER) {
+        await lockProductionFlow(tx);
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${dto.forecastId}))`;
+
+        const currentForecast = await tx.forecast.findUnique({
+          where: { PoId: dto.forecastId },
+          include: { ProductionRelease: true },
+        });
+        if (
+          !currentForecast ||
+          currentForecast.ProductionRelease?.Status !==
+            ProductionStatus.RELEASED ||
+          currentForecast.Qty !== finishGoodContext?.forecastQty ||
+          currentForecast.FinishGoodId !== finishGoodContext?.finishGoodId
+        ) {
+          throw new BadRequestException(
+            'Forecast changed or is not RELEASED. Refresh before shopping.',
+          );
+        }
 
         const finishGoodId = finishGoodContext?.finishGoodId;
         const forecastQty = finishGoodContext?.forecastQty;
@@ -753,7 +771,7 @@ export class ShoppingService {
         ))
       ) {
         const markerCount = await tx.$executeRaw`
-          INSERT INTO "ShoppingProductionResult" ("ForecastId", "ShoppingId", "CreatedBy")
+          INSERT INTO "ShoppingCompletion" ("ForecastId", "ShoppingId", "CreatedBy")
           VALUES (${validForecastId}, ${shoppingId}, ${createdBy})
           ON CONFLICT ("ForecastId") DO NOTHING
         `;
@@ -767,35 +785,60 @@ export class ShoppingService {
           });
 
           if (fg) {
-            const fgBalanceBefore = fg.Qty;
-            const fgBalanceAfter =
-              fgBalanceBefore + finishGoodContext.forecastQty;
-
-            // INCREMENT FinishGood Qty
-            await tx.finishGood.update({
-              where: { PartNumber: finishGoodContext.finishGoodId },
-              data: { Qty: fgBalanceAfter },
+            const labels = await tx.labelData.findMany({
+              where: { ForecastId: validForecastId },
+              select: { RequiresAssembly: true },
             });
+            if (
+              labels.length === 0 ||
+              labels.some(
+                (label) =>
+                  label.RequiresAssembly !== labels[0].RequiresAssembly,
+              )
+            ) {
+              throw new BadRequestException(
+                'Production labels are missing or have inconsistent assembly rules.',
+              );
+            }
+            if (labels[0].RequiresAssembly !== true) {
+              const stock = await tx.inventoryLedger.aggregate({
+                where: {
+                  FinishGoodId: finishGoodContext.finishGoodId,
+                  ItemCategory: 'FINISH_GOOD',
+                  Location: 'FINISH_GOOD_AREA',
+                },
+                _sum: { QtyIn: true, QtyOut: true },
+              });
+              const fgBalanceBefore =
+                (stock._sum.QtyIn ?? 0) - (stock._sum.QtyOut ?? 0);
+              const fgBalanceAfter =
+                fgBalanceBefore + finishGoodContext.forecastQty;
 
-            // Create InventoryLedger entry for PRODUCTION_RESULT
-            await tx.inventoryLedger.create({
-              data: {
-                Id: crypto.randomUUID(),
-                TransactionDate: new Date(),
-                ItemCategory: 'FINISH_GOOD',
-                FinishGoodId: finishGoodContext.finishGoodId,
-                Location: LocationType.FINISH_GOOD_AREA,
-                TransactionType: TransactionType.PRODUCTION_RESULT,
-                ReferenceDoc: `PROD-${shoppingId}`,
-                BalanceBefore: fgBalanceBefore,
-                QtyIn: finishGoodContext.forecastQty,
-                QtyOut: 0,
-                BalanceAfter: fgBalanceAfter,
-                CreatedBy: createdBy,
-                Notes: `Production Result from REGULER shopping completion for PO: ${dto.forecastId}. Material: ${dto.materialId}, QtyPick: ${dto.qtyPick}`,
-              },
-            });
+              // INCREMENT FinishGood Qty
+              await tx.finishGood.update({
+                where: { PartNumber: finishGoodContext.finishGoodId },
+                data: { Qty: fgBalanceAfter },
+              });
 
+              // Create InventoryLedger entry for PRODUCTION_RESULT
+              await tx.inventoryLedger.create({
+                data: {
+                  Id: crypto.randomUUID(),
+                  TransactionDate: new Date(),
+                  ItemCategory: 'FINISH_GOOD',
+                  FinishGoodId: finishGoodContext.finishGoodId,
+                  Location: LocationType.FINISH_GOOD_AREA,
+                  TransactionType: TransactionType.PRODUCTION_RESULT,
+                  ReferenceDoc: `PROD-${shoppingId}`,
+                  BalanceBefore: fgBalanceBefore,
+                  QtyIn: finishGoodContext.forecastQty,
+                  QtyOut: 0,
+                  BalanceAfter: fgBalanceAfter,
+                  CreatedBy: createdBy,
+                  Notes: `Production Result from REGULER shopping completion for PO: ${dto.forecastId}. Material: ${dto.materialId}, QtyPick: ${dto.qtyPick}`,
+                },
+              });
+            }
             const [forecast, boxQTY] = await Promise.all([
               tx.forecast.findUniqueOrThrow({
                 where: { PoId: validForecastId },
@@ -820,7 +863,7 @@ export class ShoppingService {
                 receivingArea: forecast.ReceivingArea,
               },
               actor: createdBy,
-              referenceType: 'SHOPPING_PRODUCTION_RESULT',
+              referenceType: 'SHOPPING_COMPLETION',
               referenceId: validForecastId,
             });
           }

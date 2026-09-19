@@ -37,6 +37,7 @@ export type LabelDataSumAggregateOutputType = {
 }
 
 export type LabelDataMinAggregateOutputType = {
+  RequiresAssembly: boolean | null
   Id: number | null
   LabelNumber: string | null
   FinishGoodId: string | null
@@ -48,6 +49,7 @@ export type LabelDataMinAggregateOutputType = {
 }
 
 export type LabelDataMaxAggregateOutputType = {
+  RequiresAssembly: boolean | null
   Id: number | null
   LabelNumber: string | null
   FinishGoodId: string | null
@@ -59,6 +61,7 @@ export type LabelDataMaxAggregateOutputType = {
 }
 
 export type LabelDataCountAggregateOutputType = {
+  RequiresAssembly: number
   Id: number
   LabelNumber: number
   FinishGoodId: number
@@ -82,6 +85,7 @@ export type LabelDataSumAggregateInputType = {
 }
 
 export type LabelDataMinAggregateInputType = {
+  RequiresAssembly?: true
   Id?: true
   LabelNumber?: true
   FinishGoodId?: true
@@ -93,6 +97,7 @@ export type LabelDataMinAggregateInputType = {
 }
 
 export type LabelDataMaxAggregateInputType = {
+  RequiresAssembly?: true
   Id?: true
   LabelNumber?: true
   FinishGoodId?: true
@@ -104,6 +109,7 @@ export type LabelDataMaxAggregateInputType = {
 }
 
 export type LabelDataCountAggregateInputType = {
+  RequiresAssembly?: true
   Id?: true
   LabelNumber?: true
   FinishGoodId?: true
@@ -202,6 +208,7 @@ export type LabelDataGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 export type LabelDataGroupByOutputType = {
+  RequiresAssembly: boolean | null
   Id: number
   LabelNumber: string
   FinishGoodId: string
@@ -236,6 +243,7 @@ export type LabelDataWhereInput = {
   AND?: Prisma.LabelDataWhereInput | Prisma.LabelDataWhereInput[]
   OR?: Prisma.LabelDataWhereInput[]
   NOT?: Prisma.LabelDataWhereInput | Prisma.LabelDataWhereInput[]
+  RequiresAssembly?: Prisma.BoolNullableFilter<"LabelData"> | boolean | null
   Id?: Prisma.IntFilter<"LabelData"> | number
   LabelNumber?: Prisma.StringFilter<"LabelData"> | string
   FinishGoodId?: Prisma.StringFilter<"LabelData"> | string
@@ -244,6 +252,7 @@ export type LabelDataWhereInput = {
   QtyThisBox?: Prisma.IntFilter<"LabelData"> | number
   ProductionReleaseId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   PokayokeScanHistoryId?: Prisma.StringNullableFilter<"LabelData"> | string | null
+  AssemblySessions?: Prisma.AssemblySessionListRelationFilter
   DeliveryHistory?: Prisma.XOR<Prisma.DeliveryHistoryNullableScalarRelationFilter, Prisma.DeliveryHistoryWhereInput> | null
   PokayokeHistory?: Prisma.PokayokeScanHistoryListRelationFilter
   PartData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
@@ -252,6 +261,7 @@ export type LabelDataWhereInput = {
 }
 
 export type LabelDataOrderByWithRelationInput = {
+  RequiresAssembly?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -260,6 +270,7 @@ export type LabelDataOrderByWithRelationInput = {
   QtyThisBox?: Prisma.SortOrder
   ProductionReleaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   PokayokeScanHistoryId?: Prisma.SortOrderInput | Prisma.SortOrder
+  AssemblySessions?: Prisma.AssemblySessionOrderByRelationAggregateInput
   DeliveryHistory?: Prisma.DeliveryHistoryOrderByWithRelationInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryOrderByRelationAggregateInput
   PartData?: Prisma.FinishGoodOrderByWithRelationInput
@@ -273,12 +284,14 @@ export type LabelDataWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.LabelDataWhereInput | Prisma.LabelDataWhereInput[]
   OR?: Prisma.LabelDataWhereInput[]
   NOT?: Prisma.LabelDataWhereInput | Prisma.LabelDataWhereInput[]
+  RequiresAssembly?: Prisma.BoolNullableFilter<"LabelData"> | boolean | null
   FinishGoodId?: Prisma.StringFilter<"LabelData"> | string
   ForecastId?: Prisma.StringFilter<"LabelData"> | string
   Scanned?: Prisma.BoolFilter<"LabelData"> | boolean
   QtyThisBox?: Prisma.IntFilter<"LabelData"> | number
   ProductionReleaseId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   PokayokeScanHistoryId?: Prisma.StringNullableFilter<"LabelData"> | string | null
+  AssemblySessions?: Prisma.AssemblySessionListRelationFilter
   DeliveryHistory?: Prisma.XOR<Prisma.DeliveryHistoryNullableScalarRelationFilter, Prisma.DeliveryHistoryWhereInput> | null
   PokayokeHistory?: Prisma.PokayokeScanHistoryListRelationFilter
   PartData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
@@ -287,6 +300,7 @@ export type LabelDataWhereUniqueInput = Prisma.AtLeast<{
 }, "Id" | "LabelNumber">
 
 export type LabelDataOrderByWithAggregationInput = {
+  RequiresAssembly?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -306,6 +320,7 @@ export type LabelDataScalarWhereWithAggregatesInput = {
   AND?: Prisma.LabelDataScalarWhereWithAggregatesInput | Prisma.LabelDataScalarWhereWithAggregatesInput[]
   OR?: Prisma.LabelDataScalarWhereWithAggregatesInput[]
   NOT?: Prisma.LabelDataScalarWhereWithAggregatesInput | Prisma.LabelDataScalarWhereWithAggregatesInput[]
+  RequiresAssembly?: Prisma.BoolNullableWithAggregatesFilter<"LabelData"> | boolean | null
   Id?: Prisma.IntWithAggregatesFilter<"LabelData"> | number
   LabelNumber?: Prisma.StringWithAggregatesFilter<"LabelData"> | string
   FinishGoodId?: Prisma.StringWithAggregatesFilter<"LabelData"> | string
@@ -317,10 +332,12 @@ export type LabelDataScalarWhereWithAggregatesInput = {
 }
 
 export type LabelDataCreateInput = {
+  RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
@@ -329,6 +346,7 @@ export type LabelDataCreateInput = {
 }
 
 export type LabelDataUncheckedCreateInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -337,15 +355,18 @@ export type LabelDataUncheckedCreateInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
 }
 
 export type LabelDataUpdateInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
@@ -354,6 +375,7 @@ export type LabelDataUpdateInput = {
 }
 
 export type LabelDataUncheckedUpdateInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -362,11 +384,13 @@ export type LabelDataUncheckedUpdateInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
 }
 
 export type LabelDataCreateManyInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -378,6 +402,7 @@ export type LabelDataCreateManyInput = {
 }
 
 export type LabelDataUpdateManyMutationInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -385,6 +410,7 @@ export type LabelDataUpdateManyMutationInput = {
 }
 
 export type LabelDataUncheckedUpdateManyInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -406,6 +432,7 @@ export type LabelDataOrderByRelationAggregateInput = {
 }
 
 export type LabelDataCountOrderByAggregateInput = {
+  RequiresAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -422,6 +449,7 @@ export type LabelDataAvgOrderByAggregateInput = {
 }
 
 export type LabelDataMaxOrderByAggregateInput = {
+  RequiresAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -433,6 +461,7 @@ export type LabelDataMaxOrderByAggregateInput = {
 }
 
 export type LabelDataMinOrderByAggregateInput = {
+  RequiresAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -448,14 +477,14 @@ export type LabelDataSumOrderByAggregateInput = {
   QtyThisBox?: Prisma.SortOrder
 }
 
-export type LabelDataNullableScalarRelationFilter = {
-  is?: Prisma.LabelDataWhereInput | null
-  isNot?: Prisma.LabelDataWhereInput | null
-}
-
 export type LabelDataScalarRelationFilter = {
   is?: Prisma.LabelDataWhereInput
   isNot?: Prisma.LabelDataWhereInput
+}
+
+export type LabelDataNullableScalarRelationFilter = {
+  is?: Prisma.LabelDataWhereInput | null
+  isNot?: Prisma.LabelDataWhereInput | null
 }
 
 export type LabelDataCreateNestedManyWithoutPartDataInput = {
@@ -584,6 +613,24 @@ export type LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput = {
   deleteMany?: Prisma.LabelDataScalarWhereInput | Prisma.LabelDataScalarWhereInput[]
 }
 
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
+}
+
+export type LabelDataCreateNestedOneWithoutAssemblySessionsInput = {
+  create?: Prisma.XOR<Prisma.LabelDataCreateWithoutAssemblySessionsInput, Prisma.LabelDataUncheckedCreateWithoutAssemblySessionsInput>
+  connectOrCreate?: Prisma.LabelDataCreateOrConnectWithoutAssemblySessionsInput
+  connect?: Prisma.LabelDataWhereUniqueInput
+}
+
+export type LabelDataUpdateOneRequiredWithoutAssemblySessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.LabelDataCreateWithoutAssemblySessionsInput, Prisma.LabelDataUncheckedCreateWithoutAssemblySessionsInput>
+  connectOrCreate?: Prisma.LabelDataCreateOrConnectWithoutAssemblySessionsInput
+  upsert?: Prisma.LabelDataUpsertWithoutAssemblySessionsInput
+  connect?: Prisma.LabelDataWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LabelDataUpdateToOneWithWhereWithoutAssemblySessionsInput, Prisma.LabelDataUpdateWithoutAssemblySessionsInput>, Prisma.LabelDataUncheckedUpdateWithoutAssemblySessionsInput>
+}
+
 export type LabelDataCreateNestedOneWithoutPokayokeHistoryInput = {
   create?: Prisma.XOR<Prisma.LabelDataCreateWithoutPokayokeHistoryInput, Prisma.LabelDataUncheckedCreateWithoutPokayokeHistoryInput>
   connectOrCreate?: Prisma.LabelDataCreateOrConnectWithoutPokayokeHistoryInput
@@ -615,10 +662,12 @@ export type LabelDataUpdateOneRequiredWithoutDeliveryHistoryNestedInput = {
 }
 
 export type LabelDataCreateWithoutPartDataInput = {
+  RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
   POData: Prisma.ForecastCreateNestedOneWithoutLabelDataInput
@@ -626,6 +675,7 @@ export type LabelDataCreateWithoutPartDataInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutPartDataInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   ForecastId: string
@@ -633,6 +683,7 @@ export type LabelDataUncheckedCreateWithoutPartDataInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
 }
@@ -667,6 +718,7 @@ export type LabelDataScalarWhereInput = {
   AND?: Prisma.LabelDataScalarWhereInput | Prisma.LabelDataScalarWhereInput[]
   OR?: Prisma.LabelDataScalarWhereInput[]
   NOT?: Prisma.LabelDataScalarWhereInput | Prisma.LabelDataScalarWhereInput[]
+  RequiresAssembly?: Prisma.BoolNullableFilter<"LabelData"> | boolean | null
   Id?: Prisma.IntFilter<"LabelData"> | number
   LabelNumber?: Prisma.StringFilter<"LabelData"> | string
   FinishGoodId?: Prisma.StringFilter<"LabelData"> | string
@@ -678,10 +730,12 @@ export type LabelDataScalarWhereInput = {
 }
 
 export type LabelDataCreateWithoutPODataInput = {
+  RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
@@ -689,6 +743,7 @@ export type LabelDataCreateWithoutPODataInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutPODataInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -696,6 +751,7 @@ export type LabelDataUncheckedCreateWithoutPODataInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
 }
@@ -727,10 +783,12 @@ export type LabelDataUpdateManyWithWhereWithoutPODataInput = {
 }
 
 export type LabelDataCreateWithoutProductionReleaseInput = {
+  RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
@@ -738,6 +796,7 @@ export type LabelDataCreateWithoutProductionReleaseInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutProductionReleaseInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -745,6 +804,7 @@ export type LabelDataUncheckedCreateWithoutProductionReleaseInput = {
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
 }
@@ -775,18 +835,21 @@ export type LabelDataUpdateManyWithWhereWithoutProductionReleaseInput = {
   data: Prisma.XOR<Prisma.LabelDataUpdateManyMutationInput, Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseInput>
 }
 
-export type LabelDataCreateWithoutPokayokeHistoryInput = {
+export type LabelDataCreateWithoutAssemblySessionsInput = {
+  RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
   DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
+  PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
   POData: Prisma.ForecastCreateNestedOneWithoutLabelDataInput
   ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLabelDatasInput
 }
 
-export type LabelDataUncheckedCreateWithoutPokayokeHistoryInput = {
+export type LabelDataUncheckedCreateWithoutAssemblySessionsInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -795,6 +858,77 @@ export type LabelDataUncheckedCreateWithoutPokayokeHistoryInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
+  PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
+}
+
+export type LabelDataCreateOrConnectWithoutAssemblySessionsInput = {
+  where: Prisma.LabelDataWhereUniqueInput
+  create: Prisma.XOR<Prisma.LabelDataCreateWithoutAssemblySessionsInput, Prisma.LabelDataUncheckedCreateWithoutAssemblySessionsInput>
+}
+
+export type LabelDataUpsertWithoutAssemblySessionsInput = {
+  update: Prisma.XOR<Prisma.LabelDataUpdateWithoutAssemblySessionsInput, Prisma.LabelDataUncheckedUpdateWithoutAssemblySessionsInput>
+  create: Prisma.XOR<Prisma.LabelDataCreateWithoutAssemblySessionsInput, Prisma.LabelDataUncheckedCreateWithoutAssemblySessionsInput>
+  where?: Prisma.LabelDataWhereInput
+}
+
+export type LabelDataUpdateToOneWithWhereWithoutAssemblySessionsInput = {
+  where?: Prisma.LabelDataWhereInput
+  data: Prisma.XOR<Prisma.LabelDataUpdateWithoutAssemblySessionsInput, Prisma.LabelDataUncheckedUpdateWithoutAssemblySessionsInput>
+}
+
+export type LabelDataUpdateWithoutAssemblySessionsInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
+  PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
+  PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
+  PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
+  POData?: Prisma.ForecastUpdateOneRequiredWithoutLabelDataNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLabelDatasNestedInput
+}
+
+export type LabelDataUncheckedUpdateWithoutAssemblySessionsInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
+  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
+  ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
+  PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
+}
+
+export type LabelDataCreateWithoutPokayokeHistoryInput = {
+  RequiresAssembly?: boolean | null
+  LabelNumber: string
+  Scanned?: boolean
+  QtyThisBox?: number
+  PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedOneWithoutLabelDataInput
+  PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
+  POData: Prisma.ForecastCreateNestedOneWithoutLabelDataInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLabelDatasInput
+}
+
+export type LabelDataUncheckedCreateWithoutPokayokeHistoryInput = {
+  RequiresAssembly?: boolean | null
+  Id?: number
+  LabelNumber: string
+  FinishGoodId: string
+  ForecastId: string
+  Scanned?: boolean
+  QtyThisBox?: number
+  ProductionReleaseId?: string | null
+  PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedOneWithoutLabelDataInput
 }
 
@@ -815,10 +949,12 @@ export type LabelDataUpdateToOneWithWhereWithoutPokayokeHistoryInput = {
 }
 
 export type LabelDataUpdateWithoutPokayokeHistoryInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
   POData?: Prisma.ForecastUpdateOneRequiredWithoutLabelDataNestedInput
@@ -826,6 +962,7 @@ export type LabelDataUpdateWithoutPokayokeHistoryInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutPokayokeHistoryInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -834,14 +971,17 @@ export type LabelDataUncheckedUpdateWithoutPokayokeHistoryInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
 }
 
 export type LabelDataCreateWithoutDeliveryHistoryInput = {
+  RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryCreateNestedManyWithoutLabelDataInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutLabelDataInput
   POData: Prisma.ForecastCreateNestedOneWithoutLabelDataInput
@@ -849,6 +989,7 @@ export type LabelDataCreateWithoutDeliveryHistoryInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutDeliveryHistoryInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -857,6 +998,7 @@ export type LabelDataUncheckedCreateWithoutDeliveryHistoryInput = {
   QtyThisBox?: number
   ProductionReleaseId?: string | null
   PokayokeScanHistoryId?: string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutLabelDataInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedCreateNestedManyWithoutLabelDataInput
 }
 
@@ -877,10 +1019,12 @@ export type LabelDataUpdateToOneWithWhereWithoutDeliveryHistoryInput = {
 }
 
 export type LabelDataUpdateWithoutDeliveryHistoryInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
   POData?: Prisma.ForecastUpdateOneRequiredWithoutLabelDataNestedInput
@@ -888,6 +1032,7 @@ export type LabelDataUpdateWithoutDeliveryHistoryInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutDeliveryHistoryInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -896,10 +1041,12 @@ export type LabelDataUncheckedUpdateWithoutDeliveryHistoryInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
 }
 
 export type LabelDataCreateManyPartDataInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   ForecastId: string
@@ -910,10 +1057,12 @@ export type LabelDataCreateManyPartDataInput = {
 }
 
 export type LabelDataUpdateWithoutPartDataInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
   POData?: Prisma.ForecastUpdateOneRequiredWithoutLabelDataNestedInput
@@ -921,6 +1070,7 @@ export type LabelDataUpdateWithoutPartDataInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutPartDataInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -928,11 +1078,13 @@ export type LabelDataUncheckedUpdateWithoutPartDataInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
 }
 
 export type LabelDataUncheckedUpdateManyWithoutPartDataInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -943,6 +1095,7 @@ export type LabelDataUncheckedUpdateManyWithoutPartDataInput = {
 }
 
 export type LabelDataCreateManyPODataInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -953,10 +1106,12 @@ export type LabelDataCreateManyPODataInput = {
 }
 
 export type LabelDataUpdateWithoutPODataInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
@@ -964,6 +1119,7 @@ export type LabelDataUpdateWithoutPODataInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutPODataInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -971,11 +1127,13 @@ export type LabelDataUncheckedUpdateWithoutPODataInput = {
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
 }
 
 export type LabelDataUncheckedUpdateManyWithoutPODataInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -986,6 +1144,7 @@ export type LabelDataUncheckedUpdateManyWithoutPODataInput = {
 }
 
 export type LabelDataCreateManyProductionReleaseInput = {
+  RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -996,10 +1155,12 @@ export type LabelDataCreateManyProductionReleaseInput = {
 }
 
 export type LabelDataUpdateWithoutProductionReleaseInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUpdateManyWithoutLabelDataNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutLabelDataNestedInput
@@ -1007,6 +1168,7 @@ export type LabelDataUpdateWithoutProductionReleaseInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutProductionReleaseInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1014,11 +1176,13 @@ export type LabelDataUncheckedUpdateWithoutProductionReleaseInput = {
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
   PokayokeScanHistoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataNestedInput
   DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput
   PokayokeHistory?: Prisma.PokayokeScanHistoryUncheckedUpdateManyWithoutLabelDataNestedInput
 }
 
 export type LabelDataUncheckedUpdateManyWithoutProductionReleaseInput = {
+  RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1034,10 +1198,12 @@ export type LabelDataUncheckedUpdateManyWithoutProductionReleaseInput = {
  */
 
 export type LabelDataCountOutputType = {
+  AssemblySessions: number
   PokayokeHistory: number
 }
 
 export type LabelDataCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  AssemblySessions?: boolean | LabelDataCountOutputTypeCountAssemblySessionsArgs
   PokayokeHistory?: boolean | LabelDataCountOutputTypeCountPokayokeHistoryArgs
 }
 
@@ -1054,12 +1220,20 @@ export type LabelDataCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
 /**
  * LabelDataCountOutputType without action
  */
+export type LabelDataCountOutputTypeCountAssemblySessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssemblySessionWhereInput
+}
+
+/**
+ * LabelDataCountOutputType without action
+ */
 export type LabelDataCountOutputTypeCountPokayokeHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PokayokeScanHistoryWhereInput
 }
 
 
 export type LabelDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  RequiresAssembly?: boolean
   Id?: boolean
   LabelNumber?: boolean
   FinishGoodId?: boolean
@@ -1068,6 +1242,7 @@ export type LabelDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   QtyThisBox?: boolean
   ProductionReleaseId?: boolean
   PokayokeScanHistoryId?: boolean
+  AssemblySessions?: boolean | Prisma.LabelData$AssemblySessionsArgs<ExtArgs>
   DeliveryHistory?: boolean | Prisma.LabelData$DeliveryHistoryArgs<ExtArgs>
   PokayokeHistory?: boolean | Prisma.LabelData$PokayokeHistoryArgs<ExtArgs>
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
@@ -1077,6 +1252,7 @@ export type LabelDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 }, ExtArgs["result"]["labelData"]>
 
 export type LabelDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  RequiresAssembly?: boolean
   Id?: boolean
   LabelNumber?: boolean
   FinishGoodId?: boolean
@@ -1091,6 +1267,7 @@ export type LabelDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 }, ExtArgs["result"]["labelData"]>
 
 export type LabelDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  RequiresAssembly?: boolean
   Id?: boolean
   LabelNumber?: boolean
   FinishGoodId?: boolean
@@ -1105,6 +1282,7 @@ export type LabelDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 }, ExtArgs["result"]["labelData"]>
 
 export type LabelDataSelectScalar = {
+  RequiresAssembly?: boolean
   Id?: boolean
   LabelNumber?: boolean
   FinishGoodId?: boolean
@@ -1115,8 +1293,9 @@ export type LabelDataSelectScalar = {
   PokayokeScanHistoryId?: boolean
 }
 
-export type LabelDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "LabelNumber" | "FinishGoodId" | "ForecastId" | "Scanned" | "QtyThisBox" | "ProductionReleaseId" | "PokayokeScanHistoryId", ExtArgs["result"]["labelData"]>
+export type LabelDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"RequiresAssembly" | "Id" | "LabelNumber" | "FinishGoodId" | "ForecastId" | "Scanned" | "QtyThisBox" | "ProductionReleaseId" | "PokayokeScanHistoryId", ExtArgs["result"]["labelData"]>
 export type LabelDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  AssemblySessions?: boolean | Prisma.LabelData$AssemblySessionsArgs<ExtArgs>
   DeliveryHistory?: boolean | Prisma.LabelData$DeliveryHistoryArgs<ExtArgs>
   PokayokeHistory?: boolean | Prisma.LabelData$PokayokeHistoryArgs<ExtArgs>
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
@@ -1138,6 +1317,7 @@ export type LabelDataIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
 export type $LabelDataPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LabelData"
   objects: {
+    AssemblySessions: Prisma.$AssemblySessionPayload<ExtArgs>[]
     DeliveryHistory: Prisma.$DeliveryHistoryPayload<ExtArgs> | null
     PokayokeHistory: Prisma.$PokayokeScanHistoryPayload<ExtArgs>[]
     PartData: Prisma.$FinishGoodPayload<ExtArgs>
@@ -1145,6 +1325,7 @@ export type $LabelDataPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     ProductionRelease: Prisma.$ProductionReleasePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    RequiresAssembly: boolean | null
     Id: number
     LabelNumber: string
     FinishGoodId: string
@@ -1236,8 +1417,8 @@ export interface LabelDataDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    * // Get first 10 LabelData
    * const labelData = await prisma.labelData.findMany({ take: 10 })
    * 
-   * // Only select the `Id`
-   * const labelDataWithIdOnly = await prisma.labelData.findMany({ select: { Id: true } })
+   * // Only select the `RequiresAssembly`
+   * const labelDataWithRequiresAssemblyOnly = await prisma.labelData.findMany({ select: { RequiresAssembly: true } })
    * 
    */
   findMany<T extends LabelDataFindManyArgs>(args?: Prisma.SelectSubset<T, LabelDataFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -1281,9 +1462,9 @@ export interface LabelDataDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    *   ]
    * })
    * 
-   * // Create many LabelData and only return the `Id`
-   * const labelDataWithIdOnly = await prisma.labelData.createManyAndReturn({
-   *   select: { Id: true },
+   * // Create many LabelData and only return the `RequiresAssembly`
+   * const labelDataWithRequiresAssemblyOnly = await prisma.labelData.createManyAndReturn({
+   *   select: { RequiresAssembly: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -1372,9 +1553,9 @@ export interface LabelDataDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    *   ]
    * })
    * 
-   * // Update zero or more LabelData and only return the `Id`
-   * const labelDataWithIdOnly = await prisma.labelData.updateManyAndReturn({
-   *   select: { Id: true },
+   * // Update zero or more LabelData and only return the `RequiresAssembly`
+   * const labelDataWithRequiresAssemblyOnly = await prisma.labelData.updateManyAndReturn({
+   *   select: { RequiresAssembly: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1547,6 +1728,7 @@ readonly fields: LabelDataFieldRefs;
  */
 export interface Prisma__LabelDataClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  AssemblySessions<T extends Prisma.LabelData$AssemblySessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelData$AssemblySessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssemblySessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   DeliveryHistory<T extends Prisma.LabelData$DeliveryHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelData$DeliveryHistoryArgs<ExtArgs>>): Prisma.Prisma__DeliveryHistoryClient<runtime.Types.Result.GetResult<Prisma.$DeliveryHistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   PokayokeHistory<T extends Prisma.LabelData$PokayokeHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelData$PokayokeHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PokayokeScanHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   PartData<T extends Prisma.FinishGoodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGoodDefaultArgs<ExtArgs>>): Prisma.Prisma__FinishGoodClient<runtime.Types.Result.GetResult<Prisma.$FinishGoodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
@@ -1581,6 +1763,7 @@ export interface Prisma__LabelDataClient<T, Null = never, ExtArgs extends runtim
  * Fields of the LabelData model
  */
 export interface LabelDataFieldRefs {
+  readonly RequiresAssembly: Prisma.FieldRef<"LabelData", 'Boolean'>
   readonly Id: Prisma.FieldRef<"LabelData", 'Int'>
   readonly LabelNumber: Prisma.FieldRef<"LabelData", 'String'>
   readonly FinishGoodId: Prisma.FieldRef<"LabelData", 'String'>
@@ -1987,6 +2170,30 @@ export type LabelDataDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many LabelData to delete.
    */
   limit?: number
+}
+
+/**
+ * LabelData.AssemblySessions
+ */
+export type LabelData$AssemblySessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssemblySession
+   */
+  select?: Prisma.AssemblySessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AssemblySession
+   */
+  omit?: Prisma.AssemblySessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssemblySessionInclude<ExtArgs> | null
+  where?: Prisma.AssemblySessionWhereInput
+  orderBy?: Prisma.AssemblySessionOrderByWithRelationInput | Prisma.AssemblySessionOrderByWithRelationInput[]
+  cursor?: Prisma.AssemblySessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssemblySessionScalarFieldEnum | Prisma.AssemblySessionScalarFieldEnum[]
 }
 
 /**

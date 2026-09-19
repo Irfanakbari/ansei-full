@@ -433,6 +433,36 @@ export type EnumPartTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumPartTypeNullableFilter<$PrismaModel>
 }
 
+export type BoolNullableFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedBoolNullableFilter<$PrismaModel> | boolean | null
+}
+
+export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolNullableFilter<$PrismaModel>
+}
+
+export type EnumAssemblyStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AssemblyStatus | Prisma.EnumAssemblyStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AssemblyStatus[] | Prisma.ListEnumAssemblyStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AssemblyStatus[] | Prisma.ListEnumAssemblyStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAssemblyStatusFilter<$PrismaModel> | $Enums.AssemblyStatus
+}
+
+export type EnumAssemblyStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AssemblyStatus | Prisma.EnumAssemblyStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AssemblyStatus[] | Prisma.ListEnumAssemblyStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AssemblyStatus[] | Prisma.ListEnumAssemblyStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAssemblyStatusWithAggregatesFilter<$PrismaModel> | $Enums.AssemblyStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAssemblyStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAssemblyStatusFilter<$PrismaModel>
+}
+
 export type EnumPokayokeCompareStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.PokayokeCompareStatus | Prisma.EnumPokayokeCompareStatusFieldRefInput<$PrismaModel>
   in?: $Enums.PokayokeCompareStatus[] | Prisma.ListEnumPokayokeCompareStatusFieldRefInput<$PrismaModel>
@@ -937,6 +967,36 @@ export type NestedEnumPartTypeNullableWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPartTypeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPartTypeNullableFilter<$PrismaModel>
+}
+
+export type NestedBoolNullableFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedBoolNullableFilter<$PrismaModel> | boolean | null
+}
+
+export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedBoolNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedBoolNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumAssemblyStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.AssemblyStatus | Prisma.EnumAssemblyStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AssemblyStatus[] | Prisma.ListEnumAssemblyStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AssemblyStatus[] | Prisma.ListEnumAssemblyStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAssemblyStatusFilter<$PrismaModel> | $Enums.AssemblyStatus
+}
+
+export type NestedEnumAssemblyStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AssemblyStatus | Prisma.EnumAssemblyStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.AssemblyStatus[] | Prisma.ListEnumAssemblyStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.AssemblyStatus[] | Prisma.ListEnumAssemblyStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAssemblyStatusWithAggregatesFilter<$PrismaModel> | $Enums.AssemblyStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAssemblyStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAssemblyStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumPokayokeCompareStatusFilter<$PrismaModel = never> = {

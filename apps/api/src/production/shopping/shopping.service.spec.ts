@@ -13,6 +13,9 @@ describe('ShoppingService', () => {
 
   beforeEach(async () => {
     prismaService = {
+      labelData: {
+        findMany: jest.fn().mockResolvedValue([{ RequiresAssembly: false }]),
+      },
       forecast: { findUnique: jest.fn(), findUniqueOrThrow: jest.fn() },
       productionRelease: { findUnique: jest.fn() },
       billOfMaterials: { findMany: jest.fn() },
@@ -29,7 +32,12 @@ describe('ShoppingService', () => {
       stockOpname: {
         findFirst: jest.fn().mockResolvedValue(null),
       },
-      inventoryLedger: { create: jest.fn() },
+      inventoryLedger: {
+        create: jest.fn(),
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { QtyIn: 5, QtyOut: 0 } }),
+      },
       outboxEvent: { upsert: jest.fn() },
       $executeRaw: jest.fn().mockResolvedValue(1),
       $transaction: jest.fn((cb) => cb(prismaService)),
@@ -287,6 +295,12 @@ describe('ShoppingService', () => {
     };
 
     beforeEach(() => {
+      prismaService.forecast.findUnique.mockResolvedValue({
+        PoId: 'PO-001',
+        Qty: 1,
+        FinishGoodId: 'FG-001',
+        ProductionRelease: { Status: 'RELEASED' },
+      });
       jest.spyOn(service, 'generateShoppingId').mockResolvedValue('SHP-001');
       prismaService.material.findUnique.mockResolvedValue({
         QtyRack: 10,
@@ -330,6 +344,7 @@ describe('ShoppingService', () => {
       prismaService.$executeRaw
         .mockResolvedValueOnce(1)
         .mockResolvedValueOnce(1)
+        .mockResolvedValueOnce(1)
         .mockResolvedValueOnce(0);
 
       await service['executeShoppingTransaction'](dto, 'test', 'PR123', {
@@ -347,6 +362,59 @@ describe('ShoppingService', () => {
           }),
         }),
       );
+    });
+
+    it.each([
+      {
+        Qty: 2,
+        FinishGoodId: 'FG-001',
+        ProductionRelease: { Status: 'RELEASED' },
+      },
+      {
+        Qty: 1,
+        FinishGoodId: 'FG-OTHER',
+        ProductionRelease: { Status: 'RELEASED' },
+      },
+      {
+        Qty: 1,
+        FinishGoodId: 'FG-001',
+        ProductionRelease: { Status: 'COMPLETED' },
+      },
+      null,
+    ])(
+      'rejects a forecast amendment or close before the shopping transaction begins',
+      async (forecast) => {
+        prismaService.forecast.findUnique.mockResolvedValue(forecast);
+        await expect(
+          service['executeShoppingTransaction'](dto, 'test', 'PR123', {
+            finishGoodId: 'FG-001',
+            forecastQty: 1,
+            shouldIncrementFinishGood: true,
+          }),
+        ).rejects.toThrow('Forecast changed');
+        expect(prismaService.shopping.create).not.toHaveBeenCalled();
+        expect(prismaService.inventoryLedger.create).not.toHaveBeenCalled();
+      },
+    );
+
+    it('prints assembly labels at shopping completion without crediting finish goods', async () => {
+      prismaService.labelData.findMany.mockResolvedValue([
+        { RequiresAssembly: true },
+      ]);
+      prismaService.$executeRaw.mockResolvedValue(1);
+      await service['executeShoppingTransaction'](dto, 'test', 'PR123', {
+        finishGoodId: 'FG-001',
+        forecastQty: 1,
+      });
+      expect(prismaService.finishGood.update).not.toHaveBeenCalled();
+      expect(prismaService.inventoryLedger.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            TransactionType: 'PRODUCTION_RESULT',
+          }),
+        }),
+      );
+      expect(outboxService.create).toHaveBeenCalled();
     });
 
     it('creates exactly one production result after transaction-local completion recheck wins the claim', async () => {

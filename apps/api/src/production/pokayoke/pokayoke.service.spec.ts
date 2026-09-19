@@ -11,6 +11,7 @@ describe('PokayokeService', () => {
   let logService: any;
 
   const mockPrismaService = {
+    assemblySession: { findFirst: jest.fn() },
     labelData: {
       findUnique: jest.fn(),
       update: jest.fn(),
@@ -31,6 +32,10 @@ describe('PokayokeService', () => {
     productionRelease: {
       update: jest.fn(),
     },
+    $executeRaw: jest.fn(),
+    billOfMaterials: { findMany: jest.fn() },
+    shopping: { findMany: jest.fn() },
+    inventoryLedger: { aggregate: jest.fn() },
     $transaction: jest.fn(),
   };
 
@@ -57,7 +62,7 @@ describe('PokayokeService', () => {
     service = module.get<PokayokeService>(PokayokeService);
     prismaService = mockPrismaService;
     logService = mockLogService;
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('scan', () => {
@@ -71,7 +76,17 @@ describe('PokayokeService', () => {
         (callback: (tx: typeof mockPrismaService) => Promise<unknown>) =>
           callback(mockPrismaService),
       );
+      mockPrismaService.billOfMaterials.findMany.mockResolvedValue([
+        { Qty: 1, MaterialData: { PartNumber: 'MAT-001' } },
+      ]);
+      mockPrismaService.shopping.findMany.mockResolvedValue([
+        { Id: 'SHP-1', MaterialId: 'MAT-001', QtyPick: 20 },
+      ]);
+      mockPrismaService.inventoryLedger.aggregate.mockResolvedValue({
+        _sum: { QtyIn: 20 },
+      });
       mockShoppingService.checkRequirement.mockResolvedValue({
+        requirements: [{ qtyNeeded: 20, qtyPicked: 20 }],
         summary: {
           overallPercentage: 100,
           totalQtyPicked: 20,
@@ -81,6 +96,39 @@ describe('PokayokeService', () => {
       });
       mockPrismaService.labelData.updateMany.mockResolvedValue({ count: 1 });
     });
+
+    it.each(['SUKSES', 'GAGAL'])(
+      'blocks %s scans before mandatory assembly completion',
+      async (status) => {
+        mockPrismaService.labelData.findUnique.mockResolvedValue({
+          Id: 1,
+          LabelNumber: 'LBL001',
+          ForecastId: 'PO-001',
+          FinishGoodId: 'FG-001',
+          ProductionReleaseId: 'release-1',
+          QtyThisBox: 20,
+          Scanned: false,
+          RequiresAssembly: true,
+        });
+        mockPrismaService.forecast.findUnique.mockResolvedValue({
+          PoId: 'PO-001',
+          Qty: 20,
+          FinishGoodId: 'FG-001',
+          ProductionReleaseId: 'release-1',
+          ProductionRelease: { Status: 'RELEASED' },
+        });
+        mockPrismaService.finishGood.findUnique.mockResolvedValue({
+          PartNumber: 'FG-001',
+          PartName: 'Finish Good A',
+        });
+        await expect(
+          service.scan({ labelNumber: 'LBL001', status }, 'admin'),
+        ).rejects.toThrow('Assembly must be completed');
+        expect(
+          mockPrismaService.pokayokeScanHistory.create,
+        ).not.toHaveBeenCalled();
+      },
+    );
 
     it('should successfully scan a valid label', async () => {
       const dto = { labelNumber: 'LBL001', status: 'SUKSES' };
@@ -95,7 +143,13 @@ describe('PokayokeService', () => {
         PartData: { PartNumber: 'FG-001', PartName: 'Finish Good A' },
         POData: { PoId: 'PO-001', VendorName: 'Vendor A' },
       };
-      const mockForecast = { PoId: 'PO-001' };
+      const mockForecast = {
+        PoId: 'PO-001',
+        Qty: 20,
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
+        ProductionRelease: { Status: 'RELEASED' },
+      };
       const mockFinishGood = {
         PartNumber: 'FG-001',
         PartName: 'Finish Good A',
@@ -148,6 +202,10 @@ describe('PokayokeService', () => {
       mockPrismaService.labelData.findUnique.mockResolvedValue(label);
       mockPrismaService.forecast.findUnique.mockResolvedValue({
         PoId: 'PO-001',
+        Qty: 20,
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
+        ProductionRelease: { Status: 'RELEASED' },
       });
       mockPrismaService.finishGood.findUnique.mockResolvedValue({
         PartNumber: 'FG-001',
@@ -174,11 +232,16 @@ describe('PokayokeService', () => {
         LabelNumber: 'LBL001',
         ForecastId: 'PO-001',
         FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
         QtyThisBox: 20,
         Scanned: false,
       });
       mockPrismaService.forecast.findUnique.mockResolvedValue({
         PoId: 'PO-001',
+        Qty: 20,
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
+        ProductionRelease: { Status: 'RELEASED' },
       });
       mockPrismaService.finishGood.findUnique.mockResolvedValue({
         PartNumber: 'FG-001',
@@ -205,6 +268,10 @@ describe('PokayokeService', () => {
       });
       mockPrismaService.forecast.findUnique.mockResolvedValue({
         PoId: 'PO-001',
+        Qty: 20,
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
+        ProductionRelease: { Status: 'RELEASED' },
       });
       mockShoppingService.checkRequirement.mockRejectedValue(
         new Error('shopping unavailable'),
@@ -222,6 +289,70 @@ describe('PokayokeService', () => {
       await expect(
         service.scan({ labelNumber: 'INVALID', status: 'SUKSES' }, 'admin'),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects rounded 100% when a BOM material is still missing', async () => {
+      mockPrismaService.labelData.findUnique.mockResolvedValue({
+        Id: 1,
+        LabelNumber: 'LBL001',
+        ForecastId: 'PO-001',
+        Scanned: false,
+      });
+      mockPrismaService.forecast.findUnique.mockResolvedValue({
+        PoId: 'PO-001',
+      });
+      mockShoppingService.checkRequirement.mockResolvedValue({
+        summary: {
+          overallPercentage: 100,
+          totalQtyPicked: 200,
+          totalQtyNeeded: 201,
+        },
+        requirements: [
+          { qtyNeeded: 200, qtyPicked: 200 },
+          { qtyNeeded: 1, qtyPicked: 0 },
+        ],
+      });
+      await expect(
+        service.scan({ labelNumber: 'LBL001', status: 'SUKSES' }, 'admin'),
+      ).rejects.toThrow('Shopping belum selesai');
+      expect(mockPrismaService.labelData.updateMany).not.toHaveBeenCalled();
+    });
+
+    it('records a failed comparison without claiming the label or incrementing output', async () => {
+      mockPrismaService.labelData.findUnique.mockResolvedValue({
+        Id: 1,
+        LabelNumber: 'LBL001',
+        ForecastId: 'PO-001',
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
+        QtyThisBox: 20,
+        Scanned: false,
+      });
+      mockPrismaService.forecast.findUnique.mockResolvedValue({
+        PoId: 'PO-001',
+        Qty: 20,
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'release-1',
+        ProductionRelease: { Status: 'RELEASED' },
+      });
+      mockPrismaService.finishGood.findUnique.mockResolvedValue({
+        PartNumber: 'FG-001',
+        PartName: 'Finish Good A',
+      });
+      mockPrismaService.pokayokeScanHistory.create.mockResolvedValue({
+        Id: 1,
+        Status: 'GAGAL',
+      });
+      const result = await service.scan(
+        { labelNumber: 'LBL001', status: 'GAGAL' },
+        'admin',
+      );
+      expect(result.success).toBe(false);
+      expect(mockPrismaService.pokayokeScanHistory.create).toHaveBeenCalledWith(
+        { data: expect.objectContaining({ Status: 'GAGAL' }) },
+      );
+      expect(mockPrismaService.labelData.updateMany).not.toHaveBeenCalled();
+      expect(mockPrismaService.productionRelease.update).not.toHaveBeenCalled();
     });
 
     it('should throw error when label already scanned', async () => {

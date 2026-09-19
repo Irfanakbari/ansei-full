@@ -1,3 +1,4 @@
+import assemblyReducer from './features/production/assembly/assemblySlice';
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './features/auth/authSlice';
 import permissionReducer from './features/permissions/permissionsSlice'
@@ -47,6 +48,7 @@ import dashboardReducer from './features/dashboard/dashboardSlice';
 
 export const store = configureStore({
     reducer: {
+        assembly: assemblyReducer,
         auth: authReducer,
         permission: permissionReducer,
         users: usersReducer,

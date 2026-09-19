@@ -44,7 +44,7 @@ import { fetchNotifications, NotificationsEntity } from '@/store/features/notifi
 import CreditInformationModal from './_components/CreditInformationModal';
 import '../batik.css';
 
-const APP_VERSION = '1.19.2';
+const APP_VERSION = '1.32.1';
 const APP_YEAR = '2026';
 
 const LATEST_RELEASE_SUMMARY = [
@@ -94,6 +94,7 @@ const PERMISSIONS = {
     forecast: ['IPCS.FORECAST_READ'],
     productionRelease: ['IPCS.PRODUCTION_RELEASE_READ'],
     shopping: ['IPCS.SHOPPING_READ'],
+    assembly: ['IPCS.ASSEMBLY_READ'],
     preDelivery: ['IPCS.PRE_DELIVERY_READ'],
     pokayoke: ['IPCS.POKAYOKE_READ', 'IPCS.POKAYOKE_CREATE'],
     delivery: ['IPCS.DELIVERY_READ', 'IPCS.DELIVERY_CREATE'],
@@ -151,6 +152,7 @@ const baseMenuItems: MenuItem[] = [
         getItem(<Link href="/apps/production/production-release">Production Release</Link>, 'prod-release', undefined, undefined, [...PERMISSIONS.productionRelease]),
         getItem('Process', 'production-process', <ShopOutlined />, [
             getItem(<Link href="/apps/production/shopping">Shopping</Link>, 'prod-shopping', undefined, undefined, [...PERMISSIONS.shopping]),
+            getItem(<Link href="/apps/production/assembly">Assembly</Link>, 'prod-assembly', undefined, undefined, [...PERMISSIONS.assembly]),
             getItem(<Link href="/apps/production/pre-delivery">Pre Delivery Goods</Link>, 'prod-pre-delivery', undefined, undefined, [...PERMISSIONS.preDelivery]),
             getItem(<Link href="/apps/production/pokayoke">Pokayoke Validation</Link>, 'prod-pokayoke', undefined, undefined, [...PERMISSIONS.pokayoke]),
             getItem(<Link href="/apps/production/delivery">Delivery</Link>, 'prod-delivery', undefined, undefined, [...PERMISSIONS.delivery]),
@@ -275,6 +277,7 @@ const getMenuKeyFromPath = (path: string): string => {
     if (path.startsWith('/apps/warehouse/mrp')) return 'wh-mrp';
     if (path.startsWith('/apps/warehouse/inventory-counting')) return 'wh-inventory-counting';
     if (path.startsWith('/apps/production/forecast')) return 'prod-forecast';
+    if (path.startsWith('/apps/production/assembly')) return 'prod-assembly';
     if (path.startsWith('/apps/production/production-release')) return 'prod-release';
     if (path.startsWith('/apps/production/shopping')) return 'prod-shopping';
     if (path.startsWith('/apps/production/pre-delivery')) return 'prod-pre-delivery';

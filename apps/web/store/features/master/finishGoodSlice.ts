@@ -7,6 +7,7 @@ export interface FinishGoodEntity {
     PartNumber: string;
     PartName: string;
     Alias: string | null;
+    IsPassthrough: boolean;
     Price: number | null;
     CreatedAt: string;
     CreatedBy: string;
@@ -61,6 +62,7 @@ export const createFinishGood = createAsyncThunk(
         partName: string;
         alias?: string;
         price?: number;
+        isPassthrough?: boolean;
         qty?: number;
     }, { rejectWithValue }) => {
         try {
@@ -80,6 +82,7 @@ export const updateFinishGood = createAsyncThunk(
             partName?: string;
             alias?: string;
             price?: number;
+        isPassthrough?: boolean;
         }
     }, { rejectWithValue }) => {
         try {

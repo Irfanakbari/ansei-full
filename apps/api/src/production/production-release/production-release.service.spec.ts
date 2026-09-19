@@ -20,6 +20,8 @@ describe('ProductionReleaseService', () => {
 
   beforeEach(async () => {
     prismaService = {
+      $executeRaw: jest.fn(),
+      assemblySession: { count: jest.fn().mockResolvedValue(0) },
       productionRelease: {
         findMany: jest.fn(),
         findUnique: jest.fn(),
@@ -421,55 +423,293 @@ describe('ProductionReleaseService', () => {
       );
     });
 
-    it('should reject COMPLETED while scanned label quantity is below target', async () => {
+    const completedForecast = {
+      PoId: 'PO-001',
+      Qty: 100,
+      FinishGoodId: 'FG-001',
+      DeliveryHistory: [{ Qty: 100 }],
+      LabelData: [
+        {
+          Scanned: true,
+          QtyThisBox: 100,
+          FinishGoodId: 'FG-001',
+          ProductionReleaseId: 'rel-1',
+          DeliveryHistory: { Qty: 100 },
+        },
+      ],
+    };
+
+    it.each([0, 40])(
+      'rejects close when only %i units have been delivered despite full POKAYOKE',
+      async (qty) => {
+        prismaService.productionRelease.findUnique.mockResolvedValue({
+          ...existingRelease,
+          Status: ProductionStatus.RELEASED,
+        });
+        prismaService.forecast.findMany.mockResolvedValue([
+          { ...completedForecast, DeliveryHistory: [{ Qty: qty }] },
+        ]);
+        await expect(
+          service.update(
+            'rel-1',
+            { status: ProductionStatus.COMPLETED, isNoAttachment: true },
+            'testuser',
+          ),
+        ).rejects.toThrow('Every forecast/PO');
+        expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it('rejects close when one PO is short even if another is overdelivered', async () => {
       prismaService.productionRelease.findUnique.mockResolvedValue({
         ...existingRelease,
         Status: ProductionStatus.RELEASED,
       });
-      prismaService.forecast.findMany.mockResolvedValue([{ Qty: 100 }]);
-      prismaService.labelData.findMany.mockResolvedValue([{ QtyThisBox: 40 }]);
-
+      prismaService.forecast.findMany.mockResolvedValue([
+        { ...completedForecast, DeliveryHistory: [{ Qty: 150 }] },
+        {
+          ...completedForecast,
+          PoId: 'PO-002',
+          DeliveryHistory: [{ Qty: 50 }],
+        },
+      ]);
       await expect(
         service.update(
           'rel-1',
           { status: ProductionStatus.COMPLETED },
           'testuser',
         ),
-      ).rejects.toThrow('remaining 60');
+      ).rejects.toThrow('Every forecast/PO');
+    });
+
+    it.each([
+      { ...completedForecast, LabelData: [] },
+      {
+        ...completedForecast,
+        LabelData: [{ ...completedForecast.LabelData[0], Scanned: false }],
+      },
+      {
+        ...completedForecast,
+        LabelData: [
+          { ...completedForecast.LabelData[0], DeliveryHistory: null },
+        ],
+      },
+    ])('rejects close with incomplete label evidence', async (forecast) => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...existingRelease,
+        Status: ProductionStatus.RELEASED,
+      });
+      prismaService.forecast.findMany.mockResolvedValue([forecast]);
+      await expect(
+        service.update(
+          'rel-1',
+          { status: ProductionStatus.COMPLETED },
+          'testuser',
+        ),
+      ).rejects.toThrow('Every forecast/PO');
+    });
+
+    it('rejects closing while an assembly session is active', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...existingRelease,
+        Status: ProductionStatus.RELEASED,
+        IsNoAttachment: true,
+      });
+      prismaService.forecast.findMany.mockResolvedValue([completedForecast]);
+      prismaService.assemblySession.count.mockResolvedValue(1);
+      await expect(
+        service.update(
+          'rel-1',
+          { status: ProductionStatus.COMPLETED, totalProductionMinutes: 60 },
+          'testuser',
+        ),
+      ).rejects.toThrow('active assembly');
       expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
     });
 
-    it('should allow COMPLETED when scanned label quantity reaches target', async () => {
+    it('allows close after every PO and label has been delivered', async () => {
       const released = {
         ...existingRelease,
         Status: ProductionStatus.RELEASED,
+        IsNoAttachment: true,
       };
-      prismaService.productionRelease.findUnique
-        .mockResolvedValueOnce(released)
-        .mockResolvedValueOnce({ ...released, LabelDatas: [] });
-      prismaService.forecast.findMany.mockResolvedValue([{ Qty: 100 }]);
-      prismaService.labelData.findMany.mockResolvedValue([
-        { QtyThisBox: 60 },
-        { QtyThisBox: 40 },
-      ]);
+      prismaService.productionRelease.findUnique.mockResolvedValue(released);
+      prismaService.forecast.findMany.mockResolvedValue([completedForecast]);
       prismaService.productionRelease.update.mockResolvedValue({
         ...released,
         Status: ProductionStatus.COMPLETED,
       });
-
       await service.update(
         'rel-1',
-        { status: ProductionStatus.COMPLETED },
+        { status: ProductionStatus.COMPLETED, totalProductionMinutes: 1845 },
         'testuser',
       );
-
       expect(prismaService.productionRelease.update).toHaveBeenCalledWith({
         where: { Id: 'rel-1' },
         data: expect.objectContaining({
           Status: ProductionStatus.COMPLETED,
           TotalTargetQty: 100,
+          TotalProductionMinutes: 1845,
         }),
       });
+    });
+
+    it('preserves the attachment requirement after complete delivery', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...existingRelease,
+        Status: ProductionStatus.RELEASED,
+      });
+      prismaService.forecast.findMany.mockResolvedValue([completedForecast]);
+      prismaService.productionReleaseAttachment.count.mockResolvedValue(0);
+      await expect(
+        service.update(
+          'rel-1',
+          { status: ProductionStatus.COMPLETED },
+          'testuser',
+        ),
+      ).rejects.toThrow('without an attachment');
+    });
+
+    it.each([undefined, null, 0, -1, 1.5, 2147483648, '480'])(
+      'rejects invalid closing duration %s without closing',
+      async (minutes) => {
+        prismaService.productionRelease.findUnique.mockResolvedValue({
+          ...existingRelease,
+          Status: ProductionStatus.RELEASED,
+          IsNoAttachment: true,
+        });
+        prismaService.forecast.findMany.mockResolvedValue([completedForecast]);
+        await expect(
+          service.update(
+            'rel-1',
+            {
+              status: ProductionStatus.COMPLETED,
+              totalProductionMinutes: minutes as number,
+            },
+            'testuser',
+          ),
+        ).rejects.toThrow('valid total production duration');
+        expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([1, 1440, 1845, 2147483647])(
+      'stores %s minutes with closure and returns the recorded duration',
+      async (minutes) => {
+        const released = {
+          ...existingRelease,
+          Status: ProductionStatus.RELEASED,
+          IsNoAttachment: true,
+        };
+        const completed = {
+          ...released,
+          Status: ProductionStatus.COMPLETED,
+          TotalProductionMinutes: minutes,
+        };
+        prismaService.productionRelease.findUnique
+          .mockResolvedValueOnce(released)
+          .mockResolvedValueOnce(completed);
+        prismaService.forecast.findMany.mockResolvedValue([completedForecast]);
+        prismaService.productionRelease.update.mockResolvedValue(completed);
+        const result = await service.update(
+          'rel-1',
+          {
+            status: ProductionStatus.COMPLETED,
+            totalProductionMinutes: minutes,
+          },
+          'testuser',
+        );
+        expect(result.TotalProductionMinutes).toBe(minutes);
+        expect(prismaService.productionRelease.update).toHaveBeenCalledWith({
+          where: { Id: 'rel-1' },
+          data: expect.objectContaining({
+            Status: ProductionStatus.COMPLETED,
+            TotalProductionMinutes: minutes,
+          }),
+        });
+        expect(logService.addLog).toHaveBeenCalledWith(
+          expect.objectContaining({
+            client: prismaService,
+            message: 'Production duration recorded with release closure.',
+          }),
+        );
+      },
+    );
+
+    it.each([
+      ProductionStatus.DRAFT,
+      ProductionStatus.RELEASED,
+      ProductionStatus.COMPLETED,
+      ProductionStatus.CANCELLED,
+    ])(
+      'rejects recording duration on a %s release without a closing transition',
+      async (status) => {
+        prismaService.productionRelease.findUnique.mockResolvedValue({
+          ...existingRelease,
+          Status: status,
+        });
+        await expect(
+          service.update('rel-1', { totalProductionMinutes: 480 }, 'testuser'),
+        ).rejects.toThrow('only be recorded when closing');
+        expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
+      },
+    );
+
+    it('preserves a closed release duration during a notes-only edit', async () => {
+      const completed = {
+        ...existingRelease,
+        Status: ProductionStatus.COMPLETED,
+        TotalProductionMinutes: 1845,
+      };
+      prismaService.productionRelease.findUnique.mockResolvedValue(completed);
+      prismaService.forecast.findMany.mockResolvedValue([completedForecast]);
+      prismaService.productionRelease.update.mockResolvedValue(completed);
+      await service.update('rel-1', { notes: 'Updated note' }, 'testuser');
+      const update = prismaService.productionRelease.update.mock.calls[0][0];
+      expect(update.data).not.toHaveProperty('TotalProductionMinutes');
+    });
+
+    it.each([
+      [ProductionStatus.DRAFT, ProductionStatus.COMPLETED],
+      [ProductionStatus.RELEASED, ProductionStatus.DRAFT],
+      [ProductionStatus.COMPLETED, ProductionStatus.DRAFT],
+      [ProductionStatus.COMPLETED, ProductionStatus.RELEASED],
+      [ProductionStatus.CANCELLED, ProductionStatus.DRAFT],
+      [ProductionStatus.CANCELLED, ProductionStatus.RELEASED],
+      [ProductionStatus.CANCELLED, ProductionStatus.COMPLETED],
+    ])('rejects transition %s to %s', async (from, to) => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...existingRelease,
+        Status: from,
+      });
+      await expect(
+        service.update('rel-1', { status: to }, 'testuser'),
+      ).rejects.toThrow('Cannot change status');
+      expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects empty draft assignments', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue(
+        existingRelease,
+      );
+      await expect(
+        service.update('rel-1', { forecastIds: [] }, 'testuser'),
+      ).rejects.toThrow('cannot be empty');
+    });
+
+    it('rejects closing an empty released production', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...existingRelease,
+        Status: ProductionStatus.RELEASED,
+      });
+      prismaService.forecast.findMany.mockResolvedValue([]);
+      await expect(
+        service.update(
+          'rel-1',
+          { status: ProductionStatus.COMPLETED, isNoAttachment: true },
+          'testuser',
+        ),
+      ).rejects.toThrow('Every forecast/PO');
     });
   });
 

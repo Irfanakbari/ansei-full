@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { App, Button, Form, Input, Modal, Popconfirm, Select, Space, Switch, Table, Typography, Upload } from 'antd';
+import { App, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Switch, Table, Typography, Upload } from 'antd';
 import type { UploadFile } from 'antd';
 import { DeleteOutlined, DownloadOutlined, EditOutlined, UploadOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,6 +18,7 @@ import {
     UpdateProductionReleasePayload,
     uploadAttachments,
 } from '@/store/features/production/productionRelease/productionReleaseSlice';
+import { formatProductionDuration, MAX_PRODUCTION_MINUTES } from './productionDuration';
 
 interface Props {
     visible: boolean;
@@ -30,6 +31,8 @@ interface FormValues {
     status: UpdateProductionReleasePayload['status'];
     notes?: string;
     isNoAttachment: boolean;
+    productionHours?: number;
+    productionMinutes?: number;
 }
 
 const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -46,7 +49,8 @@ const EditProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data, o
 
     useEffect(() => {
         if (!visible) return;
-        form.setFieldsValue({ status: data.Status as FormValues['status'], notes: data.Notes ?? undefined, isNoAttachment: data.IsNoAttachment });
+        form.resetFields();
+        form.setFieldsValue({ status: data.Status as FormValues['status'], notes: data.Notes ?? undefined, isNoAttachment: data.IsNoAttachment, productionHours: undefined, productionMinutes: 0 });
         setFileList([]);
         void dispatch(fetchAttachments(data.Id));
     }, [data, dispatch, form, visible]);
@@ -65,6 +69,8 @@ const EditProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data, o
     };
 
     const handleSubmit = async () => {
+        if (loading) return;
+        setLoading(true);
         try {
             const values = await form.validateFields();
             const files = fileList.flatMap((item) => item.originFileObj ? [item.originFileObj] : []);
@@ -76,9 +82,11 @@ const EditProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data, o
                 message.error('Delete existing attachments before selecting No Attachment');
                 return;
             }
-            setLoading(true);
             if (files.length > 0) await dispatch(uploadAttachments({ productionReleaseId: data.Id, files })).unwrap();
             const payload: UpdateProductionReleasePayload = { status: values.status, notes: values.notes, isNoAttachment: values.isNoAttachment };
+            if (data.Status === 'RELEASED' && values.status === 'COMPLETED') {
+                payload.totalProductionMinutes = (values.productionHours ?? 0) * 60 + (values.productionMinutes ?? 0);
+            }
             await dispatch(updateProductionRelease({ id: data.Id, data: payload })).unwrap();
             message.success('Production release updated successfully');
             onClose();
@@ -122,9 +130,32 @@ const EditProductionReleaseModal: React.FC<Props> = ({ visible, onClose, data, o
     ];
 
     return (
-        <Modal title="Edit Production Release" open={visible} onOk={handleSubmit} centered onCancel={onClose} confirmLoading={loading} width={850} destroyOnHidden>
-            <Form form={form} layout="vertical">
-                <Form.Item name="status" label="Status"><Select options={['DRAFT', 'RELEASED', 'COMPLETED'].map((value) => ({ value, label: value }))} /></Form.Item>
+        <Modal title="Edit Production Release" open={visible} onOk={handleSubmit} centered onCancel={() => { if (!loading) onClose(); }} confirmLoading={loading} cancelButtonProps={{ disabled: loading }} closable={!loading} width={850} destroyOnHidden>
+            <Form form={form} layout="vertical" disabled={loading}>
+                <Form.Item name="status" label="Status"><Select options={(data.Status === 'DRAFT' ? ['DRAFT', 'RELEASED'] : data.Status === 'RELEASED' ? ['RELEASED', 'COMPLETED'] : [data.Status]).map((value) => ({ value, label: value }))} /></Form.Item>
+                {data.Status === 'RELEASED' && status === 'COMPLETED' && (
+                    <>
+                        <Typography.Paragraph type="secondary">Enter the total actual production time for this release. Durations of 24 hours or more are supported.</Typography.Paragraph>
+                        <Space align="start">
+                            <Form.Item name="productionHours" label="Production hours" rules={[{ required: true, message: 'Enter total production hours' }, { type: 'integer', min: 0, max: Math.floor(MAX_PRODUCTION_MINUTES / 60), message: 'Enter a valid whole number of hours' }]}>
+                                <InputNumber min={0} max={Math.floor(MAX_PRODUCTION_MINUTES / 60)} precision={0} placeholder="Hours" suffix="h" style={{ width: 180 }} />
+                            </Form.Item>
+                            <Form.Item name="productionMinutes" label="Minutes" dependencies={['productionHours']} rules={[
+                                { required: true, message: 'Enter minutes' },
+                                { type: 'integer', min: 0, max: 59, message: 'Minutes must be between 0 and 59' },
+                                ({ getFieldValue }) => ({ validator(_, value: unknown) {
+                                    const hours: unknown = getFieldValue('productionHours');
+                                    if (typeof hours !== 'number' || typeof value !== 'number') return Promise.resolve();
+                                    const total = hours * 60 + value;
+                                    return total > 0 && total <= MAX_PRODUCTION_MINUTES ? Promise.resolve() : Promise.reject(new Error('Enter a duration of at least 1 minute within the supported range'));
+                                } }),
+                            ]}>
+                                <InputNumber min={0} max={59} precision={0} placeholder="Minutes" suffix="min" style={{ width: 140 }} />
+                            </Form.Item>
+                        </Space>
+                    </>
+                )}
+                {data.Status === 'COMPLETED' && <Form.Item label="Total production time"><Typography.Text>{formatProductionDuration(data.TotalProductionMinutes)}</Typography.Text></Form.Item>}
                 <Form.Item name="notes" label="Notes"><Input.TextArea rows={3} /></Form.Item>
                 <Form.Item name="isNoAttachment" label="No Attachment" valuePropName="checked"><Switch /></Form.Item>
                 <Typography.Title level={5}>Attachments</Typography.Title>

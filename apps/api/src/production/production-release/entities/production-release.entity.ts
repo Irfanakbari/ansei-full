@@ -94,6 +94,15 @@ export class ProductionReleaseEntity {
   @ApiProperty({ example: 500 })
   TotalGoodQty: number;
 
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    example: 1845,
+    description:
+      'Actual production duration in minutes, entered at closure. Null when not recorded. Divide by 60 for KPI production hours.',
+  })
+  TotalProductionMinutes: number | null;
+
   @ApiProperty({ type: () => ProgressItemEntity })
   progressShopping: ProgressItemEntity;
 

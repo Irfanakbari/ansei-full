@@ -108,10 +108,10 @@ export type ProductionReleaseAttachment = Prisma.ProductionReleaseAttachmentMode
  */
 export type Shopping = Prisma.ShoppingModel
 /**
- * Model ShoppingProductionResult
+ * Model ShoppingCompletion
  * 
  */
-export type ShoppingProductionResult = Prisma.ShoppingProductionResultModel
+export type ShoppingCompletion = Prisma.ShoppingCompletionModel
 /**
  * Model OutboxEvent
  * 
@@ -127,6 +127,11 @@ export type ProductionReport = Prisma.ProductionReportModel
  * 
  */
 export type LabelData = Prisma.LabelDataModel
+/**
+ * Model AssemblySession
+ * 
+ */
+export type AssemblySession = Prisma.AssemblySessionModel
 /**
  * Model PokayokeScanHistory
  * 

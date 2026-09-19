@@ -16,6 +16,10 @@ import {
 import type { Prisma } from '../../generated/prisma/client';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 import { withInventoryTransaction } from '../../common/helpers/inventory-transaction.helper';
+import {
+  assertLabelReady,
+  lockProductionFlow,
+} from '../../common/helpers/production-flow.helper';
 
 @Injectable()
 export class DeliveryService {
@@ -323,6 +327,9 @@ export class DeliveryService {
         this.prisma,
         ItemCategory.FINISH_GOOD,
         async (tx) => {
+          await lockProductionFlow(tx);
+          const { label: labelData, forecast: currentForecast } =
+            await assertLabelReady(tx, dto.labelDataId, true);
           await assertNoActiveInventoryCounting(
             tx,
             ItemCategory.FINISH_GOOD,
@@ -333,6 +340,18 @@ export class DeliveryService {
           });
           if (concurrentDelivery) {
             return { delivery: concurrentDelivery, isDuplicate: true };
+          }
+          const delivered = await tx.deliveryHistory.aggregate({
+            where: { ForecastId: currentForecast.PoId },
+            _sum: { Qty: true },
+          });
+          if (
+            (delivered._sum.Qty ?? 0) + labelData.QtyThisBox >
+            currentForecast.Qty
+          ) {
+            throw new BadRequestException(
+              'Delivery quantity exceeds the forecast target.',
+            );
           }
           const finishGood = await tx.finishGood.findUnique({
             where: { PartNumber: labelData.FinishGoodId },

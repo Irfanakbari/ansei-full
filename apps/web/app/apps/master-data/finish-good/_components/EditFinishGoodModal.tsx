@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
-import React, { useState } from 'react';
-import { Modal, Form, Input, InputNumber, App } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, InputNumber, Switch, App } from 'antd';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
 import { updateFinishGood, fetchFinishGood, FinishGoodEntity } from '@/store/features/master/finishGoodSlice';
@@ -16,6 +16,9 @@ const EditFinishGoodModal: React.FC<Props> = ({ visible, onClose, data }) => {
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    useEffect(() => {
+        if (visible) form.setFieldsValue({ partNumber: data.PartNumber, partName: data.PartName, alias: data.Alias, price: data.Price, qty: data.Qty, isPassthrough: data.IsPassthrough });
+    }, [visible, data, form]);
 
     const handleOk = async () => {
         try {
@@ -27,6 +30,7 @@ const EditFinishGoodModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 partName: values.partName,
                 alias: values.alias,
                 price: values.price,
+                isPassthrough: values.isPassthrough ?? false,
             };
 
             const result = await dispatch(updateFinishGood({ id: data.Id, data: payload }));
@@ -67,6 +71,7 @@ const EditFinishGoodModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 partName: data.PartName,
                 alias: data.Alias,
                 price: data.Price,
+                isPassthrough: data.IsPassthrough,
                 qty: data.Qty,
             }}>
                 <Form.Item name="partNumber" label="Part Number" rules={[{ required: true, message: 'Please enter part number' }]}>
@@ -74,6 +79,9 @@ const EditFinishGoodModal: React.FC<Props> = ({ visible, onClose, data }) => {
                 </Form.Item>
                 <Form.Item name="partName" label="Part Name" rules={[{ required: true, message: 'Please enter part name' }]}>
                     <Input placeholder="Enter part name" />
+                </Form.Item>
+                <Form.Item name="isPassthrough" label="Passthrough (skip Assy)" valuePropName="checked" extra="Applies to labels created in the next production release.">
+                    <Switch checkedChildren="Yes" unCheckedChildren="No" />
                 </Form.Item>
                 <Form.Item name="alias" label="Alias">
                     <Input placeholder="Enter alias (optional)" />

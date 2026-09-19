@@ -114,6 +114,15 @@ export const ProductionStatus = {
 export type ProductionStatus = (typeof ProductionStatus)[keyof typeof ProductionStatus]
 
 
+export const AssemblyStatus = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type AssemblyStatus = (typeof AssemblyStatus)[keyof typeof AssemblyStatus]
+
+
 export const MTCAuthAction = {
   LOGIN: 'LOGIN',
   LOGOUT: 'LOGOUT',

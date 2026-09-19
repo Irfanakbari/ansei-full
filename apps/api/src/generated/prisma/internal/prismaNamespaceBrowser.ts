@@ -69,10 +69,11 @@ export const ModelName = {
   ProductionRelease: 'ProductionRelease',
   ProductionReleaseAttachment: 'ProductionReleaseAttachment',
   Shopping: 'Shopping',
-  ShoppingProductionResult: 'ShoppingProductionResult',
+  ShoppingCompletion: 'ShoppingCompletion',
   OutboxEvent: 'OutboxEvent',
   ProductionReport: 'ProductionReport',
   LabelData: 'LabelData',
+  AssemblySession: 'AssemblySession',
   PokayokeScanHistory: 'PokayokeScanHistory',
   DeliveryHistory: 'DeliveryHistory',
   LineStatus: 'LineStatus',
@@ -151,6 +152,7 @@ export const FinishGoodScalarFieldEnum = {
   Id: 'Id',
   PartNumber: 'PartNumber',
   PartName: 'PartName',
+  IsPassthrough: 'IsPassthrough',
   Alias: 'Alias',
   Price: 'Price',
   CreatedAt: 'CreatedAt',
@@ -330,6 +332,7 @@ export const ProductionReleaseScalarFieldEnum = {
   TotalTargetQty: 'TotalTargetQty',
   TotalGoodQty: 'TotalGoodQty',
   TotalNgQty: 'TotalNgQty',
+  TotalProductionMinutes: 'TotalProductionMinutes',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
@@ -371,14 +374,14 @@ export const ShoppingScalarFieldEnum = {
 export type ShoppingScalarFieldEnum = (typeof ShoppingScalarFieldEnum)[keyof typeof ShoppingScalarFieldEnum]
 
 
-export const ShoppingProductionResultScalarFieldEnum = {
+export const ShoppingCompletionScalarFieldEnum = {
   ForecastId: 'ForecastId',
   ShoppingId: 'ShoppingId',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy'
 } as const
 
-export type ShoppingProductionResultScalarFieldEnum = (typeof ShoppingProductionResultScalarFieldEnum)[keyof typeof ShoppingProductionResultScalarFieldEnum]
+export type ShoppingCompletionScalarFieldEnum = (typeof ShoppingCompletionScalarFieldEnum)[keyof typeof ShoppingCompletionScalarFieldEnum]
 
 
 export const OutboxEventScalarFieldEnum = {
@@ -446,6 +449,7 @@ export type ProductionReportScalarFieldEnum = (typeof ProductionReportScalarFiel
 
 
 export const LabelDataScalarFieldEnum = {
+  RequiresAssembly: 'RequiresAssembly',
   Id: 'Id',
   LabelNumber: 'LabelNumber',
   FinishGoodId: 'FinishGoodId',
@@ -457,6 +461,27 @@ export const LabelDataScalarFieldEnum = {
 } as const
 
 export type LabelDataScalarFieldEnum = (typeof LabelDataScalarFieldEnum)[keyof typeof LabelDataScalarFieldEnum]
+
+
+export const AssemblySessionScalarFieldEnum = {
+  Id: 'Id',
+  LabelDataId: 'LabelDataId',
+  ManPowerUid: 'ManPowerUid',
+  ManPowerName: 'ManPowerName',
+  Status: 'Status',
+  StartedAt: 'StartedAt',
+  EndedAt: 'EndedAt',
+  CancelledAt: 'CancelledAt',
+  CancelledBy: 'CancelledBy',
+  CancelReason: 'CancelReason',
+  StartRequestId: 'StartRequestId',
+  CompleteRequestId: 'CompleteRequestId',
+  CreatedBy: 'CreatedBy',
+  CompletedBy: 'CompletedBy',
+  Channel: 'Channel'
+} as const
+
+export type AssemblySessionScalarFieldEnum = (typeof AssemblySessionScalarFieldEnum)[keyof typeof AssemblySessionScalarFieldEnum]
 
 
 export const PokayokeScanHistoryScalarFieldEnum = {

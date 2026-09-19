@@ -120,6 +120,7 @@ export class FinishGoodService {
           PartName: dto.partName,
           Alias: dto.alias,
           Price: dto.price ?? 0,
+          IsPassthrough: dto.isPassthrough ?? false,
           Qty: dto.qty ?? 0,
           CreatedBy: createdBy,
         },
@@ -204,6 +205,7 @@ export class FinishGoodService {
           PartName: dto.partName,
           Alias: dto.alias,
           Price: dto.price,
+          IsPassthrough: dto.isPassthrough,
         },
       });
 

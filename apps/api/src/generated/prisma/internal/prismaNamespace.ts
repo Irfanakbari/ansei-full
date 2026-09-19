@@ -415,10 +415,11 @@ export const ModelName = {
   ProductionRelease: 'ProductionRelease',
   ProductionReleaseAttachment: 'ProductionReleaseAttachment',
   Shopping: 'Shopping',
-  ShoppingProductionResult: 'ShoppingProductionResult',
+  ShoppingCompletion: 'ShoppingCompletion',
   OutboxEvent: 'OutboxEvent',
   ProductionReport: 'ProductionReport',
   LabelData: 'LabelData',
+  AssemblySession: 'AssemblySession',
   PokayokeScanHistory: 'PokayokeScanHistory',
   DeliveryHistory: 'DeliveryHistory',
   LineStatus: 'LineStatus',
@@ -451,7 +452,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "satuan" | "supplier" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingProductionResult" | "outboxEvent" | "productionReport" | "labelData" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig"
+    modelProps: "satuan" | "supplier" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingCompletion" | "outboxEvent" | "productionReport" | "labelData" | "assemblySession" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1787,77 +1788,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ShoppingProductionResult: {
-      payload: Prisma.$ShoppingProductionResultPayload<ExtArgs>
-      fields: Prisma.ShoppingProductionResultFieldRefs
+    ShoppingCompletion: {
+      payload: Prisma.$ShoppingCompletionPayload<ExtArgs>
+      fields: Prisma.ShoppingCompletionFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.ShoppingProductionResultFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload> | null
+          args: Prisma.ShoppingCompletionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.ShoppingProductionResultFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+          args: Prisma.ShoppingCompletionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload>
         }
         findFirst: {
-          args: Prisma.ShoppingProductionResultFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload> | null
+          args: Prisma.ShoppingCompletionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.ShoppingProductionResultFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+          args: Prisma.ShoppingCompletionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload>
         }
         findMany: {
-          args: Prisma.ShoppingProductionResultFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>[]
+          args: Prisma.ShoppingCompletionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload>[]
         }
         create: {
-          args: Prisma.ShoppingProductionResultCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+          args: Prisma.ShoppingCompletionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload>
         }
         createMany: {
-          args: Prisma.ShoppingProductionResultCreateManyArgs<ExtArgs>
+          args: Prisma.ShoppingCompletionCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.ShoppingProductionResultCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>[]
+          args: Prisma.ShoppingCompletionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload>[]
         }
         delete: {
-          args: Prisma.ShoppingProductionResultDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+          args: Prisma.ShoppingCompletionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload>
         }
         update: {
-          args: Prisma.ShoppingProductionResultUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+          args: Prisma.ShoppingCompletionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload>
         }
         deleteMany: {
-          args: Prisma.ShoppingProductionResultDeleteManyArgs<ExtArgs>
+          args: Prisma.ShoppingCompletionDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.ShoppingProductionResultUpdateManyArgs<ExtArgs>
+          args: Prisma.ShoppingCompletionUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.ShoppingProductionResultUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>[]
+          args: Prisma.ShoppingCompletionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload>[]
         }
         upsert: {
-          args: Prisma.ShoppingProductionResultUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingProductionResultPayload>
+          args: Prisma.ShoppingCompletionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ShoppingCompletionPayload>
         }
         aggregate: {
-          args: Prisma.ShoppingProductionResultAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateShoppingProductionResult>
+          args: Prisma.ShoppingCompletionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateShoppingCompletion>
         }
         groupBy: {
-          args: Prisma.ShoppingProductionResultGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ShoppingProductionResultGroupByOutputType>[]
+          args: Prisma.ShoppingCompletionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShoppingCompletionGroupByOutputType>[]
         }
         count: {
-          args: Prisma.ShoppingProductionResultCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ShoppingProductionResultCountAggregateOutputType> | number
+          args: Prisma.ShoppingCompletionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ShoppingCompletionCountAggregateOutputType> | number
         }
       }
     }
@@ -2080,6 +2081,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.LabelDataCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.LabelDataCountAggregateOutputType> | number
+        }
+      }
+    }
+    AssemblySession: {
+      payload: Prisma.$AssemblySessionPayload<ExtArgs>
+      fields: Prisma.AssemblySessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssemblySessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssemblySessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload>
+        }
+        findFirst: {
+          args: Prisma.AssemblySessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssemblySessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload>
+        }
+        findMany: {
+          args: Prisma.AssemblySessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload>[]
+        }
+        create: {
+          args: Prisma.AssemblySessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload>
+        }
+        createMany: {
+          args: Prisma.AssemblySessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AssemblySessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload>[]
+        }
+        delete: {
+          args: Prisma.AssemblySessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload>
+        }
+        update: {
+          args: Prisma.AssemblySessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssemblySessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssemblySessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AssemblySessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.AssemblySessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblySessionPayload>
+        }
+        aggregate: {
+          args: Prisma.AssemblySessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssemblySession>
+        }
+        groupBy: {
+          args: Prisma.AssemblySessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssemblySessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssemblySessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssemblySessionCountAggregateOutputType> | number
         }
       }
     }
@@ -3423,6 +3498,7 @@ export const FinishGoodScalarFieldEnum = {
   Id: 'Id',
   PartNumber: 'PartNumber',
   PartName: 'PartName',
+  IsPassthrough: 'IsPassthrough',
   Alias: 'Alias',
   Price: 'Price',
   CreatedAt: 'CreatedAt',
@@ -3602,6 +3678,7 @@ export const ProductionReleaseScalarFieldEnum = {
   TotalTargetQty: 'TotalTargetQty',
   TotalGoodQty: 'TotalGoodQty',
   TotalNgQty: 'TotalNgQty',
+  TotalProductionMinutes: 'TotalProductionMinutes',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
@@ -3643,14 +3720,14 @@ export const ShoppingScalarFieldEnum = {
 export type ShoppingScalarFieldEnum = (typeof ShoppingScalarFieldEnum)[keyof typeof ShoppingScalarFieldEnum]
 
 
-export const ShoppingProductionResultScalarFieldEnum = {
+export const ShoppingCompletionScalarFieldEnum = {
   ForecastId: 'ForecastId',
   ShoppingId: 'ShoppingId',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy'
 } as const
 
-export type ShoppingProductionResultScalarFieldEnum = (typeof ShoppingProductionResultScalarFieldEnum)[keyof typeof ShoppingProductionResultScalarFieldEnum]
+export type ShoppingCompletionScalarFieldEnum = (typeof ShoppingCompletionScalarFieldEnum)[keyof typeof ShoppingCompletionScalarFieldEnum]
 
 
 export const OutboxEventScalarFieldEnum = {
@@ -3718,6 +3795,7 @@ export type ProductionReportScalarFieldEnum = (typeof ProductionReportScalarFiel
 
 
 export const LabelDataScalarFieldEnum = {
+  RequiresAssembly: 'RequiresAssembly',
   Id: 'Id',
   LabelNumber: 'LabelNumber',
   FinishGoodId: 'FinishGoodId',
@@ -3729,6 +3807,27 @@ export const LabelDataScalarFieldEnum = {
 } as const
 
 export type LabelDataScalarFieldEnum = (typeof LabelDataScalarFieldEnum)[keyof typeof LabelDataScalarFieldEnum]
+
+
+export const AssemblySessionScalarFieldEnum = {
+  Id: 'Id',
+  LabelDataId: 'LabelDataId',
+  ManPowerUid: 'ManPowerUid',
+  ManPowerName: 'ManPowerName',
+  Status: 'Status',
+  StartedAt: 'StartedAt',
+  EndedAt: 'EndedAt',
+  CancelledAt: 'CancelledAt',
+  CancelledBy: 'CancelledBy',
+  CancelReason: 'CancelReason',
+  StartRequestId: 'StartRequestId',
+  CompleteRequestId: 'CompleteRequestId',
+  CreatedBy: 'CreatedBy',
+  CompletedBy: 'CompletedBy',
+  Channel: 'Channel'
+} as const
+
+export type AssemblySessionScalarFieldEnum = (typeof AssemblySessionScalarFieldEnum)[keyof typeof AssemblySessionScalarFieldEnum]
 
 
 export const PokayokeScanHistoryScalarFieldEnum = {
@@ -4208,6 +4307,20 @@ export type ListEnumPartTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'AssemblyStatus'
+ */
+export type EnumAssemblyStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssemblyStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AssemblyStatus[]'
+ */
+export type ListEnumAssemblyStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssemblyStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'PokayokeCompareStatus'
  */
 export type EnumPokayokeCompareStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PokayokeCompareStatus'>
@@ -4459,10 +4572,11 @@ export type GlobalOmitConfig = {
   productionRelease?: Prisma.ProductionReleaseOmit
   productionReleaseAttachment?: Prisma.ProductionReleaseAttachmentOmit
   shopping?: Prisma.ShoppingOmit
-  shoppingProductionResult?: Prisma.ShoppingProductionResultOmit
+  shoppingCompletion?: Prisma.ShoppingCompletionOmit
   outboxEvent?: Prisma.OutboxEventOmit
   productionReport?: Prisma.ProductionReportOmit
   labelData?: Prisma.LabelDataOmit
+  assemblySession?: Prisma.AssemblySessionOmit
   pokayokeScanHistory?: Prisma.PokayokeScanHistoryOmit
   deliveryHistory?: Prisma.DeliveryHistoryOmit
   lineStatus?: Prisma.LineStatusOmit

@@ -1,7 +1,12 @@
+import type { Prisma } from '../../generated/prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PreDeliveryQueryDto } from './dto/pre-delivery-query.dto';
 import { ShoppingService } from '../shopping/shopping.service';
+import {
+  assertLabelReady,
+  isShoppingComplete,
+} from '../../common/helpers/production-flow.helper';
 
 @Injectable()
 export class PreDeliveryService {
@@ -17,7 +22,7 @@ export class PreDeliveryService {
     try {
       const requirements =
         await this.shoppingService.checkRequirement(forecastId);
-      return requirements.summary.overallPercentage >= 100;
+      return isShoppingComplete(requirements);
     } catch {
       // If forecast not found in shopping records, consider it incomplete
       return false;
@@ -102,7 +107,16 @@ export class PreDeliveryService {
     }
 
     // Build where conditions
-    const where: any = {};
+    const where: Prisma.LabelDataWhereInput = {
+      OR: [
+        { RequiresAssembly: false },
+        { RequiresAssembly: null },
+        {
+          RequiresAssembly: true,
+          AssemblySessions: { some: { Status: 'COMPLETED' } },
+        },
+      ],
+    };
 
     // Apply filtered forecastIds (only with complete shopping)
     where.ForecastId = { in: shoppingCompleteForecastIds };
@@ -121,6 +135,8 @@ export class PreDeliveryService {
           totalPages: 0,
         };
       }
+      if (!shoppingCompleteForecastIds.includes(query.forecastId))
+        return { data: [], total: 0, page, limit, totalPages: 0 };
       where.ForecastId = query.forecastId;
     }
 
@@ -269,6 +285,7 @@ export class PreDeliveryService {
       return null;
     }
 
+    await assertLabelReady(this.prisma, result.Id, false);
     return {
       id: result.Id,
       labelNumber: result.LabelNumber,
@@ -298,10 +315,20 @@ export class PreDeliveryService {
       forecastIds = forecasts.map((f) => f.PoId);
     }
 
-    const where: any = {};
-    if (forecastIds) {
-      where.ForecastId = { in: forecastIds };
-    }
+    const where: Prisma.LabelDataWhereInput = {
+      OR: [
+        { RequiresAssembly: false },
+        { RequiresAssembly: null },
+        {
+          RequiresAssembly: true,
+          AssemblySessions: { some: { Status: 'COMPLETED' } },
+        },
+      ],
+    };
+    const completeIds = await this.filterShoppingCompleteForecastIds(
+      forecastIds ?? (await this.getAllForecastIdsWithShopping()),
+    );
+    where.ForecastId = { in: completeIds };
 
     const [total, scanned, notScanned] = await Promise.all([
       this.prisma.labelData.count({ where }),

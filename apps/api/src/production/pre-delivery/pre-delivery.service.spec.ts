@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PreDeliveryService } from './pre-delivery.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import * as flow from '../../common/helpers/production-flow.helper';
 import { ShoppingService } from '../shopping/shopping.service';
 
 describe('PreDeliveryService', () => {
@@ -29,9 +30,18 @@ describe('PreDeliveryService', () => {
     // Reset all mocks before each test
     jest.resetAllMocks();
 
+    jest
+      .spyOn(flow, 'assertLabelReady')
+      .mockResolvedValue(
+        {} as Awaited<ReturnType<typeof flow.assertLabelReady>>,
+      );
+    mockPrismaService.shopping.findMany.mockResolvedValue([
+      { ForecastId: 'PO-001' },
+    ]);
     // Set default mock implementations
     mockShoppingService.checkRequirement.mockResolvedValue({
       summary: { overallPercentage: 100 },
+      requirements: [{ qtyNeeded: 20, qtyPicked: 20 }],
     });
 
     const module: TestingModule = await Test.createTestingModule({
@@ -47,6 +57,18 @@ describe('PreDeliveryService', () => {
   });
 
   describe('findAll', () => {
+    it('does not treat rounded 100% as complete shopping', async () => {
+      mockShoppingService.checkRequirement.mockResolvedValue({
+        summary: { overallPercentage: 100 },
+        requirements: [
+          { qtyNeeded: 200, qtyPicked: 200 },
+          { qtyNeeded: 1, qtyPicked: 0 },
+        ],
+      });
+      await expect(service['isShoppingComplete']('PO-001')).resolves.toBe(
+        false,
+      );
+    });
     it('should return paginated label data', async () => {
       // Set up mocks for productionReleaseId filter
       mockPrismaService.forecast.findMany.mockResolvedValue([
@@ -57,6 +79,7 @@ describe('PreDeliveryService', () => {
       ]);
       mockShoppingService.checkRequirement.mockResolvedValue({
         summary: { overallPercentage: 100 },
+        requirements: [{ qtyNeeded: 20, qtyPicked: 20 }],
       });
 
       const mockLabels = [
@@ -108,6 +131,7 @@ describe('PreDeliveryService', () => {
       ]);
       mockShoppingService.checkRequirement.mockResolvedValue({
         summary: { overallPercentage: 100 },
+        requirements: [{ qtyNeeded: 20, qtyPicked: 20 }],
       });
 
       mockPrismaService.labelData.count.mockResolvedValue(0);
@@ -135,6 +159,7 @@ describe('PreDeliveryService', () => {
       ]);
       mockShoppingService.checkRequirement.mockResolvedValue({
         summary: { overallPercentage: 100 },
+        requirements: [{ qtyNeeded: 20, qtyPicked: 20 }],
       });
 
       mockPrismaService.labelData.count.mockResolvedValue(0);

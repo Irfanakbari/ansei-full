@@ -67,6 +67,7 @@ export interface ProductionReleaseEntity {
     TotalTargetQty: number;
     TotalGoodQty: number;
     TotalNgQty: number;
+    TotalProductionMinutes: number | null;
     CreatedAt: string;
     CreatedBy: string;
     CreatedByName?: string;
@@ -193,6 +194,7 @@ export const createProductionRelease = createAsyncThunk(
 );
 
 export interface UpdateProductionReleasePayload {
+    totalProductionMinutes?: number;
     status?: 'DRAFT' | 'RELEASED' | 'COMPLETED' | 'CANCELLED';
     notes?: string;
     forecastIds?: string[];

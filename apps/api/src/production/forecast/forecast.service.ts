@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -16,6 +17,10 @@ import type {
 import { ProductionStatus } from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
 import { validateUploadContent } from '../../common/utils/upload-security.util';
+import {
+  buildProductionLabels,
+  lockProductionFlow,
+} from '../../common/helpers/production-flow.helper';
 
 interface ForecastExcelRow {
   [columnPosition: number]: string | number | Date | undefined;
@@ -297,57 +302,133 @@ export class ForecastService {
         createdBy: updatedBy,
       });
 
-      // Try to find by ID or PoId
-      const numericId = parseInt(id, 10);
-      const existing = !isNaN(numericId)
-        ? await this.prisma.forecast.findUnique({ where: { Id: numericId } })
-        : await this.prisma.forecast.findUnique({ where: { PoId: id } });
+      const processId = logProcess.ProcessId;
+      return await this.prisma.$transaction(async (tx) => {
+        await lockProductionFlow(tx);
+        // Try to find by ID or PoId
+        const numericId = parseInt(id, 10);
+        const existing = !isNaN(numericId)
+          ? await tx.forecast.findUnique({ where: { Id: numericId } })
+          : await tx.forecast.findUnique({ where: { PoId: id } });
 
-      if (!existing) {
-        throw new NotFoundException(`Forecast with id ${id} not found`);
-      }
+        if (!existing) {
+          throw new NotFoundException(`Forecast with id ${id} not found`);
+        }
 
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Updating forecast ${existing.PoId}`,
-        type: 'INFO',
-        location: 'forecast.service.ts:131',
+        await this.assertForecastEditable(tx, existing);
+        const nextQty = dto.qty ?? existing.Qty;
+        if (!Number.isInteger(nextQty) || nextQty <= 0) {
+          throw new BadRequestException(
+            'Forecast quantity must be a positive integer.',
+          );
+        }
+        const release = existing.ProductionReleaseId
+          ? await tx.productionRelease.findUnique({
+              where: { Id: existing.ProductionReleaseId },
+            })
+          : null;
+        const previousLabel = await tx.labelData.findFirst({
+          where: { ForecastId: existing.PoId },
+          select: { RequiresAssembly: true },
+        });
+        const labelsChanged =
+          (dto.poId !== undefined && dto.poId !== existing.PoId) ||
+          (dto.qty !== undefined && dto.qty !== existing.Qty) ||
+          (dto.finishGoodId !== undefined &&
+            dto.finishGoodId !== existing.FinishGoodId);
+        if (labelsChanged) {
+          await tx.labelData.deleteMany({
+            where: { ForecastId: existing.PoId },
+          });
+        }
+
+        await this.logService.addLog({
+          processId,
+          message: `Updating forecast ${existing.PoId}`,
+          type: 'INFO',
+          location: 'forecast.service.ts:131',
+          client: tx,
+        });
+
+        const updateData: Prisma.ForecastUncheckedUpdateInput = {};
+        if (dto.poId !== undefined) updateData.PoId = dto.poId;
+        if (dto.date !== undefined) updateData.Date = dto.date;
+        if (dto.vendorCode !== undefined)
+          updateData.VendorCode = dto.vendorCode;
+        if (dto.vendorName !== undefined)
+          updateData.VendorName = dto.vendorName;
+        if (dto.receivingArea !== undefined)
+          updateData.ReceivingArea = dto.receivingArea;
+        if (dto.deliveryDate !== undefined)
+          updateData.DeliveryDate = dto.deliveryDate;
+        if (dto.deliveryPeriod !== undefined)
+          updateData.DeliveryPeriod = dto.deliveryPeriod;
+        if (dto.classification !== undefined)
+          updateData.Classification = dto.classification;
+        if (dto.poNumber !== undefined) updateData.PoNumber = dto.poNumber;
+        if (dto.item !== undefined) updateData.Item = dto.item;
+        if (dto.qty !== undefined) updateData.Qty = dto.qty;
+        if (dto.finishGoodId !== undefined)
+          updateData.FinishGoodId = dto.finishGoodId;
+
+        const result = await tx.forecast.update({
+          where: { Id: existing.Id },
+          data: updateData,
+        });
+
+        if (release) {
+          if (labelsChanged && release.Status === ProductionStatus.RELEASED) {
+            const box = await tx.boxQTY.findUnique({
+              where: { PartNumber: result.FinishGoodId },
+            });
+            if (!box || box.Qty <= 0) {
+              throw new BadRequestException(
+                'Box Qty must be configured with a value greater than 0.',
+              );
+            }
+            await tx.labelData.createMany({
+              data: buildProductionLabels(
+                result,
+                release.Id,
+                box.Qty,
+                result.FinishGoodId === existing.FinishGoodId &&
+                  previousLabel?.RequiresAssembly != null
+                  ? previousLabel.RequiresAssembly
+                  : !(
+                      await tx.finishGood.findUniqueOrThrow({
+                        where: { PartNumber: result.FinishGoodId },
+                      })
+                    ).IsPassthrough,
+              ),
+            });
+          }
+          const total = await tx.forecast.aggregate({
+            where: { ProductionReleaseId: release.Id },
+            _sum: { Qty: true },
+          });
+          await tx.productionRelease.update({
+            where: { Id: release.Id },
+            data: { TotalTargetQty: total._sum.Qty ?? 0 },
+          });
+        }
+
+        await this.logService.addLog({
+          processId,
+          message: `Forecast updated successfully: ${result.PoId}`,
+          type: 'INFO',
+          location: 'forecast.service.ts:156',
+          client: tx,
+        });
+
+        await this.logService.completeProcess(
+          processId,
+          'SUCCESS',
+          undefined,
+          tx,
+        );
+
+        return result;
       });
-
-      const updateData: Record<string, unknown> = {};
-      if (dto.poId !== undefined) updateData.PoId = dto.poId;
-      if (dto.date !== undefined) updateData.Date = dto.date;
-      if (dto.vendorCode !== undefined) updateData.VendorCode = dto.vendorCode;
-      if (dto.vendorName !== undefined) updateData.VendorName = dto.vendorName;
-      if (dto.receivingArea !== undefined)
-        updateData.ReceivingArea = dto.receivingArea;
-      if (dto.deliveryDate !== undefined)
-        updateData.DeliveryDate = dto.deliveryDate;
-      if (dto.deliveryPeriod !== undefined)
-        updateData.DeliveryPeriod = dto.deliveryPeriod;
-      if (dto.classification !== undefined)
-        updateData.Classification = dto.classification;
-      if (dto.poNumber !== undefined) updateData.PoNumber = dto.poNumber;
-      if (dto.item !== undefined) updateData.Item = dto.item;
-      if (dto.qty !== undefined) updateData.Qty = dto.qty;
-      if (dto.finishGoodId !== undefined)
-        updateData.FinishGoodId = dto.finishGoodId;
-
-      const result = await this.prisma.forecast.update({
-        where: { Id: existing.Id },
-        data: updateData,
-      });
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Forecast updated successfully: ${result.PoId}`,
-        type: 'INFO',
-        location: 'forecast.service.ts:156',
-      });
-
-      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
-
-      return result;
     } catch (error) {
       if (logProcess) {
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
@@ -366,34 +447,107 @@ export class ForecastService {
         createdBy: deletedBy,
       });
 
-      const numericId = parseInt(id, 10);
-      const existing = !isNaN(numericId)
-        ? await this.prisma.forecast.findUnique({ where: { Id: numericId } })
-        : await this.prisma.forecast.findUnique({ where: { PoId: id } });
+      const processId = logProcess.ProcessId;
+      return await this.prisma.$transaction(async (tx) => {
+        await lockProductionFlow(tx);
+        const numericId = parseInt(id, 10);
+        const existing = !isNaN(numericId)
+          ? await tx.forecast.findUnique({ where: { Id: numericId } })
+          : await tx.forecast.findUnique({ where: { PoId: id } });
 
-      if (!existing) {
-        throw new NotFoundException(`Forecast with id ${id} not found`);
-      }
+        if (!existing) {
+          throw new NotFoundException(`Forecast with id ${id} not found`);
+        }
+        await this.assertForecastEditable(tx, existing);
+        if (existing.ProductionReleaseId) {
+          throw new ConflictException(
+            'Untag the forecast from its production release before deleting it.',
+          );
+        }
 
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Deleting forecast ${existing.PoId}`,
-        type: 'INFO',
-        location: 'forecast.service.ts:183',
+        await this.logService.addLog({
+          processId,
+          message: `Deleting forecast ${existing.PoId}`,
+          type: 'INFO',
+          location: 'forecast.service.ts:183',
+          client: tx,
+        });
+
+        await tx.forecast.delete({
+          where: { Id: existing.Id },
+        });
+
+        await this.logService.completeProcess(
+          processId,
+          'SUCCESS',
+          undefined,
+          tx,
+        );
+
+        return { deleted: true, id: existing.Id };
       });
-
-      await this.prisma.forecast.delete({
-        where: { Id: existing.Id },
-      });
-
-      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
-
-      return { deleted: true, id: existing.Id };
     } catch (error) {
       if (logProcess) {
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }
       throw error;
+    }
+  }
+
+  private async assertForecastEditable(
+    tx: Prisma.TransactionClient,
+    forecast: ForecastModel,
+  ) {
+    const activity = await tx.forecast.findUniqueOrThrow({
+      where: { Id: forecast.Id },
+      include: {
+        ProductionRelease: true,
+        ShoppingCompletion: true,
+        _count: {
+          select: {
+            Shopping: true,
+            DeliveryHistory: true,
+            ProductionReport: true,
+          },
+        },
+        LabelData: {
+          select: {
+            Scanned: true,
+            _count: {
+              select: { PokayokeHistory: true, AssemblySessions: true },
+            },
+          },
+        },
+      },
+    });
+    if (
+      activity.ProductionRelease &&
+      activity.ProductionRelease.Status !== ProductionStatus.DRAFT &&
+      activity.ProductionRelease.Status !== ProductionStatus.RELEASED
+    ) {
+      throw new ConflictException(
+        'Forecast in a completed or cancelled release cannot be changed.',
+      );
+    }
+    const scanHistoryCount = await tx.pokayokeScanHistory.count({
+      where: { PoId: forecast.PoId },
+    });
+    if (
+      activity._count.Shopping > 0 ||
+      activity._count.DeliveryHistory > 0 ||
+      activity._count.ProductionReport > 0 ||
+      activity.ShoppingCompletion ||
+      scanHistoryCount > 0 ||
+      activity.LabelData.some(
+        (label) =>
+          label.Scanned ||
+          label._count.PokayokeHistory > 0 ||
+          label._count.AssemblySessions > 0,
+      )
+    ) {
+      throw new ConflictException(
+        'Forecast has operational activity and cannot be changed or deleted.',
+      );
     }
   }
 

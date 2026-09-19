@@ -6,6 +6,10 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsInt,
+  Min,
+  Max,
+  ValidateIf,
 } from 'class-validator';
 import { ProductionStatus } from '../../../generated/prisma/enums';
 
@@ -19,12 +23,27 @@ export class UpdateProductionReleaseDto {
   planDate?: Date;
 
   @ApiPropertyOptional({
-    description: 'Status produksi',
-    example: 'IN_PROGRESS',
+    description:
+      'Transisi status: DRAFT ke RELEASED, lalu COMPLETED setelah seluruh PO selesai delivery. Pembatalan melalui endpoint cancel.',
+    enum: ProductionStatus,
+    example: 'RELEASED',
   })
   @IsOptional()
   @IsEnum(ProductionStatus)
   status?: ProductionStatus;
+
+  @ApiPropertyOptional({
+    description:
+      'Actual total production duration in minutes. Required only when closing a RELEASED production release; supports durations longer than 24 hours.',
+    example: 1845,
+    minimum: 1,
+    maximum: 2147483647,
+  })
+  @ValidateIf((_object, value: unknown) => value !== undefined)
+  @IsInt()
+  @Min(1)
+  @Max(2147483647)
+  totalProductionMinutes?: number;
 
   @ApiPropertyOptional({ description: 'Catatan', example: 'Updated schedule' })
   @IsOptional()
