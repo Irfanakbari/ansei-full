@@ -318,6 +318,7 @@ describe('FrontendService', () => {
       const result = await service.getDashboard({ month: 1, year: 2026 });
 
       expect(result.releasePipeline[0].shoppingPct).toBe(50);
+      expect(result.releasePipeline[0].assemblyPct).toBeNull();
       expect(prisma.shoppingCompletion.findMany).toHaveBeenCalledTimes(1);
       expect(prisma.shoppingCompletion.findMany).toHaveBeenCalledWith({
         where: { ForecastId: { in: ['PO-1', 'PO-2'] } },

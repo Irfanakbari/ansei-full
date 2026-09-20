@@ -153,10 +153,11 @@ export class DashboardReleasePipelineEntity {
   })
   shoppingPct: number | null;
   @ApiProperty({
+    nullable: true,
     description:
-      'Quantity-weighted completion for labels that require assembly; 100 when assembly is not required.',
+      'Quantity-weighted completion for labels that require assembly; 100 when existing labels do not require assembly, null when labels have not been generated.',
   })
-  assemblyPct: number;
+  assemblyPct: number | null;
   pokayokePct: number | null;
   deliveryPct: number | null;
 }

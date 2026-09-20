@@ -114,7 +114,7 @@ export interface DashboardReleasePipelineItem {
     status: string;
     targetQty: number;
     shoppingPct: number | null;
-    assemblyPct: number;
+    assemblyPct: number | null;
     pokayokePct: number | null;
     deliveryPct: number | null;
     id?: string;

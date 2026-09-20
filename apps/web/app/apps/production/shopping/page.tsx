@@ -78,7 +78,10 @@ export default function ShoppingPage() {
         const purpose = filters.Type?.[0]?.toString();
         dispatch(
             setShoppingQuery({
-                page: tablePagination.current,
+                page:
+                    search !== query.search || purpose !== query.purpose
+                        ? 1
+                        : tablePagination.current,
                 limit: tablePagination.pageSize,
                 search,
                 purpose,
@@ -130,12 +133,7 @@ export default function ShoppingPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>
         ),
-        onFilter: (value: any, record: any) => {
-            return record[dataIndex]
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase());
-        },
+        filteredValue: query.search ? [query.search] : null,
     });
 
     const columns = [

@@ -824,11 +824,13 @@ export class FrontendService {
         shoppingPct: release.Forecasts.length
           ? (completedForecasts / release.Forecasts.length) * 100
           : null,
-        assemblyPct: assemblyRequired.length
-          ? assemblyRequiredQty > 0
-            ? (assemblyCompletedQty / assemblyRequiredQty) * 100
-            : 0
-          : 100,
+        assemblyPct: release.LabelDatas.length
+          ? assemblyRequired.length
+            ? assemblyRequiredQty > 0
+              ? (assemblyCompletedQty / assemblyRequiredQty) * 100
+              : 0
+            : 100
+          : null,
         pokayokePct: release.LabelDatas.length
           ? (scanned / release.LabelDatas.length) * 100
           : null,
