@@ -134,7 +134,12 @@ export default function SupplierModal({visible, data, onClose, onUpdated, onDele
             ) : (
                 <Descriptions bordered size="small" column={1}>
                     <Descriptions.Item label="Supplier Name">{data.Name}</Descriptions.Item>
-                    <Descriptions.Item label="Created At">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+                    <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
+                    <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>

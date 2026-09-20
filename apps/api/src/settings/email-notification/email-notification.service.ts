@@ -74,6 +74,7 @@ export class EmailNotificationService {
 
   async create(
     dto: CreateEmailNotificationDto,
+    createdBy: string,
   ): Promise<EmailNotificationModel> {
     let logProcess: LogProcessModel | undefined;
 
@@ -81,6 +82,7 @@ export class EmailNotificationService {
       logProcess = await this.logService.startProcess({
         functionId: 'EMAIL_001',
         functionName: 'EmailNotificationService.Create',
+        createdBy,
       });
 
       await this.logService.addLog({
@@ -106,7 +108,9 @@ export class EmailNotificationService {
           Name: dto.name,
           Email: dto.email,
           Type: dto.type ?? 'DEFAULT',
-        },
+          CreatedBy: createdBy,
+          UpdatedBy: createdBy,
+        } as never,
       });
 
       await this.logService.addLog({
@@ -136,6 +140,7 @@ export class EmailNotificationService {
   async update(
     id: number,
     dto: UpdateEmailNotificationDto,
+    updatedBy: string,
   ): Promise<EmailNotificationModel> {
     let logProcess: LogProcessModel | undefined;
 
@@ -143,6 +148,7 @@ export class EmailNotificationService {
       logProcess = await this.logService.startProcess({
         functionId: 'EMAIL_002',
         functionName: 'EmailNotificationService.Update',
+        createdBy: updatedBy,
       });
 
       const existing = await this.prisma.emailNotification.findUnique({
@@ -181,7 +187,8 @@ export class EmailNotificationService {
           Name: dto.name,
           Email: dto.email,
           Type: dto.type,
-        },
+          UpdatedBy: updatedBy,
+        } as never,
       });
 
       await this.logService.addLog({
@@ -208,13 +215,17 @@ export class EmailNotificationService {
     }
   }
 
-  async remove(id: number): Promise<{ deleted: boolean; id: number }> {
+  async remove(
+    id: number,
+    deletedBy: string,
+  ): Promise<{ deleted: boolean; id: number }> {
     let logProcess: LogProcessModel | undefined;
 
     try {
       logProcess = await this.logService.startProcess({
         functionId: 'EMAIL_003',
         functionName: 'EmailNotificationService.Delete',
+        createdBy: deletedBy,
       });
 
       const existing = await this.prisma.emailNotification.findUnique({

@@ -642,6 +642,7 @@ export class IncomingService {
               where: { Id: item.MaterialId },
               data: {
                 QtyWarehouse: balanceAfter,
+                UpdatedBy: receivedBy,
               },
             });
 

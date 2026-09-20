@@ -35,6 +35,7 @@ import {
 import type {BomRevision, Page} from "@/store/features/traceability/types";
 import {fetchFinishGood} from "@/store/features/master/finishGoodSlice";
 import RevisionDetailsModal from "./_components/RevisionDetailsModal";
+import {formatDateTime} from "@/lib/utils/dateTime";
 
 export default function BillOfMaterialsPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -193,6 +194,20 @@ export default function BillOfMaterialsPage() {
                 } as const;
                 return <Tag color={colors[status]}>{status}</Tag>;
             },
+        },
+        {title: "Created Date", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
+        {
+            title: "Created By",
+            dataIndex: "CreatedBy",
+            key: "CreatedBy",
+            render: (_, record) => record.CreatedByName || record.CreatedBy || "-"
+        },
+        {title: "Updated Date", dataIndex: "UpdatedAt", key: "UpdatedAt", render: formatDateTime},
+        {
+            title: "Updated By",
+            dataIndex: "UpdatedBy",
+            key: "UpdatedBy",
+            render: (_, record) => record.UpdatedByName || record.UpdatedBy || record.LastEditedBy || "-"
         },
     ];
     const create = async () => {

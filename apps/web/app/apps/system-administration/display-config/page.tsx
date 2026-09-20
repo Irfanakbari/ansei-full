@@ -81,7 +81,20 @@ export default function DisplayConfigPage() {
             align: "center",
             render: (value: boolean) => <Tag color={value ? "green" : "default"}>{value ? "Yes" : "No"}</Tag>
         },
-        {title: "Created At", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
+        {title: "Created Date", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
+        {
+            title: "Created By",
+            dataIndex: "CreatedBy",
+            key: "CreatedBy",
+            render: (_, record) => record.CreatedByName || record.CreatedBy || "-"
+        },
+        {title: "Updated Date", dataIndex: "UpdatedAt", key: "UpdatedAt", render: formatDateTime},
+        {
+            title: "Updated By",
+            dataIndex: "UpdatedBy",
+            key: "UpdatedBy",
+            render: (_, record) => record.UpdatedByName || record.UpdatedBy || "-"
+        },
     ];
 
     return (

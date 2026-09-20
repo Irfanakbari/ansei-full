@@ -125,13 +125,19 @@ async function main() {
     const service = new AssemblyService(prisma, new LogProcessService(prisma));
     const now = new Date();
     const fg = await client.finishGood.create({
-      data: { PartNumber: 'TEST-FG', PartName: 'Test FG', CreatedBy: 'TEST' },
+      data: {
+        PartNumber: 'TEST-FG',
+        PartName: 'Test FG',
+        CreatedBy: 'TEST',
+        UpdatedBy: 'TEST',
+      },
     });
     const material = await client.material.create({
       data: {
         PartNumber: 'TEST-MAT',
         PartName: 'Test material',
         CreatedBy: 'TEST',
+        UpdatedBy: 'TEST',
       },
     });
     await client.billOfMaterials.create({
@@ -178,7 +184,14 @@ async function main() {
     );
     const operators = await Promise.all(
       ['OP-A', 'OP-B'].map((Nik) =>
-        client.manPower.create({ data: { Nik, Name: Nik } }),
+        client.manPower.create({
+          data: {
+            Nik,
+            Name: Nik,
+            CreatedBy: 'TEST',
+            UpdatedBy: 'TEST',
+          },
+        }),
       ),
     );
     const start = (

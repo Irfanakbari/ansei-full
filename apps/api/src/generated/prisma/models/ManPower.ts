@@ -30,6 +30,9 @@ export type ManPowerMinAggregateOutputType = {
   PicturePath: string | null
   Name: string | null
   CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
   Status: boolean | null
   Line: string | null
 }
@@ -40,6 +43,9 @@ export type ManPowerMaxAggregateOutputType = {
   PicturePath: string | null
   Name: string | null
   CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
   Status: boolean | null
   Line: string | null
 }
@@ -50,6 +56,9 @@ export type ManPowerCountAggregateOutputType = {
   PicturePath: number
   Name: number
   CreatedAt: number
+  CreatedBy: number
+  UpdatedAt: number
+  UpdatedBy: number
   Status: number
   Line: number
   _all: number
@@ -62,6 +71,9 @@ export type ManPowerMinAggregateInputType = {
   PicturePath?: true
   Name?: true
   CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   Status?: true
   Line?: true
 }
@@ -72,6 +84,9 @@ export type ManPowerMaxAggregateInputType = {
   PicturePath?: true
   Name?: true
   CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   Status?: true
   Line?: true
 }
@@ -82,6 +97,9 @@ export type ManPowerCountAggregateInputType = {
   PicturePath?: true
   Name?: true
   CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   Status?: true
   Line?: true
   _all?: true
@@ -165,6 +183,9 @@ export type ManPowerGroupByOutputType = {
   PicturePath: string | null
   Name: string
   CreatedAt: Date
+  CreatedBy: string
+  UpdatedAt: Date
+  UpdatedBy: string
   Status: boolean
   Line: string | null
   _count: ManPowerCountAggregateOutputType | null
@@ -196,6 +217,9 @@ export type ManPowerWhereInput = {
   PicturePath?: Prisma.StringNullableFilter<"ManPower"> | string | null
   Name?: Prisma.StringFilter<"ManPower"> | string
   CreatedAt?: Prisma.DateTimeFilter<"ManPower"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"ManPower"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"ManPower"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"ManPower"> | string
   Status?: Prisma.BoolFilter<"ManPower"> | boolean
   Line?: Prisma.StringNullableFilter<"ManPower"> | string | null
   AssemblySessions?: Prisma.AssemblySessionListRelationFilter
@@ -209,6 +233,9 @@ export type ManPowerOrderByWithRelationInput = {
   PicturePath?: Prisma.SortOrderInput | Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Line?: Prisma.SortOrderInput | Prisma.SortOrder
   AssemblySessions?: Prisma.AssemblySessionOrderByRelationAggregateInput
@@ -225,6 +252,9 @@ export type ManPowerWhereUniqueInput = Prisma.AtLeast<{
   PicturePath?: Prisma.StringNullableFilter<"ManPower"> | string | null
   Name?: Prisma.StringFilter<"ManPower"> | string
   CreatedAt?: Prisma.DateTimeFilter<"ManPower"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"ManPower"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"ManPower"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"ManPower"> | string
   Status?: Prisma.BoolFilter<"ManPower"> | boolean
   Line?: Prisma.StringNullableFilter<"ManPower"> | string | null
   AssemblySessions?: Prisma.AssemblySessionListRelationFilter
@@ -238,6 +268,9 @@ export type ManPowerOrderByWithAggregationInput = {
   PicturePath?: Prisma.SortOrderInput | Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Line?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ManPowerCountOrderByAggregateInput
@@ -254,6 +287,9 @@ export type ManPowerScalarWhereWithAggregatesInput = {
   PicturePath?: Prisma.StringNullableWithAggregatesFilter<"ManPower"> | string | null
   Name?: Prisma.StringWithAggregatesFilter<"ManPower"> | string
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"ManPower"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"ManPower"> | string
+  UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"ManPower"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"ManPower"> | string
   Status?: Prisma.BoolWithAggregatesFilter<"ManPower"> | boolean
   Line?: Prisma.StringNullableWithAggregatesFilter<"ManPower"> | string | null
 }
@@ -264,6 +300,9 @@ export type ManPowerCreateInput = {
   PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Status?: boolean
   Line?: string | null
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutManPowerInput
@@ -277,6 +316,9 @@ export type ManPowerUncheckedCreateInput = {
   PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Status?: boolean
   Line?: string | null
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutManPowerInput
@@ -290,6 +332,9 @@ export type ManPowerUpdateInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutManPowerNestedInput
@@ -303,6 +348,9 @@ export type ManPowerUncheckedUpdateInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutManPowerNestedInput
@@ -316,6 +364,9 @@ export type ManPowerCreateManyInput = {
   PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Status?: boolean
   Line?: string | null
 }
@@ -326,6 +377,9 @@ export type ManPowerUpdateManyMutationInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -336,6 +390,9 @@ export type ManPowerUncheckedUpdateManyInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
@@ -346,6 +403,9 @@ export type ManPowerCountOrderByAggregateInput = {
   PicturePath?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Line?: Prisma.SortOrder
 }
@@ -356,6 +416,9 @@ export type ManPowerMaxOrderByAggregateInput = {
   PicturePath?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Line?: Prisma.SortOrder
 }
@@ -366,6 +429,9 @@ export type ManPowerMinOrderByAggregateInput = {
   PicturePath?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Line?: Prisma.SortOrder
 }
@@ -423,6 +489,9 @@ export type ManPowerCreateWithoutSkillMatrixInput = {
   PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Status?: boolean
   Line?: string | null
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutManPowerInput
@@ -435,6 +504,9 @@ export type ManPowerUncheckedCreateWithoutSkillMatrixInput = {
   PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Status?: boolean
   Line?: string | null
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutManPowerInput
@@ -463,6 +535,9 @@ export type ManPowerUpdateWithoutSkillMatrixInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutManPowerNestedInput
@@ -475,6 +550,9 @@ export type ManPowerUncheckedUpdateWithoutSkillMatrixInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutManPowerNestedInput
@@ -487,6 +565,9 @@ export type ManPowerCreateWithoutProductionReportInput = {
   PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Status?: boolean
   Line?: string | null
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutManPowerInput
@@ -499,6 +580,9 @@ export type ManPowerUncheckedCreateWithoutProductionReportInput = {
   PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Status?: boolean
   Line?: string | null
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutManPowerInput
@@ -527,6 +611,9 @@ export type ManPowerUpdateWithoutProductionReportInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutManPowerNestedInput
@@ -539,6 +626,9 @@ export type ManPowerUncheckedUpdateWithoutProductionReportInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutManPowerNestedInput
@@ -551,6 +641,9 @@ export type ManPowerCreateWithoutAssemblySessionsInput = {
   PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Status?: boolean
   Line?: string | null
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutManPowerDataInput
@@ -563,6 +656,9 @@ export type ManPowerUncheckedCreateWithoutAssemblySessionsInput = {
   PicturePath?: string | null
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Status?: boolean
   Line?: string | null
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutManPowerDataInput
@@ -591,6 +687,9 @@ export type ManPowerUpdateWithoutAssemblySessionsInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutManPowerDataNestedInput
@@ -603,6 +702,9 @@ export type ManPowerUncheckedUpdateWithoutAssemblySessionsInput = {
   PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutManPowerDataNestedInput
@@ -664,6 +766,9 @@ export type ManPowerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   PicturePath?: boolean
   Name?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Status?: boolean
   Line?: boolean
   AssemblySessions?: boolean | Prisma.ManPower$AssemblySessionsArgs<ExtArgs>
@@ -678,6 +783,9 @@ export type ManPowerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   PicturePath?: boolean
   Name?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Status?: boolean
   Line?: boolean
 }, ExtArgs["result"]["manPower"]>
@@ -688,6 +796,9 @@ export type ManPowerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   PicturePath?: boolean
   Name?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Status?: boolean
   Line?: boolean
 }, ExtArgs["result"]["manPower"]>
@@ -698,11 +809,14 @@ export type ManPowerSelectScalar = {
   PicturePath?: boolean
   Name?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Status?: boolean
   Line?: boolean
 }
 
-export type ManPowerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Uid" | "Nik" | "PicturePath" | "Name" | "CreatedAt" | "Status" | "Line", ExtArgs["result"]["manPower"]>
+export type ManPowerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Uid" | "Nik" | "PicturePath" | "Name" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Status" | "Line", ExtArgs["result"]["manPower"]>
 export type ManPowerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   AssemblySessions?: boolean | Prisma.ManPower$AssemblySessionsArgs<ExtArgs>
   ProductionReport?: boolean | Prisma.ManPower$ProductionReportArgs<ExtArgs>
@@ -725,6 +839,9 @@ export type $ManPowerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     PicturePath: string | null
     Name: string
     CreatedAt: Date
+    CreatedBy: string
+    UpdatedAt: Date
+    UpdatedBy: string
     Status: boolean
     Line: string | null
   }, ExtArgs["result"]["manPower"]>
@@ -1158,6 +1275,9 @@ export interface ManPowerFieldRefs {
   readonly PicturePath: Prisma.FieldRef<"ManPower", 'String'>
   readonly Name: Prisma.FieldRef<"ManPower", 'String'>
   readonly CreatedAt: Prisma.FieldRef<"ManPower", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"ManPower", 'String'>
+  readonly UpdatedAt: Prisma.FieldRef<"ManPower", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"ManPower", 'String'>
   readonly Status: Prisma.FieldRef<"ManPower", 'Boolean'>
   readonly Line: Prisma.FieldRef<"ManPower", 'String'>
 }

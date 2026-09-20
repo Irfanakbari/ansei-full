@@ -132,8 +132,9 @@ export default function FinishGoodModal({open, data, onClose, onChanged}: Props)
                 label="Alias">{data.Alias || "-"}</Descriptions.Item><Descriptions.Item
                 label="Price">{data.Price == null ? "-" : `Rp ${data.Price.toLocaleString("id-ID")}`}</Descriptions.Item><Descriptions.Item
                 label="Qty">{data.Qty}</Descriptions.Item><Descriptions.Item
-                label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item><Descriptions.Item
                 label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item><Descriptions.Item
-                label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item></Descriptions>}
+                label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item><Descriptions.Item
+                label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item><Descriptions.Item
+                label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item></Descriptions>}
     </Modal>;
 }

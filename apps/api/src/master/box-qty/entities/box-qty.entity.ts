@@ -21,6 +21,13 @@ export class BoxQTYEntity {
   @ApiProperty({ description: 'Qty per box', example: 50 })
   Qty: number;
 
+  @ApiProperty() CreatedAt: Date;
+  @ApiProperty() CreatedBy: string;
+  @ApiProperty() UpdatedAt: Date;
+  @ApiProperty() UpdatedBy: string;
+  @ApiProperty({ required: false }) CreatedByName?: string;
+  @ApiProperty({ required: false }) UpdatedByName?: string;
+
   @ApiProperty({ description: 'Data part terkait', type: PartDataEntity })
   PartData: PartDataEntity;
 }

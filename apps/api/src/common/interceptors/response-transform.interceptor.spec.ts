@@ -74,7 +74,12 @@ describe('ResponseTransformInterceptor', () => {
 
     const enrichingInterceptor = new ResponseTransformInterceptor(mockPrisma);
     const rawData = [
-      { id: 1, CreatedBy: 'admin', ReceivedBy: 'user1' },
+      {
+        id: 1,
+        CreatedBy: 'admin',
+        LastEditedBy: 'user1',
+        ReceivedBy: 'user1',
+      },
       { id: 2, createdBy: 'admin', updatedBy: 'user1' },
       {
         id: 3,
@@ -96,6 +101,9 @@ describe('ResponseTransformInterceptor', () => {
         id: 1,
         CreatedBy: 'admin',
         CreatedByName: 'Administrator',
+        LastEditedBy: 'user1',
+        UpdatedBy: 'user1',
+        UpdatedByName: 'User One',
         ReceivedBy: 'user1',
         ReceivedByName: 'User One',
       },

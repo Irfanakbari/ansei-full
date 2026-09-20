@@ -177,6 +177,7 @@ describe('Material Delivery Note E2E', () => {
           PartName: 'Pick Test Material',
           QtyRack: 100,
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 

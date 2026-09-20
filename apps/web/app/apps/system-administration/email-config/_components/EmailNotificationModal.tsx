@@ -11,6 +11,7 @@ import {
     NotificationType,
     updateEmailNotification
 } from "@/store/features/settings/emailNotificationSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 
 type FormValues = {
     name: string;
@@ -153,8 +154,12 @@ export default function EmailNotificationModal({visible, data, onClose, onUpdate
                     <Descriptions.Item label="Recipient Name">{data.Name}</Descriptions.Item>
                     <Descriptions.Item label="Email">{data.Email}</Descriptions.Item>
                     <Descriptions.Item label="Notification Type"><Tag>{data.Type}</Tag></Descriptions.Item>
+                    <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
                     <Descriptions.Item
                         label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
+                    <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>

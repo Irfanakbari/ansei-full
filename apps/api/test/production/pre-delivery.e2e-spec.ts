@@ -91,6 +91,7 @@ describe('Production Pre-Delivery E2E', () => {
           PartNumber: 'FG-PRE-001',
           PartName: 'Pre-Delivery Test FG',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 

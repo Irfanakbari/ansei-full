@@ -80,6 +80,7 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<
       ChangeBy: 'ChangeByName',
       CreatedBy: 'CreatedByName',
       UpdatedBy: 'UpdatedByName',
+      LastEditedBy: 'UpdatedByName',
       UpdateBy: 'UpdateByName',
       createdBy: 'createdByName',
       updatedBy: 'updatedByName',
@@ -95,6 +96,12 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<
     const userIds = new Set<string>();
 
     this.visitRecords(payload, (record) => {
+      if (
+        typeof record.LastEditedBy === 'string' &&
+        typeof record.UpdatedBy !== 'string'
+      ) {
+        record.UpdatedBy = record.LastEditedBy;
+      }
       for (const sourceField of Object.keys(auditFields) as Array<
         keyof typeof auditFields
       >) {

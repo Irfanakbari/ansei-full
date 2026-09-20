@@ -37,16 +37,28 @@ export type SatuanSumAggregateOutputType = {
 export type SatuanMinAggregateOutputType = {
   Id: number | null
   Name: string | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type SatuanMaxAggregateOutputType = {
   Id: number | null
   Name: string | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type SatuanCountAggregateOutputType = {
   Id: number
   Name: number
+  CreatedAt: number
+  CreatedBy: number
+  UpdatedAt: number
+  UpdatedBy: number
   _all: number
 }
 
@@ -62,16 +74,28 @@ export type SatuanSumAggregateInputType = {
 export type SatuanMinAggregateInputType = {
   Id?: true
   Name?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type SatuanMaxAggregateInputType = {
   Id?: true
   Name?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type SatuanCountAggregateInputType = {
   Id?: true
   Name?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   _all?: true
 }
 
@@ -164,6 +188,10 @@ export type SatuanGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type SatuanGroupByOutputType = {
   Id: number
   Name: string
+  CreatedAt: Date
+  CreatedBy: string
+  UpdatedAt: Date
+  UpdatedBy: string
   _count: SatuanCountAggregateOutputType | null
   _avg: SatuanAvgAggregateOutputType | null
   _sum: SatuanSumAggregateOutputType | null
@@ -192,12 +220,20 @@ export type SatuanWhereInput = {
   NOT?: Prisma.SatuanWhereInput | Prisma.SatuanWhereInput[]
   Id?: Prisma.IntFilter<"Satuan"> | number
   Name?: Prisma.StringFilter<"Satuan"> | string
+  CreatedAt?: Prisma.DateTimeFilter<"Satuan"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"Satuan"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"Satuan"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"Satuan"> | string
   Material?: Prisma.MaterialListRelationFilter
 }
 
 export type SatuanOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Material?: Prisma.MaterialOrderByRelationAggregateInput
 }
 
@@ -207,12 +243,20 @@ export type SatuanWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SatuanWhereInput[]
   NOT?: Prisma.SatuanWhereInput | Prisma.SatuanWhereInput[]
   Name?: Prisma.StringFilter<"Satuan"> | string
+  CreatedAt?: Prisma.DateTimeFilter<"Satuan"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"Satuan"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"Satuan"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"Satuan"> | string
   Material?: Prisma.MaterialListRelationFilter
 }, "Id">
 
 export type SatuanOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   _count?: Prisma.SatuanCountOrderByAggregateInput
   _avg?: Prisma.SatuanAvgOrderByAggregateInput
   _max?: Prisma.SatuanMaxOrderByAggregateInput
@@ -226,47 +270,83 @@ export type SatuanScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SatuanScalarWhereWithAggregatesInput | Prisma.SatuanScalarWhereWithAggregatesInput[]
   Id?: Prisma.IntWithAggregatesFilter<"Satuan"> | number
   Name?: Prisma.StringWithAggregatesFilter<"Satuan"> | string
+  CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"Satuan"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"Satuan"> | string
+  UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"Satuan"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"Satuan"> | string
 }
 
 export type SatuanCreateInput = {
   Name: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Material?: Prisma.MaterialCreateNestedManyWithoutSatuanDataInput
 }
 
 export type SatuanUncheckedCreateInput = {
   Id?: number
   Name: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Material?: Prisma.MaterialUncheckedCreateNestedManyWithoutSatuanDataInput
 }
 
 export type SatuanUpdateInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Material?: Prisma.MaterialUpdateManyWithoutSatuanDataNestedInput
 }
 
 export type SatuanUncheckedUpdateInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Material?: Prisma.MaterialUncheckedUpdateManyWithoutSatuanDataNestedInput
 }
 
 export type SatuanCreateManyInput = {
   Id?: number
   Name: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type SatuanUpdateManyMutationInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SatuanUncheckedUpdateManyInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SatuanCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type SatuanAvgOrderByAggregateInput = {
@@ -276,11 +356,19 @@ export type SatuanAvgOrderByAggregateInput = {
 export type SatuanMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type SatuanMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type SatuanSumOrderByAggregateInput = {
@@ -294,6 +382,10 @@ export type SatuanNullableScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type DateTimeFieldUpdateOperationsInput = {
+  set?: Date | string
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -322,11 +414,19 @@ export type SatuanUpdateOneWithoutMaterialNestedInput = {
 
 export type SatuanCreateWithoutMaterialInput = {
   Name: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type SatuanUncheckedCreateWithoutMaterialInput = {
   Id?: number
   Name: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type SatuanCreateOrConnectWithoutMaterialInput = {
@@ -347,11 +447,19 @@ export type SatuanUpdateToOneWithWhereWithoutMaterialInput = {
 
 export type SatuanUpdateWithoutMaterialInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SatuanUncheckedUpdateWithoutMaterialInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -388,6 +496,10 @@ export type SatuanCountOutputTypeCountMaterialArgs<ExtArgs extends runtime.Types
 export type SatuanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
   Name?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Material?: boolean | Prisma.Satuan$MaterialArgs<ExtArgs>
   _count?: boolean | Prisma.SatuanCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["satuan"]>
@@ -395,19 +507,31 @@ export type SatuanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type SatuanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
   Name?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["satuan"]>
 
 export type SatuanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
   Name?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["satuan"]>
 
 export type SatuanSelectScalar = {
   Id?: boolean
   Name?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }
 
-export type SatuanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Name", ExtArgs["result"]["satuan"]>
+export type SatuanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Name" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy", ExtArgs["result"]["satuan"]>
 export type SatuanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Material?: boolean | Prisma.Satuan$MaterialArgs<ExtArgs>
   _count?: boolean | Prisma.SatuanCountOutputTypeDefaultArgs<ExtArgs>
@@ -423,6 +547,10 @@ export type $SatuanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: number
     Name: string
+    CreatedAt: Date
+    CreatedBy: string
+    UpdatedAt: Date
+    UpdatedBy: string
   }, ExtArgs["result"]["satuan"]>
   composites: {}
 }
@@ -849,6 +977,10 @@ export interface Prisma__SatuanClient<T, Null = never, ExtArgs extends runtime.T
 export interface SatuanFieldRefs {
   readonly Id: Prisma.FieldRef<"Satuan", 'Int'>
   readonly Name: Prisma.FieldRef<"Satuan", 'String'>
+  readonly CreatedAt: Prisma.FieldRef<"Satuan", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"Satuan", 'String'>
+  readonly UpdatedAt: Prisma.FieldRef<"Satuan", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"Satuan", 'String'>
 }
     
 

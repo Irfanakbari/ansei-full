@@ -1,6 +1,14 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-06-16*/
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {
+    del,
+    get,
+    getApiErrorMessage,
+    patch,
+    post,
+    type ApiSuccessEnvelope,
+    type PaginatedApiSuccessEnvelope
+} from '../../utils/apiService';
 
 export interface PartData {
     PartNumber: string;
@@ -12,6 +20,12 @@ export interface BoxQTYEntity {
     PartNumber: string;
     Qty: number;
     PartData: PartData;
+    CreatedAt: string;
+    CreatedBy: string;
+    CreatedByName?: string | null;
+    UpdatedAt: string;
+    UpdatedBy: string | null;
+    UpdatedByName?: string | null;
 }
 
 interface BoxQTYState {
@@ -21,21 +35,34 @@ interface BoxQTYState {
     query: BoxQTYQuery;
     pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
-export interface BoxQTYQuery { page?: number; limit?: number; search?: string }
+
+export interface BoxQTYQuery {
+    page?: number;
+    limit?: number;
+    search?: string
+}
 
 const initialState: BoxQTYState = {
     data: [],
     loading: false,
     error: null,
-    query: { page: 1, limit: 50 },
-    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
+    query: {page: 1, limit: 50},
+    pagination: {page: 1, limit: 50, totalItems: 0, totalPages: 0},
 };
 
-export const fetchBoxQTY = createAsyncThunk<PaginatedApiSuccessEnvelope<BoxQTYEntity>, BoxQTYQuery | undefined, { rejectValue: string }>(
+export const fetchBoxQTY = createAsyncThunk<PaginatedApiSuccessEnvelope<BoxQTYEntity>, BoxQTYQuery | undefined, {
+    rejectValue: string
+}>(
     'boxQTY/fetchAll',
-    async (query = {}, { rejectWithValue }) => {
+    async (query = {}, {rejectWithValue}) => {
         try {
-            return await get<PaginatedApiSuccessEnvelope<BoxQTYEntity>>('/master/box-qty', { params: { page: query.page, limit: query.limit, search: query.search } });
+            return await get<PaginatedApiSuccessEnvelope<BoxQTYEntity>>('/master/box-qty', {
+                params: {
+                    page: query.page,
+                    limit: query.limit,
+                    search: query.search
+                }
+            });
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch box QTY data'));
         }
@@ -47,7 +74,7 @@ export const createBoxQTY = createAsyncThunk(
     async (boxQTYData: {
         partNumber: string;
         qty: number;
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<BoxQTYEntity>, typeof boxQTYData>('/master/box-qty', boxQTYData);
         } catch (error: unknown) {
@@ -58,13 +85,13 @@ export const createBoxQTY = createAsyncThunk(
 
 export const updateBoxQTY = createAsyncThunk(
     'boxQTY/update',
-    async ({ id, data: updateData }: {
+    async ({id, data: updateData}: {
         id: number;
         data: {
             partNumber?: string;
             qty?: number;
         }
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await patch<ApiSuccessEnvelope<BoxQTYEntity>, typeof updateData>(`/master/box-qty/${id}`, updateData);
         } catch (error: unknown) {
@@ -75,7 +102,7 @@ export const updateBoxQTY = createAsyncThunk(
 
 export const deleteBoxQTY = createAsyncThunk(
     'boxQTY/delete',
-    async (id: number, { rejectWithValue }) => {
+    async (id: number, {rejectWithValue}) => {
         try {
             await del<ApiSuccessEnvelope<unknown>>(`/master/box-qty/${id}`);
             return id;
@@ -88,10 +115,17 @@ export const deleteBoxQTY = createAsyncThunk(
 const boxQTYSlice = createSlice({
     name: 'boxQTY',
     initialState,
-    reducers: { setBoxQTYQuery: (state, action: { payload: BoxQTYQuery }) => { state.query = { ...state.query, ...action.payload }; } },
+    reducers: {
+        setBoxQTYQuery: (state, action: { payload: BoxQTYQuery }) => {
+            state.query = {...state.query, ...action.payload};
+        }
+    },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchBoxQTY.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(fetchBoxQTY.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchBoxQTY.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
@@ -104,5 +138,5 @@ const boxQTYSlice = createSlice({
     },
 });
 
-export const { setBoxQTYQuery } = boxQTYSlice.actions;
+export const {setBoxQTYQuery} = boxQTYSlice.actions;
 export default boxQTYSlice.reducer;

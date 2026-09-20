@@ -29,6 +29,7 @@ databaseSuite('Phase 2 PostgreSQL command and audit invariants', () => {
         PartNumber: part,
         PartName: 'Fixture only',
         CreatedBy: 'fixture',
+        UpdatedBy: 'fixture',
         QtyWarehouse: qty,
       },
     });
@@ -182,6 +183,7 @@ databaseSuite('Phase 2 PostgreSQL command and audit invariants', () => {
         PartNumber: `P2-${randomUUID()}`,
         PartName: 'Fixture',
         CreatedBy: 'fixture',
+        UpdatedBy: 'fixture',
       },
     });
     const component = await db.material.findUniqueOrThrow({
@@ -307,7 +309,11 @@ databaseSuite('Phase 2 PostgreSQL command and audit invariants', () => {
       where: { PartNumber: part },
     });
     const supplier = await db.supplier.create({
-      data: { Name: 'Fixture supplier' },
+      data: {
+        Name: 'Fixture supplier',
+        CreatedBy: 'TEST',
+        UpdatedBy: 'TEST',
+      },
     });
     const incoming = await db.incoming.create({
       data: {
@@ -360,10 +366,16 @@ databaseSuite('Phase 2 PostgreSQL command and audit invariants', () => {
         PartNumber: `P2-${suffix}`,
         PartName: 'Fixture',
         CreatedBy: 'fixture',
+        UpdatedBy: 'fixture',
       },
     });
     const operator = await db.manPower.create({
-      data: { Nik: `TEST-${suffix}`, Name: 'Fixture operator' },
+      data: {
+        Nik: `TEST-${suffix}`,
+        Name: 'Fixture operator',
+        CreatedBy: 'TEST',
+        UpdatedBy: 'TEST',
+      },
     });
     const release = await db.productionRelease.create({
       data: {

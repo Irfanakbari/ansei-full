@@ -56,10 +56,23 @@ export default function SupplierPage() {
             </Space>
         },
         {
-            title: "Created At",
+            title: "Created Date",
             dataIndex: "CreatedAt",
             key: "CreatedAt",
             render: (value: string) => formatDateTime(value)
+        },
+        {
+            title: "Created By",
+            dataIndex: "CreatedBy",
+            key: "CreatedBy",
+            render: (_, record) => record.CreatedByName || record.CreatedBy || "-"
+        },
+        {title: "Updated Date", dataIndex: "UpdatedAt", key: "UpdatedAt", render: formatDateTime},
+        {
+            title: "Updated By",
+            dataIndex: "UpdatedBy",
+            key: "UpdatedBy",
+            render: (_, record) => record.UpdatedByName || record.UpdatedBy || "-"
         },
     ];
 

@@ -1,11 +1,11 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-16 */
 'use client';
 
-import { useDispatch as useCommandDispatch } from 'react-redux';
-import type { AppDispatch as CommandDispatch } from '@/store';
-import { createProductionReport } from '@/store/features/production/productionReport/productionReportSlice';
-import { useVuteqSso } from '@vuteq/sso-client-react/react';
-import React, { useState, useEffect, useCallback } from 'react';
+import {useDispatch as useCommandDispatch} from 'react-redux';
+import type {AppDispatch as CommandDispatch} from '@/store';
+import {createProductionReport} from '@/store/features/production/productionReport/productionReportSlice';
+import {useVuteqSso} from '@vuteq/sso-client-react/react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
     Modal,
     Form,
@@ -22,7 +22,7 @@ import {
     Collapse,
     Empty,
 } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type {ColumnsType} from 'antd/es/table';
 import {
     FormOutlined,
     HistoryOutlined,
@@ -75,13 +75,14 @@ interface Props {
     manPowerName?: string | null;
     finishGoodName?: string | null;
     initialTab?: 'form' | 'history';
+    getContainer: () => HTMLElement;
 }
 
 const PART_TYPE_OPTIONS = [
-    { value: 'ONE', label: 'ONE' },
-    { value: 'TWO', label: 'TWO' },
-    { value: 'THREE', label: 'THREE' },
-    { value: 'FOUR', label: 'FOUR' },
+    {value: 'ONE', label: 'ONE'},
+    {value: 'TWO', label: 'TWO'},
+    {value: 'THREE', label: 'THREE'},
+    {value: 'FOUR', label: 'FOUR'},
 ];
 
 const RECORD_TYPE_COLORS: Record<string, string> = {
@@ -92,16 +93,17 @@ const RECORD_TYPE_COLORS: Record<string, string> = {
 };
 
 export default function OperatorReportModal({
-    open,
-    onClose,
-    activeNik,
-    activePartNumber,
-    manPowerName,
-    finishGoodName,
-    initialTab = 'form',
-}: Props) {
-    const { message } = App.useApp();
-    const { session, loading: sessionLoading } = useVuteqSso();
+                                                open,
+                                                onClose,
+                                                activeNik,
+                                                activePartNumber,
+                                                manPowerName,
+                                                finishGoodName,
+                                                initialTab = 'form',
+                                                getContainer,
+                                            }: Props) {
+    const {message} = App.useApp();
+    const {session, loading: sessionLoading} = useVuteqSso();
     const canCreateReport = !!session && (
         session.globalRoles.includes('SUPER_ADMINISTRATOR') ||
         session.roles.includes('SUPER') || session.permissions.includes('SUPER') ||
@@ -138,7 +140,7 @@ export default function OperatorReportModal({
         try {
             const res = await fetch(
                 `/api/display/active-forecasts?finishGoodId=${encodeURIComponent(activePartNumber)}`,
-                { cache: 'no-store' },
+                {cache: 'no-store'},
             );
             if (res.ok) {
                 const data = await res.json();
@@ -159,14 +161,14 @@ export default function OperatorReportModal({
         setLoadingHistory(true);
         try {
             const dateStr = historyDate ? historyDate.format('YYYY-MM-DD') : '';
-            const queryParams = new URLSearchParams({ nik: activeNik, limit: '50' });
+            const queryParams = new URLSearchParams({nik: activeNik, limit: '50'});
             if (dateStr) {
                 queryParams.set('date', dateStr);
             }
 
             const res = await fetch(
                 `/api/display/production-report?${queryParams.toString()}`,
-                { cache: 'no-store' },
+                {cache: 'no-store'},
             );
             if (res.ok) {
                 const json = await res.json();
@@ -347,6 +349,7 @@ export default function OperatorReportModal({
             destroyOnHidden
             width={880}
             zIndex={1050}
+            getContainer={getContainer}
             styles={{
                 body: {
                     maxHeight: 'calc(85vh - 120px)',
@@ -357,7 +360,7 @@ export default function OperatorReportModal({
             }}
             title={
                 <div className="flex items-center gap-2 text-slate-800 font-bold text-base sm:text-lg">
-                    <FormOutlined className="text-blue-600" />
+                    <FormOutlined className="text-blue-600"/>
                     <span>Input & Riwayat Laporan Produksi Operator</span>
                 </div>
             }
@@ -365,7 +368,7 @@ export default function OperatorReportModal({
                 activeTab === 'form' ? (
                     <div className="flex justify-between items-center w-full">
                         <Button
-                            icon={<HistoryOutlined />}
+                            icon={<HistoryOutlined/>}
                             onClick={() => setActiveTab('history')}
                         >
                             Lihat Riwayat Saya
@@ -374,7 +377,7 @@ export default function OperatorReportModal({
                             <Button onClick={onClose}>Batal</Button>
                             <Button
                                 type="primary"
-                                icon={<CheckCircleOutlined />}
+                                icon={<CheckCircleOutlined/>}
                                 loading={submitting}
                                 disabled={sessionLoading || (!!session && !canCreateReport)}
                                 href={!session && !sessionLoading ? '/auth/login' : undefined}
@@ -388,7 +391,7 @@ export default function OperatorReportModal({
                 ) : (
                     <div className="flex justify-between items-center w-full">
                         <Button
-                            icon={<FormOutlined />}
+                            icon={<FormOutlined/>}
                             type="primary"
                             onClick={() => setActiveTab('form')}
                         >
@@ -400,10 +403,12 @@ export default function OperatorReportModal({
             }
         >
             {/* Operator & Part Info Card (Sleek Compact Single Row) */}
-            <div className="mb-3 rounded-xl bg-gradient-to-r from-slate-50 via-slate-50 to-blue-50/40 border border-slate-200/80 px-3.5 py-2 flex flex-wrap items-center justify-between gap-2.5">
+            <div
+                className="mb-3 rounded-xl bg-gradient-to-r from-slate-50 via-slate-50 to-blue-50/40 border border-slate-200/80 px-3.5 py-2 flex flex-wrap items-center justify-between gap-2.5">
                 <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="h-8 w-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                        <UserOutlined className="text-base" />
+                    <div
+                        className="h-8 w-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                        <UserOutlined className="text-base"/>
                     </div>
                     <div className="flex flex-col min-w-0">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -415,11 +420,12 @@ export default function OperatorReportModal({
                     </div>
                 </div>
 
-                <div className="hidden sm:block h-6 w-px bg-slate-200" />
+                <div className="hidden sm:block h-6 w-px bg-slate-200"/>
 
                 <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                        <AppstoreOutlined className="text-base" />
+                    <div
+                        className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                        <AppstoreOutlined className="text-base"/>
                     </div>
                     <div className="flex flex-col min-w-0">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -440,7 +446,7 @@ export default function OperatorReportModal({
                         key: 'form',
                         label: (
                             <span className="flex items-center gap-1.5 font-semibold text-xs sm:text-sm">
-                                <FormOutlined /> Input Laporan
+                                <FormOutlined/> Input Laporan
                             </span>
                         ),
                         children: (
@@ -449,14 +455,14 @@ export default function OperatorReportModal({
                                 <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-3 mb-3">
                                     <div className="flex items-center justify-between mb-1.5">
                                         <div className="flex items-center gap-2">
-                                            <BarcodeOutlined className="text-blue-600 text-base" />
+                                            <BarcodeOutlined className="text-blue-600 text-base"/>
                                             <span className="font-bold text-slate-800 text-xs sm:text-sm">
                                                 Pilih Forecast / PO ID Produksi
                                             </span>
                                         </div>
                                         <Button
                                             size="small"
-                                            icon={<ReloadOutlined />}
+                                            icon={<ReloadOutlined/>}
                                             onClick={() => void fetchActiveForecasts()}
                                             loading={loadingForecasts}
                                         >
@@ -464,19 +470,20 @@ export default function OperatorReportModal({
                                         </Button>
                                     </div>
                                     <p className="text-[11px] text-slate-500 mb-2">
-                                        Hanya Forecast yang sudah berstatus <strong>SUKSES scan Pokayoke</strong> dan jadwal Production Release-nya <strong>belum closed (RELEASED)</strong> yang dapat dipilih.
+                                        Hanya Forecast yang sudah berstatus <strong>SUKSES scan Pokayoke</strong> dan
+                                        jadwal Production Release-nya <strong>belum closed (RELEASED)</strong> yang
+                                        dapat dipilih.
                                     </p>
 
                                     <Form.Item
                                         name="forecastId"
-                                        rules={[{ required: true, message: 'Harap pilih atau masukkan PO ID' }]}
+                                        rules={[{required: true, message: 'Harap pilih atau masukkan PO ID'}]}
                                         className="!mb-0"
                                     >
                                         <Select
-                                            showSearch
+                                            showSearch={{optionFilterProp: 'label'}}
                                             placeholder="Pilih PO ID yang sudah lulus Pokayoke & status RELEASED..."
                                             loading={loadingForecasts}
-                                            optionFilterProp="label"
                                             onChange={(val) => {
                                                 const match = forecasts.find((f) => f.poId === val);
                                                 setSelectedForecast(match || null);
@@ -489,7 +496,8 @@ export default function OperatorReportModal({
                                             notFoundContent={
                                                 loadingForecasts ? undefined : (
                                                     <div className="py-2 text-center text-xs text-slate-400">
-                                                        Tidak ada Forecast aktif untuk part ini yang sudah selesai Pokayoke.
+                                                        Tidak ada Forecast aktif untuk part ini yang sudah selesai
+                                                        Pokayoke.
                                                     </div>
                                                 )
                                             }
@@ -497,10 +505,12 @@ export default function OperatorReportModal({
                                     </Form.Item>
 
                                     {selectedForecast && (
-                                        <div className="mt-2 bg-white rounded-lg px-2.5 py-1.5 border border-blue-200 flex flex-wrap items-center justify-between text-xs gap-1.5">
+                                        <div
+                                            className="mt-2 bg-white rounded-lg px-2.5 py-1.5 border border-blue-200 flex flex-wrap items-center justify-between text-xs gap-1.5">
                                             <div>
                                                 <span className="text-slate-500">Release: </span>
-                                                <strong className="text-blue-700">{selectedForecast.releaseNumber}</strong>
+                                                <strong
+                                                    className="text-blue-700">{selectedForecast.releaseNumber}</strong>
                                                 <span className="mx-2 text-slate-300">|</span>
                                                 <span className="text-slate-500">Target PO: </span>
                                                 <strong className="text-slate-800">{selectedForecast.qty} pcs</strong>
@@ -515,24 +525,26 @@ export default function OperatorReportModal({
                                     <Form.Item
                                         name="date"
                                         label={<span className="text-xs font-semibold text-slate-700">Tanggal</span>}
-                                        rules={[{ required: true, message: 'Harap pilih tanggal' }]}
+                                        rules={[{required: true, message: 'Harap pilih tanggal'}]}
                                         className="!mb-2.5"
                                     >
-                                        <DatePicker className="w-full" format="YYYY-MM-DD" />
+                                        <DatePicker className="w-full" format="YYYY-MM-DD"/>
                                     </Form.Item>
 
                                     <Form.Item
                                         name="time"
-                                        label={<span className="text-xs font-semibold text-slate-700">Waktu (HH:mm:ss)</span>}
+                                        label={<span
+                                            className="text-xs font-semibold text-slate-700">Waktu (HH:mm:ss)</span>}
                                         className="!mb-2.5"
                                     >
-                                        <Input placeholder="HH:mm:ss" />
+                                        <Input placeholder="HH:mm:ss"/>
                                     </Form.Item>
 
                                     <Form.Item
                                         name="qty"
-                                        label={<span className="text-xs font-semibold text-emerald-700">Good Qty (Bagus)</span>}
-                                        rules={[{ required: true, message: 'Wajib diisi' }]}
+                                        label={<span
+                                            className="text-xs font-semibold text-emerald-700">Good Qty (Bagus)</span>}
+                                        rules={[{required: true, message: 'Wajib diisi'}]}
                                         className="!mb-2.5"
                                     >
                                         <InputNumber
@@ -544,7 +556,8 @@ export default function OperatorReportModal({
 
                                     <Form.Item
                                         name="ngQty"
-                                        label={<span className="text-xs font-semibold text-red-600">NG Qty (Rusak)</span>}
+                                        label={<span
+                                            className="text-xs font-semibold text-red-600">NG Qty (Rusak)</span>}
                                         className="!mb-2.5"
                                     >
                                         <InputNumber
@@ -560,10 +573,10 @@ export default function OperatorReportModal({
                                     <Form.Item
                                         name="recordType"
                                         label={<span className="text-xs font-semibold text-slate-700">Part Type</span>}
-                                        rules={[{ required: true, message: 'Pilih part type' }]}
+                                        rules={[{required: true, message: 'Pilih part type'}]}
                                         className="!mb-2"
                                     >
-                                        <Select options={PART_TYPE_OPTIONS} />
+                                        <Select options={PART_TYPE_OPTIONS}/>
                                     </Form.Item>
 
                                     <Form.Item
@@ -571,23 +584,25 @@ export default function OperatorReportModal({
                                         label={<span className="text-xs font-semibold text-slate-600">Jam Mulai</span>}
                                         className="!mb-2"
                                     >
-                                        <Input type="time" className="w-full" />
+                                        <Input type="time" className="w-full"/>
                                     </Form.Item>
 
                                     <Form.Item
                                         name="endTime"
-                                        label={<span className="text-xs font-semibold text-slate-600">Jam Selesai</span>}
+                                        label={<span
+                                            className="text-xs font-semibold text-slate-600">Jam Selesai</span>}
                                         className="!mb-2"
                                     >
-                                        <Input type="time" className="w-full" />
+                                        <Input type="time" className="w-full"/>
                                     </Form.Item>
 
                                     <Form.Item
                                         name="stopMinute"
-                                        label={<span className="text-xs font-semibold text-slate-600">Stop (Menit)</span>}
+                                        label={<span
+                                            className="text-xs font-semibold text-slate-600">Stop (Menit)</span>}
                                         className="!mb-2"
                                     >
-                                        <InputNumber min={0} className="w-full" placeholder="0" />
+                                        <InputNumber min={0} className="w-full" placeholder="0"/>
                                     </Form.Item>
                                 </div>
 
@@ -599,51 +614,92 @@ export default function OperatorReportModal({
                                         {
                                             key: 'traceability',
                                             label: (
-                                                <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                                                    <ClockCircleOutlined className="text-blue-500" />
+                                                <span
+                                                    className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                                                    <ClockCircleOutlined className="text-blue-500"/>
                                                     Tanggal Komponen Traceability (Opsional)
                                                 </span>
                                             ),
                                             children: (
-                                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-1">
-                                                    <Form.Item name="latchDate" label={<span className="text-[11px] text-slate-600">Latch</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                <div
+                                                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-1">
+                                                    <Form.Item name="latchDate" label={<span
+                                                        className="text-[11px] text-slate-600">Latch</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="cableHDate" label={<span className="text-[11px] text-slate-600">Cable H</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="cableHDate"
+                                                               label={<span className="text-[11px] text-slate-600">Cable H</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="cableLDate" label={<span className="text-[11px] text-slate-600">Cable L</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="cableLDate"
+                                                               label={<span className="text-[11px] text-slate-600">Cable L</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="coverDate" label={<span className="text-[11px] text-slate-600">Cover</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="coverDate" label={<span
+                                                        className="text-[11px] text-slate-600">Cover</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="rodDate" label={<span className="text-[11px] text-slate-600">Rod</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="rodDate" label={<span
+                                                        className="text-[11px] text-slate-600">Rod</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="sponsDate" label={<span className="text-[11px] text-slate-600">Spons</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="sponsDate" label={<span
+                                                        className="text-[11px] text-slate-600">Spons</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="sponsRearDate" label={<span className="text-[11px] text-slate-600">Spons Rear</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="sponsRearDate"
+                                                               label={<span className="text-[11px] text-slate-600">Spons Rear</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="clipDate" label={<span className="text-[11px] text-slate-600">Clip</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="clipDate" label={<span
+                                                        className="text-[11px] text-slate-600">Clip</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="leverDate" label={<span className="text-[11px] text-slate-600">Lever</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="leverDate" label={<span
+                                                        className="text-[11px] text-slate-600">Lever</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="smallPadDate" label={<span className="text-[11px] text-slate-600">Small Pad</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="smallPadDate"
+                                                               label={<span className="text-[11px] text-slate-600">Small Pad</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="actuatorDate" label={<span className="text-[11px] text-slate-600">Actuator</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="actuatorDate" label={<span
+                                                        className="text-[11px] text-slate-600">Actuator</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="backPlateDate" label={<span className="text-[11px] text-slate-600">Back Plate</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="backPlateDate"
+                                                               label={<span className="text-[11px] text-slate-600">Back Plate</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
-                                                    <Form.Item name="stampDate" label={<span className="text-[11px] text-slate-600">Stamp</span>} className="!mb-1">
-                                                        <DatePicker size="small" className="w-full" format="YYYY-MM-DD" />
+                                                    <Form.Item name="stampDate" label={<span
+                                                        className="text-[11px] text-slate-600">Stamp</span>}
+                                                               className="!mb-1">
+                                                        <DatePicker size="small" className="w-full"
+                                                                    format="YYYY-MM-DD"/>
                                                     </Form.Item>
                                                 </div>
                                             ),
@@ -657,12 +713,13 @@ export default function OperatorReportModal({
                         key: 'history',
                         label: (
                             <span className="flex items-center gap-1.5 font-semibold text-xs sm:text-sm">
-                                <HistoryOutlined /> Riwayat Saya
+                                <HistoryOutlined/> Riwayat Saya
                             </span>
                         ),
                         children: (
                             <div className="pt-1 flex flex-col gap-2.5">
-                                <div className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+                                <div
+                                    className="flex flex-wrap items-center justify-between gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
                                     <div className="flex items-center gap-2">
                                         <span className="text-xs font-semibold text-slate-600">Filter Tanggal:</span>
                                         <DatePicker
@@ -675,7 +732,7 @@ export default function OperatorReportModal({
                                     </div>
                                     <Button
                                         size="small"
-                                        icon={<ReloadOutlined />}
+                                        icon={<ReloadOutlined/>}
                                         onClick={() => void fetchHistory()}
                                         loading={loadingHistory}
                                     >
@@ -688,9 +745,9 @@ export default function OperatorReportModal({
                                     dataSource={historyList}
                                     rowKey="id"
                                     loading={loadingHistory}
-                                    pagination={{ pageSize: 5 }}
+                                    pagination={{pageSize: 5}}
                                     size="small"
-                                    scroll={{ x: 600 }}
+                                    scroll={{x: 600}}
                                     locale={{
                                         emptyText: (
                                             <Empty

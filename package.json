@@ -1,6 +1,6 @@
 {
   "name": "ansei-inventory-production-system-2026",
-  "version": "4.12.0",
+  "version": "5.0.0",
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "scripts": {

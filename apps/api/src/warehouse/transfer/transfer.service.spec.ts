@@ -145,6 +145,7 @@ describe('TransferService', () => {
         data: {
           QtyWarehouse: 80, // 100 - 20
           QtyRack: 70, // 50 + 20
+          UpdatedBy: 'admin',
         },
       });
     });

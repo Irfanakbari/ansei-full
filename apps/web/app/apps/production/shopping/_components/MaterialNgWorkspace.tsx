@@ -494,6 +494,7 @@ export default function MaterialNgWorkspace() {
                 onOk={() => void save()}
                 confirmLoading={saving}
                 destroyOnHidden
+                forceRender
             >
                 <Alert
                     type="info"

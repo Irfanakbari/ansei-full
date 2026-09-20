@@ -97,13 +97,20 @@ export default function EmailConfigPage() {
             ],
             onFilter: (value, record) => record.Type === value
         },
+        {title: "Created Date", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
         {
             title: "Created By",
             dataIndex: "CreatedBy",
             key: "CreatedBy",
             render: (_, record) => record.CreatedByName || record.CreatedBy || "-", ...searchColumn("CreatedBy")
         },
-        {title: "Created At", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
+        {title: "Updated Date", dataIndex: "UpdatedAt", key: "UpdatedAt", render: formatDateTime},
+        {
+            title: "Updated By",
+            dataIndex: "UpdatedBy",
+            key: "UpdatedBy",
+            render: (_, record) => record.UpdatedByName || record.UpdatedBy || "-"
+        },
     ];
 
     return (

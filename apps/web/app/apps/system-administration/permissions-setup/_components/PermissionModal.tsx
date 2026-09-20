@@ -6,6 +6,7 @@ import {App, Button, Descriptions, Form, Input, Modal, Space} from "antd";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "@/store";
 import {deletePermission, PermissionData, updatePermission} from "@/store/features/permissions/permissionsSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 
 type FormValues = { Action: string; Description?: string };
 type Props = {
@@ -123,6 +124,10 @@ export default function PermissionModal({visible, data, onClose, onUpdated, onDe
         </Form> : <Descriptions bordered size="small" column={1}>
             <Descriptions.Item label="Action">{data.Action}</Descriptions.Item>
             <Descriptions.Item label="Description">{data.Description || "-"}</Descriptions.Item>
+            <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+            <Descriptions.Item label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
+            <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+            <Descriptions.Item label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
         </Descriptions>}
     </Modal>;
 }

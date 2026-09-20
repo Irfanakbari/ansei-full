@@ -7,6 +7,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "@/store";
 import {deleteUser, updateUser, UserManagementEntity} from "@/store/features/users/usersSlice";
 import {fetchRoles} from "@/store/features/roles/rolesSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 
 type FormValues = {
     Name: string;
@@ -158,6 +159,11 @@ export default function UserModal({visible, data, onClose, onUpdated, onDeleted}
             <Descriptions.Item label="Role">{data.Role?.RoleName || "-"}</Descriptions.Item>
             <Descriptions.Item label="Status"><Tag
                 color={data.IsActive ? "green" : "red"}>{data.IsActive ? "Active" : "Inactive"}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Last Login">{formatDateTime(data.LastLogin)}</Descriptions.Item>
+            <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+            <Descriptions.Item label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
+            <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+            <Descriptions.Item label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
         </Descriptions>}
     </Modal>;
 }

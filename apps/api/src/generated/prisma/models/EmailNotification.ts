@@ -39,6 +39,10 @@ export type EmailNotificationMinAggregateOutputType = {
   Name: string | null
   Email: string | null
   Type: $Enums.NotificationType | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type EmailNotificationMaxAggregateOutputType = {
@@ -46,6 +50,10 @@ export type EmailNotificationMaxAggregateOutputType = {
   Name: string | null
   Email: string | null
   Type: $Enums.NotificationType | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type EmailNotificationCountAggregateOutputType = {
@@ -53,6 +61,10 @@ export type EmailNotificationCountAggregateOutputType = {
   Name: number
   Email: number
   Type: number
+  CreatedAt: number
+  CreatedBy: number
+  UpdatedAt: number
+  UpdatedBy: number
   _all: number
 }
 
@@ -70,6 +82,10 @@ export type EmailNotificationMinAggregateInputType = {
   Name?: true
   Email?: true
   Type?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type EmailNotificationMaxAggregateInputType = {
@@ -77,6 +93,10 @@ export type EmailNotificationMaxAggregateInputType = {
   Name?: true
   Email?: true
   Type?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type EmailNotificationCountAggregateInputType = {
@@ -84,6 +104,10 @@ export type EmailNotificationCountAggregateInputType = {
   Name?: true
   Email?: true
   Type?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   _all?: true
 }
 
@@ -178,6 +202,10 @@ export type EmailNotificationGroupByOutputType = {
   Name: string
   Email: string
   Type: $Enums.NotificationType
+  CreatedAt: Date
+  CreatedBy: string
+  UpdatedAt: Date
+  UpdatedBy: string
   _count: EmailNotificationCountAggregateOutputType | null
   _avg: EmailNotificationAvgAggregateOutputType | null
   _sum: EmailNotificationSumAggregateOutputType | null
@@ -208,6 +236,10 @@ export type EmailNotificationWhereInput = {
   Name?: Prisma.StringFilter<"EmailNotification"> | string
   Email?: Prisma.StringFilter<"EmailNotification"> | string
   Type?: Prisma.EnumNotificationTypeFilter<"EmailNotification"> | $Enums.NotificationType
+  CreatedAt?: Prisma.DateTimeFilter<"EmailNotification"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"EmailNotification"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"EmailNotification"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"EmailNotification"> | string
 }
 
 export type EmailNotificationOrderByWithRelationInput = {
@@ -215,6 +247,10 @@ export type EmailNotificationOrderByWithRelationInput = {
   Name?: Prisma.SortOrder
   Email?: Prisma.SortOrder
   Type?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type EmailNotificationWhereUniqueInput = Prisma.AtLeast<{
@@ -225,6 +261,10 @@ export type EmailNotificationWhereUniqueInput = Prisma.AtLeast<{
   Name?: Prisma.StringFilter<"EmailNotification"> | string
   Email?: Prisma.StringFilter<"EmailNotification"> | string
   Type?: Prisma.EnumNotificationTypeFilter<"EmailNotification"> | $Enums.NotificationType
+  CreatedAt?: Prisma.DateTimeFilter<"EmailNotification"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"EmailNotification"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"EmailNotification"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"EmailNotification"> | string
 }, "Id">
 
 export type EmailNotificationOrderByWithAggregationInput = {
@@ -232,6 +272,10 @@ export type EmailNotificationOrderByWithAggregationInput = {
   Name?: Prisma.SortOrder
   Email?: Prisma.SortOrder
   Type?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   _count?: Prisma.EmailNotificationCountOrderByAggregateInput
   _avg?: Prisma.EmailNotificationAvgOrderByAggregateInput
   _max?: Prisma.EmailNotificationMaxOrderByAggregateInput
@@ -247,12 +291,20 @@ export type EmailNotificationScalarWhereWithAggregatesInput = {
   Name?: Prisma.StringWithAggregatesFilter<"EmailNotification"> | string
   Email?: Prisma.StringWithAggregatesFilter<"EmailNotification"> | string
   Type?: Prisma.EnumNotificationTypeWithAggregatesFilter<"EmailNotification"> | $Enums.NotificationType
+  CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"EmailNotification"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"EmailNotification"> | string
+  UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"EmailNotification"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"EmailNotification"> | string
 }
 
 export type EmailNotificationCreateInput = {
   Name: string
   Email: string
   Type?: $Enums.NotificationType
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type EmailNotificationUncheckedCreateInput = {
@@ -260,12 +312,20 @@ export type EmailNotificationUncheckedCreateInput = {
   Name: string
   Email: string
   Type?: $Enums.NotificationType
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type EmailNotificationUpdateInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   Email?: Prisma.StringFieldUpdateOperationsInput | string
   Type?: Prisma.EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EmailNotificationUncheckedUpdateInput = {
@@ -273,6 +333,10 @@ export type EmailNotificationUncheckedUpdateInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   Email?: Prisma.StringFieldUpdateOperationsInput | string
   Type?: Prisma.EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EmailNotificationCreateManyInput = {
@@ -280,12 +344,20 @@ export type EmailNotificationCreateManyInput = {
   Name: string
   Email: string
   Type?: $Enums.NotificationType
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type EmailNotificationUpdateManyMutationInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   Email?: Prisma.StringFieldUpdateOperationsInput | string
   Type?: Prisma.EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EmailNotificationUncheckedUpdateManyInput = {
@@ -293,6 +365,10 @@ export type EmailNotificationUncheckedUpdateManyInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   Email?: Prisma.StringFieldUpdateOperationsInput | string
   Type?: Prisma.EnumNotificationTypeFieldUpdateOperationsInput | $Enums.NotificationType
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type EmailNotificationCountOrderByAggregateInput = {
@@ -300,6 +376,10 @@ export type EmailNotificationCountOrderByAggregateInput = {
   Name?: Prisma.SortOrder
   Email?: Prisma.SortOrder
   Type?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type EmailNotificationAvgOrderByAggregateInput = {
@@ -311,6 +391,10 @@ export type EmailNotificationMaxOrderByAggregateInput = {
   Name?: Prisma.SortOrder
   Email?: Prisma.SortOrder
   Type?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type EmailNotificationMinOrderByAggregateInput = {
@@ -318,6 +402,10 @@ export type EmailNotificationMinOrderByAggregateInput = {
   Name?: Prisma.SortOrder
   Email?: Prisma.SortOrder
   Type?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type EmailNotificationSumOrderByAggregateInput = {
@@ -335,6 +423,10 @@ export type EmailNotificationSelect<ExtArgs extends runtime.Types.Extensions.Int
   Name?: boolean
   Email?: boolean
   Type?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["emailNotification"]>
 
 export type EmailNotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -342,6 +434,10 @@ export type EmailNotificationSelectCreateManyAndReturn<ExtArgs extends runtime.T
   Name?: boolean
   Email?: boolean
   Type?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["emailNotification"]>
 
 export type EmailNotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -349,6 +445,10 @@ export type EmailNotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   Name?: boolean
   Email?: boolean
   Type?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["emailNotification"]>
 
 export type EmailNotificationSelectScalar = {
@@ -356,9 +456,13 @@ export type EmailNotificationSelectScalar = {
   Name?: boolean
   Email?: boolean
   Type?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }
 
-export type EmailNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Name" | "Email" | "Type", ExtArgs["result"]["emailNotification"]>
+export type EmailNotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Name" | "Email" | "Type" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy", ExtArgs["result"]["emailNotification"]>
 
 export type $EmailNotificationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "EmailNotification"
@@ -368,6 +472,10 @@ export type $EmailNotificationPayload<ExtArgs extends runtime.Types.Extensions.I
     Name: string
     Email: string
     Type: $Enums.NotificationType
+    CreatedAt: Date
+    CreatedBy: string
+    UpdatedAt: Date
+    UpdatedBy: string
   }, ExtArgs["result"]["emailNotification"]>
   composites: {}
 }
@@ -795,6 +903,10 @@ export interface EmailNotificationFieldRefs {
   readonly Name: Prisma.FieldRef<"EmailNotification", 'String'>
   readonly Email: Prisma.FieldRef<"EmailNotification", 'String'>
   readonly Type: Prisma.FieldRef<"EmailNotification", 'NotificationType'>
+  readonly CreatedAt: Prisma.FieldRef<"EmailNotification", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"EmailNotification", 'String'>
+  readonly UpdatedAt: Prisma.FieldRef<"EmailNotification", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"EmailNotification", 'String'>
 }
     
 

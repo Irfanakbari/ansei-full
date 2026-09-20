@@ -134,16 +134,28 @@ export default function MaterialPage() {
             render: (value: number) => value === 0 ? 'Not Set' : value,
         },
         {
-            title: 'Created By',
-            dataIndex: 'CreatedBy',
-            key: 'CreatedBy',
-            render: (_: any, record: any) => record.CreatedByName || record.createdByName || '-'
-        },
-        {
             title: 'Created Date',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
             render: (val: string) => formatDateTime(val)
+        },
+        {
+            title: 'Created By',
+            dataIndex: 'CreatedBy',
+            key: 'CreatedBy',
+            render: (_: string, record: MaterialEntity) => record.CreatedByName || record.CreatedBy || '-'
+        },
+        {
+            title: 'Updated Date',
+            dataIndex: 'UpdatedAt',
+            key: 'UpdatedAt',
+            render: (value: string) => formatDateTime(value)
+        },
+        {
+            title: 'Updated By',
+            dataIndex: 'UpdatedBy',
+            key: 'UpdatedBy',
+            render: (_: string | null, record: MaterialEntity) => record.UpdatedByName || record.UpdatedBy || '-'
         }
     ];
 

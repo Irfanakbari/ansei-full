@@ -6,6 +6,12 @@ export interface PermissionData {
     Id: number;
     Action: string;
     Description: string | null;
+    CreatedAt: string;
+    CreatedBy: string;
+    CreatedByName?: string | null;
+    UpdatedAt: string;
+    UpdatedBy: string | null;
+    UpdatedByName?: string | null;
 }
 
 interface PermissionsState {

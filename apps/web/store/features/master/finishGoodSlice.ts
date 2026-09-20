@@ -1,6 +1,14 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-06-16*/
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {
+    del,
+    get,
+    getApiErrorMessage,
+    patch,
+    post,
+    type ApiSuccessEnvelope,
+    type PaginatedApiSuccessEnvelope
+} from '../../utils/apiService';
 
 export interface FinishGoodEntity {
     Id: number;
@@ -13,6 +21,8 @@ export interface FinishGoodEntity {
     CreatedBy: string;
     CreatedByName?: string;
     UpdatedAt: string;
+    UpdatedBy: string | null;
+    UpdatedByName?: string | null;
     Qty: number;
 }
 
@@ -23,30 +33,45 @@ interface FinishGoodState {
     query: FinishGoodQuery;
     pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
-export interface FinishGoodQuery { page?: number; limit?: number; search?: string }
+
+export interface FinishGoodQuery {
+    page?: number;
+    limit?: number;
+    search?: string
+}
 
 const initialState: FinishGoodState = {
     data: [],
     loading: false,
     error: null,
-    query: { page: 1, limit: 50 },
-    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
+    query: {page: 1, limit: 50},
+    pagination: {page: 1, limit: 50, totalItems: 0, totalPages: 0},
 };
 
-export const fetchFinishGood = createAsyncThunk<PaginatedApiSuccessEnvelope<FinishGoodEntity>, FinishGoodQuery | undefined, { rejectValue: string }>(
+export const fetchFinishGood = createAsyncThunk<PaginatedApiSuccessEnvelope<FinishGoodEntity>, FinishGoodQuery | undefined, {
+    rejectValue: string
+}>(
     'finishGood/fetchAll',
-    async (query = {}, { rejectWithValue }) => {
+    async (query = {}, {rejectWithValue}) => {
         try {
-            return await get<PaginatedApiSuccessEnvelope<FinishGoodEntity>>('/master/finish-good', { params: { page: query.page, limit: query.limit, search: query.search } });
+            return await get<PaginatedApiSuccessEnvelope<FinishGoodEntity>>('/master/finish-good', {
+                params: {
+                    page: query.page,
+                    limit: query.limit,
+                    search: query.search
+                }
+            });
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch finish good data'));
         }
     }
 );
 
-export const fetchFinishGoodByPartNumber = createAsyncThunk<ApiSuccessEnvelope<FinishGoodEntity>, string, { rejectValue: string }>(
+export const fetchFinishGoodByPartNumber = createAsyncThunk<ApiSuccessEnvelope<FinishGoodEntity>, string, {
+    rejectValue: string
+}>(
     'finishGood/fetchByPartNumber',
-    async (partNumber, { rejectWithValue }) => {
+    async (partNumber, {rejectWithValue}) => {
         try {
             return await get<ApiSuccessEnvelope<FinishGoodEntity>>(`/master/finish-good/part-number/${encodeURIComponent(partNumber)}`);
         } catch (error: unknown) {
@@ -64,7 +89,7 @@ export const createFinishGood = createAsyncThunk(
         price?: number;
         isPassthrough?: boolean;
         qty?: number;
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<FinishGoodEntity>, typeof finishGoodData>('/master/finish-good', finishGoodData);
         } catch (error: unknown) {
@@ -75,16 +100,16 @@ export const createFinishGood = createAsyncThunk(
 
 export const updateFinishGood = createAsyncThunk(
     'finishGood/update',
-    async ({ id, data: updateData }: {
+    async ({id, data: updateData}: {
         id: number;
         data: {
             partNumber?: string;
             partName?: string;
             alias?: string;
             price?: number;
-        isPassthrough?: boolean;
+            isPassthrough?: boolean;
         }
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await patch<ApiSuccessEnvelope<FinishGoodEntity>, typeof updateData>(`/master/finish-good/${id}`, updateData);
         } catch (error: unknown) {
@@ -95,7 +120,7 @@ export const updateFinishGood = createAsyncThunk(
 
 export const deleteFinishGood = createAsyncThunk(
     'finishGood/delete',
-    async (id: number, { rejectWithValue }) => {
+    async (id: number, {rejectWithValue}) => {
         try {
             await del<ApiSuccessEnvelope<unknown>>(`/master/finish-good/${id}`);
             return id;
@@ -108,10 +133,17 @@ export const deleteFinishGood = createAsyncThunk(
 const finishGoodSlice = createSlice({
     name: 'finishGood',
     initialState,
-    reducers: { setFinishGoodQuery: (state, action: { payload: FinishGoodQuery }) => { state.query = { ...state.query, ...action.payload }; } },
+    reducers: {
+        setFinishGoodQuery: (state, action: { payload: FinishGoodQuery }) => {
+            state.query = {...state.query, ...action.payload};
+        }
+    },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchFinishGood.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(fetchFinishGood.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchFinishGood.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
@@ -124,5 +156,5 @@ const finishGoodSlice = createSlice({
     },
 });
 
-export const { setFinishGoodQuery } = finishGoodSlice.actions;
+export const {setFinishGoodQuery} = finishGoodSlice.actions;
 export default finishGoodSlice.reducer;

@@ -6,6 +6,7 @@ import {App, Button, Descriptions, Form, Input, Modal, Space} from "antd";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "@/store";
 import {deleteRole, RoleData, updateRole} from "@/store/features/roles/rolesSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 
 type FormValues = {
     RoleName: string;
@@ -136,6 +137,12 @@ export default function RoleModal({visible, data, onClose, onUpdated, onDeleted}
                     <Descriptions.Item label="Description">{data.Description || "-"}</Descriptions.Item>
                     <Descriptions.Item
                         label="Permissions">{data.Permission?.map((permission) => permission.Action).join(", ") || "-"}</Descriptions.Item>
+                    <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
+                    <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>

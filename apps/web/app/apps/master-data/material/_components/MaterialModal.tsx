@@ -163,9 +163,10 @@ export default function MaterialModal({open, data, onClose, onChanged}: Props) {
             label="Qty Warehouse">{data.QtyWarehouse}</Descriptions.Item><Descriptions.Item
             label="Minimum Stock">{data.MinimumStock}</Descriptions.Item><Descriptions.Item
             label="Maximum Stock">{data.MaximumStock === 0 ? "Not Set" : data.MaximumStock}</Descriptions.Item><Descriptions.Item
-            label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item><Descriptions.Item
             label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item><Descriptions.Item
-            label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+            label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item><Descriptions.Item
+            label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item><Descriptions.Item
+            label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
         </Descriptions>}
     </Modal>;
 }

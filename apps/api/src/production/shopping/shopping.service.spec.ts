@@ -485,7 +485,7 @@ describe('ShoppingService', () => {
 
       expect(prismaService.finishGood.update).toHaveBeenCalledWith({
         where: { PartNumber: 'FG-001' },
-        data: { Qty: 6 },
+        data: { Qty: 6, UpdatedBy: 'test' },
       });
       expect(prismaService.inventoryLedger.create).toHaveBeenCalledTimes(2);
       expect(prismaService.inventoryLedger.create).toHaveBeenCalledWith(

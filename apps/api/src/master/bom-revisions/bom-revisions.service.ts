@@ -302,7 +302,7 @@ export class BomRevisionsService {
         data.ApprovedAt = new Date();
         await tx.finishGood.update({
           where: { Id: revision.FinishGoodId },
-          data: { ActiveBomRevisionId: id },
+          data: { ActiveBomRevisionId: id, UpdatedBy: actor },
         });
         // Compatibility read projection. Revision/snapshot tables remain authoritative.
         await tx.billOfMaterials.deleteMany({

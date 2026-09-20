@@ -40,18 +40,30 @@ export type BoxQTYMinAggregateOutputType = {
   Id: number | null
   PartNumber: string | null
   Qty: number | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type BoxQTYMaxAggregateOutputType = {
   Id: number | null
   PartNumber: string | null
   Qty: number | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type BoxQTYCountAggregateOutputType = {
   Id: number
   PartNumber: number
   Qty: number
+  CreatedAt: number
+  CreatedBy: number
+  UpdatedAt: number
+  UpdatedBy: number
   _all: number
 }
 
@@ -70,18 +82,30 @@ export type BoxQTYMinAggregateInputType = {
   Id?: true
   PartNumber?: true
   Qty?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type BoxQTYMaxAggregateInputType = {
   Id?: true
   PartNumber?: true
   Qty?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type BoxQTYCountAggregateInputType = {
   Id?: true
   PartNumber?: true
   Qty?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   _all?: true
 }
 
@@ -175,6 +199,10 @@ export type BoxQTYGroupByOutputType = {
   Id: number
   PartNumber: string
   Qty: number
+  CreatedAt: Date
+  CreatedBy: string
+  UpdatedAt: Date
+  UpdatedBy: string
   _count: BoxQTYCountAggregateOutputType | null
   _avg: BoxQTYAvgAggregateOutputType | null
   _sum: BoxQTYSumAggregateOutputType | null
@@ -204,6 +232,10 @@ export type BoxQTYWhereInput = {
   Id?: Prisma.IntFilter<"BoxQTY"> | number
   PartNumber?: Prisma.StringFilter<"BoxQTY"> | string
   Qty?: Prisma.IntFilter<"BoxQTY"> | number
+  CreatedAt?: Prisma.DateTimeFilter<"BoxQTY"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"BoxQTY"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"BoxQTY"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"BoxQTY"> | string
   PartData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
 }
 
@@ -211,6 +243,10 @@ export type BoxQTYOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   PartData?: Prisma.FinishGoodOrderByWithRelationInput
 }
 
@@ -221,6 +257,10 @@ export type BoxQTYWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.BoxQTYWhereInput[]
   NOT?: Prisma.BoxQTYWhereInput | Prisma.BoxQTYWhereInput[]
   Qty?: Prisma.IntFilter<"BoxQTY"> | number
+  CreatedAt?: Prisma.DateTimeFilter<"BoxQTY"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"BoxQTY"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"BoxQTY"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"BoxQTY"> | string
   PartData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
 }, "Id" | "PartNumber">
 
@@ -228,6 +268,10 @@ export type BoxQTYOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   _count?: Prisma.BoxQTYCountOrderByAggregateInput
   _avg?: Prisma.BoxQTYAvgOrderByAggregateInput
   _max?: Prisma.BoxQTYMaxOrderByAggregateInput
@@ -242,10 +286,18 @@ export type BoxQTYScalarWhereWithAggregatesInput = {
   Id?: Prisma.IntWithAggregatesFilter<"BoxQTY"> | number
   PartNumber?: Prisma.StringWithAggregatesFilter<"BoxQTY"> | string
   Qty?: Prisma.IntWithAggregatesFilter<"BoxQTY"> | number
+  CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"BoxQTY"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"BoxQTY"> | string
+  UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"BoxQTY"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"BoxQTY"> | string
 }
 
 export type BoxQTYCreateInput = {
   Qty: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   PartData: Prisma.FinishGoodCreateNestedOneWithoutBoxQTYInput
 }
 
@@ -253,10 +305,18 @@ export type BoxQTYUncheckedCreateInput = {
   Id?: number
   PartNumber: string
   Qty: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type BoxQTYUpdateInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutBoxQTYNestedInput
 }
 
@@ -264,22 +324,38 @@ export type BoxQTYUncheckedUpdateInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BoxQTYCreateManyInput = {
   Id?: number
   PartNumber: string
   Qty: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type BoxQTYUpdateManyMutationInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BoxQTYUncheckedUpdateManyInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BoxQTYNullableScalarRelationFilter = {
@@ -291,6 +367,10 @@ export type BoxQTYCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type BoxQTYAvgOrderByAggregateInput = {
@@ -302,12 +382,20 @@ export type BoxQTYMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type BoxQTYMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type BoxQTYSumOrderByAggregateInput = {
@@ -349,11 +437,19 @@ export type BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput = {
 
 export type BoxQTYCreateWithoutPartDataInput = {
   Qty: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type BoxQTYUncheckedCreateWithoutPartDataInput = {
   Id?: number
   Qty: number
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type BoxQTYCreateOrConnectWithoutPartDataInput = {
@@ -374,11 +470,19 @@ export type BoxQTYUpdateToOneWithWhereWithoutPartDataInput = {
 
 export type BoxQTYUpdateWithoutPartDataInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type BoxQTYUncheckedUpdateWithoutPartDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -387,6 +491,10 @@ export type BoxQTYSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   Id?: boolean
   PartNumber?: boolean
   Qty?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["boxQTY"]>
 
@@ -394,6 +502,10 @@ export type BoxQTYSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   Id?: boolean
   PartNumber?: boolean
   Qty?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["boxQTY"]>
 
@@ -401,6 +513,10 @@ export type BoxQTYSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   Id?: boolean
   PartNumber?: boolean
   Qty?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["boxQTY"]>
 
@@ -408,9 +524,13 @@ export type BoxQTYSelectScalar = {
   Id?: boolean
   PartNumber?: boolean
   Qty?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }
 
-export type BoxQTYOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "Qty", ExtArgs["result"]["boxQTY"]>
+export type BoxQTYOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "Qty" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy", ExtArgs["result"]["boxQTY"]>
 export type BoxQTYInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
 }
@@ -430,6 +550,10 @@ export type $BoxQTYPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     Id: number
     PartNumber: string
     Qty: number
+    CreatedAt: Date
+    CreatedBy: string
+    UpdatedAt: Date
+    UpdatedBy: string
   }, ExtArgs["result"]["boxQTY"]>
   composites: {}
 }
@@ -857,6 +981,10 @@ export interface BoxQTYFieldRefs {
   readonly Id: Prisma.FieldRef<"BoxQTY", 'Int'>
   readonly PartNumber: Prisma.FieldRef<"BoxQTY", 'String'>
   readonly Qty: Prisma.FieldRef<"BoxQTY", 'Int'>
+  readonly CreatedAt: Prisma.FieldRef<"BoxQTY", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"BoxQTY", 'String'>
+  readonly UpdatedAt: Prisma.FieldRef<"BoxQTY", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"BoxQTY", 'String'>
 }
     
 

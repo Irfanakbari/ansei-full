@@ -350,7 +350,7 @@ describe('ManPowerService', () => {
       );
       expect(prismaService.manPower.update).toHaveBeenCalledWith({
         where: { Uid: mockManPower.Uid },
-        data: { PicturePath: expectedUrl },
+        data: { PicturePath: expectedUrl, UpdatedBy: 'admin' },
       });
     });
 
@@ -392,7 +392,7 @@ describe('ManPowerService', () => {
       logService.completeProcess.mockResolvedValue(undefined);
 
       await expect(
-        service.uploadPicture(mockManPower.Uid, invalidFile),
+        service.uploadPicture(mockManPower.Uid, invalidFile, 'admin'),
       ).rejects.toThrow(UnsupportedMediaTypeException);
     });
 
@@ -406,7 +406,7 @@ describe('ManPowerService', () => {
       logService.completeProcess.mockResolvedValue(undefined);
 
       await expect(
-        service.uploadPicture(mockManPower.Uid, largeFile),
+        service.uploadPicture(mockManPower.Uid, largeFile, 'admin'),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -417,7 +417,7 @@ describe('ManPowerService', () => {
       prismaService.manPower.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.uploadPicture('non-existent-uid', mockFile),
+        service.uploadPicture('non-existent-uid', mockFile, 'admin'),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -443,7 +443,7 @@ describe('ManPowerService', () => {
       expect(nasUploadService.deleteFile).toHaveBeenCalledWith(picUrl);
       expect(prismaService.manPower.update).toHaveBeenCalledWith({
         where: { Uid: manPowerWithPic.Uid },
-        data: { PicturePath: null },
+        data: { PicturePath: null, UpdatedBy: 'admin' },
       });
     });
 
@@ -451,18 +451,18 @@ describe('ManPowerService', () => {
       logService.startProcess.mockResolvedValue(mockLogProcess);
       prismaService.manPower.findUnique.mockResolvedValue(null);
 
-      await expect(service.deletePicture('non-existent-uid')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.deletePicture('non-existent-uid', 'admin'),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw BadRequestException when man power has no picture', async () => {
       logService.startProcess.mockResolvedValue(mockLogProcess);
       prismaService.manPower.findUnique.mockResolvedValue(mockManPower); // PicturePath is null/undefined
 
-      await expect(service.deletePicture(mockManPower.Uid)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.deletePicture(mockManPower.Uid, 'admin'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

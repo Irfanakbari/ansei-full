@@ -38,7 +38,9 @@ export type DisplayConfigMinAggregateOutputType = {
   Id: number | null
   Description: string | null
   CreatedAt: Date | null
+  CreatedBy: string | null
   UpdatedAt: Date | null
+  UpdatedBy: string | null
   IsOpen: boolean | null
   Url: string | null
   Loop: boolean | null
@@ -50,7 +52,9 @@ export type DisplayConfigMaxAggregateOutputType = {
   Id: number | null
   Description: string | null
   CreatedAt: Date | null
+  CreatedBy: string | null
   UpdatedAt: Date | null
+  UpdatedBy: string | null
   IsOpen: boolean | null
   Url: string | null
   Loop: boolean | null
@@ -62,7 +66,9 @@ export type DisplayConfigCountAggregateOutputType = {
   Id: number
   Description: number
   CreatedAt: number
+  CreatedBy: number
   UpdatedAt: number
+  UpdatedBy: number
   IsOpen: number
   Url: number
   Loop: number
@@ -84,7 +90,9 @@ export type DisplayConfigMinAggregateInputType = {
   Id?: true
   Description?: true
   CreatedAt?: true
+  CreatedBy?: true
   UpdatedAt?: true
+  UpdatedBy?: true
   IsOpen?: true
   Url?: true
   Loop?: true
@@ -96,7 +104,9 @@ export type DisplayConfigMaxAggregateInputType = {
   Id?: true
   Description?: true
   CreatedAt?: true
+  CreatedBy?: true
   UpdatedAt?: true
+  UpdatedBy?: true
   IsOpen?: true
   Url?: true
   Loop?: true
@@ -108,7 +118,9 @@ export type DisplayConfigCountAggregateInputType = {
   Id?: true
   Description?: true
   CreatedAt?: true
+  CreatedBy?: true
   UpdatedAt?: true
+  UpdatedBy?: true
   IsOpen?: true
   Url?: true
   Loop?: true
@@ -206,8 +218,10 @@ export type DisplayConfigGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 export type DisplayConfigGroupByOutputType = {
   Id: number
   Description: string
-  CreatedAt: Date | null
+  CreatedAt: Date
+  CreatedBy: string
   UpdatedAt: Date
+  UpdatedBy: string
   IsOpen: boolean
   Url: string | null
   Loop: boolean
@@ -241,8 +255,10 @@ export type DisplayConfigWhereInput = {
   NOT?: Prisma.DisplayConfigWhereInput | Prisma.DisplayConfigWhereInput[]
   Id?: Prisma.IntFilter<"DisplayConfig"> | number
   Description?: Prisma.StringFilter<"DisplayConfig"> | string
-  CreatedAt?: Prisma.DateTimeNullableFilter<"DisplayConfig"> | Date | string | null
+  CreatedAt?: Prisma.DateTimeFilter<"DisplayConfig"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"DisplayConfig"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"DisplayConfig"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"DisplayConfig"> | string
   IsOpen?: Prisma.BoolFilter<"DisplayConfig"> | boolean
   Url?: Prisma.StringNullableFilter<"DisplayConfig"> | string | null
   Loop?: Prisma.BoolFilter<"DisplayConfig"> | boolean
@@ -253,8 +269,10 @@ export type DisplayConfigWhereInput = {
 export type DisplayConfigOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrder
-  CreatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   IsOpen?: Prisma.SortOrder
   Url?: Prisma.SortOrderInput | Prisma.SortOrder
   Loop?: Prisma.SortOrder
@@ -268,8 +286,10 @@ export type DisplayConfigWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.DisplayConfigWhereInput[]
   NOT?: Prisma.DisplayConfigWhereInput | Prisma.DisplayConfigWhereInput[]
   Description?: Prisma.StringFilter<"DisplayConfig"> | string
-  CreatedAt?: Prisma.DateTimeNullableFilter<"DisplayConfig"> | Date | string | null
+  CreatedAt?: Prisma.DateTimeFilter<"DisplayConfig"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"DisplayConfig"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"DisplayConfig"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"DisplayConfig"> | string
   IsOpen?: Prisma.BoolFilter<"DisplayConfig"> | boolean
   Url?: Prisma.StringNullableFilter<"DisplayConfig"> | string | null
   Loop?: Prisma.BoolFilter<"DisplayConfig"> | boolean
@@ -280,8 +300,10 @@ export type DisplayConfigWhereUniqueInput = Prisma.AtLeast<{
 export type DisplayConfigOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrder
-  CreatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   IsOpen?: Prisma.SortOrder
   Url?: Prisma.SortOrderInput | Prisma.SortOrder
   Loop?: Prisma.SortOrder
@@ -300,8 +322,10 @@ export type DisplayConfigScalarWhereWithAggregatesInput = {
   NOT?: Prisma.DisplayConfigScalarWhereWithAggregatesInput | Prisma.DisplayConfigScalarWhereWithAggregatesInput[]
   Id?: Prisma.IntWithAggregatesFilter<"DisplayConfig"> | number
   Description?: Prisma.StringWithAggregatesFilter<"DisplayConfig"> | string
-  CreatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DisplayConfig"> | Date | string | null
+  CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"DisplayConfig"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"DisplayConfig"> | string
   UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"DisplayConfig"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"DisplayConfig"> | string
   IsOpen?: Prisma.BoolWithAggregatesFilter<"DisplayConfig"> | boolean
   Url?: Prisma.StringNullableWithAggregatesFilter<"DisplayConfig"> | string | null
   Loop?: Prisma.BoolWithAggregatesFilter<"DisplayConfig"> | boolean
@@ -311,8 +335,10 @@ export type DisplayConfigScalarWhereWithAggregatesInput = {
 
 export type DisplayConfigCreateInput = {
   Description: string
-  CreatedAt?: Date | string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   IsOpen?: boolean
   Url?: string | null
   Loop?: boolean
@@ -323,8 +349,10 @@ export type DisplayConfigCreateInput = {
 export type DisplayConfigUncheckedCreateInput = {
   Id?: number
   Description: string
-  CreatedAt?: Date | string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   IsOpen?: boolean
   Url?: string | null
   Loop?: boolean
@@ -334,8 +362,10 @@ export type DisplayConfigUncheckedCreateInput = {
 
 export type DisplayConfigUpdateInput = {
   Description?: Prisma.StringFieldUpdateOperationsInput | string
-  CreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   IsOpen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Loop?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -346,8 +376,10 @@ export type DisplayConfigUpdateInput = {
 export type DisplayConfigUncheckedUpdateInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Description?: Prisma.StringFieldUpdateOperationsInput | string
-  CreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   IsOpen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Loop?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -358,8 +390,10 @@ export type DisplayConfigUncheckedUpdateInput = {
 export type DisplayConfigCreateManyInput = {
   Id?: number
   Description: string
-  CreatedAt?: Date | string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   IsOpen?: boolean
   Url?: string | null
   Loop?: boolean
@@ -369,8 +403,10 @@ export type DisplayConfigCreateManyInput = {
 
 export type DisplayConfigUpdateManyMutationInput = {
   Description?: Prisma.StringFieldUpdateOperationsInput | string
-  CreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   IsOpen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Loop?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -381,8 +417,10 @@ export type DisplayConfigUpdateManyMutationInput = {
 export type DisplayConfigUncheckedUpdateManyInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Description?: Prisma.StringFieldUpdateOperationsInput | string
-  CreatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   IsOpen?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Loop?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -394,7 +432,9 @@ export type DisplayConfigCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   IsOpen?: Prisma.SortOrder
   Url?: Prisma.SortOrder
   Loop?: Prisma.SortOrder
@@ -410,7 +450,9 @@ export type DisplayConfigMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   IsOpen?: Prisma.SortOrder
   Url?: Prisma.SortOrder
   Loop?: Prisma.SortOrder
@@ -422,7 +464,9 @@ export type DisplayConfigMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Description?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   IsOpen?: Prisma.SortOrder
   Url?: Prisma.SortOrder
   Loop?: Prisma.SortOrder
@@ -440,7 +484,9 @@ export type DisplayConfigSelect<ExtArgs extends runtime.Types.Extensions.Interna
   Id?: boolean
   Description?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
   IsOpen?: boolean
   Url?: boolean
   Loop?: boolean
@@ -452,7 +498,9 @@ export type DisplayConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   Id?: boolean
   Description?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
   IsOpen?: boolean
   Url?: boolean
   Loop?: boolean
@@ -464,7 +512,9 @@ export type DisplayConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   Id?: boolean
   Description?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
   IsOpen?: boolean
   Url?: boolean
   Loop?: boolean
@@ -476,7 +526,9 @@ export type DisplayConfigSelectScalar = {
   Id?: boolean
   Description?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
   IsOpen?: boolean
   Url?: boolean
   Loop?: boolean
@@ -484,7 +536,7 @@ export type DisplayConfigSelectScalar = {
   Line?: boolean
 }
 
-export type DisplayConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Description" | "CreatedAt" | "UpdatedAt" | "IsOpen" | "Url" | "Loop" | "FilePath" | "Line", ExtArgs["result"]["displayConfig"]>
+export type DisplayConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Description" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "IsOpen" | "Url" | "Loop" | "FilePath" | "Line", ExtArgs["result"]["displayConfig"]>
 
 export type $DisplayConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DisplayConfig"
@@ -492,8 +544,10 @@ export type $DisplayConfigPayload<ExtArgs extends runtime.Types.Extensions.Inter
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: number
     Description: string
-    CreatedAt: Date | null
+    CreatedAt: Date
+    CreatedBy: string
     UpdatedAt: Date
+    UpdatedBy: string
     IsOpen: boolean
     Url: string | null
     Loop: boolean
@@ -925,7 +979,9 @@ export interface DisplayConfigFieldRefs {
   readonly Id: Prisma.FieldRef<"DisplayConfig", 'Int'>
   readonly Description: Prisma.FieldRef<"DisplayConfig", 'String'>
   readonly CreatedAt: Prisma.FieldRef<"DisplayConfig", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"DisplayConfig", 'String'>
   readonly UpdatedAt: Prisma.FieldRef<"DisplayConfig", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"DisplayConfig", 'String'>
   readonly IsOpen: Prisma.FieldRef<"DisplayConfig", 'Boolean'>
   readonly Url: Prisma.FieldRef<"DisplayConfig", 'String'>
   readonly Loop: Prisma.FieldRef<"DisplayConfig", 'Boolean'>

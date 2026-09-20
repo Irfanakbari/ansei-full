@@ -57,7 +57,10 @@ export class EmailNotificationController {
     @Body() createEmailNotificationDto: CreateEmailNotificationDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.emailNotificationService.create(createEmailNotificationDto);
+    return this.emailNotificationService.create(
+      createEmailNotificationDto,
+      user.username,
+    );
   }
 
   @Patch(':id')
@@ -67,7 +70,11 @@ export class EmailNotificationController {
     @Body() updateEmailNotificationDto: UpdateEmailNotificationDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.emailNotificationService.update(id, updateEmailNotificationDto);
+    return this.emailNotificationService.update(
+      id,
+      updateEmailNotificationDto,
+      user.username,
+    );
   }
 
   @Delete(':id')
@@ -76,6 +83,6 @@ export class EmailNotificationController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.emailNotificationService.remove(id);
+    return this.emailNotificationService.remove(id, user.username);
   }
 }

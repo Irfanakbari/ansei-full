@@ -408,7 +408,7 @@ export class MaterialNgService {
           });
           await tx.material.update({
             where: { Id: material.Id },
-            data: { QtyRack: before - line.qty },
+            data: { QtyRack: before - line.qty, UpdatedBy: actor },
           });
         }
         const updated = await tx.materialNgCase.findUniqueOrThrow({

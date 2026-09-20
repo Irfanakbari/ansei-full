@@ -112,7 +112,9 @@ export class PrinterSettingService {
         data: {
           Name: dto.name,
           IpAddress: dto.ipAddress,
-        },
+          CreatedBy: createdBy,
+          UpdatedBy: createdBy,
+        } as never,
       });
 
       await this.logService.addLog({
@@ -186,7 +188,8 @@ export class PrinterSettingService {
         data: {
           Name: dto.name,
           IpAddress: dto.ipAddress,
-        },
+          UpdatedBy: updatedBy,
+        } as never,
       });
 
       await this.logService.addLog({

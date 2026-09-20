@@ -97,10 +97,28 @@ export default function ApiKeyManagementPage() {
             render: (val: string | null) => val ? formatDateTime(val) : '-'
         },
         {
-            title: 'Created',
+            title: 'Created Date',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
             render: (val: string) => formatDateTime(val)
+        },
+        {
+            title: 'Created By',
+            dataIndex: 'CreatedBy',
+            key: 'CreatedBy',
+            render: (_: string, record) => record.CreatedByName || record.CreatedBy || '-'
+        },
+        {
+            title: 'Updated Date',
+            dataIndex: 'UpdatedAt',
+            key: 'UpdatedAt',
+            render: (value: string) => formatDateTime(value)
+        },
+        {
+            title: 'Updated By',
+            dataIndex: 'UpdatedBy',
+            key: 'UpdatedBy',
+            render: (_: string | null, record) => record.UpdatedByName || record.UpdatedBy || '-'
         },
     ];
 

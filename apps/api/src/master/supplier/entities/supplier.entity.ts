@@ -15,4 +15,10 @@ export class SupplierEntity {
     example: '2026-01-15T08:00:00.000Z',
   })
   CreatedAt: Date;
+
+  @ApiProperty() CreatedBy: string;
+  @ApiProperty() UpdatedAt: Date;
+  @ApiProperty() UpdatedBy: string;
+  @ApiProperty({ required: false }) CreatedByName?: string;
+  @ApiProperty({ required: false }) UpdatedByName?: string;
 }

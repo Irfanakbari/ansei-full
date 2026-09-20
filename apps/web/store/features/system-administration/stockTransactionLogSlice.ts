@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-06-16*/
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import { get, getApiErrorMessage, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
+import {get, getApiErrorMessage, type PaginatedApiSuccessEnvelope} from '@/store/utils/apiService';
 
 // Enums
 export type ItemCategory = 'MATERIAL' | 'FINISH_GOOD';
@@ -22,8 +22,8 @@ export type TransactionType =
 export interface StockTransactionLogQuery {
     page?: number;
     limit?: number;
-    transactionDateFrom?: string;
-    transactionDateTo?: string;
+    dateFrom?: string;
+    dateTo?: string;
     itemCategory?: ItemCategory;
     transactionType?: TransactionType;
     materialId?: string;
@@ -126,7 +126,7 @@ export const fetchStockTransactionLog = createAsyncThunk(
     'stockTransactionLog/fetchAll',
     async (filters: StockTransactionLogQuery, {rejectWithValue}) => {
         try {
-            return await get<PaginatedApiSuccessEnvelope<StockTransactionLogEntity>>('/system-log/inventory-ledger', { params: { ...filters } });
+            return await get<PaginatedApiSuccessEnvelope<StockTransactionLogEntity>>('/system-log/inventory-ledger', {params: {...filters}});
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch stock transaction log'));
         }

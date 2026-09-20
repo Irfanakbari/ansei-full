@@ -78,6 +78,7 @@ describe('Production Release E2E', () => {
           PartNumber: 'FG-PR-REL-001',
           PartName: 'Production Release Test FG',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -113,6 +114,7 @@ describe('Production Release E2E', () => {
           PartNumber: 'FG-PR-REL-002',
           PartName: 'Production Release Test FG 2',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -143,6 +145,7 @@ describe('Production Release E2E', () => {
           PartNumber: 'FG-PR-REL-003',
           PartName: 'Production Release Test FG 3',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -173,6 +176,7 @@ describe('Production Release E2E', () => {
           PartNumber: 'FG-PR-REL-004',
           PartName: 'Production Release Test FG 4',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -204,6 +208,7 @@ describe('Production Release E2E', () => {
           PartNumber: 'FG-PR-REL-005',
           PartName: 'Production Release Test FG 5',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 

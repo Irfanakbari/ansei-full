@@ -45,6 +45,18 @@ export class UserManagementEntity {
     example: 1,
   })
   RoleId: number | null;
+
+  @ApiProperty()
+  CreatedAt: Date;
+
+  @ApiProperty()
+  CreatedBy: string;
+
+  @ApiProperty()
+  UpdatedAt: Date;
+
+  @ApiProperty()
+  UpdatedBy: string;
 }
 
 export class RoleEntity {
@@ -65,28 +77,28 @@ export class RoleEntity {
     description: 'Tanggal dibuat',
     example: '2026-01-01T00:00:00.000Z',
   })
-  CreateDate: Date;
+  CreatedAt: Date;
 
   @ApiPropertyOptional({
     description: 'Dibuat oleh',
     nullable: true,
     example: 'admin',
   })
-  CreateBy: string | null;
+  CreatedBy: string | null;
 
   @ApiPropertyOptional({
     description: 'Tanggal update terakhir',
     nullable: true,
     example: '2026-06-14T09:00:00.000Z',
   })
-  UpdateDate: Date | null;
+  UpdatedAt: Date | null;
 
   @ApiPropertyOptional({
     description: 'Diupdate oleh',
     nullable: true,
     example: 'admin',
   })
-  UpdateBy: string | null;
+  UpdatedBy: string | null;
 }
 
 export class PermissionEntity {
@@ -107,26 +119,26 @@ export class PermissionEntity {
     description: 'Tanggal dibuat',
     example: '2026-01-01T00:00:00.000Z',
   })
-  CreateDate: Date;
+  CreatedAt: Date;
 
   @ApiPropertyOptional({
     description: 'Dibuat oleh',
     nullable: true,
     example: 'admin',
   })
-  CreateBy: string | null;
+  CreatedBy: string | null;
 
   @ApiPropertyOptional({
     description: 'Tanggal update terakhir',
     nullable: true,
     example: '2026-06-14T09:00:00.000Z',
   })
-  UpdateDate: Date | null;
+  UpdatedAt: Date | null;
 
   @ApiPropertyOptional({
     description: 'Diupdate oleh',
     nullable: true,
     example: 'admin',
   })
-  UpdateBy: string | null;
+  UpdatedBy: string | null;
 }

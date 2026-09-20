@@ -42,6 +42,10 @@ export type MTCUserManagementMinAggregateOutputType = {
   Name: string | null
   LastLogin: Date | null
   Email: string | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
   SsoObjectId: string | null
   RoleId: number | null
 }
@@ -54,6 +58,10 @@ export type MTCUserManagementMaxAggregateOutputType = {
   Name: string | null
   LastLogin: Date | null
   Email: string | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
   SsoObjectId: string | null
   RoleId: number | null
 }
@@ -66,6 +74,10 @@ export type MTCUserManagementCountAggregateOutputType = {
   Name: number
   LastLogin: number
   Email: number
+  CreatedAt: number
+  CreatedBy: number
+  UpdatedAt: number
+  UpdatedBy: number
   SsoObjectId: number
   RoleId: number
   _all: number
@@ -88,6 +100,10 @@ export type MTCUserManagementMinAggregateInputType = {
   Name?: true
   LastLogin?: true
   Email?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   SsoObjectId?: true
   RoleId?: true
 }
@@ -100,6 +116,10 @@ export type MTCUserManagementMaxAggregateInputType = {
   Name?: true
   LastLogin?: true
   Email?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   SsoObjectId?: true
   RoleId?: true
 }
@@ -112,6 +132,10 @@ export type MTCUserManagementCountAggregateInputType = {
   Name?: true
   LastLogin?: true
   Email?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   SsoObjectId?: true
   RoleId?: true
   _all?: true
@@ -211,6 +235,10 @@ export type MTCUserManagementGroupByOutputType = {
   Name: string
   LastLogin: Date | null
   Email: string
+  CreatedAt: Date
+  CreatedBy: string
+  UpdatedAt: Date
+  UpdatedBy: string
   SsoObjectId: string
   RoleId: number | null
   _count: MTCUserManagementCountAggregateOutputType | null
@@ -246,6 +274,10 @@ export type MTCUserManagementWhereInput = {
   Name?: Prisma.StringFilter<"MTCUserManagement"> | string
   LastLogin?: Prisma.DateTimeNullableFilter<"MTCUserManagement"> | Date | string | null
   Email?: Prisma.StringFilter<"MTCUserManagement"> | string
+  CreatedAt?: Prisma.DateTimeFilter<"MTCUserManagement"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"MTCUserManagement"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"MTCUserManagement"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"MTCUserManagement"> | string
   SsoObjectId?: Prisma.StringFilter<"MTCUserManagement"> | string
   RoleId?: Prisma.IntNullableFilter<"MTCUserManagement"> | number | null
   Role?: Prisma.XOR<Prisma.MTCRoleNullableScalarRelationFilter, Prisma.MTCRoleWhereInput> | null
@@ -261,6 +293,10 @@ export type MTCUserManagementOrderByWithRelationInput = {
   Name?: Prisma.SortOrder
   LastLogin?: Prisma.SortOrderInput | Prisma.SortOrder
   Email?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   SsoObjectId?: Prisma.SortOrder
   RoleId?: Prisma.SortOrderInput | Prisma.SortOrder
   Role?: Prisma.MTCRoleOrderByWithRelationInput
@@ -280,6 +316,10 @@ export type MTCUserManagementWhereUniqueInput = Prisma.AtLeast<{
   IsActive?: Prisma.BoolFilter<"MTCUserManagement"> | boolean
   Name?: Prisma.StringFilter<"MTCUserManagement"> | string
   LastLogin?: Prisma.DateTimeNullableFilter<"MTCUserManagement"> | Date | string | null
+  CreatedAt?: Prisma.DateTimeFilter<"MTCUserManagement"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"MTCUserManagement"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"MTCUserManagement"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"MTCUserManagement"> | string
   RoleId?: Prisma.IntNullableFilter<"MTCUserManagement"> | number | null
   Role?: Prisma.XOR<Prisma.MTCRoleNullableScalarRelationFilter, Prisma.MTCRoleWhereInput> | null
   mtcauthLogs?: Prisma.MTCAuthLogListRelationFilter
@@ -294,6 +334,10 @@ export type MTCUserManagementOrderByWithAggregationInput = {
   Name?: Prisma.SortOrder
   LastLogin?: Prisma.SortOrderInput | Prisma.SortOrder
   Email?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   SsoObjectId?: Prisma.SortOrder
   RoleId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.MTCUserManagementCountOrderByAggregateInput
@@ -314,6 +358,10 @@ export type MTCUserManagementScalarWhereWithAggregatesInput = {
   Name?: Prisma.StringWithAggregatesFilter<"MTCUserManagement"> | string
   LastLogin?: Prisma.DateTimeNullableWithAggregatesFilter<"MTCUserManagement"> | Date | string | null
   Email?: Prisma.StringWithAggregatesFilter<"MTCUserManagement"> | string
+  CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"MTCUserManagement"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"MTCUserManagement"> | string
+  UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"MTCUserManagement"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"MTCUserManagement"> | string
   SsoObjectId?: Prisma.StringWithAggregatesFilter<"MTCUserManagement"> | string
   RoleId?: Prisma.IntNullableWithAggregatesFilter<"MTCUserManagement"> | number | null
 }
@@ -326,6 +374,10 @@ export type MTCUserManagementCreateInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
   Role?: Prisma.MTCRoleCreateNestedOneWithoutUsersInput
   mtcauthLogs?: Prisma.MTCAuthLogCreateNestedManyWithoutUserInput
@@ -340,6 +392,10 @@ export type MTCUserManagementUncheckedCreateInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
   RoleId?: number | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedCreateNestedManyWithoutUserInput
@@ -354,6 +410,10 @@ export type MTCUserManagementUpdateInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   Role?: Prisma.MTCRoleUpdateOneWithoutUsersNestedInput
   mtcauthLogs?: Prisma.MTCAuthLogUpdateManyWithoutUserNestedInput
@@ -368,6 +428,10 @@ export type MTCUserManagementUncheckedUpdateInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   RoleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedUpdateManyWithoutUserNestedInput
@@ -382,6 +446,10 @@ export type MTCUserManagementCreateManyInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
   RoleId?: number | null
 }
@@ -394,6 +462,10 @@ export type MTCUserManagementUpdateManyMutationInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -405,6 +477,10 @@ export type MTCUserManagementUncheckedUpdateManyInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   RoleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
@@ -417,6 +493,10 @@ export type MTCUserManagementCountOrderByAggregateInput = {
   Name?: Prisma.SortOrder
   LastLogin?: Prisma.SortOrder
   Email?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   SsoObjectId?: Prisma.SortOrder
   RoleId?: Prisma.SortOrder
 }
@@ -433,6 +513,10 @@ export type MTCUserManagementMaxOrderByAggregateInput = {
   Name?: Prisma.SortOrder
   LastLogin?: Prisma.SortOrder
   Email?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   SsoObjectId?: Prisma.SortOrder
   RoleId?: Prisma.SortOrder
 }
@@ -445,6 +529,10 @@ export type MTCUserManagementMinOrderByAggregateInput = {
   Name?: Prisma.SortOrder
   LastLogin?: Prisma.SortOrder
   Email?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   SsoObjectId?: Prisma.SortOrder
   RoleId?: Prisma.SortOrder
 }
@@ -553,6 +641,10 @@ export type MTCUserManagementCreateWithoutMtcauthLogsInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
   Role?: Prisma.MTCRoleCreateNestedOneWithoutUsersInput
   ApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
@@ -566,6 +658,10 @@ export type MTCUserManagementUncheckedCreateWithoutMtcauthLogsInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
   RoleId?: number | null
   ApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
@@ -595,6 +691,10 @@ export type MTCUserManagementUpdateWithoutMtcauthLogsInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   Role?: Prisma.MTCRoleUpdateOneWithoutUsersNestedInput
   ApiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
@@ -608,6 +708,10 @@ export type MTCUserManagementUncheckedUpdateWithoutMtcauthLogsInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   RoleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
@@ -621,6 +725,10 @@ export type MTCUserManagementCreateWithoutRoleInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
   mtcauthLogs?: Prisma.MTCAuthLogCreateNestedManyWithoutUserInput
   ApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
@@ -634,6 +742,10 @@ export type MTCUserManagementUncheckedCreateWithoutRoleInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedCreateNestedManyWithoutUserInput
   ApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
@@ -676,6 +788,10 @@ export type MTCUserManagementScalarWhereInput = {
   Name?: Prisma.StringFilter<"MTCUserManagement"> | string
   LastLogin?: Prisma.DateTimeNullableFilter<"MTCUserManagement"> | Date | string | null
   Email?: Prisma.StringFilter<"MTCUserManagement"> | string
+  CreatedAt?: Prisma.DateTimeFilter<"MTCUserManagement"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"MTCUserManagement"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"MTCUserManagement"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"MTCUserManagement"> | string
   SsoObjectId?: Prisma.StringFilter<"MTCUserManagement"> | string
   RoleId?: Prisma.IntNullableFilter<"MTCUserManagement"> | number | null
 }
@@ -688,6 +804,10 @@ export type MTCUserManagementCreateWithoutApiKeysInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
   Role?: Prisma.MTCRoleCreateNestedOneWithoutUsersInput
   mtcauthLogs?: Prisma.MTCAuthLogCreateNestedManyWithoutUserInput
@@ -701,6 +821,10 @@ export type MTCUserManagementUncheckedCreateWithoutApiKeysInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
   RoleId?: number | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedCreateNestedManyWithoutUserInput
@@ -730,6 +854,10 @@ export type MTCUserManagementUpdateWithoutApiKeysInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   Role?: Prisma.MTCRoleUpdateOneWithoutUsersNestedInput
   mtcauthLogs?: Prisma.MTCAuthLogUpdateManyWithoutUserNestedInput
@@ -743,6 +871,10 @@ export type MTCUserManagementUncheckedUpdateWithoutApiKeysInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   RoleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedUpdateManyWithoutUserNestedInput
@@ -756,6 +888,10 @@ export type MTCUserManagementCreateManyRoleInput = {
   Name: string
   LastLogin?: Date | string | null
   Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   SsoObjectId: string
 }
 
@@ -767,6 +903,10 @@ export type MTCUserManagementUpdateWithoutRoleInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   mtcauthLogs?: Prisma.MTCAuthLogUpdateManyWithoutUserNestedInput
   ApiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
@@ -780,6 +920,10 @@ export type MTCUserManagementUncheckedUpdateWithoutRoleInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedUpdateManyWithoutUserNestedInput
   ApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
@@ -793,6 +937,10 @@ export type MTCUserManagementUncheckedUpdateManyWithoutRoleInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -844,6 +992,10 @@ export type MTCUserManagementSelect<ExtArgs extends runtime.Types.Extensions.Int
   Name?: boolean
   LastLogin?: boolean
   Email?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   SsoObjectId?: boolean
   RoleId?: boolean
   Role?: boolean | Prisma.MTCUserManagement$RoleArgs<ExtArgs>
@@ -860,6 +1012,10 @@ export type MTCUserManagementSelectCreateManyAndReturn<ExtArgs extends runtime.T
   Name?: boolean
   LastLogin?: boolean
   Email?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   SsoObjectId?: boolean
   RoleId?: boolean
   Role?: boolean | Prisma.MTCUserManagement$RoleArgs<ExtArgs>
@@ -873,6 +1029,10 @@ export type MTCUserManagementSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   Name?: boolean
   LastLogin?: boolean
   Email?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   SsoObjectId?: boolean
   RoleId?: boolean
   Role?: boolean | Prisma.MTCUserManagement$RoleArgs<ExtArgs>
@@ -886,11 +1046,15 @@ export type MTCUserManagementSelectScalar = {
   Name?: boolean
   LastLogin?: boolean
   Email?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   SsoObjectId?: boolean
   RoleId?: boolean
 }
 
-export type MTCUserManagementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "UserId" | "PhoneNumber" | "IsActive" | "Name" | "LastLogin" | "Email" | "SsoObjectId" | "RoleId", ExtArgs["result"]["mTCUserManagement"]>
+export type MTCUserManagementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "UserId" | "PhoneNumber" | "IsActive" | "Name" | "LastLogin" | "Email" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "SsoObjectId" | "RoleId", ExtArgs["result"]["mTCUserManagement"]>
 export type MTCUserManagementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Role?: boolean | Prisma.MTCUserManagement$RoleArgs<ExtArgs>
   mtcauthLogs?: boolean | Prisma.MTCUserManagement$mtcauthLogsArgs<ExtArgs>
@@ -919,6 +1083,10 @@ export type $MTCUserManagementPayload<ExtArgs extends runtime.Types.Extensions.I
     Name: string
     LastLogin: Date | null
     Email: string
+    CreatedAt: Date
+    CreatedBy: string
+    UpdatedAt: Date
+    UpdatedBy: string
     SsoObjectId: string
     RoleId: number | null
   }, ExtArgs["result"]["mTCUserManagement"]>
@@ -1354,6 +1522,10 @@ export interface MTCUserManagementFieldRefs {
   readonly Name: Prisma.FieldRef<"MTCUserManagement", 'String'>
   readonly LastLogin: Prisma.FieldRef<"MTCUserManagement", 'DateTime'>
   readonly Email: Prisma.FieldRef<"MTCUserManagement", 'String'>
+  readonly CreatedAt: Prisma.FieldRef<"MTCUserManagement", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"MTCUserManagement", 'String'>
+  readonly UpdatedAt: Prisma.FieldRef<"MTCUserManagement", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"MTCUserManagement", 'String'>
   readonly SsoObjectId: Prisma.FieldRef<"MTCUserManagement", 'String'>
   readonly RoleId: Prisma.FieldRef<"MTCUserManagement", 'Int'>
 }

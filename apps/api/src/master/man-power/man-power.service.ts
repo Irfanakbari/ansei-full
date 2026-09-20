@@ -92,7 +92,7 @@ export class ManPowerService {
 
   async create(
     dto: CreateManPowerDto,
-    createdBy?: string,
+    createdBy: string,
   ): Promise<ManPowerModel> {
     let logProcess: LogProcessModel | undefined;
 
@@ -129,6 +129,8 @@ export class ManPowerService {
             Line: dto.line,
             Status: dto.status ?? true,
             PicturePath: dto.picturePath,
+            CreatedBy: createdBy,
+            UpdatedBy: createdBy,
             ...(dto.skillMatrix && {
               SkillMatrix: {
                 create: dto.skillMatrix.map((s) => ({
@@ -169,7 +171,7 @@ export class ManPowerService {
   async update(
     uid: string,
     dto: UpdateManPowerDto,
-    updatedBy?: string,
+    updatedBy: string,
   ): Promise<ManPowerModel> {
     let logProcess: LogProcessModel | undefined;
 
@@ -216,6 +218,7 @@ export class ManPowerService {
             Name: dto.name,
             Line: dto.line,
             Status: dto.status,
+            UpdatedBy: updatedBy,
             ...(dto.picturePath !== undefined
               ? { PicturePath: dto.picturePath }
               : {}),
@@ -259,7 +262,7 @@ export class ManPowerService {
 
   async remove(
     uid: string,
-    deletedBy?: string,
+    deletedBy: string,
   ): Promise<{ deleted: boolean; uid: string }> {
     let logProcess: LogProcessModel | undefined;
 
@@ -338,7 +341,7 @@ export class ManPowerService {
   async uploadPicture(
     uid: string,
     file: Express.Multer.File,
-    uploadedBy?: string,
+    uploadedBy: string,
   ): Promise<ManPowerModel> {
     let logProcess: LogProcessModel | undefined;
 
@@ -434,6 +437,7 @@ export class ManPowerService {
           where: { Uid: uid },
           data: {
             PicturePath: fileUrl,
+            UpdatedBy: uploadedBy,
           },
         }),
       );
@@ -462,7 +466,7 @@ export class ManPowerService {
     }
   }
 
-  async deletePicture(uid: string, deletedBy?: string): Promise<ManPowerModel> {
+  async deletePicture(uid: string, deletedBy: string): Promise<ManPowerModel> {
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -510,6 +514,7 @@ export class ManPowerService {
           where: { Uid: uid },
           data: {
             PicturePath: null,
+            UpdatedBy: deletedBy,
           },
         }),
       );

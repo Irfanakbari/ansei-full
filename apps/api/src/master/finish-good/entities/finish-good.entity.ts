@@ -48,6 +48,11 @@ export class FinishGoodEntity {
   })
   UpdatedAt: Date;
 
+  @ApiProperty() UpdatedBy: string;
+
+  @ApiPropertyOptional({ description: 'Nama user pengubah' })
+  UpdatedByName?: string;
+
   @ApiProperty({ description: 'Qty stok', example: 200 })
   Qty: number;
 }

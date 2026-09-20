@@ -93,6 +93,7 @@ describe('Production Delivery E2E', () => {
           PartNumber: 'FG-DEL-001',
           PartName: 'Delivery Test FG',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -149,6 +150,7 @@ describe('Production Delivery E2E', () => {
           PartNumber: 'FG-PK-001',
           PartName: 'Pokayoke Test FG',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -188,6 +190,7 @@ describe('Production Delivery E2E', () => {
           PartNumber: 'FG-PR-001',
           PartName: 'Production Report Test FG',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -226,6 +229,7 @@ describe('Production Delivery E2E', () => {
           PartNumber: 'FG-PR-002',
           PartName: 'Production Report Test FG 2',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -257,6 +261,7 @@ describe('Production Delivery E2E', () => {
           PartNumber: 'FG-PR-003',
           PartName: 'Production Report Test FG 3',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -289,6 +294,7 @@ describe('Production Delivery E2E', () => {
           PartNumber: 'FG-PR-004',
           PartName: 'Production Report Test FG 4',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -320,6 +326,7 @@ describe('Production Delivery E2E', () => {
           PartNumber: 'FG-PR-005',
           PartName: 'Production Report Test FG 5',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -353,6 +360,7 @@ describe('Production Delivery E2E', () => {
           PartNumber: 'FG-PR-006',
           PartName: 'Production Report Test FG 6',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 

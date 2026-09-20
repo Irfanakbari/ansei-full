@@ -104,6 +104,8 @@ export class BoxQtyService {
           data: {
             PartNumber: dto.partNumber,
             Qty: dto.qty,
+            CreatedBy: createdBy,
+            UpdatedBy: createdBy,
           },
           include: {
             PartData: true,
@@ -194,6 +196,7 @@ export class BoxQtyService {
           data: {
             PartNumber: dto.partNumber,
             Qty: dto.qty,
+            UpdatedBy: createdBy,
           },
           include: {
             PartData: true,

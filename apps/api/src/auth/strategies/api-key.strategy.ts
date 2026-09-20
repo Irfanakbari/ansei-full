@@ -60,7 +60,10 @@ export class ApiKeyStrategy {
     this.prisma.apiKey
       .update({
         where: { Id: apiKeyRecord.Id },
-        data: { LastUsedAt: new Date() },
+        data: {
+          LastUsedAt: new Date(),
+          UpdatedBy: apiKeyRecord.UserId,
+        } as never,
       })
       .catch(() => {
         // Silently ignore update failures

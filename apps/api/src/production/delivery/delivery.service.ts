@@ -382,7 +382,7 @@ export class DeliveryService {
           // Update FinishGood stock
           await tx.finishGood.update({
             where: { PartNumber: labelData.FinishGoodId },
-            data: { Qty: balanceAfter },
+            data: { Qty: balanceAfter, UpdatedBy: createdBy },
           });
 
           await this.logService.addLog({

@@ -80,6 +80,8 @@ export class SatuanService {
         tx.satuan.create({
           data: {
             Name: dto.name,
+            CreatedBy: createdBy,
+            UpdatedBy: createdBy,
           },
         }),
       );
@@ -142,6 +144,7 @@ export class SatuanService {
           where: { Id: id },
           data: {
             ...(dto.name !== undefined && { Name: dto.name }),
+            UpdatedBy: createdBy,
           },
         }),
       );

@@ -80,7 +80,7 @@ export class ManPowerController {
     @Body() createManPowerDto: CreateManPowerDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.manPowerService.create(createManPowerDto, user?.username);
+    return this.manPowerService.create(createManPowerDto, user.username);
   }
 
   @ApiOperation({ summary: 'Update man power' })
@@ -93,7 +93,7 @@ export class ManPowerController {
     @Body() updateManPowerDto: UpdateManPowerDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.manPowerService.update(uid, updateManPowerDto, user?.username);
+    return this.manPowerService.update(uid, updateManPowerDto, user.username);
   }
 
   @ApiOperation({ summary: 'Delete man power' })
@@ -102,7 +102,7 @@ export class ManPowerController {
   @Delete(':uid')
   @Permission('IPCS.MASTER_DELETE')
   async remove(@Param('uid') uid: string, @CurrentUser() user: ICurrentUser) {
-    return this.manPowerService.remove(uid, user?.username);
+    return this.manPowerService.remove(uid, user.username);
   }
 
   @ApiOperation({
@@ -133,7 +133,7 @@ export class ManPowerController {
     file: Express.Multer.File,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.manPowerService.uploadPicture(uid, file, user?.username);
+    return this.manPowerService.uploadPicture(uid, file, user.username);
   }
 
   @ApiOperation({ summary: 'Delete picture for man power' })
@@ -145,6 +145,6 @@ export class ManPowerController {
     @Param('uid') uid: string,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.manPowerService.deletePicture(uid, user?.username);
+    return this.manPowerService.deletePicture(uid, user.username);
   }
 }

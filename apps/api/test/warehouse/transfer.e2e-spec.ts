@@ -75,6 +75,7 @@ describe('Warehouse Transfer E2E', () => {
           QtyWarehouse: 100,
           QtyRack: 0,
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -104,6 +105,7 @@ describe('Warehouse Transfer E2E', () => {
           QtyWarehouse: 10,
           QtyRack: 0,
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 

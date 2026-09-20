@@ -94,6 +94,7 @@ export class DisplayConfigService {
           logProcess.ProcessId,
           null,
           dto.line || null,
+          createdBy,
         );
       }
 
@@ -105,7 +106,9 @@ export class DisplayConfigService {
           Loop: dto.loop ?? true,
           Line: dto.line ?? null,
           FilePath: dto.filePath ?? null,
-        },
+          CreatedBy: createdBy,
+          UpdatedBy: createdBy,
+        } as never,
       });
 
       await this.logService.addLog({
@@ -168,6 +171,7 @@ export class DisplayConfigService {
           logProcess.ProcessId,
           id,
           targetLine || null,
+          updatedBy,
         );
       }
 
@@ -180,7 +184,8 @@ export class DisplayConfigService {
           Loop: dto.loop,
           Line: dto.line,
           FilePath: dto.filePath,
-        },
+          UpdatedBy: updatedBy,
+        } as never,
       });
 
       await this.logService.addLog({
@@ -277,6 +282,7 @@ export class DisplayConfigService {
     processId: string,
     excludeId: number | null,
     line: string | null = null,
+    updatedBy = 'SYSTEM',
   ): Promise<void> {
     await this.logService.addLog({
       processId,
@@ -308,7 +314,7 @@ export class DisplayConfigService {
       // Close the existing open display
       await this.prisma.displayConfig.update({
         where: { Id: existingOpen.Id },
-        data: { IsOpen: false },
+        data: { IsOpen: false, UpdatedBy: updatedBy } as never,
       });
 
       await this.logService.addLog({
@@ -323,7 +329,7 @@ export class DisplayConfigService {
   async uploadMedia(
     id: number,
     file: Express.Multer.File,
-    createdBy?: string,
+    updatedBy: string,
   ): Promise<DisplayConfigModel> {
     const existing = await this.prisma.displayConfig.findUnique({
       where: { Id: id },
@@ -363,13 +369,13 @@ export class DisplayConfigService {
 
     return this.prisma.displayConfig.update({
       where: { Id: id },
-      data: { FilePath: fileUrl },
+      data: { FilePath: fileUrl, UpdatedBy: updatedBy } as never,
     });
   }
 
   async deleteMedia(
     id: number,
-    createdBy?: string,
+    updatedBy: string,
   ): Promise<DisplayConfigModel> {
     const existing = await this.prisma.displayConfig.findUnique({
       where: { Id: id },
@@ -391,7 +397,7 @@ export class DisplayConfigService {
 
     return this.prisma.displayConfig.update({
       where: { Id: id },
-      data: { FilePath: null },
+      data: { FilePath: null, UpdatedBy: updatedBy } as never,
     });
   }
 }

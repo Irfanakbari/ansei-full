@@ -83,6 +83,8 @@ export class SupplierService {
         tx.supplier.create({
           data: {
             Name: dto.name,
+            CreatedBy: createdBy,
+            UpdatedBy: createdBy,
           },
         }),
       );
@@ -145,6 +147,7 @@ export class SupplierService {
           where: { Id: id },
           data: {
             ...(dto.name !== undefined && { Name: dto.name }),
+            UpdatedBy: createdBy,
           },
         }),
       );

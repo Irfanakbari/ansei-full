@@ -769,7 +769,7 @@ export class ShoppingService {
       // Update Material QtyRack
       await tx.material.update({
         where: { PartNumber: dto.materialId },
-        data: { QtyRack: balanceAfter },
+        data: { QtyRack: balanceAfter, UpdatedBy: createdBy },
       });
 
       // Create Shopping record
@@ -853,7 +853,7 @@ export class ShoppingService {
               // INCREMENT FinishGood Qty
               await tx.finishGood.update({
                 where: { PartNumber: finishGoodContext.finishGoodId },
-                data: { Qty: fgBalanceAfter },
+                data: { Qty: fgBalanceAfter, UpdatedBy: createdBy },
               });
 
               // Create InventoryLedger entry for PRODUCTION_RESULT

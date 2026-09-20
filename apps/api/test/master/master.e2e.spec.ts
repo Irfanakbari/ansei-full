@@ -149,7 +149,9 @@ describe('Master Modules E2E', () => {
     });
 
     it('GET /master/satuan - should list all satuans', async () => {
-      await prisma.satuan.create({ data: { Name: 'BOX' } });
+      await prisma.satuan.create({
+        data: { Name: 'BOX', CreatedBy: 'TEST', UpdatedBy: 'TEST' },
+      });
 
       const res = await request(app.getHttpServer())
         .get('/master/satuan')
@@ -160,7 +162,9 @@ describe('Master Modules E2E', () => {
     });
 
     it('GET /master/satuan/:id - should get satuan by id', async () => {
-      const created = await prisma.satuan.create({ data: { Name: 'KG' } });
+      const created = await prisma.satuan.create({
+        data: { Name: 'KG', CreatedBy: 'TEST', UpdatedBy: 'TEST' },
+      });
 
       const res = await request(app.getHttpServer())
         .get(`/master/satuan/${created.Id}`)
@@ -172,7 +176,7 @@ describe('Master Modules E2E', () => {
 
     it('PATCH /master/satuan/:id - should update satuan', async () => {
       const created = await prisma.satuan.create({
-        data: { Name: 'ORIGINAL' },
+        data: { Name: 'ORIGINAL', CreatedBy: 'TEST', UpdatedBy: 'TEST' },
       });
 
       const res = await request(app.getHttpServer())
@@ -186,7 +190,7 @@ describe('Master Modules E2E', () => {
 
     it('DELETE /master/satuan/:id - should delete satuan', async () => {
       const created = await prisma.satuan.create({
-        data: { Name: 'DELETE_ME' },
+        data: { Name: 'DELETE_ME', CreatedBy: 'TEST', UpdatedBy: 'TEST' },
       });
 
       await request(app.getHttpServer())
@@ -211,7 +215,9 @@ describe('Master Modules E2E', () => {
     });
 
     it('GET /master/supplier - should list all suppliers', async () => {
-      await prisma.supplier.create({ data: { Name: 'Supplier A' } });
+      await prisma.supplier.create({
+        data: { Name: 'Supplier A', CreatedBy: 'TEST', UpdatedBy: 'TEST' },
+      });
 
       const res = await request(app.getHttpServer())
         .get('/master/supplier')
@@ -223,7 +229,7 @@ describe('Master Modules E2E', () => {
 
     it('GET /master/supplier/:id - should get supplier by id', async () => {
       const created = await prisma.supplier.create({
-        data: { Name: 'Supplier B' },
+        data: { Name: 'Supplier B', CreatedBy: 'TEST', UpdatedBy: 'TEST' },
       });
 
       const res = await request(app.getHttpServer())
@@ -236,7 +242,7 @@ describe('Master Modules E2E', () => {
 
     it('PATCH /master/supplier/:id - should update supplier', async () => {
       const created = await prisma.supplier.create({
-        data: { Name: 'Old Name' },
+        data: { Name: 'Old Name', CreatedBy: 'TEST', UpdatedBy: 'TEST' },
       });
 
       const res = await request(app.getHttpServer())
@@ -250,7 +256,7 @@ describe('Master Modules E2E', () => {
 
     it('DELETE /master/supplier/:id - should delete supplier', async () => {
       const created = await prisma.supplier.create({
-        data: { Name: 'To Delete' },
+        data: { Name: 'To Delete', CreatedBy: 'TEST', UpdatedBy: 'TEST' },
       });
 
       await request(app.getHttpServer())
@@ -287,6 +293,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'MAT-002',
           PartName: 'Bolt M8',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -304,6 +311,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'MAT-003',
           PartName: 'Nut M5',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -321,6 +329,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'MAT-004',
           PartName: 'Washer Original',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -339,6 +348,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'MAT-DEL',
           PartName: 'To Delete',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -375,6 +385,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-002',
           PartName: 'Product B',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -392,6 +403,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-003',
           PartName: 'Product C',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -409,6 +421,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-004',
           PartName: 'Original',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -427,6 +440,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-DEL',
           PartName: 'To Delete',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -448,6 +462,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-BOM-001',
           PartName: 'BOM Test FG',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
       const material = await prisma.material.create({
@@ -455,6 +470,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'MAT-BOM-001',
           PartName: 'BOM Test Material',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -488,6 +504,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-BOM-002',
           PartName: 'BOM Test FG 2',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -505,6 +522,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'MAT-BOM-002',
           PartName: 'BOM Test Material 2',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -522,6 +540,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-BOM-003',
           PartName: 'BOM Update Test',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
       const material = await prisma.material.create({
@@ -529,6 +548,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'MAT-BOM-003',
           PartName: 'BOM Update Material',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -551,6 +571,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-BOM-004',
           PartName: 'BOM Delete Test',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
       const material = await prisma.material.create({
@@ -558,6 +579,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'MAT-BOM-004',
           PartName: 'BOM Delete Material',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -582,6 +604,7 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-BOX-001',
           PartName: 'Box Test FG',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -613,10 +636,16 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-BOX-002',
           PartName: 'Box Test FG 2',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
       const boxQty = await prisma.boxQTY.create({
-        data: { PartNumber: fg.PartNumber, Qty: 10 },
+        data: {
+          PartNumber: fg.PartNumber,
+          Qty: 10,
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       const res = await request(app.getHttpServer())
@@ -633,10 +662,16 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-BOX-003',
           PartName: 'Box Test FG 3',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
       await prisma.boxQTY.create({
-        data: { PartNumber: fg.PartNumber, Qty: 8 },
+        data: {
+          PartNumber: fg.PartNumber,
+          Qty: 8,
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       const res = await request(app.getHttpServer())
@@ -653,10 +688,16 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-BOX-004',
           PartName: 'Box Update Test',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
       const boxQty = await prisma.boxQTY.create({
-        data: { PartNumber: fg.PartNumber, Qty: 5 },
+        data: {
+          PartNumber: fg.PartNumber,
+          Qty: 5,
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       const res = await request(app.getHttpServer())
@@ -674,10 +715,16 @@ describe('Master Modules E2E', () => {
           PartNumber: 'FG-BOX-005',
           PartName: 'Box Delete Test',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
       const boxQty = await prisma.boxQTY.create({
-        data: { PartNumber: fg.PartNumber, Qty: 3 },
+        data: {
+          PartNumber: fg.PartNumber,
+          Qty: 3,
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       await request(app.getHttpServer())
@@ -712,6 +759,8 @@ describe('Master Modules E2E', () => {
           Nik: 'EMP002',
           Name: 'Jane Doe',
           Uid: 'uid-jane',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -729,6 +778,8 @@ describe('Master Modules E2E', () => {
           Nik: 'NIK-TEST',
           Name: 'Test Worker',
           Uid: 'uid-test',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -746,6 +797,8 @@ describe('Master Modules E2E', () => {
           Nik: 'EMP003',
           Name: 'Old Name',
           Uid: 'uid-old',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -764,6 +817,8 @@ describe('Master Modules E2E', () => {
           Nik: 'EMP-DEL',
           Name: 'To Delete',
           Uid: 'uid-delete',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 

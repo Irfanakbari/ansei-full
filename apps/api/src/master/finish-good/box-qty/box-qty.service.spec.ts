@@ -204,6 +204,15 @@ describe('BoxQtyService', () => {
         functionName: 'BoxQtyService.Create',
         createdBy: 'admin',
       });
+      expect(prismaService.boxQTY.create).toHaveBeenCalledWith({
+        data: {
+          PartNumber: 'FG-001',
+          Qty: 24,
+          CreatedBy: 'admin',
+          UpdatedBy: 'admin',
+        },
+        include: { PartData: true },
+      });
     });
 
     it('should throw ConflictException when part number already exists', async () => {
@@ -244,6 +253,15 @@ describe('BoxQtyService', () => {
       const result = await service.update(1, updateDto, 'admin');
 
       expect(result).toEqual(updated);
+      expect(prismaService.boxQTY.update).toHaveBeenCalledWith({
+        where: { Id: 1 },
+        data: {
+          PartNumber: undefined,
+          Qty: 36,
+          UpdatedBy: 'admin',
+        },
+        include: { PartData: true },
+      });
       expect(logService.completeProcess).toHaveBeenCalledWith(
         mockLogProcess.ProcessId,
         'SUCCESS',

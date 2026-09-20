@@ -28,6 +28,8 @@ import {
   RoleEntity,
   PermissionEntity,
 } from './entities/user-management.entity';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
 
 // LIST PERMISSION
 // 1. USER_MANAGEMENT
@@ -49,8 +51,11 @@ export class UserManagementController {
   @ApiResponse({ status: 201, type: UserManagementEntity })
   @Post('users')
   @Permission('IPCS.USER_MANAGEMENT')
-  async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.userManagementService.createUser(createUserDto);
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.userManagementService.createUser(createUserDto, user.username);
   }
 
   @ApiOperation({ summary: 'Update user' })
@@ -60,32 +65,53 @@ export class UserManagementController {
   async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() user: ICurrentUser,
   ) {
-    return this.userManagementService.updateUser(id, updateUserDto);
+    return this.userManagementService.updateUser(
+      id,
+      updateUserDto,
+      user.username,
+    );
   }
 
   @ApiOperation({ summary: 'Delete user' })
   @ApiResponse({ status: 200, type: UserManagementEntity })
   @Delete('users/:id')
   @Permission('IPCS.USER_MANAGEMENT')
-  async deleteUser(@Param('id') id: string) {
-    return this.userManagementService.deleteUser(id);
+  async deleteUser(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {
+    return this.userManagementService.deleteUser(id, user.username);
   }
 
   @ApiOperation({ summary: 'Assign role to user' })
   @ApiResponse({ status: 201, type: UserManagementEntity })
   @Post('users/:id/roles')
   @Permission('IPCS.USER_MANAGEMENT')
-  async assignRole(@Param('id') id: string, @Body('roleId') roleId: number) {
-    return this.userManagementService.assignRole(id, Number(roleId));
+  async assignRole(
+    @Param('id') id: string,
+    @Body('roleId') roleId: number,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.userManagementService.assignRole(
+      id,
+      Number(roleId),
+      user.username,
+    );
   }
 
   @ApiOperation({ summary: 'Remove role from user' })
   @ApiResponse({ status: 200, type: UserManagementEntity })
   @Delete('users/:id/roles/:roleId')
   @Permission('IPCS.USER_MANAGEMENT')
-  async removeRole(@Param('id') id: string, @Param('roleId') roleId: number) {
-    return this.userManagementService.removeRole(id, Number(roleId));
+  async removeRole(
+    @Param('id') id: string,
+    @Param('roleId') roleId: number,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.userManagementService.removeRole(
+      id,
+      Number(roleId),
+      user.username,
+    );
   }
 
   // --- Roles ---
@@ -101,8 +127,11 @@ export class UserManagementController {
   @ApiResponse({ status: 201, type: RoleEntity })
   @Post('roles')
   @Permission('IPCS.USER_MANAGEMENT')
-  async createRole(@Body() createRoleDto: CreateRoleDto) {
-    return this.userManagementService.createRole(createRoleDto);
+  async createRole(
+    @Body() createRoleDto: CreateRoleDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.userManagementService.createRole(createRoleDto, user.username);
   }
 
   @ApiOperation({ summary: 'Update role' })
@@ -112,16 +141,21 @@ export class UserManagementController {
   async updateRole(
     @Param('id') id: number,
     @Body() updateRoleDto: UpdateRoleDto,
+    @CurrentUser() user: ICurrentUser,
   ) {
-    return this.userManagementService.updateRole(Number(id), updateRoleDto);
+    return this.userManagementService.updateRole(
+      Number(id),
+      updateRoleDto,
+      user.username,
+    );
   }
 
   @ApiOperation({ summary: 'Delete role' })
   @ApiResponse({ status: 200, type: RoleEntity })
   @Delete('roles/:id')
   @Permission('IPCS.USER_MANAGEMENT')
-  async deleteRole(@Param('id') id: number) {
-    return this.userManagementService.deleteRole(Number(id));
+  async deleteRole(@Param('id') id: number, @CurrentUser() user: ICurrentUser) {
+    return this.userManagementService.deleteRole(Number(id), user.username);
   }
 
   // --- Permissions ---
@@ -137,8 +171,14 @@ export class UserManagementController {
   @ApiResponse({ status: 201, type: PermissionEntity })
   @Post('permissions')
   @Permission('IPCS.USER_MANAGEMENT')
-  async createPermission(@Body() createPermissionDto: CreatePermissionDto) {
-    return this.userManagementService.createPermission(createPermissionDto);
+  async createPermission(
+    @Body() createPermissionDto: CreatePermissionDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.userManagementService.createPermission(
+      createPermissionDto,
+      user.username,
+    );
   }
 
   @ApiOperation({ summary: 'Update permission' })
@@ -148,10 +188,12 @@ export class UserManagementController {
   async updatePermission(
     @Param('id') id: number,
     @Body() updatePermissionDto: UpdatePermissionDto,
+    @CurrentUser() user: ICurrentUser,
   ) {
     return this.userManagementService.updatePermission(
       Number(id),
       updatePermissionDto,
+      user.username,
     );
   }
 
@@ -159,8 +201,14 @@ export class UserManagementController {
   @ApiResponse({ status: 200, type: PermissionEntity })
   @Delete('permissions/:id')
   @Permission('IPCS.USER_MANAGEMENT')
-  async deletePermission(@Param('id') id: number) {
-    return this.userManagementService.deletePermission(Number(id));
+  async deletePermission(
+    @Param('id') id: number,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.userManagementService.deletePermission(
+      Number(id),
+      user.username,
+    );
   }
 
   // --- Role-Permission Assignment ---
@@ -171,10 +219,12 @@ export class UserManagementController {
   async assignPermissionToRole(
     @Param('roleId') roleId: number,
     @Body('permissionId') permissionId: number,
+    @CurrentUser() user: ICurrentUser,
   ) {
     return this.userManagementService.assignPermissionToRole(
       Number(roleId),
       Number(permissionId),
+      user.username,
     );
   }
 
@@ -185,10 +235,12 @@ export class UserManagementController {
   async removePermissionFromRole(
     @Param('roleId') roleId: number,
     @Param('permissionId') permissionId: number,
+    @CurrentUser() user: ICurrentUser,
   ) {
     return this.userManagementService.removePermissionFromRole(
       Number(roleId),
       Number(permissionId),
+      user.username,
     );
   }
 }

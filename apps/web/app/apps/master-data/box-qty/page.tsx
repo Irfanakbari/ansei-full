@@ -9,6 +9,7 @@ import ButtonToolbar from "@/components/ButtonToolbar";
 import GoldenArrowAction from "@/components/GoldenArrowAction";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import {useSingleRowSelection} from "@/hooks/useSingleRowSelection";
+import {formatDateTime} from "@/lib/utils/dateTime";
 import {AppDispatch, RootState} from "@/store";
 import {BoxQTYEntity, fetchBoxQTY, setBoxQTYQuery} from "@/store/features/master/boxQtySlice";
 import BoxQTYModal from "./_components/BoxQTYModal";
@@ -61,6 +62,20 @@ export default function BoxQTYPage() {
             render: (_, record) => record.PartData?.PartName || "-"
         },
         {title: "Qty Per Box", dataIndex: "Qty", key: "Qty"},
+        {title: "Created Date", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
+        {
+            title: "Created By",
+            dataIndex: "CreatedBy",
+            key: "CreatedBy",
+            render: (_, record) => record.CreatedByName || record.CreatedBy || "-"
+        },
+        {title: "Updated Date", dataIndex: "UpdatedAt", key: "UpdatedAt", render: formatDateTime},
+        {
+            title: "Updated By",
+            dataIndex: "UpdatedBy",
+            key: "UpdatedBy",
+            render: (_, record) => record.UpdatedByName || record.UpdatedBy || "-"
+        },
     ];
 
     return (

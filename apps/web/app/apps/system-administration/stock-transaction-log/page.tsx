@@ -1,15 +1,17 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-06-08 - Updated 2026-07-16 */
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Table, Card, Breadcrumb, Input, Button, Tag, Tooltip, Space } from 'antd';
-import type { InputRef } from 'antd';
-import { ReloadOutlined, SearchOutlined, DownloadOutlined } from '@ant-design/icons';
+import React, {useState, useEffect, useRef} from 'react';
+import {Table, Card, Breadcrumb, Input, Button, Tag, Tooltip, Space, DatePicker} from 'antd';
+import type {InputRef, TableProps} from 'antd';
+import {ReloadOutlined, SearchOutlined, DownloadOutlined, CalendarOutlined} from '@ant-design/icons';
+import dayjs from 'dayjs';
+import type {Dayjs} from 'dayjs';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import ExportStockTransactionModal from './_components/ExportStockTransactionModal';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '@/store';
 import {
     StockTransactionLogEntity,
     StockTransactionLogQuery,
@@ -21,7 +23,7 @@ import {
     TransactionType,
     ItemCategory,
 } from '@/store/features/system-administration/stockTransactionLogSlice';
-import { formatDateTime } from '@/lib/utils/dateTime';
+import {formatDateTime} from '@/lib/utils/dateTime';
 
 const TRANSACTION_COLORS: Record<string, string> = {
     INCOMING_SUPPLIER: 'green',
@@ -45,7 +47,7 @@ const LOCATION_COLORS: Record<string, string> = {
 
 export default function StockTransactionLogPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, pagination, filters } = useSelector((state: RootState) => state.stockTransactionLog);
+    const {data, loading, pagination, filters} = useSelector((state: RootState) => state.stockTransactionLog);
 
     const [filteredInfo, setFilteredInfo] = useState<Record<string, any>>({});
     const [sortedInfo, setSortedInfo] = useState<any>({});
@@ -56,24 +58,31 @@ export default function StockTransactionLogPage() {
         dispatch(fetchStockTransactionLog(filters));
     }, [dispatch, filters]);
 
-    const handleTableChange = (pagination: any, tableFilters: any, sorter: any) => {
+    const handleTableChange: TableProps<StockTransactionLogEntity>['onChange'] = (pagination, tableFilters, sorter, extra) => {
         // Build filters object from table filters
         const newFilters: StockTransactionLogQuery = {};
 
-        if (tableFilters.itemCategory?.length) {
-            newFilters.itemCategory = tableFilters.itemCategory[0];
-        }
-        if (tableFilters.transactionType?.length) {
-            newFilters.transactionType = tableFilters.transactionType[0];
-        }
-        if (tableFilters.materialId?.length) {
-            newFilters.materialId = tableFilters.materialId[0];
-        }
-        if (tableFilters.referenceDoc?.length) {
-            newFilters.referenceDoc = tableFilters.referenceDoc[0];
-        }
-        if (tableFilters.createdBy?.length) {
-            newFilters.createdBy = tableFilters.createdBy[0];
+        newFilters.itemCategory = tableFilters.itemCategory?.length
+            ? tableFilters.itemCategory[0] as ItemCategory
+            : undefined;
+        newFilters.transactionType = tableFilters.transactionType?.length
+            ? tableFilters.transactionType[0] as TransactionType
+            : undefined;
+        newFilters.materialId = tableFilters.materialId?.length
+            ? String(tableFilters.materialId[0])
+            : undefined;
+        newFilters.referenceDoc = tableFilters.referenceDoc?.length
+            ? String(tableFilters.referenceDoc[0])
+            : undefined;
+        newFilters.createdBy = tableFilters.createdBy?.length
+            ? String(tableFilters.createdBy[0])
+            : undefined;
+        if (tableFilters.transactionDate?.length === 2) {
+            newFilters.dateFrom = String(tableFilters.transactionDate[0]);
+            newFilters.dateTo = String(tableFilters.transactionDate[1]);
+        } else {
+            newFilters.dateFrom = undefined;
+            newFilters.dateTo = undefined;
         }
 
         setFilteredInfo(tableFilters);
@@ -81,7 +90,7 @@ export default function StockTransactionLogPage() {
 
         dispatch(setFilters({
             ...newFilters,
-            page: pagination.current,
+            page: extra.action === 'filter' ? 1 : pagination.current,
             limit: pagination.pageSize,
         }));
     };
@@ -93,28 +102,32 @@ export default function StockTransactionLogPage() {
     };
 
     const getColumnSearchProps = (dataIndex: string, placeholder?: string) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: any) => (
+            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
                 <Input
                     ref={searchInput as any}
                     placeholder={placeholder || `Search ${dataIndex}`}
                     value={selectedKeys[0]}
                     onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={() => confirm()}
-                    style={{ marginBottom: 8, display: 'block' }}
+                    style={{marginBottom: 8, display: 'block'}}
                 />
                 <Space>
-                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined/>} size="small"
+                            style={{width: 90}}>
                         Filter
                     </Button>
-                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
+                    <Button onClick={() => {
+                        if (clearFilters) clearFilters();
+                        confirm();
+                    }} size="small" style={{width: 90}}>
                         Reset
                     </Button>
                 </Space>
             </div>
         ),
         filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+            <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
         ),
         onFilter: (value: any, record: any) => {
             let fieldValue: any;
@@ -129,12 +142,50 @@ export default function StockTransactionLogPage() {
         },
     });
 
-    const columns = [
+    const dateFilteredValue = filters.dateFrom && filters.dateTo
+        ? [filters.dateFrom, filters.dateTo]
+        : null;
+
+    const columns: TableProps<StockTransactionLogEntity>['columns'] = [
         {
             title: 'Date',
             dataIndex: 'transactionDate',
             key: 'transactionDate',
-            filteredValue: null,
+            filteredValue: dateFilteredValue,
+            filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => {
+                const value = selectedKeys.length === 2
+                    ? [dayjs(String(selectedKeys[0])), dayjs(String(selectedKeys[1]))] as [Dayjs, Dayjs]
+                    : null;
+
+                return (
+                    <div style={{padding: 8}} onKeyDown={(event) => event.stopPropagation()}>
+                        <DatePicker.RangePicker
+                            value={value}
+                            format="YYYY-MM-DD"
+                            allowClear
+                            onChange={(dates, dateStrings) => {
+                                setSelectedKeys(dates ? dateStrings : []);
+                            }}
+                            style={{marginBottom: 8, display: 'flex'}}
+                        />
+                        <Space>
+                            <Button type="primary" onClick={() => confirm()} icon={<CalendarOutlined/>} size="small"
+                                    style={{width: 90}}>
+                                Filter
+                            </Button>
+                            <Button onClick={() => {
+                                clearFilters?.();
+                                confirm();
+                            }} size="small" style={{width: 90}}>
+                                Reset
+                            </Button>
+                        </Space>
+                    </div>
+                );
+            },
+            filterIcon: (filtered: boolean) => (
+                <CalendarOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
+            ),
             render: (val: string) => formatDateTime(val),
             sorter: (a: StockTransactionLogEntity, b: StockTransactionLogEntity) =>
                 new Date(a.transactionDate).getTime() - new Date(b.transactionDate).getTime(),
@@ -149,7 +200,7 @@ export default function StockTransactionLogPage() {
             render: (val: ItemCategory) => (
                 <Tag color={val === 'MATERIAL' ? 'blue' : 'purple'}>{val}</Tag>
             ),
-            filters: ITEM_CATEGORY_OPTIONS.map(opt => ({ text: opt.label, value: opt.value })),
+            filters: ITEM_CATEGORY_OPTIONS.map(opt => ({text: opt.label, value: opt.value})),
         },
         {
             title: 'Item Reference',
@@ -157,7 +208,7 @@ export default function StockTransactionLogPage() {
             filteredValue: filteredInfo.materialId || null,
             ...getColumnSearchProps('materialId', 'Search item reference'),
             render: (_: any, record: StockTransactionLogEntity) => (
-                <code style={{ fontSize: 10 }}>
+                <code style={{fontSize: 10}}>
                     {record.materialId || record.finishGoodId || '-'}
                 </code>
             ),
@@ -173,7 +224,7 @@ export default function StockTransactionLogPage() {
                     {val.replace(/_/g, ' ')}
                 </Tag>
             ),
-            filters: TRANSACTION_TYPE_OPTIONS.map(opt => ({ text: opt.label, value: opt.value })),
+            filters: TRANSACTION_TYPE_OPTIONS.map(opt => ({text: opt.label, value: opt.value})),
         },
         {
             title: 'Location',
@@ -193,7 +244,7 @@ export default function StockTransactionLogPage() {
             ellipsis: true,
             filteredValue: filteredInfo.referenceDoc || null,
             ...getColumnSearchProps('referenceDoc', 'Search Reference'),
-            render: (val: string) => <Tooltip title={val}><code style={{ fontSize: 10 }}>{val}</code></Tooltip>,
+            render: (val: string) => <Tooltip title={val}><code style={{fontSize: 10}}>{val}</code></Tooltip>,
         },
         {
             title: 'Balance Before',
@@ -208,7 +259,7 @@ export default function StockTransactionLogPage() {
             key: 'qtyIn',
             align: 'right' as const,
             filteredValue: null,
-            render: (val: number) => val > 0 ? <span style={{ color: '#52c41a' }}>{val}</span> : '-',
+            render: (val: number) => val > 0 ? <span style={{color: '#52c41a'}}>{val}</span> : '-',
         },
         {
             title: 'Qty Out',
@@ -216,7 +267,7 @@ export default function StockTransactionLogPage() {
             key: 'qtyOut',
             align: 'right' as const,
             filteredValue: null,
-            render: (val: number) => val > 0 ? <span style={{ color: '#ff4d4f' }}>{val}</span> : '-',
+            render: (val: number) => val > 0 ? <span style={{color: '#ff4d4f'}}>{val}</span> : '-',
         },
         {
             title: 'Balance After',
@@ -245,13 +296,16 @@ export default function StockTransactionLogPage() {
     ];
 
     return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
-            <Breadcrumb style={{ marginBottom: 16 }} items={[{ title: 'Home' }, { title: 'System Administration' }, { title: 'Stock Transaction Log' }]} />
+        <Card variant="borderless" styles={{body: {padding: 0}}}>
+            <Breadcrumb style={{marginBottom: 16}}
+                        items={[{title: 'Home'}, {title: 'System Administration'}, {title: 'Stock Transaction Log'}]}/>
 
             <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined />} onClick={() => dispatch(fetchStockTransactionLog(filters))} />
-                <ButtonToolbar title="Reset Filter" icon={<ReloadOutlined />} onClick={handleReset} />
-                <ButtonToolbar title="Export Excel" icon={<DownloadOutlined />} onClick={() => setIsExportModalVisible(true)} />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>}
+                               onClick={() => dispatch(fetchStockTransactionLog(filters))}/>
+                <ButtonToolbar title="Reset Filter" icon={<ReloadOutlined/>} onClick={handleReset}/>
+                <ButtonToolbar title="Export Excel" icon={<DownloadOutlined/>}
+                               onClick={() => setIsExportModalVisible(true)}/>
             </ToolbarWrapper>
 
             <Table
@@ -271,9 +325,9 @@ export default function StockTransactionLogPage() {
                     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} records`,
                 }}
                 rowKey="id"
-                scroll={{ x: 'max-content', y: 'calc(100vh - 320px)' }}
+                scroll={{x: 'max-content', y: 'calc(100vh - 320px)'}}
                 className="small-table"
-                style={{ fontSize: '11px' }}
+                style={{fontSize: '11px'}}
             />
 
             <ExportStockTransactionModal

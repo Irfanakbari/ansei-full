@@ -61,6 +61,7 @@ async function createDatabase(): Promise<void> {
 const pool = new Pool({ connectionString: dbUrl });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
+const SEED_ACTOR = 'SYSTEM';
 
 async function clearAllData(): Promise<void> {
   console.log('🗑️  Clearing all data (except user management tables)...');
@@ -153,10 +154,12 @@ async function main() {
   // ============================================
   const superRole = await prisma.mTCRole.upsert({
     where: { RoleName: 'SUPER' },
-    update: {},
+    update: { UpdatedBy: SEED_ACTOR },
     create: {
       RoleName: 'SUPER',
       Description: 'Super Administrator with full access',
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
   console.log(
@@ -168,10 +171,12 @@ async function main() {
   // ============================================
   const readonlyRole = await prisma.mTCRole.upsert({
     where: { RoleName: 'READONLY' },
-    update: {},
+    update: { UpdatedBy: SEED_ACTOR },
     create: {
       RoleName: 'READONLY',
       Description: 'Read-only access - can view data but cannot modify',
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
   console.log(
@@ -200,42 +205,96 @@ async function main() {
     // MRP (material run-out)
     { Action: 'IPCS.MRP_READ', Description: 'Read material run-out' },
     // Inventory counting
-    { Action: 'IPCS.INVENTORY_COUNTING_READ', Description: 'Read inventory counting' },
-    { Action: 'IPCS.INVENTORY_COUNTING_CREATE', Description: 'Create inventory counting' },
-    { Action: 'IPCS.INVENTORY_COUNTING_UPDATE', Description: 'Update inventory counting' },
-    { Action: 'IPCS.INVENTORY_COUNTING_DELETE', Description: 'Delete inventory counting' },
-    { Action: 'IPCS.INVENTORY_COUNTING_APPROVE', Description: 'Approve inventory counting' },
+    {
+      Action: 'IPCS.INVENTORY_COUNTING_READ',
+      Description: 'Read inventory counting',
+    },
+    {
+      Action: 'IPCS.INVENTORY_COUNTING_CREATE',
+      Description: 'Create inventory counting',
+    },
+    {
+      Action: 'IPCS.INVENTORY_COUNTING_UPDATE',
+      Description: 'Update inventory counting',
+    },
+    {
+      Action: 'IPCS.INVENTORY_COUNTING_DELETE',
+      Description: 'Delete inventory counting',
+    },
+    {
+      Action: 'IPCS.INVENTORY_COUNTING_APPROVE',
+      Description: 'Approve inventory counting',
+    },
     // Transfer material (material delivery note)
-    { Action: 'IPCS.TRANSFER_MATERIAL_READ', Description: 'Read material delivery note' },
-    { Action: 'IPCS.TRANSFER_MATERIAL_CREATE', Description: 'Create material delivery note' },
-    { Action: 'IPCS.TRANSFER_MATERIAL_UPDATE', Description: 'Update material delivery note' },
-    { Action: 'IPCS.TRANSFER_MATERIAL_DELETE', Description: 'Delete material delivery note' },
+    {
+      Action: 'IPCS.TRANSFER_MATERIAL_READ',
+      Description: 'Read material delivery note',
+    },
+    {
+      Action: 'IPCS.TRANSFER_MATERIAL_CREATE',
+      Description: 'Create material delivery note',
+    },
+    {
+      Action: 'IPCS.TRANSFER_MATERIAL_UPDATE',
+      Description: 'Update material delivery note',
+    },
+    {
+      Action: 'IPCS.TRANSFER_MATERIAL_DELETE',
+      Description: 'Delete material delivery note',
+    },
     // Forecast
     { Action: 'IPCS.FORECAST_READ', Description: 'Read forecast' },
     { Action: 'IPCS.FORECAST_CREATE', Description: 'Create forecast' },
     { Action: 'IPCS.FORECAST_UPDATE', Description: 'Update forecast' },
     { Action: 'IPCS.FORECAST_DELETE', Description: 'Delete forecast' },
     // Production release
-    { Action: 'IPCS.PRODUCTION_RELEASE_READ', Description: 'Read production release' },
-    { Action: 'IPCS.PRODUCTION_RELEASE_CREATE', Description: 'Create production release' },
-    { Action: 'IPCS.PRODUCTION_RELEASE_UPDATE', Description: 'Update production release' },
-    { Action: 'IPCS.PRODUCTION_RELEASE_DELETE', Description: 'Delete production release' },
+    {
+      Action: 'IPCS.PRODUCTION_RELEASE_READ',
+      Description: 'Read production release',
+    },
+    {
+      Action: 'IPCS.PRODUCTION_RELEASE_CREATE',
+      Description: 'Create production release',
+    },
+    {
+      Action: 'IPCS.PRODUCTION_RELEASE_UPDATE',
+      Description: 'Update production release',
+    },
+    {
+      Action: 'IPCS.PRODUCTION_RELEASE_DELETE',
+      Description: 'Delete production release',
+    },
     // Shopping
     { Action: 'IPCS.SHOPPING_READ', Description: 'Read shopping' },
     { Action: 'IPCS.SHOPPING_CREATE', Description: 'Create shopping' },
     { Action: 'IPCS.SHOPPING_DELETE', Description: 'Delete shopping' },
     // Pre-delivery goods
-    { Action: 'IPCS.PRE_DELIVERY_READ', Description: 'Read pre-delivery goods' },
+    {
+      Action: 'IPCS.PRE_DELIVERY_READ',
+      Description: 'Read pre-delivery goods',
+    },
     // Pokayoke validation
     { Action: 'IPCS.POKAYOKE_READ', Description: 'Read Pokayoke validation' },
-    { Action: 'IPCS.POKAYOKE_CREATE', Description: 'Create Pokayoke validation' },
+    {
+      Action: 'IPCS.POKAYOKE_CREATE',
+      Description: 'Create Pokayoke validation',
+    },
     // Delivery
     { Action: 'IPCS.DELIVERY_READ', Description: 'Read delivery' },
     { Action: 'IPCS.DELIVERY_CREATE', Description: 'Create delivery' },
     // Production report
-    { Action: 'IPCS.PRODUCTION_REPORT_READ', Description: 'Read production report' },
-    { Action: 'IPCS.PRODUCTION_REPORT_UPDATE', Description: 'Update production report' },
-    { Action: 'IPCS.PRODUCTION_REPORT_DELETE', Description: 'Delete production report' },
+    {
+      Action: 'IPCS.PRODUCTION_REPORT_READ',
+      Description: 'Read production report',
+    },
+    {
+      Action: 'IPCS.PRODUCTION_REPORT_UPDATE',
+      Description: 'Update production report',
+    },
+    {
+      Action: 'IPCS.PRODUCTION_REPORT_DELETE',
+      Description: 'Delete production report',
+    },
     // Reports
     { Action: 'IPCS.REPORT_READ', Description: 'Read reports' },
     // System log
@@ -246,19 +305,38 @@ async function main() {
     { Action: 'IPCS.API_KEY_UPDATE', Description: 'Update API keys' },
     { Action: 'IPCS.API_KEY_DELETE', Description: 'Delete API keys' },
     // User management
-    { Action: 'IPCS.USER_MANAGEMENT', Description: 'Manage users, roles, and permissions' },
+    {
+      Action: 'IPCS.USER_MANAGEMENT',
+      Description: 'Manage users, roles, and permissions',
+    },
     // Display configuration
-    { Action: 'DISPLAY_CONFIG_READ', Description: 'Read display configuration' },
-    { Action: 'DISPLAY_CONFIG_CREATE', Description: 'Create display configuration' },
-    { Action: 'DISPLAY_CONFIG_UPDATE', Description: 'Update display configuration' },
-    { Action: 'DISPLAY_CONFIG_DELETE', Description: 'Delete display configuration' },
+    {
+      Action: 'DISPLAY_CONFIG_READ',
+      Description: 'Read display configuration',
+    },
+    {
+      Action: 'DISPLAY_CONFIG_CREATE',
+      Description: 'Create display configuration',
+    },
+    {
+      Action: 'DISPLAY_CONFIG_UPDATE',
+      Description: 'Update display configuration',
+    },
+    {
+      Action: 'DISPLAY_CONFIG_DELETE',
+      Description: 'Delete display configuration',
+    },
   ];
 
   for (const perm of allPermissions) {
     await prisma.mTCPermission.upsert({
       where: { Action: perm.Action },
-      update: {},
-      create: perm,
+      update: { UpdatedBy: SEED_ACTOR },
+      create: {
+        ...perm,
+        CreatedBy: SEED_ACTOR,
+        UpdatedBy: SEED_ACTOR,
+      },
     });
   }
   console.log(`✅ Created/found ${allPermissions.length} permissions`);
@@ -267,6 +345,7 @@ async function main() {
   await prisma.mTCRole.update({
     where: { Id: superRole.Id },
     data: {
+      UpdatedBy: SEED_ACTOR,
       Permission: {
         connect: allPermissions.map((p) => ({ Action: p.Action })),
       },
@@ -285,6 +364,7 @@ async function main() {
   await prisma.mTCRole.update({
     where: { Id: readonlyRole.Id },
     data: {
+      UpdatedBy: SEED_ACTOR,
       Permission: {
         connect: readonlyPermissions.map((p) => ({ Action: p.Action })),
       },
@@ -305,6 +385,7 @@ async function main() {
       Email: 'irfan@vuteq.co.id',
       RoleId: superRole.Id,
       IsActive: true,
+      UpdatedBy: SEED_ACTOR,
     },
     create: {
       UserId: 'admin',
@@ -313,6 +394,8 @@ async function main() {
       Email: 'irfan@vuteq.co.id',
       RoleId: superRole.Id,
       IsActive: true,
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
   console.log(
@@ -330,6 +413,7 @@ async function main() {
       Email: 'admin2@vuteq.co.id',
       RoleId: readonlyRole.Id,
       IsActive: true,
+      UpdatedBy: SEED_ACTOR,
     },
     create: {
       UserId: 'admin2',
@@ -338,6 +422,8 @@ async function main() {
       Email: 'admin2@vuteq.co.id',
       RoleId: readonlyRole.Id,
       IsActive: true,
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
   console.log(
@@ -364,7 +450,13 @@ async function main() {
   for (const data of satuanData) {
     const existing = await prisma.satuan.findFirst({ where: data });
     if (!existing) {
-      const satuan = await prisma.satuan.create({ data });
+      const satuan = await prisma.satuan.create({
+        data: {
+          ...data,
+          CreatedBy: SEED_ACTOR,
+          UpdatedBy: SEED_ACTOR,
+        },
+      });
       createdSatuan.push(satuan);
     } else {
       createdSatuan.push(existing);
@@ -385,7 +477,13 @@ async function main() {
   for (const data of supplierData) {
     const existing = await prisma.supplier.findFirst({ where: data });
     if (!existing) {
-      const supplier = await prisma.supplier.create({ data });
+      const supplier = await prisma.supplier.create({
+        data: {
+          ...data,
+          CreatedBy: SEED_ACTOR,
+          UpdatedBy: SEED_ACTOR,
+        },
+      });
       createdSuppliers.push(supplier);
     } else {
       createdSuppliers.push(existing);
@@ -481,10 +579,11 @@ async function main() {
   for (const data of materialData) {
     const material = await prisma.material.upsert({
       where: { PartNumber: data.PartNumber },
-      update: {},
+      update: { UpdatedBy: SEED_ACTOR },
       create: {
         ...data,
-        CreatedBy: 'admin',
+        CreatedBy: SEED_ACTOR,
+        UpdatedBy: SEED_ACTOR,
       },
     });
     createdMaterials.push(material);
@@ -529,10 +628,11 @@ async function main() {
   for (const data of finishGoodData) {
     const fg = await prisma.finishGood.upsert({
       where: { PartNumber: data.PartNumber },
-      update: {},
+      update: { UpdatedBy: SEED_ACTOR },
       create: {
         ...data,
-        CreatedBy: 'admin',
+        CreatedBy: SEED_ACTOR,
+        UpdatedBy: SEED_ACTOR,
       },
     });
     createdFinishGoods.push(fg);
@@ -676,7 +776,13 @@ async function main() {
     });
 
     if (!existingBoxQty) {
-      await prisma.boxQTY.create({ data });
+      await prisma.boxQTY.create({
+        data: {
+          ...data,
+          CreatedBy: SEED_ACTOR,
+          UpdatedBy: SEED_ACTOR,
+        },
+      });
       boxQtyCreated++;
     }
   }
@@ -705,6 +811,8 @@ async function main() {
         data: {
           ...data,
           Uid: crypto.randomUUID(),
+          CreatedBy: SEED_ACTOR,
+          UpdatedBy: SEED_ACTOR,
         },
       });
       manPowerCreated++;

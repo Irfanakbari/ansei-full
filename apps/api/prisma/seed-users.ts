@@ -13,22 +13,27 @@ if (!connectionString) {
 
 const pool = new Pool({ connectionString });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+const SEED_ACTOR = 'SYSTEM';
 
 async function main(): Promise<void> {
   const superRole = await prisma.mTCRole.upsert({
     where: { RoleName: 'SUPER' },
-    update: {},
+    update: { UpdatedBy: SEED_ACTOR },
     create: {
       RoleName: 'SUPER',
       Description: 'Super Administrator with full access',
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
   const readonlyRole = await prisma.mTCRole.upsert({
     where: { RoleName: 'READONLY' },
-    update: {},
+    update: { UpdatedBy: SEED_ACTOR },
     create: {
       RoleName: 'READONLY',
       Description: 'Read-only access - can view data but cannot modify',
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
 
@@ -41,6 +46,7 @@ async function main(): Promise<void> {
       Email: 'irfan@vuteq.co.id',
       RoleId: superRole.Id,
       IsActive: true,
+      UpdatedBy: SEED_ACTOR,
     },
     create: {
       UserId: 'admin',
@@ -49,6 +55,8 @@ async function main(): Promise<void> {
       Email: 'irfan@vuteq.co.id',
       RoleId: superRole.Id,
       IsActive: true,
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
 
@@ -61,6 +69,7 @@ async function main(): Promise<void> {
       Email: 'admin2@vuteq.co.id',
       RoleId: readonlyRole.Id,
       IsActive: true,
+      UpdatedBy: SEED_ACTOR,
     },
     create: {
       UserId: 'admin2',
@@ -69,6 +78,8 @@ async function main(): Promise<void> {
       Email: 'admin2@vuteq.co.id',
       RoleId: readonlyRole.Id,
       IsActive: true,
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
 

@@ -11,6 +11,7 @@ import ToolbarWrapper from "@/components/ToolbarWrapper";
 import {useSingleRowSelection} from "@/hooks/useSingleRowSelection";
 import {AppDispatch, RootState} from "@/store";
 import {fetchRoles, RoleData} from "@/store/features/roles/rolesSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 import AssignPermissionsModal from "./_components/AssignPermissionsModal";
 import CreateRoleModal from "./_components/CreateRoleModal";
 import RoleModal from "./_components/RoleModal";
@@ -77,6 +78,20 @@ export default function RolesConfigurationPage() {
                         <Tag style={{fontSize: 10}}>+{(record.Permission?.length ?? 0) - 5} more</Tag>}
                 </Space>
             )
+        },
+        {title: "Created Date", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
+        {
+            title: "Created By",
+            dataIndex: "CreatedBy",
+            key: "CreatedBy",
+            render: (_, record) => record.CreatedByName || record.CreatedBy || "-"
+        },
+        {title: "Updated Date", dataIndex: "UpdatedAt", key: "UpdatedAt", render: formatDateTime},
+        {
+            title: "Updated By",
+            dataIndex: "UpdatedBy",
+            key: "UpdatedBy",
+            render: (_, record) => record.UpdatedByName || record.UpdatedBy || "-"
         },
     ];
 

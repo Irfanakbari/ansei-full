@@ -111,7 +111,7 @@ describe('EmailNotificationController', () => {
       const result = await controller.create(createDto, mockUser);
 
       expect(result).toEqual(created);
-      expect(service.create).toHaveBeenCalledWith(createDto);
+      expect(service.create).toHaveBeenCalledWith(createDto, mockUser.username);
     });
 
     it('should throw ConflictException when email exists', async () => {
@@ -133,7 +133,11 @@ describe('EmailNotificationController', () => {
       const result = await controller.update(1, updateDto, mockUser);
 
       expect(result).toEqual(updated);
-      expect(service.update).toHaveBeenCalledWith(1, updateDto);
+      expect(service.update).toHaveBeenCalledWith(
+        1,
+        updateDto,
+        mockUser.username,
+      );
     });
   });
 
@@ -144,7 +148,7 @@ describe('EmailNotificationController', () => {
       const result = await controller.remove(1, mockUser);
 
       expect(result).toEqual({ deleted: true, id: 1 });
-      expect(service.remove).toHaveBeenCalledWith(1);
+      expect(service.remove).toHaveBeenCalledWith(1, mockUser.username);
     });
 
     it('should throw NotFoundException when not found', async () => {

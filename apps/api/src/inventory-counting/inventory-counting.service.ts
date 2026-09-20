@@ -1477,7 +1477,7 @@ export class InventoryCountingService {
 
                   await tx.material.update({
                     where: { PartNumber: detail.MaterialId },
-                    data: { QtyRack: newQty },
+                    data: { QtyRack: newQty, UpdatedBy: closedBy },
                   });
                 } else {
                   // WAREHOUSE location: set QtyWarehouse = ActualQty
@@ -1486,7 +1486,7 @@ export class InventoryCountingService {
 
                   await tx.material.update({
                     where: { PartNumber: detail.MaterialId },
-                    data: { QtyWarehouse: newQty },
+                    data: { QtyWarehouse: newQty, UpdatedBy: closedBy },
                   });
                 }
 
@@ -1531,7 +1531,7 @@ export class InventoryCountingService {
 
                 await tx.finishGood.update({
                   where: { PartNumber: detail.FinishGoodId },
-                  data: { Qty: newQty },
+                  data: { Qty: newQty, UpdatedBy: closedBy },
                 });
 
                 // Create ledger entry

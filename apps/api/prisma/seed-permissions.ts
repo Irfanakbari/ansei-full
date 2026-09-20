@@ -13,6 +13,7 @@ if (!connectionString) {
 
 const pool = new Pool({ connectionString });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
+const SEED_ACTOR = 'SYSTEM';
 
 const allPermissions = [
   { Action: 'IPCS.ASSEMBLY_READ', Description: 'Read assembly sessions' },
@@ -157,32 +158,44 @@ const allPermissions = [
 async function main(): Promise<void> {
   const superRole = await prisma.mTCRole.upsert({
     where: { RoleName: 'SUPER' },
-    update: {},
+    update: { UpdatedBy: SEED_ACTOR },
     create: {
       RoleName: 'SUPER',
       Description: 'Super Administrator with full access',
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
   const readonlyRole = await prisma.mTCRole.upsert({
     where: { RoleName: 'READONLY' },
-    update: {},
+    update: { UpdatedBy: SEED_ACTOR },
     create: {
       RoleName: 'READONLY',
       Description: 'Read-only access - can view data but cannot modify',
+      CreatedBy: SEED_ACTOR,
+      UpdatedBy: SEED_ACTOR,
     },
   });
 
   for (const permission of allPermissions) {
     await prisma.mTCPermission.upsert({
       where: { Action: permission.Action },
-      update: { Description: permission.Description },
-      create: permission,
+      update: {
+        Description: permission.Description,
+        UpdatedBy: SEED_ACTOR,
+      },
+      create: {
+        ...permission,
+        CreatedBy: SEED_ACTOR,
+        UpdatedBy: SEED_ACTOR,
+      },
     });
   }
 
   await prisma.mTCRole.update({
     where: { Id: superRole.Id },
     data: {
+      UpdatedBy: SEED_ACTOR,
       Permission: { connect: allPermissions.map(({ Action }) => ({ Action })) },
     },
   });
@@ -195,6 +208,7 @@ async function main(): Promise<void> {
   await prisma.mTCRole.update({
     where: { Id: readonlyRole.Id },
     data: {
+      UpdatedBy: SEED_ACTOR,
       Permission: {
         connect: readonlyPermissions.map(({ Action }) => ({ Action })),
       },

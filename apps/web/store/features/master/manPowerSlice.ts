@@ -1,6 +1,15 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-09-16*/
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, postFormData, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {
+    del,
+    get,
+    getApiErrorMessage,
+    patch,
+    post,
+    postFormData,
+    type ApiSuccessEnvelope,
+    type PaginatedApiSuccessEnvelope
+} from '../../utils/apiService';
 
 export interface SkillMatrixEntity {
     Id: number;
@@ -13,6 +22,11 @@ export interface ManPowerEntity {
     Nik: string;
     Name: string;
     CreatedAt: string;
+    CreatedBy: string;
+    CreatedByName?: string | null;
+    UpdatedAt: string;
+    UpdatedBy: string | null;
+    UpdatedByName?: string | null;
     Status: boolean;
     Line: string | null;
     PicturePath?: string | null;
@@ -26,21 +40,34 @@ interface ManPowerState {
     query: ManPowerQuery;
     pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
-export interface ManPowerQuery { page?: number; limit?: number; search?: string }
+
+export interface ManPowerQuery {
+    page?: number;
+    limit?: number;
+    search?: string
+}
 
 const initialState: ManPowerState = {
     data: [],
     loading: false,
     error: null,
-    query: { page: 1, limit: 50 },
-    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
+    query: {page: 1, limit: 50},
+    pagination: {page: 1, limit: 50, totalItems: 0, totalPages: 0},
 };
 
-export const fetchManPower = createAsyncThunk<PaginatedApiSuccessEnvelope<ManPowerEntity>, ManPowerQuery | undefined, { rejectValue: string }>(
+export const fetchManPower = createAsyncThunk<PaginatedApiSuccessEnvelope<ManPowerEntity>, ManPowerQuery | undefined, {
+    rejectValue: string
+}>(
     'manPower/fetchAll',
-    async (query = {}, { rejectWithValue }) => {
+    async (query = {}, {rejectWithValue}) => {
         try {
-            return await get<PaginatedApiSuccessEnvelope<ManPowerEntity>>('/master/man-power', { params: { page: query.page, limit: query.limit, search: query.search } });
+            return await get<PaginatedApiSuccessEnvelope<ManPowerEntity>>('/master/man-power', {
+                params: {
+                    page: query.page,
+                    limit: query.limit,
+                    search: query.search
+                }
+            });
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch man power data'));
         }
@@ -55,7 +82,7 @@ export const createManPower = createAsyncThunk(
         line?: string;
         status?: boolean;
         skillMatrix?: { label: string; point: number }[];
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<ManPowerEntity>, typeof manPowerData>('/master/man-power', manPowerData);
         } catch (error: unknown) {
@@ -66,7 +93,7 @@ export const createManPower = createAsyncThunk(
 
 export const updateManPower = createAsyncThunk(
     'manPower/update',
-    async ({ uid, data: updateData }: {
+    async ({uid, data: updateData}: {
         uid: string;
         data: {
             nik?: string;
@@ -75,7 +102,7 @@ export const updateManPower = createAsyncThunk(
             status?: boolean;
             skillMatrix?: { label: string; point: number }[];
         }
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await patch<ApiSuccessEnvelope<ManPowerEntity>, typeof updateData>(`/master/man-power/${uid}`, updateData);
         } catch (error: unknown) {
@@ -86,7 +113,7 @@ export const updateManPower = createAsyncThunk(
 
 export const deleteManPower = createAsyncThunk(
     'manPower/delete',
-    async (uid: string, { rejectWithValue }) => {
+    async (uid: string, {rejectWithValue}) => {
         try {
             await del<ApiSuccessEnvelope<unknown>>(`/master/man-power/${uid}`);
             return uid;
@@ -98,7 +125,7 @@ export const deleteManPower = createAsyncThunk(
 
 export const uploadManPowerPicture = createAsyncThunk(
     'manPower/uploadPicture',
-    async ({ uid, file }: { uid: string; file: File }, { rejectWithValue }) => {
+    async ({uid, file}: { uid: string; file: File }, {rejectWithValue}) => {
         try {
             const formData = new FormData();
             formData.append('file', file);
@@ -111,10 +138,10 @@ export const uploadManPowerPicture = createAsyncThunk(
 
 export const deleteManPowerPicture = createAsyncThunk(
     'manPower/deletePicture',
-    async (uid: string, { rejectWithValue }) => {
+    async (uid: string, {rejectWithValue}) => {
         try {
             const result = await del<ApiSuccessEnvelope<ManPowerEntity>>(`/master/man-power/${uid}/picture`);
-            return { uid, data: result?.data };
+            return {uid, data: result?.data};
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to delete picture'));
         }
@@ -124,10 +151,17 @@ export const deleteManPowerPicture = createAsyncThunk(
 const manPowerSlice = createSlice({
     name: 'manPower',
     initialState,
-    reducers: { setManPowerQuery: (state, action: { payload: ManPowerQuery }) => { state.query = { ...state.query, ...action.payload }; } },
+    reducers: {
+        setManPowerQuery: (state, action: { payload: ManPowerQuery }) => {
+            state.query = {...state.query, ...action.payload};
+        }
+    },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchManPower.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(fetchManPower.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchManPower.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
@@ -158,5 +192,5 @@ const manPowerSlice = createSlice({
     },
 });
 
-export const { setManPowerQuery } = manPowerSlice.actions;
+export const {setManPowerQuery} = manPowerSlice.actions;
 export default manPowerSlice.reducer;

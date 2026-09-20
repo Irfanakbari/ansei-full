@@ -19,6 +19,12 @@ export class ManPowerEntity {
   })
   CreatedAt: Date;
 
+  @ApiProperty() CreatedBy: string;
+  @ApiProperty() UpdatedAt: Date;
+  @ApiProperty() UpdatedBy: string;
+  @ApiPropertyOptional() CreatedByName?: string;
+  @ApiPropertyOptional() UpdatedByName?: string;
+
   @ApiProperty({ description: 'Status aktif', example: true })
   Status: boolean;
 

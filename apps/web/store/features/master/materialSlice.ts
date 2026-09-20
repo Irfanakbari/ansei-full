@@ -1,6 +1,14 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-07 - Updated 2026-06-16*/
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {
+    del,
+    get,
+    getApiErrorMessage,
+    patch,
+    post,
+    type ApiSuccessEnvelope,
+    type PaginatedApiSuccessEnvelope
+} from '../../utils/apiService';
 
 export interface SatuanData {
     Id: number;
@@ -15,6 +23,8 @@ export interface MaterialEntity {
     CreatedBy: string;
     CreatedByName?: string;
     UpdatedAt: string;
+    UpdatedBy: string | null;
+    UpdatedByName?: string | null;
     Supplier: string | null;
     SatuanId: number | null;
     RackLocation: string | null;
@@ -32,30 +42,45 @@ interface MaterialState {
     query: MaterialQuery;
     pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
-export interface MaterialQuery { page?: number; limit?: number; search?: string }
+
+export interface MaterialQuery {
+    page?: number;
+    limit?: number;
+    search?: string
+}
 
 const initialState: MaterialState = {
     data: [],
     loading: false,
     error: null,
-    query: { page: 1, limit: 50 },
-    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
+    query: {page: 1, limit: 50},
+    pagination: {page: 1, limit: 50, totalItems: 0, totalPages: 0},
 };
 
-export const fetchMaterial = createAsyncThunk<PaginatedApiSuccessEnvelope<MaterialEntity>, MaterialQuery | undefined, { rejectValue: string }>(
+export const fetchMaterial = createAsyncThunk<PaginatedApiSuccessEnvelope<MaterialEntity>, MaterialQuery | undefined, {
+    rejectValue: string
+}>(
     'material/fetchAll',
-    async (query = {}, { rejectWithValue }) => {
+    async (query = {}, {rejectWithValue}) => {
         try {
-            return await get<PaginatedApiSuccessEnvelope<MaterialEntity>>('/master/material', { params: { page: query.page, limit: query.limit, search: query.search } });
+            return await get<PaginatedApiSuccessEnvelope<MaterialEntity>>('/master/material', {
+                params: {
+                    page: query.page,
+                    limit: query.limit,
+                    search: query.search
+                }
+            });
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch material data'));
         }
     }
 );
 
-export const fetchMaterialByPartNumber = createAsyncThunk<ApiSuccessEnvelope<MaterialEntity>, string, { rejectValue: string }>(
+export const fetchMaterialByPartNumber = createAsyncThunk<ApiSuccessEnvelope<MaterialEntity>, string, {
+    rejectValue: string
+}>(
     'material/fetchByPartNumber',
-    async (partNumber, { rejectWithValue }) => {
+    async (partNumber, {rejectWithValue}) => {
         try {
             return await get<ApiSuccessEnvelope<MaterialEntity>>(`/master/material/part-number/${encodeURIComponent(partNumber)}`);
         } catch (error: unknown) {
@@ -74,7 +99,7 @@ export const createMaterial = createAsyncThunk(
         rackLocation?: string;
         minimumStock?: number;
         maximumStock?: number;
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<MaterialEntity>, typeof materialData>('/master/material', materialData);
         } catch (error: unknown) {
@@ -85,7 +110,7 @@ export const createMaterial = createAsyncThunk(
 
 export const updateMaterial = createAsyncThunk(
     'material/update',
-    async ({ id, data: updateData }: {
+    async ({id, data: updateData}: {
         id: number;
         data: {
             partNumber?: string;
@@ -96,7 +121,7 @@ export const updateMaterial = createAsyncThunk(
             minimumStock?: number;
             maximumStock?: number;
         }
-    }, { rejectWithValue }) => {
+    }, {rejectWithValue}) => {
         try {
             return await patch<ApiSuccessEnvelope<MaterialEntity>, typeof updateData>(`/master/material/${id}`, updateData);
         } catch (error: unknown) {
@@ -107,7 +132,7 @@ export const updateMaterial = createAsyncThunk(
 
 export const deleteMaterial = createAsyncThunk(
     'material/delete',
-    async (id: number, { rejectWithValue }) => {
+    async (id: number, {rejectWithValue}) => {
         try {
             await del<ApiSuccessEnvelope<unknown>>(`/master/material/${id}`);
             return id;
@@ -119,9 +144,11 @@ export const deleteMaterial = createAsyncThunk(
 
 export const discontinueMaterial = createAsyncThunk(
     'material/discontinue',
-    async ({ partNumber, reason }: { partNumber: string; reason: string }, { rejectWithValue }) => {
+    async ({partNumber, reason}: { partNumber: string; reason: string }, {rejectWithValue}) => {
         try {
-            return await post<ApiSuccessEnvelope<MaterialEntity>, { reason: string }>(`/master/material/part-number/${partNumber}/discontinue`, { reason });
+            return await post<ApiSuccessEnvelope<MaterialEntity>, {
+                reason: string
+            }>(`/master/material/part-number/${partNumber}/discontinue`, {reason});
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to discontinue material'));
         }
@@ -132,11 +159,16 @@ const materialSlice = createSlice({
     name: 'material',
     initialState,
     reducers: {
-        setMaterialQuery: (state, action: { payload: MaterialQuery }) => { state.query = { ...state.query, ...action.payload }; },
+        setMaterialQuery: (state, action: { payload: MaterialQuery }) => {
+            state.query = {...state.query, ...action.payload};
+        },
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchMaterial.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(fetchMaterial.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchMaterial.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
@@ -149,5 +181,5 @@ const materialSlice = createSlice({
     },
 });
 
-export const { setMaterialQuery } = materialSlice.actions;
+export const {setMaterialQuery} = materialSlice.actions;
 export default materialSlice.reducer;

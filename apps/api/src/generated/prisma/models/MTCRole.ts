@@ -38,30 +38,30 @@ export type MTCRoleMinAggregateOutputType = {
   Id: number | null
   RoleName: string | null
   Description: string | null
-  CreateDate: Date | null
-  CreateBy: string | null
-  UpdateDate: Date | null
-  UpdateBy: string | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type MTCRoleMaxAggregateOutputType = {
   Id: number | null
   RoleName: string | null
   Description: string | null
-  CreateDate: Date | null
-  CreateBy: string | null
-  UpdateDate: Date | null
-  UpdateBy: string | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type MTCRoleCountAggregateOutputType = {
   Id: number
   RoleName: number
   Description: number
-  CreateDate: number
-  CreateBy: number
-  UpdateDate: number
-  UpdateBy: number
+  CreatedAt: number
+  CreatedBy: number
+  UpdatedAt: number
+  UpdatedBy: number
   _all: number
 }
 
@@ -78,30 +78,30 @@ export type MTCRoleMinAggregateInputType = {
   Id?: true
   RoleName?: true
   Description?: true
-  CreateDate?: true
-  CreateBy?: true
-  UpdateDate?: true
-  UpdateBy?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type MTCRoleMaxAggregateInputType = {
   Id?: true
   RoleName?: true
   Description?: true
-  CreateDate?: true
-  CreateBy?: true
-  UpdateDate?: true
-  UpdateBy?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type MTCRoleCountAggregateInputType = {
   Id?: true
   RoleName?: true
   Description?: true
-  CreateDate?: true
-  CreateBy?: true
-  UpdateDate?: true
-  UpdateBy?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   _all?: true
 }
 
@@ -195,10 +195,10 @@ export type MTCRoleGroupByOutputType = {
   Id: number
   RoleName: string
   Description: string | null
-  CreateDate: Date
-  CreateBy: string | null
-  UpdateDate: Date | null
-  UpdateBy: string | null
+  CreatedAt: Date
+  CreatedBy: string
+  UpdatedAt: Date
+  UpdatedBy: string
   _count: MTCRoleCountAggregateOutputType | null
   _avg: MTCRoleAvgAggregateOutputType | null
   _sum: MTCRoleSumAggregateOutputType | null
@@ -228,10 +228,10 @@ export type MTCRoleWhereInput = {
   Id?: Prisma.IntFilter<"MTCRole"> | number
   RoleName?: Prisma.StringFilter<"MTCRole"> | string
   Description?: Prisma.StringNullableFilter<"MTCRole"> | string | null
-  CreateDate?: Prisma.DateTimeFilter<"MTCRole"> | Date | string
-  CreateBy?: Prisma.StringNullableFilter<"MTCRole"> | string | null
-  UpdateDate?: Prisma.DateTimeNullableFilter<"MTCRole"> | Date | string | null
-  UpdateBy?: Prisma.StringNullableFilter<"MTCRole"> | string | null
+  CreatedAt?: Prisma.DateTimeFilter<"MTCRole"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"MTCRole"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"MTCRole"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"MTCRole"> | string
   Permission?: Prisma.MTCPermissionListRelationFilter
   Users?: Prisma.MTCUserManagementListRelationFilter
 }
@@ -240,10 +240,10 @@ export type MTCRoleOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
   RoleName?: Prisma.SortOrder
   Description?: Prisma.SortOrderInput | Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Permission?: Prisma.MTCPermissionOrderByRelationAggregateInput
   Users?: Prisma.MTCUserManagementOrderByRelationAggregateInput
 }
@@ -255,10 +255,10 @@ export type MTCRoleWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.MTCRoleWhereInput[]
   NOT?: Prisma.MTCRoleWhereInput | Prisma.MTCRoleWhereInput[]
   Description?: Prisma.StringNullableFilter<"MTCRole"> | string | null
-  CreateDate?: Prisma.DateTimeFilter<"MTCRole"> | Date | string
-  CreateBy?: Prisma.StringNullableFilter<"MTCRole"> | string | null
-  UpdateDate?: Prisma.DateTimeNullableFilter<"MTCRole"> | Date | string | null
-  UpdateBy?: Prisma.StringNullableFilter<"MTCRole"> | string | null
+  CreatedAt?: Prisma.DateTimeFilter<"MTCRole"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"MTCRole"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"MTCRole"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"MTCRole"> | string
   Permission?: Prisma.MTCPermissionListRelationFilter
   Users?: Prisma.MTCUserManagementListRelationFilter
 }, "Id" | "RoleName">
@@ -267,10 +267,10 @@ export type MTCRoleOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
   RoleName?: Prisma.SortOrder
   Description?: Prisma.SortOrderInput | Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   _count?: Prisma.MTCRoleCountOrderByAggregateInput
   _avg?: Prisma.MTCRoleAvgOrderByAggregateInput
   _max?: Prisma.MTCRoleMaxOrderByAggregateInput
@@ -285,19 +285,19 @@ export type MTCRoleScalarWhereWithAggregatesInput = {
   Id?: Prisma.IntWithAggregatesFilter<"MTCRole"> | number
   RoleName?: Prisma.StringWithAggregatesFilter<"MTCRole"> | string
   Description?: Prisma.StringNullableWithAggregatesFilter<"MTCRole"> | string | null
-  CreateDate?: Prisma.DateTimeWithAggregatesFilter<"MTCRole"> | Date | string
-  CreateBy?: Prisma.StringNullableWithAggregatesFilter<"MTCRole"> | string | null
-  UpdateDate?: Prisma.DateTimeNullableWithAggregatesFilter<"MTCRole"> | Date | string | null
-  UpdateBy?: Prisma.StringNullableWithAggregatesFilter<"MTCRole"> | string | null
+  CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"MTCRole"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"MTCRole"> | string
+  UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"MTCRole"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"MTCRole"> | string
 }
 
 export type MTCRoleCreateInput = {
   RoleName: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Permission?: Prisma.MTCPermissionCreateNestedManyWithoutRolesInput
   Users?: Prisma.MTCUserManagementCreateNestedManyWithoutRoleInput
 }
@@ -306,10 +306,10 @@ export type MTCRoleUncheckedCreateInput = {
   Id?: number
   RoleName: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Permission?: Prisma.MTCPermissionUncheckedCreateNestedManyWithoutRolesInput
   Users?: Prisma.MTCUserManagementUncheckedCreateNestedManyWithoutRoleInput
 }
@@ -317,10 +317,10 @@ export type MTCRoleUncheckedCreateInput = {
 export type MTCRoleUpdateInput = {
   RoleName?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Permission?: Prisma.MTCPermissionUpdateManyWithoutRolesNestedInput
   Users?: Prisma.MTCUserManagementUpdateManyWithoutRoleNestedInput
 }
@@ -329,10 +329,10 @@ export type MTCRoleUncheckedUpdateInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   RoleName?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Permission?: Prisma.MTCPermissionUncheckedUpdateManyWithoutRolesNestedInput
   Users?: Prisma.MTCUserManagementUncheckedUpdateManyWithoutRoleNestedInput
 }
@@ -341,29 +341,29 @@ export type MTCRoleCreateManyInput = {
   Id?: number
   RoleName: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type MTCRoleUpdateManyMutationInput = {
   RoleName?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type MTCRoleUncheckedUpdateManyInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   RoleName?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type MTCRoleNullableScalarRelationFilter = {
@@ -375,10 +375,10 @@ export type MTCRoleCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   RoleName?: Prisma.SortOrder
   Description?: Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type MTCRoleAvgOrderByAggregateInput = {
@@ -389,20 +389,20 @@ export type MTCRoleMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   RoleName?: Prisma.SortOrder
   Description?: Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type MTCRoleMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   RoleName?: Prisma.SortOrder
   Description?: Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type MTCRoleSumOrderByAggregateInput = {
@@ -476,10 +476,10 @@ export type MTCRoleUncheckedUpdateManyWithoutPermissionNestedInput = {
 export type MTCRoleCreateWithoutUsersInput = {
   RoleName: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Permission?: Prisma.MTCPermissionCreateNestedManyWithoutRolesInput
 }
 
@@ -487,10 +487,10 @@ export type MTCRoleUncheckedCreateWithoutUsersInput = {
   Id?: number
   RoleName: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Permission?: Prisma.MTCPermissionUncheckedCreateNestedManyWithoutRolesInput
 }
 
@@ -513,10 +513,10 @@ export type MTCRoleUpdateToOneWithWhereWithoutUsersInput = {
 export type MTCRoleUpdateWithoutUsersInput = {
   RoleName?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Permission?: Prisma.MTCPermissionUpdateManyWithoutRolesNestedInput
 }
 
@@ -524,20 +524,20 @@ export type MTCRoleUncheckedUpdateWithoutUsersInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   RoleName?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Permission?: Prisma.MTCPermissionUncheckedUpdateManyWithoutRolesNestedInput
 }
 
 export type MTCRoleCreateWithoutPermissionInput = {
   RoleName: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Users?: Prisma.MTCUserManagementCreateNestedManyWithoutRoleInput
 }
 
@@ -545,10 +545,10 @@ export type MTCRoleUncheckedCreateWithoutPermissionInput = {
   Id?: number
   RoleName: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Users?: Prisma.MTCUserManagementUncheckedCreateNestedManyWithoutRoleInput
 }
 
@@ -580,19 +580,19 @@ export type MTCRoleScalarWhereInput = {
   Id?: Prisma.IntFilter<"MTCRole"> | number
   RoleName?: Prisma.StringFilter<"MTCRole"> | string
   Description?: Prisma.StringNullableFilter<"MTCRole"> | string | null
-  CreateDate?: Prisma.DateTimeFilter<"MTCRole"> | Date | string
-  CreateBy?: Prisma.StringNullableFilter<"MTCRole"> | string | null
-  UpdateDate?: Prisma.DateTimeNullableFilter<"MTCRole"> | Date | string | null
-  UpdateBy?: Prisma.StringNullableFilter<"MTCRole"> | string | null
+  CreatedAt?: Prisma.DateTimeFilter<"MTCRole"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"MTCRole"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"MTCRole"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"MTCRole"> | string
 }
 
 export type MTCRoleUpdateWithoutPermissionInput = {
   RoleName?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Users?: Prisma.MTCUserManagementUpdateManyWithoutRoleNestedInput
 }
 
@@ -600,10 +600,10 @@ export type MTCRoleUncheckedUpdateWithoutPermissionInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   RoleName?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Users?: Prisma.MTCUserManagementUncheckedUpdateManyWithoutRoleNestedInput
 }
 
@@ -611,10 +611,10 @@ export type MTCRoleUncheckedUpdateManyWithoutPermissionInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   RoleName?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -661,10 +661,10 @@ export type MTCRoleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   Id?: boolean
   RoleName?: boolean
   Description?: boolean
-  CreateDate?: boolean
-  CreateBy?: boolean
-  UpdateDate?: boolean
-  UpdateBy?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Permission?: boolean | Prisma.MTCRole$PermissionArgs<ExtArgs>
   Users?: boolean | Prisma.MTCRole$UsersArgs<ExtArgs>
   _count?: boolean | Prisma.MTCRoleCountOutputTypeDefaultArgs<ExtArgs>
@@ -674,33 +674,33 @@ export type MTCRoleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   Id?: boolean
   RoleName?: boolean
   Description?: boolean
-  CreateDate?: boolean
-  CreateBy?: boolean
-  UpdateDate?: boolean
-  UpdateBy?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["mTCRole"]>
 
 export type MTCRoleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
   RoleName?: boolean
   Description?: boolean
-  CreateDate?: boolean
-  CreateBy?: boolean
-  UpdateDate?: boolean
-  UpdateBy?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["mTCRole"]>
 
 export type MTCRoleSelectScalar = {
   Id?: boolean
   RoleName?: boolean
   Description?: boolean
-  CreateDate?: boolean
-  CreateBy?: boolean
-  UpdateDate?: boolean
-  UpdateBy?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }
 
-export type MTCRoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "RoleName" | "Description" | "CreateDate" | "CreateBy" | "UpdateDate" | "UpdateBy", ExtArgs["result"]["mTCRole"]>
+export type MTCRoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "RoleName" | "Description" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy", ExtArgs["result"]["mTCRole"]>
 export type MTCRoleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Permission?: boolean | Prisma.MTCRole$PermissionArgs<ExtArgs>
   Users?: boolean | Prisma.MTCRole$UsersArgs<ExtArgs>
@@ -719,10 +719,10 @@ export type $MTCRolePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     Id: number
     RoleName: string
     Description: string | null
-    CreateDate: Date
-    CreateBy: string | null
-    UpdateDate: Date | null
-    UpdateBy: string | null
+    CreatedAt: Date
+    CreatedBy: string
+    UpdatedAt: Date
+    UpdatedBy: string
   }, ExtArgs["result"]["mTCRole"]>
   composites: {}
 }
@@ -1151,10 +1151,10 @@ export interface MTCRoleFieldRefs {
   readonly Id: Prisma.FieldRef<"MTCRole", 'Int'>
   readonly RoleName: Prisma.FieldRef<"MTCRole", 'String'>
   readonly Description: Prisma.FieldRef<"MTCRole", 'String'>
-  readonly CreateDate: Prisma.FieldRef<"MTCRole", 'DateTime'>
-  readonly CreateBy: Prisma.FieldRef<"MTCRole", 'String'>
-  readonly UpdateDate: Prisma.FieldRef<"MTCRole", 'DateTime'>
-  readonly UpdateBy: Prisma.FieldRef<"MTCRole", 'String'>
+  readonly CreatedAt: Prisma.FieldRef<"MTCRole", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"MTCRole", 'String'>
+  readonly UpdatedAt: Prisma.FieldRef<"MTCRole", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"MTCRole", 'String'>
 }
     
 

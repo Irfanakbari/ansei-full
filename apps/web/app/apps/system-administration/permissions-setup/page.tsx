@@ -13,6 +13,7 @@ import ToolbarWrapper from "@/components/ToolbarWrapper";
 import {useSingleRowSelection} from "@/hooks/useSingleRowSelection";
 import {AppDispatch, RootState} from "@/store";
 import {fetchPermissions, PermissionData} from "@/store/features/permissions/permissionsSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 import CreatePermissionModal from "./_components/CreatePermissionModal";
 import PermissionModal from "./_components/PermissionModal";
 
@@ -68,6 +69,20 @@ export default function PermissionsSetupPage() {
             dataIndex: "Description",
             key: "Description",
             render: (value: string | null) => value || "-", ...searchColumn("Description")
+        },
+        {title: "Created Date", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
+        {
+            title: "Created By",
+            dataIndex: "CreatedBy",
+            key: "CreatedBy",
+            render: (_, record) => record.CreatedByName || record.CreatedBy || "-"
+        },
+        {title: "Updated Date", dataIndex: "UpdatedAt", key: "UpdatedAt", render: formatDateTime},
+        {
+            title: "Updated By",
+            dataIndex: "UpdatedBy",
+            key: "UpdatedBy",
+            render: (_, record) => record.UpdatedByName || record.UpdatedBy || "-"
         },
     ];
 

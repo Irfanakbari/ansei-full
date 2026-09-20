@@ -120,7 +120,11 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const SatuanScalarFieldEnum = {
   Id: 'Id',
-  Name: 'Name'
+  Name: 'Name',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
 } as const
 
 export type SatuanScalarFieldEnum = (typeof SatuanScalarFieldEnum)[keyof typeof SatuanScalarFieldEnum]
@@ -129,7 +133,10 @@ export type SatuanScalarFieldEnum = (typeof SatuanScalarFieldEnum)[keyof typeof 
 export const SupplierScalarFieldEnum = {
   Id: 'Id',
   Name: 'Name',
-  CreatedAt: 'CreatedAt'
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
 } as const
 
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
@@ -142,6 +149,7 @@ export const MaterialScalarFieldEnum = {
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy',
   Supplier: 'Supplier',
   SupplierId: 'SupplierId',
   SatuanId: 'SatuanId',
@@ -168,6 +176,7 @@ export const FinishGoodScalarFieldEnum = {
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy',
   Qty: 'Qty'
 } as const
 
@@ -177,7 +186,11 @@ export type FinishGoodScalarFieldEnum = (typeof FinishGoodScalarFieldEnum)[keyof
 export const BoxQTYScalarFieldEnum = {
   Id: 'Id',
   PartNumber: 'PartNumber',
-  Qty: 'Qty'
+  Qty: 'Qty',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
 } as const
 
 export type BoxQTYScalarFieldEnum = (typeof BoxQTYScalarFieldEnum)[keyof typeof BoxQTYScalarFieldEnum]
@@ -199,6 +212,9 @@ export const ManPowerScalarFieldEnum = {
   PicturePath: 'PicturePath',
   Name: 'Name',
   CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy',
   Status: 'Status',
   Line: 'Line'
 } as const
@@ -542,7 +558,11 @@ export const EmailNotificationScalarFieldEnum = {
   Id: 'Id',
   Name: 'Name',
   Email: 'Email',
-  Type: 'Type'
+  Type: 'Type',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
 } as const
 
 export type EmailNotificationScalarFieldEnum = (typeof EmailNotificationScalarFieldEnum)[keyof typeof EmailNotificationScalarFieldEnum]
@@ -625,6 +645,10 @@ export const MTCUserManagementScalarFieldEnum = {
   Name: 'Name',
   LastLogin: 'LastLogin',
   Email: 'Email',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy',
   SsoObjectId: 'SsoObjectId',
   RoleId: 'RoleId'
 } as const
@@ -651,10 +675,10 @@ export const MTCRoleScalarFieldEnum = {
   Id: 'Id',
   RoleName: 'RoleName',
   Description: 'Description',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy'
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
 } as const
 
 export type MTCRoleScalarFieldEnum = (typeof MTCRoleScalarFieldEnum)[keyof typeof MTCRoleScalarFieldEnum]
@@ -664,10 +688,10 @@ export const MTCPermissionScalarFieldEnum = {
   Id: 'Id',
   Action: 'Action',
   Description: 'Description',
-  CreateDate: 'CreateDate',
-  CreateBy: 'CreateBy',
-  UpdateDate: 'UpdateDate',
-  UpdateBy: 'UpdateBy'
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
 } as const
 
 export type MTCPermissionScalarFieldEnum = (typeof MTCPermissionScalarFieldEnum)[keyof typeof MTCPermissionScalarFieldEnum]
@@ -709,7 +733,9 @@ export const PrinterSettingScalarFieldEnum = {
   Name: 'Name',
   IpAddress: 'IpAddress',
   CreatedAt: 'CreatedAt',
-  UpdatedAt: 'UpdatedAt'
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
 } as const
 
 export type PrinterSettingScalarFieldEnum = (typeof PrinterSettingScalarFieldEnum)[keyof typeof PrinterSettingScalarFieldEnum]
@@ -725,7 +751,9 @@ export const ApiKeyScalarFieldEnum = {
   IsActive: 'IsActive',
   LastUsedAt: 'LastUsedAt',
   CreatedAt: 'CreatedAt',
-  CreatedBy: 'CreatedBy'
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
 } as const
 
 export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
@@ -735,7 +763,9 @@ export const DisplayConfigScalarFieldEnum = {
   Id: 'Id',
   Description: 'Description',
   CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy',
   IsOpen: 'IsOpen',
   Url: 'Url',
   Loop: 'Loop',

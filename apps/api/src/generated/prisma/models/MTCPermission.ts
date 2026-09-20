@@ -38,30 +38,30 @@ export type MTCPermissionMinAggregateOutputType = {
   Id: number | null
   Action: string | null
   Description: string | null
-  CreateDate: Date | null
-  CreateBy: string | null
-  UpdateDate: Date | null
-  UpdateBy: string | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type MTCPermissionMaxAggregateOutputType = {
   Id: number | null
   Action: string | null
   Description: string | null
-  CreateDate: Date | null
-  CreateBy: string | null
-  UpdateDate: Date | null
-  UpdateBy: string | null
+  CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type MTCPermissionCountAggregateOutputType = {
   Id: number
   Action: number
   Description: number
-  CreateDate: number
-  CreateBy: number
-  UpdateDate: number
-  UpdateBy: number
+  CreatedAt: number
+  CreatedBy: number
+  UpdatedAt: number
+  UpdatedBy: number
   _all: number
 }
 
@@ -78,30 +78,30 @@ export type MTCPermissionMinAggregateInputType = {
   Id?: true
   Action?: true
   Description?: true
-  CreateDate?: true
-  CreateBy?: true
-  UpdateDate?: true
-  UpdateBy?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type MTCPermissionMaxAggregateInputType = {
   Id?: true
   Action?: true
   Description?: true
-  CreateDate?: true
-  CreateBy?: true
-  UpdateDate?: true
-  UpdateBy?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type MTCPermissionCountAggregateInputType = {
   Id?: true
   Action?: true
   Description?: true
-  CreateDate?: true
-  CreateBy?: true
-  UpdateDate?: true
-  UpdateBy?: true
+  CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   _all?: true
 }
 
@@ -195,10 +195,10 @@ export type MTCPermissionGroupByOutputType = {
   Id: number
   Action: string
   Description: string | null
-  CreateDate: Date
-  CreateBy: string | null
-  UpdateDate: Date | null
-  UpdateBy: string | null
+  CreatedAt: Date
+  CreatedBy: string
+  UpdatedAt: Date
+  UpdatedBy: string
   _count: MTCPermissionCountAggregateOutputType | null
   _avg: MTCPermissionAvgAggregateOutputType | null
   _sum: MTCPermissionSumAggregateOutputType | null
@@ -228,10 +228,10 @@ export type MTCPermissionWhereInput = {
   Id?: Prisma.IntFilter<"MTCPermission"> | number
   Action?: Prisma.StringFilter<"MTCPermission"> | string
   Description?: Prisma.StringNullableFilter<"MTCPermission"> | string | null
-  CreateDate?: Prisma.DateTimeFilter<"MTCPermission"> | Date | string
-  CreateBy?: Prisma.StringNullableFilter<"MTCPermission"> | string | null
-  UpdateDate?: Prisma.DateTimeNullableFilter<"MTCPermission"> | Date | string | null
-  UpdateBy?: Prisma.StringNullableFilter<"MTCPermission"> | string | null
+  CreatedAt?: Prisma.DateTimeFilter<"MTCPermission"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"MTCPermission"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"MTCPermission"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"MTCPermission"> | string
   Roles?: Prisma.MTCRoleListRelationFilter
 }
 
@@ -239,10 +239,10 @@ export type MTCPermissionOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
   Action?: Prisma.SortOrder
   Description?: Prisma.SortOrderInput | Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Roles?: Prisma.MTCRoleOrderByRelationAggregateInput
 }
 
@@ -253,10 +253,10 @@ export type MTCPermissionWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.MTCPermissionWhereInput[]
   NOT?: Prisma.MTCPermissionWhereInput | Prisma.MTCPermissionWhereInput[]
   Description?: Prisma.StringNullableFilter<"MTCPermission"> | string | null
-  CreateDate?: Prisma.DateTimeFilter<"MTCPermission"> | Date | string
-  CreateBy?: Prisma.StringNullableFilter<"MTCPermission"> | string | null
-  UpdateDate?: Prisma.DateTimeNullableFilter<"MTCPermission"> | Date | string | null
-  UpdateBy?: Prisma.StringNullableFilter<"MTCPermission"> | string | null
+  CreatedAt?: Prisma.DateTimeFilter<"MTCPermission"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"MTCPermission"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"MTCPermission"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"MTCPermission"> | string
   Roles?: Prisma.MTCRoleListRelationFilter
 }, "Id" | "Action">
 
@@ -264,10 +264,10 @@ export type MTCPermissionOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
   Action?: Prisma.SortOrder
   Description?: Prisma.SortOrderInput | Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   _count?: Prisma.MTCPermissionCountOrderByAggregateInput
   _avg?: Prisma.MTCPermissionAvgOrderByAggregateInput
   _max?: Prisma.MTCPermissionMaxOrderByAggregateInput
@@ -282,19 +282,19 @@ export type MTCPermissionScalarWhereWithAggregatesInput = {
   Id?: Prisma.IntWithAggregatesFilter<"MTCPermission"> | number
   Action?: Prisma.StringWithAggregatesFilter<"MTCPermission"> | string
   Description?: Prisma.StringNullableWithAggregatesFilter<"MTCPermission"> | string | null
-  CreateDate?: Prisma.DateTimeWithAggregatesFilter<"MTCPermission"> | Date | string
-  CreateBy?: Prisma.StringNullableWithAggregatesFilter<"MTCPermission"> | string | null
-  UpdateDate?: Prisma.DateTimeNullableWithAggregatesFilter<"MTCPermission"> | Date | string | null
-  UpdateBy?: Prisma.StringNullableWithAggregatesFilter<"MTCPermission"> | string | null
+  CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"MTCPermission"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"MTCPermission"> | string
+  UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"MTCPermission"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"MTCPermission"> | string
 }
 
 export type MTCPermissionCreateInput = {
   Action: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Roles?: Prisma.MTCRoleCreateNestedManyWithoutPermissionInput
 }
 
@@ -302,20 +302,20 @@ export type MTCPermissionUncheckedCreateInput = {
   Id?: number
   Action: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Roles?: Prisma.MTCRoleUncheckedCreateNestedManyWithoutPermissionInput
 }
 
 export type MTCPermissionUpdateInput = {
   Action?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Roles?: Prisma.MTCRoleUpdateManyWithoutPermissionNestedInput
 }
 
@@ -323,10 +323,10 @@ export type MTCPermissionUncheckedUpdateInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Action?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Roles?: Prisma.MTCRoleUncheckedUpdateManyWithoutPermissionNestedInput
 }
 
@@ -334,29 +334,29 @@ export type MTCPermissionCreateManyInput = {
   Id?: number
   Action: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type MTCPermissionUpdateManyMutationInput = {
   Action?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type MTCPermissionUncheckedUpdateManyInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Action?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type MTCPermissionListRelationFilter = {
@@ -373,10 +373,10 @@ export type MTCPermissionCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Action?: Prisma.SortOrder
   Description?: Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type MTCPermissionAvgOrderByAggregateInput = {
@@ -387,20 +387,20 @@ export type MTCPermissionMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Action?: Prisma.SortOrder
   Description?: Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type MTCPermissionMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Action?: Prisma.SortOrder
   Description?: Prisma.SortOrder
-  CreateDate?: Prisma.SortOrder
-  CreateBy?: Prisma.SortOrder
-  UpdateDate?: Prisma.SortOrder
-  UpdateBy?: Prisma.SortOrder
+  CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type MTCPermissionSumOrderByAggregateInput = {
@@ -448,20 +448,20 @@ export type MTCPermissionUncheckedUpdateManyWithoutRolesNestedInput = {
 export type MTCPermissionCreateWithoutRolesInput = {
   Action: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type MTCPermissionUncheckedCreateWithoutRolesInput = {
   Id?: number
   Action: string
   Description?: string | null
-  CreateDate?: Date | string
-  CreateBy?: string | null
-  UpdateDate?: Date | string | null
-  UpdateBy?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type MTCPermissionCreateOrConnectWithoutRolesInput = {
@@ -492,39 +492,39 @@ export type MTCPermissionScalarWhereInput = {
   Id?: Prisma.IntFilter<"MTCPermission"> | number
   Action?: Prisma.StringFilter<"MTCPermission"> | string
   Description?: Prisma.StringNullableFilter<"MTCPermission"> | string | null
-  CreateDate?: Prisma.DateTimeFilter<"MTCPermission"> | Date | string
-  CreateBy?: Prisma.StringNullableFilter<"MTCPermission"> | string | null
-  UpdateDate?: Prisma.DateTimeNullableFilter<"MTCPermission"> | Date | string | null
-  UpdateBy?: Prisma.StringNullableFilter<"MTCPermission"> | string | null
+  CreatedAt?: Prisma.DateTimeFilter<"MTCPermission"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"MTCPermission"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"MTCPermission"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"MTCPermission"> | string
 }
 
 export type MTCPermissionUpdateWithoutRolesInput = {
   Action?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type MTCPermissionUncheckedUpdateWithoutRolesInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Action?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type MTCPermissionUncheckedUpdateManyWithoutRolesInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Action?: Prisma.StringFieldUpdateOperationsInput | string
   Description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreateDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  UpdateDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  UpdateBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -562,10 +562,10 @@ export type MTCPermissionSelect<ExtArgs extends runtime.Types.Extensions.Interna
   Id?: boolean
   Action?: boolean
   Description?: boolean
-  CreateDate?: boolean
-  CreateBy?: boolean
-  UpdateDate?: boolean
-  UpdateBy?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Roles?: boolean | Prisma.MTCPermission$RolesArgs<ExtArgs>
   _count?: boolean | Prisma.MTCPermissionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mTCPermission"]>
@@ -574,33 +574,33 @@ export type MTCPermissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   Id?: boolean
   Action?: boolean
   Description?: boolean
-  CreateDate?: boolean
-  CreateBy?: boolean
-  UpdateDate?: boolean
-  UpdateBy?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["mTCPermission"]>
 
 export type MTCPermissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
   Action?: boolean
   Description?: boolean
-  CreateDate?: boolean
-  CreateBy?: boolean
-  UpdateDate?: boolean
-  UpdateBy?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["mTCPermission"]>
 
 export type MTCPermissionSelectScalar = {
   Id?: boolean
   Action?: boolean
   Description?: boolean
-  CreateDate?: boolean
-  CreateBy?: boolean
-  UpdateDate?: boolean
-  UpdateBy?: boolean
+  CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }
 
-export type MTCPermissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Action" | "Description" | "CreateDate" | "CreateBy" | "UpdateDate" | "UpdateBy", ExtArgs["result"]["mTCPermission"]>
+export type MTCPermissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Action" | "Description" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy", ExtArgs["result"]["mTCPermission"]>
 export type MTCPermissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Roles?: boolean | Prisma.MTCPermission$RolesArgs<ExtArgs>
   _count?: boolean | Prisma.MTCPermissionCountOutputTypeDefaultArgs<ExtArgs>
@@ -617,10 +617,10 @@ export type $MTCPermissionPayload<ExtArgs extends runtime.Types.Extensions.Inter
     Id: number
     Action: string
     Description: string | null
-    CreateDate: Date
-    CreateBy: string | null
-    UpdateDate: Date | null
-    UpdateBy: string | null
+    CreatedAt: Date
+    CreatedBy: string
+    UpdatedAt: Date
+    UpdatedBy: string
   }, ExtArgs["result"]["mTCPermission"]>
   composites: {}
 }
@@ -1048,10 +1048,10 @@ export interface MTCPermissionFieldRefs {
   readonly Id: Prisma.FieldRef<"MTCPermission", 'Int'>
   readonly Action: Prisma.FieldRef<"MTCPermission", 'String'>
   readonly Description: Prisma.FieldRef<"MTCPermission", 'String'>
-  readonly CreateDate: Prisma.FieldRef<"MTCPermission", 'DateTime'>
-  readonly CreateBy: Prisma.FieldRef<"MTCPermission", 'String'>
-  readonly UpdateDate: Prisma.FieldRef<"MTCPermission", 'DateTime'>
-  readonly UpdateBy: Prisma.FieldRef<"MTCPermission", 'String'>
+  readonly CreatedAt: Prisma.FieldRef<"MTCPermission", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"MTCPermission", 'String'>
+  readonly UpdatedAt: Prisma.FieldRef<"MTCPermission", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"MTCPermission", 'String'>
 }
     
 

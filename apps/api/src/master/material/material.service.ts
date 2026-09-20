@@ -142,6 +142,7 @@ export class MaterialService {
             MinimumStock: dto.minimumStock ?? 0,
             MaximumStock: dto.maximumStock ?? 0,
             CreatedBy: createdBy,
+            UpdatedBy: createdBy,
           },
           include: {
             SatuanData: true,
@@ -237,6 +238,7 @@ export class MaterialService {
             RackLocation: dto.rackLocation,
             MinimumStock: dto.minimumStock,
             MaximumStock: dto.maximumStock,
+            UpdatedBy: createdBy,
           },
           include: {
             SatuanData: true,
@@ -493,6 +495,7 @@ export class MaterialService {
           data: {
             IsActive: false,
             DiscontinueDate: now,
+            UpdatedBy: discontinuedBy,
           },
           include: {
             SatuanData: true,
@@ -578,6 +581,7 @@ export class MaterialService {
           data: {
             IsActive: true,
             DiscontinueDate: null,
+            UpdatedBy: reactivatedBy,
           },
           include: {
             SatuanData: true,

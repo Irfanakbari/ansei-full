@@ -247,7 +247,11 @@ export default function ManPowerModal({open, data, onClose, onChanged}: Props) {
                 color={data.Status ? "green" : "red"}>{data.Status ? "Active" : "Inactive"}</Tag></Descriptions.Item><Descriptions.Item
                 label="Photo">{data.PicturePath ? <Avatar src={data.PicturePath} size={64} shape="square"/> :
                 <Avatar icon={<UserOutlined/>} size={64} shape="square"/>}</Descriptions.Item><Descriptions.Item
-                label="Created At">{formatDateTime(data.CreatedAt)}</Descriptions.Item></Descriptions><Text strong>Skill
+                label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item><Descriptions.Item
+                label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item><Descriptions.Item
+                label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item><Descriptions.Item
+                label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item></Descriptions><Text
+            strong>Skill
             Matrix</Text>{data.SkillMatrix?.length ? data.SkillMatrix.map((skill) => <Tag key={skill.Id}
                                                                                           style={{marginTop: 8}}>{skill.Label}: {skill.Point}</Tag>) :
             <Text type="secondary"> No skills</Text>}</>}

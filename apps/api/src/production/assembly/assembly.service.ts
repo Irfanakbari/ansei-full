@@ -421,7 +421,7 @@ export class AssemblyService {
       });
       await tx.finishGood.update({
         where: { PartNumber: label.FinishGoodId },
-        data: { Qty: after },
+        data: { Qty: after, UpdatedBy: actor },
       });
       return tx.assemblySession.update({
         where: { Id: id },

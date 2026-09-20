@@ -9,6 +9,7 @@ import ButtonToolbar from "@/components/ButtonToolbar";
 import GoldenArrowAction from "@/components/GoldenArrowAction";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import {useSingleRowSelection} from "@/hooks/useSingleRowSelection";
+import {formatDateTime} from "@/lib/utils/dateTime";
 import {AppDispatch, RootState} from "@/store";
 import {fetchSatuan, SatuanEntity, setSatuanQuery} from "@/store/features/master/satuanSlice";
 import CreateSatuanModal from "./_components/CreateSatuanModal";
@@ -56,6 +57,20 @@ export default function SatuanPage() {
                                    }}/>
                 <span>{value}</span>
             </Space>
+        },
+        {title: "Created Date", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
+        {
+            title: "Created By",
+            dataIndex: "CreatedBy",
+            key: "CreatedBy",
+            render: (_, record) => record.CreatedByName || record.CreatedBy || "-"
+        },
+        {title: "Updated Date", dataIndex: "UpdatedAt", key: "UpdatedAt", render: formatDateTime},
+        {
+            title: "Updated By",
+            dataIndex: "UpdatedBy",
+            key: "UpdatedBy",
+            render: (_, record) => record.UpdatedByName || record.UpdatedBy || "-"
         },
     ];
 

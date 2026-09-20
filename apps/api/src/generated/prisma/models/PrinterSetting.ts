@@ -29,7 +29,9 @@ export type PrinterSettingMinAggregateOutputType = {
   Name: string | null
   IpAddress: string | null
   CreatedAt: Date | null
+  CreatedBy: string | null
   UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type PrinterSettingMaxAggregateOutputType = {
@@ -37,7 +39,9 @@ export type PrinterSettingMaxAggregateOutputType = {
   Name: string | null
   IpAddress: string | null
   CreatedAt: Date | null
+  CreatedBy: string | null
   UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type PrinterSettingCountAggregateOutputType = {
@@ -45,7 +49,9 @@ export type PrinterSettingCountAggregateOutputType = {
   Name: number
   IpAddress: number
   CreatedAt: number
+  CreatedBy: number
   UpdatedAt: number
+  UpdatedBy: number
   _all: number
 }
 
@@ -55,7 +61,9 @@ export type PrinterSettingMinAggregateInputType = {
   Name?: true
   IpAddress?: true
   CreatedAt?: true
+  CreatedBy?: true
   UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type PrinterSettingMaxAggregateInputType = {
@@ -63,7 +71,9 @@ export type PrinterSettingMaxAggregateInputType = {
   Name?: true
   IpAddress?: true
   CreatedAt?: true
+  CreatedBy?: true
   UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type PrinterSettingCountAggregateInputType = {
@@ -71,7 +81,9 @@ export type PrinterSettingCountAggregateInputType = {
   Name?: true
   IpAddress?: true
   CreatedAt?: true
+  CreatedBy?: true
   UpdatedAt?: true
+  UpdatedBy?: true
   _all?: true
 }
 
@@ -152,7 +164,9 @@ export type PrinterSettingGroupByOutputType = {
   Name: string | null
   IpAddress: string
   CreatedAt: Date
+  CreatedBy: string
   UpdatedAt: Date
+  UpdatedBy: string
   _count: PrinterSettingCountAggregateOutputType | null
   _min: PrinterSettingMinAggregateOutputType | null
   _max: PrinterSettingMaxAggregateOutputType | null
@@ -181,7 +195,9 @@ export type PrinterSettingWhereInput = {
   Name?: Prisma.StringNullableFilter<"PrinterSetting"> | string | null
   IpAddress?: Prisma.StringFilter<"PrinterSetting"> | string
   CreatedAt?: Prisma.DateTimeFilter<"PrinterSetting"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"PrinterSetting"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"PrinterSetting"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"PrinterSetting"> | string
 }
 
 export type PrinterSettingOrderByWithRelationInput = {
@@ -189,7 +205,9 @@ export type PrinterSettingOrderByWithRelationInput = {
   Name?: Prisma.SortOrderInput | Prisma.SortOrder
   IpAddress?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type PrinterSettingWhereUniqueInput = Prisma.AtLeast<{
@@ -200,7 +218,9 @@ export type PrinterSettingWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.PrinterSettingWhereInput | Prisma.PrinterSettingWhereInput[]
   Name?: Prisma.StringNullableFilter<"PrinterSetting"> | string | null
   CreatedAt?: Prisma.DateTimeFilter<"PrinterSetting"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"PrinterSetting"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"PrinterSetting"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"PrinterSetting"> | string
 }, "Id" | "IpAddress">
 
 export type PrinterSettingOrderByWithAggregationInput = {
@@ -208,7 +228,9 @@ export type PrinterSettingOrderByWithAggregationInput = {
   Name?: Prisma.SortOrderInput | Prisma.SortOrder
   IpAddress?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   _count?: Prisma.PrinterSettingCountOrderByAggregateInput
   _max?: Prisma.PrinterSettingMaxOrderByAggregateInput
   _min?: Prisma.PrinterSettingMinOrderByAggregateInput
@@ -222,7 +244,9 @@ export type PrinterSettingScalarWhereWithAggregatesInput = {
   Name?: Prisma.StringNullableWithAggregatesFilter<"PrinterSetting"> | string | null
   IpAddress?: Prisma.StringWithAggregatesFilter<"PrinterSetting"> | string
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"PrinterSetting"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"PrinterSetting"> | string
   UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"PrinterSetting"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"PrinterSetting"> | string
 }
 
 export type PrinterSettingCreateInput = {
@@ -230,7 +254,9 @@ export type PrinterSettingCreateInput = {
   Name?: string | null
   IpAddress: string
   CreatedAt?: Date | string
+  CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type PrinterSettingUncheckedCreateInput = {
@@ -238,7 +264,9 @@ export type PrinterSettingUncheckedCreateInput = {
   Name?: string | null
   IpAddress: string
   CreatedAt?: Date | string
+  CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type PrinterSettingUpdateInput = {
@@ -246,7 +274,9 @@ export type PrinterSettingUpdateInput = {
   Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IpAddress?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PrinterSettingUncheckedUpdateInput = {
@@ -254,7 +284,9 @@ export type PrinterSettingUncheckedUpdateInput = {
   Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IpAddress?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PrinterSettingCreateManyInput = {
@@ -262,7 +294,9 @@ export type PrinterSettingCreateManyInput = {
   Name?: string | null
   IpAddress: string
   CreatedAt?: Date | string
+  CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type PrinterSettingUpdateManyMutationInput = {
@@ -270,7 +304,9 @@ export type PrinterSettingUpdateManyMutationInput = {
   Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IpAddress?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PrinterSettingUncheckedUpdateManyInput = {
@@ -278,7 +314,9 @@ export type PrinterSettingUncheckedUpdateManyInput = {
   Name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IpAddress?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PrinterSettingCountOrderByAggregateInput = {
@@ -286,7 +324,9 @@ export type PrinterSettingCountOrderByAggregateInput = {
   Name?: Prisma.SortOrder
   IpAddress?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type PrinterSettingMaxOrderByAggregateInput = {
@@ -294,7 +334,9 @@ export type PrinterSettingMaxOrderByAggregateInput = {
   Name?: Prisma.SortOrder
   IpAddress?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type PrinterSettingMinOrderByAggregateInput = {
@@ -302,7 +344,9 @@ export type PrinterSettingMinOrderByAggregateInput = {
   Name?: Prisma.SortOrder
   IpAddress?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 
@@ -312,7 +356,9 @@ export type PrinterSettingSelect<ExtArgs extends runtime.Types.Extensions.Intern
   Name?: boolean
   IpAddress?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["printerSetting"]>
 
 export type PrinterSettingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -320,7 +366,9 @@ export type PrinterSettingSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   Name?: boolean
   IpAddress?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["printerSetting"]>
 
 export type PrinterSettingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -328,7 +376,9 @@ export type PrinterSettingSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   Name?: boolean
   IpAddress?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["printerSetting"]>
 
 export type PrinterSettingSelectScalar = {
@@ -336,10 +386,12 @@ export type PrinterSettingSelectScalar = {
   Name?: boolean
   IpAddress?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }
 
-export type PrinterSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Name" | "IpAddress" | "CreatedAt" | "UpdatedAt", ExtArgs["result"]["printerSetting"]>
+export type PrinterSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Name" | "IpAddress" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy", ExtArgs["result"]["printerSetting"]>
 
 export type $PrinterSettingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PrinterSetting"
@@ -349,7 +401,9 @@ export type $PrinterSettingPayload<ExtArgs extends runtime.Types.Extensions.Inte
     Name: string | null
     IpAddress: string
     CreatedAt: Date
+    CreatedBy: string
     UpdatedAt: Date
+    UpdatedBy: string
   }, ExtArgs["result"]["printerSetting"]>
   composites: {}
 }
@@ -777,7 +831,9 @@ export interface PrinterSettingFieldRefs {
   readonly Name: Prisma.FieldRef<"PrinterSetting", 'String'>
   readonly IpAddress: Prisma.FieldRef<"PrinterSetting", 'String'>
   readonly CreatedAt: Prisma.FieldRef<"PrinterSetting", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"PrinterSetting", 'String'>
   readonly UpdatedAt: Prisma.FieldRef<"PrinterSetting", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"PrinterSetting", 'String'>
 }
     
 

@@ -55,7 +55,7 @@ export default function PrinterConfigPage() {
 
     const columns: TableProps<PrinterSettingEntity>["columns"] = [
         {
-            title: "Printer Name", dataIndex: "Name", key: "Name", ...searchColumn("Search Printer Name"),
+            title: "Printer Name", dataIndex: "Name", key: "Name", ...searchColumn("Search Printer Name or IP Address"),
             render: (value, record) => <Space size={4}>
                 <GoldenArrowAction tooltip="View printer setting details"
                                    ariaLabel={`View printer setting details for ${value || record.IpAddress}`}
@@ -70,15 +70,22 @@ export default function PrinterConfigPage() {
             title: "IP Address",
             dataIndex: "IpAddress",
             key: "IpAddress",
-            render: (value: string) => <Tag color="blue">{value}</Tag>, ...searchColumn("Search IP Address")
+            render: (value: string) => <Tag color="blue">{value}</Tag>
         },
+        {title: "Created Date", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
         {
             title: "Created By",
             dataIndex: "CreatedBy",
             key: "CreatedBy",
-            render: (_, record) => record.CreatedByName || "-", ...searchColumn("Search Created By")
+            render: (_, record) => record.CreatedByName || record.CreatedBy || "-"
         },
-        {title: "Created At", dataIndex: "CreatedAt", key: "CreatedAt", render: formatDateTime},
+        {title: "Updated Date", dataIndex: "UpdatedAt", key: "UpdatedAt", render: formatDateTime},
+        {
+            title: "Updated By",
+            dataIndex: "UpdatedBy",
+            key: "UpdatedBy",
+            render: (_, record) => record.UpdatedByName || record.UpdatedBy || "-"
+        },
     ];
 
     return <Card variant="borderless" styles={{body: {padding: 0}}}>
@@ -91,7 +98,7 @@ export default function PrinterConfigPage() {
                onChange={(pageInfo, activeFilters) => dispatch(setPrinterSettingQuery({
                    page: Object.values(activeFilters).some(Boolean) ? 1 : pageInfo.current,
                    limit: pageInfo.pageSize,
-                   search: String(activeFilters.Name?.[0] ?? activeFilters.IpAddress?.[0] ?? activeFilters.CreatedBy?.[0] ?? "")
+                    search: String(activeFilters.Name?.[0] ?? "")
                }))}
                onRow={(record) => ({
                    onClick: () => selectRecord(record),

@@ -90,7 +90,12 @@ describe('User Management E2E', () => {
     it('GET /permissions - should list all permissions', async () => {
       // Create a permission first
       await prisma.mTCPermission.create({
-        data: { Action: 'TEST_LIST', Description: 'List test' },
+        data: {
+          Action: 'TEST_LIST',
+          Description: 'List test',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       const res = await request(app.getHttpServer())
@@ -103,7 +108,12 @@ describe('User Management E2E', () => {
 
     it('PATCH /permissions/:id - should update permission', async () => {
       const created = await prisma.mTCPermission.create({
-        data: { Action: 'TEST_UPDATE', Description: 'Original' },
+        data: {
+          Action: 'TEST_UPDATE',
+          Description: 'Original',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       const res = await request(app.getHttpServer())
@@ -117,7 +127,12 @@ describe('User Management E2E', () => {
 
     it('DELETE /permissions/:id - should delete permission', async () => {
       const created = await prisma.mTCPermission.create({
-        data: { Action: 'TEST_DELETE', Description: 'To delete' },
+        data: {
+          Action: 'TEST_DELETE',
+          Description: 'To delete',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       await request(app.getHttpServer())
@@ -144,7 +159,12 @@ describe('User Management E2E', () => {
 
     it('GET /roles - should list all roles', async () => {
       await prisma.mTCRole.create({
-        data: { RoleName: 'TEST_VIEWER', Description: 'Test viewer role' },
+        data: {
+          RoleName: 'TEST_VIEWER',
+          Description: 'Test viewer role',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       const res = await request(app.getHttpServer())
@@ -157,7 +177,12 @@ describe('User Management E2E', () => {
 
     it('PATCH /roles/:id - should update role', async () => {
       const created = await prisma.mTCRole.create({
-        data: { RoleName: 'TEST_EDITOR', Description: 'Original' },
+        data: {
+          RoleName: 'TEST_EDITOR',
+          Description: 'Original',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       const res = await request(app.getHttpServer())
@@ -171,7 +196,12 @@ describe('User Management E2E', () => {
 
     it('DELETE /roles/:id - should delete role', async () => {
       const created = await prisma.mTCRole.create({
-        data: { RoleName: 'TEST_DELETABLE', Description: 'To delete' },
+        data: {
+          RoleName: 'TEST_DELETABLE',
+          Description: 'To delete',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       await request(app.getHttpServer())
@@ -185,12 +215,16 @@ describe('User Management E2E', () => {
         data: {
           RoleName: 'TEST_ROLE_PERM',
           Description: 'Role for permission test',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
       const permission = await prisma.mTCPermission.create({
         data: {
           Action: 'TEST_ROLE_PERM_ACTION',
           Description: 'Permission for role',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -208,12 +242,16 @@ describe('User Management E2E', () => {
         data: {
           RoleName: 'TEST_ROLE_REMOVE',
           Description: 'Role for remove test',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
       const permission = await prisma.mTCPermission.create({
         data: {
           Action: 'TEST_REMOVE_ACTION',
           Description: 'Permission to remove',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -260,6 +298,8 @@ describe('User Management E2E', () => {
           SsoObjectId: 'sso-testuser002',
           Name: 'Test User 2',
           Email: 'testuser002@test.com',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -278,6 +318,8 @@ describe('User Management E2E', () => {
           SsoObjectId: 'sso-testuser003',
           Name: 'Original Name',
           Email: 'testuser003@test.com',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -292,7 +334,12 @@ describe('User Management E2E', () => {
 
     it('POST /users/:id/roles - should assign role to user', async () => {
       const role = await prisma.mTCRole.create({
-        data: { RoleName: 'TEST_USER_ROLE', Description: 'User role test' },
+        data: {
+          RoleName: 'TEST_USER_ROLE',
+          Description: 'User role test',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
       });
 
       await prisma.mTCUserManagement.create({
@@ -301,6 +348,8 @@ describe('User Management E2E', () => {
           SsoObjectId: 'sso-testuser005',
           Name: 'Role Assign Test User',
           Email: 'testuser005@test.com',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -318,6 +367,8 @@ describe('User Management E2E', () => {
         data: {
           RoleName: 'TEST_USER_ROLE_REMOVE',
           Description: 'Role remove test',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -328,6 +379,8 @@ describe('User Management E2E', () => {
           Name: 'Role Remove Test User',
           Email: 'testuser006@test.com',
           RoleId: role.Id,
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -346,6 +399,8 @@ describe('User Management E2E', () => {
           SsoObjectId: 'sso-testuser007',
           Name: 'Delete Test User',
           Email: 'testuser007@test.com',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 

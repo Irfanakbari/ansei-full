@@ -9,4 +9,11 @@ export class SatuanEntity {
 
   @ApiProperty({ description: 'Nama satuan', example: 'PCS' })
   Name: string;
+
+  @ApiProperty() CreatedAt: Date;
+  @ApiProperty() CreatedBy: string;
+  @ApiProperty() UpdatedAt: Date;
+  @ApiProperty() UpdatedBy: string;
+  @ApiProperty({ required: false }) CreatedByName?: string;
+  @ApiProperty({ required: false }) UpdatedByName?: string;
 }

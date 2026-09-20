@@ -1,5 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString, IsDateString } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 import { ItemCategory, TransactionType } from '../../generated/prisma/enums';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
@@ -16,16 +22,22 @@ export class InventoryLedgerQueryDto extends PaginationQueryDto {
     example: '2026-01-01',
   })
   @IsOptional()
-  @IsDateString()
-  transactionDateFrom?: string;
+  @IsDateString({ strict: true })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'dateFrom must be a valid date in YYYY-MM-DD format',
+  })
+  dateFrom?: string;
 
   @ApiPropertyOptional({
     description: 'Filter by transaction date (end date, YYYY-MM-DD)',
     example: '2026-12-31',
   })
   @IsOptional()
-  @IsDateString()
-  transactionDateTo?: string;
+  @IsDateString({ strict: true })
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'dateTo must be a valid date in YYYY-MM-DD format',
+  })
+  dateTo?: string;
 
   @ApiPropertyOptional({
     description: 'Filter by ItemCategory (MATERIAL or FINISH_GOOD)',

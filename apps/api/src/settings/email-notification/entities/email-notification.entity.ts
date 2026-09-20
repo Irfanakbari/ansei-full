@@ -8,4 +8,8 @@ export interface EmailNotificationEntity {
   Name: string;
   Email: string;
   Type: NotificationType;
+  CreatedAt: Date;
+  CreatedBy: string;
+  UpdatedAt: Date;
+  UpdatedBy: string;
 }

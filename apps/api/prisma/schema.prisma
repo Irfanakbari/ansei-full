@@ -86,15 +86,22 @@ enum PartType {
 // --- MASTER DATA ---
 
 model Satuan {
-  Id       Int        @id @default(autoincrement())
-  Name     String
-  Material Material[]
+  Id        Int        @id @default(autoincrement())
+  Name      String
+  CreatedAt DateTime   @default(now())
+  CreatedBy String
+  UpdatedAt DateTime   @updatedAt
+  UpdatedBy String
+  Material  Material[]
 }
 
 model Supplier {
   Id        Int        @id @default(autoincrement())
   Name      String
   CreatedAt DateTime   @default(now())
+  CreatedBy String
+  UpdatedAt DateTime   @updatedAt
+  UpdatedBy String
   Incoming  Incoming[]
   Material  Material[]
 }
@@ -108,6 +115,7 @@ model Material {
   CreatedAt    DateTime @default(now())
   CreatedBy    String
   UpdatedAt    DateTime @updatedAt
+  UpdatedBy    String
   Supplier     String?
   SupplierId   Int?
   SatuanId     Int?
@@ -153,6 +161,7 @@ model FinishGood {
   CreatedAt DateTime @default(now())
   CreatedBy String
   UpdatedAt DateTime @updatedAt
+  UpdatedBy String
 
   // cache stok fg
   Qty Int @default(0)
@@ -171,6 +180,10 @@ model BoxQTY {
   Id         Int        @id @default(autoincrement())
   PartNumber String     @unique
   Qty        Int
+  CreatedAt  DateTime   @default(now())
+  CreatedBy  String
+  UpdatedAt  DateTime   @updatedAt
+  UpdatedBy  String
   PartData   FinishGood @relation(fields: [PartNumber], references: [PartNumber])
 }
 
@@ -194,6 +207,9 @@ model ManPower {
   PicturePath      String?
   Name             String
   CreatedAt        DateTime           @default(now())
+  CreatedBy        String
+  UpdatedAt        DateTime           @updatedAt
+  UpdatedBy        String
   Status           Boolean            @default(true)
   Line             String?
   ProductionReport ProductionReport[]
@@ -643,10 +659,14 @@ model LineStatus {
 }
 
 model EmailNotification {
-  Id    Int              @id @default(autoincrement())
-  Name  String
-  Email String
-  Type  NotificationType @default(DEFAULT)
+  Id        Int              @id @default(autoincrement())
+  Name      String
+  Email     String
+  Type      NotificationType @default(DEFAULT)
+  CreatedAt DateTime         @default(now())
+  CreatedBy String
+  UpdatedAt DateTime         @updatedAt
+  UpdatedBy String
 }
 
 model DashboardSetting {
@@ -733,6 +753,10 @@ model MTCUserManagement {
   Name        String
   LastLogin   DateTime?
   Email       String    @unique
+  CreatedAt   DateTime  @default(now())
+  CreatedBy   String
+  UpdatedAt   DateTime  @updatedAt
+  UpdatedBy   String
 
   SsoObjectId String @unique
 
@@ -778,10 +802,10 @@ model MTCRole {
   Id          Int                 @id @default(autoincrement())
   RoleName    String              @unique
   Description String?
-  CreateDate  DateTime            @default(now())
-  CreateBy    String?
-  UpdateDate  DateTime?           @default(now())
-  UpdateBy    String?
+  CreatedAt   DateTime            @default(now()) @map("CreateDate")
+  CreatedBy   String              @map("CreateBy")
+  UpdatedAt   DateTime            @updatedAt @map("UpdateDate")
+  UpdatedBy   String              @map("UpdateBy")
   Permission  MTCPermission[]
   Users       MTCUserManagement[]
 }
@@ -790,10 +814,10 @@ model MTCPermission {
   Id          Int       @id @default(autoincrement())
   Action      String    @unique
   Description String?
-  CreateDate  DateTime  @default(now())
-  CreateBy    String?
-  UpdateDate  DateTime? @default(now())
-  UpdateBy    String?
+  CreatedAt   DateTime  @default(now()) @map("CreateDate")
+  CreatedBy   String    @map("CreateBy")
+  UpdatedAt   DateTime  @updatedAt @map("UpdateDate")
+  UpdatedBy   String    @map("UpdateBy")
   Roles       MTCRole[]
 
   @@index([Action])
@@ -852,7 +876,9 @@ model PrinterSetting {
   Name      String?
   IpAddress String   @unique
   CreatedAt DateTime @default(now())
+  CreatedBy String
   UpdatedAt DateTime @updatedAt
+  UpdatedBy String
 }
 
 model ApiKey {
@@ -866,16 +892,20 @@ model ApiKey {
   LastUsedAt  DateTime?
   CreatedAt   DateTime  @default(now())
   CreatedBy   String
+  UpdatedAt   DateTime  @updatedAt
+  UpdatedBy   String
 
   User MTCUserManagement @relation(fields: [UserId], references: [UserId])
 }
 
 model DisplayConfig {
-  Id          Int       @id @default(autoincrement())
+  Id          Int      @id @default(autoincrement())
   Description String
-  CreatedAt   DateTime? @default(now())
-  UpdatedAt   DateTime  @updatedAt
-  IsOpen      Boolean   @default(false)
+  CreatedAt   DateTime @default(now())
+  CreatedBy   String
+  UpdatedAt   DateTime @updatedAt
+  UpdatedBy   String
+  IsOpen      Boolean  @default(false)
   Url         String?
   Loop        Boolean   @default(true)
   FilePath    String?

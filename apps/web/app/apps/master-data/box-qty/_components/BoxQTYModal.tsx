@@ -7,6 +7,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "@/store";
 import {BoxQTYEntity, deleteBoxQTY, updateBoxQTY} from "@/store/features/master/boxQtySlice";
 import {fetchFinishGood} from "@/store/features/master/finishGoodSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 
 type FormValues = { partNumber?: string; qty?: number };
 
@@ -148,6 +149,12 @@ export default function BoxQTYModal({visible, data, onClose, onUpdated, onDelete
                     <Descriptions.Item label="Part Number">{data.PartNumber}</Descriptions.Item>
                     <Descriptions.Item label="Finish Good">{data.PartData?.PartName || "-"}</Descriptions.Item>
                     <Descriptions.Item label="Qty Per Box">{data.Qty}</Descriptions.Item>
+                    <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
+                    <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>

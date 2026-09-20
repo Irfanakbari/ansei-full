@@ -764,7 +764,7 @@ export class MaterialDeliveryNoteService {
             // Cut stock
             await tx.material.update({
               where: { PartNumber: detail.MaterialId },
-              data: { QtyWarehouse: balanceAfter },
+              data: { QtyWarehouse: balanceAfter, UpdatedBy: shippedBy },
             });
 
             // Create ledger entry

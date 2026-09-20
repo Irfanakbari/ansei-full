@@ -41,6 +41,7 @@ import {
 } from "@/store/features/traceability/traceabilitySlice";
 import type {BomRevision} from "@/store/features/traceability/types";
 import {fetchMaterial} from "@/store/features/master/materialSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 
 type Line = { materialId: number; qty: number; label: string };
 type RevisionDetailsProps = {
@@ -315,14 +316,29 @@ export default function RevisionDetails({
                                 children: <Tag>{revision.Status}</Tag>,
                             },
                             {
-                                key: "maker",
-                                label: "Created By",
-                                children: revision.CreatedBy,
+                                key: "createdDate",
+                                label: "Created Date",
+                                children: formatDateTime(revision.CreatedAt),
                             },
                             {
                                 key: "approver",
                                 label: "Approved By",
                                 children: revision.ApprovedBy ?? "-",
+                            },
+                            {
+                                key: "createdBy",
+                                label: "Created By",
+                                children: revision.CreatedByName || revision.CreatedBy || "-",
+                            },
+                            {
+                                key: "updatedDate",
+                                label: "Updated Date",
+                                children: formatDateTime(revision.UpdatedAt),
+                            },
+                            {
+                                key: "updatedBy",
+                                label: "Updated By",
+                                children: revision.UpdatedByName || revision.UpdatedBy || revision.LastEditedBy || "-",
                             },
                             {
                                 key: "version",
@@ -486,7 +502,7 @@ export default function RevisionDetails({
                                             },
                                             {title: "Snapshot Version", dataIndex: "Version"},
                                             {
-                                                title: "Created At",
+                                                title: "Created Date",
                                                 render: (_, r) =>
                                                     new Date(r.CreatedAt).toLocaleString("id-ID", {
                                                         timeZone: "Asia/Jakarta",

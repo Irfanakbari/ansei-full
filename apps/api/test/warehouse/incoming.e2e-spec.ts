@@ -90,6 +90,7 @@ describe('Warehouse Incoming E2E', () => {
           PartNumber: 'MAT-INC-001',
           PartName: 'Incoming Test Material',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -132,6 +133,7 @@ describe('Warehouse Incoming E2E', () => {
           PartNumber: 'MAT-INC-002',
           PartName: 'Incoming Test Material 2',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -169,6 +171,7 @@ describe('Warehouse Incoming E2E', () => {
           PartNumber: 'MAT-INC-003',
           PartName: 'Incoming Test Material 3',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -206,6 +209,7 @@ describe('Warehouse Incoming E2E', () => {
           PartNumber: 'MAT-INC-004',
           PartName: 'Incoming Test Material 4',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -244,6 +248,7 @@ describe('Warehouse Incoming E2E', () => {
           PartNumber: 'MAT-INC-005',
           PartName: 'Incoming Test Material 5',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 
@@ -281,6 +286,7 @@ describe('Warehouse Incoming E2E', () => {
           PartNumber: 'MAT-INC-006',
           PartName: 'Incoming Test Material 6',
           CreatedBy: 'admin',
+          UpdatedBy: 'admin',
         },
       });
 

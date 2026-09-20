@@ -110,6 +110,16 @@ function addDays(date: Date, days: number): Date {
 function deterministicBox(index: number): number {
   return index % 3 === 0 ? 32 : 16;
 }
+function nextUniqueMaterialIndex(
+  existing: number[],
+  candidate: number,
+): number {
+  let index = candidate % materialFamilies.length;
+  while (existing.includes(index)) {
+    index = (index + 1) % materialFamilies.length;
+  }
+  return index;
+}
 function assert(condition: boolean, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
@@ -123,13 +133,19 @@ async function main(): Promise<void> {
   for (const name of units) {
     const existing = await prisma.satuan.findFirst({ where: { Name: name } });
     const row =
-      existing ?? (await prisma.satuan.create({ data: { Name: name } }));
+      existing ??
+      (await prisma.satuan.create({
+        data: { Name: name, CreatedBy: ACTOR, UpdatedBy: ACTOR },
+      }));
     unitMap.set(name, row.Id);
   }
 
   for (const name of suppliers) {
     const existing = await prisma.supplier.findFirst({ where: { Name: name } });
-    if (!existing) await prisma.supplier.create({ data: { Name: name } });
+    if (!existing)
+      await prisma.supplier.create({
+        data: { Name: name, CreatedBy: ACTOR, UpdatedBy: ACTOR },
+      });
   }
 
   const materials = [] as Awaited<ReturnType<typeof prisma.material.upsert>>[];
@@ -147,11 +163,13 @@ async function main(): Promise<void> {
         RackLocation: `DM-${String.fromCharCode(65 + (index % 4))}-${String(index + 1).padStart(2, '0')}`,
         IsActive: true,
         DiscontinueDate: null,
+        UpdatedBy: ACTOR,
       },
       create: {
         PartNumber: partNumber,
         PartName: label,
         CreatedBy: ACTOR,
+        UpdatedBy: ACTOR,
         Supplier: supplier,
         SatuanId: unitMap.get(unit),
         RackLocation: `DM-${String.fromCharCode(65 + (index % 4))}-${String(index + 1).padStart(2, '0')}`,
@@ -204,20 +222,27 @@ async function main(): Promise<void> {
       update: {
         PartName: `Dummy Product Family ${String.fromCharCode(65 + (index % 6))} Variant ${index + 1}`,
         Price: 25000 + index * 3750,
+        UpdatedBy: ACTOR,
       },
       create: {
         PartNumber: partNumber,
         PartName: `Dummy Product Family ${String.fromCharCode(65 + (index % 6))} Variant ${index + 1}`,
         Price: 25000 + index * 3750,
         CreatedBy: ACTOR,
+        UpdatedBy: ACTOR,
         Qty: 0,
       },
     });
     finishGoods.push(fg);
     await prisma.boxQTY.upsert({
       where: { PartNumber: partNumber },
-      update: { Qty: deterministicBox(index) },
-      create: { PartNumber: partNumber, Qty: deterministicBox(index) },
+      update: { Qty: deterministicBox(index), UpdatedBy: ACTOR },
+      create: {
+        PartNumber: partNumber,
+        Qty: deterministicBox(index),
+        CreatedBy: ACTOR,
+        UpdatedBy: ACTOR,
+      },
     });
   }
 
@@ -236,11 +261,17 @@ async function main(): Promise<void> {
       );
       const activeMaterialIndexes = [
         ...baselineMaterialIndexes.slice(0, 4),
-        (baselineMaterialIndexes[4] + 1) % materials.length,
+        nextUniqueMaterialIndex(
+          baselineMaterialIndexes.slice(0, 4),
+          baselineMaterialIndexes[4] + 1,
+        ),
       ];
       const draftMaterialIndexes = [
         ...activeMaterialIndexes.slice(0, 4),
-        (activeMaterialIndexes[4] + 1) % materials.length,
+        nextUniqueMaterialIndex(
+          activeMaterialIndexes.slice(0, 4),
+          activeMaterialIndexes[4] + 1,
+        ),
       ];
       const revisionMaterialIndexes = [
         baselineMaterialIndexes,
@@ -400,7 +431,7 @@ async function main(): Promise<void> {
 
       await tx.finishGood.update({
         where: { Id: finishGoods[fgIndex].Id },
-        data: { ActiveBomRevisionId: revisionIds[1] },
+        data: { ActiveBomRevisionId: revisionIds[1], UpdatedBy: ACTOR },
       });
       const activeLines = await tx.bomRevisionLine.findMany({
         where: { RevisionId: revisionIds[1] },
@@ -423,12 +454,15 @@ async function main(): Promise<void> {
         Name: `Dummy Operator ${index + 1}`,
         Line: `LINE-${String.fromCharCode(65 + (index % 4))}`,
         Status: index !== 15,
+        UpdatedBy: ACTOR,
       },
       create: {
         Nik: nik,
         Name: `Dummy Operator ${index + 1}`,
         Line: `LINE-${String.fromCharCode(65 + (index % 4))}`,
         Status: index !== 15,
+        CreatedBy: ACTOR,
+        UpdatedBy: ACTOR,
       },
     });
   }
@@ -513,6 +547,8 @@ async function main(): Promise<void> {
         Name: `${settingsMarker} Operations`,
         Email: 'dummy-operations@example.invalid',
         Type: NotificationType.DEFAULT,
+        CreatedBy: ACTOR,
+        UpdatedBy: ACTOR,
       },
     });
   const dashboard = await prisma.dashboardSetting.findFirst();
@@ -532,6 +568,8 @@ async function main(): Promise<void> {
       data: {
         Name: `${settingsMarker} Label Printer`,
         IpAddress: '192.0.2.10',
+        CreatedBy: ACTOR,
+        UpdatedBy: ACTOR,
       },
     });
   const display = await prisma.displayConfig.findFirst({
@@ -544,6 +582,8 @@ async function main(): Promise<void> {
         Url: '/apps/production/display',
         IsOpen: false,
         Loop: true,
+        CreatedBy: ACTOR,
+        UpdatedBy: ACTOR,
       },
     });
 

@@ -49,6 +49,7 @@ export type FinishGoodMinAggregateOutputType = {
   CreatedAt: Date | null
   CreatedBy: string | null
   UpdatedAt: Date | null
+  UpdatedBy: string | null
   Qty: number | null
 }
 
@@ -63,6 +64,7 @@ export type FinishGoodMaxAggregateOutputType = {
   CreatedAt: Date | null
   CreatedBy: string | null
   UpdatedAt: Date | null
+  UpdatedBy: string | null
   Qty: number | null
 }
 
@@ -77,6 +79,7 @@ export type FinishGoodCountAggregateOutputType = {
   CreatedAt: number
   CreatedBy: number
   UpdatedAt: number
+  UpdatedBy: number
   Qty: number
   _all: number
 }
@@ -105,6 +108,7 @@ export type FinishGoodMinAggregateInputType = {
   CreatedAt?: true
   CreatedBy?: true
   UpdatedAt?: true
+  UpdatedBy?: true
   Qty?: true
 }
 
@@ -119,6 +123,7 @@ export type FinishGoodMaxAggregateInputType = {
   CreatedAt?: true
   CreatedBy?: true
   UpdatedAt?: true
+  UpdatedBy?: true
   Qty?: true
 }
 
@@ -133,6 +138,7 @@ export type FinishGoodCountAggregateInputType = {
   CreatedAt?: true
   CreatedBy?: true
   UpdatedAt?: true
+  UpdatedBy?: true
   Qty?: true
   _all?: true
 }
@@ -234,6 +240,7 @@ export type FinishGoodGroupByOutputType = {
   CreatedAt: Date
   CreatedBy: string
   UpdatedAt: Date
+  UpdatedBy: string
   Qty: number
   _count: FinishGoodCountAggregateOutputType | null
   _avg: FinishGoodAvgAggregateOutputType | null
@@ -271,6 +278,7 @@ export type FinishGoodWhereInput = {
   CreatedAt?: Prisma.DateTimeFilter<"FinishGood"> | Date | string
   CreatedBy?: Prisma.StringFilter<"FinishGood"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"FinishGood"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"FinishGood"> | string
   Qty?: Prisma.IntFilter<"FinishGood"> | number
   ActiveBomRevision?: Prisma.XOR<Prisma.BomRevisionNullableScalarRelationFilter, Prisma.BomRevisionWhereInput> | null
   BomRevisions?: Prisma.BomRevisionListRelationFilter
@@ -295,6 +303,7 @@ export type FinishGoodOrderByWithRelationInput = {
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   ActiveBomRevision?: Prisma.BomRevisionOrderByWithRelationInput
   BomRevisions?: Prisma.BomRevisionOrderByRelationAggregateInput
@@ -322,6 +331,7 @@ export type FinishGoodWhereUniqueInput = Prisma.AtLeast<{
   CreatedAt?: Prisma.DateTimeFilter<"FinishGood"> | Date | string
   CreatedBy?: Prisma.StringFilter<"FinishGood"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"FinishGood"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"FinishGood"> | string
   Qty?: Prisma.IntFilter<"FinishGood"> | number
   ActiveBomRevision?: Prisma.XOR<Prisma.BomRevisionNullableScalarRelationFilter, Prisma.BomRevisionWhereInput> | null
   BomRevisions?: Prisma.BomRevisionListRelationFilter
@@ -346,6 +356,7 @@ export type FinishGoodOrderByWithAggregationInput = {
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   _count?: Prisma.FinishGoodCountOrderByAggregateInput
   _avg?: Prisma.FinishGoodAvgOrderByAggregateInput
@@ -368,6 +379,7 @@ export type FinishGoodScalarWhereWithAggregatesInput = {
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinishGood"> | Date | string
   CreatedBy?: Prisma.StringWithAggregatesFilter<"FinishGood"> | string
   UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinishGood"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"FinishGood"> | string
   Qty?: Prisma.IntWithAggregatesFilter<"FinishGood"> | number
 }
 
@@ -380,6 +392,7 @@ export type FinishGoodCreateInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
@@ -404,6 +417,7 @@ export type FinishGoodUncheckedCreateInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
@@ -425,6 +439,7 @@ export type FinishGoodUpdateInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
@@ -449,6 +464,7 @@ export type FinishGoodUncheckedUpdateInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
@@ -472,6 +488,7 @@ export type FinishGoodCreateManyInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
 }
 
@@ -484,6 +501,7 @@ export type FinishGoodUpdateManyMutationInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -498,6 +516,7 @@ export type FinishGoodUncheckedUpdateManyInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -512,6 +531,7 @@ export type FinishGoodCountOrderByAggregateInput = {
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
 }
 
@@ -532,6 +552,7 @@ export type FinishGoodMaxOrderByAggregateInput = {
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
 }
 
@@ -546,6 +567,7 @@ export type FinishGoodMinOrderByAggregateInput = {
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
 }
 
@@ -744,6 +766,7 @@ export type FinishGoodCreateWithoutBoxQTYInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
@@ -767,6 +790,7 @@ export type FinishGoodUncheckedCreateWithoutBoxQTYInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
@@ -803,6 +827,7 @@ export type FinishGoodUpdateWithoutBoxQTYInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
@@ -826,6 +851,7 @@ export type FinishGoodUncheckedUpdateWithoutBoxQTYInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
@@ -846,6 +872,7 @@ export type FinishGoodCreateWithoutBillOfMaterialsInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
@@ -869,6 +896,7 @@ export type FinishGoodUncheckedCreateWithoutBillOfMaterialsInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
@@ -905,6 +933,7 @@ export type FinishGoodUpdateWithoutBillOfMaterialsInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
@@ -928,6 +957,7 @@ export type FinishGoodUncheckedUpdateWithoutBillOfMaterialsInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
@@ -948,6 +978,7 @@ export type FinishGoodCreateWithoutInventoryLedgerInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
@@ -971,6 +1002,7 @@ export type FinishGoodUncheckedCreateWithoutInventoryLedgerInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
@@ -1007,6 +1039,7 @@ export type FinishGoodUpdateWithoutInventoryLedgerInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
@@ -1030,6 +1063,7 @@ export type FinishGoodUncheckedUpdateWithoutInventoryLedgerInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1050,6 +1084,7 @@ export type FinishGoodCreateWithoutStockOpnameDetailInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
@@ -1073,6 +1108,7 @@ export type FinishGoodUncheckedCreateWithoutStockOpnameDetailInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
@@ -1109,6 +1145,7 @@ export type FinishGoodUpdateWithoutStockOpnameDetailInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
@@ -1132,6 +1169,7 @@ export type FinishGoodUncheckedUpdateWithoutStockOpnameDetailInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1152,6 +1190,7 @@ export type FinishGoodCreateWithoutForecastInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
@@ -1175,6 +1214,7 @@ export type FinishGoodUncheckedCreateWithoutForecastInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
@@ -1211,6 +1251,7 @@ export type FinishGoodUpdateWithoutForecastInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
@@ -1234,6 +1275,7 @@ export type FinishGoodUncheckedUpdateWithoutForecastInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1254,6 +1296,7 @@ export type FinishGoodCreateWithoutProductionReportInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
@@ -1277,6 +1320,7 @@ export type FinishGoodUncheckedCreateWithoutProductionReportInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
@@ -1313,6 +1357,7 @@ export type FinishGoodUpdateWithoutProductionReportInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
@@ -1336,6 +1381,7 @@ export type FinishGoodUncheckedUpdateWithoutProductionReportInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1356,6 +1402,7 @@ export type FinishGoodCreateWithoutLabelDataInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
@@ -1379,6 +1426,7 @@ export type FinishGoodUncheckedCreateWithoutLabelDataInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
@@ -1415,6 +1463,7 @@ export type FinishGoodUpdateWithoutLabelDataInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
@@ -1438,6 +1487,7 @@ export type FinishGoodUncheckedUpdateWithoutLabelDataInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1458,6 +1508,7 @@ export type FinishGoodCreateWithoutLineStatusInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
@@ -1481,6 +1532,7 @@ export type FinishGoodUncheckedCreateWithoutLineStatusInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
@@ -1517,6 +1569,7 @@ export type FinishGoodUpdateWithoutLineStatusInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
@@ -1540,6 +1593,7 @@ export type FinishGoodUncheckedUpdateWithoutLineStatusInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1560,6 +1614,7 @@ export type FinishGoodCreateWithoutBomRevisionsInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
@@ -1583,6 +1638,7 @@ export type FinishGoodUncheckedCreateWithoutBomRevisionsInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
@@ -1608,6 +1664,7 @@ export type FinishGoodCreateWithoutActiveBomRevisionInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
@@ -1630,6 +1687,7 @@ export type FinishGoodUncheckedCreateWithoutActiveBomRevisionInput = {
   CreatedAt?: Date | string
   CreatedBy: string
   UpdatedAt?: Date | string
+  UpdatedBy: string
   Qty?: number
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
@@ -1667,6 +1725,7 @@ export type FinishGoodUpdateWithoutBomRevisionsInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
@@ -1690,6 +1749,7 @@ export type FinishGoodUncheckedUpdateWithoutBomRevisionsInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
@@ -1721,6 +1781,7 @@ export type FinishGoodUpdateWithoutActiveBomRevisionInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
@@ -1743,6 +1804,7 @@ export type FinishGoodUncheckedUpdateWithoutActiveBomRevisionInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1860,6 +1922,7 @@ export type FinishGoodSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   CreatedAt?: boolean
   CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Qty?: boolean
   ActiveBomRevision?: boolean | Prisma.FinishGood$ActiveBomRevisionArgs<ExtArgs>
   BomRevisions?: boolean | Prisma.FinishGood$BomRevisionsArgs<ExtArgs>
@@ -1885,6 +1948,7 @@ export type FinishGoodSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   CreatedAt?: boolean
   CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Qty?: boolean
   ActiveBomRevision?: boolean | Prisma.FinishGood$ActiveBomRevisionArgs<ExtArgs>
 }, ExtArgs["result"]["finishGood"]>
@@ -1900,6 +1964,7 @@ export type FinishGoodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   CreatedAt?: boolean
   CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Qty?: boolean
   ActiveBomRevision?: boolean | Prisma.FinishGood$ActiveBomRevisionArgs<ExtArgs>
 }, ExtArgs["result"]["finishGood"]>
@@ -1915,10 +1980,11 @@ export type FinishGoodSelectScalar = {
   CreatedAt?: boolean
   CreatedBy?: boolean
   UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Qty?: boolean
 }
 
-export type FinishGoodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ActiveBomRevisionId" | "Id" | "PartNumber" | "PartName" | "IsPassthrough" | "Alias" | "Price" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "Qty", ExtArgs["result"]["finishGood"]>
+export type FinishGoodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ActiveBomRevisionId" | "Id" | "PartNumber" | "PartName" | "IsPassthrough" | "Alias" | "Price" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Qty", ExtArgs["result"]["finishGood"]>
 export type FinishGoodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ActiveBomRevision?: boolean | Prisma.FinishGood$ActiveBomRevisionArgs<ExtArgs>
   BomRevisions?: boolean | Prisma.FinishGood$BomRevisionsArgs<ExtArgs>
@@ -1964,6 +2030,7 @@ export type $FinishGoodPayload<ExtArgs extends runtime.Types.Extensions.Internal
     CreatedAt: Date
     CreatedBy: string
     UpdatedAt: Date
+    UpdatedBy: string
     Qty: number
   }, ExtArgs["result"]["finishGood"]>
   composites: {}
@@ -2408,6 +2475,7 @@ export interface FinishGoodFieldRefs {
   readonly CreatedAt: Prisma.FieldRef<"FinishGood", 'DateTime'>
   readonly CreatedBy: Prisma.FieldRef<"FinishGood", 'String'>
   readonly UpdatedAt: Prisma.FieldRef<"FinishGood", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"FinishGood", 'String'>
   readonly Qty: Prisma.FieldRef<"FinishGood", 'Int'>
 }
     

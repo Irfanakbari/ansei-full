@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { SystemLogQueryDto } from './dto/system-log-query.dto';
 import { InventoryLedgerQueryDto } from './dto/inventory-ledger-query.dto';
 import { InventoryLedgerExportDto } from './dto/inventory-ledger-export.dto';
@@ -13,6 +17,7 @@ import {
   getUserDisplayNameMap,
 } from '../common/helpers/user-lookup.helper';
 import ExcelJS from 'exceljs';
+import moment from 'moment-timezone';
 import type {
   ApiResult,
   PaginationMeta,
@@ -203,16 +208,23 @@ export class SystemLogService {
       ];
     }
 
-    // Filter by TransactionDate range
-    if (query.transactionDateFrom || query.transactionDateTo) {
+    if (query.dateFrom && query.dateTo && query.dateFrom > query.dateTo) {
+      throw new BadRequestException('dateFrom must not be after dateTo');
+    }
+
+    if (query.dateFrom || query.dateTo) {
       where.TransactionDate = {};
-      if (query.transactionDateFrom) {
-        where.TransactionDate.gte = new Date(query.transactionDateFrom);
+      if (query.dateFrom) {
+        where.TransactionDate.gte = moment
+          .tz(query.dateFrom, 'YYYY-MM-DD', true, 'Asia/Jakarta')
+          .startOf('day')
+          .toDate();
       }
-      if (query.transactionDateTo) {
-        const endDate = new Date(query.transactionDateTo);
-        endDate.setHours(23, 59, 59, 999);
-        where.TransactionDate.lte = endDate;
+      if (query.dateTo) {
+        where.TransactionDate.lte = moment
+          .tz(query.dateTo, 'YYYY-MM-DD', true, 'Asia/Jakarta')
+          .endOf('day')
+          .toDate();
       }
     }
 

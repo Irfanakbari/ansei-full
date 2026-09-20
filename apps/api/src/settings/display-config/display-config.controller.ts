@@ -119,7 +119,7 @@ export class DisplayConfigController {
     file: Express.Multer.File,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.displayConfigService.uploadMedia(id, file, user?.username);
+    return this.displayConfigService.uploadMedia(id, file, user.username);
   }
 
   @ApiOperation({ summary: 'Delete media for display config' })
@@ -130,6 +130,6 @@ export class DisplayConfigController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.displayConfigService.deleteMedia(id, user?.username);
+    return this.displayConfigService.deleteMedia(id, user.username);
   }
 }

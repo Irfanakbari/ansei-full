@@ -314,7 +314,7 @@ export default function TransferMaterialPage() {
             ...getColumnSearchProps('CreatedBy'),
         },
         {
-            title: 'Created At',
+            title: 'Created Date',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
             render: formatDateTime,

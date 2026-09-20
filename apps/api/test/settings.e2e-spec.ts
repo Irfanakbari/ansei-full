@@ -154,6 +154,8 @@ describe('Settings E2E', () => {
         data: {
           Name: 'TEST-EN-LIST-001',
           Email: 'test1@example.com',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -170,6 +172,8 @@ describe('Settings E2E', () => {
         data: {
           Name: 'TEST-EN-GET-001',
           Email: 'test2@example.com',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -186,6 +190,8 @@ describe('Settings E2E', () => {
         data: {
           Name: 'TEST-EN-EMAIL-001',
           Email: 'unique@example.com',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -202,6 +208,8 @@ describe('Settings E2E', () => {
         data: {
           Name: 'TEST-EN-UPD-001',
           Email: 'test3@example.com',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 
@@ -219,6 +227,8 @@ describe('Settings E2E', () => {
         data: {
           Name: 'TEST-EN-DEL-001',
           Email: 'test4@example.com',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
         },
       });
 

@@ -59,7 +59,7 @@ export class UserManagementService {
     };
   }
 
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto, createdBy: string) {
     try {
       const { DeptPermission, ...rest } = createUserDto;
 
@@ -74,7 +74,7 @@ export class UserManagementService {
       }
 
       const newUser = await this.prisma.mTCUserManagement.create({
-        data: rest,
+        data: { ...rest, CreatedBy: createdBy, UpdatedBy: createdBy } as never,
       });
 
       return newUser;
@@ -88,7 +88,11 @@ export class UserManagementService {
     }
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+  async updateUser(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    updatedBy: string,
+  ) {
     try {
       const isUserExist = await this.prisma.mTCUserManagement.findUnique({
         where: { UserId: id },
@@ -105,12 +109,13 @@ export class UserManagementService {
       if (rest.RoleId !== undefined) dataToUpdate.RoleId = rest.RoleId;
       if (rest.PhoneNumber !== undefined)
         dataToUpdate.PhoneNumber = rest.PhoneNumber;
+      dataToUpdate.UpdatedBy = updatedBy;
 
       // Update main user record
       if (Object.keys(dataToUpdate).length > 0) {
         await this.prisma.mTCUserManagement.update({
           where: { UserId: id },
-          data: dataToUpdate,
+          data: dataToUpdate as never,
         });
       }
 
@@ -122,14 +127,17 @@ export class UserManagementService {
     }
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(id: string, deletedBy: string) {
     try {
-      // Relations cleanup might be needed if not handled by DB constraints
-      // Cleaning up Sessions first
-      await this.prisma.mTCUserSession.deleteMany({ where: { UserId: id } });
-
-      await this.prisma.mTCUserManagement.delete({
-        where: { UserId: id },
+      await this.prisma.$transaction(async (tx) => {
+        await tx.mTCUserSession.deleteMany({ where: { UserId: id } });
+        await tx.mTCUserManagement.update({
+          where: { UserId: id },
+          data: { UpdatedBy: deletedBy } as never,
+        });
+        await tx.mTCUserManagement.delete({
+          where: { UserId: id },
+        });
       });
 
       return { message: 'User deleted successfully' };
@@ -142,7 +150,7 @@ export class UserManagementService {
     }
   }
 
-  async assignRole(userId: string, roleId: number) {
+  async assignRole(userId: string, roleId: number, updatedBy: string) {
     try {
       // Check if user exists
       const user = await this.prisma.mTCUserManagement.findUnique({
@@ -152,7 +160,7 @@ export class UserManagementService {
 
       await this.prisma.mTCUserManagement.update({
         where: { UserId: userId },
-        data: { RoleId: roleId },
+        data: { RoleId: roleId, UpdatedBy: updatedBy } as never,
       });
 
       return { message: 'Role assigned successfully' };
@@ -165,11 +173,11 @@ export class UserManagementService {
     }
   }
 
-  async removeRole(userId: string, roleId: number) {
+  async removeRole(userId: string, roleId: number, updatedBy: string) {
     try {
       await this.prisma.mTCUserManagement.update({
         where: { UserId: userId },
-        data: { RoleId: null },
+        data: { RoleId: null, UpdatedBy: updatedBy } as never,
       });
 
       return { message: 'Role removed successfully' };
@@ -190,10 +198,14 @@ export class UserManagementService {
     });
   }
 
-  async createRole(createRoleDto: CreateRoleDto) {
+  async createRole(createRoleDto: CreateRoleDto, createdBy: string) {
     try {
       return await this.prisma.mTCRole.create({
-        data: createRoleDto,
+        data: {
+          ...createRoleDto,
+          CreatedBy: createdBy,
+          UpdatedBy: createdBy,
+        } as never,
       });
     } catch (e) {
       if (e.code === 'P2002')
@@ -202,11 +214,15 @@ export class UserManagementService {
     }
   }
 
-  async updateRole(id: number, updateRoleDto: UpdateRoleDto) {
+  async updateRole(
+    id: number,
+    updateRoleDto: UpdateRoleDto,
+    updatedBy: string,
+  ) {
     try {
       return await this.prisma.mTCRole.update({
         where: { Id: id },
-        data: updateRoleDto,
+        data: { ...updateRoleDto, UpdatedBy: updatedBy } as never,
       });
     } catch (e) {
       if (e.code === 'P2025') throw new NotFoundException('Role not found');
@@ -214,18 +230,23 @@ export class UserManagementService {
     }
   }
 
-  async deleteRole(id: number) {
+  async deleteRole(id: number, deletedBy: string) {
     try {
       // Cleanup relations
       // Role assignment is implicit or single relationship so no strict need to deleteMany for Permission table usually unless cascade is off? We can try avoiding manual join table cleanup if it's implicit, or disconnect explicit. But prisma schema uses MTCPermission[] so it's implicit
       // We should ensure users are disconnected
 
-      await this.prisma.mTCUserManagement.updateMany({
-        where: { RoleId: id },
-        data: { RoleId: null },
+      await this.prisma.$transaction(async (tx) => {
+        await tx.mTCUserManagement.updateMany({
+          where: { RoleId: id },
+          data: { RoleId: null, UpdatedBy: deletedBy } as never,
+        });
+        await tx.mTCRole.update({
+          where: { Id: id },
+          data: { UpdatedBy: deletedBy } as never,
+        });
+        await tx.mTCRole.delete({ where: { Id: id } });
       });
-
-      await this.prisma.mTCRole.delete({ where: { Id: id } });
       return { message: 'Role deleted successfully' };
     } catch (e) {
       if (e.code === 'P2025') throw new NotFoundException('Role not found');
@@ -238,10 +259,17 @@ export class UserManagementService {
     return this.prisma.mTCPermission.findMany();
   }
 
-  async createPermission(createPermissionDto: CreatePermissionDto) {
+  async createPermission(
+    createPermissionDto: CreatePermissionDto,
+    createdBy: string,
+  ) {
     try {
       return await this.prisma.mTCPermission.create({
-        data: createPermissionDto,
+        data: {
+          ...createPermissionDto,
+          CreatedBy: createdBy,
+          UpdatedBy: createdBy,
+        } as never,
       });
     } catch (e) {
       if (e.code === 'P2002')
@@ -250,11 +278,15 @@ export class UserManagementService {
     }
   }
 
-  async updatePermission(id: number, updatePermissionDto: UpdatePermissionDto) {
+  async updatePermission(
+    id: number,
+    updatePermissionDto: UpdatePermissionDto,
+    updatedBy: string,
+  ) {
     try {
       return await this.prisma.mTCPermission.update({
         where: { Id: id },
-        data: updatePermissionDto,
+        data: { ...updatePermissionDto, UpdatedBy: updatedBy } as never,
       });
     } catch (e) {
       if (e.code === 'P2025')
@@ -263,9 +295,15 @@ export class UserManagementService {
     }
   }
 
-  async deletePermission(id: number) {
+  async deletePermission(id: number, deletedBy: string) {
     try {
-      await this.prisma.mTCPermission.delete({ where: { Id: id } });
+      await this.prisma.$transaction(async (tx) => {
+        await tx.mTCPermission.update({
+          where: { Id: id },
+          data: { UpdatedBy: deletedBy } as never,
+        });
+        await tx.mTCPermission.delete({ where: { Id: id } });
+      });
       return { message: 'Permission deleted successfully' };
     } catch (e) {
       if (e.code === 'P2025')
@@ -275,7 +313,11 @@ export class UserManagementService {
   }
 
   // --- Role-Permission Assignment ---
-  async assignPermissionToRole(roleId: number, permissionId: number) {
+  async assignPermissionToRole(
+    roleId: number,
+    permissionId: number,
+    updatedBy: string,
+  ) {
     try {
       await this.prisma.mTCRole.update({
         where: { Id: roleId },
@@ -283,7 +325,8 @@ export class UserManagementService {
           Permission: {
             connect: { Id: permissionId },
           },
-        },
+          UpdatedBy: updatedBy,
+        } as never,
       });
       return { message: 'Permission assigned to role' };
     } catch (e) {
@@ -293,7 +336,11 @@ export class UserManagementService {
     }
   }
 
-  async removePermissionFromRole(roleId: number, permissionId: number) {
+  async removePermissionFromRole(
+    roleId: number,
+    permissionId: number,
+    updatedBy: string,
+  ) {
     try {
       await this.prisma.mTCRole.update({
         where: { Id: roleId },
@@ -301,7 +348,8 @@ export class UserManagementService {
           Permission: {
             disconnect: { Id: permissionId },
           },
-        },
+          UpdatedBy: updatedBy,
+        } as never,
       });
       return { message: 'Permission removed from role' };
     } catch (e) {

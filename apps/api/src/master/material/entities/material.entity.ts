@@ -39,6 +39,11 @@ export class MaterialEntity {
   })
   UpdatedAt: Date;
 
+  @ApiProperty() UpdatedBy: string;
+
+  @ApiPropertyOptional({ description: 'Nama user pengubah' })
+  UpdatedByName?: string;
+
   @ApiPropertyOptional({
     description: 'Nama supplier',
     nullable: true,

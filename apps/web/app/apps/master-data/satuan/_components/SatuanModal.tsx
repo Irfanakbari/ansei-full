@@ -6,6 +6,7 @@ import {App, Button, Descriptions, Form, Input, Modal, Space} from "antd";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "@/store";
 import {deleteSatuan, SatuanEntity, updateSatuan} from "@/store/features/master/satuanSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 
 type FormValues = {
     name: string;
@@ -135,6 +136,12 @@ export default function SatuanModal({visible, data, onClose, onUpdated, onDelete
             ) : (
                 <Descriptions bordered size="small" column={1}>
                     <Descriptions.Item label="Unit Name">{data.Name}</Descriptions.Item>
+                    <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
+                    <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>

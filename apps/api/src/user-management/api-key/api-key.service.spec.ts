@@ -64,7 +64,7 @@ describe('ApiKeyService', () => {
     });
     prisma.apiKey.update.mockResolvedValue({ Id: 'key-1' });
 
-    await service[method]('key-1');
+    await service[method]('key-1', 'admin');
 
     const operation =
       method === 'findOne' ? prisma.apiKey.findUnique : prisma.apiKey.update;

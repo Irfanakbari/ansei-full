@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {
     FullscreenExitOutlined,
     FullscreenOutlined,
@@ -13,9 +13,9 @@ import {
     FormOutlined,
     HistoryOutlined,
 } from '@ant-design/icons';
-import { Button, Modal, Form, Select, App, Spin, Tag, Avatar } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '@/store';
+import {Button, Modal, Form, Select, App, Spin, Tag, Avatar, ConfigProvider} from 'antd';
+import {useDispatch, useSelector} from 'react-redux';
+import type {AppDispatch, RootState} from '@/store';
 import {
     clearDisplayTarget,
     fetchActiveDisplayConfig,
@@ -48,7 +48,7 @@ export interface DisplayStationConfig {
 const STORAGE_KEY = 'display_config';
 const FALLBACK_MEDIA_URL = 'http://192.168.1.15:8080/Ansei_Asset/fallback.png';
 
-function SkillQuadrantCircle({ level, size = 48 }: { level: number; size?: number }) {
+function SkillQuadrantCircle({level, size = 48}: { level: number; size?: number }) {
     const fillColor = '#2563eb';
     const emptyColor = '#f8fafc';
 
@@ -60,7 +60,7 @@ function SkillQuadrantCircle({ level, size = 48 }: { level: number; size?: numbe
             className="shrink-0 drop-shadow-xs"
             aria-label={`Skill level ${level} of 4`}
         >
-            <circle cx="16" cy="16" r="14" fill="#ffffff" />
+            <circle cx="16" cy="16" r="14" fill="#ffffff"/>
             <path
                 d="M 16 16 L 16 2 A 14 14 0 0 1 30 16 Z"
                 fill={level >= 1 ? fillColor : emptyColor}
@@ -77,8 +77,8 @@ function SkillQuadrantCircle({ level, size = 48 }: { level: number; size?: numbe
                 d="M 16 16 L 2 16 A 14 14 0 0 1 16 2 Z"
                 fill={level >= 4 ? fillColor : emptyColor}
             />
-            <line x1="16" y1="2" x2="16" y2="30" stroke="#94a3b8" strokeWidth="1.5" />
-            <line x1="2" y1="16" x2="30" y2="16" stroke="#94a3b8" strokeWidth="1.5" />
+            <line x1="16" y1="2" x2="16" y2="30" stroke="#94a3b8" strokeWidth="1.5"/>
+            <line x1="2" y1="16" x2="30" y2="16" stroke="#94a3b8" strokeWidth="1.5"/>
             <circle
                 cx="16"
                 cy="16"
@@ -91,13 +91,21 @@ function SkillQuadrantCircle({ level, size = 48 }: { level: number; size?: numbe
     );
 }
 
-export default function DisplayPage() {
-    const { message } = App.useApp();
+interface DisplayPageContentProps {
+    isFullscreen: boolean;
+    getOverlayContainer: () => HTMLElement;
+    toggleFullscreen: () => Promise<void>;
+}
+
+function DisplayPageContent({
+                                isFullscreen,
+                                getOverlayContainer,
+                                toggleFullscreen,
+                            }: DisplayPageContentProps) {
+    const {message} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const displayRef = useRef<HTMLElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
-    const [isFullscreen, setIsFullscreen] = useState(false);
-    const { config, target, targetLoading, targetError } = useSelector(
+    const {config, target, targetLoading, targetError} = useSelector(
         (state: RootState) => state.display,
     );
     const mediaSource = config?.FilePath || config?.Url || FALLBACK_MEDIA_URL;
@@ -146,8 +154,8 @@ export default function DisplayPage() {
         async (targetNikOverride?: string | null, targetPartNumberOverride?: string | null) => {
             try {
                 const [mpRes, fgRes] = await Promise.all([
-                    fetch('/api/display/manpower', { cache: 'no-store' }),
-                    fetch('/api/display/finish-goods', { cache: 'no-store' }),
+                    fetch('/api/display/manpower', {cache: 'no-store'}),
+                    fetch('/api/display/finish-goods', {cache: 'no-store'}),
                 ]);
 
                 let updatedMpList: DisplayManPower[] = [];
@@ -158,8 +166,8 @@ export default function DisplayPage() {
                     updatedMpList = Array.isArray(mpJson?.data)
                         ? mpJson.data
                         : Array.isArray(mpJson)
-                          ? mpJson
-                          : [];
+                            ? mpJson
+                            : [];
                     setManPowerList(updatedMpList);
                 }
 
@@ -168,8 +176,8 @@ export default function DisplayPage() {
                     updatedFgList = Array.isArray(fgJson?.data)
                         ? fgJson.data
                         : Array.isArray(fgJson)
-                          ? fgJson
-                          : [];
+                            ? fgJson
+                            : [];
                     setFinishGoodsList(updatedFgList);
                 }
 
@@ -290,31 +298,16 @@ export default function DisplayPage() {
         return () => clearInterval(targetInterval);
     }, [dispatch, stationConfig.finishGood?.PartNumber, stationConfig.selectedPartNumber]);
 
-    // Handle fullscreen
-    useEffect(() => {
-        const handleFullscreenChange = () => {
-            setIsFullscreen(document.fullscreenElement === displayRef.current);
-        };
-
-        document.addEventListener('fullscreenchange', handleFullscreenChange);
-        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    }, []);
-
-    const toggleFullscreen = useCallback(async () => {
-        if (document.fullscreenElement) {
-            await document.exitFullscreen();
-            return;
-        }
-        await displayRef.current?.requestFullscreen();
-    }, []);
-
     const handleOpenReportModal = (tab: 'form' | 'history' = 'form') => {
         setReportInitialTab(tab);
         setIsReportOpen(true);
     };
 
     const handleOpenConfig = () => {
-        if (assemblyLocked) { message.warning("Complete or cancel the active assembly before changing station settings. Refresh session if offline."); return; }
+        if (assemblyLocked) {
+            message.warning("Complete or cancel the active assembly before changing station settings. Refresh session if offline.");
+            return;
+        }
         setIsConfigOpen(true);
         setLoadingOptions(true);
         void refreshDataFromApi().finally(() => setLoadingOptions(false));
@@ -367,29 +360,27 @@ export default function DisplayPage() {
     // Format date: "16 September 2026"
     const formattedDate = currentTime
         ? currentTime.toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-          })
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        })
         : '-';
 
     // Format time: "HH:mm:ss"
     const formattedTime = currentTime
         ? currentTime.toLocaleTimeString('id-ID', {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: false,
-          })
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+        })
         : '--:--:--';
 
     return (
-        <main
-            ref={displayRef}
-            className="fixed inset-0 flex flex-col overflow-hidden bg-slate-100 font-sans select-none text-slate-800"
-        >
+        <>
             {/* Navbar (Light Theme) */}
-            <header className="flex h-16 shrink-0 items-center justify-between bg-white px-6 shadow-xs border-b border-slate-200 z-10">
+            <header
+                className="flex h-16 shrink-0 items-center justify-between bg-white px-6 shadow-xs border-b border-slate-200 z-10">
                 <div className="flex items-center gap-4">
                     <Image
                         src="/images/vtq.png"
@@ -399,10 +390,11 @@ export default function DisplayPage() {
                         priority
                         className="h-8 w-auto object-contain"
                     />
-                    <div className="hidden sm:block h-5 w-px bg-slate-200" />
+                    <div className="hidden sm:block h-5 w-px bg-slate-200"/>
                     <div className="flex items-center gap-2">
                         <span className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span
+                                className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                         </span>
                         <span className="text-slate-900 font-extrabold text-base tracking-wider hidden sm:inline">
@@ -413,7 +405,7 @@ export default function DisplayPage() {
                 <div className="flex items-center gap-2 sm:gap-3">
                     <Button
                         type="primary"
-                        icon={<FormOutlined />}
+                        icon={<FormOutlined/>}
                         onClick={() => handleOpenReportModal('form')}
                         className="bg-blue-600 hover:bg-blue-500 font-semibold shadow-xs"
                     >
@@ -421,7 +413,7 @@ export default function DisplayPage() {
                     </Button>
                     <Button
                         type="default"
-                        icon={<HistoryOutlined />}
+                        icon={<HistoryOutlined/>}
                         onClick={() => handleOpenReportModal('history')}
                         className="border-slate-300 text-slate-700 hover:text-blue-600 hover:border-blue-500 font-medium"
                     >
@@ -429,7 +421,7 @@ export default function DisplayPage() {
                     </Button>
                     <Button
                         type="default"
-                        icon={<SettingOutlined />}
+                        icon={<SettingOutlined/>}
                         onClick={handleOpenConfig}
                         className="border-slate-300 text-slate-700 hover:text-blue-600 hover:border-blue-500 font-medium"
                     >
@@ -442,7 +434,7 @@ export default function DisplayPage() {
                         title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                         className="flex h-9 w-9 items-center justify-center rounded-lg text-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
                     >
-                        {isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                        {isFullscreen ? <FullscreenExitOutlined/> : <FullscreenOutlined/>}
                     </button>
                 </div>
             </header>
@@ -450,22 +442,29 @@ export default function DisplayPage() {
             {/* Main Display Grid */}
             <section className="min-h-0 flex-1 flex flex-col md:flex-row p-3.5 gap-3.5 bg-slate-100">
                 {/* Left Column (Operator & Product Info, Skill Matrix, Production Date) */}
-                <div className="w-full md:w-[420px] lg:w-[450px] xl:w-[480px] flex flex-col gap-3 shrink-0 h-full min-h-0">
+                <div
+                    className="w-full md:w-[420px] lg:w-[450px] xl:w-[480px] flex flex-col gap-3 shrink-0 h-full min-h-0">
                     {/* Upper Card: Operator & Product Details (Memanfaatkan Space Secara Maksimal) */}
-                    <div className="flex-1 min-h-0 bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-4.5 flex flex-col items-center justify-between shadow-sm overflow-hidden">
+                    <div
+                        className="flex-1 min-h-0 bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-4.5 flex flex-col items-center justify-between shadow-sm overflow-hidden">
                         {/* Special Eye-Catching Line Badge (Mencolok & Menonjol) */}
-                        <div className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-800 p-1 shadow-md shadow-blue-600/20 shrink-0 border border-blue-400/40">
+                        <div
+                            className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-800 p-1 shadow-md shadow-blue-600/20 shrink-0 border border-blue-400/40">
                             {/* Decorative background glow */}
-                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-400/10 via-white/15 to-blue-400/10 opacity-70 blur-xs" />
-                            <div className="relative flex items-center justify-center py-2.5 sm:py-3 px-4 rounded-xl border border-white/25 text-center bg-gradient-to-b from-white/10 to-transparent">
-                                <span className="text-2xl sm:text-3xl font-black uppercase tracking-widest text-white drop-shadow-md">
+                            <div
+                                className="absolute -inset-1 bg-gradient-to-r from-blue-400/10 via-white/15 to-blue-400/10 opacity-70 blur-xs"/>
+                            <div
+                                className="relative flex items-center justify-center py-2.5 sm:py-3 px-4 rounded-xl border border-white/25 text-center bg-gradient-to-b from-white/10 to-transparent">
+                                <span
+                                    className="text-2xl sm:text-3xl font-black uppercase tracking-widest text-white drop-shadow-md">
                                     {activeManPower?.Line ? activeManPower.Line : 'LINE -'}
                                 </span>
                             </div>
                         </div>
 
                         {/* Large Employee Photo Frame (Tepat di bawah Nama Line) */}
-                        <div className="w-full max-w-[280px] sm:max-w-[310px] aspect-[4/3] max-h-[230px] my-auto rounded-2xl bg-slate-50 border-2 border-slate-200 flex items-center justify-center overflow-hidden shadow-inner relative shrink-0">
+                        <div
+                            className="w-full max-w-[280px] sm:max-w-[310px] aspect-[4/3] max-h-[230px] my-auto rounded-2xl bg-slate-50 border-2 border-slate-200 flex items-center justify-center overflow-hidden shadow-inner relative shrink-0">
                             {activeManPower?.PicturePath ? (
                                 /* eslint-disable-next-line @next/next/no-img-element */
                                 <img
@@ -475,7 +474,7 @@ export default function DisplayPage() {
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center text-slate-400 gap-2">
-                                    <UserOutlined className="text-6xl lg:text-7xl text-slate-300" />
+                                    <UserOutlined className="text-6xl lg:text-7xl text-slate-300"/>
                                     <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                                         Foto Operator Belum Ada
                                     </span>
@@ -486,8 +485,10 @@ export default function DisplayPage() {
                         {/* Info Boxes Group (Operator & Part dengan Spasi Lebar & Konsisten) */}
                         <div className="w-full flex flex-col gap-3 shrink-0">
                             {/* Operator Info Box (Kotak Informasi Operator) */}
-                            <div className="w-full bg-slate-50 rounded-xl py-2.5 px-4 border border-slate-200/80 text-center shadow-2xs">
-                                <span className="block text-[11px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">
+                            <div
+                                className="w-full bg-slate-50 rounded-xl py-2.5 px-4 border border-slate-200/80 text-center shadow-2xs">
+                                <span
+                                    className="block text-[11px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">
                                     Operator
                                 </span>
                                 <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-wide uppercase truncate leading-tight">
@@ -499,18 +500,23 @@ export default function DisplayPage() {
                             </div>
 
                             {/* Product Info Card (Kotak Informasi Part) */}
-                            <div className="w-full bg-slate-50 rounded-xl py-2.5 px-4 border border-slate-200/80 text-center shadow-2xs">
-                                <span className="block text-[11px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">
+                            <div
+                                className="w-full bg-slate-50 rounded-xl py-2.5 px-4 border border-slate-200/80 text-center shadow-2xs">
+                                <span
+                                    className="block text-[11px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">
                                     Part Number
                                 </span>
-                                <span className="text-lg sm:text-xl font-black text-blue-700 tracking-wide truncate block">
+                                <span
+                                    className="text-lg sm:text-xl font-black text-blue-700 tracking-wide truncate block">
                                     {activeFinishGood?.PartNumber || '-'}
                                 </span>
 
-                                <span className="block text-[11px] uppercase text-slate-400 font-bold tracking-wider mt-1.5 mb-0.5">
+                                <span
+                                    className="block text-[11px] uppercase text-slate-400 font-bold tracking-wider mt-1.5 mb-0.5">
                                     Part Name
                                 </span>
-                                <span className="text-xs sm:text-sm font-bold text-slate-800 tracking-wide truncate block">
+                                <span
+                                    className="text-xs sm:text-sm font-bold text-slate-800 tracking-wide truncate block">
                                     {activeFinishGood?.PartName || '-'}
                                     {activeFinishGood?.Alias ? (
                                         <span className="text-blue-600 font-bold"> ({activeFinishGood.Alias})</span>
@@ -521,35 +527,41 @@ export default function DisplayPage() {
                             </div>
 
                             {/* Target from forecasts linked to the active production release. */}
-                            <div className="w-full rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 px-4 text-center shadow-2xs">
-                                <span className="block text-[11px] uppercase text-emerald-600 font-bold tracking-wider mb-0.5">
+                            <div
+                                className="w-full rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 px-4 text-center shadow-2xs">
+                                <span
+                                    className="block text-[11px] uppercase text-emerald-600 font-bold tracking-wider mb-0.5">
                                     Target
                                 </span>
-                                <span className="block text-2xl sm:text-3xl font-black text-emerald-700 tracking-wide leading-tight">
+                                <span
+                                    className="block text-2xl sm:text-3xl font-black text-emerald-700 tracking-wide leading-tight">
                                     {targetLoading
                                         ? '...'
                                         : target && target.partNumber === activeFinishGood?.PartNumber
-                                          ? target.targetQty.toLocaleString('id-ID')
-                                          : '0'}
+                                            ? target.targetQty.toLocaleString('id-ID')
+                                            : '0'}
                                 </span>
-                                <span className="block text-[10px] sm:text-xs font-semibold text-emerald-700/75 mt-0.5 truncate">
+                                <span
+                                    className="block text-[10px] sm:text-xs font-semibold text-emerald-700/75 mt-0.5 truncate">
                                     {targetError
                                         ? 'Target tidak dapat dimuat'
                                         : target?.releaseNumber
-                                          ? `Production Release: ${target.releaseNumber}`
-                                          : 'Tidak ada production release aktif'}
+                                            ? `Production Release: ${target.releaseNumber}`
+                                            : 'Tidak ada production release aktif'}
                                 </span>
                             </div>
                         </div>
                     </div>
 
                     {/* Middle Card: Skill Matrix (Desain 5 Mini-Cards Elegan) */}
-                    <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 shadow-sm shrink-0 flex flex-col">
+                    <div
+                        className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 shadow-sm shrink-0 flex flex-col">
                         <div className="w-full flex items-center justify-between mb-2.5 px-1">
                             <span className="text-xs sm:text-sm font-black tracking-widest uppercase text-blue-600">
                                 SKILL MATRIX
                             </span>
-                            <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200/80">
+                            <span
+                                className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200/80">
                                 {activeManPower?.SkillMatrix?.length || 0} Kompetensi
                             </span>
                         </div>
@@ -560,8 +572,10 @@ export default function DisplayPage() {
                                         key={skill.Id}
                                         className="bg-slate-50 border border-slate-200/80 rounded-xl py-2 px-1 flex flex-col items-center justify-center text-center shadow-2xs"
                                     >
-                                        <SkillQuadrantCircle level={skill.Point} size={42} />
-                                        <span className="text-[11px] sm:text-xs font-extrabold text-slate-800 mt-1.5 leading-none line-clamp-1" title={skill.Label}>
+                                        <SkillQuadrantCircle level={skill.Point} size={42}/>
+                                        <span
+                                            className="text-[11px] sm:text-xs font-extrabold text-slate-800 mt-1.5 leading-none line-clamp-1"
+                                            title={skill.Label}>
                                             {skill.Label}
                                         </span>
                                         <span className="text-[10px] font-bold text-blue-600 mt-1">
@@ -571,14 +585,16 @@ export default function DisplayPage() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="flex items-center justify-center w-full h-24 bg-slate-50 border border-slate-200/80 rounded-xl">
+                            <div
+                                className="flex items-center justify-center w-full h-24 bg-slate-50 border border-slate-200/80 rounded-xl">
                                 <span className="text-xs font-semibold text-slate-400">Belum ada Skill Matrix</span>
                             </div>
                         )}
                     </div>
 
                     {/* Bottom Card: Production Date & Live Clock (Compact & Proporsional) */}
-                    <div className="bg-white border border-slate-200/90 rounded-2xl px-4 sm:px-5 py-3 shadow-sm shrink-0 flex items-center justify-between">
+                    <div
+                        className="bg-white border border-slate-200/90 rounded-2xl px-4 sm:px-5 py-3 shadow-sm shrink-0 flex items-center justify-between">
                         <div className="flex flex-col text-left">
                             <span className="text-[11px] font-black tracking-widest uppercase text-blue-600">
                                 PRODUCTION DATE
@@ -587,7 +603,7 @@ export default function DisplayPage() {
                                 {formattedDate}
                             </span>
                         </div>
-                        <div className="h-8 w-px bg-slate-200 mx-2" />
+                        <div className="h-8 w-px bg-slate-200 mx-2"/>
                         <div className="flex flex-col items-end text-right">
                             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                                 LIVE TIME
@@ -600,7 +616,8 @@ export default function DisplayPage() {
                 </div>
 
                 {/* Right Column: Media Player */}
-                <div className="flex-1 h-full min-h-0 bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm relative flex items-center justify-center">
+                <div
+                    className="flex-1 h-full min-h-0 bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm relative flex items-center justify-center">
                     {mediaSource ? (
                         isImageMedia ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -620,7 +637,7 @@ export default function DisplayPage() {
                                 playsInline
                                 className="h-full w-full object-contain bg-black"
                             >
-                                <source src={mediaSource} />
+                                <source src={mediaSource}/>
                             </video>
                         )
                     ) : (
@@ -636,12 +653,14 @@ export default function DisplayPage() {
                 </div>
             </section>
 
-            <AssemblyScanPanel nik={stationConfig.selectedNik ?? stationConfig.manpower?.Nik ?? null} paused={isConfigOpen || isReportOpen} onLocked={setAssemblyLocked} />
+            <AssemblyScanPanel nik={stationConfig.selectedNik ?? stationConfig.manpower?.Nik ?? null}
+                               paused={isConfigOpen || isReportOpen} onLocked={setAssemblyLocked}
+                               getContainer={getOverlayContainer}/>
             {/* Config Modal */}
             <Modal
                 title={
                     <div className="flex items-center gap-2">
-                        <SettingOutlined className="text-blue-600" />
+                        <SettingOutlined className="text-blue-600"/>
                         <span>Display Station Configuration</span>
                     </div>
                 }
@@ -654,6 +673,7 @@ export default function DisplayPage() {
                 cancelText="Batal"
                 width={540}
                 zIndex={1050}
+                getContainer={getOverlayContainer}
                 footer={[
                     <Button key="clear" danger onClick={handleClearConfig}>
                         Hapus Setting
@@ -661,14 +681,16 @@ export default function DisplayPage() {
                     <Button key="cancel" onClick={() => setIsConfigOpen(false)}>
                         Batal
                     </Button>,
-                    <Button key="save" type="primary" icon={<CheckCircleOutlined />} onClick={handleSaveConfig}>
+                    <Button key="save" type="primary" icon={<CheckCircleOutlined/>} onClick={handleSaveConfig}>
                         Simpan
                     </Button>,
                 ]}
             >
                 <div className="py-2">
                     <p className="text-slate-600 text-sm mb-4">
-                        Pilih data <strong>Manpower</strong> dan <strong>Finish Good</strong> untuk ditampilkan pada layar display monitor ini. Setiap halaman di-reload, data terbaru akan selalu disinkronkan dari server.
+                        Pilih data <strong>Manpower</strong> dan <strong>Finish Good</strong> untuk ditampilkan pada
+                        layar display monitor ini. Setiap halaman di-reload, data terbaru akan selalu disinkronkan dari
+                        server.
                     </p>
 
                     <Spin spinning={loadingOptions}>
@@ -683,12 +705,11 @@ export default function DisplayPage() {
                             <Form.Item
                                 name="nik"
                                 label={<span className="font-semibold text-slate-700">Pilih Manpower / Operator</span>}
-                                rules={[{ required: true, message: 'Harap pilih manpower' }]}
+                                rules={[{required: true, message: 'Harap pilih manpower'}]}
                             >
                                 <Select
-                                    showSearch
+                                    showSearch={{optionFilterProp: 'label'}}
                                     placeholder="Cari berdasarkan NIK atau Nama..."
-                                    optionFilterProp="label"
                                     options={manPowerList.map((mp) => ({
                                         value: mp.Nik,
                                         label: `[${mp.Nik}] ${mp.Name} - ${mp.Line || 'No Line'}`,
@@ -700,7 +721,7 @@ export default function DisplayPage() {
                                             <div className="flex items-center gap-3 py-1">
                                                 <Avatar
                                                     src={mp?.PicturePath}
-                                                    icon={!mp?.PicturePath ? <UserOutlined /> : undefined}
+                                                    icon={!mp?.PicturePath ? <UserOutlined/> : undefined}
                                                     size={36}
                                                     shape="square"
                                                     className="shrink-0"
@@ -723,12 +744,11 @@ export default function DisplayPage() {
                             <Form.Item
                                 name="partNumber"
                                 label={<span className="font-semibold text-slate-700">Pilih Finish Good / Produk</span>}
-                                rules={[{ required: true, message: 'Harap pilih finish good' }]}
+                                rules={[{required: true, message: 'Harap pilih finish good'}]}
                             >
                                 <Select
-                                    showSearch
+                                    showSearch={{optionFilterProp: 'label'}}
                                     placeholder="Cari berdasarkan Part Number atau Part Name..."
-                                    optionFilterProp="label"
                                     options={finishGoodsList.map((fg) => ({
                                         value: fg.PartNumber,
                                         label: `[${fg.PartNumber}] ${fg.PartName}${fg.Alias ? ` (${fg.Alias})` : ''}`,
@@ -752,7 +772,7 @@ export default function DisplayPage() {
                             <div className="flex justify-end pt-2">
                                 <Button
                                     size="small"
-                                    icon={<ReloadOutlined />}
+                                    icon={<ReloadOutlined/>}
                                     onClick={() => {
                                         setLoadingOptions(true);
                                         void refreshDataFromApi().finally(() => setLoadingOptions(false));
@@ -776,7 +796,53 @@ export default function DisplayPage() {
                 manPowerName={activeManPower?.Name}
                 finishGoodName={activeFinishGood?.PartName}
                 initialTab={reportInitialTab}
+                getContainer={getOverlayContainer}
             />
+        </>
+    );
+}
+
+export default function DisplayPage() {
+    const displayRef = useRef<HTMLElement>(null);
+    const overlayHostRef = useRef<HTMLDivElement>(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const getOverlayContainer = useCallback(
+        () => overlayHostRef.current ?? displayRef.current ?? document.body,
+        [],
+    );
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(document.fullscreenElement === displayRef.current);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, []);
+
+    const toggleFullscreen = useCallback(async () => {
+        if (document.fullscreenElement) {
+            await document.exitFullscreen();
+            return;
+        }
+        await displayRef.current?.requestFullscreen();
+    }, []);
+
+    return (
+        <main
+            ref={displayRef}
+            className="fixed inset-0 flex flex-col overflow-hidden bg-slate-100 font-sans select-none text-slate-800"
+        >
+            <div ref={overlayHostRef}/>
+            <ConfigProvider getPopupContainer={getOverlayContainer} getTargetContainer={getOverlayContainer}>
+                <App message={{getContainer: getOverlayContainer}}>
+                    <DisplayPageContent
+                        isFullscreen={isFullscreen}
+                        getOverlayContainer={getOverlayContainer}
+                        toggleFullscreen={toggleFullscreen}
+                    />
+                </App>
+            </ConfigProvider>
         </main>
     );
 }

@@ -47,6 +47,7 @@ databaseSuite('Phase 1 PostgreSQL invariants', () => {
           PartNumber: material,
           PartName: 'Test component',
           CreatedBy: 'fixture',
+          UpdatedBy: 'fixture',
           QtyRack: 10,
         },
       })
@@ -57,6 +58,7 @@ databaseSuite('Phase 1 PostgreSQL invariants', () => {
           PartNumber: fg,
           PartName: 'Test product',
           CreatedBy: 'fixture',
+          UpdatedBy: 'fixture',
         },
       })
     ).Id;
@@ -551,6 +553,7 @@ databaseSuite('Phase 1 PostgreSQL invariants', () => {
         PartNumber: `${prefix}-missing`,
         PartName: 'Missing BOM',
         CreatedBy: 'fixture',
+        UpdatedBy: 'fixture',
       },
     });
     await db.forecast.create({

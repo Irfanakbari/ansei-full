@@ -65,23 +65,23 @@ export class ApiKeyController {
   @ApiResponse({ status: 200, type: ApiKeyEntity })
   @Patch(':id/revoke')
   @Permission('IPCS.API_KEY_UPDATE')
-  async revoke(@Param('id') id: string) {
-    return this.apiKeyService.revoke(id);
+  async revoke(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {
+    return this.apiKeyService.revoke(id, user.username);
   }
 
   @ApiOperation({ summary: 'Reactivate a revoked API Key' })
   @ApiResponse({ status: 200, type: ApiKeyEntity })
   @Patch(':id/reactivate')
   @Permission('IPCS.API_KEY_UPDATE')
-  async reactivate(@Param('id') id: string) {
-    return this.apiKeyService.reactivate(id);
+  async reactivate(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {
+    return this.apiKeyService.reactivate(id, user.username);
   }
 
   @ApiOperation({ summary: 'Delete an API Key permanently' })
   @ApiResponse({ status: 200, description: 'API Key deleted successfully' })
   @Delete(':id')
   @Permission('IPCS.API_KEY_DELETE')
-  async delete(@Param('id') id: string) {
-    return this.apiKeyService.delete(id);
+  async delete(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {
+    return this.apiKeyService.delete(id, user.username);
   }
 }

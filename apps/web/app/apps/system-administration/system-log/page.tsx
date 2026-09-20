@@ -198,7 +198,7 @@ export default function SystemLogPage() {
             render: formatDateTime,
         },
         {
-            title: 'Created At',
+            title: 'Created Date',
             dataIndex: 'createdAt',
             key: 'createdAt',
             render: formatDateTime,

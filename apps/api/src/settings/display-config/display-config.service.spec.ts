@@ -202,7 +202,7 @@ describe('DisplayConfigService', () => {
       });
       expect(prismaService.displayConfig.update).toHaveBeenCalledWith({
         where: { Id: 2 },
-        data: { IsOpen: false },
+        data: { IsOpen: false, UpdatedBy: 'admin' },
       });
     });
   });
@@ -280,7 +280,7 @@ describe('DisplayConfigService', () => {
       });
       expect(prismaService.displayConfig.update).toHaveBeenCalledWith({
         where: { Id: 2 },
-        data: { IsOpen: false },
+        data: { IsOpen: false, UpdatedBy: 'admin' },
       });
     });
 

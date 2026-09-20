@@ -1,6 +1,6 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { VuteqSsoService } from '@vuteq/sso-client-nest';
+import { VuteqSsoService, type VuteqIdentity } from '@vuteq/sso-client-nest';
 import { PrismaService } from '../prisma/prisma.service';
 import { SsoAuthService } from './sso-auth.service';
 
@@ -136,5 +136,55 @@ describe(SsoAuthService.name, () => {
     expect(VuteqSsoService).toHaveBeenCalledWith(
       expect.objectContaining({ allowedClientIds: [] }),
     );
+  });
+
+  it('uses the SSO identity as the audit actor for auto-provisioned users', async () => {
+    const create = jest.fn().mockResolvedValue({
+      IsActive: true,
+      RoleId: 7,
+      Role: {
+        RoleName: 'Operator',
+        Permission: [{ Action: 'PRODUCTION_READ' }],
+      },
+    });
+    const findUnique = jest.fn().mockResolvedValue(null);
+    const provisionPrisma = {
+      mTCUserManagement: { findUnique, create, update: jest.fn() },
+    } as unknown as PrismaService;
+    jest
+      .mocked(VuteqSsoService)
+      .mockImplementationOnce(
+        () => ({ metadata: jest.fn() }) as unknown as VuteqSsoService,
+      );
+
+    new SsoAuthService(
+      config({
+        VUTEQ_SSO_BASE_URL: 'https://sso.example.test',
+        VUTEQ_SSO_SECRET: 'registered-secret-value',
+      }),
+      provisionPrisma,
+    );
+    const sdkOptions = jest.mocked(VuteqSsoService).mock.calls[0][0];
+    const identity = {
+      id: 'sso-subject-123',
+      username: 'operator.user',
+      email: 'operator@example.test',
+      name: 'Operator User',
+    } as VuteqIdentity;
+
+    const authorization = await sdkOptions.resolveAuthorization(identity);
+
+    expect(create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        CreatedBy: 'operator.user',
+        UpdatedBy: 'operator.user',
+      }),
+      include: { Role: { include: { Permission: true } } },
+    });
+    expect(authorization).toEqual({
+      roles: ['Operator'],
+      permissions: ['PRODUCTION_READ'],
+      attributes: { roleId: 7 },
+    });
   });
 });

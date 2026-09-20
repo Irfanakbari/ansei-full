@@ -38,18 +38,27 @@ export type SupplierMinAggregateOutputType = {
   Id: number | null
   Name: string | null
   CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type SupplierMaxAggregateOutputType = {
   Id: number | null
   Name: string | null
   CreatedAt: Date | null
+  CreatedBy: string | null
+  UpdatedAt: Date | null
+  UpdatedBy: string | null
 }
 
 export type SupplierCountAggregateOutputType = {
   Id: number
   Name: number
   CreatedAt: number
+  CreatedBy: number
+  UpdatedAt: number
+  UpdatedBy: number
   _all: number
 }
 
@@ -66,18 +75,27 @@ export type SupplierMinAggregateInputType = {
   Id?: true
   Name?: true
   CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type SupplierMaxAggregateInputType = {
   Id?: true
   Name?: true
   CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
 }
 
 export type SupplierCountAggregateInputType = {
   Id?: true
   Name?: true
   CreatedAt?: true
+  CreatedBy?: true
+  UpdatedAt?: true
+  UpdatedBy?: true
   _all?: true
 }
 
@@ -171,6 +189,9 @@ export type SupplierGroupByOutputType = {
   Id: number
   Name: string
   CreatedAt: Date
+  CreatedBy: string
+  UpdatedAt: Date
+  UpdatedBy: string
   _count: SupplierCountAggregateOutputType | null
   _avg: SupplierAvgAggregateOutputType | null
   _sum: SupplierSumAggregateOutputType | null
@@ -200,6 +221,9 @@ export type SupplierWhereInput = {
   Id?: Prisma.IntFilter<"Supplier"> | number
   Name?: Prisma.StringFilter<"Supplier"> | string
   CreatedAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"Supplier"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"Supplier"> | string
   Incoming?: Prisma.IncomingListRelationFilter
   Material?: Prisma.MaterialListRelationFilter
 }
@@ -208,6 +232,9 @@ export type SupplierOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   Incoming?: Prisma.IncomingOrderByRelationAggregateInput
   Material?: Prisma.MaterialOrderByRelationAggregateInput
 }
@@ -219,6 +246,9 @@ export type SupplierWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SupplierWhereInput | Prisma.SupplierWhereInput[]
   Name?: Prisma.StringFilter<"Supplier"> | string
   CreatedAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
+  CreatedBy?: Prisma.StringFilter<"Supplier"> | string
+  UpdatedAt?: Prisma.DateTimeFilter<"Supplier"> | Date | string
+  UpdatedBy?: Prisma.StringFilter<"Supplier"> | string
   Incoming?: Prisma.IncomingListRelationFilter
   Material?: Prisma.MaterialListRelationFilter
 }, "Id">
@@ -227,6 +257,9 @@ export type SupplierOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
   _count?: Prisma.SupplierCountOrderByAggregateInput
   _avg?: Prisma.SupplierAvgOrderByAggregateInput
   _max?: Prisma.SupplierMaxOrderByAggregateInput
@@ -241,11 +274,17 @@ export type SupplierScalarWhereWithAggregatesInput = {
   Id?: Prisma.IntWithAggregatesFilter<"Supplier"> | number
   Name?: Prisma.StringWithAggregatesFilter<"Supplier"> | string
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"Supplier"> | Date | string
+  CreatedBy?: Prisma.StringWithAggregatesFilter<"Supplier"> | string
+  UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"Supplier"> | Date | string
+  UpdatedBy?: Prisma.StringWithAggregatesFilter<"Supplier"> | string
 }
 
 export type SupplierCreateInput = {
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Incoming?: Prisma.IncomingCreateNestedManyWithoutSupplierDataInput
   Material?: Prisma.MaterialCreateNestedManyWithoutSupplierDataInput
 }
@@ -254,6 +293,9 @@ export type SupplierUncheckedCreateInput = {
   Id?: number
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Incoming?: Prisma.IncomingUncheckedCreateNestedManyWithoutSupplierDataInput
   Material?: Prisma.MaterialUncheckedCreateNestedManyWithoutSupplierDataInput
 }
@@ -261,6 +303,9 @@ export type SupplierUncheckedCreateInput = {
 export type SupplierUpdateInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Incoming?: Prisma.IncomingUpdateManyWithoutSupplierDataNestedInput
   Material?: Prisma.MaterialUpdateManyWithoutSupplierDataNestedInput
 }
@@ -269,6 +314,9 @@ export type SupplierUncheckedUpdateInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Incoming?: Prisma.IncomingUncheckedUpdateManyWithoutSupplierDataNestedInput
   Material?: Prisma.MaterialUncheckedUpdateManyWithoutSupplierDataNestedInput
 }
@@ -277,23 +325,35 @@ export type SupplierCreateManyInput = {
   Id?: number
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
 }
 
 export type SupplierUpdateManyMutationInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SupplierUncheckedUpdateManyInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SupplierCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type SupplierAvgOrderByAggregateInput = {
@@ -304,12 +364,18 @@ export type SupplierMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type SupplierMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   Name?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
+  CreatedBy?: Prisma.SortOrder
+  UpdatedAt?: Prisma.SortOrder
+  UpdatedBy?: Prisma.SortOrder
 }
 
 export type SupplierSumOrderByAggregateInput = {
@@ -324,10 +390,6 @@ export type SupplierNullableScalarRelationFilter = {
 export type SupplierScalarRelationFilter = {
   is?: Prisma.SupplierWhereInput
   isNot?: Prisma.SupplierWhereInput
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 export type SupplierCreateNestedOneWithoutMaterialInput = {
@@ -363,6 +425,9 @@ export type SupplierUpdateOneRequiredWithoutIncomingNestedInput = {
 export type SupplierCreateWithoutMaterialInput = {
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Incoming?: Prisma.IncomingCreateNestedManyWithoutSupplierDataInput
 }
 
@@ -370,6 +435,9 @@ export type SupplierUncheckedCreateWithoutMaterialInput = {
   Id?: number
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Incoming?: Prisma.IncomingUncheckedCreateNestedManyWithoutSupplierDataInput
 }
 
@@ -392,6 +460,9 @@ export type SupplierUpdateToOneWithWhereWithoutMaterialInput = {
 export type SupplierUpdateWithoutMaterialInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Incoming?: Prisma.IncomingUpdateManyWithoutSupplierDataNestedInput
 }
 
@@ -399,12 +470,18 @@ export type SupplierUncheckedUpdateWithoutMaterialInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Incoming?: Prisma.IncomingUncheckedUpdateManyWithoutSupplierDataNestedInput
 }
 
 export type SupplierCreateWithoutIncomingInput = {
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Material?: Prisma.MaterialCreateNestedManyWithoutSupplierDataInput
 }
 
@@ -412,6 +489,9 @@ export type SupplierUncheckedCreateWithoutIncomingInput = {
   Id?: number
   Name: string
   CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
   Material?: Prisma.MaterialUncheckedCreateNestedManyWithoutSupplierDataInput
 }
 
@@ -434,6 +514,9 @@ export type SupplierUpdateToOneWithWhereWithoutIncomingInput = {
 export type SupplierUpdateWithoutIncomingInput = {
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Material?: Prisma.MaterialUpdateManyWithoutSupplierDataNestedInput
 }
 
@@ -441,6 +524,9 @@ export type SupplierUncheckedUpdateWithoutIncomingInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Name?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   Material?: Prisma.MaterialUncheckedUpdateManyWithoutSupplierDataNestedInput
 }
 
@@ -488,6 +574,9 @@ export type SupplierSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Id?: boolean
   Name?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
   Incoming?: boolean | Prisma.Supplier$IncomingArgs<ExtArgs>
   Material?: boolean | Prisma.Supplier$MaterialArgs<ExtArgs>
   _count?: boolean | Prisma.SupplierCountOutputTypeDefaultArgs<ExtArgs>
@@ -497,21 +586,30 @@ export type SupplierSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   Id?: boolean
   Name?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["supplier"]>
 
 export type SupplierSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
   Name?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }, ExtArgs["result"]["supplier"]>
 
 export type SupplierSelectScalar = {
   Id?: boolean
   Name?: boolean
   CreatedAt?: boolean
+  CreatedBy?: boolean
+  UpdatedAt?: boolean
+  UpdatedBy?: boolean
 }
 
-export type SupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Name" | "CreatedAt", ExtArgs["result"]["supplier"]>
+export type SupplierOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "Name" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy", ExtArgs["result"]["supplier"]>
 export type SupplierInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Incoming?: boolean | Prisma.Supplier$IncomingArgs<ExtArgs>
   Material?: boolean | Prisma.Supplier$MaterialArgs<ExtArgs>
@@ -530,6 +628,9 @@ export type $SupplierPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     Id: number
     Name: string
     CreatedAt: Date
+    CreatedBy: string
+    UpdatedAt: Date
+    UpdatedBy: string
   }, ExtArgs["result"]["supplier"]>
   composites: {}
 }
@@ -958,6 +1059,9 @@ export interface SupplierFieldRefs {
   readonly Id: Prisma.FieldRef<"Supplier", 'Int'>
   readonly Name: Prisma.FieldRef<"Supplier", 'String'>
   readonly CreatedAt: Prisma.FieldRef<"Supplier", 'DateTime'>
+  readonly CreatedBy: Prisma.FieldRef<"Supplier", 'String'>
+  readonly UpdatedAt: Prisma.FieldRef<"Supplier", 'DateTime'>
+  readonly UpdatedBy: Prisma.FieldRef<"Supplier", 'String'>
 }
     
 

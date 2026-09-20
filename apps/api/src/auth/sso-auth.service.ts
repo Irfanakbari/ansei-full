@@ -10,7 +10,12 @@ import {
   type VuteqAuthContext,
   type VuteqIdentity,
 } from '@vuteq/sso-client-nest';
+import type { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+
+type SsoUserWithAuthorization = Prisma.MTCUserManagementGetPayload<{
+  include: { Role: { include: { Permission: true } } };
+}>;
 
 @Injectable()
 export class SsoAuthService implements OnModuleInit {
@@ -79,7 +84,8 @@ export class SsoAuthService implements OnModuleInit {
           where: { Email: email },
         });
     const existing = existingBySsoId ?? existingByEmail;
-    const user = existing
+    const auditActor = identity.username ?? identity.email ?? identity.id;
+    const user: SsoUserWithAuthorization = existing
       ? await this.prisma.mTCUserManagement.update({
           where: { Id: existing.Id },
           data: {
@@ -99,6 +105,8 @@ export class SsoAuthService implements OnModuleInit {
             Email: email,
             RoleId: null,
             LastLogin: new Date(),
+            CreatedBy: auditActor,
+            UpdatedBy: auditActor,
           },
           include: { Role: { include: { Permission: true } } },
         });

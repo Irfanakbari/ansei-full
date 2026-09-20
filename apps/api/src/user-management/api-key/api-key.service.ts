@@ -49,7 +49,8 @@ export class ApiKeyService {
         Description: dto.description,
         UserId: dto.userId,
         CreatedBy: createdBy,
-      },
+        UpdatedBy: createdBy,
+      } as never,
     });
 
     // 5. Return with raw key (ONLY TIME it's visible!)
@@ -158,7 +159,7 @@ export class ApiKeyService {
   /**
    * Revoke an API Key (set IsActive = false)
    */
-  async revoke(id: string) {
+  async revoke(id: string, updatedBy: string) {
     const apiKey = await this.prisma.apiKey.findUnique({
       where: { Id: id },
     });
@@ -173,7 +174,7 @@ export class ApiKeyService {
 
     return this.prisma.apiKey.update({
       where: { Id: id },
-      data: { IsActive: false },
+      data: { IsActive: false, UpdatedBy: updatedBy } as never,
       omit: { KeyHash: true },
       include: {
         User: {
@@ -190,7 +191,7 @@ export class ApiKeyService {
   /**
    * Reactivate a revoked API Key
    */
-  async reactivate(id: string) {
+  async reactivate(id: string, updatedBy: string) {
     const apiKey = await this.prisma.apiKey.findUnique({
       where: { Id: id },
     });
@@ -205,7 +206,7 @@ export class ApiKeyService {
 
     return this.prisma.apiKey.update({
       where: { Id: id },
-      data: { IsActive: true },
+      data: { IsActive: true, UpdatedBy: updatedBy } as never,
       omit: { KeyHash: true },
       include: {
         User: {
@@ -253,7 +254,7 @@ export class ApiKeyService {
   /**
    * Delete an API Key permanently
    */
-  async delete(id: string) {
+  async delete(id: string, deletedBy: string) {
     const apiKey = await this.prisma.apiKey.findUnique({
       where: { Id: id },
     });
@@ -262,8 +263,14 @@ export class ApiKeyService {
       throw new NotFoundException(`API Key with ID '${id}' not found`);
     }
 
-    await this.prisma.apiKey.delete({
-      where: { Id: id },
+    await this.prisma.$transaction(async (tx) => {
+      await tx.apiKey.update({
+        where: { Id: id },
+        data: { UpdatedBy: deletedBy } as never,
+      });
+      await tx.apiKey.delete({
+        where: { Id: id },
+      });
     });
 
     return { message: 'API Key deleted successfully' };

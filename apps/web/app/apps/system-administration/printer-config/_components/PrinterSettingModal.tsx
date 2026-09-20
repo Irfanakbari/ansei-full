@@ -124,8 +124,10 @@ export default function PrinterSettingModal({visible, data, onClose, onUpdated, 
         </Form> : <Descriptions bordered size="small" column={1}>
             <Descriptions.Item label="Printer Name">{data.Name || "-"}</Descriptions.Item>
             <Descriptions.Item label="IP Address"><Tag color="blue">{data.IpAddress}</Tag></Descriptions.Item>
-            <Descriptions.Item label="Created By">{data.CreatedByName || "-"}</Descriptions.Item>
-            <Descriptions.Item label="Created At">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+            <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+            <Descriptions.Item label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
+            <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+            <Descriptions.Item label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
         </Descriptions>}
     </Modal>;
 }

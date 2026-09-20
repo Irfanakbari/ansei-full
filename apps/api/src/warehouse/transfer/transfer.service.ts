@@ -137,6 +137,7 @@ export class TransferService {
             data: {
               QtyWarehouse: warehouseAfter,
               QtyRack: rackAfter,
+              UpdatedBy: transferredBy,
             },
           });
 

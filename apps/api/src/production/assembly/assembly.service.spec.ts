@@ -216,7 +216,7 @@ describe('AssemblyService', () => {
     });
     expect(tx.finishGood.update).toHaveBeenCalledWith({
       where: { PartNumber: 'FG' },
-      data: { Qty: 26 },
+      data: { Qty: 26, UpdatedBy: 'DISPLAY' },
     });
     expect(log.completeProcess).toHaveBeenCalledWith(
       'audit',

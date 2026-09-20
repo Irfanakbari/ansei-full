@@ -1,6 +1,15 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-20 */
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope, type PaginationMeta } from '../../utils/apiService';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {
+    del,
+    get,
+    getApiErrorMessage,
+    patch,
+    post,
+    type ApiSuccessEnvelope,
+    type PaginatedApiSuccessEnvelope,
+    type PaginationMeta
+} from '../../utils/apiService';
 
 export interface ApiKeyEntity {
     Id: string;
@@ -19,6 +28,9 @@ export interface ApiKeyEntity {
     CreatedAt: string;
     CreatedBy: string;
     CreatedByName?: string;
+    UpdatedAt: string;
+    UpdatedBy: string | null;
+    UpdatedByName?: string | null;
 }
 
 export interface CreateApiKeyPayload {
@@ -42,16 +54,24 @@ const initialState: ApiKeyState = {
     newApiKey: null,
     loading: false,
     error: null,
-    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
+    pagination: {page: 1, limit: 50, totalItems: 0, totalPages: 0},
 };
 
-export interface ApiKeyQuery { page?: number; limit?: number; search?: string; userId?: string; isActive?: boolean }
+export interface ApiKeyQuery {
+    page?: number;
+    limit?: number;
+    search?: string;
+    userId?: string;
+    isActive?: boolean
+}
 
-export const fetchApiKeys = createAsyncThunk<PaginatedApiSuccessEnvelope<ApiKeyEntity>, ApiKeyQuery | undefined, { rejectValue: string }>(
+export const fetchApiKeys = createAsyncThunk<PaginatedApiSuccessEnvelope<ApiKeyEntity>, ApiKeyQuery | undefined, {
+    rejectValue: string
+}>(
     'apiKeys/fetchAll',
-    async (params = {}, { rejectWithValue }) => {
+    async (params = {}, {rejectWithValue}) => {
         try {
-            return await get<PaginatedApiSuccessEnvelope<ApiKeyEntity>>('/api-keys', { params: { ...params } });
+            return await get<PaginatedApiSuccessEnvelope<ApiKeyEntity>>('/api-keys', {params: {...params}});
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch API Keys'));
         }
@@ -60,7 +80,7 @@ export const fetchApiKeys = createAsyncThunk<PaginatedApiSuccessEnvelope<ApiKeyE
 
 export const fetchApiKeyById = createAsyncThunk<ApiSuccessEnvelope<ApiKeyEntity>, string, { rejectValue: string }>(
     'apiKeys/fetchById',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
             return await get<ApiSuccessEnvelope<ApiKeyEntity>>(`/api-keys/${id}`);
         } catch (error: unknown) {
@@ -69,11 +89,21 @@ export const fetchApiKeyById = createAsyncThunk<ApiSuccessEnvelope<ApiKeyEntity>
     }
 );
 
-export const createApiKey = createAsyncThunk<ApiSuccessEnvelope<{ ApiKey: string; KeyPrefix: string; Id: string; Name: string }>, CreateApiKeyPayload, { rejectValue: string }>(
+export const createApiKey = createAsyncThunk<ApiSuccessEnvelope<{
+    ApiKey: string;
+    KeyPrefix: string;
+    Id: string;
+    Name: string
+}>, CreateApiKeyPayload, { rejectValue: string }>(
     'apiKeys/create',
-    async (payload: CreateApiKeyPayload, { rejectWithValue }) => {
+    async (payload: CreateApiKeyPayload, {rejectWithValue}) => {
         try {
-            return await post<ApiSuccessEnvelope<{ ApiKey: string; KeyPrefix: string; Id: string; Name: string }>, CreateApiKeyPayload>('/api-keys', payload);
+            return await post<ApiSuccessEnvelope<{
+                ApiKey: string;
+                KeyPrefix: string;
+                Id: string;
+                Name: string
+            }>, CreateApiKeyPayload>('/api-keys', payload);
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to create API Key'));
         }
@@ -82,7 +112,7 @@ export const createApiKey = createAsyncThunk<ApiSuccessEnvelope<{ ApiKey: string
 
 export const deleteApiKey = createAsyncThunk<string, string, { rejectValue: string }>(
     'apiKeys/delete',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
             await del<ApiSuccessEnvelope<unknown>>(`/api-keys/${id}`);
             return id;
@@ -94,7 +124,7 @@ export const deleteApiKey = createAsyncThunk<string, string, { rejectValue: stri
 
 export const revokeApiKey = createAsyncThunk<ApiSuccessEnvelope<ApiKeyEntity>, string, { rejectValue: string }>(
     'apiKeys/revoke',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
             return await patch<ApiSuccessEnvelope<ApiKeyEntity>>(`/api-keys/${id}/revoke`, {});
         } catch (error: unknown) {
@@ -105,7 +135,7 @@ export const revokeApiKey = createAsyncThunk<ApiSuccessEnvelope<ApiKeyEntity>, s
 
 export const reactivateApiKey = createAsyncThunk<ApiSuccessEnvelope<ApiKeyEntity>, string, { rejectValue: string }>(
     'apiKeys/reactivate',
-    async (id: string, { rejectWithValue }) => {
+    async (id: string, {rejectWithValue}) => {
         try {
             return await patch<ApiSuccessEnvelope<ApiKeyEntity>>(`/api-keys/${id}/reactivate`, {});
         } catch (error: unknown) {
@@ -128,7 +158,10 @@ const apiKeysSlice = createSlice({
     extraReducers: (builder) => {
         builder
             // fetchAll
-            .addCase(fetchApiKeys.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(fetchApiKeys.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchApiKeys.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = Array.isArray(action.payload?.data) ? action.payload.data : [];
@@ -139,7 +172,10 @@ const apiKeysSlice = createSlice({
                 state.error = action.payload as string;
             })
             // fetchById
-            .addCase(fetchApiKeyById.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(fetchApiKeyById.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchApiKeyById.fulfilled, (state, action) => {
                 state.loading = false;
                 state.singleData = action.payload.data;
@@ -149,7 +185,10 @@ const apiKeysSlice = createSlice({
                 state.error = action.payload as string;
             })
             // create
-            .addCase(createApiKey.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(createApiKey.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(createApiKey.fulfilled, (state, action) => {
                 state.loading = false;
                 state.newApiKey = action.payload.data;
@@ -159,7 +198,10 @@ const apiKeysSlice = createSlice({
                 state.error = action.payload as string;
             })
             // delete
-            .addCase(deleteApiKey.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(deleteApiKey.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(deleteApiKey.fulfilled, (state, action) => {
                 state.loading = false;
                 state.data = state.data.filter(item => item.Id !== action.payload);
@@ -169,7 +211,10 @@ const apiKeysSlice = createSlice({
                 state.error = action.payload as string;
             })
             // revoke
-            .addCase(revokeApiKey.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(revokeApiKey.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(revokeApiKey.fulfilled, (state, action) => {
                 state.loading = false;
                 const index = state.data.findIndex(item => item.Id === action.payload.data.Id);
@@ -182,7 +227,10 @@ const apiKeysSlice = createSlice({
                 state.error = action.payload as string;
             })
             // reactivate
-            .addCase(reactivateApiKey.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(reactivateApiKey.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(reactivateApiKey.fulfilled, (state, action) => {
                 state.loading = false;
                 const index = state.data.findIndex(item => item.Id === action.payload.data.Id);
@@ -197,5 +245,5 @@ const apiKeysSlice = createSlice({
     },
 });
 
-export const { clearNewApiKey, clearSingleData } = apiKeysSlice.actions;
+export const {clearNewApiKey, clearSingleData} = apiKeysSlice.actions;
 export default apiKeysSlice.reducer;

@@ -258,7 +258,7 @@ export default function InventoryCountingPage() {
             render: (val: string | null) => val || '-',
         },
         {
-            title: 'Created At',
+            title: 'Created Date',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',
             render: formatDateTime,

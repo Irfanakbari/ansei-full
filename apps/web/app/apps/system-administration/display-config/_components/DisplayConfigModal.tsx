@@ -12,6 +12,7 @@ import {
     updateDisplayConfig,
     uploadDisplayMedia
 } from "@/store/features/settings/displayConfig/displayConfigSlice";
+import {formatDateTime} from "@/lib/utils/dateTime";
 
 type FormValues = {
     description: string;
@@ -192,6 +193,12 @@ export default function DisplayConfigModal({visible, data, onClose, onUpdated, o
                         color={data.IsOpen ? "green" : "default"}>{data.IsOpen ? "Yes" : "No"}</Tag></Descriptions.Item>
                     <Descriptions.Item label="Loop"><Tag
                         color={data.Loop ? "green" : "default"}>{data.Loop ? "Yes" : "No"}</Tag></Descriptions.Item>
+                    <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
+                    <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>
+                    <Descriptions.Item
+                        label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
                 </Descriptions>
             )}
         </Modal>

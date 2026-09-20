@@ -1,7 +1,16 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-21 */
 
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, postFormData, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {
+    del,
+    get,
+    getApiErrorMessage,
+    patch,
+    post,
+    postFormData,
+    type ApiSuccessEnvelope,
+    type PaginatedApiSuccessEnvelope
+} from '@/store/utils/apiService';
 
 export interface DisplayConfigEntity {
     Id: number;
@@ -12,7 +21,11 @@ export interface DisplayConfigEntity {
     IsOpen: boolean;
     Loop: boolean;
     CreatedAt: string;
+    CreatedBy: string;
+    CreatedByName?: string | null;
     UpdatedAt: string;
+    UpdatedBy: string | null;
+    UpdatedByName?: string | null;
 }
 
 export interface CreateDisplayConfigDto {
@@ -38,21 +51,28 @@ interface DisplayConfigState {
     query: DisplayConfigQuery;
     pagination: { page: number; limit: number; totalItems: number; totalPages: number };
 }
-export interface DisplayConfigQuery { page?: number; limit?: number; search?: string }
+
+export interface DisplayConfigQuery {
+    page?: number;
+    limit?: number;
+    search?: string
+}
 
 const initialState: DisplayConfigState = {
     data: [],
     loading: false,
     error: null,
-    query: { page: 1, limit: 50 },
-    pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
+    query: {page: 1, limit: 50},
+    pagination: {page: 1, limit: 50, totalItems: 0, totalPages: 0},
 };
 
-export const fetchDisplayConfig = createAsyncThunk<PaginatedApiSuccessEnvelope<DisplayConfigEntity>, DisplayConfigQuery | undefined, { rejectValue: string }>(
+export const fetchDisplayConfig = createAsyncThunk<PaginatedApiSuccessEnvelope<DisplayConfigEntity>, DisplayConfigQuery | undefined, {
+    rejectValue: string
+}>(
     'displayConfig/fetchAll',
-    async (query = {}, { rejectWithValue }) => {
+    async (query = {}, {rejectWithValue}) => {
         try {
-            return await get<PaginatedApiSuccessEnvelope<DisplayConfigEntity>>('/settings/display-config', { params: { ...query } });
+            return await get<PaginatedApiSuccessEnvelope<DisplayConfigEntity>>('/settings/display-config', {params: {...query}});
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch display configs'));
         }
@@ -61,7 +81,7 @@ export const fetchDisplayConfig = createAsyncThunk<PaginatedApiSuccessEnvelope<D
 
 export const createDisplayConfig = createAsyncThunk(
     'displayConfig/create',
-    async (payload: CreateDisplayConfigDto, { rejectWithValue }) => {
+    async (payload: CreateDisplayConfigDto, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<DisplayConfigEntity>, CreateDisplayConfigDto>('/settings/display-config', payload);
         } catch (error: unknown) {
@@ -72,7 +92,7 @@ export const createDisplayConfig = createAsyncThunk(
 
 export const updateDisplayConfig = createAsyncThunk(
     'displayConfig/update',
-    async ({ id, data: payload }: { id: number; data: UpdateDisplayConfigDto }, { rejectWithValue }) => {
+    async ({id, data: payload}: { id: number; data: UpdateDisplayConfigDto }, {rejectWithValue}) => {
         try {
             return await patch<ApiSuccessEnvelope<DisplayConfigEntity>, UpdateDisplayConfigDto>(`/settings/display-config/${id}`, payload);
         } catch (error: unknown) {
@@ -83,7 +103,7 @@ export const updateDisplayConfig = createAsyncThunk(
 
 export const uploadDisplayMedia = createAsyncThunk(
     'displayConfig/uploadMedia',
-    async ({ id, file }: { id: number; file: File }, { rejectWithValue }) => {
+    async ({id, file}: { id: number; file: File }, {rejectWithValue}) => {
         try {
             const formData = new FormData();
             formData.append('file', file);
@@ -96,10 +116,10 @@ export const uploadDisplayMedia = createAsyncThunk(
 
 export const deleteDisplayConfig = createAsyncThunk(
     'displayConfig/delete',
-    async (id: number, { rejectWithValue }) => {
+    async (id: number, {rejectWithValue}) => {
         try {
             await del<ApiSuccessEnvelope<unknown>>(`/settings/display-config/${id}`);
-            return { Id: id };
+            return {Id: id};
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to delete display config'));
         }
@@ -113,7 +133,9 @@ const displayConfigSlice = createSlice({
         clearError: (state) => {
             state.error = null;
         },
-        setDisplayConfigQuery: (state, action: { payload: DisplayConfigQuery }) => { state.query = { ...state.query, ...action.payload }; },
+        setDisplayConfigQuery: (state, action: { payload: DisplayConfigQuery }) => {
+            state.query = {...state.query, ...action.payload};
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -171,5 +193,5 @@ const displayConfigSlice = createSlice({
     },
 });
 
-export const { clearError, setDisplayConfigQuery } = displayConfigSlice.actions;
+export const {clearError, setDisplayConfigQuery} = displayConfigSlice.actions;
 export default displayConfigSlice.reducer;

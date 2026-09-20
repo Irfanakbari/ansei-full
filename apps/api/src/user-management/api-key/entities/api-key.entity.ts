@@ -48,6 +48,12 @@ export class ApiKeyEntity {
   @ApiProperty({ example: 'admin' })
   CreatedBy: string;
 
+  @ApiProperty({ example: '2026-01-15T10:00:00.000Z' })
+  UpdatedAt: Date;
+
+  @ApiProperty({ example: 'admin' })
+  UpdatedBy: string;
+
   @ApiPropertyOptional({ example: 'Administrator' })
   CreatedByName?: string;
 }
