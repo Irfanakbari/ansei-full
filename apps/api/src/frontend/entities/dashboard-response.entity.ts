@@ -1,130 +1,188 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class DashboardSummaryEntity {
-  @ApiProperty({
-    description: 'Total active materials (IsActive = true)',
-    example: 150,
-  })
-  totalMaterials: number;
-
-  @ApiProperty({
-    description: 'Total suppliers',
-    example: 25,
-  })
-  totalSuppliers: number;
-
-  @ApiProperty({
-    description: 'Total finish goods',
-    example: 45,
-  })
-  totalFinishGoods: number;
-
-  @ApiProperty({
-    description: 'Total active manpower (Status = true)',
-    example: 30,
-  })
-  totalManPower: number;
-
-  @ApiProperty({
-    description:
-      'Total incoming quantity this month (sum of IncomingMaterial.Qty)',
-    example: 5000,
-  })
-  totalIncomingQty: number;
-
-  @ApiProperty({
-    description:
-      'Total delivery quantity this month (sum of DeliveryHistory.Qty)',
-    example: 3500,
-  })
-  totalDeliveryQty: number;
+  @ApiProperty() totalMaterials: number;
+  @ApiProperty() totalSuppliers: number;
+  @ApiProperty() totalFinishGoods: number;
+  @ApiProperty() totalManPower: number;
+  @ApiProperty() totalIncomingQty: number;
+  @ApiProperty() totalDeliveryQty: number;
 }
 
 export class DailyForecastStatEntity {
-  @ApiProperty({
-    description: 'Date in YYYY-MM-DD format',
-    example: '2026-07-15',
-  })
-  date: string;
-
-  @ApiProperty({
-    description: 'Number of forecasts/deliveries on this day',
-    example: 5,
-  })
-  count: number;
-
-  @ApiProperty({
-    description: 'Total quantity planned for delivery on this day',
-    example: 500,
-  })
-  totalQty: number;
+  @ApiProperty() date: string;
+  @ApiProperty() count: number;
+  @ApiProperty() totalQty: number;
 }
 
 export class DailyIncomingStatEntity {
-  @ApiProperty({
-    description: 'Date in YYYY-MM-DD format',
-    example: '2026-07-15',
-  })
-  date: string;
-
-  @ApiProperty({
-    description: 'Total incoming quantity on this day',
-    example: 250,
-  })
-  totalQty: number;
+  @ApiProperty() date: string;
+  @ApiProperty() totalQty: number;
 }
 
 export class DailyDeliveryStatEntity {
-  @ApiProperty({
-    description: 'Date in YYYY-MM-DD format',
-    example: '2026-07-15',
-  })
-  date: string;
+  @ApiProperty() date: string;
+  @ApiProperty() totalQty: number;
+}
 
+export class DashboardDailyEntity {
+  @ApiProperty() date: string;
+  @ApiProperty() demandQty: number;
+  @ApiProperty() approvedIncomingMaterialQty: number;
   @ApiProperty({
-    description: 'Total delivery quantity on this day',
-    example: 300,
+    description:
+      'Good output reported through ProductionReport because LabelData has no scan timestamp',
   })
-  totalQty: number;
+  reportedGoodQty: number;
+  @ApiProperty({
+    description:
+      'Shipment throughput recorded on this Jakarta calendar day within the selected month',
+  })
+  deliveredQty: number;
+  @ApiProperty() reportedNgQty: number;
 }
 
 export class DashboardResponseEntity {
-  @ApiProperty({
-    description: 'Summary statistics',
-    type: DashboardSummaryEntity,
-  })
-  summary: DashboardSummaryEntity;
-
+  @ApiProperty() meta: {
+    period: string;
+    timezone: 'Asia/Jakarta';
+    periodStart: Date;
+    periodEndExclusive: Date;
+    asOf: Date;
+    productionOutputMetric: 'reportedGoodQty';
+  };
+  @ApiProperty() currentSnapshot: {
+    masterData: {
+      activeMaterials: number;
+      suppliers: number;
+      finishGoods: number;
+      activeManpower: number;
+    };
+    inventory: {
+      outOfStockPartCount: number;
+      lowStockPartCount: number;
+      negativeBalancePartCount: number;
+    };
+    freezes: {
+      activeMaterial: DashboardFreezeEntity[];
+      activeFinishGood: DashboardFreezeEntity[];
+    };
+    openExceptions: {
+      overdueForecastCount: number;
+      openIncomingCount: number;
+      unvalidatedReportCount: number;
+      pendingLabelCount: number;
+      openMaterialNgCaseCount: number;
+    };
+  };
   @ApiProperty({
     description:
-      'Daily forecast statistics for current month (every day of the month)',
-    type: [DailyForecastStatEntity],
+      'Selected-month metrics. Delivery deliveredQty is lifetime delivered quantity capped by target for forecasts due in the selected month; it is not the sum of daily shipment throughput.',
   })
-  forecastDailyStats: DailyForecastStatEntity[];
-
+  monthly: {
+    demand: {
+      forecastCount: number;
+      forecastQty: number;
+      unscheduledCount: number;
+      unscheduledQty: number;
+      releasedQty: number;
+    };
+    incoming: {
+      approvedDocumentCount: number;
+      approvedMaterialQty: number;
+      openDocumentCount: number;
+    };
+    production: {
+      releaseCountsByStatus: Record<string, number>;
+      targetQty: number;
+      scannedGoodQty: number;
+      productionAttainmentPct: number | null;
+      reportedQty: number;
+      reportedNgQty: number;
+      ngRatePct: number | null;
+      unvalidatedReportCount: number;
+    };
+    assembly: { inProgress: number; completed: number; cancelled: number };
+    pokayoke: {
+      scannedLabels: number;
+      pendingLabels: number;
+      failedAttempts: number;
+    };
+    delivery: {
+      deliveredQty: number;
+      attainmentPct: number | null;
+      overdueForecastCount: number;
+      overdueOpenQty: number;
+    };
+    materialNg: { openCaseCount: number; outstandingReplacementQty: number };
+  };
+  @ApiProperty({ type: [DashboardDailyEntity] }) daily: DashboardDailyEntity[];
   @ApiProperty({
     description:
-      'Daily incoming statistics for current month (every day of the month)',
-    type: [DailyIncomingStatEntity],
+      'Released production releases whose PlanDate is within the selected month, newest first (maximum 10)',
   })
-  incomingDailyStats: DailyIncomingStatEntity[];
+  releasePipeline: DashboardReleasePipelineEntity[];
+  @ApiProperty() inventoryRisk: DashboardInventoryRiskEntity[];
+  @ApiProperty() topParts: DashboardTopPartEntity[];
+  @ApiProperty() exceptions: DashboardExceptionEntity[];
+  @ApiPropertyOptional() summary: DashboardSummaryEntity;
+  @ApiPropertyOptional() forecastDailyStats: DailyForecastStatEntity[];
+  @ApiPropertyOptional() incomingDailyStats: DailyIncomingStatEntity[];
+  @ApiPropertyOptional() deliveryDailyStats: DailyDeliveryStatEntity[];
+  @ApiPropertyOptional() currentMonth: string;
+  @ApiPropertyOptional() daysInMonth: number;
+}
 
+export class DashboardFreezeEntity {
+  id: string;
+  opnameNumber: string;
+  startedAt: Date | null;
+  progress: number;
+}
+
+export class DashboardReleasePipelineEntity {
+  releaseId: string;
+  releaseNumber: string;
+  planDate: Date;
+  status: string;
+  targetQty: number;
+  @ApiProperty({
+    nullable: true,
+    description:
+      'Completed ShoppingCompletion-linked forecasts divided by all forecasts in the release; null when the release has no forecasts',
+  })
+  shoppingPct: number | null;
   @ApiProperty({
     description:
-      'Daily delivery statistics for current month (every day of the month)',
-    type: [DailyDeliveryStatEntity],
+      'Quantity-weighted completion for labels that require assembly; 100 when assembly is not required.',
   })
-  deliveryDailyStats: DailyDeliveryStatEntity[];
+  assemblyPct: number;
+  pokayokePct: number | null;
+  deliveryPct: number | null;
+}
 
-  @ApiProperty({
-    description: 'Current month in YYYY-MM format',
-    example: '2026-07',
-  })
-  currentMonth: string;
+export class DashboardInventoryRiskEntity {
+  partNumber: string;
+  partName: string;
+  totalStock: number;
+  minimumStock: number;
+  shortageQty: number;
+  status: 'OUT' | 'LOW' | 'NEGATIVE';
+}
 
-  @ApiProperty({
-    description: 'Number of days in current month',
-    example: 31,
-  })
-  daysInMonth: number;
+export class DashboardTopPartEntity {
+  partNumber: string;
+  partName: string;
+  demandQty: number;
+  deliveredQty: number;
+  ngQty: number;
+}
+
+export class DashboardExceptionEntity {
+  type: string;
+  title: string;
+  description: string;
+  occurredAt: Date;
+  route: string;
+  severity: 'HIGH' | 'MEDIUM' | 'LOW';
 }

@@ -1,6 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FrontendController } from './frontend.controller';
 import { FrontendService } from './frontend.service';
+import { NotificationResponseEntity } from './entities/notification-response.entity';
+import { DashboardResponseEntity } from './entities/dashboard-response.entity';
 
 describe('FrontendController', () => {
   let controller: FrontendController;
@@ -75,5 +77,46 @@ describe('FrontendController', () => {
 
     expect(result).toEqual(mock);
     expect(service.getManPowerList).toHaveBeenCalled();
+  });
+
+  it('should delegate notifications and document the response entity', async () => {
+    const mock = {
+      totalPOWithoutAttachment: 0,
+      byProductionRelease: [],
+      totalIncomingNotClosed: 0,
+      incomingNotClosed: [],
+      totalStockOpnameInProgress: 0,
+      stockOpnameInProgress: [],
+      totalLabelDataNotScanned: 0,
+      labelDataNotScanned: [],
+      totalAssemblyInProgress: 0,
+      assemblyInProgress: [],
+      messages: [],
+    };
+    service.getNotifications.mockResolvedValue(mock);
+
+    await expect(controller.getNotifications()).resolves.toEqual(mock);
+    expect(service.getNotifications).toHaveBeenCalledTimes(1);
+    expect(
+      Reflect.getMetadata(
+        'swagger/apiResponse',
+        FrontendController.prototype.getNotifications,
+      ),
+    ).toMatchObject({ '200': { type: NotificationResponseEntity } });
+  });
+
+  it('delegates dashboard queries and documents the response entity', async () => {
+    const query = { month: 9, year: 2026 };
+    const mock = { meta: { period: '2026-09' } };
+    service.getDashboard.mockResolvedValue(mock);
+
+    await expect(controller.getDashboard(query)).resolves.toEqual(mock);
+    expect(service.getDashboard).toHaveBeenCalledWith(query);
+    expect(
+      Reflect.getMetadata(
+        'swagger/apiResponse',
+        FrontendController.prototype.getDashboard,
+      ),
+    ).toMatchObject({ '200': { type: DashboardResponseEntity } });
   });
 });

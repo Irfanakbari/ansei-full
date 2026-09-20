@@ -41,20 +41,13 @@ export async function GET(request: Request) {
         console.error(JSON.stringify({
             event: 'dashboard_sso_fetch_failed',
             errorName: error instanceof Error ? error.name : 'UnknownError',
-            errorCode: typeof error === 'object' && error !== null && 'code' in error
-                ? String((error as { code?: unknown }).code)
-                : undefined,
-            errorMessage: error instanceof Error ? error.message : String(error),
             causeName: cause?.name,
-            causeMessage: cause?.message,
             hasSession: Boolean(session),
-            sessionExpiresAt: session?.expiresAt,
-            requestHost: request.headers.get('host'),
         }));
 
         return NextResponse.json(
-            { message: error instanceof Error ? error.message : 'Internal Server Error' },
-            { status: 401 },
+            { message: session ? 'Internal Server Error' : 'Unauthorized' },
+            { status: session ? 500 : 401 },
         );
     }
 }

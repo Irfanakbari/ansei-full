@@ -46,8 +46,15 @@ export interface LabelDataNotScanned {
 }
 
 export interface NotificationMessage {
-    menu: string;
+    menu: 'INCOMING' | 'PRODUCTION_PLAN' | 'STOCK_OPNAME' | 'POKAYOKE' | 'ASSEMBLY';
     message: string;
+}
+
+export interface AssemblyInProgress {
+    id: string;
+    labelNumber?: string | null;
+    manpowerName?: string | null;
+    startedAt?: string | null;
 }
 
 export interface NotificationsEntity {
@@ -59,6 +66,8 @@ export interface NotificationsEntity {
     stockOpnameInProgress: StockOpnameInProgress[];
     totalLabelDataNotScanned: number;
     labelDataNotScanned: LabelDataNotScanned[];
+    totalAssemblyInProgress: number;
+    assemblyInProgress: AssemblyInProgress[];
     messages: NotificationMessage[];
 }
 
@@ -75,7 +84,7 @@ const initialState: NotificationsState = {
     error: null,
 };
 
-// Fetch notifications (public endpoint - goes through proxy, no auth required)
+// Fetch notifications through the authenticated Next.js proxy
 export const fetchNotifications = createAsyncThunk<
     NotificationsEntity,
     void,
@@ -85,16 +94,32 @@ export const fetchNotifications = createAsyncThunk<
     async (_, { rejectWithValue }) => {
         try {
             const response = await fetch('/api/frontend/notifications');
-            const result = await response.json();
-            if (!response.ok) return rejectWithValue(result?.message || 'Gagal mengambil data notifications');
+            const result: unknown = await response.json();
+            if (!response.ok) {
+                const message = typeof result === 'object' && result !== null && 'message' in result && typeof result.message === 'string'
+                    ? result.message
+                    : 'Gagal mengambil data notifications';
+                return rejectWithValue(message);
+            }
             // Backend returns ApiSuccessEnvelope: { success: true, statusCode: 200, message: "...", data: NotificationsEntity }
-            const data: NotificationsEntity =
-                result && typeof result === 'object' && 'data' in result && result.data
-                    ? result.data
-                    : result;
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error?.message || 'Gagal mengambil data notifications');
+            const payload = result && typeof result === 'object' && 'data' in result
+                ? result.data
+                : result;
+            if (!payload || typeof payload !== 'object') {
+                return rejectWithValue('Format data notifications tidak valid');
+            }
+            const data = payload as NotificationsEntity;
+            return {
+                ...data,
+                totalAssemblyInProgress: typeof data.totalAssemblyInProgress === 'number'
+                    ? data.totalAssemblyInProgress
+                    : 0,
+                assemblyInProgress: Array.isArray(data.assemblyInProgress)
+                    ? data.assemblyInProgress
+                    : [],
+            };
+        } catch (error: unknown) {
+            return rejectWithValue(error instanceof Error ? error.message : 'Gagal mengambil data notifications');
         }
     }
 );
@@ -116,11 +141,7 @@ const notificationsSlice = createSlice({
             })
             .addCase(fetchNotifications.fulfilled, (state, action) => {
                 state.loading = false;
-                const payload = action.payload as any;
-                state.data =
-                    payload && typeof payload === 'object' && 'data' in payload && payload.data
-                        ? payload.data
-                        : payload;
+                state.data = action.payload;
             })
             .addCase(fetchNotifications.rejected, (state, action) => {
                 state.loading = false;

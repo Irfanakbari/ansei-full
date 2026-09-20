@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import moment from 'moment-timezone';
 import { PrismaService } from '../prisma/prisma.service';
-import { ProductionStatus, OpnameStatus } from '../generated/prisma/enums';
+import {
+  AssemblyStatus,
+  ItemCategory,
+  MaterialNgCaseStatus,
+  PokayokeCompareStatus,
+  ProductionStatus,
+  OpnameStatus,
+} from '../generated/prisma/enums';
 import { DashboardQueryDto } from './dto/dashboard-query.dto';
 import {
   DashboardResponseEntity,
@@ -12,6 +20,7 @@ import {
 import { FrontendFinishGoodEntity } from './entities/finish-good-list.entity';
 import { FrontendManPowerEntity } from './entities/man-power-list.entity';
 import { DisplayTargetEntity } from './entities/display-target.entity';
+import { NotificationResponseEntity } from './entities/notification-response.entity';
 
 @Injectable()
 export class FrontendService {
@@ -284,12 +293,8 @@ export class FrontendService {
     return releasesWithProgress;
   }
 
-  async getNotifications() {
-    // ========== NOTIFICATION 1: Forecasts without attachment ==========
-    // Find forecasts that:
-    // 1. Have no attachment (AttachmentDeliveryId is null)
-    // 2. Are linked to a Production Release with COMPLETED status
-    const forecastsWithoutAttachment = await this.prisma.forecast.findMany({
+  async getNotifications(): Promise<NotificationResponseEntity> {
+    const forecastsWithoutAttachmentQuery = this.prisma.forecast.findMany({
       where: {
         ProductionReleaseId: { not: null },
         ProductionRelease: {
@@ -320,55 +325,7 @@ export class FrontendService {
       },
     });
 
-    // Count total PO without attachment
-    const totalPOWithoutAttachment = forecastsWithoutAttachment.length;
-
-    // Group by ProductionRelease
-    const byProductionRelease = forecastsWithoutAttachment.reduce(
-      (acc, forecast) => {
-        const releaseId = forecast.ProductionReleaseId!;
-        if (!acc[releaseId]) {
-          acc[releaseId] = {
-            releaseId,
-            releaseNumber: forecast.ProductionRelease?.ReleaseNumber || '',
-            status: forecast.ProductionRelease?.Status || '',
-            count: 0,
-            forecasts: [],
-          };
-        }
-        acc[releaseId].count++;
-        acc[releaseId].forecasts.push({
-          poId: forecast.PoId,
-          poNumber: forecast.PoNumber,
-          partNumber: forecast.PartData?.PartNumber,
-          partName: forecast.PartData?.PartName,
-          qty: forecast.Qty,
-          deliveryDate: forecast.DeliveryDate,
-        });
-        return acc;
-      },
-      {} as Record<
-        string,
-        {
-          releaseId: string;
-          releaseNumber: string;
-          status: string;
-          count: number;
-          forecasts: {
-            poId: string;
-            poNumber: string;
-            partNumber: string | null;
-            partName: string | null;
-            qty: number;
-            deliveryDate: Date;
-          }[];
-        }
-      >,
-    );
-
-    // ========== NOTIFICATION 2: Incoming not closed ==========
-    // Find all Incoming records where Closed = false
-    const incomingNotClosed = await this.prisma.incoming.findMany({
+    const incomingNotClosedQuery = this.prisma.incoming.findMany({
       where: {
         Closed: false,
       },
@@ -389,10 +346,7 @@ export class FrontendService {
       },
     });
 
-    const totalIncomingNotClosed = incomingNotClosed.length;
-
-    // ========== NOTIFICATION 3: StockOpname in progress ==========
-    const stockOpnameInProgress = await this.prisma.stockOpname.findMany({
+    const stockOpnameInProgressQuery = this.prisma.stockOpname.findMany({
       where: {
         Status: OpnameStatus.IN_PROGRESS,
       },
@@ -407,11 +361,7 @@ export class FrontendService {
       },
     });
 
-    const totalStockOpnameInProgress = stockOpnameInProgress.length;
-
-    // ========== NOTIFICATION 4: LabelData not scanned (RELEASED production + shopping complete) ==========
-    // First get all LabelData with Scanned=false and RELEASED production
-    const allLabelDataNotScanned = await this.prisma.labelData.findMany({
+    const allLabelDataNotScannedQuery = this.prisma.labelData.findMany({
       where: {
         Scanned: false,
         ProductionRelease: {
@@ -435,34 +385,93 @@ export class FrontendService {
       },
     });
 
-    // Filter to only include LabelData where the Forecast has complete shopping (100%)
-    const labelDataNotScannedPromises = allLabelDataNotScanned.map(
-      async (label) => {
-        // Skip if no ForecastId
-        if (!label.ForecastId) {
-          return null;
-        }
-
-        const isComplete = await this.isShoppingComplete(label.ForecastId);
-        if (!isComplete) {
-          return null;
-        }
-
-        return label;
+    const assemblyInProgressQuery = this.prisma.assemblySession.findMany({
+      where: {
+        Status: AssemblyStatus.IN_PROGRESS,
+        LabelData: {
+          ProductionRelease: { Status: ProductionStatus.RELEASED },
+        },
       },
+      select: {
+        Id: true,
+        StartedAt: true,
+        LabelData: {
+          select: {
+            LabelNumber: true,
+            FinishGoodId: true,
+            ProductionReleaseId: true,
+            ProductionRelease: { select: { ReleaseNumber: true } },
+          },
+        },
+      },
+      orderBy: { StartedAt: 'asc' },
+    });
+
+    const [
+      forecastsWithoutAttachment,
+      incomingNotClosed,
+      stockOpnameInProgress,
+      allLabelDataNotScanned,
+      assemblySessions,
+    ] = await Promise.all([
+      forecastsWithoutAttachmentQuery,
+      incomingNotClosedQuery,
+      stockOpnameInProgressQuery,
+      allLabelDataNotScannedQuery,
+      assemblyInProgressQuery,
+    ]);
+
+    const byProductionRelease = forecastsWithoutAttachment.reduce(
+      (acc, forecast) => {
+        const releaseId = forecast.ProductionReleaseId!;
+        if (!acc[releaseId]) {
+          acc[releaseId] = {
+            releaseId,
+            releaseNumber: forecast.ProductionRelease?.ReleaseNumber || '',
+            status: forecast.ProductionRelease?.Status || '',
+            count: 0,
+            forecasts: [],
+          };
+        }
+        acc[releaseId].count++;
+        acc[releaseId].forecasts.push({
+          poId: forecast.PoId,
+          poNumber: forecast.PoNumber,
+          partNumber: forecast.PartData?.PartNumber ?? null,
+          partName: forecast.PartData?.PartName ?? null,
+          qty: forecast.Qty,
+          deliveryDate: forecast.DeliveryDate,
+        });
+        return acc;
+      },
+      {} as Record<
+        string,
+        NotificationResponseEntity['byProductionRelease'][number]
+      >,
     );
 
-    const labelDataNotScannedResults = await Promise.all(
-      labelDataNotScannedPromises,
+    const forecastIds = [
+      ...new Set(allLabelDataNotScanned.map((label) => label.ForecastId)),
+    ];
+    const shoppingCompletion = new Map(
+      await Promise.all(
+        forecastIds.map(
+          async (forecastId) =>
+            [forecastId, await this.isShoppingComplete(forecastId)] as const,
+        ),
+      ),
     );
-
-    const labelDataNotScanned = labelDataNotScannedResults.filter(
-      (label): label is NonNullable<typeof label> => label !== null,
+    const labelDataNotScanned = allLabelDataNotScanned.filter((label) =>
+      shoppingCompletion.get(label.ForecastId),
     );
-
-    const totalLabelDataNotScanned = labelDataNotScanned.length;
-
-    // ========== Build messages list ==========
+    const assemblyInProgress = assemblySessions.map((session) => ({
+      id: session.Id,
+      labelNumber: session.LabelData.LabelNumber,
+      finishGoodId: session.LabelData.FinishGoodId,
+      releaseId: session.LabelData.ProductionReleaseId,
+      releaseNumber: session.LabelData.ProductionRelease?.ReleaseNumber ?? null,
+      startedAt: session.StartedAt,
+    }));
     const messages: { menu: string; message: string }[] = [];
 
     // Messages for incoming not closed
@@ -500,10 +509,17 @@ export class FrontendService {
       });
     }
 
+    for (const session of assemblyInProgress) {
+      messages.push({
+        menu: 'ASSEMBLY',
+        message: `Release ID : ${session.releaseNumber || 'Unknown'}, Label ${session.labelNumber} Assembly Still In Progress`,
+      });
+    }
+
     return {
-      totalPOWithoutAttachment,
+      totalPOWithoutAttachment: forecastsWithoutAttachment.length,
       byProductionRelease: Object.values(byProductionRelease),
-      totalIncomingNotClosed,
+      totalIncomingNotClosed: incomingNotClosed.length,
       incomingNotClosed: incomingNotClosed.map((inc) => ({
         id: inc.Id,
         poId: inc.PoId,
@@ -512,20 +528,22 @@ export class FrontendService {
         supplierName: inc.SupplierData?.Name,
         createdAt: inc.CreatedAt,
       })),
-      totalStockOpnameInProgress,
+      totalStockOpnameInProgress: stockOpnameInProgress.length,
       stockOpnameInProgress: stockOpnameInProgress.map((opname) => ({
         id: opname.Id,
         opnameNumber: opname.OpnameNumber,
         category: opname.Category,
         startedAt: opname.StartedAt,
       })),
-      totalLabelDataNotScanned,
+      totalLabelDataNotScanned: labelDataNotScanned.length,
       labelDataNotScanned: labelDataNotScanned.map((label) => ({
         id: label.Id,
         labelNumber: label.LabelNumber,
         releaseId: label.ProductionReleaseId,
         releaseNumber: label.ProductionRelease?.ReleaseNumber,
       })),
+      totalAssemblyInProgress: assemblyInProgress.length,
+      assemblyInProgress,
       messages,
     };
   }
@@ -533,214 +551,573 @@ export class FrontendService {
   async getDashboard(
     query: DashboardQueryDto = {},
   ): Promise<DashboardResponseEntity> {
-    // Get month date range (defaults to current month when query is omitted)
-    const now = new Date();
-    const currentYear = query.year ?? now.getFullYear();
-    const currentMonth = (query.month ?? now.getMonth() + 1) - 1; // 0-indexed
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-    const startOfMonth = new Date(currentYear, currentMonth, 1, 0, 0, 0, 0);
-    const endOfMonth = new Date(
-      currentYear,
-      currentMonth + 1,
-      0,
-      23,
-      59,
-      59,
-      999,
-    );
-
-    const currentMonthStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-
-    // 1. Get summary counts in parallel
+    const timezone = 'Asia/Jakarta';
+    const asOf = new Date();
+    const plantNow = moment.tz(asOf, timezone);
+    const year = query.year ?? plantNow.year();
+    const month = query.month ?? plantNow.month() + 1;
+    const period = `${year}-${String(month).padStart(2, '0')}`;
+    const periodStartMoment = moment.tz(`${period}-01`, 'YYYY-MM-DD', timezone);
+    const periodEndMoment = periodStartMoment.clone().add(1, 'month');
+    const periodStart = periodStartMoment.toDate();
+    const periodEndExclusive = periodEndMoment.toDate();
+    const plantToday = plantNow.clone().startOf('day').toDate();
+    const range = { gte: periodStart, lt: periodEndExclusive };
     const [
-      totalMaterials,
-      totalSuppliers,
-      totalFinishGoods,
-      totalManPower,
-      incomingData,
-      deliveryData,
-      forecastData,
+      activeMaterials,
+      suppliers,
+      finishGoods,
+      activeManpower,
+      materials,
+      ledger,
+      opnames,
+      forecasts,
+      incoming,
+      openIncomingCount,
+      releases,
+      reports,
+      assemblies,
+      labels,
+      failedAttempts,
+      deliveries,
+      materialNgCases,
     ] = await Promise.all([
-      // Count active materials
-      this.prisma.material.count({
-        where: { IsActive: true },
-      }),
-      // Count all suppliers
+      this.prisma.material.count({ where: { IsActive: true } }),
       this.prisma.supplier.count(),
-      // Count all finish goods
       this.prisma.finishGood.count(),
-      // Count active manpower
-      this.prisma.manPower.count({
-        where: { Status: true },
+      this.prisma.manPower.count({ where: { Status: true } }),
+      this.prisma.material.findMany({
+        where: { IsActive: true },
+        select: { PartNumber: true, PartName: true, MinimumStock: true },
       }),
-      // Get incoming materials for current month
-      this.prisma.incomingMaterial.groupBy({
-        by: ['IncomingId'],
-        _sum: {
-          Qty: true,
-        },
+      this.prisma.inventoryLedger.groupBy({
+        by: ['MaterialId'],
         where: {
-          IncomingData: {
-            CreatedAt: {
-              gte: startOfMonth,
-              lte: endOfMonth,
+          ItemCategory: ItemCategory.MATERIAL,
+          MaterialId: { not: null },
+        },
+        _sum: { QtyIn: true, QtyOut: true },
+      }),
+      this.prisma.stockOpname.findMany({
+        where: { Status: OpnameStatus.IN_PROGRESS },
+        select: {
+          Id: true,
+          OpnameNumber: true,
+          Category: true,
+          StartedAt: true,
+          Details: { select: { ActualQty: true, ActualQtyRack: true } },
+        },
+        orderBy: { StartedAt: 'desc' },
+      }),
+      this.prisma.forecast.findMany({
+        where: { DeliveryDate: range },
+        select: {
+          PoId: true,
+          Qty: true,
+          DeliveryDate: true,
+          ProductionReleaseId: true,
+          FinishGoodId: true,
+          PartData: { select: { PartNumber: true, PartName: true } },
+        },
+      }),
+      this.prisma.incoming.findMany({
+        where: { Closed: true, ApprovedAt: range },
+        select: {
+          Id: true,
+          ApprovedAt: true,
+          IncomingMaterial: { select: { Qty: true } },
+        },
+      }),
+      this.prisma.incoming.count({ where: { Closed: false } }),
+      this.prisma.productionRelease.findMany({
+        where: { PlanDate: range },
+        select: {
+          Id: true,
+          ReleaseNumber: true,
+          PlanDate: true,
+          Status: true,
+          TotalTargetQty: true,
+          Forecasts: {
+            select: {
+              PoId: true,
+              FinishGoodId: true,
+              Qty: true,
+            },
+          },
+          LabelDatas: {
+            select: {
+              LabelNumber: true,
+              Scanned: true,
+              QtyThisBox: true,
+              RequiresAssembly: true,
+              AssemblySessions: {
+                where: { Status: AssemblyStatus.COMPLETED },
+                select: { Id: true },
+              },
+            },
+          },
+        },
+        orderBy: { PlanDate: 'desc' },
+      }),
+      this.prisma.productionReport.findMany({
+        where: { ProductionStamp: range },
+        select: {
+          ProductionStamp: true,
+          Qty: true,
+          NgQty: true,
+          ValidatedAt: true,
+          FinishGoodId: true,
+        },
+      }),
+      this.prisma.assemblySession.findMany({
+        where: { StartedAt: range },
+        select: { Status: true },
+      }),
+      this.prisma.labelData.findMany({
+        where: { ProductionRelease: { PlanDate: range } },
+        select: { LabelNumber: true, Scanned: true },
+      }),
+      this.prisma.pokayokeScanHistory.count({
+        where: { CreatedAt: range, Status: PokayokeCompareStatus.GAGAL },
+      }),
+      this.prisma.deliveryHistory.findMany({
+        where: { CreatedAt: range },
+        select: { ForecastId: true, Qty: true, CreatedAt: true },
+      }),
+      this.prisma.materialNgCase.findMany({
+        where: { CreatedAt: range },
+        select: {
+          Status: true,
+          CreatedAt: true,
+          CaseNumber: true,
+          Reason: true,
+          Details: {
+            select: {
+              ReplacementRequestedQty: true,
+              Replacements: { select: { QtyPick: true } },
             },
           },
         },
       }),
-      // Get delivery history for current month
-      this.prisma.deliveryHistory.groupBy({
-        by: ['ForecastId'],
-        _sum: {
-          Qty: true,
-        },
-        where: {
-          CreatedAt: {
-            gte: startOfMonth,
-            lte: endOfMonth,
-          },
-        },
-      }),
-      // Get forecasts for current month (by DeliveryDate)
-      this.prisma.forecast.findMany({
-        where: {
-          DeliveryDate: {
-            gte: startOfMonth,
-            lte: endOfMonth,
-          },
-        },
-        select: {
-          DeliveryDate: true,
-          Qty: true,
-        },
-      }),
     ]);
-
-    // Calculate total incoming qty
-    const totalIncomingQty = incomingData.reduce(
-      (sum, item) => sum + (item._sum.Qty || 0),
+    const forecastIds = [
+      ...new Set([
+        ...forecasts.map((item) => item.PoId),
+        ...releases.flatMap((release) =>
+          release.Forecasts.map((item) => item.PoId),
+        ),
+      ]),
+    ];
+    const lifetimeDeliveries = forecastIds.length
+      ? await this.prisma.deliveryHistory.groupBy({
+          by: ['ForecastId'],
+          where: { ForecastId: { in: forecastIds } },
+          _sum: { Qty: true },
+        })
+      : [];
+    const shoppingCompletions = forecastIds.length
+      ? await this.prisma.shoppingCompletion.findMany({
+          where: { ForecastId: { in: forecastIds } },
+          select: { ForecastId: true },
+        })
+      : [];
+    const completedShoppingForecastIds = new Set(
+      shoppingCompletions.map((item) => item.ForecastId),
+    );
+    const deliveredByForecast = new Map(
+      lifetimeDeliveries.map((item) => [item.ForecastId, item._sum.Qty ?? 0]),
+    );
+    const stockByPart = new Map(
+      ledger.map((item) => [
+        item.MaterialId!,
+        (item._sum.QtyIn ?? 0) - (item._sum.QtyOut ?? 0),
+      ]),
+    );
+    const allInventoryRisk = materials
+      .map((material) => {
+        const totalStock = stockByPart.get(material.PartNumber) ?? 0;
+        const status =
+          totalStock < 0
+            ? ('NEGATIVE' as const)
+            : totalStock === 0
+              ? ('OUT' as const)
+              : totalStock <= material.MinimumStock
+                ? ('LOW' as const)
+                : null;
+        return status
+          ? {
+              partNumber: material.PartNumber,
+              partName: material.PartName,
+              totalStock,
+              minimumStock: material.MinimumStock,
+              shortageQty: Math.max(material.MinimumStock - totalStock, 0),
+              status,
+            }
+          : null;
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .sort(
+        (a, b) => b.shortageQty - a.shortageQty || a.totalStock - b.totalStock,
+      );
+    const inventoryRisk = allInventoryRisk.slice(0, 8);
+    const incomingQty = incoming.reduce(
+      (sum, document) =>
+        sum +
+        document.IncomingMaterial.reduce((value, item) => value + item.Qty, 0),
       0,
     );
-
-    // Calculate total delivery qty
-    const totalDeliveryQty = deliveryData.reduce(
-      (sum, item) => sum + (item._sum.Qty || 0),
+    const forecastQty = forecasts.reduce((sum, item) => sum + item.Qty, 0);
+    const deliveredQty = forecasts.reduce(
+      (sum, item) =>
+        sum + Math.min(deliveredByForecast.get(item.PoId) ?? 0, item.Qty),
       0,
     );
-
-    // Build summary
-    const summary: DashboardSummaryEntity = {
-      totalMaterials,
-      totalSuppliers,
-      totalFinishGoods,
-      totalManPower,
-      totalIncomingQty,
-      totalDeliveryQty,
-    };
-
-    // 2. Build forecast daily stats (every day of the month)
-    const forecastByDay = new Map<
-      number,
-      { count: number; totalQty: number }
-    >();
-    for (const forecast of forecastData) {
-      const day = forecast.DeliveryDate.getDate();
-      const existing = forecastByDay.get(day) || { count: 0, totalQty: 0 };
-      forecastByDay.set(day, {
-        count: existing.count + 1,
-        totalQty: existing.totalQty + forecast.Qty,
-      });
-    }
-
-    const forecastDailyStats: DailyForecastStatEntity[] = [];
-    for (let day = 1; day <= daysInMonth; day++) {
-      const data = forecastByDay.get(day) || { count: 0, totalQty: 0 };
-      const dateStr = `${currentMonthStr}-${String(day).padStart(2, '0')}`;
-      forecastDailyStats.push({
-        date: dateStr,
-        count: data.count,
-        totalQty: data.totalQty,
-      });
-    }
-
-    // 3. Build incoming daily stats (every day of the month)
-    // Query incoming with date info for daily breakdown
-    const incomingWithDates = await this.prisma.incoming.findMany({
-      where: {
-        CreatedAt: {
-          gte: startOfMonth,
-          lte: endOfMonth,
-        },
-      },
-      select: {
-        CreatedAt: true,
-        IncomingMaterial: {
-          select: {
-            Qty: true,
-          },
-        },
-      },
-    });
-
-    const incomingDailyByDay = new Map<number, number>();
-    for (const incoming of incomingWithDates) {
-      const day = incoming.CreatedAt.getDate();
-      const dayTotal = incoming.IncomingMaterial.reduce(
-        (sum, mat) => sum + mat.Qty,
+    const reportedQty = reports.reduce((sum, item) => sum + item.Qty, 0);
+    const reportedNgQty = reports.reduce((sum, item) => sum + item.NgQty, 0);
+    const reportedGoodQty = reports.reduce(
+      (sum, item) => sum + Math.max(item.Qty - item.NgQty, 0),
+      0,
+    );
+    const releaseCountsByStatus = Object.values(ProductionStatus).reduce<
+      Record<string, number>
+    >(
+      (result, status) => ({
+        ...result,
+        [status]: releases.filter((release) => release.Status === status)
+          .length,
+      }),
+      {},
+    );
+    const activeReleases = releases.filter(
+      (release) => release.Status === ProductionStatus.RELEASED,
+    );
+    const releasePipeline = activeReleases.slice(0, 10).map((release) => {
+      const targetQty = release.Forecasts.reduce(
+        (sum, item) => sum + item.Qty,
         0,
       );
-      const existing = incomingDailyByDay.get(day) || 0;
-      incomingDailyByDay.set(day, existing + dayTotal);
-    }
-
-    const incomingDailyStats: DailyIncomingStatEntity[] = [];
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateStr = `${currentMonthStr}-${String(day).padStart(2, '0')}`;
-      incomingDailyStats.push({
-        date: dateStr,
-        totalQty: incomingDailyByDay.get(day) || 0,
+      const completedForecasts = release.Forecasts.filter((item) =>
+        completedShoppingForecastIds.has(item.PoId),
+      ).length;
+      const scanned = release.LabelDatas.filter((item) => item.Scanned).length;
+      const assemblyRequired = release.LabelDatas.filter(
+        (item) => item.RequiresAssembly === true,
+      );
+      const assemblyRequiredQty = assemblyRequired.reduce(
+        (sum, item) => sum + item.QtyThisBox,
+        0,
+      );
+      const assemblyCompletedQty = assemblyRequired
+        .filter((item) => item.AssemblySessions.length > 0)
+        .reduce((sum, item) => sum + item.QtyThisBox, 0);
+      const delivered = release.Forecasts.reduce(
+        (sum, item) =>
+          sum + Math.min(deliveredByForecast.get(item.PoId) ?? 0, item.Qty),
+        0,
+      );
+      return {
+        releaseId: release.Id,
+        releaseNumber: release.ReleaseNumber,
+        planDate: release.PlanDate,
+        status: release.Status,
+        targetQty,
+        shoppingPct: release.Forecasts.length
+          ? (completedForecasts / release.Forecasts.length) * 100
+          : null,
+        assemblyPct: assemblyRequired.length
+          ? assemblyRequiredQty > 0
+            ? (assemblyCompletedQty / assemblyRequiredQty) * 100
+            : 0
+          : 100,
+        pokayokePct: release.LabelDatas.length
+          ? (scanned / release.LabelDatas.length) * 100
+          : null,
+        deliveryPct: targetQty
+          ? Math.min((delivered / targetQty) * 100, 100)
+          : null,
+      };
+    });
+    const dailyMap = new Map<
+      string,
+      {
+        demandQty: number;
+        approvedIncomingMaterialQty: number;
+        reportedGoodQty: number;
+        deliveredQty: number;
+        reportedNgQty: number;
+      }
+    >();
+    for (
+      const cursor = periodStartMoment.clone();
+      cursor.isBefore(periodEndMoment);
+      cursor.add(1, 'day')
+    )
+      dailyMap.set(cursor.format('YYYY-MM-DD'), {
+        demandQty: 0,
+        approvedIncomingMaterialQty: 0,
+        reportedGoodQty: 0,
+        deliveredQty: 0,
+        reportedNgQty: 0,
       });
-    }
-
-    // 4. Build delivery daily stats (every day of the month)
-    // Query delivery history with date info for daily breakdown
-    const deliveryWithDates = await this.prisma.deliveryHistory.findMany({
-      where: {
-        CreatedAt: {
-          gte: startOfMonth,
-          lte: endOfMonth,
+    const dayKey = (date: Date) =>
+      moment.tz(date, timezone).format('YYYY-MM-DD');
+    forecasts.forEach((item) => {
+      dailyMap.get(dayKey(item.DeliveryDate))!.demandQty += item.Qty;
+    });
+    incoming.forEach((item) => {
+      dailyMap.get(dayKey(item.ApprovedAt!))!.approvedIncomingMaterialQty +=
+        item.IncomingMaterial.reduce((sum, material) => sum + material.Qty, 0);
+    });
+    reports.forEach((item) => {
+      const day = dailyMap.get(dayKey(item.ProductionStamp))!;
+      day.reportedGoodQty += Math.max(item.Qty - item.NgQty, 0);
+      day.reportedNgQty += item.NgQty;
+    });
+    deliveries
+      .filter(
+        (item) =>
+          item.CreatedAt >= periodStart && item.CreatedAt < periodEndExclusive,
+      )
+      .forEach((item) => {
+        dailyMap.get(dayKey(item.CreatedAt))!.deliveredQty += item.Qty;
+      });
+    const daily = [...dailyMap].map(([date, values]) => ({ date, ...values }));
+    const topPartsMap = new Map<
+      string,
+      {
+        partNumber: string;
+        partName: string;
+        demandQty: number;
+        deliveredQty: number;
+        ngQty: number;
+      }
+    >();
+    forecasts.forEach((item) =>
+      topPartsMap.set(item.FinishGoodId, {
+        partNumber: item.PartData.PartNumber,
+        partName: item.PartData.PartName,
+        demandQty:
+          item.Qty + (topPartsMap.get(item.FinishGoodId)?.demandQty ?? 0),
+        deliveredQty:
+          (topPartsMap.get(item.FinishGoodId)?.deliveredQty ?? 0) +
+          Math.min(deliveredByForecast.get(item.PoId) ?? 0, item.Qty),
+        ngQty: 0,
+      }),
+    );
+    reports.forEach((item) => {
+      const part = topPartsMap.get(item.FinishGoodId);
+      if (part) part.ngQty += item.NgQty;
+    });
+    const topParts = [...topPartsMap.values()]
+      .sort((a, b) => b.demandQty - a.demandQty)
+      .slice(0, 8);
+    const overdue = forecasts.filter(
+      (item) =>
+        item.DeliveryDate < plantToday &&
+        (deliveredByForecast.get(item.PoId) ?? 0) < item.Qty,
+    );
+    const openMaterialNg = materialNgCases.filter(
+      (item) => item.Status === MaterialNgCaseStatus.OPEN,
+    );
+    const pendingLabels = labels.filter((item) => !item.Scanned).length;
+    const unvalidatedReports = reports.filter(
+      (item) => item.ValidatedAt === null,
+    ).length;
+    const exceptions = [
+      ...overdue.map((item) => ({
+        type: 'OVERDUE_DELIVERY',
+        title: item.PoId,
+        description: `${item.PartData.PartNumber} has ${item.Qty - (deliveredByForecast.get(item.PoId) ?? 0)} open`,
+        occurredAt: item.DeliveryDate,
+        route: '/apps/production/delivery',
+        severity: 'HIGH' as const,
+      })),
+      ...openMaterialNg.map((item) => ({
+        type: 'MATERIAL_NG',
+        title: item.CaseNumber,
+        description: item.Reason,
+        occurredAt: item.CreatedAt,
+        route: '/apps/production/material-ng',
+        severity: 'MEDIUM' as const,
+      })),
+    ]
+      .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime())
+      .slice(0, 10);
+    const freeze = (category: string) =>
+      opnames
+        .filter((item) => item.Category === category)
+        .map((item) => ({
+          id: item.Id,
+          opnameNumber: item.OpnameNumber,
+          startedAt: item.StartedAt,
+          progress: item.Details.length
+            ? (item.Details.filter(
+                (detail) =>
+                  detail.ActualQty !== null || detail.ActualQtyRack !== null,
+              ).length /
+                item.Details.length) *
+              100
+            : 0,
+        }));
+    const outstandingReplacementQty = openMaterialNg.reduce(
+      (sum, item) =>
+        sum +
+        item.Details.reduce(
+          (lineSum, line) =>
+            lineSum +
+            Math.max(
+              line.ReplacementRequestedQty -
+                line.Replacements.reduce(
+                  (replacementSum, replacement) =>
+                    replacementSum + replacement.QtyPick,
+                  0,
+                ),
+              0,
+            ),
+          0,
+        ),
+      0,
+    );
+    const summary: DashboardSummaryEntity = {
+      totalMaterials: activeMaterials,
+      totalSuppliers: suppliers,
+      totalFinishGoods: finishGoods,
+      totalManPower: activeManpower,
+      totalIncomingQty: incomingQty,
+      totalDeliveryQty: deliveredQty,
+    };
+    return {
+      meta: {
+        period,
+        timezone,
+        periodStart,
+        periodEndExclusive,
+        asOf,
+        productionOutputMetric: 'reportedGoodQty',
+      },
+      currentSnapshot: {
+        masterData: { activeMaterials, suppliers, finishGoods, activeManpower },
+        inventory: {
+          outOfStockPartCount: allInventoryRisk.filter(
+            (item) => item.status === 'OUT',
+          ).length,
+          lowStockPartCount: allInventoryRisk.filter(
+            (item) => item.status === 'LOW',
+          ).length,
+          negativeBalancePartCount: allInventoryRisk.filter(
+            (item) => item.status === 'NEGATIVE',
+          ).length,
+        },
+        freezes: {
+          activeMaterial: freeze(ItemCategory.MATERIAL),
+          activeFinishGood: freeze(ItemCategory.FINISH_GOOD),
+        },
+        openExceptions: {
+          overdueForecastCount: overdue.length,
+          openIncomingCount,
+          unvalidatedReportCount: unvalidatedReports,
+          pendingLabelCount: pendingLabels,
+          openMaterialNgCaseCount: openMaterialNg.length,
         },
       },
-      select: {
-        CreatedAt: true,
-        Qty: true,
+      monthly: {
+        demand: {
+          forecastCount: forecasts.length,
+          forecastQty,
+          unscheduledCount: forecasts.filter(
+            (item) => !item.ProductionReleaseId,
+          ).length,
+          unscheduledQty: forecasts
+            .filter((item) => !item.ProductionReleaseId)
+            .reduce((sum, item) => sum + item.Qty, 0),
+          releasedQty: forecasts
+            .filter((item) => item.ProductionReleaseId)
+            .reduce((sum, item) => sum + item.Qty, 0),
+        },
+        incoming: {
+          approvedDocumentCount: incoming.length,
+          approvedMaterialQty: incomingQty,
+          openDocumentCount: openIncomingCount,
+        },
+        production: {
+          releaseCountsByStatus,
+          targetQty: releases.reduce(
+            (sum, item) => sum + item.TotalTargetQty,
+            0,
+          ),
+          scannedGoodQty: releases.reduce(
+            (sum, item) =>
+              sum +
+              item.LabelDatas.filter((label) => label.Scanned).reduce(
+                (value, label) => value + label.QtyThisBox,
+                0,
+              ),
+            0,
+          ),
+          productionAttainmentPct: forecastQty
+            ? (reportedGoodQty / forecastQty) * 100
+            : null,
+          reportedQty,
+          reportedNgQty,
+          ngRatePct: reportedQty ? (reportedNgQty / reportedQty) * 100 : null,
+          unvalidatedReportCount: unvalidatedReports,
+        },
+        assembly: {
+          inProgress: assemblies.filter(
+            (item) => item.Status === AssemblyStatus.IN_PROGRESS,
+          ).length,
+          completed: assemblies.filter(
+            (item) => item.Status === AssemblyStatus.COMPLETED,
+          ).length,
+          cancelled: assemblies.filter(
+            (item) => item.Status === AssemblyStatus.CANCELLED,
+          ).length,
+        },
+        pokayoke: {
+          scannedLabels: labels.length - pendingLabels,
+          pendingLabels,
+          failedAttempts,
+        },
+        delivery: {
+          deliveredQty,
+          attainmentPct: forecastQty
+            ? (deliveredQty / forecastQty) * 100
+            : null,
+          overdueForecastCount: overdue.length,
+          overdueOpenQty: overdue.reduce(
+            (sum, item) =>
+              sum + item.Qty - (deliveredByForecast.get(item.PoId) ?? 0),
+            0,
+          ),
+        },
+        materialNg: {
+          openCaseCount: openMaterialNg.length,
+          outstandingReplacementQty,
+        },
       },
-    });
-
-    const deliveryDailyByDay = new Map<number, number>();
-    for (const delivery of deliveryWithDates) {
-      const day = delivery.CreatedAt.getDate();
-      const existing = deliveryDailyByDay.get(day) || 0;
-      deliveryDailyByDay.set(day, existing + delivery.Qty);
-    }
-
-    const deliveryDailyStats: DailyDeliveryStatEntity[] = [];
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateStr = `${currentMonthStr}-${String(day).padStart(2, '0')}`;
-      deliveryDailyStats.push({
-        date: dateStr,
-        totalQty: deliveryDailyByDay.get(day) || 0,
-      });
-    }
-
-    return {
+      daily,
+      releasePipeline,
+      inventoryRisk,
+      topParts,
+      exceptions,
       summary,
-      forecastDailyStats,
-      incomingDailyStats,
-      deliveryDailyStats,
-      currentMonth: currentMonthStr,
-      daysInMonth,
+      forecastDailyStats: daily.map((item) => ({
+        date: item.date,
+        count: forecasts.filter(
+          (forecast) => dayKey(forecast.DeliveryDate) === item.date,
+        ).length,
+        totalQty: item.demandQty,
+      })),
+      incomingDailyStats: daily.map((item) => ({
+        date: item.date,
+        totalQty: item.approvedIncomingMaterialQty,
+      })),
+      deliveryDailyStats: daily.map((item) => ({
+        date: item.date,
+        totalQty: item.deliveredQty,
+      })),
+      currentMonth: period,
+      daysInMonth: daily.length,
     };
   }
 

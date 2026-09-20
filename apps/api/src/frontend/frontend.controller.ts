@@ -14,6 +14,7 @@ import { FrontendFinishGoodEntity } from './entities/finish-good-list.entity';
 import { FrontendManPowerEntity } from './entities/man-power-list.entity';
 import { DisplayTargetQueryDto } from './dto/display-target-query.dto';
 import { DisplayTargetEntity } from './entities/display-target.entity';
+import { NotificationResponseEntity } from './entities/notification-response.entity';
 
 @ApiTags('Frontend')
 @ApiBearerAuth()
@@ -33,12 +34,13 @@ export class FrontendController {
   }
 
   @Get('notifications')
-  @Public()
   @ApiOperation({
     summary: 'Get notifications',
-    description: 'Public endpoint to get notifications for frontend display.',
+    description:
+      'Authenticated endpoint for frontend operational notifications.',
   })
-  async getNotifications() {
+  @ApiResponse({ status: 200, type: NotificationResponseEntity })
+  async getNotifications(): Promise<NotificationResponseEntity> {
     return this.frontendService.getNotifications();
   }
 
@@ -98,6 +100,7 @@ export class FrontendController {
     description:
       'Returns dashboard statistics including total materials, suppliers, finish goods, manpower, incoming/delivery totals, and daily statistics for the current month.',
   })
+  @ApiResponse({ status: 200, type: DashboardResponseEntity })
   async getDashboard(
     @Query() query: DashboardQueryDto,
   ): Promise<DashboardResponseEntity> {

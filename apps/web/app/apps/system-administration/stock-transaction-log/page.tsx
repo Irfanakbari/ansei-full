@@ -325,7 +325,7 @@ export default function StockTransactionLogPage() {
                     showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} records`,
                 }}
                 rowKey="id"
-                scroll={{x: 'max-content', y: 'calc(100vh - 320px)'}}
+                scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
                 className="small-table"
                 style={{fontSize: '11px'}}
             />

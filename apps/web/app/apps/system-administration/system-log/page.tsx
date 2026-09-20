@@ -194,7 +194,7 @@ export default function SystemLogPage() {
                     showTotal: total => `Total ${total} records`,
                 }}
                 rowKey={event => `${event.type}:${event.id}`}
-                scroll={{x: 1250, y: 'calc(100vh - 320px)'}}
+                scroll={{x: 1250, y: 'calc(100vh - 380px)'}}
                 className="small-table"
                 style={{fontSize: 11}}
             />

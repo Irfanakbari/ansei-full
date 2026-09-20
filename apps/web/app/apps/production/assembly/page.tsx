@@ -22,7 +22,6 @@ import {
     ReloadOutlined,
     SearchOutlined,
     PlusOutlined,
-    EyeOutlined,
 } from "@ant-design/icons";
 import EndAssemblyModal from "./_components/EndAssemblyModal";
 import CreateAssemblyModal from "./_components/CreateAssemblyModal";
@@ -126,7 +125,16 @@ export default function AssemblyPage() {
         {
             title: "Release Number",
             key: "productionReleaseId",
-            render: (_, row) => row.LabelData.ProductionRelease?.ReleaseNumber ?? "-",
+            render: (_, row) => (
+                <Space size={4}>
+                    <GoldenArrowAction
+                        tooltip="View assembly detail"
+                        ariaLabel={`View assembly detail for ${row.LabelData.ProductionRelease?.ReleaseNumber ?? row.Id}`}
+                        onClick={() => setDetailSession(row)}
+                    />
+                    <span>{row.LabelData.ProductionRelease?.ReleaseNumber ?? "-"}</span>
+                </Space>
+            ),
         },
         {
             title: "Label Number",
@@ -193,7 +201,6 @@ export default function AssemblyPage() {
             key: "action",
             render: (_, row) => (
                 <Space>
-                    <Button size="small" icon={<EyeOutlined/>} onClick={() => setDetailSession(row)}>Detail</Button>
                     {row.Status === "IN_PROGRESS" && canCreate && (
                         <Button
                             type="primary"
@@ -295,6 +302,9 @@ export default function AssemblyPage() {
                 size="small"
                 className="small-table"
                 scroll={{x: "max-content", y: "calc(100vh - 380px)"}}
+                onRow={(row) => ({
+                    onDoubleClick: () => setDetailSession(row),
+                })}
                 onChange={(pagination, filters, _sorter, extra) =>
                     setQuery({
                         page: extra.action === "filter" ? 1 : pagination.current,

@@ -47,7 +47,7 @@ import {
 import CreditInformationModal from "./_components/CreditInformationModal";
 import "../batik.css";
 
-const APP_VERSION = "5.2.1";
+const APP_VERSION = "5.4.2";
 const APP_YEAR = "2026";
 
 const LATEST_RELEASE_SUMMARY = [
@@ -282,7 +282,9 @@ const baseMenuItems: MenuItem[] = [
       ),
     ]),
     getItem(
-      <Link href="/apps/production/production-report">Production Report</Link>,
+      <Link href="/apps/production/production-report">
+        Production Report (Checksheet)
+      </Link>,
       "prod-production-report",
       undefined,
       undefined,
@@ -553,6 +555,8 @@ const getNotificationHref = (menu: string): string => {
       return "/apps/warehouse/inventory-counting";
     case "POKAYOKE":
       return "/apps/production/pokayoke";
+    case "ASSEMBLY":
+      return "/apps/production/assembly";
     default:
       return "/apps";
   }
@@ -584,18 +588,44 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { data: rawNotifications } = useSelector(
     (state: RootState) => state.notifications,
   );
-  const notifications = useMemo(() => {
-    if (!rawNotifications) return null;
-    if (
-      typeof rawNotifications === "object" &&
-      "data" in rawNotifications &&
-      (rawNotifications as any).data
-    ) {
-      return (rawNotifications as any).data as NotificationsEntity;
-    }
-    return rawNotifications as NotificationsEntity;
-  }, [rawNotifications]);
+  const notifications: NotificationsEntity | null = rawNotifications;
   const [isChecking, setIsChecking] = useState(true);
+
+  const isSuperUser =
+    isSsoSuperAdmin ||
+    user?.RoleName === "SUPER" ||
+    user?.Permission?.includes("SUPER") ||
+    user?.Permission?.includes("*");
+  const notificationPermissions = useMemo(
+    () => ({
+      INCOMING: PERMISSIONS.incoming,
+      PRODUCTION_PLAN: PERMISSIONS.productionRelease,
+      STOCK_OPNAME: PERMISSIONS.inventoryCounting,
+      POKAYOKE: PERMISSIONS.pokayoke,
+      ASSEMBLY: PERMISSIONS.assembly,
+    }),
+    [],
+  );
+  const notificationAccess = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(notificationPermissions).map(([menu, permissions]) => [
+          menu,
+          isSuperUser ||
+            permissions.some((permission) =>
+              user?.Permission?.includes(permission),
+            ),
+        ]),
+      ) as Record<keyof typeof notificationPermissions, boolean>,
+    [isSuperUser, notificationPermissions, user?.Permission],
+  );
+  const filteredNotificationMessages = useMemo(
+    () =>
+      (notifications?.messages ?? []).filter(
+        ({ menu }) => notificationAccess[menu],
+      ),
+    [notificationAccess, notifications?.messages],
+  );
 
   const loadCommitHistory = async () => {
     setCommitHistoryLoading(true);
@@ -768,7 +798,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
         if (
           !m.disabled &&
-          m.key === "prod-pre-delivery" &&
+          m.key === "prod-pokayoke" &&
           notifications?.totalLabelDataNotScanned &&
           notifications.totalLabelDataNotScanned > 0
         ) {
@@ -783,9 +813,30 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
           );
         }
 
+        if (
+          !m.disabled &&
+          m.key === "prod-assembly" &&
+          notifications?.totalAssemblyInProgress &&
+          notifications.totalAssemblyInProgress > 0
+        ) {
+          label = (
+            <Space style={{ width: "100%", justifyContent: "space-between" }}>
+              <span>{m.label}</span>
+              <Badge
+                count={notifications.totalAssemblyInProgress}
+                size="small"
+              />
+            </Space>
+          );
+        }
+
         const warehouseCount =
-          (notifications?.totalIncomingNotClosed || 0) +
-          (notifications?.totalStockOpnameInProgress || 0);
+          (notificationAccess.INCOMING
+            ? notifications?.totalIncomingNotClosed || 0
+            : 0) +
+          (notificationAccess.STOCK_OPNAME
+            ? notifications?.totalStockOpnameInProgress || 0
+            : 0);
         if (!m.disabled && m.key === "warehouse" && warehouseCount > 0) {
           label = (
             <Space style={{ width: "100%", justifyContent: "space-between" }}>
@@ -796,8 +847,15 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         }
 
         const prodCount =
-          (notifications?.totalPOWithoutAttachment || 0) +
-          (notifications?.totalLabelDataNotScanned || 0);
+          (notificationAccess.PRODUCTION_PLAN
+            ? notifications?.totalPOWithoutAttachment || 0
+            : 0) +
+          (notificationAccess.POKAYOKE
+            ? notifications?.totalLabelDataNotScanned || 0
+            : 0) +
+          (notificationAccess.ASSEMBLY
+            ? notifications?.totalAssemblyInProgress || 0
+            : 0);
         if (!m.disabled && m.key === "production" && prodCount > 0) {
           label = (
             <Space style={{ width: "100%", justifyContent: "space-between" }}>
@@ -820,7 +878,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     };
 
     return addBadges(menus);
-  }, [user, notifications, isSsoSuperAdmin]);
+  }, [user, notifications, isSsoSuperAdmin, notificationAccess]);
 
   const activeMenuKey = useMemo(
     () => getMenuKeyFromPath(pathname || ""),
@@ -956,11 +1014,11 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                   styles={{ root: { maxHeight: "60vh", overflowY: "auto" } }}
                   menu={{
                     items:
-                      (notifications?.messages?.length ?? 0) > 0
+                      filteredNotificationMessages.length > 0
                         ? [
                             { key: "divider-top", type: "divider" as const },
-                            ...(notifications?.messages ?? []).map(
-                              (msg: any, index: number) => ({
+                            ...filteredNotificationMessages.map(
+                              (msg, index) => ({
                                 key: `notif-${index}`,
                                 label: (
                                   <Link
@@ -1028,7 +1086,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                     }}
                   >
                     <Badge
-                      count={notifications?.messages?.length ?? 0}
+                      count={filteredNotificationMessages.length}
                       size="small"
                       offset={[-2, 2]}
                       showZero={false}

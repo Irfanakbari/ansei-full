@@ -1,845 +1,947 @@
-/* By Irfan Akbari Vuteq Indonesia - 2026-07-20 */
-
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { Card, Row, Col, Empty, Result, DatePicker } from "antd";
+import {
+  AlertOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  ExperimentOutlined,
+  InboxOutlined,
+  ReloadOutlined,
+  SafetyCertificateOutlined,
+  WarningOutlined,
+} from "@ant-design/icons";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
-import {
-    ShoppingCart,
-    Factory,
-    Groups,
-    CallReceived,
-    CallMade,
-    TrendingUp,
-    Assessment,
-    Inventory,
-} from "@mui/icons-material";
-import {
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    Area,
-    AreaChart,
-} from "recharts";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "@/store";
-import { fetchDashboard } from "@/store/features/dashboard/dashboardSlice";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip as ChartTooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  Alert,
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Empty,
+  Flex,
+  Progress,
+  Result,
+  Row,
+  Skeleton,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
+} from "antd";
+import type { TableProps } from "antd";
+import type { AppDispatch, RootState } from "@/store";
+import {
+  fetchDashboard,
+  type DashboardExceptionItem,
+  type DashboardInventoryRiskItem,
+  type DashboardReleasePipelineItem,
+} from "@/store/features/dashboard/dashboardSlice";
 
-// Format number with thousand separator
-const formatNumber = (num: number): string => {
-    return num.toLocaleString("id-ID");
+const { Text, Title } = Typography;
+const sectionCardStyle = { borderRadius: 10 };
+const equalSectionCardStyle = { borderRadius: 10, height: "100%" };
+const fixedSectionBodyStyle = { body: { height: 360, overflow: "hidden" } };
+const compactCardBodyStyle = { body: { padding: 14 } };
+const visuallyHiddenStyle = {
+  position: "absolute" as const,
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: "hidden",
+  clip: "rect(0, 0, 0, 0)",
+  whiteSpace: "nowrap" as const,
+  border: 0,
 };
+const numberFormatter = new Intl.NumberFormat("en-US");
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+const monthDateFormatter = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
 
-// Format date for display
-const formatDate = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    return date.getDate().toString();
+const formatNumber = (value?: number | null) =>
+  value === null || value === undefined ? "—" : numberFormatter.format(value);
+const formatPercent = (value?: number | null) =>
+  value === null || value === undefined
+    ? "—"
+    : `${numberFormatter.format(value)}%`;
+const clampPercent = (value?: number | null) =>
+  value === null || value === undefined ? 0 : Math.max(0, Math.min(100, value));
+const formatDateTime = (value?: string | null) => {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "Invalid date"
+    : dateFormatter.format(date);
 };
-
-// Get month name
-const getMonthName = (monthStr: string): string => {
-    const [year, month] = monthStr.split("-");
-    const date = new Date(parseInt(year), parseInt(month) - 1);
-    return date.toLocaleString("id-ID", { month: "long", year: "numeric" });
+const formatDate = (value: string) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "Invalid date"
+    : monthDateFormatter.format(date);
 };
+const severityColor = (severity?: string) => {
+  if (severity === "HIGH" || severity === "OUT" || severity === "NEGATIVE")
+    return "red";
+  if (severity === "MEDIUM" || severity === "LOW") return "orange";
+  return "blue";
+};
+const releaseStatusColor = (status: string) => {
+  const normalized = status.toUpperCase();
+  if (
+    normalized.includes("COMPLETE") ||
+    normalized.includes("CLOSE") ||
+    normalized.includes("DELIVER")
+  )
+    return "green";
+  if (
+    normalized.includes("CANCEL") ||
+    normalized.includes("REJECT") ||
+    normalized.includes("FAIL")
+  )
+    return "red";
+  if (
+    normalized.includes("PROGRESS") ||
+    normalized.includes("RELEASE") ||
+    normalized.includes("ACTIVE")
+  )
+    return "blue";
+  if (
+    normalized.includes("PENDING") ||
+    normalized.includes("PLAN") ||
+    normalized.includes("DRAFT")
+  )
+    return "gold";
+  return "default";
+};
+const truncateLabel = (value: string, length = 16) =>
+  value.length > length ? `${value.slice(0, length - 1)}…` : value;
 
-// Custom tooltip - defined outside component to avoid ESLint error
-interface CustomTooltipProps {
-    active?: boolean;
-    payload?: Array<{
-        name: string;
-        value: number;
-        color: string;
-    }>;
-    label?: string;
+function DashboardSkeleton() {
+  return (
+    <Space orientation="vertical" size={16} style={{ width: "100%" }}>
+      <Skeleton.Input active block style={{ height: 54 }} />
+      <Row gutter={[12, 12]}>
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Col xs={24} sm={12} md={8} xl={4} key={index}>
+            <Card style={equalSectionCardStyle}>
+              <Skeleton active paragraph={false} />
+            </Card>
+          </Col>
+        ))}
+      </Row>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} lg={16}>
+          <Card style={sectionCardStyle}>
+            <Skeleton active paragraph={{ rows: 8 }} />
+          </Card>
+        </Col>
+        <Col xs={24} lg={8}>
+          <Card style={sectionCardStyle}>
+            <Skeleton active paragraph={{ rows: 8 }} />
+          </Card>
+        </Col>
+      </Row>
+    </Space>
+  );
 }
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-        return (
-            <div
-                style={{
-                    background: "white",
-                    padding: "12px 16px",
-                    border: "1px solid #e8e8e8",
-                    borderRadius: 8,
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-                }}
-            >
-                <p style={{ fontWeight: 600, marginBottom: 8, color: "#1a1a2e" }}>
-                    Tanggal {label}
-                </p>
-                {payload.map((entry, index) => (
-                    <p
-                        key={index}
-                        style={{
-                            color: entry.color,
-                            fontSize: 13,
-                            marginBottom: 4,
-                        }}
-                    >
-                        {entry.name}: {formatNumber(entry.value)} QTY
-                    </p>
-                ))}
-            </div>
-        );
-    }
-    return null;
-};
-
-// Summary Card Component
-interface SummaryCardProps {
-    title: string;
-    value: number;
-    icon: React.ReactNode;
-    gradient: string;
-    suffix?: string;
-}
-
-const SummaryCard: React.FC<SummaryCardProps> = ({
-    title,
-    value,
-    icon,
-    gradient,
-    suffix = "",
-}) => (
-    <Card
-        styles={{
-            body: {
-                padding: "20px 24px",
-            },
-        }}
-        style={{
-            borderRadius: 16,
-            overflow: "hidden",
-            position: "relative",
-            height: "100%",
-        }}
-        className="hover:shadow-xl transition-all duration-300 border-0 shadow-md"
-    >
-        <div
-            style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 4,
-                background: gradient,
-            }}
-        />
-        <div className="flex items-center justify-between">
-            <div className="flex-1">
-                <p
-                    style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: "#8c8c8c",
-                        marginBottom: 8,
-                        textTransform: "uppercase",
-                        letterSpacing: 1,
-                    }}
-                >
-                    {title}
-                </p>
-                <div
-                    style={{
-                        fontSize: 26,
-                        fontWeight: 700,
-                        color: "#1a1a2e",
-                        lineHeight: 1.2,
-                    }}
-                >
-                    {formatNumber(value)}
-                    {suffix && (
-                        <span style={{ fontSize: 14, fontWeight: 500, marginLeft: 4 }}>
-                            {suffix}
-                        </span>
-                    )}
-                </div>
-            </div>
-            <div
-                style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 14,
-                    background: gradient,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                    boxShadow: `0 8px 20px rgba(0,0,0,0.15)`,
-                }}
-            >
-                {icon}
-            </div>
-        </div>
-    </Card>
-);
-
-// Mini Stat Card Component
-interface MiniStatCardProps {
-    title: string;
-    value: number;
-    color: string;
-    icon: React.ReactNode;
-}
-
-const MiniStatCard: React.FC<MiniStatCardProps> = ({ title, value, color, icon }) => (
-    <Card
-        styles={{
-            body: {
-                padding: "14px 18px",
-            },
-        }}
-        style={{
-            borderRadius: 12,
-            borderLeft: `4px solid ${color}`,
-        }}
-        className="hover:shadow-md transition-all duration-300 shadow-sm"
-    >
-        <div className="flex items-center gap-3">
-            <div
-                style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 10,
-                    background: `${color}15`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: color,
-                }}
-            >
-                {icon}
-            </div>
-            <div>
-                <p style={{ fontSize: 11, color: "#8c8c8c", marginBottom: 2 }}>{title}</p>
-                <p style={{ fontSize: 18, fontWeight: 600, color: "#1a1a2e" }}>
-                    {formatNumber(value)}
-                </p>
-            </div>
-        </div>
-    </Card>
-);
-
-// Chart Card Component
-interface ChartCardProps {
-    title: string;
-    subtitle?: string;
-    children: React.ReactNode;
-    height?: number;
-    icon?: React.ReactNode;
-}
-
-const ChartCard: React.FC<ChartCardProps> = ({
-    title,
-    subtitle,
-    children,
-    height = 350,
-    icon,
-}) => (
-    <Card
-        styles={{
-            body: {
-                padding: "24px",
-            },
-        }}
-        style={{
-            borderRadius: 16,
-            height: "100%",
-        }}
-        className="hover:shadow-xl transition-all duration-300 shadow-md"
-    >
-        <div className="flex items-center gap-3 mb-5">
-            {icon && (
-                <div
-                    style={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: 10,
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "white",
-                    }}
-                >
-                    {icon}
-                </div>
-            )}
-            <div>
-                <h3
-                    style={{
-                        fontSize: 15,
-                        fontWeight: 600,
-                        color: "#1a1a2e",
-                        marginBottom: 2,
-                    }}
-                >
-                    {title}
-                </h3>
-                {subtitle && (
-                    <p style={{ fontSize: 12, color: "#8c8c8c" }}>{subtitle}</p>
-                )}
-            </div>
-        </div>
-        <div style={{ height }}>
-            <ResponsiveContainer width="100%" height="100%">
-                {children}
-            </ResponsiveContainer>
-        </div>
-    </Card>
-);
-
-// Loading Skeleton
-const DashboardSkeleton: React.FC = () => (
-    <div className="space-y-6">
-        <Row gutter={[16, 16]}>
-            {[...Array(6)].map((_, i) => (
-                <Col key={i} xs={24} sm={12} lg={8} xl={4}>
-                    <Card styles={{ body: { padding: 20 } }} style={{ borderRadius: 16 }}>
-                        <div className="animate-pulse space-y-3">
-                            <div className="h-3 bg-gray-200 rounded w-24" />
-                            <div className="h-7 bg-gray-200 rounded w-16" />
-                        </div>
-                    </Card>
-                </Col>
-            ))}
-        </Row>
-        <Row gutter={[16, 16]}>
-            {[...Array(3)].map((_, i) => (
-                <Col key={i} xs={24} lg={8}>
-                    <Card styles={{ body: { padding: 24 } }} style={{ borderRadius: 16 }}>
-                        <div className="animate-pulse space-y-4">
-                            <div className="h-5 bg-gray-200 rounded w-48" />
-                            <div className="h-72 bg-gray-100 rounded" />
-                        </div>
-                    </Card>
-                </Col>
-            ))}
-        </Row>
-    </div>
-);
-
-// Main Dashboard Component
 export default function DashboardPage() {
-    const dispatch = useDispatch<AppDispatch>();
-    const { data, loading, error, errorStatus } = useSelector((state: RootState) => state.dashboard);
-    const [selectedPeriod, setSelectedPeriod] = useState<Dayjs>(dayjs());
+  const dispatch = useDispatch<AppDispatch>();
+  const { data, loading, error, errorStatus } = useSelector(
+    (state: RootState) => state.dashboard,
+  );
+  const [selectedPeriod, setSelectedPeriod] = useState<Dayjs>(dayjs());
+  const loadDashboard = useCallback(
+    () =>
+      dispatch(
+        fetchDashboard({
+          month: selectedPeriod.month() + 1,
+          year: selectedPeriod.year(),
+        }),
+      ),
+    [dispatch, selectedPeriod],
+  );
 
-    useEffect(() => {
-        void dispatch(
-            fetchDashboard({
-                month: selectedPeriod.month() + 1,
-                year: selectedPeriod.year(),
-            }),
-        );
-    }, [dispatch, selectedPeriod]);
+  useEffect(() => {
+    void loadDashboard();
+  }, [loadDashboard]);
 
-    // Prepare chart data using useMemo to avoid recalculation
-    const combinedChartData = useMemo(() => {
-        if (!data) return [];
+  const snapshot = data?.currentSnapshot;
+  const monthly = data?.monthly;
+  const daily = useMemo(() => {
+    if (data?.daily) return data.daily;
+    return (data?.forecastDailyStats ?? []).map((item) => ({
+      date: item.date,
+      demandQty: item.totalQty,
+      approvedIncomingMaterialQty:
+        data?.incomingDailyStats?.find((entry) => entry.date === item.date)
+          ?.totalQty ?? 0,
+      reportedGoodQty: 0,
+      deliveredQty:
+        data?.deliveryDailyStats?.find((entry) => entry.date === item.date)
+          ?.totalQty ?? 0,
+      reportedNgQty: 0,
+    }));
+  }, [data]);
+  const coverage =
+    snapshot?.masterData ??
+    data?.systemCoverage ??
+    (data?.summary
+      ? {
+          materials: data.summary.totalMaterials,
+          suppliers: data.summary.totalSuppliers,
+          finishGoods: data.summary.totalFinishGoods,
+          manpower: data.summary.totalManPower,
+        }
+      : undefined);
+  const coverageMaterials =
+    coverage && "activeMaterials" in coverage
+      ? coverage.activeMaterials
+      : coverage?.materials;
+  const coverageManpower =
+    coverage && "activeManpower" in coverage
+      ? coverage.activeManpower
+      : coverage?.manpower;
+  const asOf = data?.meta?.asOf ?? data?.meta?.generatedAt;
+  const chartSummary = daily.length
+    ? `Daily totals: demand ${formatNumber(daily.reduce((sum, item) => sum + item.demandQty, 0))}, good output ${formatNumber(daily.reduce((sum, item) => sum + item.reportedGoodQty, 0))}, and delivered quantity ${formatNumber(daily.reduce((sum, item) => sum + item.deliveredQty, 0))}.`
+    : "No daily data is available for this period.";
 
-        const chartData = data.forecastDailyStats.map((forecast) => {
-            const incoming = data.incomingDailyStats.find((inc) => inc.date === forecast.date);
-            const delivery = data.deliveryDailyStats.find((del) => del.date === forecast.date);
+  const releaseColumns: TableProps<DashboardReleasePipelineItem>["columns"] = [
+    {
+      title: "Release",
+      dataIndex: "releaseNumber",
+      width: 170,
+      render: (value: string, record) => (
+        <Link href={record.href ?? "/apps/production/production-release"}>
+          {value}
+        </Link>
+      ),
+    },
+    {
+      title: "Plan date",
+      dataIndex: "planDate",
+      width: 130,
+      render: formatDate,
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      width: 120,
+      render: (value: string) => (
+        <Tag color={releaseStatusColor(value)}>{value}</Tag>
+      ),
+    },
+    {
+      title: "Target",
+      dataIndex: "targetQty",
+      width: 100,
+      align: "right",
+      render: formatNumber,
+    },
+    {
+      title: "Shopping",
+      dataIndex: "shoppingPct",
+      width: 160,
+      render: renderProgress,
+    },
+    {
+      title: "Assembly",
+      dataIndex: "assemblyPct",
+      width: 160,
+      render: renderProgress,
+    },
+    {
+      title: "Poka-Yoke",
+      dataIndex: "pokayokePct",
+      width: 160,
+      render: renderProgress,
+    },
+    {
+      title: "Delivery",
+      dataIndex: "deliveryPct",
+      width: 160,
+      render: renderProgress,
+    },
+  ];
+  const inventoryColumns: TableProps<DashboardInventoryRiskItem>["columns"] = [
+    {
+      title: "Part",
+      dataIndex: "partNumber",
+      width: 170,
+      ellipsis: { showTitle: false },
+      render: (value: string, record) => (
+        <Tooltip
+          title={record.partName ? `${value} — ${record.partName}` : value}
+        >
+          <Link href={record.href ?? "/apps/warehouse/mrp"}>{value}</Link>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Total stock",
+      dataIndex: "totalStock",
+      align: "right",
+      width: 110,
+      render: formatNumber,
+    },
+    {
+      title: "Minimum",
+      dataIndex: "minimumStock",
+      align: "right",
+      width: 105,
+      render: formatNumber,
+    },
+    {
+      title: "Shortage",
+      dataIndex: "shortageQty",
+      align: "right",
+      width: 100,
+      render: (value: number) => (
+        <Text type="danger" strong>
+          {formatNumber(value)}
+        </Text>
+      ),
+    },
+    {
+      title: "Risk",
+      dataIndex: "status",
+      width: 100,
+      render: (value: string) => (
+        <Tag color={severityColor(value)}>{value || "WARNING"}</Tag>
+      ),
+    },
+  ];
 
-            return {
-                date: formatDate(forecast.date),
-                fullDate: forecast.date,
-                Forecast: forecast.totalQty,
-                Incoming: incoming?.totalQty || 0,
-                Delivery: delivery?.totalQty || 0,
-            };
-        });
-
-        // Also include dates from incoming/delivery that might not be in forecast
-        data.incomingDailyStats.forEach((incoming) => {
-            if (!chartData.find((d) => d.fullDate === incoming.date)) {
-                const forecast = data.forecastDailyStats.find(
-                    (f) => f.date === incoming.date
-                );
-                const delivery = data.deliveryDailyStats.find(
-                    (d) => d.date === incoming.date
-                );
-                chartData.push({
-                    date: formatDate(incoming.date),
-                    fullDate: incoming.date,
-                    Forecast: forecast?.totalQty || 0,
-                    Incoming: incoming.totalQty,
-                    Delivery: delivery?.totalQty || 0,
-                });
-            }
-        });
-
-        data.deliveryDailyStats.forEach((delivery) => {
-            if (!chartData.find((d) => d.fullDate === delivery.date)) {
-                const forecast = data.forecastDailyStats.find(
-                    (f) => f.date === delivery.date
-                );
-                const incoming = data.incomingDailyStats.find(
-                    (i) => i.date === delivery.date
-                );
-                chartData.push({
-                    date: formatDate(delivery.date),
-                    fullDate: delivery.date,
-                    Forecast: forecast?.totalQty || 0,
-                    Incoming: incoming?.totalQty || 0,
-                    Delivery: delivery.totalQty,
-                });
-            }
-        });
-
-        // Sort by date
-        chartData.sort((a, b) => {
-            const dateA = new Date(a.fullDate).getTime();
-            const dateB = new Date(b.fullDate).getTime();
-            return dateA - dateB;
-        });
-
-        return chartData;
-    }, [data]);
-
-    if (loading) {
-        return (
-            <div>
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 4, color: "#1a1a2e" }}>
-                            Dashboard Overview
-                        </h1>
-                        <p style={{ color: "#8c8c8c" }}>Memuat data dashboard...</p>
-                    </div>
-                </div>
-                <DashboardSkeleton />
-            </div>
-        );
-    }
-
-    if (error) {
-        const isAccessError = errorStatus === 401 || errorStatus === 403;
-        return (
-            <div
-                style={{
-                    minHeight: "calc(100vh - 180px)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                }}
-            >
-                {isAccessError ? (
-                    <div style={{ textAlign: "center" }}>
-                        <h2 style={{ color: "#1a1a2e", marginBottom: 8 }}>
-                            Akses Dashboard Ditolak
-                        </h2>
-                        <p style={{ color: "#8c8c8c", margin: 0 }}>
-                            Anda tidak memiliki permission DASHBOARD_VIEW untuk melihat dashboard.
-                        </p>
-                    </div>
-                ) : (
-                    <Result
-                        status="error"
-                        title="Dashboard Tidak Dapat Dimuat"
-                        subTitle={`Gagal memuat data dashboard: ${error}`}
-                    />
-                )}
-            </div>
-        );
-    }
-
-    if (!data) {
-        return (
-            <Empty description="Tidak ada data dashboard" />
-        );
-    }
-
+  if (loading && !data) return <DashboardSkeleton />;
+  if (error && !data) {
+    const denied = errorStatus === 401 || errorStatus === 403;
     return (
-        // Scrollable container for dashboard content only
-        <div style={{ paddingRight: 8 }}>
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1
-                        style={{
-                            fontSize: 24,
-                            fontWeight: 700,
-                            marginBottom: 4,
-                            color: "#1a1a2e",
-                        }}
-                    >
-                        Dashboard Overview
-                    </h1>
-                    <p
-                        style={{ color: "#8c8c8c", margin: 0 }}
-                    >
-                        {getMonthName(selectedPeriod.format("YYYY-MM"))} - Data
-                        harian dalam bulan ini
-                    </p>
-                </div>
-                <DatePicker
-                    picker="month"
-                    value={selectedPeriod}
-                    onChange={(value) => value && setSelectedPeriod(value)}
-                    allowClear={false}
-                    format="MMMM YYYY"
-                />
-            </div>
-
-            {/* Summary Cards */}
-            <Row gutter={[16, 16]} className="mb-6">
-                <Col xs={24} sm={12} lg={8} xl={4}>
-                    <SummaryCard
-                        title="Total Materials"
-                        value={data.summary.totalMaterials}
-                        icon={<ShoppingCart />}
-                        gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                    />
-                </Col>
-                <Col xs={24} sm={12} lg={8} xl={4}>
-                    <SummaryCard
-                        title="Total Suppliers"
-                        value={data.summary.totalSuppliers}
-                        icon={<Factory />}
-                        gradient="linear-gradient(135deg, #f59e0b 0%, #f97316 100%)"
-                    />
-                </Col>
-                <Col xs={24} sm={12} lg={8} xl={4}>
-                    <SummaryCard
-                        title="Finish Goods"
-                        value={data.summary.totalFinishGoods}
-                        icon={<Inventory />}
-                        gradient="linear-gradient(135deg, #10b981 0%, #059669 100%)"
-                    />
-                </Col>
-                <Col xs={24} sm={12} lg={8} xl={4}>
-                    <SummaryCard
-                        title="Total Man Power"
-                        value={data.summary.totalManPower}
-                        icon={<Groups />}
-                        gradient="linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
-                    />
-                </Col>
-                <Col xs={24} sm={12} lg={8} xl={4}>
-                    <SummaryCard
-                        title="Total Incoming"
-                        value={data.summary.totalIncomingQty}
-                        icon={<CallReceived />}
-                        gradient="linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)"
-                    />
-                </Col>
-                <Col xs={24} sm={12} lg={8} xl={4}>
-                    <SummaryCard
-                        title="Total Delivery"
-                        value={data.summary.totalDeliveryQty}
-                        icon={<CallMade />}
-                        gradient="linear-gradient(135deg, #ec4899 0%, #db2777 100%)"
-                    />
-                </Col>
-            </Row>
-
-            {/* Charts Row */}
-            <Row gutter={[16, 16]}>
-                {/* Main Combined Chart */}
-                <Col xs={24} lg={16}>
-                    <ChartCard
-                        title="Daily Activity Overview"
-                        subtitle="Incoming, Delivery & Forecast Quantity"
-                        height={380}
-                        icon={<TrendingUp />}
-                    >
-                        <AreaChart data={combinedChartData}>
-                            <defs>
-                                <linearGradient id="colorForecast" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#667eea" stopOpacity={0.4} />
-                                    <stop offset="95%" stopColor="#667eea" stopOpacity={0.05} />
-                                </linearGradient>
-                                <linearGradient id="colorIncoming" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.05} />
-                                </linearGradient>
-                                <linearGradient id="colorDelivery" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4} />
-                                    <stop offset="95%" stopColor="#ec4899" stopOpacity={0.05} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="#e8e8e8"
-                                vertical={false}
-                            />
-                            <XAxis
-                                dataKey="date"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: "#8c8c8c", fontSize: 12 }}
-                                dy={10}
-                            />
-                            <YAxis
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: "#8c8c8c", fontSize: 12 }}
-                                dx={-10}
-                                tickFormatter={(value) => formatNumber(value)}
-                            />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Legend
-                                wrapperStyle={{ paddingTop: 20 }}
-                                iconType="circle"
-                                iconSize={10}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="Forecast"
-                                stroke="#667eea"
-                                strokeWidth={3}
-                                fillOpacity={1}
-                                fill="url(#colorForecast)"
-                                dot={{ r: 4, fill: "#667eea", strokeWidth: 2, stroke: "white" }}
-                                activeDot={{ r: 6, fill: "#667eea", strokeWidth: 2, stroke: "white" }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="Incoming"
-                                stroke="#10b981"
-                                strokeWidth={3}
-                                fillOpacity={1}
-                                fill="url(#colorIncoming)"
-                                dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "white" }}
-                                activeDot={{ r: 6, fill: "#10b981", strokeWidth: 2, stroke: "white" }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="Delivery"
-                                stroke="#ec4899"
-                                strokeWidth={3}
-                                fillOpacity={1}
-                                fill="url(#colorDelivery)"
-                                dot={{ r: 4, fill: "#ec4899", strokeWidth: 2, stroke: "white" }}
-                                activeDot={{ r: 6, fill: "#ec4899", strokeWidth: 2, stroke: "white" }}
-                            />
-                        </AreaChart>
-                    </ChartCard>
-                </Col>
-
-                {/* Mini Stats */}
-                <Col xs={24} lg={8}>
-                    <Card
-                        styles={{
-                            body: {
-                                padding: "24px",
-                                height: "100%",
-                            },
-                        }}
-                        style={{
-                            borderRadius: 16,
-                            height: "100%",
-                        }}
-                        className="shadow-md"
-                    >
-                        <div className="flex items-center gap-3 mb-5">
-                            <div
-                                style={{
-                                    width: 38,
-                                    height: 38,
-                                    borderRadius: 10,
-                                    background: "linear-gradient(135deg, #f59e0b 0%, #f97316 100%)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: "white",
-                                }}
-                            >
-                                <Assessment fontSize="small" />
-                            </div>
-                            <div>
-                                <h3
-                                    style={{
-                                        fontSize: 15,
-                                        fontWeight: 600,
-                                        color: "#1a1a2e",
-                                        marginBottom: 2,
-                                    }}
-                                >
-                                    Quick Summary
-                                </h3>
-                                <p style={{ fontSize: 12, color: "#8c8c8c" }}>
-                                    {getMonthName(data.currentMonth)}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-3">
-                            <MiniStatCard
-                                title="Forecast Count"
-                                value={data.forecastDailyStats.reduce(
-                                    (acc, curr) => acc + curr.count,
-                                    0
-                                )}
-                                color="#667eea"
-                                icon={<TrendingUp fontSize="small" />}
-                            />
-                            <MiniStatCard
-                                title="Total Forecast Qty"
-                                value={data.forecastDailyStats.reduce(
-                                    (acc, curr) => acc + curr.totalQty,
-                                    0
-                                )}
-                                color="#8b5cf6"
-                                icon={<ShoppingCart fontSize="small" />}
-                            />
-                            <MiniStatCard
-                                title="Total Incoming Qty"
-                                value={data.incomingDailyStats.reduce(
-                                    (acc, curr) => acc + curr.totalQty,
-                                    0
-                                )}
-                                color="#10b981"
-                                icon={<CallReceived fontSize="small" />}
-                            />
-                            <MiniStatCard
-                                title="Total Delivery Qty"
-                                value={data.deliveryDailyStats.reduce(
-                                    (acc, curr) => acc + curr.totalQty,
-                                    0
-                                )}
-                                color="#ec4899"
-                                icon={<CallMade fontSize="small" />}
-                            />
-                        </div>
-                    </Card>
-                </Col>
-            </Row>
-
-            {/* Individual Charts Row */}
-            <Row gutter={[16, 16]} className="mt-6 mb-6">
-                {/* Forecast Chart */}
-                <Col xs={24} md={8}>
-                    <ChartCard
-                        title="Forecast"
-                        subtitle="Planning quantity per day"
-                        height={300}
-                        icon={<TrendingUp />}
-                    >
-                        <AreaChart data={combinedChartData}>
-                            <defs>
-                                <linearGradient id="colorForecastSolo" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#667eea" stopOpacity={0.4} />
-                                    <stop offset="95%" stopColor="#667eea" stopOpacity={0.05} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" vertical={false} />
-                            <XAxis
-                                dataKey="date"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: "#8c8c8c", fontSize: 11 }}
-                            />
-                            <YAxis
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: "#8c8c8c", fontSize: 11 }}
-                                tickFormatter={(value) => formatNumber(value)}
-                            />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Area
-                                type="monotone"
-                                dataKey="Forecast"
-                                stroke="#667eea"
-                                strokeWidth={2}
-                                fillOpacity={1}
-                                fill="url(#colorForecastSolo)"
-                            />
-                        </AreaChart>
-                    </ChartCard>
-                </Col>
-
-                {/* Incoming Chart */}
-                <Col xs={24} md={8}>
-                    <ChartCard
-                        title="Incoming"
-                        subtitle="Incoming quantity per day"
-                        height={300}
-                        icon={<CallReceived />}
-                    >
-                        <AreaChart data={combinedChartData}>
-                            <defs>
-                                <linearGradient id="colorIncomingSolo" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.05} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" vertical={false} />
-                            <XAxis
-                                dataKey="date"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: "#8c8c8c", fontSize: 11 }}
-                            />
-                            <YAxis
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: "#8c8c8c", fontSize: 11 }}
-                                tickFormatter={(value) => formatNumber(value)}
-                            />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Area
-                                type="monotone"
-                                dataKey="Incoming"
-                                stroke="#10b981"
-                                strokeWidth={2}
-                                fillOpacity={1}
-                                fill="url(#colorIncomingSolo)"
-                            />
-                        </AreaChart>
-                    </ChartCard>
-                </Col>
-
-                {/* Delivery Chart */}
-                <Col xs={24} md={8}>
-                    <ChartCard
-                        title="Delivery"
-                        subtitle="Delivery quantity per day"
-                        height={300}
-                        icon={<CallMade />}
-                    >
-                        <AreaChart data={combinedChartData}>
-                            <defs>
-                                <linearGradient id="colorDeliverySolo" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#ec4899" stopOpacity={0.4} />
-                                    <stop offset="95%" stopColor="#ec4899" stopOpacity={0.05} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" vertical={false} />
-                            <XAxis
-                                dataKey="date"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: "#8c8c8c", fontSize: 11 }}
-                            />
-                            <YAxis
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: "#8c8c8c", fontSize: 11 }}
-                                tickFormatter={(value) => formatNumber(value)}
-                            />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Area
-                                type="monotone"
-                                dataKey="Delivery"
-                                stroke="#ec4899"
-                                strokeWidth={2}
-                                fillOpacity={1}
-                                fill="url(#colorDeliverySolo)"
-                            />
-                        </AreaChart>
-                    </ChartCard>
-                </Col>
-            </Row>
-        </div>
+      <Result
+        status={denied ? "403" : "error"}
+        title={
+          denied ? "Dashboard access denied" : "Unable to load the dashboard"
+        }
+        subTitle={
+          denied
+            ? "You do not have the DASHBOARD_VIEW permission."
+            : "The dashboard service could not be reached. Please try again."
+        }
+        extra={
+          !denied ? (
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={() => void loadDashboard()}
+            >
+              Try again
+            </Button>
+          ) : undefined
+        }
+      />
     );
+  }
+  if (!data) return <Empty description="No dashboard data is available" />;
+
+  const kpis = [
+    {
+      title: "Demand",
+      value: monthly?.demand.forecastQty,
+      color: "#1677ff",
+      icon: <InboxOutlined />,
+      context: `${formatNumber(monthly?.demand.unscheduledQty)} unscheduled · ${formatNumber(monthly?.demand.unscheduledCount)} orders`,
+    },
+    {
+      title: "Good output",
+      value: monthly
+        ? monthly.production.reportedQty - monthly.production.reportedNgQty
+        : undefined,
+      color: "#389e0d",
+      icon: <CheckCircleOutlined />,
+      context: `${formatNumber(monthly?.production.scannedGoodQty)} scanned / ${formatNumber(monthly?.production.targetQty)} target`,
+    },
+    {
+      title: "Delivered",
+      value: monthly?.delivery.deliveredQty,
+      color: "#13a8a8",
+      icon: <CheckCircleOutlined />,
+      context: `${formatNumber(monthly?.delivery.overdueOpenQty)} open overdue · ${formatNumber(monthly?.delivery.overdueForecastCount)} orders`,
+    },
+    {
+      title: "Delivery attainment",
+      value: monthly?.delivery.attainmentPct,
+      percent: true,
+      color: "#722ed1",
+      icon: <SafetyCertificateOutlined />,
+      context: "Delivered against released demand",
+    },
+    {
+      title: "NG rate",
+      value: monthly?.production.ngRatePct,
+      percent: true,
+      color: "#cf1322",
+      icon: <ExperimentOutlined />,
+      context: `${formatNumber(monthly?.materialNg.openCaseCount)} open cases · ${formatNumber(monthly?.materialNg.outstandingReplacementQty)} outstanding`,
+    },
+    {
+      title: "Inventory risk",
+      value: snapshot
+        ? snapshot.inventory.outOfStockPartCount +
+          snapshot.inventory.lowStockPartCount +
+          snapshot.inventory.negativeBalancePartCount
+        : undefined,
+      color: "#d46b08",
+      icon: <WarningOutlined />,
+      context: `${formatNumber(snapshot?.inventory.outOfStockPartCount)} out · ${formatNumber(snapshot?.inventory.lowStockPartCount)} low`,
+    },
+  ];
+  const operations = [
+    {
+      label: "Incoming approved",
+      value: monthly?.incoming.approvedDocumentCount,
+      detail: `${formatNumber(monthly?.incoming.approvedMaterialQty)} material quantity`,
+      icon: <CheckCircleOutlined />,
+      color: "#389e0d",
+      href: "/apps/warehouse/incoming",
+    },
+    {
+      label: "Incoming open",
+      value: monthly?.incoming.openDocumentCount,
+      detail: "Documents awaiting completion",
+      icon: <InboxOutlined />,
+      color: "#d46b08",
+      href: "/apps/warehouse/incoming",
+    },
+    {
+      label: "Assembly in progress",
+      value: monthly?.assembly.inProgress,
+      detail: `${formatNumber(monthly?.assembly.completed)} completed`,
+      icon: <ClockCircleOutlined />,
+      color: "#1677ff",
+      href: "/apps/production/assembly",
+    },
+    {
+      label: "Poka-Yoke pending",
+      value: monthly?.pokayoke.pendingLabels,
+      detail: `${formatNumber(monthly?.pokayoke.scannedLabels)} labels scanned`,
+      icon: <SafetyCertificateOutlined />,
+      color: "#d46b08",
+      href: "/apps/production/pokayoke",
+    },
+    {
+      label: "Poka-Yoke failures",
+      value: monthly?.pokayoke.failedAttempts,
+      detail: "Failed verification attempts",
+      icon: <WarningOutlined />,
+      color: "#cf1322",
+      href: "/apps/production/pokayoke",
+    },
+    {
+      label: "Unvalidated reports",
+      value: snapshot?.openExceptions.unvalidatedReportCount,
+      detail: `${formatNumber(monthly?.production.reportedQty)} reported quantity`,
+      icon: <ExperimentOutlined />,
+      color: "#722ed1",
+      href: "/apps/production/production-report",
+    },
+    {
+      label: "Stock count freezes",
+      value: snapshot
+        ? snapshot.freezes.activeMaterial.length +
+          snapshot.freezes.activeFinishGood.length
+        : undefined,
+      detail: "Active material and finish-good freezes",
+      icon: <AlertOutlined />,
+      color: "#cf1322",
+      href: "/apps/warehouse/inventory-counting",
+    },
+    {
+      label: "Material NG open",
+      value: monthly?.materialNg.openCaseCount,
+      detail: `${formatNumber(monthly?.materialNg.outstandingReplacementQty)} replacement quantity`,
+      icon: <ExperimentOutlined />,
+      color: "#d46b08",
+      href: "/apps/production/material-ng",
+    },
+  ];
+  const topPartHeight = Math.max(
+    210,
+    Math.min(286, (data.topParts?.length ?? 0) * 34 + 56),
+  );
+
+  return (
+    <Space orientation="vertical" size={16} style={{ width: "100%" }}>
+      <Row gutter={[12, 12]} align="middle" justify="space-between">
+        <Col xs={24} md={12}>
+          <Title
+            level={3}
+            style={{ margin: 0, fontSize: "clamp(20px, 3vw, 24px)" }}
+          >
+            Executive Dashboard
+          </Title>
+          <Text type="secondary">
+            Supply, production, quality, and delivery performance
+          </Text>
+        </Col>
+        <Col xs={24} md={12}>
+          <Flex
+            justify="flex-end"
+            align="center"
+            wrap
+            gap={8}
+            style={{ width: "100%" }}
+          >
+            <DatePicker
+              aria-label="Dashboard month"
+              picker="month"
+              value={selectedPeriod}
+              allowClear={false}
+              format="MMMM YYYY"
+              onChange={(value) => value && setSelectedPeriod(value)}
+              style={{ flex: "1 1 170px", maxWidth: 220 }}
+            />
+            <Button
+              aria-label="Refresh dashboard"
+              icon={<ReloadOutlined />}
+              loading={loading}
+              onClick={() => void loadDashboard()}
+              style={{ flex: "0 0 auto" }}
+            >
+              Refresh
+            </Button>
+            <Text
+              type="secondary"
+              style={{ fontSize: 12, flex: "1 1 100%", textAlign: "right" }}
+            >
+              As of {formatDateTime(asOf)}
+            </Text>
+          </Flex>
+        </Col>
+      </Row>
+      {error ? (
+        <Alert
+          type="warning"
+          showIcon
+          title="Showing the latest available data"
+          description="The refresh request failed. Try again when the service is available."
+          action={
+            <Button size="small" onClick={() => void loadDashboard()}>
+              Retry
+            </Button>
+          }
+        />
+      ) : null}
+
+      <Row gutter={[12, 12]} align="stretch">
+        {kpis.map((item) => (
+          <Col
+            xs={24}
+            sm={12}
+            md={8}
+            xl={4}
+            key={item.title}
+            style={{ display: "flex" }}
+          >
+            <Card
+              size="small"
+              styles={compactCardBodyStyle}
+              style={{
+                ...equalSectionCardStyle,
+                width: "100%",
+                borderTop: `3px solid ${item.color}`,
+              }}
+            >
+              <Flex justify="space-between" align="start" gap={8}>
+                <Statistic
+                  title={item.title}
+                  value={
+                    item.percent
+                      ? formatPercent(item.value)
+                      : formatNumber(item.value)
+                  }
+                />
+                <span aria-hidden style={{ color: item.color, fontSize: 20 }}>
+                  {item.icon}
+                </span>
+              </Flex>
+              <Text
+                type="secondary"
+                ellipsis={{ tooltip: item.context }}
+                style={{ display: "block", fontSize: 12, marginTop: 4 }}
+              >
+                {item.context}
+              </Text>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+
+      <Row gutter={[16, 16]} align="stretch">
+        <Col xs={24} lg={16} style={{ display: "flex" }}>
+          <Card
+            title="Daily performance"
+            extra={<Text type="secondary">Demand vs. actuals</Text>}
+            styles={fixedSectionBodyStyle}
+            style={{ ...equalSectionCardStyle, width: "100%" }}
+          >
+            {daily.length ? (
+              <div style={{ overflowX: "auto", height: "100%" }}>
+                <span style={visuallyHiddenStyle}>{chartSummary}</span>
+                <div aria-hidden style={{ minWidth: 680, height: 320 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart
+                      data={daily}
+                      margin={{ left: 0, right: 12, top: 8, bottom: 4 }}
+                    >
+                      <CartesianGrid stroke="#edf0f3" vertical={false} />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(value: string) =>
+                          dayjs(value).format("D")
+                        }
+                        minTickGap={12}
+                      />
+                      <YAxis
+                        tickFormatter={(value: number) =>
+                          numberFormatter.format(value)
+                        }
+                        width={64}
+                      />
+                      <ChartTooltip
+                        labelFormatter={(value) => formatDate(String(value))}
+                        formatter={(value) => formatNumber(Number(value))}
+                      />
+                      <Legend />
+                      <Bar
+                        name="Demand"
+                        dataKey="demandQty"
+                        fill="#91caff"
+                        radius={[3, 3, 0, 0]}
+                      />
+                      <Line
+                        name="Good output"
+                        type="monotone"
+                        dataKey="reportedGoodQty"
+                        stroke="#389e0d"
+                        strokeWidth={2.5}
+                        dot={false}
+                      />
+                      <Line
+                        name="Delivered"
+                        type="monotone"
+                        dataKey="deliveredQty"
+                        stroke="#722ed1"
+                        strokeWidth={2.5}
+                        dot={false}
+                      />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            ) : (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="No daily data is available"
+              />
+            )}
+          </Card>
+        </Col>
+        <Col xs={24} lg={8} style={{ display: "flex" }}>
+          <Card
+            title="Operational alerts"
+            extra={<Tag color="red">{data.exceptions?.length ?? 0}</Tag>}
+            styles={fixedSectionBodyStyle}
+            style={{ ...equalSectionCardStyle, width: "100%" }}
+          >
+            {data.exceptions?.length ? (
+              <Space
+                orientation="vertical"
+                size={8}
+                style={{
+                  width: "100%",
+                  maxHeight: 320,
+                  overflowY: "auto",
+                  paddingRight: 4,
+                }}
+              >
+                {data.exceptions
+                  .slice(0, 6)
+                  .map((item: DashboardExceptionItem) => (
+                    <Link
+                      key={`${item.type}:${item.title}:${item.occurredAt}`}
+                      href={item.route}
+                      style={{ display: "block" }}
+                    >
+                      <div
+                        style={{
+                          border: "1px solid #f0f0f0",
+                          borderLeft: `3px solid ${item.severity === "HIGH" ? "#cf1322" : "#d46b08"}`,
+                          borderRadius: 8,
+                          padding: "8px 10px",
+                        }}
+                      >
+                        <Flex justify="space-between" align="center" gap={8}>
+                          <Tooltip title={item.title}>
+                            <Text strong ellipsis style={{ minWidth: 0 }}>
+                              {item.title}
+                            </Text>
+                          </Tooltip>
+                          <Tag
+                            color={severityColor(item.severity)}
+                            style={{ marginInlineEnd: 0 }}
+                          >
+                            {item.severity}
+                          </Tag>
+                        </Flex>
+                        {item.description ? (
+                          <Tooltip title={item.description}>
+                            <Text
+                              type="secondary"
+                              ellipsis
+                              style={{
+                                display: "block",
+                                fontSize: 12,
+                              }}
+                            >
+                              {item.description}
+                            </Text>
+                          </Tooltip>
+                        ) : null}
+                      </div>
+                    </Link>
+                  ))}
+              </Space>
+            ) : (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="No active alerts"
+              />
+            )}
+          </Card>
+        </Col>
+      </Row>
+
+      <Card
+        title="Production release pipeline"
+        extra={<Link href="/apps/production/production-release">View all</Link>}
+        style={sectionCardStyle}
+      >
+        <Flex wrap gap={6} style={{ marginBottom: 12 }}>
+          {Object.entries(data.monthly.production.releaseCountsByStatus).map(
+            ([status, count]) => (
+              <Tag color={releaseStatusColor(status)} key={status}>
+                {status}: {formatNumber(count)}
+              </Tag>
+            ),
+          )}
+        </Flex>
+        <Table<DashboardReleasePipelineItem>
+          size="small"
+          rowKey="releaseId"
+          columns={releaseColumns}
+          dataSource={data.releasePipeline ?? []}
+          pagination={false}
+          scroll={{ x: "max-content", y: 260 }}
+          locale={{ emptyText: "No releases are available for this period" }}
+        />
+      </Card>
+
+      <Row gutter={[16, 16]} align="stretch">
+        <Col xs={24} lg={14} style={{ display: "flex" }}>
+          <Card
+            title="Inventory risk"
+            extra={<Link href="/apps/warehouse/mrp">Open MRP</Link>}
+            styles={{ body: { height: 320, overflow: "hidden" } }}
+            style={{ ...equalSectionCardStyle, width: "100%" }}
+          >
+            <Table<DashboardInventoryRiskItem>
+              size="small"
+              rowKey={(record) => record.id ?? record.partNumber}
+              columns={inventoryColumns}
+              dataSource={data.inventoryRisk ?? []}
+              pagination={false}
+              scroll={{ x: "max-content", y: 236 }}
+              locale={{ emptyText: "No inventory risks were found" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} lg={10} style={{ display: "flex" }}>
+          <Card
+            title="Top finish goods"
+            styles={{ body: { height: 320, overflow: "hidden" } }}
+            style={{ ...equalSectionCardStyle, width: "100%" }}
+          >
+            {data.topParts?.length ? (
+              <div style={{ height: topPartHeight }}>
+                <span
+                  style={visuallyHiddenStyle}
+                >{`Top finish goods by demand. The highest is ${data.topParts[0]?.partNumber} at ${formatNumber(data.topParts[0]?.demandQty)}.`}</span>
+                <div aria-hidden style={{ height: "100%" }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={data.topParts}
+                      layout="vertical"
+                      margin={{ left: 4, right: 18, top: 0, bottom: 0 }}
+                    >
+                      <CartesianGrid stroke="#edf0f3" horizontal={false} />
+                      <XAxis
+                        type="number"
+                        tickFormatter={(value: number) =>
+                          numberFormatter.format(value)
+                        }
+                      />
+                      <YAxis
+                        type="category"
+                        dataKey="partNumber"
+                        width={118}
+                        tickFormatter={(value: string) => truncateLabel(value)}
+                      />
+                      <ChartTooltip
+                        labelFormatter={(value) => String(value)}
+                        formatter={(value, name) => [
+                          formatNumber(Number(value)),
+                          String(name),
+                        ]}
+                      />
+                      <Legend />
+                      <Bar
+                        dataKey="demandQty"
+                        name="Demand"
+                        fill="#1677ff"
+                        radius={[0, 3, 3, 0]}
+                      />
+                      <Bar
+                        dataKey="deliveredQty"
+                        name="Delivered"
+                        fill="#13a8a8"
+                        radius={[0, 3, 3, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            ) : (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="No finish-good data is available"
+              />
+            )}
+          </Card>
+        </Col>
+      </Row>
+
+      <Card title="Quality and operations" style={sectionCardStyle}>
+        <Row gutter={[12, 12]} align="stretch">
+          {operations.map((item) => (
+            <Col
+              xs={24}
+              sm={12}
+              md={8}
+              xl={6}
+              key={item.label}
+              style={{ display: "flex" }}
+            >
+              <Link
+                href={item.href}
+                aria-label={`${item.label}: ${formatNumber(item.value)}`}
+                style={{ display: "flex", width: "100%", height: "100%" }}
+              >
+                <Flex
+                  align="center"
+                  gap={10}
+                  style={{
+                    width: "100%",
+                    minHeight: 88,
+                    height: "100%",
+                    border: "1px solid #f0f0f0",
+                    borderRadius: 8,
+                    padding: 12,
+                  }}
+                >
+                  <span aria-hidden style={{ color: item.color, fontSize: 20 }}>
+                    {item.icon}
+                  </span>
+                  <div style={{ minWidth: 0 }}>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                      {item.label}
+                    </Text>
+                    <div>
+                      <Text strong style={{ fontSize: 20 }}>
+                        {formatNumber(item.value)}
+                      </Text>
+                    </div>
+                    <Text
+                      type="secondary"
+                      ellipsis={{ tooltip: item.detail }}
+                      style={{ display: "block", fontSize: 11 }}
+                    >
+                      {item.detail}
+                    </Text>
+                  </div>
+                </Flex>
+              </Link>
+            </Col>
+          ))}
+        </Row>
+      </Card>
+
+      <Card
+        size="small"
+        title="System coverage"
+        styles={compactCardBodyStyle}
+        style={sectionCardStyle}
+      >
+        <Flex wrap gap="8px 24px">
+          <Text type="secondary">
+            Materials <Text strong>{formatNumber(coverageMaterials)}</Text>
+          </Text>
+          <Text type="secondary">
+            Suppliers <Text strong>{formatNumber(coverage?.suppliers)}</Text>
+          </Text>
+          <Text type="secondary">
+            Finish goods{" "}
+            <Text strong>{formatNumber(coverage?.finishGoods)}</Text>
+          </Text>
+          <Text type="secondary">
+            Manpower <Text strong>{formatNumber(coverageManpower)}</Text>
+          </Text>
+        </Flex>
+      </Card>
+    </Space>
+  );
+}
+
+function renderProgress(value?: number | null) {
+  if (value === null || value === undefined)
+    return <Text type="secondary">—</Text>;
+  return (
+    <Progress
+      percent={clampPercent(value)}
+      size="small"
+      status={value >= 100 ? "success" : "normal"}
+    />
+  );
 }
