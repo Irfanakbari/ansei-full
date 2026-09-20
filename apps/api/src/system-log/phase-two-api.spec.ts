@@ -17,7 +17,10 @@ import { requestCommandKey } from '../common/helpers/business-command.helper';
 
 describe('Phase 2 direct API contracts', () => {
   let app: INestApplication;
-  const logs = { actions: jest.fn().mockResolvedValue({ data: [], meta: {} }) };
+  const logs = {
+    actions: jest.fn().mockResolvedValue({ data: [], meta: {} }),
+    events: jest.fn().mockResolvedValue({ data: [], meta: {} }),
+  };
   const transfer = {
     transferToRack: jest.fn().mockResolvedValue({ success: true }),
   };
@@ -77,6 +80,20 @@ describe('Phase 2 direct API contracts', () => {
       .get('/v1/system-log/actions?limit=100000')
       .set('x-test-permission', 'IPCS.SYSTEM_LOG_READ')
       .expect(400);
+  });
+  it('requires read permission and validates unified event queries', async () => {
+    await request(app.getHttpServer()).get('/v1/system-log/events').expect(403);
+    await request(app.getHttpServer())
+      .get('/v1/system-log/events?page=1&limit=100&type=PROCESS&search=test')
+      .set('x-test-permission', 'IPCS.SYSTEM_LOG_READ')
+      .expect(200);
+    await request(app.getHttpServer())
+      .get('/v1/system-log/events?limit=101&type=OTHER')
+      .set('x-test-permission', 'IPCS.SYSTEM_LOG_READ')
+      .expect(400);
+    expect(logs.events).toHaveBeenCalledWith(
+      expect.objectContaining({ page: 1, limit: 100, type: 'PROCESS' }),
+    );
   });
   it('requires a valid command ID and positive integer quantity for transfer', async () => {
     for (const body of [

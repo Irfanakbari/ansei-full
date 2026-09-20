@@ -1,15 +1,115 @@
 import { SystemLogService } from './system-log.service';
 import { validate } from 'class-validator';
 import { InventoryLedgerQueryDto } from './dto/inventory-ledger-query.dto';
+import { SystemLogEventsQueryDto } from './dto/system-log-events.dto';
 
 describe('SystemLogService', () => {
   const prisma = {
     logProcess: { count: jest.fn(), findMany: jest.fn() },
     inventoryLedger: { count: jest.fn(), findMany: jest.fn() },
+    $queryRaw: jest.fn(),
   };
   const service = new SystemLogService(prisma as never);
 
   beforeEach(() => jest.clearAllMocks());
+
+  it('validates unified event type and pagination limits', async () => {
+    const valid = Object.assign(new SystemLogEventsQueryDto(), {
+      page: 1,
+      limit: 100,
+      type: 'INTEGRATION',
+      search: 'delivery',
+    });
+    const invalid = Object.assign(new SystemLogEventsQueryDto(), {
+      page: 0,
+      limit: 101,
+      type: 'OTHER',
+    });
+
+    await expect(validate(valid)).resolves.toHaveLength(0);
+    await expect(validate(invalid)).resolves.toHaveLength(3);
+  });
+
+  it('returns globally paginated process, action, and integration events', async () => {
+    prisma.$queryRaw
+      .mockResolvedValueOnce([
+        {
+          id: 'integration-1',
+          occurredAt: new Date('2026-09-20T03:00:00.000Z'),
+          type: 'INTEGRATION',
+          event: 'DELIVERY_NOTE_EMAIL',
+          referenceType: 'DeliveryNote',
+          referenceId: 'DN-1',
+          status: 'FAILED',
+          actor: 'operator',
+          processId: null,
+          summary: 'Integration FAILED',
+          errorCode: 'OUTBOX_SAFE_RETRY',
+        },
+        {
+          id: 'action-1',
+          occurredAt: new Date('2026-09-20T02:00:00.000Z'),
+          type: 'ACTION',
+          event: 'UPDATE',
+          referenceType: 'Forecast',
+          referenceId: 'PO-1',
+          status: 'UPDATE',
+          actor: 'operator',
+          processId: 'process-1',
+          summary: 'Forecast UPDATE',
+          errorCode: null,
+        },
+        {
+          id: 'process-1',
+          occurredAt: new Date('2026-09-20T01:00:00.000Z'),
+          type: 'PROCESS',
+          event: 'Forecast.Update',
+          referenceType: 'FUNCTION',
+          referenceId: 'FORECAST_UPDATE',
+          status: 'SUCCESS',
+          actor: 'operator',
+          processId: 'process-1',
+          summary: 'Forecast.Update',
+          errorCode: null,
+        },
+      ])
+      .mockResolvedValueOnce([{ total: 7n }]);
+
+    const result = await service.events({
+      page: 2,
+      limit: 3,
+      search: 'operator',
+    });
+
+    expect(prisma.$queryRaw).toHaveBeenCalledTimes(2);
+    expect(result.meta).toEqual({
+      page: 2,
+      limit: 3,
+      totalItems: 7,
+      totalPages: 3,
+    });
+    expect(result.data.map((row) => row.type)).toEqual([
+      'INTEGRATION',
+      'ACTION',
+      'PROCESS',
+    ]);
+    expect(result.data[0]).toMatchObject({ recoverable: true });
+    expect(result.data[0]).not.toHaveProperty('errorCode');
+  });
+
+  it('composes parameterized type filtering without exposing integration payloads', async () => {
+    prisma.$queryRaw
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ total: 0n }]);
+
+    await service.events({ page: 1, limit: 20, type: 'INTEGRATION' });
+
+    const queries = prisma.$queryRaw.mock.calls.map(([query]) =>
+      JSON.stringify(query),
+    );
+    expect(prisma.$queryRaw).toHaveBeenCalledTimes(2);
+    expect(queries.every((query) => !query.includes('Payload'))).toBe(true);
+  });
 
   it('validates ledger date query fields as YYYY-MM-DD dates', async () => {
     const validQuery = Object.assign(new InventoryLedgerQueryDto(), {

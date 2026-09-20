@@ -225,7 +225,7 @@ export const closeNg = createAsyncThunk<
 const slice = createSlice({
   name: "phaseOne",
   initialState: {
-    revisionQuery: { page: 1, limit: 20 } as ListQuery,
+    revisionQuery: { page: 1, limit: 30 } as ListQuery,
     traceQuery: { page: 1, limit: 20 } as ListQuery,
   },
   reducers: {

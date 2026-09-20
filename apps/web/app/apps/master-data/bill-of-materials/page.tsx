@@ -86,11 +86,13 @@ export default function BillOfMaterialsPage() {
             ? String(filters.status[0])
             : undefined;
         const filterChanged = search !== (query.search ?? "") || selectedStatus !== statusFilter;
+        const pageSize = pagination.pageSize ?? query.limit;
+        const pageSizeChanged = pageSize !== query.limit;
         setSelected(null);
         dispatch(
             setRevisionQuery({
-                page: filterChanged ? 1 : (pagination.current ?? query.page),
-                limit: pagination.pageSize ?? query.limit,
+                page: filterChanged || pageSizeChanged ? 1 : (pagination.current ?? query.page),
+                limit: pageSize,
                 ...(search ? {search} : {}),
                 ...(selectedStatus === "ACTIVE"
                     ? {active: "true"}
@@ -257,7 +259,7 @@ export default function BillOfMaterialsPage() {
                 columns={columns}
                 dataSource={data?.data ?? []}
                 loading={loading}
-                scroll={{x: "max-content"}}
+                scroll={{x: "max-content", y: "calc(100vh - 380px)"}}
                 onChange={handleTableChange}
                 onRow={(row) => ({
                     onClick: () => setSelected(row),
@@ -270,6 +272,10 @@ export default function BillOfMaterialsPage() {
                     current: query.page,
                     pageSize: query.limit,
                     total: data?.meta.totalItems ?? 0,
+                    size: "small",
+                    showSizeChanger: true,
+                    pageSizeOptions: [30, 50, 100],
+                    showTotal: (total) => `Total ${total} items`,
                 }}
             />
             <Modal

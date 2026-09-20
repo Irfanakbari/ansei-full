@@ -93,7 +93,7 @@ export default function ManageForecastsModal({ open, release, onClose, onSuccess
 
     return (
         <Modal
-            title={`Manage Forecasts - ${release?.ReleaseNumber ?? ''}`}
+            title={`Manage Forecasts (${release?.Status ?? ''}) - ${release?.ReleaseNumber ?? ''}`}
             open={open}
             centered
             destroyOnHidden

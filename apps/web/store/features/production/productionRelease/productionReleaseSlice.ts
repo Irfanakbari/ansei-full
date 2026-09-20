@@ -56,12 +56,14 @@ export interface ProductionAttachment {
     UpdatedByName?: string;
 }
 
+export type ProductionReleaseStatus = 'DRAFT' | 'RELEASED' | 'COMPLETED' | 'CANCELLED';
+
 // Production release entity interface
 export interface ProductionReleaseEntity {
     Id: string;
     ReleaseNumber: string;
     PlanDate: string;
-    Status: string;
+    Status: ProductionReleaseStatus;
     Notes: string | null;
     IsNoAttachment: boolean;
     TotalTargetQty: number;

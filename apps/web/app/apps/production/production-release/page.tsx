@@ -50,6 +50,12 @@ export default function ProductionReleasePage() {
         dispatch(fetchProductionRelease(query));
     }, [dispatch, query]);
 
+    useEffect(() => {
+        setSelectedRecord((current) =>
+            current ? (data.find((record) => record.Id === current.Id) ?? null) : null,
+        );
+    }, [data]);
+
     const handleTableChange = (tablePagination: any, filters: any, sorter: any) => {
         setSortedInfo(sorter);
         const search = String(filters.ReleaseNumber?.[0] ?? '') || undefined;
@@ -165,7 +171,7 @@ export default function ProductionReleasePage() {
                 <ButtonToolbar title="Create" icon={<PlusOutlined/>} onClick={() => setIsCreateModalVisible(true)}/>
                 <ButtonToolbar title="Manage Forecasts" icon={<TagsOutlined/>}
                                onClick={() => setIsManageModalVisible(true)}
-                               enable={selectedRecord?.Status === 'RELEASED'}/>
+                               enable={selectedRecord?.Status === 'DRAFT' || selectedRecord?.Status === 'RELEASED'}/>
                 <ButtonToolbar title="Cancel Release" icon={<StopOutlined/>}
                                onClick={() => setIsCancelModalVisible(true)}
                                enable={selectedRecord?.Status === 'RELEASED'}/>

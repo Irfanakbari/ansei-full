@@ -221,6 +221,8 @@ export default function TraceabilityView() {
                     onRow={(record) => ({
                         onDoubleClick: () => setModalPoId(record.PoId),
                     })}
+                    scroll={{x: "max-content", y: "calc(100vh - 380px)"}}
+                    style={{fontSize: 11}}
                 />
             )}
             {poId && data && (

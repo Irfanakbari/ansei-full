@@ -78,6 +78,10 @@ export class RevisionQueryDto {
   @IsEnum(['true', 'false'])
   active?: string;
   @ApiPropertyOptional() @Type(() => Number) @IsInt() @Min(1) page = 1;
-  @ApiPropertyOptional() @Type(() => Number) @IsInt() @Min(1) @Max(100) limit =
-    20;
+  @ApiPropertyOptional({ default: 30, minimum: 1, maximum: 100 })
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit = 30;
 }

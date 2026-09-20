@@ -1,6 +1,6 @@
 // Snapshot transaction invariants are exercised against PostgreSQL in phase-one.database.spec.ts.
 jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
-  snapshotRelease: () => Promise.resolve(undefined),
+  snapshotRelease: jest.fn().mockResolvedValue(undefined),
   latestSnapshot: () => Promise.resolve(null),
   assertNoOutstandingReplacement: () => Promise.resolve(undefined),
 }));
@@ -17,6 +17,7 @@ import {
 } from '@nestjs/common';
 import { ProductionStatus } from '../../generated/prisma/enums';
 import { Prisma } from '../../generated/prisma/client';
+import { snapshotRelease } from '../../common/helpers/bom-snapshot.helper';
 
 describe('ProductionReleaseService', () => {
   let service: ProductionReleaseService;
@@ -25,6 +26,7 @@ describe('ProductionReleaseService', () => {
   let nasUploadService: any;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
     prismaService = {
       productionTraceEvent: { createMany: jest.fn() },
       $executeRaw: jest.fn(),
@@ -720,7 +722,33 @@ describe('ProductionReleaseService', () => {
     });
   });
 
-  describe('released forecast amendments', () => {
+  describe('forecast candidates', () => {
+    it.each([ProductionStatus.DRAFT, ProductionStatus.RELEASED])(
+      'returns candidates for %s releases',
+      async (status) => {
+        prismaService.productionRelease.findUnique.mockResolvedValue({
+          Status: status,
+        });
+        prismaService.forecast.count.mockResolvedValue(1);
+        prismaService.forecast.findMany.mockResolvedValue([{ PoId: 'PO-001' }]);
+
+        const result = await service.getForecastCandidates('rel-1', {
+          mode: 'tag',
+          page: 1,
+          limit: 10,
+        });
+
+        expect(result.data).toEqual([{ PoId: 'PO-001' }]);
+        expect(prismaService.forecast.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: expect.objectContaining({ ProductionReleaseId: null }),
+          }),
+        );
+      },
+    );
+  });
+
+  describe('forecast amendments', () => {
     const released = {
       Id: 'rel-1',
       ReleaseNumber: 'PR-001',
@@ -741,7 +769,70 @@ describe('ProductionReleaseService', () => {
       prismaService.productionRelease.findUnique.mockResolvedValue(released);
     });
 
-    it('tags clean unlinked forecasts and creates complete labels atomically', async () => {
+    it('tags a DRAFT forecast without labels or snapshots', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...released,
+        Status: ProductionStatus.DRAFT,
+      });
+      prismaService.forecast.findMany
+        .mockResolvedValueOnce([cleanForecast])
+        .mockResolvedValueOnce([]);
+      prismaService.forecast.updateMany.mockResolvedValue({ count: 1 });
+      prismaService.forecast.aggregate.mockResolvedValue({ _sum: { Qty: 12 } });
+
+      await service.tagForecasts(
+        'rel-1',
+        { forecastIds: ['PO-001'], reason: 'Draft planning' },
+        'testuser',
+      );
+
+      expect(prismaService.forecast.updateMany).toHaveBeenCalledWith({
+        where: { PoId: { in: ['PO-001'] }, ProductionReleaseId: null },
+        data: { ProductionReleaseId: 'rel-1' },
+      });
+      expect(prismaService.labelData.createMany).not.toHaveBeenCalled();
+      expect(snapshotRelease).not.toHaveBeenCalled();
+      expect(prismaService.productionRelease.update).toHaveBeenCalledWith({
+        where: { Id: 'rel-1' },
+        data: { TotalTargetQty: 12 },
+      });
+    });
+
+    it('untags a DRAFT forecast without deleting labels', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ...released,
+        Status: ProductionStatus.DRAFT,
+      });
+      prismaService.forecast.findMany
+        .mockResolvedValueOnce([
+          { ...cleanForecast, ProductionReleaseId: 'rel-1' },
+        ])
+        .mockResolvedValueOnce([]);
+      prismaService.forecast.count.mockResolvedValue(2);
+      prismaService.forecast.updateMany.mockResolvedValue({ count: 1 });
+      prismaService.forecast.aggregate.mockResolvedValue({ _sum: { Qty: 8 } });
+
+      await service.untagForecasts(
+        'rel-1',
+        { forecastIds: ['PO-001'], reason: 'Draft planning' },
+        'testuser',
+      );
+
+      expect(prismaService.labelData.deleteMany).not.toHaveBeenCalled();
+      expect(prismaService.forecast.updateMany).toHaveBeenCalledWith({
+        where: {
+          PoId: { in: ['PO-001'] },
+          ProductionReleaseId: 'rel-1',
+        },
+        data: { ProductionReleaseId: null },
+      });
+      expect(prismaService.productionRelease.update).toHaveBeenCalledWith({
+        where: { Id: 'rel-1' },
+        data: { TotalTargetQty: 8 },
+      });
+    });
+
+    it('tags clean RELEASED forecasts and creates complete labels atomically', async () => {
       prismaService.forecast.findMany
         .mockResolvedValueOnce([cleanForecast])
         .mockResolvedValueOnce([]);

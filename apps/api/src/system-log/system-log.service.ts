@@ -22,12 +22,117 @@ import type {
   ApiResult,
   PaginationMeta,
 } from '../common/interceptors/api-response.interface';
-import type { Prisma } from '../generated/prisma/client';
+import { Prisma } from '../generated/prisma/client';
 import { ActionAuditQueryDto } from './dto/action-audit.dto';
+import {
+  SystemLogEventDto,
+  SystemLogEventsQueryDto,
+  SystemLogEventType,
+} from './dto/system-log-events.dto';
+
+type UnifiedEventRow = {
+  id: string;
+  occurredAt: Date;
+  type: SystemLogEventType;
+  event: string;
+  referenceType: string | null;
+  referenceId: string | null;
+  status: string;
+  actor: string | null;
+  processId: string | null;
+  summary: string;
+  errorCode: string | null;
+};
+
+type CountRow = { total: bigint | number };
 
 @Injectable()
 export class SystemLogService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async events(
+    query: SystemLogEventsQueryDto,
+  ): Promise<ApiResult<SystemLogEventDto[], PaginationMeta>> {
+    const search = query.search?.trim();
+    const searchPattern = search ? `%${search}%` : null;
+    const type = query.type ?? null;
+    const offset = (query.page - 1) * query.limit;
+    const events = Prisma.sql`
+      SELECT
+        lp."ProcessId" AS id,
+        lp."CreatedAt" AS "occurredAt",
+        'PROCESS'::text AS type,
+        lp."FunctionName" AS event,
+        'FUNCTION'::text AS "referenceType",
+        lp."FunctionId" AS "referenceId",
+        lp."ProcessStatus" AS status,
+        lp."CreatedBy" AS actor,
+        lp."ProcessId" AS "processId",
+        lp."FunctionName" AS summary,
+        NULL::text AS "errorCode"
+      FROM "LogProcess" lp
+      WHERE (${type}::text IS NULL OR ${type}::text = 'PROCESS')
+        AND (${searchPattern}::text IS NULL OR concat_ws(' ', lp."ProcessId", lp."FunctionId", lp."FunctionName", lp."ProcessStatus", lp."CreatedBy") ILIKE ${searchPattern})
+      UNION ALL
+      SELECT
+        aa."Id" AS id,
+        aa."CreatedAt" AS "occurredAt",
+        'ACTION'::text AS type,
+        aa."Action" AS event,
+        aa."SourceType" AS "referenceType",
+        aa."SourceId" AS "referenceId",
+        aa."Action" AS status,
+        aa."Actor" AS actor,
+        aa."ProcessId" AS "processId",
+        concat_ws(' ', aa."SourceType", aa."Action") AS summary,
+        NULL::text AS "errorCode"
+      FROM "ActionAuditEvent" aa
+      WHERE (${type}::text IS NULL OR ${type}::text = 'ACTION')
+        AND (${searchPattern}::text IS NULL OR concat_ws(' ', aa."Id", aa."SourceType", aa."SourceId", aa."Action", aa."Actor", aa."ProcessId", aa."RequestId") ILIKE ${searchPattern})
+      UNION ALL
+      SELECT
+        oe."Id" AS id,
+        oe."CreatedAt" AS "occurredAt",
+        'INTEGRATION'::text AS type,
+        oe."Type"::text AS event,
+        oe."ReferenceType" AS "referenceType",
+        oe."ReferenceId" AS "referenceId",
+        oe."Status"::text AS status,
+        oe."Actor" AS actor,
+        NULL::text AS "processId",
+        concat('Integration ', oe."Status"::text) AS summary,
+        oe."LastErrorCode" AS "errorCode"
+      FROM "OutboxEvent" oe
+      WHERE (${type}::text IS NULL OR ${type}::text = 'INTEGRATION')
+        AND (${searchPattern}::text IS NULL OR concat_ws(' ', oe."Id", oe."Type"::text, oe."Status"::text, oe."Actor", oe."ReferenceType", oe."ReferenceId", oe."LastErrorCode") ILIKE ${searchPattern})
+    `;
+    const [rows, countRows] = await Promise.all([
+      this.prisma.$queryRaw<UnifiedEventRow[]>`
+        SELECT * FROM (${events}) unified_events
+        ORDER BY "occurredAt" DESC, type ASC, id DESC
+        LIMIT ${query.limit} OFFSET ${offset}
+      `,
+      this.prisma.$queryRaw<CountRow[]>`
+        SELECT COUNT(*)::bigint AS total FROM (${events}) unified_events
+      `,
+    ]);
+    const totalItems = Number(countRows[0]?.total ?? 0);
+    return {
+      data: rows.map(({ errorCode, ...row }) => ({
+        ...row,
+        recoverable:
+          row.type === 'INTEGRATION' &&
+          row.status === 'FAILED' &&
+          errorCode === 'OUTBOX_SAFE_RETRY',
+      })),
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
+  }
 
   async actions(query: ActionAuditQueryDto) {
     const where: Prisma.ActionAuditEventWhereInput = {

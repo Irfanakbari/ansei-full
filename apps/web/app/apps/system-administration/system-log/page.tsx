@@ -1,278 +1,212 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-06-08 */
-"use client";
+'use client';
 
-import IntegrationPanel from './_components/IntegrationPanel';
-import ActionAuditPanel from './_components/ActionAuditPanel';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import {
-    Table,
-    Tabs,
-    Card,
-    Breadcrumb,
-    Input,
-    Typography,
-    Badge,
-    Tooltip,
-    Button,
-    Space,
-} from 'antd';
-import type { InputRef } from 'antd';
-import {
-    ReloadOutlined,
-    EyeOutlined,
-    SearchOutlined,
-} from '@ant-design/icons';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {Alert, Badge, Breadcrumb, Button, Card, Input, Space, Table, Tag} from 'antd';
+import type {InputRef, TableProps} from 'antd';
+import type {FilterValue, TablePaginationConfig} from 'antd/es/table/interface';
+import {ReloadOutlined, SearchOutlined} from '@ant-design/icons';
+import {useDispatch, useSelector} from 'react-redux';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
-
-import type { ColumnsType } from 'antd/es/table';
-import { fetchSystemLogDetail, fetchSystemLogs, FetchSystemLogsParams } from '@/store/features/system-log/systemLogSlice';
+import GoldenArrowAction from '@/components/GoldenArrowAction';
+import {usePhasePermission} from '@/components/traceability/usePhasePermission';
+import type {AppDispatch, RootState} from '@/store';
+import {
+    fetchSystemLogDetail,
+    fetchSystemLogEvents,
+    type FetchSystemLogEventsParams,
+    type SystemLogEvent,
+    type SystemLogEventType,
+} from '@/store/features/system-log/systemLogSlice';
+import {formatDateTime} from '@/lib/utils/dateTime';
 import DetailSystemLogModal from './_components/DetailSystemLogModal';
-import { formatDateTime } from '@/lib/utils/dateTime';
+import ActionDetailModal from './_components/ActionDetailModal';
+import IntegrationEventModals from './_components/IntegrationEventModals';
 
-const { Text } = Typography;
-
-const STATUS_OPTIONS = [
-    { text: 'SUCCESS', value: 'SUCCESS' },
-    { text: 'COMPLETED', value: 'COMPLETED' },
-    { text: 'FAILED', value: 'FAILED' },
-    { text: 'ERROR', value: 'ERROR' },
-    { text: 'RUNNING', value: 'RUNNING' },
-    { text: 'PENDING', value: 'PENDING' },
-];
+const TYPE_FILTERS = ['PROCESS', 'ACTION', 'INTEGRATION'].map(value => ({text: value, value}));
+const SUCCESS_VALUES = new Set(['SUCCESS', 'COMPLETED', 'SUCCEEDED']);
+const ERROR_VALUES = new Set(['FAILED', 'ERROR', 'DENIED']);
 
 export default function SystemLogPage() {
     const dispatch = useDispatch<AppDispatch>();
+    const {can} = usePhasePermission();
+    const canRecover = can('IPCS.INTEGRATION_RECOVER');
     const {
-        data,
-        total,
-        page,
-        limit,
-        loading,
+        events,
+        eventsTotal,
+        eventsPage,
+        eventsLimit,
+        eventsLoading,
+        eventsError,
         detail,
-        detailLoading,
+        detailLoading
     } = useSelector((state: RootState) => state.systemLog);
-
-    const [modalOpen, setModalOpen] = useState(false);
-    const [filters, setFilters] = useState<FetchSystemLogsParams>({
-        page: 1,
-        limit: 50,
-        functionId: '',
-        processStatus: '',
-    });
-    const [filteredInfo, setFilteredInfo] = useState<Record<string, any>>({});
+    const [query, setQuery] = useState<FetchSystemLogEventsParams>({page: 1, limit: 50});
+    const [processOpen, setProcessOpen] = useState(false);
+    const [actionEvent, setActionEvent] = useState<SystemLogEvent>();
+    const [auditEvent, setAuditEvent] = useState<SystemLogEvent>();
+    const [recoveryEvent, setRecoveryEvent] = useState<SystemLogEvent>();
     const searchInput = useRef<InputRef>(null);
 
-    const load = useCallback((params: FetchSystemLogsParams) => {
-        dispatch(fetchSystemLogs(params));
+    const load = useCallback((params: FetchSystemLogEventsParams) => {
+        void dispatch(fetchSystemLogEvents(params));
     }, [dispatch]);
 
     useEffect(() => {
-        load({ page: 1, limit: 50 });
+        load({page: 1, limit: 50});
     }, [load]);
 
-    const handleTableChange = (pagination: any, tableFilters: any) => {
-        // Build filters from table filters
-        const newFilters: FetchSystemLogsParams = {};
-
-        if (tableFilters.functionId?.length) {
-            newFilters.functionId = tableFilters.functionId[0];
-        }
-        if (tableFilters.processStatus?.length) {
-            newFilters.processStatus = tableFilters.processStatus[0];
-        }
-
-        setFilteredInfo(tableFilters);
-
-        setFilters(prev => ({
-            ...prev,
-            page: pagination.current,
-            limit: pagination.pageSize,
-            functionId: newFilters.functionId || '',
-            processStatus: newFilters.processStatus || '',
-        }));
-
-        load({
-            page: pagination.current,
-            limit: pagination.pageSize,
-            functionId: newFilters.functionId || '',
-            processStatus: newFilters.processStatus || '',
-        });
+    const changeTable = (pagination: TablePaginationConfig, filters: Record<string, FilterValue | null>) => {
+        const type = filters.type?.[0] as SystemLogEventType | undefined;
+        const search = filters.identity?.[0]?.toString() || undefined;
+        const next = {page: pagination.current ?? 1, limit: pagination.pageSize ?? 50, type, search};
+        setQuery(next);
+        load(next);
     };
 
-    const handleReset = () => {
-        setFilteredInfo({});
-        setFilters({ page: 1, limit: 50, functionId: '', processStatus: '' });
-        load({ page: 1, limit: 50, functionId: '', processStatus: '' });
+    const reset = () => {
+        const next = {page: 1, limit: 50};
+        setQuery(next);
+        load(next);
     };
 
-    const getColumnSearchProps = (dataIndex: string, placeholder?: string) => ({
-        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
-            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+    const openProcess = (event: SystemLogEvent) => {
+        if (!event.processId) return;
+        void dispatch(fetchSystemLogDetail(event.processId));
+        setProcessOpen(true);
+    };
+
+    const openEventDetail = (event: SystemLogEvent) => {
+        if (event.type === 'PROCESS') openProcess(event);
+        else if (event.type === 'ACTION') setActionEvent(event);
+        else setAuditEvent(event);
+    };
+
+    const searchFilter: NonNullable<TableProps<SystemLogEvent>['columns']>[number] = {
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}) => (
+            <div style={{padding: 8}} onKeyDown={event => event.stopPropagation()}>
                 <Input
-                    ref={searchInput as any}
-                    placeholder={placeholder || `Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    ref={searchInput}
+                    aria-label="Search event or reference"
+                    placeholder="Search event or reference"
+                    value={selectedKeys[0]?.toString()}
+                    onChange={event => setSelectedKeys(event.target.value ? [event.target.value] : [])}
                     onPressEnter={() => confirm()}
-                    style={{ marginBottom: 8, display: 'block' }}
+                    style={{marginBottom: 8, display: 'block', width: 240}}
                 />
                 <Space>
-                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 80 }}>
-                        Filter
-                    </Button>
-                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 80 }}>
-                        Reset
-                    </Button>
+                    <Button type="primary" size="small" icon={<SearchOutlined/>}
+                            onClick={() => confirm()}>Search</Button>
+                    <Button size="small" onClick={() => {
+                        clearFilters?.();
+                        confirm();
+                    }}>Reset</Button>
                 </Space>
             </div>
         ),
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
-        ),
-        onFilter: (value: any, record: any) => {
-            const fieldValue = record[dataIndex] || '';
-            return fieldValue?.toString().toLowerCase().includes((value as string).toLowerCase());
+        filterIcon: filtered => <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>,
+        filteredValue: query.search ? [query.search] : null,
+        filterDropdownProps: {
+            onOpenChange: open => {
+                if (open) setTimeout(() => searchInput.current?.select(), 100);
+            },
         },
-    });
+    };
 
-    const mainColumns: ColumnsType<any> = [
+    const columns: TableProps<SystemLogEvent>['columns'] = [
+        {title: 'Time', dataIndex: 'occurredAt', width: 170, render: formatDateTime},
         {
-            title: 'Process ID',
-            dataIndex: 'processId',
-            key: 'processId',
+            title: 'Event',
+            dataIndex: 'event',
+            key: 'identity',
             ellipsis: true,
-            render: (val: string) => <Tooltip title={val}><Text code style={{ fontSize: 11 }}>{val}</Text></Tooltip>,
-        },
-        {
-            title: 'Function ID',
-            dataIndex: 'functionId',
-            key: 'functionId',
-            ellipsis: true,
-            filteredValue: filteredInfo.functionId || null,
-            ...getColumnSearchProps('functionId', 'Search Function ID'),
-        },
-        {
-            title: 'Function Name',
-            dataIndex: 'functionName',
-            key: 'functionName',
-            ellipsis: true,
-        },
-        {
-            title: 'Status',
-            dataIndex: 'processStatus',
-            key: 'processStatus',
-            filteredValue: filteredInfo.processStatus || null,
-            filterMultiple: false,
-            filters: STATUS_OPTIONS,
-            render: (val: string) => (
-                <Badge
-                    status={
-                        val === 'SUCCESS' || val === 'COMPLETED' ? 'success'
-                        : val === 'FAILED' || val === 'ERROR' ? 'error'
-                        : val === 'RUNNING' ? 'processing'
-                        : 'warning'
-                    }
-                    text={val}
-                />
-            ),
-        },
-        {
-            title: 'Process Date',
-            dataIndex: 'processDate',
-            key: 'processDate',
-            render: formatDateTime,
-        },
-        {
-            title: 'Start',
-            dataIndex: 'processStart',
-            key: 'processStart',
-            render: formatDateTime,
-        },
-        {
-            title: 'End',
-            dataIndex: 'processEnd',
-            key: 'processEnd',
-            render: formatDateTime,
-        },
-        {
-            title: 'Created Date',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            render: formatDateTime,
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_: any, record: any) => (
-                <Tooltip title="View Detail">
-                    <EyeOutlined
-                        style={{ cursor: 'pointer', color: '#1677ff', fontSize: 16 }}
-                        onClick={() => {
-                            dispatch(fetchSystemLogDetail(record.processId));
-                            setModalOpen(true);
-                        }}
+            render: (value, event) => (
+                <Space size={4}>
+                    <GoldenArrowAction
+                        tooltip={`View ${event.type.toLowerCase()} detail`}
+                        ariaLabel={`View ${event.type.toLowerCase()} detail for ${value}`}
+                        onClick={() => openEventDetail(event)}
                     />
-                </Tooltip>
+                    <span>{value}</span>
+                </Space>
             ),
+            ...searchFilter,
+        },
+        {
+            title: 'Reference',
+            dataIndex: 'referenceId',
+            ellipsis: true,
+            render: value => value || '—',
+        },
+        {
+            title: 'Status / Action',
+            dataIndex: 'status',
+            render: value => <Tag
+                color={SUCCESS_VALUES.has(value) ? 'success' : ERROR_VALUES.has(value) ? 'error' : value === 'RUNNING' || value === 'PROCESSING' ? 'processing' : 'default'}>{value}</Tag>,
+        },
+        {title: 'Actor', dataIndex: 'actor', ellipsis: true, render: value => value || <Tag>Unattributed</Tag>},
+        {title: 'Result / Attention', dataIndex: 'summary', ellipsis: true, render: value => value || '—'},
+        {
+            title: 'Actions',
+            key: 'actions',
+            fixed: 'right',
+            render: (_, event) =>
+                event.type === 'INTEGRATION' && canRecover && event.recoverable ? (
+                    <Button size="small" onClick={() => setRecoveryEvent(event)}>Recover</Button>
+                ) : '—',
+        },
+        {
+            title: 'Type',
+            dataIndex: 'type',
+            fixed: 'right',
+            width: 120,
+            filters: TYPE_FILTERS,
+            filterMultiple: false,
+            filteredValue: query.type ? [query.type] : null,
+            render: value => <Badge color={value === 'PROCESS' ? 'blue' : value === 'ACTION' ? 'purple' : 'orange'}
+                                    text={value}/>,
         },
     ];
 
     return (
-        <Card variant="borderless" styles={{ body: { padding: 0 } }}>
-            <Breadcrumb
-                style={{ marginBottom: 16 }}
-                items={[{ title: 'Home' }, { title: 'System Administration' }, { title: 'System Logs' }]}
-            />
-
-            <Tabs items={[
-                { key: 'processes', label: 'Process Logs', children: <>
+        <Card variant="borderless" styles={{body: {padding: 0}}}>
+            <Breadcrumb style={{marginBottom: 16}}
+                        items={[{title: 'Home'}, {title: 'System Administration'}, {title: 'System Logs'}]}/>
             <ToolbarWrapper>
-                <ButtonToolbar
-                    title="Refresh"
-                    icon={<ReloadOutlined />}
-                    onClick={() => load({ page: 1, limit: filters.limit || 50 })}
-                />
-                <ButtonToolbar
-                    title="Reset Filter"
-                    icon={<ReloadOutlined />}
-                    onClick={handleReset}
-                />
+                <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>} onClick={() => load(query)}/>
+                <ButtonToolbar title="Reset Filter" icon={<ReloadOutlined/>} onClick={reset}/>
             </ToolbarWrapper>
-
-            <Table
-                columns={mainColumns}
-                dataSource={data}
+            {eventsError && <Alert type="error" showIcon title={eventsError} style={{marginBottom: 12}}/>}
+            <Table<SystemLogEvent>
+                columns={columns}
+                dataSource={events}
                 size="small"
-                loading={loading}
-                onChange={handleTableChange}
+                loading={eventsLoading}
+                onChange={changeTable}
                 pagination={{
                     size: 'small',
-                    current: page,
-                    pageSize: limit,
-                    total: total,
+                    current: eventsPage,
+                    pageSize: eventsLimit,
+                    total: eventsTotal,
                     showSizeChanger: true,
                     pageSizeOptions: ['20', '50', '100'],
-                    showTotal: (t) => `Total ${t} records`,
+                    showTotal: total => `Total ${total} records`,
                 }}
-                rowKey="processId"
-                scroll={{ x: 'max-content', y: 'calc(100vh - 320px)' }}
+                rowKey={event => `${event.type}:${event.id}`}
+                scroll={{x: 1250, y: 'calc(100vh - 320px)'}}
                 className="small-table"
-                style={{ fontSize: '11px' }}
+                style={{fontSize: 11}}
             />
-
-                </> },
-                { key: 'actions', label: 'Action Audit', children: <ActionAuditPanel /> },
-                { key: 'integrations', label: 'Integrations', children: <IntegrationPanel /> },
-            ]} />
-
-            <DetailSystemLogModal
-                visible={modalOpen}
-                onClose={() => setModalOpen(false)}
-                detail={detail}
-                loading={detailLoading}
+            <DetailSystemLogModal visible={processOpen} onClose={() => setProcessOpen(false)} detail={detail}
+                                  loading={detailLoading}/>
+            <ActionDetailModal event={actionEvent} onClose={() => setActionEvent(undefined)}/>
+            <IntegrationEventModals
+                auditEvent={auditEvent}
+                recoveryEvent={recoveryEvent}
+                onCloseAudit={() => setAuditEvent(undefined)}
+                onCloseRecovery={() => setRecoveryEvent(undefined)}
+                onRecovered={() => load(query)}
             />
         </Card>
     );

@@ -405,9 +405,12 @@ export class ProductionReleaseService {
     });
     if (!release)
       throw new NotFoundException(`ProductionRelease with id ${id} not found`);
-    if (release.Status !== ProductionStatus.RELEASED)
+    if (
+      release.Status !== ProductionStatus.DRAFT &&
+      release.Status !== ProductionStatus.RELEASED
+    )
       throw new ConflictException(
-        'Forecasts can only be managed for a RELEASED production release.',
+        'Forecasts can only be managed for a DRAFT or RELEASED production release.',
       );
     const where: Prisma.ForecastWhereInput = {
       ProductionReleaseId: query.mode === 'untag' ? id : null,
@@ -465,6 +468,23 @@ export class ProductionReleaseService {
     if (release.Status !== ProductionStatus.RELEASED) {
       throw new ConflictException(
         'Only a RELEASED production release can be amended.',
+      );
+    }
+    return release;
+  }
+
+  private async requireManageable(tx: Prisma.TransactionClient, id: string) {
+    const release = await tx.productionRelease.findUnique({
+      where: { Id: id },
+    });
+    if (!release)
+      throw new NotFoundException(`ProductionRelease with id ${id} not found`);
+    if (
+      release.Status !== ProductionStatus.DRAFT &&
+      release.Status !== ProductionStatus.RELEASED
+    ) {
+      throw new ConflictException(
+        'Only a DRAFT or RELEASED production release can be amended.',
       );
     }
     return release;
@@ -642,7 +662,7 @@ export class ProductionReleaseService {
         this.prisma,
         async (tx) => {
           await lockProductionFlow(tx);
-          await this.requireReleased(tx, id);
+          const release = await this.requireManageable(tx, id);
           const forecasts = await this.getAmendmentForecasts(
             tx,
             dto.forecastIds,
@@ -655,7 +675,10 @@ export class ProductionReleaseService {
               `Forecast(s) are already linked: ${linked.map((item) => item.PoId).join(', ')}`,
             );
           this.assertNoOperationalActivity(forecasts);
-          const labels = this.buildLabels(id, forecasts);
+          const labels =
+            release.Status === ProductionStatus.RELEASED
+              ? this.buildLabels(id, forecasts)
+              : [];
           const result = await tx.forecast.updateMany({
             where: { PoId: { in: dto.forecastIds }, ProductionReleaseId: null },
             data: { ProductionReleaseId: id },
@@ -664,12 +687,16 @@ export class ProductionReleaseService {
             throw new ConflictException(
               'Forecast assignment changed. Refresh and try again.',
             );
-          await snapshotRelease(tx, id, actor, log.ProcessId);
-          const createdLabels = await tx.labelData.createMany({ data: labels });
-          if (createdLabels.count !== labels.length)
-            throw new ConflictException(
-              'Not all labels could be generated. Refresh and try again.',
-            );
+          if (release.Status === ProductionStatus.RELEASED) {
+            await snapshotRelease(tx, id, actor, log.ProcessId);
+            const createdLabels = await tx.labelData.createMany({
+              data: labels,
+            });
+            if (createdLabels.count !== labels.length)
+              throw new ConflictException(
+                'Not all labels could be generated. Refresh and try again.',
+              );
+          }
           const aggregate = await tx.forecast.aggregate({
             where: { ProductionReleaseId: id },
             _sum: { Qty: true },
@@ -710,7 +737,7 @@ export class ProductionReleaseService {
         this.prisma,
         async (tx) => {
           await lockProductionFlow(tx);
-          await this.requireReleased(tx, id);
+          const release = await this.requireManageable(tx, id);
           const forecasts = await this.getAmendmentForecasts(
             tx,
             dto.forecastIds,
@@ -730,12 +757,14 @@ export class ProductionReleaseService {
             throw new ConflictException(
               'Cannot remove all forecasts. Cancel the production release instead.',
             );
-          await tx.labelData.deleteMany({
-            where: {
-              ProductionReleaseId: id,
-              ForecastId: { in: dto.forecastIds },
-            },
-          });
+          if (release.Status === ProductionStatus.RELEASED) {
+            await tx.labelData.deleteMany({
+              where: {
+                ProductionReleaseId: id,
+                ForecastId: { in: dto.forecastIds },
+              },
+            });
+          }
           const result = await tx.forecast.updateMany({
             where: { PoId: { in: dto.forecastIds }, ProductionReleaseId: id },
             data: { ProductionReleaseId: null },

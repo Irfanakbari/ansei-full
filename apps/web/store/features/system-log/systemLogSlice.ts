@@ -1,20 +1,47 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import { get, getApiErrorMessage, type ApiSuccessEnvelope, type PaginatedApiSuccessEnvelope } from '../../utils/apiService';
+import {
+    get,
+    getApiErrorMessage,
+    type ApiSuccessEnvelope,
+    type PaginatedApiSuccessEnvelope
+} from '../../utils/apiService';
 
 export interface ActionAuditEvent {
-    Id: string; SourceType: string; SourceId: string; Action: string;
-    Actor: string | null; ActorSource: string; RequestId: string | null; ProcessId: string | null;
-    Before: Record<string, unknown> | null; After: Record<string, unknown> | null; CreatedAt: string;
+    Id: string;
+    SourceType: string;
+    SourceId: string;
+    Action: string;
+    Actor: string | null;
+    ActorSource: string;
+    RequestId: string | null;
+    ProcessId: string | null;
+    Before: Record<string, unknown> | null;
+    After: Record<string, unknown> | null;
+    CreatedAt: string;
 }
+
 export interface ActionAuditQuery {
-    page?: number; limit?: number; processId?: string; requestId?: string;
-    sourceType?: string; sourceId?: string; action?: string; from?: string; to?: string;
+    page?: number;
+    limit?: number;
+    processId?: string;
+    requestId?: string;
+    sourceType?: string;
+    sourceId?: string;
+    action?: string;
+    from?: string;
+    to?: string;
 }
-export const fetchActionAudit = createAsyncThunk<PaginatedApiSuccessEnvelope<ActionAuditEvent>, ActionAuditQuery, { rejectValue: string }>(
-    'systemLog/actions', async (query, { rejectWithValue }) => {
-        try { return await get<PaginatedApiSuccessEnvelope<ActionAuditEvent>>('/system-log/actions', { params: { ...query } }); }
-        catch (error) { return rejectWithValue(getApiErrorMessage(error, 'Failed to load action audit')); }
+
+export const fetchActionAudit = createAsyncThunk<PaginatedApiSuccessEnvelope<ActionAuditEvent>, ActionAuditQuery, {
+    rejectValue: string
+}>(
+    'systemLog/actions', async (query, {rejectWithValue}) => {
+        try {
+            return await get<PaginatedApiSuccessEnvelope<ActionAuditEvent>>('/system-log/actions', {params: {...query}});
+        } catch (error) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to load action audit'));
+        }
     },
 );
 
@@ -62,6 +89,29 @@ export interface FetchSystemLogsParams {
     search?: string;
 }
 
+export type SystemLogEventType = 'PROCESS' | 'ACTION' | 'INTEGRATION';
+
+export interface SystemLogEvent {
+    id: string;
+    type: SystemLogEventType;
+    occurredAt: string;
+    event: string;
+    referenceType: string | null;
+    referenceId: string | null;
+    status: string;
+    actor: string | null;
+    processId: string | null;
+    summary: string;
+    recoverable: boolean;
+}
+
+export interface FetchSystemLogEventsParams {
+    page?: number;
+    limit?: number;
+    type?: SystemLogEventType;
+    search?: string;
+}
+
 interface SystemLogState {
     data: LogProcessDto[];
     total: number;
@@ -72,6 +122,13 @@ interface SystemLogState {
     detailLoading: boolean;
     detail: LogProcessDetailResponseDto | null;
     error: string | null;
+    events: SystemLogEvent[];
+    eventsTotal: number;
+    eventsPage: number;
+    eventsLimit: number;
+    eventsTotalPages: number;
+    eventsLoading: boolean;
+    eventsError: string | null;
 }
 
 const initialState: SystemLogState = {
@@ -84,13 +141,33 @@ const initialState: SystemLogState = {
     detailLoading: false,
     detail: null,
     error: null,
+    events: [],
+    eventsTotal: 0,
+    eventsPage: 1,
+    eventsLimit: 50,
+    eventsTotalPages: 0,
+    eventsLoading: false,
+    eventsError: null,
 };
+
+export const fetchSystemLogEvents = createAsyncThunk<PaginatedApiSuccessEnvelope<SystemLogEvent>, FetchSystemLogEventsParams | undefined, {
+    rejectValue: string
+}>(
+    'systemLog/fetchEvents',
+    async (params = {}, {rejectWithValue}) => {
+        try {
+            return await get<PaginatedApiSuccessEnvelope<SystemLogEvent>>('/system-log/events', {params: {...params}});
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch system log events'));
+        }
+    },
+);
 
 export const fetchSystemLogs = createAsyncThunk(
     'systemLog/fetchAll',
     async (params: FetchSystemLogsParams = {}, {rejectWithValue}) => {
         try {
-            return await get<PaginatedApiSuccessEnvelope<LogProcessDto>>('/system-log', { params: { ...params } });
+            return await get<PaginatedApiSuccessEnvelope<LogProcessDto>>('/system-log', {params: {...params}});
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch system logs'));
         }
@@ -121,6 +198,22 @@ const systemLogSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            .addCase(fetchSystemLogEvents.pending, (state) => {
+                state.eventsLoading = true;
+                state.eventsError = null;
+            })
+            .addCase(fetchSystemLogEvents.fulfilled, (state, action) => {
+                state.eventsLoading = false;
+                state.events = Array.isArray(action.payload?.data) ? action.payload.data : [];
+                state.eventsTotal = action.payload?.meta?.totalItems ?? 0;
+                state.eventsPage = action.payload?.meta?.page ?? 1;
+                state.eventsLimit = action.payload?.meta?.limit ?? 50;
+                state.eventsTotalPages = action.payload?.meta?.totalPages ?? 0;
+            })
+            .addCase(fetchSystemLogEvents.rejected, (state, action) => {
+                state.eventsLoading = false;
+                state.eventsError = action.payload ?? 'Failed to fetch system log events';
+            })
             // Fetch list
             .addCase(fetchSystemLogs.pending, (state) => {
                 state.loading = true;

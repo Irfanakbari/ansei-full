@@ -19,6 +19,10 @@ import {
 import { InventoryLedgerDto } from './dto/inventory-ledger-response.dto';
 import { Permission } from '../auth/decorators/permission.decorator';
 import { ApiSuccessEnvelope } from '../common/interceptors/api-response.swagger';
+import {
+  SystemLogEventDto,
+  SystemLogEventsQueryDto,
+} from './dto/system-log-events.dto';
 import type {
   ApiResult,
   PaginationMeta,
@@ -106,6 +110,23 @@ export class SystemLogController {
   })
   actions(@Query() query: ActionAuditQueryDto) {
     return this.systemLogService.actions(query);
+  }
+
+  @Get('events')
+  @Permission('IPCS.SYSTEM_LOG_READ')
+  @ApiOperation({
+    summary: 'Read unified process, action, and integration events',
+  })
+  @ApiSuccessEnvelope({
+    status: 200,
+    type: SystemLogEventDto,
+    isArray: true,
+    paginated: true,
+  })
+  events(
+    @Query() query: SystemLogEventsQueryDto,
+  ): Promise<ApiResult<SystemLogEventDto[], PaginationMeta>> {
+    return this.systemLogService.events(query);
   }
 
   @Get(':id')
