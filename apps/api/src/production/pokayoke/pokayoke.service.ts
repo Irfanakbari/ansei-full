@@ -4,12 +4,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
 import {
   CreatePokayokeScanDto,
+  PokayokeScanOptionsQueryDto,
   PokayokeScanQueryDto,
 } from './dto/pokayoke-scan.dto';
 import type { LogProcessModel } from '../../generated/prisma/models';
 import { PokayokeCompareStatus } from '../../generated/prisma/enums';
 import type { Prisma } from '../../generated/prisma/client';
 import { PaginatedPokayokeScanEntity } from './entities/pokayoke.entity';
+import { PokayokeScanOptionsEntity } from './entities/pokayoke.entity';
 import { ShoppingService } from '../shopping/shopping.service';
 import {
   assertLabelReady,
@@ -24,6 +26,60 @@ export class PokayokeService {
     private readonly logService: LogProcessService,
     private readonly shoppingService: ShoppingService,
   ) {}
+
+  async getScanOptions(
+    query: PokayokeScanOptionsQueryDto = { limit: 100 },
+  ): Promise<PokayokeScanOptionsEntity> {
+    const limit = query.limit ?? 100;
+    return this.prisma.$transaction(async (tx) => {
+      const candidates = await tx.labelData.findMany({
+        where: {
+          Scanned: false,
+          DeliveryHistory: null,
+          QtyThisBox: { gt: 0 },
+          ProductionRelease: { is: { Status: 'RELEASED' } },
+          ...(query.labelNumber
+            ? {
+                LabelNumber: {
+                  contains: query.labelNumber,
+                  mode: 'insensitive' as const,
+                },
+              }
+            : {}),
+        },
+        orderBy: { LabelNumber: 'asc' },
+        take: limit,
+        include: {
+          PartData: { select: { PartName: true } },
+          ProductionRelease: { select: { ReleaseNumber: true } },
+        },
+      });
+
+      const labels: PokayokeScanOptionsEntity['labels'] = [];
+      for (const candidate of candidates) {
+        try {
+          await assertLabelReady(tx, candidate.Id, false);
+        } catch (error) {
+          if (error instanceof BadRequestException) continue;
+          throw error;
+        }
+        if (!candidate.ProductionReleaseId || !candidate.ProductionRelease)
+          continue;
+        labels.push({
+          id: candidate.Id,
+          labelNumber: candidate.LabelNumber,
+          forecastId: candidate.ForecastId,
+          finishGoodId: candidate.FinishGoodId,
+          finishGoodName: candidate.PartData.PartName,
+          qtyThisBox: candidate.QtyThisBox,
+          productionReleaseId: candidate.ProductionReleaseId,
+          productionReleaseNumber: candidate.ProductionRelease.ReleaseNumber,
+          requiresAssembly: candidate.RequiresAssembly === true,
+        });
+      }
+      return { labels };
+    });
+  }
 
   async scan(dto: CreatePokayokeScanDto, createdBy: string): Promise<any> {
     let logProcess: LogProcessModel | undefined;

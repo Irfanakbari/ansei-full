@@ -7,6 +7,7 @@ import {
   Max,
   Min,
   IsEnum,
+  MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PokayokeCompareStatus } from '../../../generated/prisma/enums';
@@ -51,4 +52,20 @@ export class PokayokeScanQueryDto {
   status?: PokayokeCompareStatus;
   @IsOptional()
   createdBy?: string;
+}
+
+export class PokayokeScanOptionsQueryDto {
+  @ApiProperty({ required: false, description: 'Label number search text' })
+  @IsString()
+  @MaxLength(255)
+  @IsOptional()
+  labelNumber?: string;
+
+  @ApiProperty({ required: false, default: 100, minimum: 1, maximum: 100 })
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @IsOptional()
+  @Type(() => Number)
+  limit = 100;
 }

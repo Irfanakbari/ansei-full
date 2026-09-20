@@ -142,6 +142,8 @@ export interface TraceEvent {
     SourceType: string;
     SourceId: string;
     Actor: string;
+    actorName: string;
+    documentReference: string;
     CorrelationId: string;
     ProcessId: string | null;
     CreatedAt: string;

@@ -21,6 +21,7 @@ describe('PokayokeService', () => {
     assemblySession: { findFirst: jest.fn() },
     labelData: {
       findUnique: jest.fn(),
+      findMany: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
     },
@@ -44,6 +45,7 @@ describe('PokayokeService', () => {
     snapshotRequirements: { findMany: jest.fn() },
     shopping: { findMany: jest.fn() },
     inventoryLedger: { aggregate: jest.fn() },
+    deliveryHistory: { findUnique: jest.fn() },
     $transaction: jest.fn(),
   };
 
@@ -71,6 +73,164 @@ describe('PokayokeService', () => {
     prismaService = mockPrismaService;
     logService = mockLogService;
     jest.resetAllMocks();
+    mockPrismaService.deliveryHistory.findUnique.mockResolvedValue(null);
+  });
+
+  describe('getScanOptions', () => {
+    beforeEach(() => {
+      mockPrismaService.$transaction.mockImplementation(
+        (callback: (tx: typeof mockPrismaService) => Promise<unknown>) =>
+          callback(mockPrismaService),
+      );
+      mockPrismaService.snapshotRequirements.findMany.mockResolvedValue([
+        { Qty: 1, MaterialData: { PartNumber: 'MAT-001' } },
+      ]);
+      mockPrismaService.shopping.findMany.mockResolvedValue([
+        { Id: 'SHP-1', MaterialId: 'MAT-001', QtyPick: 20 },
+      ]);
+      mockPrismaService.inventoryLedger.aggregate.mockResolvedValue({
+        _sum: { QtyIn: 20 },
+      });
+    });
+
+    it('includes ready assembly and non-assembly labels and applies search and limit', async () => {
+      const candidates = [
+        {
+          Id: 1,
+          LabelNumber: 'LBL-ASSY',
+          ForecastId: 'PO-001',
+          FinishGoodId: 'FG-001',
+          ProductionReleaseId: 'REL-1',
+          QtyThisBox: 20,
+          Scanned: false,
+          RequiresAssembly: true,
+          PartData: { PartName: 'FG A' },
+          ProductionRelease: { ReleaseNumber: 'PR-001' },
+        },
+        {
+          Id: 2,
+          LabelNumber: 'LBL-DIRECT',
+          ForecastId: 'PO-001',
+          FinishGoodId: 'FG-001',
+          ProductionReleaseId: 'REL-1',
+          QtyThisBox: 20,
+          Scanned: false,
+          RequiresAssembly: null,
+          PartData: { PartName: 'FG A' },
+          ProductionRelease: { ReleaseNumber: 'PR-001' },
+        },
+      ];
+      mockPrismaService.labelData.findMany.mockResolvedValue(candidates);
+      mockPrismaService.labelData.findUnique
+        .mockResolvedValueOnce(candidates[0])
+        .mockResolvedValueOnce(candidates[1]);
+      mockPrismaService.forecast.findUnique.mockResolvedValue({
+        PoId: 'PO-001',
+        Qty: 20,
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'REL-1',
+        ProductionRelease: { Status: 'RELEASED' },
+      });
+      mockPrismaService.assemblySession.findFirst.mockResolvedValue({
+        Id: 'A1',
+      });
+
+      const result = await service.getScanOptions({
+        labelNumber: 'LBL',
+        limit: 2,
+      });
+
+      expect(result.labels).toHaveLength(2);
+      expect(result.labels[0].requiresAssembly).toBe(true);
+      expect(result.labels[1].requiresAssembly).toBe(false);
+      expect(mockPrismaService.labelData.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          take: 2,
+          where: expect.objectContaining({
+            Scanned: false,
+            DeliveryHistory: null,
+            LabelNumber: { contains: 'LBL', mode: 'insensitive' },
+          }),
+        }),
+      );
+    });
+
+    it.each(['IN_PROGRESS', 'CANCELLED'])(
+      'excludes assembly session status %s',
+      async (status) => {
+        const candidate = {
+          Id: 1,
+          LabelNumber: 'LBL-ASSY',
+          ForecastId: 'PO-001',
+          FinishGoodId: 'FG-001',
+          ProductionReleaseId: 'REL-1',
+          QtyThisBox: 20,
+          Scanned: false,
+          RequiresAssembly: true,
+          PartData: { PartName: 'FG A' },
+          ProductionRelease: { ReleaseNumber: 'PR-001' },
+        };
+        mockPrismaService.labelData.findMany.mockResolvedValue([candidate]);
+        mockPrismaService.labelData.findUnique.mockResolvedValue(candidate);
+        mockPrismaService.forecast.findUnique.mockResolvedValue({
+          PoId: 'PO-001',
+          Qty: 20,
+          FinishGoodId: 'FG-001',
+          ProductionReleaseId: 'REL-1',
+          ProductionRelease: { Status: 'RELEASED' },
+        });
+        mockPrismaService.assemblySession.findFirst.mockResolvedValue(null);
+
+        await expect(service.getScanOptions()).resolves.toEqual({ labels: [] });
+        expect(status).toBeDefined();
+      },
+    );
+
+    it('rejects a delivered label in the direct scan path', async () => {
+      mockLogService.startProcess.mockResolvedValue({
+        ProcessId: 'PR123',
+        ProcessStart: new Date(),
+      });
+      mockLogService.addLog.mockResolvedValue({});
+      mockLogService.completeProcess.mockResolvedValue(undefined);
+      mockPrismaService.labelData.findUnique.mockResolvedValue({
+        Id: 1,
+        LabelNumber: 'LBL001',
+        ForecastId: 'PO-001',
+        FinishGoodId: 'FG-001',
+        ProductionReleaseId: 'REL-1',
+        QtyThisBox: 20,
+        Scanned: false,
+      });
+      mockPrismaService.forecast.findUnique.mockResolvedValue({
+        PoId: 'PO-001',
+      });
+      mockPrismaService.finishGood.findUnique.mockResolvedValue({
+        PartNumber: 'FG-001',
+        PartName: 'FG A',
+      });
+      mockPrismaService.deliveryHistory.findUnique.mockResolvedValue({ Id: 1 });
+      mockShoppingService.checkRequirement.mockResolvedValue({
+        requirements: [{ qtyNeeded: 20, qtyPicked: 20 }],
+        summary: {
+          overallPercentage: 100,
+          totalQtyPicked: 20,
+          totalQtyNeeded: 20,
+          totalMaterials: 1,
+        },
+      });
+      mockPrismaService.$transaction.mockImplementation(
+        (callback: (tx: typeof mockPrismaService) => Promise<unknown>) =>
+          callback(mockPrismaService),
+      );
+
+      await expect(
+        service.scan({ labelNumber: 'LBL001', status: 'GAGAL' }, 'admin'),
+      ).rejects.toThrow('delivered');
+      expect(
+        mockPrismaService.pokayokeScanHistory.create,
+      ).not.toHaveBeenCalled();
+    });
   });
 
   describe('scan', () => {

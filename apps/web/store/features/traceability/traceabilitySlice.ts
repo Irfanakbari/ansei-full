@@ -110,14 +110,14 @@ export const fetchTrace = reader<TraceData, string>(
 );
 export const fetchTraceEvents = createAsyncThunk<
   Page<TraceEvent>,
-  { poId: string; page: number },
+  { poId: string; page: number; limit?: number },
   { rejectValue: string }
->("phaseOne/events", async ({ poId, page }, { rejectWithValue }) => {
+>("phaseOne/events", async ({ poId, page, limit = 100 }, { rejectWithValue }) => {
   try {
     const r = await get<
       ApiSuccessEnvelope<TraceEvent[]> & { meta: Page<TraceEvent>["meta"] }
     >(
-      `/traceability/forecasts/${encodeURIComponent(poId)}/events?page=${page}`,
+      `/traceability/forecasts/${encodeURIComponent(poId)}/events?page=${page}&limit=${limit}`,
     );
     return { data: r.data, meta: r.meta };
   } catch (e) {
@@ -226,7 +226,7 @@ const slice = createSlice({
   name: "phaseOne",
   initialState: {
     revisionQuery: { page: 1, limit: 30 } as ListQuery,
-    traceQuery: { page: 1, limit: 20 } as ListQuery,
+    traceQuery: { page: 1, limit: 100 } as ListQuery,
   },
   reducers: {
     setRevisionQuery(s, a: { payload: ListQuery }) {

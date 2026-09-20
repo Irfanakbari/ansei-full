@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import {Alert, Descriptions, Table, Tabs, Tag} from "antd";
+import {Alert, Descriptions, Table, Tabs, Tag, Tooltip, Typography} from "antd";
 import SnapshotTable from "@/components/traceability/SnapshotTable";
 import MaterialUsageTable from "@/components/traceability/MaterialUsageTable";
 import type {
@@ -19,6 +19,28 @@ type TraceabilityDetailProps = {
     onPageChange: (page: number) => void;
     label?: string | null;
 };
+
+const formatActivity = (activity: string) =>
+    activity
+        .toLowerCase()
+        .split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+
+const rawValueTooltip = (display: string, raw: string, correlation?: string) => (
+    <Tooltip
+        title={
+            <div>
+                <div>Raw ID: <Typography.Text copyable={{text: raw}}>{raw}</Typography.Text></div>
+                {correlation &&
+                    <div>Correlation: <Typography.Text copyable={{text: correlation}}>{correlation}</Typography.Text>
+                    </div>}
+            </div>
+        }
+    >
+        <span>{display}</span>
+    </Tooltip>
+);
 
 export default function TraceabilityDetail({
                                                data,
@@ -92,14 +114,27 @@ export default function TraceabilityDetail({
                                                 timeZone: "Asia/Jakarta",
                                             }),
                                     },
-                                    {title: "Activity", dataIndex: "Type"},
-                                    {title: "Document", dataIndex: "SourceId"},
-                                    {title: "Actor", dataIndex: "Actor"},
-                                    {title: "Correlation", dataIndex: "CorrelationId"},
+                                    {
+                                        title: "Activity",
+                                        render: (_, record) => formatActivity(record.Type),
+                                    },
+                                    {
+                                        title: "Document",
+                                        render: (_, record) => rawValueTooltip(
+                                            record.documentReference,
+                                            record.SourceId,
+                                            record.CorrelationId,
+                                        ),
+                                    },
+                                    {
+                                        title: "Actor",
+                                        render: (_, record) => rawValueTooltip(record.actorName, record.Actor),
+                                    },
                                 ]}
                                 pagination={{
                                     current: page,
-                                    pageSize: 20,
+                                    pageSize: 100,
+                                    showSizeChanger: false,
                                     total: events?.meta.totalItems,
                                     onChange: onPageChange,
                                 }}

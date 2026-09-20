@@ -17,5 +17,5 @@ export class TraceQueryDto {
   search?: string;
   @ApiPropertyOptional() @Type(() => Number) @IsInt() @Min(1) page = 1;
   @ApiPropertyOptional() @Type(() => Number) @IsInt() @Min(1) @Max(100) limit =
-    20;
+    100;
 }

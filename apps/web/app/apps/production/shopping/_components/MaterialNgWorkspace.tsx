@@ -2,14 +2,12 @@
 "use client";
 import {useEffect, useRef, useState} from "react";
 import {useSearchParams} from "next/navigation";
-import Link from "next/link";
 import {
     Alert,
     App,
     Breadcrumb,
     Button,
     Card,
-    Descriptions,
     Form,
     Input,
     InputNumber,
@@ -30,7 +28,10 @@ import {useDispatch} from "react-redux";
 import type {AppDispatch} from "@/store";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import ButtonToolbar from "@/components/ButtonToolbar";
+import GoldenArrowAction from "@/components/GoldenArrowAction";
 import {usePhasePermission} from "@/components/traceability/usePhasePermission";
+import TraceabilityDetailModal from "@/app/apps/traceability/_components/TraceabilityDetailModal";
+import MaterialNgDetailModal from "./MaterialNgDetailModal";
 import {
     closeNg,
     createNgCase,
@@ -115,9 +116,8 @@ export default function MaterialNgWorkspace() {
     const [mode, setMode] = useState("MATERIAL");
     const [sets, setSets] = useState(1);
     const [quantities, setQuantities] = useState<Record<number, number>>({});
-    const [closing, setClosing] = useState(false);
-    const [closeReason, setCloseReason] = useState("");
-    const [closeAction, setCloseAction] = useState<"CLOSE" | "CANCEL">("CLOSE");
+    const [detailOpen, setDetailOpen] = useState(false);
+    const [tracePoId, setTracePoId] = useState<string | null>(null);
     const [form] = Form.useForm<{
         poId: string;
         stage: string;
@@ -144,7 +144,11 @@ export default function MaterialNgWorkspace() {
                 const id = params.get("ngCaseId");
                 if (id) {
                     const c = await dispatch(fetchNgCase(id)).unwrap();
-                    if (live) setSelected(c);
+                    if (live) {
+                        setSelected(c);
+                        setQuantities({});
+                        setDetailOpen(true);
+                    }
                 }
             } catch (e) {
                 if (live) setError(String(e));
@@ -156,6 +160,17 @@ export default function MaterialNgWorkspace() {
             live = false;
         };
     }, [dispatch, page, search, refresh, params]);
+    const openCase = async (record: NgCase) => {
+        setSelected(record);
+        setQuantities({});
+        try {
+            const freshest = await dispatch(fetchNgCase(record.Id)).unwrap();
+            setSelected(freshest);
+            setDetailOpen(true);
+        } catch (e) {
+            message.error(String(e));
+        }
+    };
     const findOrders = async (value: string) => {
         try {
             setOrders(
@@ -246,6 +261,7 @@ export default function MaterialNgWorkspace() {
             setSelected(c);
             setOpen(false);
             setQuantities({});
+            setDetailOpen(true);
             setRefresh((v) => v + 1);
             message.success(
                 "Material NG recorded. Rack stock has not been deducted again.",
@@ -285,9 +301,9 @@ export default function MaterialNgWorkspace() {
             setSaving(false);
         }
     };
-    const close = async () => {
-        if (!selected || !closeReason.trim()) return;
-        const body = {id: selected.Id, reason: closeReason, action: closeAction};
+    const close = async (action: "CLOSE" | "CANCEL", reason: string) => {
+        if (!selected || !reason.trim()) return false;
+        const body = {id: selected.Id, reason, action};
         setSaving(true);
         try {
             setSelected(
@@ -295,10 +311,11 @@ export default function MaterialNgWorkspace() {
                     closeNg({...body, requestId: commandId(body)}),
                 ).unwrap(),
             );
-            setClosing(false);
             setRefresh((v) => v + 1);
+            return true;
         } catch (e) {
             message.error(String(e));
+            return false;
         } finally {
             setSaving(false);
         }
@@ -338,6 +355,7 @@ export default function MaterialNgWorkspace() {
                         setSelected(record);
                         setQuantities({});
                     },
+                    onDoubleClick: () => void openCase(record),
                 })}
                 rowClassName={(record) =>
                     selected?.Id === record.Id ? "ant-table-row-selected" : ""
@@ -354,8 +372,31 @@ export default function MaterialNgWorkspace() {
                                 style={{color: filtered ? "#1677ff" : undefined}}
                             />
                         ),
+                        render: (_, record) => (
+                            <Space size={4}>
+                                <GoldenArrowAction
+                                    tooltip="View Material NG case"
+                                    ariaLabel={`View Material NG case ${record.CaseNumber}`}
+                                    onClick={() => void openCase(record)}
+                                />
+                                <span>{record.CaseNumber}</span>
+                            </Space>
+                        ),
                     },
-                    {title: "PO", dataIndex: "ForecastId"},
+                    {
+                        title: "PO",
+                        dataIndex: "ForecastId",
+                        render: (forecastId: string) => (
+                            <Space size={4}>
+                                <GoldenArrowAction
+                                    tooltip="View PO traceability"
+                                    ariaLabel={`View traceability for PO ${forecastId}`}
+                                    onClick={() => setTracePoId(forecastId)}
+                                />
+                                <span>{forecastId}</span>
+                            </Space>
+                        ),
+                    },
                     {title: "Stage", dataIndex: "Stage"},
                     {title: "Status", render: (_, r) => <Tag>{r.Status}</Tag>},
                     {title: "Reason", dataIndex: "Reason"},
@@ -373,118 +414,25 @@ export default function MaterialNgWorkspace() {
                 }}
                 scroll={{x: "max-content"}}
             />
-            {selected && (
-                <>
-                    <Descriptions
-                        bordered
-                        size="small"
-                        style={{margin: "16px 0"}}
-                        items={[
-                            {key: "case", label: "Case", children: selected.CaseNumber},
-                            {key: "po", label: "PO", children: selected.ForecastId},
-                            {key: "status", label: "Status", children: selected.Status},
-                            {key: "reason", label: "Reason", children: selected.Reason},
-                            {
-                                key: "closed",
-                                label: "Closure Reason",
-                                children: selected.CloseReason ?? "-",
-                            },
-                        ]}
-                    />
-                    <Table
-                        size="small"
-                        rowKey="Id"
-                        dataSource={selected.Details}
-                        pagination={false}
-                        columns={[
-                            {title: "Material", dataIndex: "MaterialId"},
-                            {title: "NG Qty", dataIndex: "Qty"},
-                            {
-                                title: "Requested Replacement",
-                                dataIndex: "ReplacementRequestedQty",
-                            },
-                            {
-                                title: "Issued",
-                                render: (_, r) =>
-                                    r.Replacements.reduce((n, s) => n + s.QtyPick, 0),
-                            },
-                            {
-                                title: "Issue Now",
-                                render: (_, r) => (
-                                    <InputNumber
-                                        min={0}
-                                        max={
-                                            r.ReplacementRequestedQty -
-                                            r.Replacements.reduce((n, s) => n + s.QtyPick, 0)
-                                        }
-                                        precision={0}
-                                        value={quantities[r.Id] ?? 0}
-                                        disabled={
-                                            selected.Status !== "OPEN" ||
-                                            !can("IPCS.MATERIAL_NG_ISSUE") ||
-                                            saving
-                                        }
-                                        onChange={(v) =>
-                                            setQuantities((q) => ({...q, [r.Id]: v ?? 0}))
-                                        }
-                                    />
-                                ),
-                            },
-                        ]}
-                        expandable={{
-                            expandedRowRender: (r) => (
-                                <Table
-                                    size="small"
-                                    rowKey="Id"
-                                    dataSource={r.Replacements}
-                                    pagination={false}
-                                    columns={[
-                                        {title: "Qty", dataIndex: "QtyPick"},
-                                        {title: "Actor", dataIndex: "CreatedBy"},
-                                        {
-                                            title: "Time",
-                                            render: (_, s) =>
-                                                new Date(s.CreatedAt).toLocaleString("id-ID", {
-                                                    timeZone: "Asia/Jakarta",
-                                                }),
-                                        },
-                                    ]}
-                                />
-                            ),
-                        }}
-                    />
-                    <Space style={{marginTop: 12}}>
-                        <Button
-                            type="primary"
-                            loading={saving}
-                            disabled={
-                                selected.Status !== "OPEN" || !can("IPCS.MATERIAL_NG_ISSUE")
-                            }
-                            onClick={() => void issue()}
-                        >
-                            Issue Replacement
-                        </Button>
-                        <Button
-                            disabled={
-                                !can("IPCS.MATERIAL_NG_CLOSE") ||
-                                ["CLOSED", "CANCELLED"].includes(selected.Status)
-                            }
-                            onClick={() => {
-                                setCloseReason("");
-                                setCloseAction("CLOSE");
-                                setClosing(true);
-                            }}
-                        >
-                            Close / Cancel Case
-                        </Button>
-                        <Link
-                            href={`/apps/traceability?poId=${encodeURIComponent(selected.ForecastId)}`}
-                        >
-                            View Traceability
-                        </Link>
-                    </Space>
-                </>
-            )}
+            <MaterialNgDetailModal
+                open={detailOpen}
+                data={selected}
+                quantities={quantities}
+                saving={saving}
+                canIssue={can("IPCS.MATERIAL_NG_ISSUE")}
+                canClose={can("IPCS.MATERIAL_NG_CLOSE")}
+                onClose={() => setDetailOpen(false)}
+                onQuantityChange={(detailId, quantity) =>
+                    setQuantities((current) => ({...current, [detailId]: quantity}))
+                }
+                onIssue={() => void issue()}
+                onCloseCase={close}
+            />
+            <TraceabilityDetailModal
+                open={tracePoId !== null}
+                poId={tracePoId}
+                onClose={() => setTracePoId(null)}
+            />
             <Modal
                 centered
                 width={1050}
@@ -649,29 +597,6 @@ export default function MaterialNgWorkspace() {
                         />
                     </>
                 )}
-            </Modal>
-            <Modal
-                centered
-                open={closing}
-                title="Close Material NG Case"
-                onCancel={() => setClosing(false)}
-                onOk={() => void close()}
-                confirmLoading={saving}
-            >
-                <Radio.Group
-                    value={closeAction}
-                    onChange={(e) => setCloseAction(e.target.value)}
-                    options={[
-                        {value: "CLOSE", label: "Close remaining requirement"},
-                        {value: "CANCEL", label: "Cancel (no replacement issued)"},
-                    ]}
-                />
-                <Input.TextArea
-                    value={closeReason}
-                    onChange={(e) => setCloseReason(e.target.value)}
-                    placeholder="Required reason"
-                    maxLength={1000}
-                />
             </Modal>
         </Card>
     );

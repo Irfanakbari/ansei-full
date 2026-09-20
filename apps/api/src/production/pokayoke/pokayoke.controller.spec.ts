@@ -33,6 +33,7 @@ describe('PokayokeController', () => {
     const mockService = {
       scan: jest.fn(),
       findAll: jest.fn(),
+      getScanOptions: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -42,6 +43,15 @@ describe('PokayokeController', () => {
 
     controller = module.get<PokayokeController>(PokayokeController);
     service = module.get(PokayokeService);
+  });
+
+  it('returns scan options', async () => {
+    const expected = { labels: [] };
+    service.getScanOptions.mockResolvedValue(expected);
+    await expect(controller.getScanOptions({ limit: 10 })).resolves.toEqual(
+      expected,
+    );
+    expect(service.getScanOptions).toHaveBeenCalledWith({ limit: 10 });
   });
 
   it('should be defined', () => {

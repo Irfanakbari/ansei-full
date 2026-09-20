@@ -2,6 +2,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { latestSnapshot } from '../common/helpers/bom-snapshot.helper';
+import { getUserDisplayNameMap } from '../common/helpers/user-lookup.helper';
 import type { Prisma } from '../generated/prisma/client';
 import { TraceQueryDto } from './traceability.dto';
 @Injectable()
@@ -155,8 +156,90 @@ export class TraceabilityService {
       }),
       this.prisma.productionTraceEvent.count({ where }),
     ]);
+    const assemblyIds = data
+      .filter((event) => event.SourceType === 'AssemblySession')
+      .map((event) => event.SourceId);
+    const releaseIds = data
+      .filter((event) => event.SourceType === 'ProductionRelease')
+      .map((event) => event.SourceId);
+    const snapshotIds = data
+      .filter((event) => event.SourceType === 'ProductionBomSnapshot')
+      .map((event) => event.SourceId);
+    const [actorNames, assemblySessions, releases, snapshots] =
+      await Promise.all([
+        getUserDisplayNameMap(
+          data.map((event) => event.Actor),
+          this.prisma,
+        ),
+        assemblyIds.length
+          ? this.prisma.assemblySession.findMany({
+              where: { Id: { in: assemblyIds } },
+              select: {
+                Id: true,
+                LabelData: {
+                  select: {
+                    LabelNumber: true,
+                    ProductionRelease: { select: { ReleaseNumber: true } },
+                  },
+                },
+              },
+            })
+          : Promise.resolve([]),
+        releaseIds.length
+          ? this.prisma.productionRelease.findMany({
+              where: { Id: { in: releaseIds } },
+              select: { Id: true, ReleaseNumber: true },
+            })
+          : Promise.resolve([]),
+        snapshotIds.length
+          ? this.prisma.productionBomSnapshot.findMany({
+              where: { Id: { in: snapshotIds } },
+              select: {
+                Id: true,
+                ForecastId: true,
+                Version: true,
+                Revision: { select: { Revision: true } },
+              },
+            })
+          : Promise.resolve([]),
+      ]);
+    const assemblyReferences = new Map<string, string>(
+      assemblySessions.map(
+        (session) =>
+          [
+            session.Id,
+            [
+              session.LabelData.LabelNumber,
+              session.LabelData.ProductionRelease?.ReleaseNumber,
+            ]
+              .filter(Boolean)
+              .join(' / '),
+          ] as const,
+      ),
+    );
+    const releaseReferences = new Map<string, string>(
+      releases.map((release) => [release.Id, release.ReleaseNumber] as const),
+    );
+    const snapshotReferences = new Map<string, string>(
+      snapshots.map(
+        (snapshot) =>
+          [
+            snapshot.Id,
+            `${snapshot.ForecastId} / BOM revision ${snapshot.Revision.Revision} / snapshot ${snapshot.Version}`,
+          ] as const,
+      ),
+    );
+    const enrichedData = data.map((event) => ({
+      ...event,
+      actorName: actorNames.get(event.Actor) ?? event.Actor,
+      documentReference:
+        assemblyReferences.get(event.SourceId) ??
+        releaseReferences.get(event.SourceId) ??
+        snapshotReferences.get(event.SourceId) ??
+        event.SourceId,
+    }));
     return {
-      data,
+      data: enrichedData,
       meta: {
         page: q.page,
         limit: q.limit,

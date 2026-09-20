@@ -28,7 +28,16 @@ export async function assertLabelReady(
   const label = await tx.labelData.findUnique({ where: { Id: labelId } });
   if (!label || (requireScanned && !label.Scanned)) {
     throw new BadRequestException(
-      'Label is missing or has not passed POKAYOKE. Refresh and scan again.',
+      'Label is missing, delivered, or has not passed POKAYOKE. Refresh and scan again.',
+    );
+  }
+  if (
+    await tx.deliveryHistory.findUnique({
+      where: { LabelDataId: label.LabelNumber },
+    })
+  ) {
+    throw new BadRequestException(
+      'Label is missing, delivered, or has not passed POKAYOKE. Refresh and scan again.',
     );
   }
   const forecast = await tx.forecast.findUnique({

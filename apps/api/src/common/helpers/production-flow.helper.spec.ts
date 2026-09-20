@@ -30,6 +30,7 @@ describe('production flow prerequisites', () => {
     forecast: { findUnique: jest.fn() },
     snapshotRequirements: { findMany: jest.fn() },
     shopping: { findMany: jest.fn() },
+    deliveryHistory: { findUnique: jest.fn() },
     inventoryLedger: { aggregate: jest.fn() },
   };
   const tx = mocks as unknown as Prisma.TransactionClient;
@@ -43,6 +44,7 @@ describe('production flow prerequisites', () => {
     mocks.shopping.findMany.mockResolvedValue([
       { Id: 'SHP-1', MaterialId: 'MAT-1', QtyPick: 201 },
     ]);
+    mocks.deliveryHistory.findUnique.mockResolvedValue(null);
     mocks.inventoryLedger.aggregate.mockResolvedValue({ _sum: { QtyIn: 201 } });
   });
 

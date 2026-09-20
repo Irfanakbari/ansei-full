@@ -129,6 +129,8 @@ export class TraceEventResponseDto {
   @ApiProperty() SourceType: string;
   @ApiProperty() SourceId: string;
   @ApiProperty() Actor: string;
+  @ApiProperty() actorName: string;
+  @ApiProperty() documentReference: string;
   @ApiProperty() CorrelationId: string;
   @ApiProperty({ nullable: true, type: String }) ProcessId: string | null;
   @ApiProperty({ format: 'date-time' }) CreatedAt: string;

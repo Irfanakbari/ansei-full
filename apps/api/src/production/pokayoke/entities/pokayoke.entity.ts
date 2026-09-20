@@ -78,3 +78,20 @@ export class PaginatedPokayokeScanEntity {
     totalPages: number;
   };
 }
+
+export class PokayokeScanOptionEntity {
+  @ApiProperty() id: number;
+  @ApiProperty() labelNumber: string;
+  @ApiProperty() forecastId: string;
+  @ApiProperty() finishGoodId: string;
+  @ApiProperty() finishGoodName: string;
+  @ApiProperty() qtyThisBox: number;
+  @ApiProperty() productionReleaseId: string;
+  @ApiProperty() productionReleaseNumber: string;
+  @ApiProperty() requiresAssembly: boolean;
+}
+
+export class PokayokeScanOptionsEntity {
+  @ApiProperty({ type: [PokayokeScanOptionEntity] })
+  labels: PokayokeScanOptionEntity[];
+}
