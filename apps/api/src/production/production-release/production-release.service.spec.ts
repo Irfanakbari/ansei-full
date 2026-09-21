@@ -204,7 +204,9 @@ describe('ProductionReleaseService', () => {
       prismaService.productionRelease.create.mockResolvedValue(mockRelease);
       prismaService.forecast.findMany.mockResolvedValue([{ Qty: 10 }]);
       prismaService.forecast.updateMany.mockResolvedValue({ count: 1 });
-      prismaService.productionRelease.findUnique.mockResolvedValue(mockRelease);
+      prismaService.productionRelease.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(mockRelease);
 
       const result = await service.create(createDto, 'testuser');
 
@@ -280,6 +282,7 @@ describe('ProductionReleaseService', () => {
         Id: 'rel-1',
         ReleaseNumber: 'PR-001',
       });
+      prismaService.productionRelease.findUnique.mockResolvedValue(null);
       prismaService.forecast.updateMany.mockResolvedValue({ count: 0 });
 
       await expect(
@@ -297,7 +300,10 @@ describe('ProductionReleaseService', () => {
         'process-1',
         'FAILED',
       );
-      expect(prismaService.productionRelease.findUnique).not.toHaveBeenCalled();
+      expect(prismaService.productionRelease.findUnique).toHaveBeenCalledWith({
+        where: { ReleaseNumber: 'PR-001' },
+        select: { Id: true },
+      });
     });
   });
 
