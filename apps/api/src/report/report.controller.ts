@@ -21,6 +21,9 @@ import {
   ShoppingHistoryReportQueryDto,
   MaterialNgReportQueryDto,
   InventoryLedgerReportQueryDto,
+  ProductionEfficiencyReportQueryDto,
+  PodayokeFalloffReportQueryDto,
+  MaterialScrapRateReportQueryDto,
 } from './dto';
 import { Permission } from '../auth/decorators/permission.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -566,6 +569,150 @@ export class ReportController {
       'Content-Type':
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': `attachment; filename=Inventory_Ledger_Report_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      'Content-Length': buffer.length,
+    });
+
+    res.send(buffer);
+  }
+
+  // ========== PRODUCTION EFFICIENCY REPORT  ==========
+
+  @Get('production-efficiency')
+  @Permission('IPCS.REPORT_READ')
+  @ApiOperation({
+    summary: 'Generate Production Efficiency Report',
+    description:
+      'Downloads Excel file containing production bottleneck and efficiency data with date range filter',
+  })
+  @ApiQuery({
+    name: 'fromdate',
+    required: false,
+    description: 'Start date in DDMMYYYY format (e.g., 01072026)',
+  })
+  @ApiQuery({
+    name: 'todate',
+    required: false,
+    description: 'End date in DDMMYYYY format (e.g., 31072026)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Excel file download',
+    content: {
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  async generateProductionEfficiencyReport(
+    @CurrentUser() _user: ICurrentUser,
+    @Res() res: Response,
+    @Query() query: ProductionEfficiencyReportQueryDto,
+  ) {
+    const buffer = await this.reportService.generateProductionEfficiencyReport(
+      query.fromdate,
+      query.todate,
+    );
+
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename=Production_Efficiency_Report_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      'Content-Length': buffer.length,
+    });
+
+    res.send(buffer);
+  }
+
+  // ========== POKAYOKE FALLOFF REPORT ==========
+
+  @Get('pokayoke-falloff')
+  @Permission('IPCS.REPORT_READ')
+  @ApiOperation({
+    summary: 'Generate Podayoke Falloff Report',
+    description:
+      'Downloads Excel file containing pokayoke scan falloff rate data with date range filter',
+  })
+  @ApiQuery({
+    name: 'fromdate',
+    required: false,
+    description: 'Start date in DDMMYYYY format (e.g., 01072026)',
+  })
+  @ApiQuery({
+    name: 'todate',
+    required: false,
+    description: 'End date inDDMMYYYY format (e.g., 31072026)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Excel file download',
+    content: {
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  async generatePokayokeFalloffReport(
+    @CurrentUser() _user: ICurrentUser,
+    @Res() res: Response,
+    @Query() query: PokayokeFalloffReportQueryDto,
+  ) {
+    const buffer = await this.reportService.generatePokayokeFalloffReport(
+      query.fromdate,
+      query.todate,
+    );
+
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename=Pokayoke_Falloff_Report_${new Date().toISOString().slice(0, 10)}.xlsx`,
+      'Content-Length': buffer.length,
+    });
+
+    res.send(buffer);
+  }
+
+  // ========== MATERIAL SCRAP RATE REPORT ==========
+
+  @Get('material-scrap-rate')
+  @Permission('IPCS.REPORT_READ')
+  @ApiOperation({
+    summary: 'Generate Material Scrap Rate Report',
+    description:
+      'Downloads Excel file containing material scrap rate data with date range filter',
+  })
+  @ApiQuery({
+    name: 'fromdate',
+    required: false,
+    description: 'Start date in DDMMYYYY format (e.g., 01072026)',
+  })
+  @ApiQuery({
+    name: 'todate',
+    required: false,
+    description: 'End date in DDMMYYYY format (e.g., 31072026)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Excel file download',
+    content: {
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  async generateMaterialScrapRateReport(
+    @CurrentUser() _user: ICurrentUser,
+    @Res() res: Response,
+    @Query() query: MaterialScrapRateReportQueryDto,
+  ) {
+    const buffer = await this.reportService.generateMaterialScrapRateReport(
+      query.fromdate,
+      query.todate,
+    );
+
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename=Material_Scrap_Rate_Report_${new Date().toISOString().slice(0, 10)}.xlsx`,
       'Content-Length': buffer.length,
     });
 

@@ -100,3 +100,18 @@ export class InventoryLedgerReportQueryDto extends DateRangeQueryDto {
   @IsString()
   location?: string;
 }
+
+/**
+ * DTO for Production Efficiency Report
+ */
+export class ProductionEfficiencyReportQueryDto extends DateRangeQueryDto {}
+
+/**
+ * DTO for Pokayoke Falloff Report
+ */
+export class PokayokeFalloffReportQueryDto extends DateRangeQueryDto {}
+
+/**
+ * DTO for Material Scrap Rate Report
+ */
+export class MaterialScrapRateReportQueryDto extends DateRangeQueryDto {}
