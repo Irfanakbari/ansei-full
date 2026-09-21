@@ -12,12 +12,18 @@ import {
   Param,
   Patch,
   Delete,
+  Put,
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
 import { SupplierService } from './supplier.service';
-import { CreateSupplierDto, UpdateSupplierDto } from './dto';
+import {
+  CreateSupplierDto,
+  UpdateSupplierDto,
+  UpsertSupplierBarcodeFormatDto,
+} from './dto';
 import { SupplierEntity } from './entities/supplier.entity';
+import { SupplierBarcodeFormatEntity } from './entities/supplier-barcode-format.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
@@ -28,6 +34,35 @@ import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagg
 @Controller('master/supplier')
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
+
+  @ApiOperation({ summary: 'Get supplier barcode format' })
+  @ApiResponse({
+    status: 200,
+    type: SupplierBarcodeFormatEntity,
+    description: 'Returns null when the supplier has no barcode format',
+  })
+  @ApiResponse({ status: 404, description: 'Supplier tidak ditemukan' })
+  @Get(':id/barcode-format')
+  @Permission('IPCS.MASTER_READ')
+  async getBarcodeFormat(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() _user: ICurrentUser,
+  ) {
+    return this.supplierService.getBarcodeFormat(id);
+  }
+
+  @ApiOperation({ summary: 'Create or update supplier barcode format' })
+  @ApiResponse({ status: 200, type: SupplierBarcodeFormatEntity })
+  @ApiResponse({ status: 404, description: 'Supplier tidak ditemukan' })
+  @Put(':id/barcode-format')
+  @Permission('IPCS.MASTER_UPDATE')
+  async upsertBarcodeFormat(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpsertSupplierBarcodeFormatDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.supplierService.upsertBarcodeFormat(id, dto, user.username);
+  }
 
   @ApiOperation({ summary: 'Get all suppliers' })
   @ApiSuccessEnvelope({

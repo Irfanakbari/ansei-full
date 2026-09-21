@@ -19,6 +19,7 @@ type FormValues = {
     rackLocation?: string;
     minimumStock?: number;
     maximumStock?: number
+    qtyPerBox?: number;
 };
 type Props = { open: boolean; data: MaterialEntity | null; onClose: () => void; onChanged: () => void };
 
@@ -49,7 +50,8 @@ export default function MaterialModal({open, data, onClose, onChanged}: Props) {
             satuanId: data.SatuanId ?? undefined,
             rackLocation: data.RackLocation ?? undefined,
             minimumStock: data.MinimumStock,
-            maximumStock: data.MaximumStock
+            maximumStock: data.MaximumStock,
+            qtyPerBox: data.QtyPerBox
         });
         void dispatch(fetchSatuan());
         void dispatch(fetchSupplier({page: 1, limit: 100}));
@@ -153,6 +155,10 @@ export default function MaterialModal({open, data, onClose, onChanged}: Props) {
             <Form.Item name="maximumStock" label="Maximum Stock" extra="Use 0 when maximum stock is not configured"
                        rules={[{type: "number", min: 0, message: "Maximum stock cannot be negative"}]}><InputNumber
                 min={0} precision={0} style={{width: "100%"}}/></Form.Item>
+            <Form.Item name="qtyPerBox" label="Qty Per Box"
+                       extra="Reference value only; this does not change inventory quantities"
+                       rules={[{type: "number", min: 0, message: "Qty per box cannot be negative"}]}><InputNumber
+                min={0} precision={0} style={{width: "100%"}}/></Form.Item>
         </Form> : <Descriptions bordered size="small" column={2}>
             <Descriptions.Item label="Part Number">{data.PartNumber}</Descriptions.Item><Descriptions.Item
             label="Part Name">{data.PartName}</Descriptions.Item><Descriptions.Item
@@ -163,6 +169,7 @@ export default function MaterialModal({open, data, onClose, onChanged}: Props) {
             label="Qty Warehouse">{data.QtyWarehouse}</Descriptions.Item><Descriptions.Item
             label="Minimum Stock">{data.MinimumStock}</Descriptions.Item><Descriptions.Item
             label="Maximum Stock">{data.MaximumStock === 0 ? "Not Set" : data.MaximumStock}</Descriptions.Item><Descriptions.Item
+            label="Qty Per Box">{data.QtyPerBox}</Descriptions.Item><Descriptions.Item
             label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item><Descriptions.Item
             label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item><Descriptions.Item
             label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item><Descriptions.Item

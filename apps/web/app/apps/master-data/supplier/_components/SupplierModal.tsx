@@ -1,12 +1,13 @@
 "use client";
 
 import {useEffect, useRef, useState} from "react";
-import {DeleteOutlined, EditOutlined, EyeOutlined} from "@ant-design/icons";
+import {BarcodeOutlined, DeleteOutlined, EditOutlined, EyeOutlined} from "@ant-design/icons";
 import {App, Button, Descriptions, Form, Input, Modal, Space} from "antd";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "@/store";
 import {deleteSupplier, SupplierEntity, updateSupplier} from "@/store/features/master/supplierSlice";
 import {formatDateTime} from "@/lib/utils/dateTime";
+import SupplierBarcodeFormatModal from "./SupplierBarcodeFormatModal";
 
 type FormValues = { name: string };
 
@@ -25,6 +26,7 @@ export default function SupplierModal({visible, data, onClose, onUpdated, onDele
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [barcodeOpen, setBarcodeOpen] = useState(false);
     const saveInFlight = useRef(false);
     const deleteInFlight = useRef(false);
 
@@ -122,6 +124,8 @@ export default function SupplierModal({visible, data, onClose, onUpdated, onDele
                         loading={isDeleting}>Delete</Button>,
                 <Button key="edit" type="primary" icon={<EditOutlined/>} onClick={() => setIsEditing(true)}
                         disabled={isDeleting}>Edit</Button>,
+                <Button key="barcode" icon={<BarcodeOutlined/>} onClick={() => setBarcodeOpen(true)}
+                        disabled={isDeleting}>Barcode Format</Button>,
             ]}
         >
             {isEditing ? (
@@ -142,6 +146,8 @@ export default function SupplierModal({visible, data, onClose, onUpdated, onDele
                         label="Updated By">{data.UpdatedByName || data.UpdatedBy || "-"}</Descriptions.Item>
                 </Descriptions>
             )}
+            <SupplierBarcodeFormatModal open={barcodeOpen} supplierId={data.Id} supplierName={data.Name}
+                                        onClose={() => setBarcodeOpen(false)}/>
         </Modal>
     );
 }

@@ -42,6 +42,7 @@ const CreateMaterialModal: React.FC<Props> = ({visible, onClose, onSuccess}) => 
                 rackLocation: values.rackLocation,
                 minimumStock: values.minimumStock ?? 0,
                 maximumStock: values.maximumStock ?? 0,
+                qtyPerBox: values.qtyPerBox ?? 0,
             };
 
             const result = await dispatch(createMaterial(payload));
@@ -118,6 +119,15 @@ const CreateMaterialModal: React.FC<Props> = ({visible, onClose, onSuccess}) => 
                     label="Minimum Stock"
                     initialValue={0}
                     rules={[{type: 'number', min: 0, message: 'Minimum stock cannot be negative'}]}
+                >
+                    <InputNumber placeholder="0" min={0} precision={0} style={{width: '100%'}}/>
+                </Form.Item>
+                <Form.Item
+                    name="qtyPerBox"
+                    label="Qty Per Box"
+                    initialValue={0}
+                    extra="Reference value only; this does not change inventory quantities"
+                    rules={[{type: 'number', min: 0, message: 'Qty per box cannot be negative'}]}
                 >
                     <InputNumber placeholder="0" min={0} precision={0} style={{width: '100%'}}/>
                 </Form.Item>

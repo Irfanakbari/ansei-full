@@ -38,6 +38,8 @@ describe('SupplierController', () => {
       create: jest.fn(),
       update: jest.fn(),
       remove: jest.fn(),
+      getBarcodeFormat: jest.fn(),
+      upsertBarcodeFormat: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -77,6 +79,35 @@ describe('SupplierController', () => {
       await expect(controller.findOne(999, mockUser)).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('barcode format', () => {
+    it('should return the supplier barcode format', async () => {
+      const format = {
+        Id: 1,
+        SupplierId: 1,
+        Delimiter: '#',
+        Fields: ['PART_NUMBER', 'QUANTITY'],
+      };
+      service.getBarcodeFormat.mockResolvedValue(format as never);
+
+      await expect(controller.getBarcodeFormat(1, mockUser)).resolves.toEqual(
+        format,
+      );
+      expect(service.getBarcodeFormat).toHaveBeenCalledWith(1);
+    });
+
+    it('should upsert the supplier barcode format with the actor', async () => {
+      const dto = {
+        delimiter: '#',
+        fields: ['PART_NUMBER', 'QUANTITY'],
+      };
+      service.upsertBarcodeFormat.mockResolvedValue({});
+
+      await controller.upsertBarcodeFormat(1, dto as never, mockUser);
+
+      expect(service.upsertBarcodeFormat).toHaveBeenCalledWith(1, dto, 'admin');
     });
   });
 

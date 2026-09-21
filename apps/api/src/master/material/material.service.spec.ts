@@ -29,6 +29,7 @@ describe('MaterialService', () => {
     RackLocation: 'RACK-A1',
     QtyRack: 100,
     QtyWarehouse: 500,
+    QtyPerBox: 20,
     SatuanData: mockSatuan,
     BillOfMaterials: [],
     IncomingMaterial: [],
@@ -212,6 +213,11 @@ describe('MaterialService', () => {
       const result = await service.create(createDto, 'admin');
 
       expect(result).toEqual(createdMaterial);
+      expect(prismaService.material.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ QtyPerBox: 0 }),
+        }),
+      );
       expect(logService.startProcess).toHaveBeenCalledWith({
         functionId: 'MATERIAL_001',
         functionName: 'MaterialService.Create',
@@ -272,7 +278,7 @@ describe('MaterialService', () => {
     });
 
     it('should update an existing material', async () => {
-      const updateDto = { partName: 'Baut M12 Updated' };
+      const updateDto = { partName: 'Baut M12 Updated', qtyPerBox: 24 };
       const updatedMaterial = {
         ...mockMaterial,
         PartName: 'Baut M12 Updated',
@@ -287,6 +293,11 @@ describe('MaterialService', () => {
       const result = await service.update(1, updateDto, 'admin');
 
       expect(result).toEqual(updatedMaterial);
+      expect(prismaService.material.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ QtyPerBox: 24 }),
+        }),
+      );
       expect(logService.completeProcess).toHaveBeenCalledWith(
         mockLogProcess.ProcessId,
         'SUCCESS',

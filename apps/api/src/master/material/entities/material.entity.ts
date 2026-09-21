@@ -76,6 +76,9 @@ export class MaterialEntity {
   })
   MaximumStock: number;
 
+  @ApiProperty({ description: 'Record-only quantity per box', example: 20 })
+  QtyPerBox: number;
+
   @ApiProperty({ description: 'Status aktif material', example: true })
   IsActive: boolean;
 

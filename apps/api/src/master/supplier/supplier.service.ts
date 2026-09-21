@@ -2,7 +2,12 @@ import { auditedWrite } from '../../common/helpers/audited-transaction.helper';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
-import { CreateSupplierDto, UpdateSupplierDto } from './dto';
+import {
+  CreateSupplierDto,
+  SupplierBarcodeField,
+  UpdateSupplierDto,
+  UpsertSupplierBarcodeFormatDto,
+} from './dto';
 import type {
   LogProcessModel,
   SupplierModel,
@@ -20,6 +25,77 @@ export class SupplierService {
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
   ) {}
+
+  async getBarcodeFormat(id: number): Promise<{
+    Id: number;
+    SupplierId: number;
+    Delimiter: string;
+    Fields: SupplierBarcodeField[];
+    CreatedAt: Date;
+    CreatedBy: string;
+    UpdatedAt: Date;
+    UpdatedBy: string;
+  } | null> {
+    await this.findOne(id);
+    const result = await this.prisma.supplierBarcodeFormat.findUnique({
+      where: { SupplierId: id },
+    });
+    return result
+      ? { ...result, Fields: result.Fields as SupplierBarcodeField[] }
+      : null;
+  }
+
+  async upsertBarcodeFormat(
+    id: number,
+    dto: UpsertSupplierBarcodeFormatDto,
+    updatedBy: string,
+  ) {
+    let logProcess: LogProcessModel | undefined;
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'SUPPLIER_004',
+        functionName: 'SupplierService.UpsertBarcodeFormat',
+        createdBy: updatedBy,
+      });
+      await this.findOne(id);
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.supplierBarcodeFormat.upsert({
+          where: { SupplierId: id },
+          create: {
+            SupplierId: id,
+            Delimiter: dto.delimiter,
+            Fields: dto.fields,
+            CreatedBy: updatedBy,
+            UpdatedBy: updatedBy,
+          },
+          update: {
+            Delimiter: dto.delimiter,
+            Fields: dto.fields,
+            UpdatedBy: updatedBy,
+          },
+        }),
+      );
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Supplier barcode format saved for supplier id: ${id}`,
+        type: 'INFO',
+        location: 'supplier.service.ts:upsertBarcodeFormat',
+      });
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      return { ...result, Fields: result.Fields as SupplierBarcodeField[] };
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'ERROR',
+          location: 'supplier.service.ts:upsertBarcodeFormat',
+        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
 
   async findAll(
     query: SearchPaginationQueryDto,

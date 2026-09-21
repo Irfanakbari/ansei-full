@@ -141,6 +141,7 @@ export class MaterialService {
             QtyWarehouse: 0,
             MinimumStock: dto.minimumStock ?? 0,
             MaximumStock: dto.maximumStock ?? 0,
+            QtyPerBox: dto.qtyPerBox ?? 0,
             CreatedBy: createdBy,
             UpdatedBy: createdBy,
           },
@@ -238,6 +239,7 @@ export class MaterialService {
             RackLocation: dto.rackLocation,
             MinimumStock: dto.minimumStock,
             MaximumStock: dto.maximumStock,
+            QtyPerBox: dto.qtyPerBox,
             UpdatedBy: createdBy,
           },
           include: {

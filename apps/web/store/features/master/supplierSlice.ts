@@ -6,6 +6,7 @@ import {
     getApiErrorMessage,
     patch,
     post,
+    put,
     type ApiSuccessEnvelope,
     type PaginatedApiSuccessEnvelope
 } from '../../utils/apiService';
@@ -19,6 +20,19 @@ export interface SupplierEntity {
     UpdatedAt: string;
     UpdatedBy: string | null;
     UpdatedByName?: string | null;
+}
+
+export const supplierBarcodeFields = ["PART_NUMBER", "PART_NAME", "QUANTITY", "DATE", "IGNORE"] as const;
+export type SupplierBarcodeField = typeof supplierBarcodeFields[number];
+export interface SupplierBarcodeFormat {
+    Id: number;
+    SupplierId: number;
+    Delimiter: string;
+    Fields: SupplierBarcodeField[];
+    CreatedAt: string;
+    CreatedBy: string;
+    UpdatedAt: string;
+    UpdatedBy: string;
 }
 
 interface SupplierState {
@@ -92,6 +106,31 @@ export const deleteSupplier = createAsyncThunk(
             return id;
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to delete supplier'));
+        }
+    }
+);
+
+export const fetchSupplierBarcodeFormat = createAsyncThunk<ApiSuccessEnvelope<SupplierBarcodeFormat | null>, number, {rejectValue: string}>(
+    'supplier/fetchBarcodeFormat',
+    async (id, {rejectWithValue}) => {
+        try {
+            return await get<ApiSuccessEnvelope<SupplierBarcodeFormat | null>>(`/master/supplier/${id}/barcode-format`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch supplier barcode format'));
+        }
+    }
+);
+
+export const upsertSupplierBarcodeFormat = createAsyncThunk<ApiSuccessEnvelope<SupplierBarcodeFormat>, {
+    id: number;
+    data: {delimiter: string; fields: SupplierBarcodeField[]};
+}, {rejectValue: string}>(
+    'supplier/upsertBarcodeFormat',
+    async ({id, data}, {rejectWithValue}) => {
+        try {
+            return await put<ApiSuccessEnvelope<SupplierBarcodeFormat>, typeof data>(`/master/supplier/${id}/barcode-format`, data);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to save supplier barcode format'));
         }
     }
 );

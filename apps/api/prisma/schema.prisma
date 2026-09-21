@@ -96,14 +96,27 @@ model Satuan {
 }
 
 model Supplier {
-  Id        Int        @id @default(autoincrement())
-  Name      String
-  CreatedAt DateTime   @default(now())
-  CreatedBy String
-  UpdatedAt DateTime   @updatedAt
-  UpdatedBy String
-  Incoming  Incoming[]
-  Material  Material[]
+  Id            Int                    @id @default(autoincrement())
+  Name          String
+  CreatedAt     DateTime               @default(now())
+  CreatedBy     String
+  UpdatedAt     DateTime               @updatedAt
+  UpdatedBy     String
+  Incoming      Incoming[]
+  Material      Material[]
+  BarcodeFormat SupplierBarcodeFormat?
+}
+
+model SupplierBarcodeFormat {
+  Id         Int      @id @default(autoincrement())
+  SupplierId Int      @unique
+  Delimiter  String
+  Fields     Json
+  CreatedAt  DateTime @default(now())
+  CreatedBy  String
+  UpdatedAt  DateTime @updatedAt
+  UpdatedBy  String
+  Supplier   Supplier @relation(fields: [SupplierId], references: [Id], onDelete: Cascade)
 }
 
 model Material {
@@ -130,6 +143,7 @@ model Material {
   QtyWarehouse Int @default(0)
   MinimumStock Int @default(0)
   MaximumStock Int @default(0) // 0 means maximum stock is not configured
+  QtyPerBox    Int @default(0)
 
   SatuanData   Satuan?   @relation(fields: [SatuanId], references: [Id])
   SupplierData Supplier? @relation(fields: [SupplierId], references: [Id])

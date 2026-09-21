@@ -32,6 +32,7 @@ export interface MaterialEntity {
     QtyWarehouse: number;
     MinimumStock: number;
     MaximumStock: number;
+    QtyPerBox: number;
     SatuanData: SatuanData | null;
 }
 
@@ -99,6 +100,7 @@ export const createMaterial = createAsyncThunk(
         rackLocation?: string;
         minimumStock?: number;
         maximumStock?: number;
+        qtyPerBox?: number;
     }, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<MaterialEntity>, typeof materialData>('/master/material', materialData);
@@ -120,6 +122,7 @@ export const updateMaterial = createAsyncThunk(
             rackLocation?: string;
             minimumStock?: number;
             maximumStock?: number;
+            qtyPerBox?: number;
         }
     }, {rejectWithValue}) => {
         try {

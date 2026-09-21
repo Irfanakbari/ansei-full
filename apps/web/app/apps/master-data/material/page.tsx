@@ -134,6 +134,12 @@ export default function MaterialPage() {
             render: (value: number) => value === 0 ? 'Not Set' : value,
         },
         {
+            title: 'Qty Per Box',
+            dataIndex: 'QtyPerBox',
+            key: 'QtyPerBox',
+            align: 'right' as const
+        },
+        {
             title: 'Created Date',
             dataIndex: 'CreatedAt',
             key: 'CreatedAt',

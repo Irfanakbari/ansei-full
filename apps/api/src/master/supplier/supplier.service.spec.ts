@@ -38,6 +38,10 @@ describe('SupplierService', () => {
       update: jest.Mock;
       delete: jest.Mock;
     };
+    supplierBarcodeFormat: {
+      findUnique: jest.Mock;
+      upsert: jest.Mock;
+    };
   };
 
   let logService: {
@@ -55,6 +59,10 @@ describe('SupplierService', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+      },
+      supplierBarcodeFormat: {
+        findUnique: jest.fn(),
+        upsert: jest.fn(),
       },
     };
 
@@ -129,6 +137,74 @@ describe('SupplierService', () => {
       prismaService.supplier.findUnique.mockResolvedValue(null);
 
       await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('barcode format', () => {
+    const barcodeFormat = {
+      Id: 1,
+      SupplierId: 1,
+      Delimiter: '#',
+      Fields: ['PART_NUMBER', 'QUANTITY'],
+      CreatedAt: new Date(),
+      CreatedBy: 'admin',
+      UpdatedAt: new Date(),
+      UpdatedBy: 'admin',
+    };
+
+    it('should return null when supplier exists without a barcode format', async () => {
+      prismaService.supplier.findUnique.mockResolvedValue(mockSupplier);
+      prismaService.supplierBarcodeFormat.findUnique.mockResolvedValue(null);
+
+      await expect(service.getBarcodeFormat(1)).resolves.toBeNull();
+    });
+
+    it('should reject barcode format lookup for a missing supplier', async () => {
+      prismaService.supplier.findUnique.mockResolvedValue(null);
+
+      await expect(service.getBarcodeFormat(999)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(
+        prismaService.supplierBarcodeFormat.findUnique,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should audit and upsert a barcode format', async () => {
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({});
+      logService.completeProcess.mockResolvedValue(undefined);
+      prismaService.supplier.findUnique.mockResolvedValue(mockSupplier);
+      prismaService.supplierBarcodeFormat.upsert.mockResolvedValue(
+        barcodeFormat,
+      );
+
+      const result = await service.upsertBarcodeFormat(
+        1,
+        { delimiter: '#', fields: ['PART_NUMBER', 'QUANTITY'] } as never,
+        'admin',
+      );
+
+      expect(result).toEqual(barcodeFormat);
+      expect(prismaService.supplierBarcodeFormat.upsert).toHaveBeenCalledWith({
+        where: { SupplierId: 1 },
+        create: {
+          SupplierId: 1,
+          Delimiter: '#',
+          Fields: ['PART_NUMBER', 'QUANTITY'],
+          CreatedBy: 'admin',
+          UpdatedBy: 'admin',
+        },
+        update: {
+          Delimiter: '#',
+          Fields: ['PART_NUMBER', 'QUANTITY'],
+          UpdatedBy: 'admin',
+        },
+      });
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        mockLogProcess.ProcessId,
+        'SUCCESS',
+      );
     });
   });
 

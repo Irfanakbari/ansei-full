@@ -58,4 +58,14 @@ export class CreateMaterialDto {
   @Min(0)
   @IsOptional()
   maximumStock?: number;
+
+  @ApiPropertyOptional({
+    description: 'Record-only quantity per box',
+    example: 20,
+    default: 0,
+  })
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  qtyPerBox?: number;
 }
