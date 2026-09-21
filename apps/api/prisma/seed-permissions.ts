@@ -40,6 +40,10 @@ const allPermissions = [
   { Action: 'IPCS.MASTER_CREATE', Description: 'Create master data' },
   { Action: 'IPCS.MASTER_UPDATE', Description: 'Update master data' },
   { Action: 'IPCS.MASTER_DELETE', Description: 'Delete master data' },
+  {
+    Action: 'IPCS.SUPPLIER_BARCODE_FORMAT_READ',
+    Description: 'Read supplier barcode formats for receiving',
+  },
   { Action: 'IPCS.INCOMING_READ', Description: 'Read incoming material' },
   { Action: 'IPCS.INCOMING_CREATE', Description: 'Create incoming material' },
   { Action: 'IPCS.INCOMING_UPDATE', Description: 'Update incoming material' },

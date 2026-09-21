@@ -43,7 +43,7 @@ export class SupplierController {
   })
   @ApiResponse({ status: 404, description: 'Supplier tidak ditemukan' })
   @Get(':id/barcode-format')
-  @Permission('IPCS.MASTER_READ')
+  @Permission('IPCS.SUPPLIER_BARCODE_FORMAT_READ')
   async getBarcodeFormat(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() _user: ICurrentUser,

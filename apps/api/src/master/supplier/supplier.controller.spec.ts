@@ -4,6 +4,7 @@ import { SupplierController } from './supplier.controller';
 import { SupplierService } from './supplier.service';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
 import type { SupplierModel } from '../../generated/prisma/models';
+import { PERMISSIONS_KEY } from '../../auth/decorators/permission.decorator';
 
 describe('SupplierController', () => {
   let controller: SupplierController;
@@ -83,6 +84,15 @@ describe('SupplierController', () => {
   });
 
   describe('barcode format', () => {
+    it('should use the scoped barcode-format read permission', () => {
+      expect(
+        Reflect.getMetadata(
+          PERMISSIONS_KEY,
+          SupplierController.prototype.getBarcodeFormat,
+        ),
+      ).toEqual(['IPCS.SUPPLIER_BARCODE_FORMAT_READ']);
+    });
+
     it('should return the supplier barcode format', async () => {
       const format = {
         Id: 1,
