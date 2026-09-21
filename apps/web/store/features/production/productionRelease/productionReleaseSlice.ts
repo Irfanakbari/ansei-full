@@ -171,15 +171,18 @@ export const fetchProductionReleaseById = createAsyncThunk(
     }
 );
 
+export interface CreateProductionReleasePayload {
+    releaseNumber?: string;
+    planDate: string;
+    notes?: string;
+    forecastIds: string[];
+    isNoAttachment?: boolean;
+}
+
 // Create production release
-export const createProductionRelease = createAsyncThunk(
+export const createProductionRelease = createAsyncThunk<ProductionReleaseEntity, CreateProductionReleasePayload, { rejectValue: string }>(
     'productionRelease/create',
-    async (releaseData: {
-        releaseNumber: string;
-        planDate: string;
-        notes?: string;
-        forecastIds?: string[];
-    }, { rejectWithValue }) => {
+    async (releaseData, { rejectWithValue }) => {
         try {
             const response = await fetchWithAuth('/api/production/production-release', {
                 method: 'POST',

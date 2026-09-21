@@ -221,6 +221,56 @@ describe('ProductionReleaseService', () => {
       );
     });
 
+    it('should throw ConflictException on duplicate manual release number pre-check', async () => {
+      const createDto = {
+        releaseNumber: 'PR-MANUAL-DUP',
+        planDate: new Date('2026-06-10'),
+        forecastIds: ['PO-001'],
+      };
+
+      logService.startProcess.mockResolvedValue({ ProcessId: 'PR1' });
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        Id: 'rel-existing',
+      });
+
+      await expect(service.create(createDto, 'testuser')).rejects.toThrow(
+        ConflictException,
+      );
+      expect(prismaService.productionRelease.create).not.toHaveBeenCalled();
+      expect(logService.completeProcess).toHaveBeenCalledWith('PR1', 'FAILED');
+    });
+
+    it('should generate release number using plan date when omitted', async () => {
+      const createDto = {
+        planDate: new Date('2026-09-21'),
+        forecastIds: ['PO-001'],
+      } as any;
+
+      logService.startProcess.mockResolvedValue({ ProcessId: 'PR2' });
+      prismaService.productionRelease.findFirst.mockResolvedValue({
+        ReleaseNumber: 'PR-20260921-009',
+      });
+      prismaService.forecast.findMany.mockResolvedValue([
+        { PoId: 'PO-001', Qty: 10 },
+      ]);
+      prismaService.forecast.updateMany.mockResolvedValue({ count: 1 });
+      prismaService.productionRelease.create.mockResolvedValue({
+        Id: 'rel-gen',
+      });
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        ReleaseNumber: 'PR-20260921-010',
+      });
+
+      await service.create(createDto, 'testuser');
+
+      expect(prismaService.productionRelease.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          ReleaseNumber: 'PR-20260921-010',
+          TotalTargetQty: 10,
+        }),
+      });
+    });
+
     it('rolls back create semantics when forecast assignment changes', async () => {
       logService.startProcess.mockResolvedValue({ ProcessId: 'process-1' });
       prismaService.forecast.findMany.mockResolvedValue([

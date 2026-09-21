@@ -7,11 +7,23 @@ describe('SystemLogService', () => {
   const prisma = {
     logProcess: { count: jest.fn(), findMany: jest.fn() },
     inventoryLedger: { count: jest.fn(), findMany: jest.fn() },
+    mTCUserManagement: { findMany: jest.fn() },
     $queryRaw: jest.fn(),
   };
   const service = new SystemLogService(prisma as never);
 
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    prisma.mTCUserManagement.findMany.mockResolvedValue([
+      {
+        Id: 'user-record-id',
+        UserId: 'operator',
+        SsoObjectId: 'sso-id',
+        Email: 'operator@example.com',
+        Name: 'Production Operator',
+      },
+    ]);
+  });
 
   it('validates unified event type and pagination limits', async () => {
     const valid = Object.assign(new SystemLogEventsQueryDto(), {
@@ -93,7 +105,10 @@ describe('SystemLogService', () => {
       'ACTION',
       'PROCESS',
     ]);
-    expect(result.data[0]).toMatchObject({ recoverable: true });
+    expect(result.data[0]).toMatchObject({
+      actorName: 'Production Operator',
+      recoverable: true,
+    });
     expect(result.data[0]).not.toHaveProperty('errorCode');
   });
 

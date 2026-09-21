@@ -92,6 +92,7 @@ export class ActionAuditDto {
   @ApiProperty() SourceId: string;
   @ApiProperty() Action: string;
   @ApiProperty({ nullable: true, type: String }) Actor: string | null;
+  @ApiProperty() ActorName: string;
   @ApiProperty() ActorSource: string;
   @ApiProperty({ nullable: true, type: String }) RequestId: string | null;
   @ApiProperty({ nullable: true, type: String }) ProcessId: string | null;

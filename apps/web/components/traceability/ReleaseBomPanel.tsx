@@ -1,6 +1,6 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Alert, Select, Spin, Table, Tabs } from "antd";
 import { useDispatch } from "react-redux";
@@ -18,7 +18,18 @@ import type {
 import SnapshotTable from "./SnapshotTable";
 import MaterialUsageTable from "./MaterialUsageTable";
 import { usePhasePermission } from "./usePhasePermission";
-export default function ReleaseBomPanel({ releaseId }: { releaseId: string }) {
+
+interface ReleaseBomPanelProps {
+  releaseId: string;
+  attachments?: ReactNode;
+  attachmentsCount?: number;
+}
+
+export default function ReleaseBomPanel({
+  releaseId,
+  attachments,
+  attachmentsCount = 0,
+}: ReleaseBomPanelProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { can } = usePhasePermission();
   const canTrace = can("IPCS.TRACEABILITY_READ");
@@ -74,11 +85,11 @@ export default function ReleaseBomPanel({ releaseId }: { releaseId: string }) {
     };
   }, [dispatch, snapshot, canTrace]);
   return (
-    <div style={{ marginTop: 16 }}>
+    <div style={{ minWidth: 0 }}>
       {error && <Alert type="error" title={error} />}
       <Spin spinning={loading}>
         <Select
-          style={{ minWidth: 340, marginBottom: 12 }}
+          style={{ width: "100%", marginBottom: 12 }}
           value={selected || undefined}
           placeholder="PO / BOM snapshot"
           onChange={setSelected}
@@ -129,6 +140,15 @@ export default function ReleaseBomPanel({ releaseId }: { releaseId: string }) {
                         </Link>
                       </>
                     ),
+                  },
+                ]
+              : []),
+            ...(attachments
+              ? [
+                  {
+                    key: "attachments",
+                    label: `Attachments (${attachmentsCount})`,
+                    children: attachments,
                   },
                 ]
               : []),

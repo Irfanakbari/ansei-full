@@ -1,7 +1,5 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-18 */
 "use client";
-import Link from "next/link";
-import {usePhasePermission} from "@/components/traceability/usePhasePermission";
 import {useEffect, useState} from "react";
 import {
     Alert,
@@ -40,7 +38,6 @@ import {
 } from "@/store/features/production/assembly/assemblySlice";
 
 export default function AssemblyPage() {
-    const {can} = usePhasePermission();
     const dispatch = useDispatch<AppDispatch>();
     const {message} = App.useApp();
     const user = useSelector((state: RootState) => state.auth.user);
@@ -275,24 +272,6 @@ export default function AssemblyPage() {
                     />
                 )}
             </ToolbarWrapper>
-            {detailSession && (
-                <Space style={{margin: "8px 0"}}>
-                    {can("IPCS.MATERIAL_NG_CREATE") && (
-                        <Link
-                            href={`/apps/production/material-ng?poId=${encodeURIComponent(detailSession.LabelData.ForecastId)}&assemblySessionId=${detailSession.Id}`}
-                        >
-                            Report Material NG
-                        </Link>
-                    )}
-                    {can("IPCS.TRACEABILITY_READ") && (
-                        <Link
-                            href={`/apps/traceability?poId=${encodeURIComponent(detailSession.LabelData.ForecastId)}&label=${encodeURIComponent(detailSession.LabelData.LabelNumber)}`}
-                        >
-                            View Traceability
-                        </Link>
-                    )}
-                </Space>
-            )}
             {error && <Alert type="error" title={error} showIcon/>}
             <Table<AssemblySession>
                 rowKey="Id"

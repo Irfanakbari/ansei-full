@@ -13,6 +13,7 @@ export interface ActionAuditEvent {
     SourceId: string;
     Action: string;
     Actor: string | null;
+    ActorName: string;
     ActorSource: string;
     RequestId: string | null;
     ProcessId: string | null;
@@ -100,6 +101,7 @@ export interface SystemLogEvent {
     referenceId: string | null;
     status: string;
     actor: string | null;
+    actorName: string;
     processId: string | null;
     summary: string;
     recoverable: boolean;

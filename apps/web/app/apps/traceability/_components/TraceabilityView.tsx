@@ -158,16 +158,16 @@ export default function TraceabilityView() {
                             ),
                             render: (_, record) => (
                                 <Space size={4}>
-                                    <Link
-                                        href={`/apps/traceability?poId=${encodeURIComponent(record.PoId)}`}
-                                    >
-                                        {record.PoId}
-                                    </Link>
                                     <GoldenArrowAction
                                         ariaLabel={`Open traceability detail for PO ${record.PoId}`}
                                         tooltip="Open traceability detail"
                                         onClick={() => setModalPoId(record.PoId)}
                                     />
+                                    <Link
+                                        href={`/apps/traceability?poId=${encodeURIComponent(record.PoId)}`}
+                                    >
+                                        {record.PoId}
+                                    </Link>
                                 </Space>
                             ),
                         },

@@ -61,7 +61,7 @@ export default function ActionDetailModal({event, onClose}: ActionDetailModalPro
                             children: <Typography.Text copyable>{detail.Id}</Typography.Text>
                         },
                         {key: 'action', label: 'Action', children: detail.Action},
-                        {key: 'actor', label: 'Actor', children: detail.Actor || 'Unattributed'},
+                        {key: 'actor', label: 'Actor', children: detail.ActorName || 'Unattributed'},
                         {key: 'source', label: 'Attribution', children: detail.ActorSource},
                         {key: 'request', label: 'Request ID', children: detail.RequestId || 'Unavailable'},
                         {key: 'process', label: 'Process ID', children: detail.ProcessId || 'Unavailable'},

@@ -54,13 +54,46 @@ export class ProductionReleaseService {
     );
   }
 
+  private isReleaseNumberUniqueConstraintError(error: unknown): boolean {
+    if (!this.isUniqueConstraintError(error)) return false;
+    const target = (error as any).meta?.target;
+    return Array.isArray(target)
+      ? target.includes('ReleaseNumber')
+      : String(target).includes('ReleaseNumber');
+  }
+
   private releaseConflict(error: unknown): never {
+    if (this.isReleaseNumberUniqueConstraintError(error)) {
+      throw new ConflictException('Production release number already exists.');
+    }
     if (this.isUniqueConstraintError(error)) {
       throw new ConflictException(
         'Production release conflicts with current database state. Refresh and try again.',
       );
     }
     throw error;
+  }
+
+  private async generateReleaseNumber(
+    tx: Prisma.TransactionClient,
+    planDate: Date,
+  ): Promise<string> {
+    const year = planDate.getUTCFullYear();
+    const month = String(planDate.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(planDate.getUTCDate()).padStart(2, '0');
+    const prefix = `PR-${year}${month}${day}-`;
+
+    const latest = await tx.productionRelease.findFirst({
+      where: { ReleaseNumber: { startsWith: prefix } },
+      orderBy: { ReleaseNumber: 'desc' },
+      select: { ReleaseNumber: true },
+    });
+
+    const lastSequence = latest
+      ? Number.parseInt(latest.ReleaseNumber.slice(prefix.length), 10)
+      : 0;
+
+    return `${prefix}${String((Number.isNaN(lastSequence) ? 0 : lastSequence) + 1).padStart(3, '0')}`;
   }
 
   async findAll(query: ProductionReleaseQueryDto) {
@@ -802,6 +835,13 @@ export class ProductionReleaseService {
     let logProcess: LogProcessModel | undefined;
 
     try {
+      const manualReleaseNumber = dto.releaseNumber?.trim();
+      if (dto.releaseNumber !== undefined && !manualReleaseNumber) {
+        throw new BadRequestException(
+          'releaseNumber must not be blank when supplied',
+        );
+      }
+
       logProcess = await this.logService.startProcess({
         functionId: 'PROD_RELEASE_001',
         functionName: 'ProductionReleaseService.Create',
@@ -810,7 +850,9 @@ export class ProductionReleaseService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Creating production release: ${dto.releaseNumber}`,
+        message: manualReleaseNumber
+          ? `Creating production release with manual number: ${manualReleaseNumber}`
+          : 'Creating production release with an auto-generated number',
         type: 'INFO',
         location: 'production-release.service.ts:60',
       });
@@ -829,6 +871,23 @@ export class ProductionReleaseService {
             undefined,
             'Production Release',
           );
+
+          if (manualReleaseNumber) {
+            const existing = await tx.productionRelease.findUnique({
+              where: { ReleaseNumber: manualReleaseNumber },
+              select: { Id: true },
+            });
+            if (existing) {
+              throw new ConflictException(
+                `Production release number "${manualReleaseNumber}" already exists.`,
+              );
+            }
+          }
+
+          const releaseNumber =
+            manualReleaseNumber ??
+            (await this.generateReleaseNumber(tx, new Date(dto.planDate)));
+
           const forecasts = await tx.forecast.findMany({
             where: { PoId: { in: forecastIds }, ProductionReleaseId: null },
             select: { PoId: true, Qty: true },
@@ -840,7 +899,7 @@ export class ProductionReleaseService {
           }
           const created = await tx.productionRelease.create({
             data: {
-              ReleaseNumber: dto.releaseNumber,
+              ReleaseNumber: releaseNumber,
               PlanDate: new Date(dto.planDate),
               Notes: dto.notes,
               Status: ProductionStatus.DRAFT,

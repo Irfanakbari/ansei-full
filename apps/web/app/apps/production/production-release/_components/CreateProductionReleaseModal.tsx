@@ -6,7 +6,7 @@ import { Modal, Form, Input, App, DatePicker, Table, Tag } from 'antd';
 import type { InputRef, TablePaginationConfig } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { createProductionRelease } from '@/store/features/production/productionRelease/productionReleaseSlice';
+import { createProductionRelease, type CreateProductionReleasePayload } from '@/store/features/production/productionRelease/productionReleaseSlice';
 import { fetchForecast, ForecastEntity } from '@/store/features/production/forecast/forecastSlice';
 import { formatDate } from '@/lib/utils/dateTime';
 
@@ -96,8 +96,10 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
                 return;
             }
 
-            const payload = {
-                releaseNumber: values.releaseNumber,
+            const releaseNumber = typeof values.releaseNumber === 'string' ? values.releaseNumber.trim() : '';
+
+            const payload: CreateProductionReleasePayload = {
+                ...(releaseNumber ? { releaseNumber } : {}),
                 planDate: values.planDate.toDate().toISOString(),
                 forecastIds: selectedRowKeys.map(String),
                 notes: values.notes,
@@ -191,8 +193,8 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
             zIndex={1050}
         >
             <Form form={form} layout="vertical">
-                <Form.Item name="releaseNumber" label="Release Number" rules={[{ required: true, message: 'Please enter release number' }]}>
-                    <Input placeholder="REL-2024-001" />
+                <Form.Item name="releaseNumber" label="Release Number (Optional)">
+                    <Input placeholder="Auto-generated if blank (e.g. PR-20260921-001)" />
                 </Form.Item>
                 <Form.Item name="planDate" label="Plan Date" rules={[{ required: true, message: 'Please select plan date' }]}>
                     <DatePicker style={{ width: '100%' }} />

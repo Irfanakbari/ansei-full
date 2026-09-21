@@ -17,6 +17,8 @@ import {
     Button,
     Popconfirm,
     App,
+    Col,
+    Row,
 } from "antd";
 import {
     EyeOutlined,
@@ -249,12 +251,15 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
             onCancel={onClose}
             footer={footer}
             centered={true}
-            width={1300}
+            width="min(1700px, calc(100vw - 32px))"
             destroyOnHidden
             mask={{closable: !busy}}
             closable={!busy}
             zIndex={1050}
+            styles={{body: {maxHeight: "calc(100vh - 160px)", overflowY: "auto"}}}
         >
+            <Row gutter={[24, 16]}>
+                <Col xs={24} xl={11} style={{minWidth: 0}}>
             <Descriptions
                 bordered
                 size="small"
@@ -393,52 +398,47 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
                 </div>
             )}
 
-            {/* Two Column Layout: Forecasts and Attachments */}
-            <div style={{display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16}}>
-                {/* Left: Forecasts Table */}
-                <div style={{overflow: "hidden"}}>
-                    <Table
-                        title={() => (
-                            <strong key="forecasts-title">
-                                Forecasts ({data.Forecasts?.length || 0})
-                            </strong>
-                        )}
-                        columns={forecastColumns}
-                        dataSource={data.Forecasts || []}
-                        size="small"
-                        rowKey={(record) => record.PoId}
-                        pagination={false}
-                        scroll={{x: "max-content", y: 250}}
-                        className="small-table"
-                        style={{fontSize: "11px"}}
-                    />
-                </div>
-
-                {/* Right: Attachments Table */}
-                <div style={{overflow: "hidden"}}>
-                    <Table
-                        title={() => (
-                            <Space key="attachments-title">
-                                <PaperClipOutlined/>
-                                <strong>Attachments ({attachments.length || 0})</strong>
-                            </Space>
-                        )}
-                        columns={attachmentColumns}
-                        dataSource={attachments}
-                        size="small"
-                        rowKey={(record) => String(record.Id)}
-                        pagination={false}
-                        loading={attachmentLoading}
-                        scroll={{x: "max-content", y: 250}}
-                        className="small-table"
-                        style={{fontSize: "11px"}}
-                        locale={{emptyText: "No attachments yet"}}
-                    />
-                </div>
+            <div style={{overflow: "hidden"}}>
+                <Table
+                    title={() => (
+                        <strong key="forecasts-title">
+                            Forecasts ({data.Forecasts?.length || 0})
+                        </strong>
+                    )}
+                    columns={forecastColumns}
+                    dataSource={data.Forecasts || []}
+                    size="small"
+                    rowKey={(record) => record.PoId}
+                    pagination={false}
+                    scroll={{x: "max-content", y: 250}}
+                    className="small-table"
+                    style={{fontSize: "11px"}}
+                />
             </div>
-            <ReleaseBomPanel releaseId={data.Id}/>
+                </Col>
+                <Col xs={24} xl={13} style={{minWidth: 0}}>
+                    <ReleaseBomPanel
+                        releaseId={data.Id}
+                        attachmentsCount={attachments.length}
+                        attachments={(
+                            <Table
+                                columns={attachmentColumns}
+                                dataSource={attachments}
+                                size="small"
+                                rowKey={(record) => String(record.Id)}
+                                pagination={false}
+                                loading={attachmentLoading}
+                                scroll={{x: "max-content", y: 250}}
+                                className="small-table"
+                                style={{fontSize: "11px"}}
+                                locale={{emptyText: "No attachments yet"}}
+                            />
+                        )}
+                    />
+                </Col>
+            </Row>
             <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood}
-                                   onClose={() => setLinkedFinishGood(null)}/>
+                                    onClose={() => setLinkedFinishGood(null)}/>
         </Modal>
     );
 };

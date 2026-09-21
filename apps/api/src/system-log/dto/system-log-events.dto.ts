@@ -32,6 +32,7 @@ export class SystemLogEventDto {
   @ApiProperty({ nullable: true, type: String }) referenceId: string | null;
   @ApiProperty() status: string;
   @ApiProperty({ nullable: true, type: String }) actor: string | null;
+  @ApiProperty() actorName: string;
   @ApiProperty({ nullable: true, type: String }) processId: string | null;
   @ApiProperty() summary: string;
   @ApiProperty() recoverable: boolean;

@@ -116,10 +116,15 @@ export class SystemLogService {
         SELECT COUNT(*)::bigint AS total FROM (${events}) unified_events
       `,
     ]);
+    const displayNames = await getUserDisplayNameMap(
+      rows.map((row) => row.actor),
+      this.prisma,
+    );
     const totalItems = Number(countRows[0]?.total ?? 0);
     return {
       data: rows.map(({ errorCode, ...row }) => ({
         ...row,
+        actorName: getUserDisplayName(row.actor, displayNames),
         recoverable:
           row.type === 'INTEGRATION' &&
           row.status === 'FAILED' &&
@@ -158,8 +163,15 @@ export class SystemLogService {
       }),
       this.prisma.actionAuditEvent.count({ where }),
     ]);
+    const displayNames = await getUserDisplayNameMap(
+      data.map((item) => item.Actor),
+      this.prisma,
+    );
     return {
-      data,
+      data: data.map((item) => ({
+        ...item,
+        ActorName: getUserDisplayName(item.Actor, displayNames),
+      })),
       meta: {
         page: query.page,
         limit: query.limit,

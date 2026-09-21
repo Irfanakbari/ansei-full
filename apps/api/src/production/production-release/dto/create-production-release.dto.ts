@@ -10,10 +10,15 @@ import {
 
 export class CreateProductionReleaseDto {
   /** Nomor release produksi */
-  @ApiProperty({ description: 'Nomor release', example: 'PR-2026-001' })
+  @ApiPropertyOptional({
+    description:
+      'Nomor release manual. Jika dikosongkan, server akan men-generate nomor secara otomatis.',
+    example: 'PR-20260921-001',
+  })
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  releaseNumber: string;
+  releaseNumber?: string;
 
   /** Tanggal rencana produksi */
   @ApiProperty({

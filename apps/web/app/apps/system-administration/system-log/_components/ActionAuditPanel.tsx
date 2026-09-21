@@ -36,7 +36,7 @@ export default function ActionAuditPanel({ processId, sourceId }: { processId?: 
     { title: 'Action', dataIndex: 'Action', render: value => <Tag color={value === 'DENIED' || value === 'FAILED' ? 'error' : value === 'REPLAY' ? 'warning' : 'blue'}>{value}</Tag> },
     { title: 'Document', dataIndex: 'SourceType' },
     { title: 'Reference', dataIndex: 'SourceId', ellipsis: true },
-    { title: 'Actor', dataIndex: 'Actor', render: value => value || <Tag>Unattributed</Tag> },
+    { title: 'Actor', dataIndex: 'ActorName', render: value => value || <Tag>Unattributed</Tag> },
     { title: 'Action', key: 'detail', render: (_, row) => <Button size="small" type="link" onClick={() => setSelected(row)}>Detail</Button> },
   ];
   const fields = Array.from(new Set([...Object.keys(selected?.Before ?? {}), ...Object.keys(selected?.After ?? {})]));
@@ -58,7 +58,7 @@ export default function ActionAuditPanel({ processId, sourceId }: { processId?: 
         <Descriptions bordered size="small" column={2} items={[
           { key: 'id', label: 'Event ID', children: <Typography.Text copyable>{selected.Id}</Typography.Text> },
           { key: 'action', label: 'Action', children: selected.Action },
-          { key: 'actor', label: 'Actor', children: selected.Actor || 'Unattributed' },
+          { key: 'actor', label: 'Actor', children: selected.ActorName || 'Unattributed' },
           { key: 'source', label: 'Attribution', children: selected.ActorSource },
           { key: 'request', label: 'Request ID', children: selected.RequestId || 'Unavailable' },
           { key: 'process', label: 'Process ID', children: selected.ProcessId || 'Unavailable' },

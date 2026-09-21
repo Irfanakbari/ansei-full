@@ -145,7 +145,7 @@ export default function SystemLogPage() {
             render: value => <Tag
                 color={SUCCESS_VALUES.has(value) ? 'success' : ERROR_VALUES.has(value) ? 'error' : value === 'RUNNING' || value === 'PROCESSING' ? 'processing' : 'default'}>{value}</Tag>,
         },
-        {title: 'Actor', dataIndex: 'actor', ellipsis: true, render: value => value || <Tag>Unattributed</Tag>},
+        {title: 'Actor', dataIndex: 'actorName', ellipsis: true, render: value => value || <Tag>Unattributed</Tag>},
         {title: 'Result / Attention', dataIndex: 'summary', ellipsis: true, render: value => value || '—'},
         {
             title: 'Actions',
