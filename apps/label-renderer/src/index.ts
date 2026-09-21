@@ -1,6 +1,6 @@
-import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
-import { TDocumentDefinitions } from "pdfmake/interfaces";
+import * as pdfMake from "pdfmake/build/pdfmake.js";
+import * as pdfFonts from "pdfmake/build/vfs_fonts.js";
+import type { TDocumentDefinitions } from "pdfmake/interfaces";
 import { PDFDocument } from "pdf-lib";
 
 export interface PartTagPayload {
@@ -16,9 +16,14 @@ export interface PartTagPayload {
   receivingArea: string;
 }
 
-(pdfMake as any).vfs = (pdfFonts as any).pdfMake
-  ? (pdfFonts as any).pdfMake.vfs
-  : (pdfFonts as any).vfs;
+const pdfMakeInstance =
+  (pdfMake as unknown as { default?: typeof pdfMake }).default ?? pdfMake;
+const pdfFontInstance =
+  (pdfFonts as unknown as { default?: typeof pdfFonts }).default ?? pdfFonts;
+
+(pdfMakeInstance as any).vfs = (pdfFontInstance as any).pdfMake
+  ? (pdfFontInstance as any).pdfMake.vfs
+  : (pdfFontInstance as any).vfs;
 
 export class PartTagPdfRenderer {
   private getBuffer(pdfDoc: any): Promise<Buffer> {
@@ -81,7 +86,7 @@ export class PartTagPdfRenderer {
         },
       };
 
-      const pdfDoc = pdfMake.createPdf(dd);
+      const pdfDoc = pdfMakeInstance.createPdf(dd);
       const pdfBuffer = await this.getBuffer(pdfDoc);
       pdfBuffers.push(pdfBuffer);
     }
