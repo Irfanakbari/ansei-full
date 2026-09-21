@@ -53,6 +53,7 @@ describe('ForecastController', () => {
       remove: jest.fn(),
       importExcel: jest.fn(),
       printTag: jest.fn(),
+      downloadTag: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -213,6 +214,23 @@ describe('ForecastController', () => {
       expect(service.printTag).toHaveBeenCalledWith(
         'PO-001',
         mockUser.username,
+      );
+    });
+  });
+
+  describe('downloadTag', () => {
+    it('returns the PDF and sets download headers', async () => {
+      const pdf = Buffer.from('pdf');
+      const response = { setHeader: jest.fn() };
+      service.downloadTag.mockResolvedValue(pdf);
+
+      await expect(
+        controller.downloadTag('PO-001', response as any),
+      ).resolves.toBe(pdf);
+      expect(service.downloadTag).toHaveBeenCalledWith('PO-001');
+      expect(response.setHeader).toHaveBeenCalledWith(
+        'Content-Type',
+        'application/pdf',
       );
     });
   });

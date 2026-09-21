@@ -16,7 +16,9 @@ import {
   UseInterceptors,
   UploadedFile,
   Query,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ForecastService } from './forecast.service';
 import { CreateForecastDto, ForecastQueryDto, UpdateForecastDto } from './dto';
@@ -194,5 +196,28 @@ export class ForecastController {
   @Permission('IPCS.FORECAST_UPDATE')
   async printTag(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {
     return this.forecastService.printTag(id, user.username);
+  }
+
+  @ApiOperation({ summary: 'Download forecast part tag PDF' })
+  @ApiResponse({
+    status: 200,
+    description: 'Part tag PDF',
+    content: { 'application/pdf': {} },
+  })
+  @ApiResponse({ status: 400, description: 'Forecast has no label data' })
+  @ApiResponse({ status: 404, description: 'Forecast not found' })
+  @Get(':id/download-tag')
+  @Permission('IPCS.FORECAST_READ')
+  async downloadTag(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const pdf = await this.forecastService.downloadTag(id);
+    response.setHeader('Content-Type', 'application/pdf');
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename="forecast-label-${encodeURIComponent(id)}.pdf"`,
+    );
+    return pdf;
   }
 }

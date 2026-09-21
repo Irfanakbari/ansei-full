@@ -168,6 +168,48 @@ describe('ForecastService', () => {
     });
   });
 
+  describe('forecast labels', () => {
+    const forecast = {
+      Id: 1,
+      PoId: 'PO-001',
+      Qty: 10,
+      VendorCode: 'V001',
+      Classification: 'A',
+      DeliveryDate: new Date('2026-09-21'),
+      PoNumber: 'PO123',
+      ReceivingArea: 'Area 1',
+      LabelData: [{ Id: 1 }],
+      PartData: {
+        PartNumber: 'FG-001',
+        PartName: 'Part',
+        BoxQTY: { Qty: 5 },
+      },
+    };
+
+    it('rejects printing before enqueueing when label data is unavailable', async () => {
+      prismaService.forecast.findUnique.mockResolvedValue({
+        ...forecast,
+        LabelData: [],
+      });
+
+      await expect(service.printTag('PO-001', 'admin')).rejects.toThrow(
+        'No label data is available for this forecast',
+      );
+      expect(printerService.printPartTagAnsei).not.toHaveBeenCalled();
+    });
+
+    it('rejects downloading when label data is unavailable', async () => {
+      prismaService.forecast.findUnique.mockResolvedValue({
+        ...forecast,
+        LabelData: [],
+      });
+
+      await expect(service.downloadTag('PO-001')).rejects.toThrow(
+        'No label data is available for this forecast',
+      );
+    });
+  });
+
   describe('create', () => {
     it('should create a forecast', async () => {
       const createDto = {

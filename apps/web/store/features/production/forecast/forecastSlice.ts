@@ -4,6 +4,7 @@ import {
     del,
     get,
     getApiErrorMessage,
+    downloadFile,
     patch,
     post,
     postFormData,
@@ -192,6 +193,20 @@ export const printForecastTag = createAsyncThunk(
             }>, undefined>(`/production/forecast/${id}/print-tag`, undefined)).data;
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to print tag'));
+        }
+    }
+);
+
+export const downloadForecastLabel = createAsyncThunk<void, string, {rejectValue: string}>(
+    'forecast/downloadLabel',
+    async (id, {rejectWithValue}) => {
+        try {
+            await downloadFile(
+                `/production/forecast/${encodeURIComponent(id)}/download-tag`,
+                `forecast-label-${id}.pdf`
+            );
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to download label'));
         }
     }
 );

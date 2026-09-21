@@ -1,6 +1,6 @@
 {
   "name": "@ansei/api",
-  "version": "5.5.1",
+  "version": "5.6.0",
   "description": "",
   "author": "",
   "private": true,
@@ -26,6 +26,7 @@
     "db:setup": "createdb ansei 2>/dev/null || true && prisma migrate deploy"
   },
   "dependencies": {
+    "@ansei/label-renderer": "workspace:*",
     "@matbee/libreoffice-converter": "^2.7.1",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.1",

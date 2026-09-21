@@ -29,6 +29,10 @@ import {
   buildProductionLabels,
   lockProductionFlow,
 } from '../../common/helpers/production-flow.helper';
+import { PartTagPdfRenderer, type PartTagPayload } from '@ansei/label-renderer';
+
+const NO_LABEL_DATA_MESSAGE =
+  'No label data is available for this forecast. Generate label data before printing or downloading.';
 
 interface ForecastExcelRow {
   [columnPosition: number]: string | number | Date | undefined;
@@ -36,6 +40,8 @@ interface ForecastExcelRow {
 
 @Injectable()
 export class ForecastService {
+  private readonly labelRenderer = new PartTagPdfRenderer();
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
@@ -101,6 +107,7 @@ export class ForecastService {
       this.prisma.forecast.findMany({
         where,
         include: {
+          LabelData: { select: { Id: true }, take: 1 },
           PartData: {
             select: {
               PartNumber: true,
@@ -242,6 +249,7 @@ export class ForecastService {
       const forecast = await this.prisma.forecast.findUnique({
         where: { PoId: id },
         include: {
+          LabelData: { select: { Id: true }, take: 1 },
           PartData: {
             include: {
               BoxQTY: true,
@@ -252,6 +260,10 @@ export class ForecastService {
 
       if (!forecast) {
         throw new NotFoundException(`Forecast with PoId ${id} not found`);
+      }
+
+      if (forecast.LabelData.length === 0) {
+        throw new BadRequestException(NO_LABEL_DATA_MESSAGE);
       }
 
       const qtyPerbox = forecast.PartData?.BoxQTY?.Qty ?? forecast.Qty;
@@ -309,6 +321,37 @@ export class ForecastService {
       }
       throw error;
     }
+  }
+
+  async downloadTag(id: string): Promise<Buffer> {
+    const forecast = await this.prisma.forecast.findUnique({
+      where: { PoId: id },
+      include: {
+        LabelData: { select: { Id: true }, take: 1 },
+        PartData: { include: { BoxQTY: true } },
+      },
+    });
+
+    if (!forecast) {
+      throw new NotFoundException(`Forecast with PoId ${id} not found`);
+    }
+    if (forecast.LabelData.length === 0) {
+      throw new BadRequestException(NO_LABEL_DATA_MESSAGE);
+    }
+
+    const payload: PartTagPayload = {
+      poId: forecast.PoId,
+      qtyOrder: forecast.Qty,
+      partNumber: forecast.PartData?.PartNumber ?? '',
+      partName: forecast.PartData?.PartName ?? '',
+      vendorCode: forecast.VendorCode,
+      classificationCode: forecast.Classification,
+      deliveryDate: forecast.DeliveryDate,
+      qtyPerbox: forecast.PartData?.BoxQTY?.Qty ?? forecast.Qty,
+      poNumber: forecast.PoNumber,
+      receivingArea: forecast.ReceivingArea,
+    };
+    return this.labelRenderer.generatePartTagPdf(payload);
   }
 
   async update(id: string, dto: UpdateForecastDto, updatedBy: string) {

@@ -49,9 +49,9 @@ export default function DeliveryPage() {
 
   const handleOpenCreateModal = () => {
     // Fetch preDelivery data for the label dropdown
-    dispatch(fetchPreDelivery({ page: 1, limit: 1000 }));
+    dispatch(fetchPreDelivery({ page: 1, limit: 500, scanned: true }));
     // Also fetch fresh delivery data to get updated list of delivered labels
-    dispatch(fetchDelivery({ ...filters, page: 1, limit: 1000 }));
+    dispatch(fetchDelivery({ ...filters, page: 1, limit: 500 }));
     setIsCreateModalVisible(true);
   };
 

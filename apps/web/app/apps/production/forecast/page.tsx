@@ -6,7 +6,7 @@ import {Table, Card, Breadcrumb, App, Input, Button, DatePicker, Space, Tag, Too
 import type {InputRef, TableProps} from 'antd';
 import type {FilterDropdownProps} from 'antd/es/table/interface';
 import dayjs, {type Dayjs} from 'dayjs';
-import {ReloadOutlined, SearchOutlined, PlusOutlined, UploadOutlined, PrinterOutlined} from '@ant-design/icons';
+import {ReloadOutlined, SearchOutlined, PlusOutlined, UploadOutlined, PrinterOutlined, DownloadOutlined} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import {useDispatch, useSelector} from 'react-redux';
@@ -14,6 +14,7 @@ import {AppDispatch, RootState} from '@/store';
 import {
     ForecastEntity,
     fetchForecast,
+    downloadForecastLabel,
     printForecastTag,
     setForecastQuery
 } from '@/store/features/production/forecast/forecastSlice';
@@ -42,6 +43,7 @@ export default function ForecastPage() {
     const [linkedFinishGood, setLinkedFinishGood] = useState<ForecastEntity['PartData'] | null>(null);
     const [modalData, setModalData] = useState<ForecastEntity | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const printInFlight = useRef(false);
     const [sortedInfo, setSortedInfo] = useState<any>({});
 
@@ -72,6 +74,19 @@ export default function ForecastPage() {
                 printInFlight.current = false;
                 setIsPrinting(false);
             }
+        }
+    };
+
+    const handleDownloadLabel = async () => {
+        if (!selectedRecord) return;
+        try {
+            setIsDownloading(true);
+            await dispatch(downloadForecastLabel(selectedRecord.PoId)).unwrap();
+            message.success('Label downloaded successfully');
+        } catch (error: unknown) {
+            message.error(typeof error === 'string' ? error : 'Failed to download label');
+        } finally {
+            setIsDownloading(false);
         }
     };
 
@@ -247,8 +262,10 @@ export default function ForecastPage() {
                 <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>} onClick={() => dispatch(fetchForecast(query))}/>
                 <ButtonToolbar title="Create" icon={<PlusOutlined/>} onClick={() => setIsCreateModalVisible(true)}/>
                 <ButtonToolbar title="Import" icon={<UploadOutlined/>} onClick={() => setIsImportModalVisible(true)}/>
-                <ButtonToolbar title="Print" icon={<PrinterOutlined/>} onClick={handlePrintTag} loading={isPrinting}
+                <ButtonToolbar title="Print Label" icon={<PrinterOutlined/>} onClick={handlePrintTag} loading={isPrinting}
                                enable={Boolean(selectedRecord)}/>
+                <ButtonToolbar title="Download Label" icon={<DownloadOutlined/>} onClick={handleDownloadLabel}
+                               loading={isDownloading} enable={Boolean(selectedRecord)}/>
             </ToolbarWrapper>
 
             <Table
