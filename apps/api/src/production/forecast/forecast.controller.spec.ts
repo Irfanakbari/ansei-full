@@ -1,3 +1,4 @@
+import { StreamableFile } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ForecastController } from './forecast.controller';
 import { ForecastService } from './forecast.service';
@@ -224,13 +225,22 @@ describe('ForecastController', () => {
       const response = { setHeader: jest.fn() };
       service.downloadTag.mockResolvedValue(pdf);
 
-      await expect(
-        controller.downloadTag('PO-001', response as any),
-      ).resolves.toBe(pdf);
+      const result = await controller.downloadTag('PO-001', response as any);
+
+      expect(result).toBeInstanceOf(StreamableFile);
+      const chunks: Buffer[] = [];
+      for await (const chunk of result.getStream()) {
+        chunks.push(Buffer.from(chunk));
+      }
+      expect(Buffer.concat(chunks)).toEqual(pdf);
       expect(service.downloadTag).toHaveBeenCalledWith('PO-001');
       expect(response.setHeader).toHaveBeenCalledWith(
         'Content-Type',
         'application/pdf',
+      );
+      expect(response.setHeader).toHaveBeenCalledWith(
+        'Content-Length',
+        pdf.length,
       );
     });
   });

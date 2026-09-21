@@ -17,6 +17,7 @@ import {
   UploadedFile,
   Query,
   Res,
+  StreamableFile,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -218,6 +219,7 @@ export class ForecastController {
       'Content-Disposition',
       `attachment; filename="forecast-label-${encodeURIComponent(id)}.pdf"`,
     );
-    return pdf;
+    response.setHeader('Content-Length', pdf.length);
+    return new StreamableFile(pdf);
   }
 }
