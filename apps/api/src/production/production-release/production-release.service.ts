@@ -237,6 +237,12 @@ export class ProductionReleaseService {
         ProductionReleaseId: true,
         Scanned: true,
         QtyThisBox: true,
+        RequiresAssembly: true,
+        AssemblySessions: {
+          where: { Status: 'COMPLETED' },
+          select: { Id: true },
+          take: 1,
+        },
       },
     });
 
@@ -318,34 +324,75 @@ export class ProductionReleaseService {
       // Progress Pokayoke: based on LabelData.Scanned (labels that have been scanned)
       const scannedLabels = pokayokeScannedMap.get(release.Id) || 0;
 
+      const releaseLabels = allLabelData.filter(
+        (label) => label.ProductionReleaseId === release.Id,
+      );
+      const assemblyLabels = releaseLabels.filter(
+        (label) => label.RequiresAssembly === true,
+      );
+      const assembledLabels = assemblyLabels.filter(
+        (label) => label.AssemblySessions.length > 0,
+      ).length;
+      const shoppingPercentage =
+        totalMaterialNeeded > 0
+          ? Math.min(
+              100,
+              Math.round((totalShoppingQty / totalMaterialNeeded) * 100),
+            )
+          : 0;
+      const deliveryPercentage =
+        totalLabels > 0
+          ? Math.min(100, Math.round((deliveredLabels / totalLabels) * 100))
+          : 0;
+      const pokayokePercentage =
+        totalLabels > 0
+          ? Math.min(100, Math.round((scannedLabels / totalLabels) * 100))
+          : 0;
+      const assemblyPercentage =
+        assemblyLabels.length > 0
+          ? Math.round((assembledLabels / assemblyLabels.length) * 100)
+          : 0;
+      const stagePercentages = [
+        shoppingPercentage,
+        pokayokePercentage,
+        deliveryPercentage,
+        ...(assemblyLabels.length > 0 ? [assemblyPercentage] : []),
+      ];
+      const overallPercentage = Math.round(
+        stagePercentages.reduce((sum, percentage) => sum + percentage, 0) /
+          stagePercentages.length,
+      );
+
       return {
         ...release,
         TotalGoodQty: totalGoodQty,
         progressShopping: {
           totalPicked: totalShoppingQty,
           totalTarget: totalMaterialNeeded,
-          percentage:
-            totalMaterialNeeded > 0
-              ? Math.round((totalShoppingQty / totalMaterialNeeded) * 100)
-              : 0,
+          percentage: shoppingPercentage,
         },
         progressDelivery: {
           total: totalLabels,
           scanned: deliveredLabels,
           pending: totalLabels - deliveredLabels,
-          percentage:
-            totalLabels > 0
-              ? Math.round((deliveredLabels / totalLabels) * 100)
-              : 0,
+          percentage: deliveryPercentage,
         },
         progressPokayoke: {
           total: totalLabels,
           scanned: scannedLabels,
           pending: totalLabels - scannedLabels,
-          percentage:
-            totalLabels > 0
-              ? Math.round((scannedLabels / totalLabels) * 100)
-              : 0,
+          percentage: pokayokePercentage,
+        },
+        progressAssembly: {
+          required: assemblyLabels.length > 0,
+          total: assemblyLabels.length,
+          completed: assembledLabels,
+          pending: assemblyLabels.length - assembledLabels,
+          percentage: assemblyPercentage,
+        },
+        progressOverall: {
+          percentage: overallPercentage,
+          stageCount: stagePercentages.length,
         },
       };
     });

@@ -41,6 +41,19 @@ export interface ProgressPokayoke {
     percentage: number;
 }
 
+export interface ProgressAssembly {
+    required: boolean;
+    total: number;
+    completed: number;
+    pending: number;
+    percentage: number;
+}
+
+export interface ProgressOverall {
+    percentage: number;
+    stageCount: number;
+}
+
 // Attachment interface (from Prisma deliveryAttachment)
 export interface ProductionAttachment {
     Id: number;
@@ -83,6 +96,8 @@ export interface ProductionReleaseEntity {
     progressShopping?: ProgressShopping;
     progressDelivery?: ProgressDelivery;
     progressPokayoke?: ProgressPokayoke;
+    progressAssembly?: ProgressAssembly;
+    progressOverall?: ProgressOverall;
 }
 
 // Production release state

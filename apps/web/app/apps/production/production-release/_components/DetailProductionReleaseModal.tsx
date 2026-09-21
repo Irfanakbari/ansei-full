@@ -310,7 +310,8 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
             {/* Progress Section */}
             {(data.progressShopping ||
                 data.progressDelivery ||
-                data.progressPokayoke) && (
+                data.progressPokayoke ||
+                data.progressAssembly?.required) && (
                 <div style={{marginBottom: 16}}>
                     <Title level={5} style={{marginBottom: 8}}>
                         Progress
@@ -318,7 +319,7 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
                     <div
                         style={{
                             display: "grid",
-                            gridTemplateColumns: "1fr 1fr 1fr",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
                             gap: 16,
                         }}
                     >
@@ -343,6 +344,26 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
                                         / Target:{" "}
                                         <strong>{data.progressShopping.totalTarget}</strong>
                                     </div>
+                                </div>
+                            </div>
+                        )}
+                        {data.progressAssembly?.required && (
+                            <div
+                                key="progress-assembly"
+                                style={{background: "#f5f5f5", padding: 12, borderRadius: 8}}
+                            >
+                                <Text strong>Assembly Progress</Text>
+                                <Progress
+                                    percent={data.progressAssembly.percentage}
+                                    status={data.progressAssembly.percentage === 100 ? "success" : "active"}
+                                    style={{marginTop: 8}}
+                                />
+                                <div style={{marginTop: 8, fontSize: 11}}>
+                                    <div>
+                                        Completed: <strong>{data.progressAssembly.completed}</strong> /
+                                        Total: <strong>{data.progressAssembly.total}</strong>
+                                    </div>
+                                    <div>Pending: {data.progressAssembly.pending}</div>
                                 </div>
                             </div>
                         )}

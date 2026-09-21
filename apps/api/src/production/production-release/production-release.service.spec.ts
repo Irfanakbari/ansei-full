@@ -152,6 +152,107 @@ describe('ProductionReleaseService', () => {
       });
       expect(prismaService.productionRelease.findMany).toHaveBeenCalled();
     });
+
+    it('aggregates actual stages and includes assembly only when required', async () => {
+      prismaService.productionRelease.findMany.mockResolvedValue([
+        {
+          Id: 'rel-1',
+          Status: 'RELEASED',
+          Forecasts: [
+            {
+              PoId: 'PO-001',
+              FinishGoodId: 'FG-001',
+              Qty: 1,
+              Shopping: [{ QtyPick: 3 }],
+            },
+          ],
+          _count: { LabelDatas: 3, Forecasts: 1, Attachments: 0 },
+        },
+      ]);
+      prismaService.productionRelease.count.mockResolvedValue(1);
+      prismaService.billOfMaterials.findMany.mockResolvedValue([]);
+      prismaService.finishGood.findMany.mockResolvedValue([]);
+      prismaService.labelData.findMany.mockResolvedValue([
+        {
+          Id: 1,
+          LabelNumber: 'L1',
+          ProductionReleaseId: 'rel-1',
+          Scanned: true,
+          QtyThisBox: 1,
+          RequiresAssembly: true,
+          AssemblySessions: [{ Id: 'A1' }],
+        },
+        {
+          Id: 2,
+          LabelNumber: 'L2',
+          ProductionReleaseId: 'rel-1',
+          Scanned: false,
+          QtyThisBox: 1,
+          RequiresAssembly: true,
+          AssemblySessions: [],
+        },
+        {
+          Id: 3,
+          LabelNumber: 'L3',
+          ProductionReleaseId: 'rel-1',
+          Scanned: false,
+          QtyThisBox: 1,
+          RequiresAssembly: false,
+          AssemblySessions: [],
+        },
+      ]);
+      prismaService.deliveryHistory.findMany.mockResolvedValue([]);
+
+      const result = await service.findAll({ page: 1, limit: 50 });
+
+      expect(result.data[0].progressAssembly).toEqual({
+        required: true,
+        total: 2,
+        completed: 1,
+        pending: 1,
+        percentage: 50,
+      });
+      expect(result.data[0].progressOverall).toEqual({
+        percentage: 21,
+        stageCount: 4,
+      });
+    });
+
+    it('preserves three-stage progress when assembly is not required', async () => {
+      prismaService.productionRelease.findMany.mockResolvedValue([
+        {
+          Id: 'rel-1',
+          Status: 'RELEASED',
+          Forecasts: [],
+          _count: { LabelDatas: 1, Forecasts: 0, Attachments: 0 },
+        },
+      ]);
+      prismaService.productionRelease.count.mockResolvedValue(1);
+      prismaService.billOfMaterials.findMany.mockResolvedValue([]);
+      prismaService.finishGood.findMany.mockResolvedValue([]);
+      prismaService.labelData.findMany.mockResolvedValue([
+        {
+          Id: 1,
+          LabelNumber: 'L1',
+          ProductionReleaseId: 'rel-1',
+          Scanned: true,
+          QtyThisBox: 1,
+          RequiresAssembly: false,
+          AssemblySessions: [],
+        },
+      ]);
+      prismaService.deliveryHistory.findMany.mockResolvedValue([
+        { LabelDataId: 'L1' },
+      ]);
+
+      const result = await service.findAll({ page: 1, limit: 50 });
+
+      expect(result.data[0].progressAssembly.required).toBe(false);
+      expect(result.data[0].progressOverall).toEqual({
+        percentage: 67,
+        stageCount: 3,
+      });
+    });
   });
 
   describe('findOne', () => {

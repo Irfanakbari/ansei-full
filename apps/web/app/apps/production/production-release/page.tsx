@@ -148,12 +148,11 @@ export default function ProductionReleasePage() {
                     <Tag color={STATUS_COLORS[record.Status] || 'default'} style={{marginBottom: 4}}>
                         {record.Status}
                     </Tag>
-                    {/* Only show progress bar if status is RELEASED */}
-                    {record.Status === 'RELEASED' && record.progressShopping && (
+                    {record.Status === 'RELEASED' && record.progressOverall && (
                         <Progress
-                            percent={record.progressShopping.percentage}
+                            percent={record.progressOverall.percentage}
                             size="small"
-                            status={record.progressShopping.percentage === 100 ? 'success' : 'active'}
+                            status={record.progressOverall.percentage === 100 ? 'success' : 'active'}
                         />
                     )}
                 </div>

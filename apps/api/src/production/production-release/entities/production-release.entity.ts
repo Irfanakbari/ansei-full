@@ -40,6 +40,31 @@ export class PokayokeProgressEntity {
   percentage: number;
 }
 
+export class AssemblyProgressEntity {
+  @ApiProperty({ example: true })
+  required: boolean;
+
+  @ApiProperty({ example: 3 })
+  total: number;
+
+  @ApiProperty({ example: 1 })
+  completed: number;
+
+  @ApiProperty({ example: 2 })
+  pending: number;
+
+  @ApiProperty({ example: 33 })
+  percentage: number;
+}
+
+export class OverallProgressEntity {
+  @ApiProperty({ example: 58 })
+  percentage: number;
+
+  @ApiProperty({ example: 4 })
+  stageCount: number;
+}
+
 export class ForecastItemEntity {
   @ApiProperty({ example: 'PO-2026-001' })
   PoId: string;
@@ -111,6 +136,12 @@ export class ProductionReleaseEntity {
 
   @ApiProperty({ type: () => PokayokeProgressEntity })
   progressPokayoke: PokayokeProgressEntity;
+
+  @ApiProperty({ type: () => AssemblyProgressEntity })
+  progressAssembly: AssemblyProgressEntity;
+
+  @ApiProperty({ type: () => OverallProgressEntity })
+  progressOverall: OverallProgressEntity;
 
   @ApiPropertyOptional({ type: () => ForecastItemEntity, isArray: true })
   Forecasts?: ForecastItemEntity[];

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect } from "react";
 
-const APP_VERSION = "5.6.0";
+const APP_VERSION = "5.6.1";
 
 export default function LoginPage() {
   useEffect(() => {
