@@ -22,7 +22,7 @@ import {
   MaterialNgReportQueryDto,
   InventoryLedgerReportQueryDto,
   ProductionEfficiencyReportQueryDto,
-  PodayokeFalloffReportQueryDto,
+  PokayokeFalloffReportQueryDto,
   MaterialScrapRateReportQueryDto,
 } from './dto';
 import { Permission } from '../auth/decorators/permission.decorator';

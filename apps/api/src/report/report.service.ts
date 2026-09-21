@@ -1302,7 +1302,7 @@ export class ReportService {
     aggregations.forEach((agg, index) => {
       const qty = agg._sum.Qty || 0;
       const ng = agg._sum.NgQty || 0;
-      const good = qty - ndg;
+      const good = qty - ng;
       const stop = agg._sum.StopMinute || 0;
       const ngRate = qty > 0 ? ((ng / qty) * 100).toFixed(2) : '0.00';
 
@@ -1380,7 +1380,7 @@ export class ReportService {
     if (fromdate || todate) {
       whereClause.CreatedAt = {};
       if (fromdate) {
-        const from = this.parseDateDDMMYYYY(aromdate);
+        const from = this.parseDateDDMMYYYY(fromdate);
         from.setHours(0, 0, 0, 0);
         whereClause.CreatedAt.gte = from;
       }
