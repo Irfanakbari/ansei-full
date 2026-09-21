@@ -10,6 +10,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/web/package.json apps/web/package.json
 COPY apps/api/package.json apps/api/package.json
 COPY apps/printer/package.json apps/printer/package.json
+COPY apps/label-renderer/package.json apps/label-renderer/package.json
 COPY vendor vendor
 RUN pnpm install --frozen-lockfile
 
@@ -33,13 +34,15 @@ WORKDIR /workspace/apps/web
 RUN pnpm run build
 
 WORKDIR /workspace
-RUN mkdir -p /api-runtime/apps/api /api-runtime/apps/printer /api-runtime/vendor \
+RUN mkdir -p /api-runtime/apps/api /api-runtime/apps/printer /api-runtime/apps/label-renderer /api-runtime/vendor \
     && cp package.json pnpm-lock.yaml pnpm-workspace.yaml /api-runtime/ \
     && cp apps/api/package.json /api-runtime/apps/api/package.json \
     && cp apps/printer/package.json /api-runtime/apps/printer/package.json \
+    && cp apps/label-renderer/package.json /api-runtime/apps/label-renderer/package.json \
+    && cp -r apps/label-renderer/src /api-runtime/apps/label-renderer/src \
     && cp vendor/* /api-runtime/vendor/ \
     && cd /api-runtime \
-    && pnpm install --prod --frozen-lockfile --filter @ansei/api --filter @ansei/printer
+    && pnpm install --prod --frozen-lockfile --filter @ansei/api... --filter @ansei/printer...
 
 FROM node:22-bookworm-slim AS runtime
 
@@ -64,6 +67,7 @@ RUN apt-get update \
 COPY --from=build --chown=node:node /api-runtime/node_modules ./node_modules
 COPY --from=build --chown=node:node /api-runtime/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build --chown=node:node /api-runtime/apps/printer/node_modules ./apps/printer/node_modules
+COPY --from=build --chown=node:node /api-runtime/apps/label-renderer ./apps/label-renderer
 COPY --from=build --chown=node:node /workspace/apps/api/package.json ./apps/api/package.json
 COPY --from=build --chown=node:node /workspace/apps/api/dist ./apps/api/dist
 COPY --from=build --chown=node:node /workspace/apps/api/prisma ./apps/api/prisma
