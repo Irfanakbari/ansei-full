@@ -1,6 +1,15 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-11 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { del, get, getApiErrorMessage, patch, post, postBlob } from '@/store/utils/apiService';
+import {
+    del,
+    downloadFile,
+    get,
+    getApiErrorMessage,
+    patch,
+    post,
+    postBlob,
+    postFormData,
+} from '@/store/utils/apiService';
 
 // Entity interfaces - API returns PascalCase fields
 export interface InventoryCountingDetailEntity {
@@ -44,6 +53,64 @@ export interface InventoryCountingEntity {
     _count?: {
         Details: number;
     };
+}
+
+export interface InventoryCountingAttachment {
+    Id: number;
+    FileName: string;
+    FileSize: number;
+    MimeType: string;
+    CreatedAt: string;
+    CreatedBy: string;
+}
+
+export interface OcrPreviewItem {
+    partNumber: string;
+    location: 'RACK' | 'WAREHOUSE' | 'FINISH_GOOD_AREA';
+    actualQty: number;
+    detailId: number | null;
+    matchedPartNumber: string | null;
+    status: 'MATCHED' | 'SUGGESTED' | 'DUPLICATE' | 'NOT_FOUND';
+}
+
+export interface OcrPreviewResponse {
+    attachment: InventoryCountingAttachment | null;
+    items: OcrPreviewItem[];
+}
+
+function normalizeInventoryCountingAttachments(
+    value: unknown,
+): InventoryCountingAttachment[] {
+    if (Array.isArray(value)) return value as InventoryCountingAttachment[];
+    if (
+        value &&
+        typeof value === 'object' &&
+        Array.isArray((value as { data?: unknown }).data)
+    ) {
+        return (value as { data: InventoryCountingAttachment[] }).data;
+    }
+    return [];
+}
+
+function normalizeOcrPreview(value: unknown): OcrPreviewResponse {
+    const candidate = value && typeof value === 'object'
+        && 'data' in value
+        && (value as { data?: unknown }).data
+        && typeof (value as { data?: unknown }).data === 'object'
+        ? (value as { data: unknown }).data
+        : value;
+    if (
+        candidate &&
+        typeof candidate === 'object' &&
+        Array.isArray((candidate as { items?: unknown }).items)
+    ) {
+        const preview = candidate as OcrPreviewResponse;
+        return {
+            attachment: preview.attachment ?? null,
+            items: preview.items,
+        };
+    }
+    throw new Error('OCR preview response is invalid.');
 }
 
 // Response interfaces
@@ -297,6 +364,126 @@ export const updateActualStock = createAsyncThunk<
             return rejectWithValue(getApiErrorMessage(error, 'Failed to update actual stock'));
         }
     }
+);
+
+export const fetchInventoryCountingAttachments = createAsyncThunk<
+    InventoryCountingAttachment[],
+    string,
+    { rejectValue: string }
+>(
+    'inventoryCounting/fetchAttachments',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await get<unknown>(`/inventory-counting/${id}/attachments`);
+            return normalizeInventoryCountingAttachments(response);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch inventory counting attachments'));
+        }
+    },
+);
+
+export const uploadInventoryCountingAttachments = createAsyncThunk<
+    InventoryCountingAttachment[],
+    { id: string; files: File[] },
+    { rejectValue: string }
+>(
+    'inventoryCounting/uploadAttachments',
+    async ({ id, files }, { rejectWithValue }) => {
+        try {
+            const formData = new FormData();
+            files.forEach((file) => formData.append('files', file));
+            const response = await postFormData<unknown>(
+                `/inventory-counting/${id}/attachments`,
+                formData,
+            );
+            return normalizeInventoryCountingAttachments(response);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to upload inventory counting attachments'));
+        }
+    },
+);
+
+export const previewInventoryCountingOcr = createAsyncThunk<
+    OcrPreviewResponse,
+    { id: string; file: File },
+    { rejectValue: string }
+>(
+    'inventoryCounting/previewOcr',
+    async ({ id, file }, { rejectWithValue }) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await postFormData<unknown>(
+                `/inventory-counting/${id}/ocr/preview`,
+                formData,
+                { timeout: 120000 },
+            );
+            return normalizeOcrPreview(response);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to read the inventory counting PDF'));
+        }
+    },
+);
+
+export const applyInventoryCountingOcr = createAsyncThunk<
+    { success: boolean; updatedCount: number },
+    {
+        id: string;
+        results: Array<{
+            detailId: number;
+            partNumber: string;
+            location: OcrPreviewItem['location'];
+            actualQty: number;
+        }>;
+    },
+    { rejectValue: string }
+>(
+    'inventoryCounting/applyOcr',
+    async ({ id, results }, { rejectWithValue }) => {
+        try {
+            return await post<{ success: boolean; updatedCount: number }>(
+                `/inventory-counting/${id}/ocr/apply`,
+                { results },
+            );
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to apply OCR results'));
+        }
+    },
+);
+
+export const downloadInventoryCountingAttachment = createAsyncThunk<
+    void,
+    { id: string; attachment: InventoryCountingAttachment },
+    { rejectValue: string }
+>(
+    'inventoryCounting/downloadAttachment',
+    async ({ id, attachment }, { rejectWithValue }) => {
+        try {
+            await downloadFile(
+                `/inventory-counting/${id}/attachments/${attachment.Id}/download`,
+                attachment.FileName,
+            );
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to download inventory counting attachment'));
+        }
+    },
+);
+
+export const deleteInventoryCountingAttachment = createAsyncThunk<
+    { deleted: boolean; id: number },
+    { id: string; attachmentId: number },
+    { rejectValue: string }
+>(
+    'inventoryCounting/deleteAttachment',
+    async ({ id, attachmentId }, { rejectWithValue }) => {
+        try {
+            return await del<{ deleted: boolean; id: number }>(
+                `/inventory-counting/${id}/attachments/${attachmentId}`,
+            );
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to delete inventory counting attachment'));
+        }
+    },
 );
 
 // Close inventory counting

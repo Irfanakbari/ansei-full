@@ -1,8 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InventoryCountingService } from './inventory-counting.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
+import { NasUploadService } from '../common/utils/nas-upload.service';
 import { ItemCategory, OpnameStatus } from '../generated/prisma/enums';
 
 describe('InventoryCountingService', () => {
@@ -40,6 +45,12 @@ describe('InventoryCountingService', () => {
         update: jest.fn(),
         createMany: jest.fn(),
       },
+      stockOpnameAttachment: {
+        findFirst: jest.fn(),
+        findMany: jest.fn(),
+        create: jest.fn(),
+        delete: jest.fn(),
+      },
       material: {
         findMany: jest.fn(),
         findUnique: jest.fn(),
@@ -60,11 +71,18 @@ describe('InventoryCountingService', () => {
       resetCounter: jest.fn(),
     };
 
+    const mockNasUploadService = {
+      uploadFile: jest.fn(),
+      downloadFile: jest.fn(),
+      deleteFile: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InventoryCountingService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: LogProcessService, useValue: mockLogProcessService },
+        { provide: NasUploadService, useValue: mockNasUploadService },
       ],
     }).compile();
 
@@ -507,6 +525,262 @@ describe('InventoryCountingService', () => {
         service.updateActualStock('123', 1, { actualQty: 100 }, 'test'),
       ).rejects.toThrow(NotFoundException);
       expect(prismaService.stockOpnameDetail.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('audit attachments', () => {
+    it('should return audit attachments for an existing inventory counting', async () => {
+      prismaService.stockOpname.findUnique.mockResolvedValue({ Id: '123' });
+      prismaService.stockOpnameAttachment.findMany.mockResolvedValue([
+        {
+          Id: 7,
+          OriginalFileName: 'sto-rack.pdf',
+          FileSize: 2048,
+          MimeType: 'application/pdf',
+          CreatedAt: new Date('2026-09-22T00:00:00.000Z'),
+          CreatedBy: 'test',
+        },
+      ]);
+
+      const result = await service.getAttachments('123');
+
+      expect(result).toEqual([
+        expect.objectContaining({ Id: 7, FileName: 'sto-rack.pdf' }),
+      ]);
+      expect(prismaService.stockOpnameAttachment.findMany).toHaveBeenCalledWith(
+        {
+          where: { OpnameId: '123' },
+          orderBy: { CreatedAt: 'desc' },
+        },
+      );
+    });
+  });
+
+  describe('OCR file validation', () => {
+    it('should suggest a unique STO part number for a one-character OCR typo', () => {
+      const items = service['buildOcrPreviewItems'](
+        [
+          {
+            partNumber: 'DNM-MAT-001',
+            location: 'RACK',
+            actualQty: 12,
+          },
+        ],
+        [
+          {
+            Id: 11,
+            Location: 'RACK',
+            MaterialId: 'DM-MAT-001',
+            FinishGoodId: null,
+          },
+        ],
+      );
+
+      expect(items).toEqual([
+        {
+          partNumber: 'DNM-MAT-001',
+          location: 'RACK',
+          actualQty: 12,
+          detailId: 11,
+          matchedPartNumber: 'DM-MAT-001',
+          status: 'SUGGESTED',
+        },
+      ]);
+    });
+
+    it('should not suggest a fuzzy match when two STO parts are equally close', () => {
+      const items = service['buildOcrPreviewItems'](
+        [
+          {
+            partNumber: 'DM-MAT-001',
+            location: 'RACK',
+            actualQty: 12,
+          },
+        ],
+        [
+          {
+            Id: 11,
+            Location: 'RACK',
+            MaterialId: 'DN-MAT-001',
+            FinishGoodId: null,
+          },
+          {
+            Id: 12,
+            Location: 'RACK',
+            MaterialId: 'DX-MAT-001',
+            FinishGoodId: null,
+          },
+        ],
+      );
+
+      expect(items[0]).toMatchObject({
+        detailId: null,
+        matchedPartNumber: null,
+        status: 'NOT_FOUND',
+      });
+    });
+
+    it('should reject a PDF larger than 5MB', () => {
+      const buffer = Buffer.alloc(5 * 1024 * 1024 + 1);
+      buffer.write('%PDF-1.7');
+      const file = {
+        originalname: 'worksheet.pdf',
+        mimetype: 'application/pdf',
+        buffer,
+        size: buffer.length,
+      } as Express.Multer.File;
+
+      expect(() => service['validateOcrFile'](file)).toThrow(
+        'PDF too large. Maximum size is 5MB.',
+      );
+    });
+
+    it('should omit unsupported input-file detail and surface a safe provider rejection', async () => {
+      const previousApiKey = process.env.OPENAI_API_KEY;
+      process.env.OPENAI_API_KEY = 'test-key';
+      const fetchSpy = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValue(
+          new Response(
+            JSON.stringify({ error: { code: 'invalid_request_error' } }),
+            { status: 400 },
+          ),
+        );
+      const file = {
+        originalname: 'worksheet.pdf',
+        mimetype: 'application/pdf',
+        buffer: Buffer.from('%PDF-1.7'),
+        size: 8,
+      } as Express.Multer.File;
+
+      try {
+        await expect(service['extractOcrItems'](file)).rejects.toThrow(
+          BadGatewayException,
+        );
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
+        const request = JSON.parse(
+          fetchSpy.mock.calls[0][1]?.body as string,
+        ) as {
+          input: Array<{ content: Array<Record<string, unknown>> }>;
+        };
+        const inputFile = request.input[0].content[0];
+        expect(inputFile).not.toHaveProperty('detail');
+        expect(inputFile.file_data).toBe(
+          `data:application/pdf;base64,${file.buffer.toString('base64')}`,
+        );
+      } finally {
+        fetchSpy.mockRestore();
+        if (previousApiKey === undefined) {
+          delete process.env.OPENAI_API_KEY;
+        } else {
+          process.env.OPENAI_API_KEY = previousApiKey;
+        }
+      }
+    });
+
+    it('should read structured OCR JSON from the Responses REST output content', async () => {
+      const previousApiKey = process.env.OPENAI_API_KEY;
+      process.env.OPENAI_API_KEY = 'test-key';
+      const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            output: [
+              {
+                content: [
+                  {
+                    type: 'output_text',
+                    text: JSON.stringify({
+                      items: [
+                        {
+                          partNumber: 'MAT-001',
+                          location: 'RACK',
+                          actualQty: 12,
+                        },
+                      ],
+                    }),
+                  },
+                ],
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+      );
+      const file = {
+        originalname: 'worksheet.pdf',
+        mimetype: 'application/pdf',
+        buffer: Buffer.from('%PDF-1.7'),
+        size: 8,
+      } as Express.Multer.File;
+
+      try {
+        await expect(
+          service['extractOcrItems'](file, [
+            { partNumber: 'DM-MAT-001', location: 'RACK' },
+          ]),
+        ).resolves.toEqual([
+          { partNumber: 'MAT-001', location: 'RACK', actualQty: 12 },
+        ]);
+        const request = JSON.parse(
+          fetchSpy.mock.calls[0][1]?.body as string,
+        ) as {
+          input: Array<{ content: Array<{ text?: string }> }>;
+        };
+        expect(request.input[0].content[1].text).toContain('RACK: DM-MAT-001');
+      } finally {
+        fetchSpy.mockRestore();
+        if (previousApiKey === undefined) {
+          delete process.env.OPENAI_API_KEY;
+        } else {
+          process.env.OPENAI_API_KEY = previousApiKey;
+        }
+      }
+    });
+  });
+
+  describe('applyOcrResults', () => {
+    it('should apply a validated RACK result to both rack actual fields', async () => {
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        Status: OpnameStatus.IN_PROGRESS,
+        Details: [
+          {
+            Id: 5,
+            MaterialId: 'MAT-001',
+            FinishGoodId: null,
+            Location: 'RACK',
+            SystemQty: 100,
+            SystemQtyRack: 100,
+          },
+        ],
+      });
+      prismaService.stockOpnameDetail.update.mockResolvedValue({ Id: 5 });
+
+      const result = await service.applyOcrResults(
+        '123',
+        {
+          results: [
+            {
+              detailId: 5,
+              partNumber: 'MAT-001',
+              location: 'RACK',
+              actualQty: 95,
+            },
+          ],
+        },
+        'test',
+      );
+
+      expect(result).toEqual({ success: true, updatedCount: 1 });
+      expect(prismaService.stockOpnameDetail.update).toHaveBeenCalledWith({
+        where: { Id: 5 },
+        data: {
+          ActualQty: 95,
+          ActualQtyRack: 95,
+          DiffQty: -5,
+          DiffQtyRack: -5,
+        },
+      });
     });
   });
 

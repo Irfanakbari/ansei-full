@@ -33,6 +33,12 @@ describe('InventoryCountingController', () => {
       start: jest.fn(),
       generateCutOff: jest.fn(),
       updateActualStock: jest.fn(),
+      uploadAttachments: jest.fn(),
+      getAttachments: jest.fn(),
+      downloadAttachment: jest.fn(),
+      deleteAttachment: jest.fn(),
+      previewOcr: jest.fn(),
+      applyOcrResults: jest.fn(),
       close: jest.fn(),
       generateFinalReport: jest.fn(),
     };
@@ -320,6 +326,29 @@ describe('InventoryCountingController', () => {
         '123',
         1,
         mockDto,
+        mockUser.username,
+      );
+    });
+  });
+
+  describe('OCR preview', () => {
+    it('should request an OCR preview and save the source document by default', async () => {
+      const file = { originalname: 'sto.pdf' } as Express.Multer.File;
+      const mockResult = { attachment: null, items: [] };
+      service.previewOcr.mockResolvedValue(mockResult);
+
+      const result = await controller.previewOcr(
+        '123',
+        file,
+        undefined,
+        mockUser,
+      );
+
+      expect(result).toEqual(mockResult);
+      expect(service.previewOcr).toHaveBeenCalledWith(
+        '123',
+        file,
+        true,
         mockUser.username,
       );
     });

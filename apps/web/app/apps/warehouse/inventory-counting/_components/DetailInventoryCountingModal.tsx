@@ -3,6 +3,7 @@
 
 import React, {useState, useEffect, useMemo} from 'react';
 import {
+    Alert,
     Modal,
     Table,
     Tag,
@@ -16,8 +17,11 @@ import {
     Col,
     App,
     Select,
-    InputNumber
+    InputNumber,
+    Tooltip,
+    Upload,
 } from 'antd';
+import type {UploadProps} from 'antd';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@/store';
 import {
@@ -26,10 +30,13 @@ import {
     generateTemporaryReport,
     generateFinalReport,
     deleteInventoryCounting,
+    applyInventoryCountingOcr,
     InventoryCountingEntity,
     InventoryCountingDetailEntity,
+    OcrPreviewItem,
+    previewInventoryCountingOcr,
 } from '@/store/features/warehouse/inventoryCounting/inventoryCountingSlice';
-import {SaveOutlined, CheckCircleOutlined, DownloadOutlined, SearchOutlined, DeleteOutlined} from '@ant-design/icons';
+import {SaveOutlined, CheckCircleOutlined, DownloadOutlined, SearchOutlined, DeleteOutlined, ScanOutlined} from '@ant-design/icons';
 import ReviewApprovalModal from './ReviewApprovalModal';
 
 export interface MergedCountingDetail extends InventoryCountingDetailEntity {
@@ -52,6 +59,12 @@ const STATUS_COLORS: Record<string, string> = {
     CANCELLED: 'error',
 };
 
+const MAX_OCR_FILE_SIZE = 5 * 1024 * 1024;
+
+function isPdf(file: File): boolean {
+    return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+}
+
 const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, onRefresh, onDeleted}) => {
     const {message: antMessage, modal} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
@@ -67,6 +80,9 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
 
     const [loading, setLoading] = useState(false);
     const [isReviewModalVisible, setIsReviewModalVisible] = useState(false);
+    const [detailRefreshNonce, setDetailRefreshNonce] = useState(0);
+    const [ocrProcessing, setOcrProcessing] = useState(false);
+    const [ocrApplying, setOcrApplying] = useState(false);
 
     // Tolerance state
     const [downloadingTemp, setDownloadingTemp] = useState(false);
@@ -172,7 +188,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
             };
             loadDetails();
         }
-    }, [visible, data?.Id, data?.Category, dispatch, antMessage]);
+    }, [visible, data?.Id, data?.Category, detailRefreshNonce, dispatch, antMessage]);
 
     // Get unique locations for dropdown
     const locations = useMemo(() => {
@@ -303,6 +319,127 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
         } finally {
             setDownloadingFinal(false);
         }
+    };
+
+    const handleOcrPreview = async (file: File) => {
+        if (data.Status !== 'IN_PROGRESS') {
+            antMessage.warning('Start inventory counting before processing an OCR worksheet.');
+            return;
+        }
+
+        try {
+            setOcrProcessing(true);
+            const result = await dispatch(previewInventoryCountingOcr({
+                id: data.Id,
+                file,
+            })).unwrap();
+            const readableItems = result.items.filter((item) => item.partNumber.trim().length > 0);
+            const applicableItems = readableItems.filter(
+                (item) =>
+                    (item.status === 'MATCHED' || item.status === 'SUGGESTED') &&
+                    item.detailId !== null &&
+                    item.matchedPartNumber !== null,
+            );
+            const hasUnvalidatedItems = applicableItems.length !== readableItems.length;
+            const hasSuggestedItems = applicableItems.some(
+                (item) => item.status === 'SUGGESTED',
+            );
+
+            if (readableItems.length === 0) {
+                antMessage.warning('No readable part number was found in the PDF.');
+                return;
+            }
+
+            modal.confirm({
+                title: 'Verify OCR Results',
+                centered: true,
+                zIndex: 1100,
+                width: 820,
+                okText: 'Overwrite STO Values',
+                cancelText: 'Cancel',
+                okButtonProps: {
+                    disabled: hasUnvalidatedItems || applicableItems.length === 0,
+                },
+                content: (
+                    <Space orientation="vertical" style={{width: '100%'}} size="middle">
+                        <Alert
+                            type={hasUnvalidatedItems || hasSuggestedItems ? 'warning' : 'info'}
+                            showIcon
+                            title={hasUnvalidatedItems
+                                ? 'Some rows could not be validated'
+                                : hasSuggestedItems
+                                    ? 'Suggested STO part matches need confirmation'
+                                    : 'Review the values before applying'}
+                            description={hasUnvalidatedItems
+                                ? 'Correct unmatched or duplicate rows manually in the STO details. Only a fully validated OCR result can overwrite STO values.'
+                                : hasSuggestedItems
+                                    ? 'The OCR reading differs slightly from a unique STO part number. Confirm the suggested part before overwriting Actual Qty.'
+                                    : 'Confirm to overwrite Actual Qty only. Stock is not changed until the normal approval and close process.'}
+                        />
+                        <Table<OcrPreviewItem>
+                            rowKey={(item) => `${item.partNumber}-${item.location}-${item.detailId ?? 'unmatched'}-${item.actualQty}`}
+                            columns={[
+                                {title: 'OCR Read', dataIndex: 'partNumber'},
+                                {
+                                    title: 'STO Part',
+                                    dataIndex: 'matchedPartNumber',
+                                    render: (value: string | null) => value ?? '-',
+                                },
+                                {title: 'Location', dataIndex: 'location', width: 150, render: (value: string) => <Tag>{value}</Tag>},
+                                {title: 'Actual Qty', dataIndex: 'actualQty', width: 120, align: 'right'},
+                                {
+                                    title: 'Validation',
+                                    dataIndex: 'status',
+                                    width: 130,
+                                    render: (value: OcrPreviewItem['status']) => (
+                                        <Tag color={value === 'MATCHED' ? 'success' : value === 'SUGGESTED' ? 'warning' : 'error'}>{value.replace('_', ' ')}</Tag>
+                                    ),
+                                },
+                            ]}
+                            dataSource={readableItems}
+                            pagination={{pageSize: 8, size: 'small'}}
+                            size="small"
+                            scroll={{y: 260}}
+                        />
+                    </Space>
+                ),
+                onOk: async () => {
+                    try {
+                        setOcrApplying(true);
+                        await dispatch(applyInventoryCountingOcr({
+                            id: data.Id,
+                            results: applicableItems.map((item) => ({
+                                detailId: item.detailId as number,
+                                partNumber: item.matchedPartNumber as string,
+                                location: item.location,
+                                actualQty: item.actualQty,
+                            })),
+                        })).unwrap();
+                        antMessage.success(`${applicableItems.length} OCR value(s) applied to STO.`);
+                        setDetailRefreshNonce((value) => value + 1);
+                        onRefresh?.();
+                    } catch (error: unknown) {
+                        antMessage.error(error instanceof Error ? error.message : 'Failed to apply OCR values.');
+                        throw error;
+                    } finally {
+                        setOcrApplying(false);
+                    }
+                },
+            });
+        } catch (error: unknown) {
+            antMessage.error(error instanceof Error ? error.message : 'Failed to process the OCR worksheet.');
+        } finally {
+            setOcrProcessing(false);
+        }
+    };
+
+    const handleOcrFile: UploadProps['beforeUpload'] = (file) => {
+        if (!isPdf(file) || file.size > MAX_OCR_FILE_SIZE) {
+            antMessage.error('Select a PDF worksheet no larger than 5MB.');
+            return Upload.LIST_IGNORE;
+        }
+        void handleOcrPreview(file);
+        return Upload.LIST_IGNORE;
     };
 
     const columns = useMemo(() => {
@@ -529,6 +666,26 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
                         >
                             Temporary Report
                         </Button>
+                        {canUpdate && (
+                            <Tooltip title={data?.Status !== 'IN_PROGRESS' ? 'Start inventory counting before using OCR.' : undefined}>
+                                <span>
+                                    <Upload
+                                        accept="application/pdf,.pdf"
+                                        beforeUpload={handleOcrFile}
+                                        showUploadList={false}
+                                        disabled={data?.Status !== 'IN_PROGRESS' || ocrProcessing || ocrApplying}
+                                    >
+                                        <Button
+                                            icon={<ScanOutlined/>}
+                                            loading={ocrProcessing || ocrApplying}
+                                            disabled={data?.Status !== 'IN_PROGRESS' || ocrProcessing || ocrApplying}
+                                        >
+                                            OCR
+                                        </Button>
+                                    </Upload>
+                                </span>
+                            </Tooltip>
+                        )}
                         {data?.Status === 'COMPLETED' && (
                             <Button
                                 type="primary"

@@ -265,6 +265,7 @@ export type StockOpnameWhereInput = {
   CompletedBy?: Prisma.StringNullableFilter<"StockOpname"> | string | null
   Notes?: Prisma.StringNullableFilter<"StockOpname"> | string | null
   Details?: Prisma.StockOpnameDetailListRelationFilter
+  Attachments?: Prisma.StockOpnameAttachmentListRelationFilter
 }
 
 export type StockOpnameOrderByWithRelationInput = {
@@ -280,6 +281,7 @@ export type StockOpnameOrderByWithRelationInput = {
   CompletedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   Notes?: Prisma.SortOrderInput | Prisma.SortOrder
   Details?: Prisma.StockOpnameDetailOrderByRelationAggregateInput
+  Attachments?: Prisma.StockOpnameAttachmentOrderByRelationAggregateInput
 }
 
 export type StockOpnameWhereUniqueInput = Prisma.AtLeast<{
@@ -298,6 +300,7 @@ export type StockOpnameWhereUniqueInput = Prisma.AtLeast<{
   CompletedBy?: Prisma.StringNullableFilter<"StockOpname"> | string | null
   Notes?: Prisma.StringNullableFilter<"StockOpname"> | string | null
   Details?: Prisma.StockOpnameDetailListRelationFilter
+  Attachments?: Prisma.StockOpnameAttachmentListRelationFilter
 }, "Id" | "OpnameNumber">
 
 export type StockOpnameOrderByWithAggregationInput = {
@@ -349,6 +352,7 @@ export type StockOpnameCreateInput = {
   CompletedBy?: string | null
   Notes?: string | null
   Details?: Prisma.StockOpnameDetailCreateNestedManyWithoutOpnameDataInput
+  Attachments?: Prisma.StockOpnameAttachmentCreateNestedManyWithoutOpnameInput
 }
 
 export type StockOpnameUncheckedCreateInput = {
@@ -364,6 +368,7 @@ export type StockOpnameUncheckedCreateInput = {
   CompletedBy?: string | null
   Notes?: string | null
   Details?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutOpnameDataInput
+  Attachments?: Prisma.StockOpnameAttachmentUncheckedCreateNestedManyWithoutOpnameInput
 }
 
 export type StockOpnameUpdateInput = {
@@ -379,6 +384,7 @@ export type StockOpnameUpdateInput = {
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Details?: Prisma.StockOpnameDetailUpdateManyWithoutOpnameDataNestedInput
+  Attachments?: Prisma.StockOpnameAttachmentUpdateManyWithoutOpnameNestedInput
 }
 
 export type StockOpnameUncheckedUpdateInput = {
@@ -394,6 +400,7 @@ export type StockOpnameUncheckedUpdateInput = {
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Details?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutOpnameDataNestedInput
+  Attachments?: Prisma.StockOpnameAttachmentUncheckedUpdateManyWithoutOpnameNestedInput
 }
 
 export type StockOpnameCreateManyInput = {
@@ -511,6 +518,20 @@ export type StockOpnameUpdateOneRequiredWithoutDetailsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.StockOpnameUpdateToOneWithWhereWithoutDetailsInput, Prisma.StockOpnameUpdateWithoutDetailsInput>, Prisma.StockOpnameUncheckedUpdateWithoutDetailsInput>
 }
 
+export type StockOpnameCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.StockOpnameCreateWithoutAttachmentsInput, Prisma.StockOpnameUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.StockOpnameCreateOrConnectWithoutAttachmentsInput
+  connect?: Prisma.StockOpnameWhereUniqueInput
+}
+
+export type StockOpnameUpdateOneRequiredWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.StockOpnameCreateWithoutAttachmentsInput, Prisma.StockOpnameUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.StockOpnameCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.StockOpnameUpsertWithoutAttachmentsInput
+  connect?: Prisma.StockOpnameWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StockOpnameUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.StockOpnameUpdateWithoutAttachmentsInput>, Prisma.StockOpnameUncheckedUpdateWithoutAttachmentsInput>
+}
+
 export type StockOpnameCreateWithoutDetailsInput = {
   Id?: string
   OpnameNumber: string
@@ -523,6 +544,7 @@ export type StockOpnameCreateWithoutDetailsInput = {
   CompletedAt?: Date | string | null
   CompletedBy?: string | null
   Notes?: string | null
+  Attachments?: Prisma.StockOpnameAttachmentCreateNestedManyWithoutOpnameInput
 }
 
 export type StockOpnameUncheckedCreateWithoutDetailsInput = {
@@ -537,6 +559,7 @@ export type StockOpnameUncheckedCreateWithoutDetailsInput = {
   CompletedAt?: Date | string | null
   CompletedBy?: string | null
   Notes?: string | null
+  Attachments?: Prisma.StockOpnameAttachmentUncheckedCreateNestedManyWithoutOpnameInput
 }
 
 export type StockOpnameCreateOrConnectWithoutDetailsInput = {
@@ -567,6 +590,7 @@ export type StockOpnameUpdateWithoutDetailsInput = {
   CompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Attachments?: Prisma.StockOpnameAttachmentUpdateManyWithoutOpnameNestedInput
 }
 
 export type StockOpnameUncheckedUpdateWithoutDetailsInput = {
@@ -581,6 +605,83 @@ export type StockOpnameUncheckedUpdateWithoutDetailsInput = {
   CompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Attachments?: Prisma.StockOpnameAttachmentUncheckedUpdateManyWithoutOpnameNestedInput
+}
+
+export type StockOpnameCreateWithoutAttachmentsInput = {
+  Id?: string
+  OpnameNumber: string
+  Category: $Enums.ItemCategory
+  Status?: $Enums.OpnameStatus
+  Tolerance?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  StartedAt?: Date | string | null
+  CompletedAt?: Date | string | null
+  CompletedBy?: string | null
+  Notes?: string | null
+  Details?: Prisma.StockOpnameDetailCreateNestedManyWithoutOpnameDataInput
+}
+
+export type StockOpnameUncheckedCreateWithoutAttachmentsInput = {
+  Id?: string
+  OpnameNumber: string
+  Category: $Enums.ItemCategory
+  Status?: $Enums.OpnameStatus
+  Tolerance?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  StartedAt?: Date | string | null
+  CompletedAt?: Date | string | null
+  CompletedBy?: string | null
+  Notes?: string | null
+  Details?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutOpnameDataInput
+}
+
+export type StockOpnameCreateOrConnectWithoutAttachmentsInput = {
+  where: Prisma.StockOpnameWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockOpnameCreateWithoutAttachmentsInput, Prisma.StockOpnameUncheckedCreateWithoutAttachmentsInput>
+}
+
+export type StockOpnameUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.StockOpnameUpdateWithoutAttachmentsInput, Prisma.StockOpnameUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.StockOpnameCreateWithoutAttachmentsInput, Prisma.StockOpnameUncheckedCreateWithoutAttachmentsInput>
+  where?: Prisma.StockOpnameWhereInput
+}
+
+export type StockOpnameUpdateToOneWithWhereWithoutAttachmentsInput = {
+  where?: Prisma.StockOpnameWhereInput
+  data: Prisma.XOR<Prisma.StockOpnameUpdateWithoutAttachmentsInput, Prisma.StockOpnameUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type StockOpnameUpdateWithoutAttachmentsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
+  Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
+  Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  StartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Details?: Prisma.StockOpnameDetailUpdateManyWithoutOpnameDataNestedInput
+}
+
+export type StockOpnameUncheckedUpdateWithoutAttachmentsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
+  Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
+  Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  StartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Details?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutOpnameDataNestedInput
 }
 
 
@@ -590,10 +691,12 @@ export type StockOpnameUncheckedUpdateWithoutDetailsInput = {
 
 export type StockOpnameCountOutputType = {
   Details: number
+  Attachments: number
 }
 
 export type StockOpnameCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Details?: boolean | StockOpnameCountOutputTypeCountDetailsArgs
+  Attachments?: boolean | StockOpnameCountOutputTypeCountAttachmentsArgs
 }
 
 /**
@@ -613,6 +716,13 @@ export type StockOpnameCountOutputTypeCountDetailsArgs<ExtArgs extends runtime.T
   where?: Prisma.StockOpnameDetailWhereInput
 }
 
+/**
+ * StockOpnameCountOutputType without action
+ */
+export type StockOpnameCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockOpnameAttachmentWhereInput
+}
+
 
 export type StockOpnameSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
@@ -627,6 +737,7 @@ export type StockOpnameSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   CompletedBy?: boolean
   Notes?: boolean
   Details?: boolean | Prisma.StockOpname$DetailsArgs<ExtArgs>
+  Attachments?: boolean | Prisma.StockOpname$AttachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.StockOpnameCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["stockOpname"]>
 
@@ -675,6 +786,7 @@ export type StockOpnameSelectScalar = {
 export type StockOpnameOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "OpnameNumber" | "Category" | "Status" | "Tolerance" | "CreatedAt" | "CreatedBy" | "StartedAt" | "CompletedAt" | "CompletedBy" | "Notes", ExtArgs["result"]["stockOpname"]>
 export type StockOpnameInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Details?: boolean | Prisma.StockOpname$DetailsArgs<ExtArgs>
+  Attachments?: boolean | Prisma.StockOpname$AttachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.StockOpnameCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type StockOpnameIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -684,6 +796,7 @@ export type $StockOpnamePayload<ExtArgs extends runtime.Types.Extensions.Interna
   name: "StockOpname"
   objects: {
     Details: Prisma.$StockOpnameDetailPayload<ExtArgs>[]
+    Attachments: Prisma.$StockOpnameAttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: string
@@ -1092,6 +1205,7 @@ readonly fields: StockOpnameFieldRefs;
 export interface Prisma__StockOpnameClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   Details<T extends Prisma.StockOpname$DetailsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockOpname$DetailsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockOpnameDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Attachments<T extends Prisma.StockOpname$AttachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockOpname$AttachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockOpnameAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1546,6 +1660,30 @@ export type StockOpname$DetailsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.StockOpnameDetailScalarFieldEnum | Prisma.StockOpnameDetailScalarFieldEnum[]
+}
+
+/**
+ * StockOpname.Attachments
+ */
+export type StockOpname$AttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockOpnameAttachment
+   */
+  select?: Prisma.StockOpnameAttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockOpnameAttachment
+   */
+  omit?: Prisma.StockOpnameAttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockOpnameAttachmentInclude<ExtArgs> | null
+  where?: Prisma.StockOpnameAttachmentWhereInput
+  orderBy?: Prisma.StockOpnameAttachmentOrderByWithRelationInput | Prisma.StockOpnameAttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.StockOpnameAttachmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StockOpnameAttachmentScalarFieldEnum | Prisma.StockOpnameAttachmentScalarFieldEnum[]
 }
 
 /**

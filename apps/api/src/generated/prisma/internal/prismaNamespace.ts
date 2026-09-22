@@ -409,6 +409,7 @@ export const ModelName = {
   InventoryLedger: 'InventoryLedger',
   StockOpname: 'StockOpname',
   StockOpnameDetail: 'StockOpnameDetail',
+  StockOpnameAttachment: 'StockOpnameAttachment',
   Incoming: 'Incoming',
   IncomingMaterial: 'IncomingMaterial',
   MaterialNG: 'MaterialNG',
@@ -462,7 +463,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "satuan" | "supplier" | "supplierBarcodeFormat" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingCompletion" | "outboxEvent" | "productionReport" | "labelData" | "assemblySession" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "actionAuditEvent" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig" | "bomRevision" | "bomRevisionLine" | "bomRevisionEvent" | "productionBomSnapshot" | "productionBomSnapshotLine" | "materialNgCase" | "businessCommand" | "productionTraceEvent"
+    modelProps: "satuan" | "supplier" | "supplierBarcodeFormat" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "stockOpnameAttachment" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingCompletion" | "outboxEvent" | "productionReport" | "labelData" | "assemblySession" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "actionAuditEvent" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig" | "bomRevision" | "bomRevisionLine" | "bomRevisionEvent" | "productionBomSnapshot" | "productionBomSnapshotLine" | "materialNgCase" | "businessCommand" | "productionTraceEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1351,6 +1352,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.StockOpnameDetailCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.StockOpnameDetailCountAggregateOutputType> | number
+        }
+      }
+    }
+    StockOpnameAttachment: {
+      payload: Prisma.$StockOpnameAttachmentPayload<ExtArgs>
+      fields: Prisma.StockOpnameAttachmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StockOpnameAttachmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StockOpnameAttachmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload>
+        }
+        findFirst: {
+          args: Prisma.StockOpnameAttachmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StockOpnameAttachmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload>
+        }
+        findMany: {
+          args: Prisma.StockOpnameAttachmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload>[]
+        }
+        create: {
+          args: Prisma.StockOpnameAttachmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload>
+        }
+        createMany: {
+          args: Prisma.StockOpnameAttachmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StockOpnameAttachmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload>[]
+        }
+        delete: {
+          args: Prisma.StockOpnameAttachmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload>
+        }
+        update: {
+          args: Prisma.StockOpnameAttachmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.StockOpnameAttachmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StockOpnameAttachmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StockOpnameAttachmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.StockOpnameAttachmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StockOpnameAttachmentPayload>
+        }
+        aggregate: {
+          args: Prisma.StockOpnameAttachmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStockOpnameAttachment>
+        }
+        groupBy: {
+          args: Prisma.StockOpnameAttachmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StockOpnameAttachmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StockOpnameAttachmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StockOpnameAttachmentCountAggregateOutputType> | number
         }
       }
     }
@@ -4389,6 +4464,21 @@ export const StockOpnameDetailScalarFieldEnum = {
 export type StockOpnameDetailScalarFieldEnum = (typeof StockOpnameDetailScalarFieldEnum)[keyof typeof StockOpnameDetailScalarFieldEnum]
 
 
+export const StockOpnameAttachmentScalarFieldEnum = {
+  Id: 'Id',
+  FileName: 'FileName',
+  FilePath: 'FilePath',
+  OriginalFileName: 'OriginalFileName',
+  FileSize: 'FileSize',
+  MimeType: 'MimeType',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  OpnameId: 'OpnameId'
+} as const
+
+export type StockOpnameAttachmentScalarFieldEnum = (typeof StockOpnameAttachmentScalarFieldEnum)[keyof typeof StockOpnameAttachmentScalarFieldEnum]
+
+
 export const IncomingScalarFieldEnum = {
   Id: 'Id',
   PoId: 'PoId',
@@ -5567,6 +5657,7 @@ export type GlobalOmitConfig = {
   inventoryLedger?: Prisma.InventoryLedgerOmit
   stockOpname?: Prisma.StockOpnameOmit
   stockOpnameDetail?: Prisma.StockOpnameDetailOmit
+  stockOpnameAttachment?: Prisma.StockOpnameAttachmentOmit
   incoming?: Prisma.IncomingOmit
   incomingMaterial?: Prisma.IncomingMaterialOmit
   materialNG?: Prisma.MaterialNGOmit

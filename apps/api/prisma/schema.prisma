@@ -291,6 +291,7 @@ model StockOpname {
   Notes       String?
 
   Details StockOpnameDetail[]
+  Attachments StockOpnameAttachment[]
 }
 
 model StockOpnameDetail {
@@ -316,6 +317,24 @@ model StockOpnameDetail {
 
   @@unique([OpnameId, MaterialId, Location])
   @@unique([OpnameId, FinishGoodId, Location])
+}
+
+model StockOpnameAttachment {
+  Id Int @id @default(autoincrement())
+
+  FileName         String
+  FilePath         String
+  OriginalFileName String
+  FileSize         Int
+  MimeType         String
+
+  CreatedAt DateTime @default(now())
+  CreatedBy String
+
+  Opname   StockOpname @relation(fields: [OpnameId], references: [Id], onDelete: Cascade)
+  OpnameId String
+
+  @@index([OpnameId])
 }
 
 // --- TRANSAKSI & OPERASIONAL LAIN-LAIN ---

@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  MaxFileSizeValidator,
+  ParseFilePipe,
   Post,
   Body,
   Patch,
@@ -9,10 +11,17 @@ import {
   Query,
   ParseIntPipe,
   Res,
+  StreamableFile,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBody,
   ApiTags,
   ApiBearerAuth,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiParam,
@@ -28,6 +37,7 @@ import {
   InventoryCountingQueryDto,
   GenerateExcelDto,
   ValidateMaterialRackDto,
+  ApplyOcrResultsDto,
 } from './dto';
 import {
   InventoryCountingEntity,
@@ -85,6 +95,142 @@ export class InventoryCountingController {
   @ApiResponse({ status: 200, type: [InventoryCountingDetailEntity] })
   async getDetails(@Param('id') id: string) {
     return this.inventoryCountingService.getDetails(id);
+  }
+
+  @Post(':id/attachments')
+  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      limits: { fileSize: 10 * 1024 * 1024, files: 10, fields: 0, parts: 10 },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['files'],
+      properties: {
+        files: {
+          type: 'array',
+          maxItems: 10,
+          items: { type: 'string', format: 'binary' },
+        },
+      },
+    },
+  })
+  @ApiOperation({
+    summary: 'Upload optional inventory counting audit attachments',
+  })
+  async uploadAttachments(
+    @Param('id') id: string,
+    @UploadedFiles() files: Express.Multer.File[],
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.inventoryCountingService.uploadAttachments(
+      id,
+      files,
+      user.username,
+    );
+  }
+
+  @Get(':id/attachments')
+  @Permission('IPCS.INVENTORY_COUNTING_READ')
+  @ApiOperation({ summary: 'List inventory counting audit attachments' })
+  async getAttachments(@Param('id') id: string) {
+    return this.inventoryCountingService.getAttachments(id);
+  }
+
+  @Get(':id/attachments/:attachmentId/download')
+  @Permission('IPCS.INVENTORY_COUNTING_READ')
+  @ApiOperation({ summary: 'Download an inventory counting audit attachment' })
+  async downloadAttachment(
+    @Param('id') id: string,
+    @Param('attachmentId', ParseIntPipe) attachmentId: number,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const download = await this.inventoryCountingService.downloadAttachment(
+      id,
+      attachmentId,
+    );
+    response.setHeader('Content-Type', download.contentType);
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename*=UTF-8''${encodeURIComponent(download.fileName)}`,
+    );
+    return new StreamableFile(download.response.body as never);
+  }
+
+  @Delete(':id/attachments/:attachmentId')
+  @Permission('IPCS.INVENTORY_COUNTING_DELETE')
+  @ApiOperation({ summary: 'Delete an inventory counting audit attachment' })
+  async deleteAttachment(
+    @Param('id') id: string,
+    @Param('attachmentId', ParseIntPipe) attachmentId: number,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.inventoryCountingService.deleteAttachment(
+      id,
+      attachmentId,
+      user.username,
+    );
+  }
+
+  @Post(':id/ocr/preview')
+  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 1, parts: 3 },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: { type: 'string', format: 'binary' },
+        saveAsAttachment: { type: 'boolean', default: true },
+      },
+    },
+  })
+  @ApiOperation({
+    summary: 'Extract inventory counting values from a PDF for review',
+  })
+  async previewOcr(
+    @Param('id') id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+    @Body('saveAsAttachment') saveAsAttachment: string | undefined,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.inventoryCountingService.previewOcr(
+      id,
+      file,
+      saveAsAttachment !== 'false',
+      user.username,
+    );
+  }
+
+  @Post(':id/ocr/apply')
+  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
+  @ApiOperation({
+    summary: 'Apply user-confirmed OCR values to inventory counting details',
+  })
+  async applyOcrResults(
+    @Param('id') id: string,
+    @Body() dto: ApplyOcrResultsDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.inventoryCountingService.applyOcrResults(
+      id,
+      dto,
+      user.username,
+    );
   }
 
   @Patch(':id')

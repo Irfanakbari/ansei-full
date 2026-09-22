@@ -63,6 +63,7 @@ export const ModelName = {
   InventoryLedger: 'InventoryLedger',
   StockOpname: 'StockOpname',
   StockOpnameDetail: 'StockOpnameDetail',
+  StockOpnameAttachment: 'StockOpnameAttachment',
   Incoming: 'Incoming',
   IncomingMaterial: 'IncomingMaterial',
   MaterialNG: 'MaterialNG',
@@ -301,6 +302,21 @@ export const StockOpnameDetailScalarFieldEnum = {
 } as const
 
 export type StockOpnameDetailScalarFieldEnum = (typeof StockOpnameDetailScalarFieldEnum)[keyof typeof StockOpnameDetailScalarFieldEnum]
+
+
+export const StockOpnameAttachmentScalarFieldEnum = {
+  Id: 'Id',
+  FileName: 'FileName',
+  FilePath: 'FilePath',
+  OriginalFileName: 'OriginalFileName',
+  FileSize: 'FileSize',
+  MimeType: 'MimeType',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  OpnameId: 'OpnameId'
+} as const
+
+export type StockOpnameAttachmentScalarFieldEnum = (typeof StockOpnameAttachmentScalarFieldEnum)[keyof typeof StockOpnameAttachmentScalarFieldEnum]
 
 
 export const IncomingScalarFieldEnum = {

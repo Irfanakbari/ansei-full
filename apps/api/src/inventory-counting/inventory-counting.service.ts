@@ -1,8 +1,14 @@
-import { auditedWrite } from '../common/helpers/audited-transaction.helper';
+import {
+  auditedTransaction,
+  auditedWrite,
+} from '../common/helpers/audited-transaction.helper';
 import {
   BadRequestException,
+  BadGatewayException,
+  ConflictException,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
@@ -15,6 +21,7 @@ import {
   CloseInventoryCountingDto,
   GenerateCutOffDto,
   InventoryCountingQueryDto,
+  ApplyOcrResultsDto,
 } from './dto';
 import {
   ItemCategory,
@@ -31,12 +38,54 @@ import {
   getUserDisplayNameMap,
 } from '../common/helpers/user-lookup.helper';
 import { withInventoryTransaction } from '../common/helpers/inventory-transaction.helper';
+import { NasUploadService } from '../common/utils/nas-upload.service';
+import { validateUploadContent } from '../common/utils/upload-security.util';
+import { randomUUID } from 'node:crypto';
+
+const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
+const MAX_OCR_FILE_SIZE = 5 * 1024 * 1024;
+
+type OcrLocation = LocationType;
+
+export interface OcrExtractionItem {
+  partNumber: string;
+  location: OcrLocation;
+  actualQty: number;
+}
+
+export interface OcrPreviewItem extends OcrExtractionItem {
+  detailId: number | null;
+  matchedPartNumber: string | null;
+  status: 'MATCHED' | 'SUGGESTED' | 'DUPLICATE' | 'NOT_FOUND';
+}
+
+interface OcrMatchingDetail {
+  Id: number;
+  Location: LocationType;
+  MaterialId: string | null;
+  FinishGoodId: string | null;
+}
+
+interface OcrPartCandidate {
+  location: OcrLocation;
+  partNumber: string;
+}
+
+interface OpenAiResponsePayload {
+  output?: Array<{
+    content?: Array<{
+      text?: string;
+      type?: string;
+    }>;
+  }>;
+}
 
 @Injectable()
 export class InventoryCountingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
+    private readonly nasUploadService: NasUploadService,
   ) {}
 
   async create(dto: CreateInventoryCountingDto, createdBy: string) {
@@ -1164,6 +1213,666 @@ export class InventoryCountingService {
         notes: detail.Notes,
       },
     };
+  }
+
+  async uploadAttachments(
+    opnameId: string,
+    files: Express.Multer.File[],
+    createdBy: string,
+  ) {
+    let logProcess: LogProcessModel | undefined;
+    const uploadedPaths: string[] = [];
+
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'INV_COUNT_ATTACH_001',
+        functionName: 'InventoryCountingService.uploadAttachments',
+        createdBy,
+      });
+
+      if (!files?.length || files.length > 10) {
+        throw new BadRequestException('Upload between 1 and 10 files.');
+      }
+      files.forEach((file) => this.validateAttachmentFile(file));
+
+      await this.getCountingOrThrow(opnameId);
+      const attachments: Array<
+        ReturnType<InventoryCountingService['toAttachmentResponse']>
+      > = [];
+      for (const file of files) {
+        const attachment = await this.persistAttachment(
+          opnameId,
+          file,
+          createdBy,
+          uploadedPaths,
+        );
+        attachments.push(this.toAttachmentResponse(attachment));
+      }
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Uploaded ${attachments.length} inventory counting attachment(s).`,
+        type: 'INFO',
+        location: 'inventory-counting.service.ts:uploadAttachments',
+      });
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      return attachments;
+    } catch (error) {
+      await Promise.all(
+        uploadedPaths.map((filePath) =>
+          this.nasUploadService.deleteFile(filePath).catch(() => undefined),
+        ),
+      );
+      if (logProcess) {
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  async getAttachments(opnameId: string) {
+    await this.getCountingOrThrow(opnameId);
+    const attachments = await this.prisma.stockOpnameAttachment.findMany({
+      where: { OpnameId: opnameId },
+      orderBy: { CreatedAt: 'desc' },
+    });
+    return attachments.map((attachment) =>
+      this.toAttachmentResponse(attachment),
+    );
+  }
+
+  async downloadAttachment(opnameId: string, attachmentId: number) {
+    const attachment = await this.prisma.stockOpnameAttachment.findFirst({
+      where: { Id: attachmentId, OpnameId: opnameId },
+    });
+    if (!attachment) {
+      throw new NotFoundException(
+        `Attachment with id ${attachmentId} was not found for inventory counting ${opnameId}`,
+      );
+    }
+
+    const download = await this.nasUploadService.downloadFile(
+      attachment.FilePath,
+    );
+    return { ...download, fileName: attachment.OriginalFileName };
+  }
+
+  async deleteAttachment(
+    opnameId: string,
+    attachmentId: number,
+    deletedBy: string,
+  ): Promise<{ deleted: boolean; id: number }> {
+    let logProcess: LogProcessModel | undefined;
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'INV_COUNT_ATTACH_002',
+        functionName: 'InventoryCountingService.deleteAttachment',
+        createdBy: deletedBy,
+      });
+      const counting = await this.getCountingOrThrow(opnameId);
+      if (counting.Status === OpnameStatus.COMPLETED) {
+        throw new ConflictException(
+          'Attachments cannot be deleted after inventory counting is completed.',
+        );
+      }
+      const attachment = await this.prisma.stockOpnameAttachment.findFirst({
+        where: { Id: attachmentId, OpnameId: opnameId },
+      });
+      if (!attachment) {
+        throw new NotFoundException(
+          `Attachment with id ${attachmentId} was not found for inventory counting ${opnameId}`,
+        );
+      }
+
+      await auditedWrite(this.prisma, (tx) =>
+        tx.stockOpnameAttachment.delete({ where: { Id: attachmentId } }),
+      );
+      await this.nasUploadService.deleteFile(attachment.FilePath);
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: 'Deleted inventory counting attachment.',
+        type: 'INFO',
+        location: 'inventory-counting.service.ts:deleteAttachment',
+      });
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      return { deleted: true, id: attachmentId };
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  async previewOcr(
+    opnameId: string,
+    file: Express.Multer.File,
+    saveAsAttachment: boolean,
+    createdBy: string,
+  ) {
+    let logProcess: LogProcessModel | undefined;
+    const uploadedPaths: string[] = [];
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'INV_COUNT_OCR_001',
+        functionName: 'InventoryCountingService.previewOcr',
+        createdBy,
+      });
+      this.validateOcrFile(file);
+      const counting = await this.prisma.stockOpname.findUnique({
+        where: { Id: opnameId },
+        include: { Details: true },
+      });
+      if (!counting) {
+        throw new NotFoundException(
+          `Inventory counting with ID ${opnameId} not found`,
+        );
+      }
+      if (counting.Status !== OpnameStatus.IN_PROGRESS) {
+        throw new ConflictException(
+          `OCR preview requires inventory counting status IN_PROGRESS, received ${counting.Status}.`,
+        );
+      }
+
+      const extractedItems = await this.extractOcrItems(
+        file,
+        this.getOcrPartCandidates(counting.Details),
+      );
+      const items = this.buildOcrPreviewItems(extractedItems, counting.Details);
+
+      const attachment = saveAsAttachment
+        ? this.toAttachmentResponse(
+            await this.persistAttachment(
+              opnameId,
+              file,
+              createdBy,
+              uploadedPaths,
+            ),
+          )
+        : null;
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Generated OCR preview for ${items.length} row(s).`,
+        type: 'INFO',
+        location: 'inventory-counting.service.ts:previewOcr',
+      });
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      return { attachment, items };
+    } catch (error) {
+      await Promise.all(
+        uploadedPaths.map((filePath) =>
+          this.nasUploadService.deleteFile(filePath).catch(() => undefined),
+        ),
+      );
+      if (logProcess) {
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  async applyOcrResults(
+    opnameId: string,
+    dto: ApplyOcrResultsDto,
+    updatedBy: string,
+  ) {
+    let logProcess: LogProcessModel | undefined;
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'INV_COUNT_OCR_002',
+        functionName: 'InventoryCountingService.applyOcrResults',
+        createdBy: updatedBy,
+      });
+      const counting = await this.prisma.stockOpname.findUnique({
+        where: { Id: opnameId },
+        include: { Details: true },
+      });
+      if (!counting) {
+        throw new NotFoundException(
+          `Inventory counting with ID ${opnameId} not found`,
+        );
+      }
+      if (counting.Status !== OpnameStatus.IN_PROGRESS) {
+        throw new ConflictException(
+          `OCR results can only be applied while inventory counting is IN_PROGRESS.`,
+        );
+      }
+
+      const detailIds = new Set<number>();
+      for (const result of dto.results) {
+        if (detailIds.has(result.detailId)) {
+          throw new BadRequestException(
+            'OCR results contain a duplicate detail.',
+          );
+        }
+        detailIds.add(result.detailId);
+        const detail = counting.Details.find(
+          (candidate) => candidate.Id === result.detailId,
+        );
+        if (
+          !detail ||
+          detail.Location !== result.location ||
+          (detail.MaterialId ?? detail.FinishGoodId) !== result.partNumber
+        ) {
+          throw new BadRequestException(
+            'OCR result does not match this inventory counting detail.',
+          );
+        }
+      }
+
+      await auditedTransaction(this.prisma, async (tx) => {
+        for (const result of dto.results) {
+          const detail = counting.Details.find(
+            (candidate) => candidate.Id === result.detailId,
+          )!;
+          const updateData =
+            detail.Location === LocationType.RACK
+              ? {
+                  ActualQty: result.actualQty,
+                  ActualQtyRack: result.actualQty,
+                  DiffQty: result.actualQty - detail.SystemQty,
+                  DiffQtyRack: result.actualQty - detail.SystemQtyRack,
+                }
+              : {
+                  ActualQty: result.actualQty,
+                  DiffQty: result.actualQty - detail.SystemQty,
+                };
+          await tx.stockOpnameDetail.update({
+            where: { Id: detail.Id },
+            data: updateData,
+          });
+        }
+      });
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Applied ${dto.results.length} validated OCR result(s).`,
+        type: 'INFO',
+        location: 'inventory-counting.service.ts:applyOcrResults',
+      });
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      return { success: true, updatedCount: dto.results.length };
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  private async getCountingOrThrow(opnameId: string) {
+    const counting = await this.prisma.stockOpname.findUnique({
+      where: { Id: opnameId },
+    });
+    if (!counting) {
+      throw new NotFoundException(
+        `Inventory counting with ID ${opnameId} not found`,
+      );
+    }
+    return counting;
+  }
+
+  private validateAttachmentFile(file: Express.Multer.File): void {
+    validateUploadContent(file, ['pdf', 'jpeg', 'png']);
+    if (file.size > MAX_ATTACHMENT_SIZE) {
+      throw new BadRequestException('File too large. Maximum size is 10MB.');
+    }
+  }
+
+  private validateOcrFile(file: Express.Multer.File): void {
+    validateUploadContent(file, ['pdf']);
+    if (file.size > MAX_OCR_FILE_SIZE) {
+      throw new BadRequestException('PDF too large. Maximum size is 5MB.');
+    }
+  }
+
+  private async persistAttachment(
+    opnameId: string,
+    file: Express.Multer.File,
+    createdBy: string,
+    uploadedPaths: string[],
+  ) {
+    const extension =
+      file.originalname.split('.').pop()?.toLowerCase() ?? 'bin';
+    const storedFileName = `${Date.now()}-${randomUUID()}.${extension}`;
+    const filePath = await this.nasUploadService.uploadFile({
+      fileName: storedFileName,
+      fileBuffer: file.buffer,
+      subFolder: `inventory-counting/${opnameId}`,
+    });
+    uploadedPaths.push(filePath);
+    return auditedWrite(this.prisma, (tx) =>
+      tx.stockOpnameAttachment.create({
+        data: {
+          FileName: storedFileName,
+          FilePath: filePath,
+          OriginalFileName: file.originalname,
+          FileSize: file.size,
+          MimeType: file.mimetype,
+          OpnameId: opnameId,
+          CreatedBy: createdBy,
+        },
+      }),
+    );
+  }
+
+  private toAttachmentResponse(attachment: {
+    Id: number;
+    OriginalFileName: string;
+    FileSize: number;
+    MimeType: string;
+    CreatedAt: Date;
+    CreatedBy: string;
+  }) {
+    return {
+      Id: attachment.Id,
+      FileName: attachment.OriginalFileName,
+      FileSize: attachment.FileSize,
+      MimeType: attachment.MimeType,
+      CreatedAt: attachment.CreatedAt,
+      CreatedBy: attachment.CreatedBy,
+    };
+  }
+
+  private async extractOcrItems(
+    file: Express.Multer.File,
+    candidates: OcrPartCandidate[] = [],
+  ): Promise<OcrExtractionItem[]> {
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
+    if (!apiKey) {
+      throw new ServiceUnavailableException(
+        'OCR is not configured. Set OPENAI_API_KEY on the API server.',
+      );
+    }
+    const model = process.env.OPENAI_OCR_MODEL?.trim() || 'gpt-5.6-sol';
+    const candidateContext = candidates.length
+      ? `The valid part numbers for this stock-opname are listed below. Use only these exact values, preserving every character and location. Do not invent part numbers. If a scanned value cannot be confidently matched to a listed value, omit that row.\n\n${candidates
+          .map((candidate) => `${candidate.location}: ${candidate.partNumber}`)
+          .join('\n')}`
+      : 'No stock-opname part-number candidates were supplied. Return only clearly readable values.';
+    const response = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        store: false,
+        input: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'input_file',
+                filename: file.originalname,
+                file_data: `data:application/pdf;base64,${file.buffer.toString('base64')}`,
+              },
+              {
+                type: 'input_text',
+                text: `Extract only inventory counting rows. Return every readable row with its exact part number, location (RACK, WAREHOUSE, or FINISH_GOOD_AREA), and non-negative integer actualQty. Read the document header location when rows do not repeat it. Do not infer or include unreadable values.\n\n${candidateContext}`,
+              },
+            ],
+          },
+        ],
+        text: {
+          format: {
+            type: 'json_schema',
+            name: 'inventory_counting_ocr',
+            strict: true,
+            schema: {
+              type: 'object',
+              additionalProperties: false,
+              required: ['items'],
+              properties: {
+                items: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    additionalProperties: false,
+                    required: ['partNumber', 'location', 'actualQty'],
+                    properties: {
+                      partNumber: { type: 'string' },
+                      location: {
+                        type: 'string',
+                        enum: ['RACK', 'WAREHOUSE', 'FINISH_GOOD_AREA'],
+                      },
+                      actualQty: { type: 'integer', minimum: 0 },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    });
+    if (!response.ok) {
+      const providerPayload = (await response.json().catch(() => null)) as {
+        error?: { code?: unknown };
+      } | null;
+      const providerCode = providerPayload?.error?.code;
+      const safeCode =
+        typeof providerCode === 'string' &&
+        /^[a-z0-9_.-]{1,64}$/i.test(providerCode)
+          ? `, ${providerCode}`
+          : '';
+
+      if (response.status === 401 || response.status === 403) {
+        throw new ServiceUnavailableException(
+          `OCR provider authentication or model access failed for ${model}.`,
+        );
+      }
+      if (response.status === 429) {
+        throw new ServiceUnavailableException(
+          'OCR provider rate limit reached. Please retry shortly.',
+        );
+      }
+      if (response.status >= 500) {
+        throw new ServiceUnavailableException(
+          'OCR provider is temporarily unavailable. Please retry shortly.',
+        );
+      }
+      throw new BadGatewayException(
+        `OCR provider rejected the request (HTTP ${response.status}${safeCode}).`,
+      );
+    }
+    const payload = (await response.json()) as OpenAiResponsePayload;
+    const outputText = this.getOpenAiOutputText(payload);
+    if (!outputText) {
+      throw new BadRequestException(
+        'OCR provider did not return a structured result.',
+      );
+    }
+    return this.parseOcrItems(outputText);
+  }
+
+  private getOpenAiOutputText(payload: OpenAiResponsePayload): string | null {
+    for (const output of payload.output ?? []) {
+      for (const content of output.content ?? []) {
+        if (
+          content.type === 'output_text' &&
+          typeof content.text === 'string'
+        ) {
+          return content.text;
+        }
+      }
+    }
+    return null;
+  }
+
+  private getOcrPartCandidates(
+    details: OcrMatchingDetail[],
+  ): OcrPartCandidate[] {
+    const candidates = new Map<string, OcrPartCandidate>();
+    for (const detail of details) {
+      const partNumber = detail.MaterialId ?? detail.FinishGoodId;
+      if (!partNumber) continue;
+      const candidate = { location: detail.Location, partNumber };
+      candidates.set(
+        `${candidate.location}:${candidate.partNumber}`,
+        candidate,
+      );
+    }
+    return [...candidates.values()].sort((left, right) =>
+      `${left.location}:${left.partNumber}`.localeCompare(
+        `${right.location}:${right.partNumber}`,
+      ),
+    );
+  }
+
+  private buildOcrPreviewItems(
+    extractedItems: OcrExtractionItem[],
+    details: OcrMatchingDetail[],
+  ): OcrPreviewItem[] {
+    const seenDetailIds = new Set<number>();
+    return extractedItems.map((item) => {
+      const detail = this.findOcrDetailMatch(item, details);
+      if (!detail) {
+        return {
+          ...item,
+          detailId: null,
+          matchedPartNumber: null,
+          status: 'NOT_FOUND',
+        };
+      }
+
+      const partNumber = detail.MaterialId ?? detail.FinishGoodId;
+      if (!partNumber) {
+        return {
+          ...item,
+          detailId: null,
+          matchedPartNumber: null,
+          status: 'NOT_FOUND',
+        };
+      }
+      if (seenDetailIds.has(detail.Id)) {
+        return {
+          ...item,
+          detailId: detail.Id,
+          matchedPartNumber: partNumber,
+          status: 'DUPLICATE',
+        };
+      }
+
+      seenDetailIds.add(detail.Id);
+      return {
+        ...item,
+        detailId: detail.Id,
+        matchedPartNumber: partNumber,
+        status:
+          this.normalizePartNumber(item.partNumber) ===
+          this.normalizePartNumber(partNumber)
+            ? 'MATCHED'
+            : 'SUGGESTED',
+      };
+    });
+  }
+
+  private findOcrDetailMatch(
+    item: OcrExtractionItem,
+    details: OcrMatchingDetail[],
+  ): OcrMatchingDetail | null {
+    const candidates = details.filter((detail) => {
+      const partNumber = detail.MaterialId ?? detail.FinishGoodId;
+      return detail.Location === item.location && Boolean(partNumber);
+    });
+    const normalizedInput = this.normalizePartNumber(item.partNumber);
+    const exactMatch = candidates.find(
+      (detail) =>
+        this.normalizePartNumber(
+          detail.MaterialId ?? detail.FinishGoodId ?? '',
+        ) === normalizedInput,
+    );
+    if (exactMatch) return exactMatch;
+
+    const maxDistance = normalizedInput.length >= 12 ? 2 : 1;
+    const matches = candidates
+      .map((detail) => ({
+        detail,
+        distance: this.levenshteinDistance(
+          normalizedInput,
+          this.normalizePartNumber(
+            detail.MaterialId ?? detail.FinishGoodId ?? '',
+          ),
+        ),
+      }))
+      .filter((candidate) => candidate.distance <= maxDistance)
+      .sort((left, right) => left.distance - right.distance);
+    if (
+      matches.length === 0 ||
+      (matches.length > 1 && matches[0].distance === matches[1].distance)
+    ) {
+      return null;
+    }
+    return matches[0].detail;
+  }
+
+  private normalizePartNumber(partNumber: string): string {
+    return partNumber.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  }
+
+  private levenshteinDistance(left: string, right: string): number {
+    const previous = Array.from(
+      { length: right.length + 1 },
+      (_, index) => index,
+    );
+    for (let leftIndex = 1; leftIndex <= left.length; leftIndex += 1) {
+      let diagonal = previous[0];
+      previous[0] = leftIndex;
+      for (let rightIndex = 1; rightIndex <= right.length; rightIndex += 1) {
+        const above = previous[rightIndex];
+        previous[rightIndex] = Math.min(
+          previous[rightIndex] + 1,
+          previous[rightIndex - 1] + 1,
+          diagonal + (left[leftIndex - 1] === right[rightIndex - 1] ? 0 : 1),
+        );
+        diagonal = above;
+      }
+    }
+    return previous[right.length];
+  }
+
+  private parseOcrItems(outputText: string): OcrExtractionItem[] {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(outputText);
+    } catch {
+      throw new BadRequestException('OCR provider returned invalid JSON.');
+    }
+    if (
+      !parsed ||
+      typeof parsed !== 'object' ||
+      !Array.isArray((parsed as { items?: unknown }).items)
+    ) {
+      throw new BadRequestException(
+        'OCR provider returned an invalid result shape.',
+      );
+    }
+    const items: OcrExtractionItem[] = [];
+    for (const item of (parsed as { items: unknown[] }).items) {
+      if (!item || typeof item !== 'object') continue;
+      const candidate = item as Record<string, unknown>;
+      if (
+        typeof candidate.partNumber !== 'string' ||
+        ![
+          LocationType.RACK,
+          LocationType.WAREHOUSE,
+          LocationType.FINISH_GOOD_AREA,
+        ].includes(candidate.location as LocationType) ||
+        typeof candidate.actualQty !== 'number' ||
+        !Number.isInteger(candidate.actualQty) ||
+        candidate.actualQty < 0
+      ) {
+        continue;
+      }
+      items.push({
+        partNumber: candidate.partNumber.trim(),
+        location: candidate.location as OcrLocation,
+        actualQty: candidate.actualQty,
+      });
+    }
+    return items;
   }
 
   async updateActualStock(

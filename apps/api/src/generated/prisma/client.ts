@@ -100,6 +100,11 @@ export type StockOpname = Prisma.StockOpnameModel
  */
 export type StockOpnameDetail = Prisma.StockOpnameDetailModel
 /**
+ * Model StockOpnameAttachment
+ * 
+ */
+export type StockOpnameAttachment = Prisma.StockOpnameAttachmentModel
+/**
  * Model Incoming
  * 
  */
