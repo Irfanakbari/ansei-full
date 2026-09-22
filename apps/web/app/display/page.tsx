@@ -835,7 +835,10 @@ export default function DisplayPage() {
         >
             <div ref={overlayHostRef}/>
             <ConfigProvider getPopupContainer={getOverlayContainer} getTargetContainer={getOverlayContainer}>
-                <App message={{getContainer: getOverlayContainer}}>
+                <App
+                    className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
+                    message={{getContainer: getOverlayContainer}}
+                >
                     <DisplayPageContent
                         isFullscreen={isFullscreen}
                         getOverlayContainer={getOverlayContainer}

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "MTCPermission" ALTER COLUMN "UpdateDate" DROP DEFAULT;
+
+-- AlterTable
+ALTER TABLE "MTCRole" ALTER COLUMN "UpdateDate" DROP DEFAULT;
