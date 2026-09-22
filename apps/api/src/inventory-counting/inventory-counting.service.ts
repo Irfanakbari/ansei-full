@@ -1080,6 +1080,75 @@ export class InventoryCountingService {
     }
   }
 
+  async validateMaterialRack(id: string, rackQr: string) {
+    const normalizedRackQr = rackQr.trim();
+    if (!normalizedRackQr) {
+      throw new BadRequestException('Rack QR is required');
+    }
+
+    const opname = await this.prisma.stockOpname.findUnique({
+      where: { Id: id },
+      select: { Category: true, Status: true },
+    });
+
+    if (!opname) {
+      throw new NotFoundException(`Inventory counting with ID ${id} not found`);
+    }
+    if (opname.Category !== ItemCategory.MATERIAL) {
+      throw new BadRequestException(
+        'Rack scan validation is only available for MATERIAL inventory counting',
+      );
+    }
+    if (opname.Status !== OpnameStatus.IN_PROGRESS) {
+      throw new BadRequestException(
+        `Cannot validate rack because inventory counting status is ${opname.Status}`,
+      );
+    }
+
+    const matches = await this.prisma.stockOpnameDetail.findMany({
+      where: {
+        OpnameId: id,
+        Location: LocationType.RACK,
+        MaterialData: {
+          is: {
+            RackLocation: { equals: normalizedRackQr, mode: 'insensitive' },
+          },
+        },
+      },
+      include: {
+        MaterialData: {
+          select: { PartNumber: true, PartName: true, RackLocation: true },
+        },
+      },
+    });
+
+    if (matches.length === 0) {
+      throw new NotFoundException(
+        `Rack location ${normalizedRackQr} was not found in this inventory counting`,
+      );
+    }
+    if (matches.length > 1) {
+      throw new BadRequestException(
+        `Rack location ${normalizedRackQr} has multiple materials. Please use a unique rack location.`,
+      );
+    }
+
+    const detail = matches[0];
+    return {
+      valid: true,
+      data: {
+        detailId: detail.Id,
+        opnameId: detail.OpnameId,
+        materialId: detail.MaterialId,
+        partName: detail.MaterialData?.PartName ?? detail.Notes ?? '',
+        rackLocation: detail.MaterialData?.RackLocation ?? normalizedRackQr,
+        systemQtyRack: detail.SystemQtyRack,
+        actualQtyRack: detail.ActualQtyRack,
+        notes: detail.Notes,
+      },
+    };
+  }
+
   async updateActualStock(
     id: string,
     detailId: number,
@@ -1213,31 +1282,6 @@ export class InventoryCountingService {
                     (dto.actualQtyRack ?? 0) - (rackDetail.SystemQtyRack ?? 0),
                   DiffQty:
                     (dto.actualQtyRack ?? 0) - (rackDetail.SystemQty ?? 0),
-                },
-              }),
-            );
-          }
-        } else if (
-          detail.Location === LocationType.RACK &&
-          dto.actualQty !== undefined &&
-          dto.actualQty !== null
-        ) {
-          const warehouseDetail = await this.prisma.stockOpnameDetail.findFirst(
-            {
-              where: {
-                OpnameId: detail.OpnameId,
-                MaterialId: detail.MaterialId,
-                Location: LocationType.WAREHOUSE,
-              },
-            },
-          );
-          if (warehouseDetail) {
-            await auditedWrite(this.prisma, (tx) =>
-              tx.stockOpnameDetail.update({
-                where: { Id: warehouseDetail.Id },
-                data: {
-                  ActualQty: dto.actualQty,
-                  DiffQty: dto.actualQty - (warehouseDetail.SystemQty ?? 0),
                 },
               }),
             );

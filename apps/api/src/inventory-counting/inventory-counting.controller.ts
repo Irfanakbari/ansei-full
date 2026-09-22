@@ -27,6 +27,7 @@ import {
   GenerateCutOffDto,
   InventoryCountingQueryDto,
   GenerateExcelDto,
+  ValidateMaterialRackDto,
 } from './dto';
 import {
   InventoryCountingEntity,
@@ -128,6 +129,19 @@ export class InventoryCountingController {
     @CurrentUser() user: ICurrentUser,
   ) {
     return this.inventoryCountingService.generateCutOff(dto, user.username);
+  }
+
+  @Post(':id/material-rack/validate')
+  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
+  @ApiOperation({
+    summary: 'Validate a scanned material rack location for inventory counting',
+  })
+  @ApiParam({ name: 'id', description: 'StockOpname ID' })
+  async validateMaterialRack(
+    @Param('id') id: string,
+    @Body() dto: ValidateMaterialRackDto,
+  ) {
+    return this.inventoryCountingService.validateMaterialRack(id, dto.rackQr);
   }
 
   @Patch(':id/details/:detailId')
