@@ -1134,14 +1134,31 @@ export class InventoryCountingService {
     }
 
     const detail = matches[0];
+    const warehouseDetail = await this.prisma.stockOpnameDetail.findFirst({
+      where: {
+        OpnameId: id,
+        MaterialId: detail.MaterialId,
+        Location: LocationType.WAREHOUSE,
+      },
+    });
+
+    if (!warehouseDetail) {
+      throw new NotFoundException(
+        `Warehouse detail for material ${detail.MaterialId} was not found`,
+      );
+    }
+
     return {
       valid: true,
       data: {
-        detailId: detail.Id,
+        warehouseDetailId: warehouseDetail.Id,
+        rackDetailId: detail.Id,
         opnameId: detail.OpnameId,
         materialId: detail.MaterialId,
         partName: detail.MaterialData?.PartName ?? detail.Notes ?? '',
         rackLocation: detail.MaterialData?.RackLocation ?? normalizedRackQr,
+        systemQty: warehouseDetail.SystemQty,
+        actualQty: warehouseDetail.ActualQty,
         systemQtyRack: detail.SystemQtyRack,
         actualQtyRack: detail.ActualQtyRack,
         notes: detail.Notes,
