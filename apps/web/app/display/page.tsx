@@ -380,7 +380,7 @@ function DisplayPageContent({
         <>
             {/* Navbar (Light Theme) */}
             <header
-                className="flex h-16 shrink-0 items-center justify-between bg-white px-6 shadow-xs border-b border-slate-200 z-10">
+                className="flex min-h-14 shrink-0 items-center justify-between gap-2 bg-white px-3 py-2 shadow-xs border-b border-slate-200 z-10 sm:min-h-16 sm:px-6">
                 <div className="flex items-center gap-4">
                     <Image
                         src="/images/vtq.png"
@@ -402,7 +402,7 @@ function DisplayPageContent({
                         </span>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5 sm:gap-3">
                     <Button
                         type="primary"
                         icon={<FormOutlined/>}
@@ -440,13 +440,13 @@ function DisplayPageContent({
             </header>
 
             {/* Main Display Grid */}
-            <section className="min-h-0 flex-1 flex flex-col md:flex-row p-3.5 gap-3.5 bg-slate-100">
+            <section className="min-h-0 flex-1 flex flex-col gap-3.5 overflow-y-auto bg-slate-100 p-2.5 md:grid md:grid-cols-[420px_minmax(0,1fr)] md:grid-rows-[minmax(0,1fr)] md:overflow-hidden md:p-3.5 lg:grid-cols-[450px_minmax(0,1fr)] xl:grid-cols-[480px_minmax(0,1fr)]">
                 {/* Left Column (Operator & Product Info, Skill Matrix, Production Date) */}
                 <div
-                    className="w-full md:w-[420px] lg:w-[450px] xl:w-[480px] flex flex-col gap-3 shrink-0 h-full min-h-0">
+                    className="flex h-auto min-h-0 w-full flex-col gap-3 md:h-full md:w-full md:overflow-hidden">
                     {/* Upper Card: Operator & Product Details (Memanfaatkan Space Secara Maksimal) */}
                     <div
-                        className="flex-1 min-h-0 bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-4.5 flex flex-col items-center justify-between shadow-sm overflow-hidden">
+                        className="flex min-h-0 flex-none flex-col items-center justify-between overflow-visible rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm sm:p-4.5 md:flex-1 md:overflow-y-auto">
                         {/* Special Eye-Catching Line Badge (Mencolok & Menonjol) */}
                         <div
                             className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-600 to-blue-800 p-1 shadow-md shadow-blue-600/20 shrink-0 border border-blue-400/40">
@@ -617,7 +617,7 @@ function DisplayPageContent({
 
                 {/* Right Column: Media Player */}
                 <div
-                    className="flex-1 h-full min-h-0 bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-sm relative flex items-center justify-center">
+                    className="relative flex min-h-[280px] w-full items-center justify-center overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm md:h-full md:min-h-0">
                     {mediaSource ? (
                         isImageMedia ? (
                             // eslint-disable-next-line @next/next/no-img-element
