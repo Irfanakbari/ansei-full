@@ -1,7 +1,12 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-10 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
-import { get, getApiErrorMessage, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
+import {
+    get,
+    post,
+    getApiErrorMessage,
+    type ApiSuccessEnvelope,
+    type PaginatedApiSuccessEnvelope
+} from '@/store/utils/apiService';
 
 // Delivery entity interface
 export interface DeliveryEntity {
@@ -102,8 +107,12 @@ export const fetchPalletOptions = createAsyncThunk<PalletOption[], void, { rejec
     'delivery/fetchPalletOptions',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await get<PalletOption[]>('/production/delivery/pallets');
-            return Array.isArray(response) ? response : [];
+            const response = await get<PalletOption[] | ApiSuccessEnvelope<PalletOption[]>>('/production/delivery/pallets');
+            if (Array.isArray(response)) return response;
+            if (response && typeof response === 'object' && Array.isArray((response as { data?: unknown }).data)) {
+                return (response as { data: PalletOption[] }).data;
+            }
+            return [];
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch pallet options'));
         }
@@ -111,30 +120,17 @@ export const fetchPalletOptions = createAsyncThunk<PalletOption[], void, { rejec
 );
 
 // Create delivery
-export const createDelivery = createAsyncThunk(
+export const createDelivery = createAsyncThunk<
+    DeliveryResponse,
+    CreateDeliveryRequest,
+    { rejectValue: string }
+>(
     'delivery/create',
     async (deliveryData: CreateDeliveryRequest, { rejectWithValue }) => {
         try {
-            const response = await fetchWithAuth('/api/production/delivery', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(deliveryData),
-            });
-            const data = await response.json();
-
-            // Handle HTTP errors
-            if (!response.ok) {
-                return rejectWithValue(data.message || 'Failed to create delivery');
-            }
-
-            // Handle business logic errors (HTTP 200 but success: false)
-            if (data.success === false) {
-                return rejectWithValue(data.message || data.error || 'Delivery failed');
-            }
-
-            return data;
-        } catch (error: any) {
-            return rejectWithValue(error.message);
+            return await post<DeliveryResponse, CreateDeliveryRequest>('/production/delivery', deliveryData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to create delivery'));
         }
     }
 );
