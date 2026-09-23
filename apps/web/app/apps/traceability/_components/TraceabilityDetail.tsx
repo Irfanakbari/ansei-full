@@ -102,10 +102,11 @@ export default function TraceabilityDetail({
                         children: (
                             <Table<TraceEvent>
                                 size="small"
+                                className="small-table"
                                 loading={loading}
                                 rowKey="Id"
                                 dataSource={events?.data ?? []}
-                                scroll={{x: "max-content"}}
+                                scroll={{x: "max-content", y: "calc(100vh - 440px)"}}
                                 columns={[
                                     {
                                         title: "Time",
