@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import {Alert, Descriptions, Table, Tabs, Tag, Tooltip, Typography} from "antd";
+import {Descriptions, Table, Tabs, Tag, Tooltip, Typography} from "antd";
 import SnapshotTable from "@/components/traceability/SnapshotTable";
 import MaterialUsageTable from "@/components/traceability/MaterialUsageTable";
 import type {
@@ -52,21 +52,11 @@ export default function TraceabilityDetail({
                                            }: TraceabilityDetailProps) {
     return (
         <>
-            <Alert
-                type={data.completeness === "LEGACY" ? "warning" : "info"}
-                showIcon
-                title={
-                    data.completeness === "LEGACY"
-                        ? "Legacy — historical BOM unavailable"
-                        : "Document-level traceability — material lot not tracked"
-                }
-                description="Materials and labels are related through the PO. This does not prove material consumption by individual box."
-            />
             <Descriptions
                 bordered
                 size="small"
                 column={{xs: 1, sm: 2, lg: 3}}
-                style={{margin: "12px 0"}}
+                style={{marginBottom: 12}}
                 items={[
                     {key: "po", label: "PO", children: data.forecast.PoId},
                     {
@@ -106,7 +96,7 @@ export default function TraceabilityDetail({
                                 loading={loading}
                                 rowKey="Id"
                                 dataSource={events?.data ?? []}
-                                scroll={{x: "max-content", y: "calc(100vh - 440px)"}}
+                                scroll={{x: "max-content", y: "calc(100vh - 490px)"}}
                                 columns={[
                                     {
                                         title: "Time",
