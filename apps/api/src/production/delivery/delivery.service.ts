@@ -37,10 +37,18 @@ export class DeliveryService {
     const palletsUrl =
       process.env.PALLET_CONNECTOR_PALLETS_URL ||
       'https://apps2.vuteq.co.id/connector/v2/pallets?customer=P';
+    const apiKey = process.env.PALLET_CONNECTOR_API_KEY?.trim();
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
     try {
-      const res = await fetch(palletsUrl, { signal: controller.signal });
+      const headers: Record<string, string> = {};
+      if (apiKey) {
+        headers['x-api-key'] = apiKey;
+      }
+      const res = await fetch(palletsUrl, {
+        headers,
+        signal: controller.signal,
+      });
       if (!res.ok) {
         return [];
       }

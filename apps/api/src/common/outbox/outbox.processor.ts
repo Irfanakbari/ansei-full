@@ -134,12 +134,19 @@ export class OutboxProcessor extends WorkerHost {
         const historiesUrl =
           process.env.PALLET_CONNECTOR_HISTORIES_URL ||
           'https://apps2.vuteq.co.id/connector/v2/histories';
+        const apiKey = process.env.PALLET_CONNECTOR_API_KEY?.trim();
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
         try {
+          const headers: Record<string, string> = {
+            'Content-Type': 'application/json',
+          };
+          if (apiKey) {
+            headers['x-api-key'] = apiKey;
+          }
           const res = await fetch(historiesUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({ kode: payload.kode.trim() }),
             signal: controller.signal,
           });
