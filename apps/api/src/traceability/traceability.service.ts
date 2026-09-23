@@ -129,12 +129,27 @@ export class TraceabilityService {
         ),
       };
     });
+    const allActors = [
+      ...shopping.map((s) => s.CreatedBy),
+      ...cases.map((c) => c.CreatedBy),
+    ];
+    const actorNameMap = await getUserDisplayNameMap(allActors, this.prisma);
+
+    const enrichedShopping = shopping.map((s) => ({
+      ...s,
+      CreatedByName: actorNameMap.get(s.CreatedBy) ?? s.CreatedBy,
+    }));
+    const enrichedCases = cases.map((c) => ({
+      ...c,
+      CreatedByName: actorNameMap.get(c.CreatedBy) ?? c.CreatedBy,
+    }));
+
     return {
       forecast,
       snapshot,
       materials,
-      shopping,
-      cases,
+      shopping: enrichedShopping,
+      cases: enrichedCases,
       labels,
       reports,
       materialLotTracked: false,

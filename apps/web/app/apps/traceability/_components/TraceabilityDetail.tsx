@@ -151,7 +151,14 @@ export default function TraceabilityDetail({
                                         {title: "Material", dataIndex: "MaterialId"},
                                         {title: "Purpose", dataIndex: "Purpose"},
                                         {title: "Qty", dataIndex: "QtyPick"},
-                                        {title: "Actor", dataIndex: "CreatedBy"},
+                                        {
+                                            title: "Actor",
+                                            render: (_, record) =>
+                                                rawValueTooltip(
+                                                    record.CreatedByName || record.CreatedBy || "-",
+                                                    record.CreatedBy,
+                                                ),
+                                        },
                                     ]}
                                     scroll={{x: "max-content"}}
                                 />
@@ -180,7 +187,14 @@ export default function TraceabilityDetail({
                                     {title: "Stage", dataIndex: "Stage"},
                                     {title: "Reason", dataIndex: "Reason"},
                                     {title: "Status", dataIndex: "Status"},
-                                    {title: "Actor", dataIndex: "CreatedBy"},
+                                    {
+                                        title: "Actor",
+                                        render: (_, record) =>
+                                            rawValueTooltip(
+                                                record.CreatedByName || record.CreatedBy || "-",
+                                                record.CreatedBy,
+                                            ),
+                                    },
                                 ]}
                                 scroll={{x: "max-content"}}
                             />

@@ -84,6 +84,7 @@ export interface ShoppingRecord {
     Purpose: string;
     Description: string | null;
     CreatedBy: string;
+    CreatedByName?: string;
     CreatedAt: string;
 }
 
@@ -105,6 +106,7 @@ export interface NgCase {
     Reason: string;
     Status: "OPEN" | "FULFILLED" | "CLOSED" | "CANCELLED";
     CreatedBy: string;
+    CreatedByName?: string;
     CreatedAt: string;
     CloseReason: string | null;
     Details: NgDetail[];
