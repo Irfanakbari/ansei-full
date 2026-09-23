@@ -66,6 +66,7 @@ enum NotificationType {
 enum OutboxEventType {
   PRINT_PART_TAG_ANSEI
   DELIVERY_NOTE_EMAIL
+  PALLET_CONNECTOR_HISTORY
 }
 
 enum OutboxEventStatus {
@@ -665,12 +666,13 @@ model PokayokeScanHistory {
 }
 
 model DeliveryHistory {
-  Id          Int      @id @default(autoincrement())
-  ForecastId  String //ambil dari PoID
-  Qty         Int
-  CreatedAt   DateTime @default(now())
-  CreatedBy   String
-  LabelDataId String   @unique(map: "DeliveryHistory_pk")
+  Id           Int      @id @default(autoincrement())
+  ForecastId   String //ambil dari PoID
+  Qty          Int
+  PalletNumber String?
+  CreatedAt    DateTime @default(now())
+  CreatedBy    String
+  LabelDataId  String   @unique(map: "DeliveryHistory_pk")
 
   PoData    Forecast  @relation(fields: [ForecastId], references: [PoId])
   LabelData LabelData @relation(fields: [LabelDataId], references: [LabelNumber])

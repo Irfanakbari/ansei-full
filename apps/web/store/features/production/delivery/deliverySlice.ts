@@ -8,12 +8,19 @@ export interface DeliveryEntity {
     id: number;
     forecastId: string;
     qty: number;
+    palletNumber?: string | null;
     createdAt: string;
     createdBy: string;
     createdByName?: string;
     labelDataId: string;
     labelNumber: string;
     releaseNumber: string | null;
+}
+
+export interface PalletOption {
+    kode: string;
+    name?: string;
+    partName?: string;
 }
 
 // Delivery response interface
@@ -35,12 +42,15 @@ export interface DeliveryQuery {
 // Create delivery request interface
 export interface CreateDeliveryRequest {
     labelDataId: number;
+    palletNumber?: string;
 }
 
 // Paginated response
 // Delivery state
 interface DeliveryState {
     data: DeliveryEntity[];
+    palletOptions: PalletOption[];
+    loadingPallets: boolean;
     loading: boolean;
     creating: boolean;
     error: string | null;
@@ -56,6 +66,8 @@ interface DeliveryState {
 
 const initialState: DeliveryState = {
     data: [],
+    palletOptions: [],
+    loadingPallets: false,
     loading: false,
     creating: false,
     error: null,
@@ -82,6 +94,18 @@ export const fetchDelivery = createAsyncThunk<PaginatedApiSuccessEnvelope<Delive
             });
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch delivery data'));
+        }
+    }
+);
+
+export const fetchPalletOptions = createAsyncThunk<PalletOption[], void, { rejectValue: string }>(
+    'delivery/fetchPalletOptions',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await get<PalletOption[]>('/production/delivery/pallets');
+            return Array.isArray(response) ? response : [];
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch pallet options'));
         }
     }
 );
@@ -152,6 +176,17 @@ const deliverySlice = createSlice({
             .addCase(fetchDelivery.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
+            })
+            // Fetch pallet options
+            .addCase(fetchPalletOptions.pending, (state) => {
+                state.loadingPallets = true;
+            })
+            .addCase(fetchPalletOptions.fulfilled, (state, action) => {
+                state.loadingPallets = false;
+                state.palletOptions = action.payload;
+            })
+            .addCase(fetchPalletOptions.rejected, (state) => {
+                state.loadingPallets = false;
             })
             // Create
             .addCase(createDelivery.pending, (state) => {

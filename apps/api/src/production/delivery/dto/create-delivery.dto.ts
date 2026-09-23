@@ -11,6 +11,14 @@ export class CreateDeliveryDto {
   @IsInt()
   @Min(1)
   labelDataId: number;
+
+  @ApiPropertyOptional({
+    description: 'Optional Pallet ID / Code for delivery',
+    example: 'PP2PANS001',
+  })
+  @IsOptional()
+  @IsString()
+  palletNumber?: string;
 }
 
 export class DeliveryQueryDto {

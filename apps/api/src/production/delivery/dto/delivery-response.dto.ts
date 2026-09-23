@@ -9,6 +9,7 @@ export class DeliveryDto {
   @ApiPropertyOptional() labelDataId: string | null;
   @ApiPropertyOptional() labelNumber: string | null;
   @ApiPropertyOptional() releaseNumber: string | null;
+  @ApiPropertyOptional() palletNumber: string | null;
 }
 
 export class PaginatedDeliveryDto {

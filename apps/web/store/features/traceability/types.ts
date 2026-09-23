@@ -169,7 +169,12 @@ export interface TraceData {
             StartedAt: string;
             EndedAt: string | null;
         }[];
-        DeliveryHistory: { Id: number; Qty: number; CreatedAt: string } | null;
+        DeliveryHistory: {
+            Id: number;
+            Qty: number;
+            PalletNumber?: string | null;
+            CreatedAt: string;
+        } | null;
     }[];
 }
 

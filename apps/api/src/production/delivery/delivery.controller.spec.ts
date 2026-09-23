@@ -96,4 +96,16 @@ describe('DeliveryController', () => {
       expect(service.findAll).toHaveBeenCalledWith({ forecastId: 'PO-001' });
     });
   });
+
+  describe('getPalletOptions', () => {
+    it('should return pallet options from service', async () => {
+      const mockPallets = [{ kode: 'PP2PANS001', name: 'ANSEI' }];
+      service.getPalletOptions = jest.fn().mockResolvedValue(mockPallets);
+
+      const result = await controller.getPalletOptions();
+
+      expect(result).toEqual(mockPallets);
+      expect(service.getPalletOptions).toHaveBeenCalled();
+    });
+  });
 });

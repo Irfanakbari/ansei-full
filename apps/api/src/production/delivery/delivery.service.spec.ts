@@ -10,11 +10,13 @@ import { BadRequestException } from '@nestjs/common';
 import { DeliveryService } from './delivery.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
+import { OutboxService } from '../../common/outbox/outbox.service';
 
 describe('DeliveryService', () => {
   let service: DeliveryService;
   let prismaService: any;
   let logService: any;
+  let outboxService: any;
 
   const createMockTx = () => ({
     productionTraceEvent: { create: jest.fn() },
@@ -87,18 +89,24 @@ describe('DeliveryService', () => {
     completeProcess: jest.fn(),
   };
 
+  const mockOutboxService = {
+    create: jest.fn().mockResolvedValue({}),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DeliveryService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: LogProcessService, useValue: mockLogService },
+        { provide: OutboxService, useValue: mockOutboxService },
       ],
     }).compile();
 
     service = module.get<DeliveryService>(DeliveryService);
     prismaService = mockPrismaService;
     logService = mockLogService;
+    outboxService = mockOutboxService;
     jest.clearAllMocks();
   });
 
@@ -161,6 +169,76 @@ describe('DeliveryService', () => {
       const result = await service.create(dto, 'admin');
 
       expect(result.success).toBe(true);
+    });
+
+    it('should create delivery with palletNumber and enqueue outbox event', async () => {
+      const dto = { labelDataId: 1, palletNumber: 'PP2PANS001' };
+      const mockLabelData = {
+        Id: 1,
+        LabelNumber: 'LBL001',
+        ForecastId: 'PO-001',
+        FinishGoodId: 'FG-001',
+        QtyThisBox: 100,
+        Scanned: true,
+      };
+      const mockForecast = {
+        PoId: 'PO-001',
+        FinishGoodId: 'FG-001',
+        VendorName: 'Vendor A',
+        Qty: 100,
+        ProductionReleaseId: 'release-1',
+      };
+      const mockProductionRelease = {
+        Id: 'release-1',
+        ReleaseNumber: 'REL001',
+        Status: 'RELEASED',
+      };
+      const mockFinishGood = { PartNumber: 'FG-001', Qty: 500 };
+      const mockDeliveryWithPallet = {
+        Id: 1,
+        ForecastId: 'PO-001',
+        Qty: 100,
+        PalletNumber: 'PP2PANS001',
+        CreatedAt: new Date(),
+        CreatedBy: 'admin',
+        LabelDataId: 'LBL001',
+      };
+
+      mockPrismaService.labelData.findUnique.mockResolvedValue(mockLabelData);
+      mockPrismaService.forecast.findUnique.mockResolvedValue(mockForecast);
+      mockPrismaService.productionRelease.findUnique.mockResolvedValue(
+        mockProductionRelease,
+      );
+      mockPrismaService.snapshotRequirements.findMany.mockResolvedValue([]);
+      mockPrismaService.shopping.findMany.mockResolvedValue([]);
+      mockPrismaService.finishGood.findUnique.mockResolvedValue(mockFinishGood);
+      mockPrismaService.deliveryHistory.findFirst.mockResolvedValue(null);
+
+      const mockTx = createMockTx();
+      mockTx.deliveryHistory.create.mockResolvedValue(mockDeliveryWithPallet);
+      mockTx.deliveryHistory.findUnique.mockResolvedValue(null);
+      mockTx.finishGood.findUnique.mockResolvedValue(mockFinishGood);
+      mockTx.finishGood.update.mockResolvedValue({});
+      mockTx.inventoryLedger.create.mockResolvedValue({});
+
+      mockPrismaService.$transaction.mockImplementation((callback) => {
+        return callback(mockTx);
+      });
+
+      const result = await service.create(dto, 'admin');
+
+      expect(result.success).toBe(true);
+      expect(result.data.palletNumber).toBe('PP2PANS001');
+      expect(outboxService.create).toHaveBeenCalledWith(
+        mockTx,
+        expect.objectContaining({
+          type: 'PALLET_CONNECTOR_HISTORY',
+          payload: {
+            kode: 'PP2PANS001',
+            deliveryId: 1,
+          },
+        }),
+      );
     });
 
     it('should throw error when label not found', async () => {
@@ -304,6 +382,47 @@ describe('DeliveryService', () => {
           where: expect.objectContaining({ ForecastId: 'PO-001' }),
         }),
       );
+    });
+  });
+
+  describe('getPalletOptions', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should return active pallet options', async () => {
+      const mockFetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            data: [
+              {
+                kode: 'PP2PANS001',
+                name: 'ANSEI',
+                isActive: 1,
+                partName: 'LATCH',
+              },
+              { kode: 'PP2PANS002', name: 'ANSEI', isActive: 0 },
+            ],
+          }),
+      });
+      global.fetch = mockFetch as any;
+
+      const result = await service.getPalletOptions();
+
+      expect(result).toEqual([
+        { kode: 'PP2PANS001', name: 'ANSEI', partName: 'LATCH' },
+      ]);
+    });
+
+    it('should return empty array on fetch failure', async () => {
+      global.fetch = jest
+        .fn()
+        .mockRejectedValue(new Error('Network error')) as any;
+
+      const result = await service.getPalletOptions();
+
+      expect(result).toEqual([]);
     });
   });
 });

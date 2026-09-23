@@ -156,6 +156,14 @@ export default function DeliveryPage() {
       ...getColumnSearchProps("labelNumber"),
     },
     {
+      title: "Pallet ID",
+      dataIndex: "palletNumber",
+      key: "palletNumber",
+      render: (val: string | null) =>
+        val ? <Tag color="purple">{val}</Tag> : "-",
+      ...getColumnSearchProps("palletNumber"),
+    },
+    {
       title: "Qty",
       dataIndex: "qty",
       key: "qty",

@@ -142,6 +142,8 @@ export function validateEnvironment(environment: Environment): Environment {
   }
 
   required(environment, ['ERROR_LOG_STORAGE_PATH'], production ? errors : []);
+  url(environment, 'PALLET_CONNECTOR_PALLETS_URL', errors, false);
+  url(environment, 'PALLET_CONNECTOR_HISTORIES_URL', errors, false);
   const retention =
     environment.ERROR_LOG_RETENTION ?? environment.ERROR_LOGS_RETENTION;
   if (retention && !/^\d+[dhm]$/.test(retention))

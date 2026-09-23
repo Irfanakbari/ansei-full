@@ -13,6 +13,7 @@ import {
 } from '../printer/printer.types';
 import {
   type DeliveryNoteEmailPayload,
+  type PalletConnectorHistoryPayload,
   DISPATCH_OUTBOX_EVENT,
   type OutboxJobPayload,
   OUTBOX_QUEUE,
@@ -112,6 +113,56 @@ export class OutboxProcessor extends WorkerHost {
           ),
         );
         return; // Only the printer worker can persist transport success.
+      }
+      if (event.Type === 'PALLET_CONNECTOR_HISTORY') {
+        const payload =
+          event.Payload as unknown as PalletConnectorHistoryPayload;
+        if (
+          !payload ||
+          typeof payload.kode !== 'string' ||
+          !payload.kode.trim()
+        ) {
+          throw new Error('Invalid pallet connector history payload');
+        }
+        event = await this.state.change(
+          event,
+          { LastErrorCode: SENDING },
+          'SEND',
+        );
+        if (!event) return;
+        externalStarted = true;
+        const historiesUrl =
+          process.env.PALLET_CONNECTOR_HISTORIES_URL ||
+          'https://apps2.vuteq.co.id/connector/v2/histories';
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        try {
+          const res = await fetch(historiesUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ kode: payload.kode.trim() }),
+            signal: controller.signal,
+          });
+          if (!res.ok) {
+            const errorBody = await res.text().catch(() => '');
+            throw new Error(
+              `Connector histories endpoint responded with HTTP ${res.status}: ${errorBody.slice(0, 200)}`,
+            );
+          }
+        } finally {
+          clearTimeout(timeout);
+        }
+        await this.state.change(
+          event,
+          {
+            Status: 'SUCCEEDED',
+            SucceededAt: new Date(),
+            LastErrorCode: 'OUTBOX_TRANSPORT_ACCEPTED',
+            LastError: null,
+          },
+          'TRANSPORT_ACCEPTED',
+        );
+        return;
       }
       const payload = event.Payload as unknown as DeliveryNoteEmailPayload;
       if (

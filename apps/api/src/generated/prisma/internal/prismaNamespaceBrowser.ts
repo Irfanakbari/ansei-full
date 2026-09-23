@@ -569,6 +569,7 @@ export const DeliveryHistoryScalarFieldEnum = {
   Id: 'Id',
   ForecastId: 'ForecastId',
   Qty: 'Qty',
+  PalletNumber: 'PalletNumber',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   LabelDataId: 'LabelDataId'

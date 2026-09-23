@@ -1,11 +1,11 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-10*/
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Modal, Form, Select, App, Button, Space } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { createDelivery, CreateDeliveryRequest } from '@/store/features/production/delivery/deliverySlice';
+import { createDelivery, CreateDeliveryRequest, fetchPalletOptions } from '@/store/features/production/delivery/deliverySlice';
 
 interface Props {
     visible: boolean;
@@ -20,7 +20,13 @@ const CreateDeliveryModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
     const [loading, setLoading] = useState(false);
 
     const { data: preDeliveryData } = useSelector((state: RootState) => state.preDelivery);
-    const { data: deliveryData } = useSelector((state: RootState) => state.delivery);
+    const { data: deliveryData, palletOptions, loadingPallets } = useSelector((state: RootState) => state.delivery);
+
+    useEffect(() => {
+        if (visible) {
+            void dispatch(fetchPalletOptions());
+        }
+    }, [visible, dispatch]);
 
     // Get list of labelDataIds that already have delivery
     // Compare both id and labelNumber since labelDataId could reference either
@@ -87,6 +93,24 @@ const CreateDeliveryModal: React.FC<Props> = ({ visible, onClose, onSuccess }) =
                             value: label.id,
                             label: `${label.labelNumber} · ${label.finishGoodName} · Qty ${label.qtyThisBox} · PO ${label.forecastId}`,
                             disabled: deliveredLabelIds.has(String(label.id)) || deliveredLabelIds.has(label.labelNumber),
+                        }))}
+                    />
+                </Form.Item>
+
+                <Form.Item
+                    name="palletNumber"
+                    label="Pallet ID (Optional)"
+                    extra="Select Pallet ID associated with this delivery (from Pallet API)."
+                >
+                    <Select
+                        placeholder="Select Pallet ID"
+                        allowClear
+                        showSearch={{ optionFilterProp: 'label' }}
+                        size="large"
+                        loading={loadingPallets}
+                        options={palletOptions.map((pallet) => ({
+                            value: pallet.kode,
+                            label: `${pallet.kode}${pallet.name ? ` · ${pallet.name}` : ''}${pallet.partName ? ` (${pallet.partName})` : ''}`,
                         }))}
                     />
                 </Form.Item>

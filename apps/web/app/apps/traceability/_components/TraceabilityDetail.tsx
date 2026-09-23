@@ -223,6 +223,15 @@ export default function TraceabilityDetail({
                                             "-",
                                     },
                                     {
+                                        title: "Pallet ID",
+                                        render: (_, record) =>
+                                            record.DeliveryHistory?.PalletNumber ? (
+                                                <Tag color="purple">{record.DeliveryHistory.PalletNumber}</Tag>
+                                            ) : (
+                                                "-"
+                                            ),
+                                    },
+                                    {
                                         title: "Delivered Qty",
                                         render: (_, record) => record.DeliveryHistory?.Qty ?? 0,
                                     },

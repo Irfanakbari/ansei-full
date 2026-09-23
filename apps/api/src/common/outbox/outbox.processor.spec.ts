@@ -168,4 +168,30 @@ describe('OutboxProcessor', () => {
       'DOCUMENT_CHANGED',
     );
   });
+
+  it('submits pallet connector history to remote API and marks succeeded', async () => {
+    const f = fixture('PALLET_CONNECTOR_HISTORY');
+    f.event.Payload = { kode: 'PP2PANS001', deliveryId: 10 };
+    const mockFetch = jest.fn().mockResolvedValue({ ok: true });
+    global.fetch = mockFetch as any;
+
+    await f.processor.process(f.job as never);
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/connector/v2/histories'),
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kode: 'PP2PANS001' }),
+      }),
+    );
+    expect(f.state.change).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        Status: 'SUCCEEDED',
+        LastErrorCode: 'OUTBOX_TRANSPORT_ACCEPTED',
+      }),
+      'TRANSPORT_ACCEPTED',
+    );
+  });
 });

@@ -84,7 +84,10 @@ export class OutboxService {
     tx: Prisma.TransactionClient,
     input: {
       idempotencyKey: string;
-      type: 'PRINT_PART_TAG_ANSEI' | 'DELIVERY_NOTE_EMAIL';
+      type:
+        | 'PRINT_PART_TAG_ANSEI'
+        | 'DELIVERY_NOTE_EMAIL'
+        | 'PALLET_CONNECTOR_HISTORY';
       payload: OutboxPayload;
       actor: string;
       referenceType: string;

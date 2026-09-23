@@ -21,13 +21,57 @@ import {
   assertLabelReady,
   lockProductionFlow,
 } from '../../common/helpers/production-flow.helper';
+import { OutboxService } from '../../common/outbox/outbox.service';
 
 @Injectable()
 export class DeliveryService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
+    private readonly outboxService: OutboxService,
   ) {}
+
+  async getPalletOptions(): Promise<
+    Array<{ kode: string; name?: string; partName?: string }>
+  > {
+    const palletsUrl =
+      process.env.PALLET_CONNECTOR_PALLETS_URL ||
+      'https://apps2.vuteq.co.id/connector/v2/pallets?customer=P';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+      const res = await fetch(palletsUrl, { signal: controller.signal });
+      if (!res.ok) {
+        return [];
+      }
+      const json = (await res.json()) as {
+        data?: Array<{
+          kode: string;
+          name?: string;
+          partName?: string;
+          isActive?: number;
+        }>;
+      };
+      const list = Array.isArray(json?.data) ? json.data : [];
+      return list
+        .filter(
+          (item) =>
+            item &&
+            item.isActive === 1 &&
+            typeof item.kode === 'string' &&
+            item.kode.trim().length > 0,
+        )
+        .map((item) => ({
+          kode: item.kode.trim(),
+          name: item.name ?? undefined,
+          partName: item.partName ?? undefined,
+        }));
+    } catch {
+      return [];
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
 
   async create(dto: CreateDeliveryDto, createdBy: string) {
     let logProcess: LogProcessModel | undefined;
@@ -366,18 +410,36 @@ export class DeliveryService {
             data: {
               ForecastId: labelData.ForecastId,
               Qty: labelData.QtyThisBox,
+              PalletNumber: dto.palletNumber?.trim() || null,
               CreatedBy: createdBy,
               LabelDataId: labelData.LabelNumber,
             },
           });
 
+          const palletSuffix = delivery.PalletNumber
+            ? ` (Pallet=${delivery.PalletNumber})`
+            : '';
           await this.logService.addLog({
             processId: localProcessId,
-            message: `DeliveryHistory created: ID=${delivery.Id}`,
+            message: `DeliveryHistory created: ID=${delivery.Id}${palletSuffix}`,
             type: 'INFO',
             location: 'delivery.service.ts:266',
             client: tx,
           });
+
+          if (dto.palletNumber?.trim()) {
+            await this.outboxService.create(tx, {
+              idempotencyKey: `DELIVERY_PALLET_${delivery.Id}_${dto.palletNumber.trim()}`,
+              type: 'PALLET_CONNECTOR_HISTORY',
+              payload: {
+                kode: dto.palletNumber.trim(),
+                deliveryId: delivery.Id,
+              },
+              actor: createdBy,
+              referenceType: 'DeliveryHistory',
+              referenceId: String(delivery.Id),
+            });
+          }
 
           // Update FinishGood stock
           await tx.finishGood.update({
@@ -459,6 +521,7 @@ export class DeliveryService {
             id: result.delivery.Id,
             forecastId: result.delivery.ForecastId,
             qty: result.delivery.Qty,
+            palletNumber: result.delivery.PalletNumber ?? null,
             deliveredAt: result.delivery.CreatedAt,
             deliveredBy: result.delivery.CreatedBy,
           },
@@ -472,6 +535,7 @@ export class DeliveryService {
           id: result.delivery.Id,
           forecastId: result.delivery.ForecastId,
           qty: result.delivery.Qty,
+          palletNumber: result.delivery.PalletNumber ?? null,
           createdAt: result.delivery.CreatedAt,
           createdBy: result.delivery.CreatedBy,
           labelDataId: result.delivery.LabelDataId,
@@ -532,6 +596,7 @@ export class DeliveryService {
         id: item.Id,
         forecastId: item.ForecastId,
         qty: item.Qty,
+        palletNumber: item.PalletNumber ?? null,
         createdAt: item.CreatedAt,
         createdBy: item.CreatedBy,
         labelDataId: item.LabelDataId,

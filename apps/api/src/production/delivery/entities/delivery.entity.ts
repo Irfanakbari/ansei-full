@@ -33,6 +33,11 @@ export class DeliveryEntity {
     description: 'Human-readable production release number',
   })
   releaseNumber?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Pallet ID / Code for delivery',
+  })
+  palletNumber?: string | null;
 }
 
 export class DeliveryResponseEntity {

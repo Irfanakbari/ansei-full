@@ -33,6 +33,15 @@ export class DeliveryController {
     return this.deliveryService.create(dto, user.username);
   }
 
+  @Get('pallets')
+  @Permission('IPCS.DELIVERY_READ')
+  @ApiOperation({
+    summary: 'Get active pallet options from connector API',
+  })
+  async getPalletOptions() {
+    return this.deliveryService.getPalletOptions();
+  }
+
   @Get()
   @Permission('IPCS.DELIVERY_READ')
   @ApiOperation({

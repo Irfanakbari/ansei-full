@@ -77,7 +77,8 @@ export type NotificationType = (typeof NotificationType)[keyof typeof Notificati
 
 export const OutboxEventType = {
   PRINT_PART_TAG_ANSEI: 'PRINT_PART_TAG_ANSEI',
-  DELIVERY_NOTE_EMAIL: 'DELIVERY_NOTE_EMAIL'
+  DELIVERY_NOTE_EMAIL: 'DELIVERY_NOTE_EMAIL',
+  PALLET_CONNECTOR_HISTORY: 'PALLET_CONNECTOR_HISTORY'
 } as const
 
 export type OutboxEventType = (typeof OutboxEventType)[keyof typeof OutboxEventType]

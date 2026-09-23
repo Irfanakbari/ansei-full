@@ -13,7 +13,15 @@ export interface DeliveryNoteEmailPayload {
   message?: string;
 }
 
-export type OutboxPayload = PartTagAnseiPayload | DeliveryNoteEmailPayload;
+export interface PalletConnectorHistoryPayload {
+  kode: string;
+  deliveryId: number;
+}
+
+export type OutboxPayload =
+  | PartTagAnseiPayload
+  | DeliveryNoteEmailPayload
+  | PalletConnectorHistoryPayload;
 
 export interface OutboxJobPayload {
   eventId: string;
