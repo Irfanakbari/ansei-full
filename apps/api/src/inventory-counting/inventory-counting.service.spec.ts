@@ -40,6 +40,7 @@ describe('InventoryCountingService', () => {
       },
       stockOpnameDetail: {
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
         findMany: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
@@ -524,6 +525,114 @@ describe('InventoryCountingService', () => {
       await expect(
         service.updateActualStock('123', 1, { actualQty: 100 }, 'test'),
       ).rejects.toThrow(NotFoundException);
+      expect(prismaService.stockOpnameDetail.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('batchUpdateActualStock', () => {
+    it('should atomically update all count values and synchronize a material rack row', async () => {
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        Status: OpnameStatus.IN_PROGRESS,
+      });
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue([
+        {
+          Id: 1,
+          OpnameId: '123',
+          MaterialId: 'MAT-001',
+          Location: 'WAREHOUSE',
+          SystemQty: 10,
+          SystemQtyRack: 0,
+          Notes: null,
+        },
+        {
+          Id: 3,
+          OpnameId: '123',
+          MaterialId: null,
+          Location: 'FINISH_GOOD_AREA',
+          SystemQty: 20,
+          SystemQtyRack: 0,
+          Notes: null,
+        },
+      ]);
+      prismaService.stockOpnameDetail.findFirst.mockResolvedValue({
+        Id: 2,
+        SystemQty: 4,
+        SystemQtyRack: 4,
+      });
+      prismaService.stockOpnameDetail.update
+        .mockResolvedValueOnce({ Id: 1, ActualQty: 9, DiffQty: -1 })
+        .mockResolvedValueOnce({ Id: 2, ActualQty: 5, DiffQty: 1 })
+        .mockResolvedValueOnce({ Id: 3, ActualQty: 22, DiffQty: 2 });
+
+      const result = await service.batchUpdateActualStock(
+        '123',
+        {
+          items: [
+            { detailId: 1, actualQty: 9, actualQtyRack: 5 },
+            { detailId: 3, actualQty: 22 },
+          ],
+        },
+        'test',
+      );
+
+      expect(prismaService.$transaction).toHaveBeenCalledTimes(1);
+      expect(prismaService.stockOpnameDetail.update).toHaveBeenNthCalledWith(
+        2,
+        {
+          where: { Id: 2 },
+          data: {
+            ActualQty: 5,
+            ActualQtyRack: 5,
+            DiffQty: 1,
+            DiffQtyRack: 1,
+          },
+        },
+      );
+      expect(result.data).toHaveLength(2);
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        mockLogProcess.ProcessId,
+        'SUCCESS',
+      );
+    });
+
+    it('should reject the whole batch when a detail does not belong to the counting', async () => {
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        Status: OpnameStatus.IN_PROGRESS,
+      });
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue([]);
+
+      await expect(
+        service.batchUpdateActualStock(
+          '123',
+          { items: [{ detailId: 99, actualQty: 1 }] },
+          'test',
+        ),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(prismaService.stockOpnameDetail.update).not.toHaveBeenCalled();
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        mockLogProcess.ProcessId,
+        'FAILED',
+      );
+    });
+
+    it('should preserve the IN_PROGRESS status validation', async () => {
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        Status: OpnameStatus.COMPLETED,
+      });
+
+      await expect(
+        service.batchUpdateActualStock(
+          '123',
+          { items: [{ detailId: 1, actualQty: 1 }] },
+          'test',
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(prismaService.stockOpnameDetail.findMany).not.toHaveBeenCalled();
       expect(prismaService.stockOpnameDetail.update).not.toHaveBeenCalled();
     });
   });

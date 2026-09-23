@@ -2,7 +2,7 @@
 "use client";
 
 import React, {useCallback, useEffect, useState, useRef} from 'react';
-import {Table, Card, Breadcrumb, App, Input, Button, Space, Tag, Tooltip} from 'antd';
+import {Alert, Table, Card, Breadcrumb, App, Input, Button, Space, Tag, Tooltip} from 'antd';
 import type {InputRef, TableProps} from 'antd';
 import {
     ReloadOutlined,
@@ -327,6 +327,14 @@ export default function TransferMaterialPage() {
         <Card variant="borderless" styles={{body: {padding: 0}}}>
             <Breadcrumb style={{marginBottom: 16}}
                         items={[{title: 'Home'}, {title: 'Warehouse'}, {title: 'Transfer Material'}]}/>
+
+            <Alert
+                type="info"
+                showIcon
+                title="Draft transfer material can be created during Inventory Counting."
+                description="Picking and shipping remain unavailable until the active material Inventory Counting is completed."
+                style={{marginBottom: 16}}
+            />
 
             <ToolbarWrapper>
                 <ButtonToolbar

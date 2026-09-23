@@ -184,6 +184,39 @@ describe('MaterialDeliveryNoteService', () => {
   });
 
   describe('create', () => {
+    it('should create a DRAFT delivery note while inventory counting is active', async () => {
+      const createDto = {
+        destination: 'Gudang Subcont A',
+        notes: 'Transfer untuk produksi',
+        items: [{ materialId: 'MAT-001', qtyRequested: 100 }],
+      };
+
+      prismaService.stockOpname = {
+        findFirst: jest.fn().mockResolvedValue({
+          Id: 'opname-1234',
+          OpnameNumber: 'SO-MAT/2026/06/0001',
+          Category: 'MATERIAL',
+          Status: 'IN_PROGRESS',
+        }),
+      };
+      prismaService.material.findMany.mockResolvedValue([mockMaterial]);
+      prismaService.materialDeliveryNote.findFirst.mockResolvedValue(null);
+      prismaService.materialDeliveryNote.create.mockResolvedValue(
+        mockDeliveryNote,
+      );
+      prismaService.materialDeliveryNoteDetail.createMany.mockResolvedValue({
+        count: 1,
+      });
+      prismaService.materialDeliveryNote.findUnique.mockResolvedValue(
+        mockDeliveryNote,
+      );
+
+      await expect(service.create(createDto, 'admin')).resolves.toEqual(
+        mockDeliveryNote,
+      );
+      expect(prismaService.stockOpname.findFirst).not.toHaveBeenCalled();
+    });
+
     it('should create a delivery note successfully', async () => {
       const createDto = {
         destination: 'Gudang Subcont A',
@@ -314,6 +347,31 @@ describe('MaterialDeliveryNoteService', () => {
       expect(
         prismaService.materialDeliveryNoteDetail.update,
       ).toHaveBeenCalled();
+    });
+
+    it('should block picking while inventory counting is active', async () => {
+      prismaService.materialDeliveryNote.findUnique.mockResolvedValue(
+        mockDeliveryNote,
+      );
+      prismaService.stockOpname = {
+        findFirst: jest.fn().mockResolvedValue({
+          Id: 'opname-1234',
+          OpnameNumber: 'SO-MAT/2026/06/0001',
+          Category: 'MATERIAL',
+          Status: 'IN_PROGRESS',
+        }),
+      };
+
+      await expect(
+        service.pick(
+          'uuid-1234',
+          { items: [{ materialId: 'MAT-001', qtyPicking: 100 }] },
+          'operator',
+        ),
+      ).rejects.toThrow(BadRequestException);
+      expect(
+        prismaService.materialDeliveryNoteDetail.update,
+      ).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException when not DRAFT', async () => {

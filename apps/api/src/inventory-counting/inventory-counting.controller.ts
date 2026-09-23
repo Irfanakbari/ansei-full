@@ -38,6 +38,7 @@ import {
   GenerateExcelDto,
   ValidateMaterialRackDto,
   ApplyOcrResultsDto,
+  BatchUpdateActualStockDto,
 } from './dto';
 import {
   InventoryCountingEntity,
@@ -288,6 +289,22 @@ export class InventoryCountingController {
     @Body() dto: ValidateMaterialRackDto,
   ) {
     return this.inventoryCountingService.validateMaterialRack(id, dto.rackQr);
+  }
+
+  @Patch(':id/details/batch')
+  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
+  @ApiOperation({ summary: 'Update actual stock for multiple detail items' })
+  @ApiParam({ name: 'id', description: 'StockOpname ID' })
+  async batchUpdateActualStock(
+    @Param('id') id: string,
+    @Body() dto: BatchUpdateActualStockDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.inventoryCountingService.batchUpdateActualStock(
+      id,
+      dto,
+      user.username,
+    );
   }
 
   @Patch(':id/details/:detailId')

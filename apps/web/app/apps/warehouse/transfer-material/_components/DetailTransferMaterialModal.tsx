@@ -2,7 +2,7 @@
 "use client";
 
 import React, {useState, useEffect} from 'react';
-import {Modal, Table, Tag, Button, Space, Descriptions, Statistic, Card, Row, Col, App, InputNumber} from 'antd';
+import {Alert, Modal, Table, Tag, Button, Space, Descriptions, Statistic, Card, Row, Col, App, InputNumber} from 'antd';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@/store';
 import {
@@ -375,15 +375,13 @@ const DetailTransferMaterialModal: React.FC<Props> = ({visible, onClose, data, o
             )}
 
             {isPickingMode && (
-                <div style={{
-                    marginBottom: 8,
-                    padding: 8,
-                    background: '#e6f7ff',
-                    borderRadius: 4,
-                    border: '1px solid #91d5ff'
-                }}>
-                    <strong>Picking Mode:</strong> Click Edit to change picking qty per item, then Save All to save.
-                </div>
+                <Alert
+                    type="info"
+                    showIcon
+                    title="Picking Mode"
+                    description="Click Edit to change picking quantity per item, then Save All. Picking is unavailable while material Inventory Counting is active."
+                    style={{marginBottom: 8}}
+                />
             )}
 
             <Table

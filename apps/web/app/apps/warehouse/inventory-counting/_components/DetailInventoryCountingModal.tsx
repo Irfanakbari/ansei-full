@@ -25,7 +25,7 @@ import type {UploadProps} from 'antd';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@/store';
 import {
-    updateActualStock,
+    batchUpdateActualStock,
     fetchInventoryCountingDetails,
     generateTemporaryReport,
     generateFinalReport,
@@ -36,7 +36,14 @@ import {
     OcrPreviewItem,
     previewInventoryCountingOcr,
 } from '@/store/features/warehouse/inventoryCounting/inventoryCountingSlice';
-import {SaveOutlined, CheckCircleOutlined, DownloadOutlined, SearchOutlined, DeleteOutlined, ScanOutlined} from '@ant-design/icons';
+import {
+    SaveOutlined,
+    CheckCircleOutlined,
+    DownloadOutlined,
+    SearchOutlined,
+    DeleteOutlined,
+    ScanOutlined
+} from '@ant-design/icons';
 import ReviewApprovalModal from './ReviewApprovalModal';
 
 export interface MergedCountingDetail extends InventoryCountingDetailEntity {
@@ -221,6 +228,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
 
     const totalItems = details.length;
     const progressPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+    const pendingChangeCount = Object.keys(editedValues).length;
 
     const handleActualChange = (recordId: number, type: 'wh' | 'rack', val: number | null) => {
         setEditedValues(prev => ({
@@ -241,9 +249,9 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
 
         setUpdating(true);
         try {
-            const promises = keys.map(async (recordId) => {
+            const items = keys.map((recordId) => {
                 const record = details.find(d => d.Id === recordId);
-                if (!record) return;
+                if (!record) throw new Error('Inventory counting detail was not found');
 
                 const edits = editedValues[recordId];
                 const warehouseVal = edits.wh !== undefined ? edits.wh : (record.ActualQty ?? 0);
@@ -254,36 +262,18 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
                 }
 
                 const detailIdToUpdate = record.warehouseDetailId || record.rackDetailId || record.Id;
-                const dto = data?.Category === 'MATERIAL'
-                    ? {actualQty: warehouseVal, actualQtyRack: rackVal}
-                    : {actualQty: warehouseVal};
-
-                const result = await dispatch(updateActualStock({
-                    inventoryCountingId: data.Id,
-                    detailId: detailIdToUpdate,
-                    dto,
-                }));
-
-                if (updateActualStock.rejected.match(result)) {
-                    throw new Error((result.payload as string) || 'Failed to update stock');
-                }
-
-                // Update local state for success
-                setDetails(prev => prev.map(d => d.Id === recordId ? {
-                    ...d,
-                    ActualQty: warehouseVal,
-                    ActualQtyRack: data?.Category === 'MATERIAL' ? rackVal : null,
-                    DiffQty: warehouseVal - d.SystemQty,
-                    DiffQtyRack: data?.Category === 'MATERIAL' ? rackVal - d.SystemQtyRack : null,
-                } : d));
+                return data?.Category === 'MATERIAL'
+                    ? {detailId: detailIdToUpdate, actualQty: warehouseVal, actualQtyRack: rackVal}
+                    : {detailId: detailIdToUpdate, actualQty: warehouseVal};
             });
 
-            await Promise.all(promises);
+            await dispatch(batchUpdateActualStock({inventoryCountingId: data.Id, items})).unwrap();
+            setDetailRefreshNonce(value => value + 1);
             antMessage.success('Page changes saved successfully');
             setEditedValues({});
             onRefresh?.();
-        } catch (error: any) {
-            antMessage.error(error?.message || 'Failed to save some changes');
+        } catch (error: unknown) {
+            antMessage.error(typeof error === 'string' ? error : error instanceof Error ? error.message : 'Failed to save changes');
         } finally {
             setUpdating(false);
         }
@@ -385,14 +375,20 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
                                     dataIndex: 'matchedPartNumber',
                                     render: (value: string | null) => value ?? '-',
                                 },
-                                {title: 'Location', dataIndex: 'location', width: 150, render: (value: string) => <Tag>{value}</Tag>},
+                                {
+                                    title: 'Location',
+                                    dataIndex: 'location',
+                                    width: 150,
+                                    render: (value: string) => <Tag>{value}</Tag>
+                                },
                                 {title: 'Actual Qty', dataIndex: 'actualQty', width: 120, align: 'right'},
                                 {
                                     title: 'Validation',
                                     dataIndex: 'status',
                                     width: 130,
                                     render: (value: OcrPreviewItem['status']) => (
-                                        <Tag color={value === 'MATCHED' ? 'success' : value === 'SUGGESTED' ? 'warning' : 'error'}>{value.replace('_', ' ')}</Tag>
+                                        <Tag
+                                            color={value === 'MATCHED' ? 'success' : value === 'SUGGESTED' ? 'warning' : 'error'}>{value.replace('_', ' ')}</Tag>
                                     ),
                                 },
                             ]}
@@ -667,7 +663,8 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
                             Temporary Report
                         </Button>
                         {canUpdate && (
-                            <Tooltip title={data?.Status !== 'IN_PROGRESS' ? 'Start inventory counting before using OCR.' : undefined}>
+                            <Tooltip
+                                title={data?.Status !== 'IN_PROGRESS' ? 'Start inventory counting before using OCR.' : undefined}>
                                 <span>
                                     <Upload
                                         accept="application/pdf,.pdf"
@@ -774,15 +771,24 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
                     )}
                 </Space>
                 {data?.Status === 'IN_PROGRESS' && canUpdate && (
-                    <Button
-                        type="primary"
-                        icon={<SaveOutlined/>}
-                        onClick={handleSavePageChanges}
-                        loading={updating}
-                        disabled={Object.keys(editedValues).length === 0}
-                    >
-                        Apply / Save Changes in Page
-                    </Button>
+                    <Space size="small">
+                        {pendingChangeCount > 0 && (
+                            <span style={{fontSize: 12, color: '#595959'}}>
+                                {pendingChangeCount} change{pendingChangeCount === 1 ? '' : 's'} pending
+                            </span>
+                        )}
+                        <Tooltip title="Saves all changed rows on this page in one batch request (maximum 50 rows).">
+                            <Button
+                                type="primary"
+                                icon={<SaveOutlined/>}
+                                onClick={handleSavePageChanges}
+                                loading={updating}
+                                disabled={pendingChangeCount === 0}
+                            >
+                                {updating ? 'Saving page changes...' : 'Apply / Save Changes in Page'}
+                            </Button>
+                        </Tooltip>
+                    </Space>
                 )}
             </div>
 

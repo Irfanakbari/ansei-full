@@ -33,6 +33,7 @@ describe('InventoryCountingController', () => {
       start: jest.fn(),
       generateCutOff: jest.fn(),
       updateActualStock: jest.fn(),
+      batchUpdateActualStock: jest.fn(),
       uploadAttachments: jest.fn(),
       getAttachments: jest.fn(),
       downloadAttachment: jest.fn(),
@@ -326,6 +327,27 @@ describe('InventoryCountingController', () => {
         '123',
         1,
         mockDto,
+        mockUser.username,
+      );
+    });
+  });
+
+  describe('batchUpdateActualStock', () => {
+    it('should update a batch using the authenticated actor', async () => {
+      const dto = { items: [{ detailId: 1, actualQty: 95 }] };
+      const mockResult = { success: true, data: [{ Id: 1 }] };
+      service.batchUpdateActualStock.mockResolvedValue(mockResult);
+
+      const result = await controller.batchUpdateActualStock(
+        '123',
+        dto,
+        mockUser,
+      );
+
+      expect(result).toEqual(mockResult);
+      expect(service.batchUpdateActualStock).toHaveBeenCalledWith(
+        '123',
+        dto,
         mockUser.username,
       );
     });

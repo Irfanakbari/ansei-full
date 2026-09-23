@@ -94,12 +94,8 @@ export class MaterialDeliveryNoteService {
         location: 'material-delivery-note.service.ts:55',
       });
 
-      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
-      await assertNoActiveInventoryCounting(
-        this.prisma,
-        ItemCategory.MATERIAL,
-        'Material Delivery Note',
-      );
+      // Creating a DRAFT only records a request and does not reserve or mutate stock.
+      // Inventory Counting blocks the subsequent picking and shipping activities instead.
 
       // Validate materials exist and are active
       const materialIds = dto.items.map((i) => i.materialId);
@@ -450,6 +446,13 @@ export class MaterialDeliveryNoteService {
       if (!dn) {
         throw new NotFoundException(`Delivery note not found: ${id}`);
       }
+
+      // POKAYOKE: Picking validates warehouse availability and must pause during counting.
+      await assertNoActiveInventoryCounting(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        'Pick Material Delivery Note',
+      );
 
       // POKAYOKE: Check status is DRAFT
       if (dn.Status !== DeliveryNoteStatus.DRAFT) {

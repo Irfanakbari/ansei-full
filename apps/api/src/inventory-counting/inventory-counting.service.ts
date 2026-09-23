@@ -12,7 +12,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
-import type { LogProcessModel } from '../generated/prisma/models';
+import type {
+  LogProcessModel,
+  StockOpnameDetailModel,
+} from '../generated/prisma/models';
 import type { Prisma } from '../generated/prisma/client';
 import {
   CreateInventoryCountingDto,
@@ -22,6 +25,7 @@ import {
   GenerateCutOffDto,
   InventoryCountingQueryDto,
   ApplyOcrResultsDto,
+  BatchUpdateActualStockDto,
 } from './dto';
 import {
   ItemCategory,
@@ -2040,6 +2044,132 @@ export class InventoryCountingService {
           message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
           type: 'ERROR',
           location: 'inventory-counting.service.ts:716',
+        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  async batchUpdateActualStock(
+    id: string,
+    dto: BatchUpdateActualStockDto,
+    updatedBy: string,
+  ) {
+    let logProcess: LogProcessModel | undefined;
+
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'INV_COUNT_007',
+        functionName: 'InventoryCountingService.batchUpdateActualStock',
+        createdBy: updatedBy,
+      });
+
+      const detailIds = dto.items.map((item) => item.detailId);
+      if (new Set(detailIds).size !== detailIds.length) {
+        throw new BadRequestException('Duplicate detail IDs are not allowed');
+      }
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Updating ${dto.items.length} actual stock detail(s): OpnameId=${id}`,
+        type: 'INFO',
+        location: 'inventory-counting.service.ts',
+      });
+
+      const results = await auditedTransaction(this.prisma, async (tx) => {
+        const inventoryCounting = await tx.stockOpname.findUnique({
+          where: { Id: id },
+        });
+        if (!inventoryCounting) {
+          throw new NotFoundException(
+            `Inventory counting with ID ${id} not found`,
+          );
+        }
+        if (inventoryCounting.Status !== OpnameStatus.IN_PROGRESS) {
+          throw new BadRequestException(
+            `Cannot update actual stock because inventory counting status is ${inventoryCounting.Status}`,
+          );
+        }
+
+        const details = await tx.stockOpnameDetail.findMany({
+          where: { Id: { in: detailIds }, OpnameId: id },
+        });
+        if (details.length !== detailIds.length) {
+          const foundIds = new Set(details.map((detail) => detail.Id));
+          const missingId = detailIds.find(
+            (detailId) => !foundIds.has(detailId),
+          );
+          throw new NotFoundException(
+            `StockOpnameDetail with ID ${missingId} was not found for inventory counting ${id}`,
+          );
+        }
+
+        const detailById = new Map(
+          details.map((detail) => [detail.Id, detail]),
+        );
+        const updatedDetails: StockOpnameDetailModel[] = [];
+        for (const item of dto.items) {
+          const detail = detailById.get(item.detailId)!;
+          const updateData: Prisma.StockOpnameDetailUpdateInput = {
+            ActualQty: item.actualQty,
+            DiffQty: item.actualQty - detail.SystemQty,
+            Notes: item.notes ?? detail.Notes,
+          };
+          if (item.actualQtyRack !== undefined) {
+            updateData.ActualQtyRack = item.actualQtyRack;
+            updateData.DiffQtyRack =
+              item.actualQtyRack - (detail.SystemQtyRack ?? 0);
+          }
+
+          const updated = await tx.stockOpnameDetail.update({
+            where: { Id: detail.Id },
+            data: updateData,
+          });
+          updatedDetails.push(updated);
+
+          if (
+            detail.MaterialId &&
+            detail.Location === LocationType.WAREHOUSE &&
+            item.actualQtyRack !== undefined
+          ) {
+            const rackDetail = await tx.stockOpnameDetail.findFirst({
+              where: {
+                OpnameId: id,
+                MaterialId: detail.MaterialId,
+                Location: LocationType.RACK,
+              },
+            });
+            if (rackDetail) {
+              await tx.stockOpnameDetail.update({
+                where: { Id: rackDetail.Id },
+                data: {
+                  ActualQty: item.actualQtyRack,
+                  ActualQtyRack: item.actualQtyRack,
+                  DiffQty: item.actualQtyRack - rackDetail.SystemQty,
+                  DiffQtyRack:
+                    item.actualQtyRack - (rackDetail.SystemQtyRack ?? 0),
+                },
+              });
+            }
+          }
+        }
+        return updatedDetails;
+      });
+
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      return {
+        success: true,
+        processId: logProcess.ProcessId,
+        data: results,
+      };
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'ERROR',
+          location: 'inventory-counting.service.ts',
         });
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }

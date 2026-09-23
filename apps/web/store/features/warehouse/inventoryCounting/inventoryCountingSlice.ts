@@ -94,9 +94,9 @@ function normalizeInventoryCountingAttachments(
 
 function normalizeOcrPreview(value: unknown): OcrPreviewResponse {
     const candidate = value && typeof value === 'object'
-        && 'data' in value
-        && (value as { data?: unknown }).data
-        && typeof (value as { data?: unknown }).data === 'object'
+    && 'data' in value
+    && (value as { data?: unknown }).data
+    && typeof (value as { data?: unknown }).data === 'object'
         ? (value as { data: unknown }).data
         : value;
     if (
@@ -164,6 +164,11 @@ export interface UpdateActualStockDto {
     actualQty?: number;
     actualQtyRack?: number;
     notes?: string;
+}
+
+export interface BatchUpdateActualStockItemDto extends UpdateActualStockDto {
+    detailId: number;
+    actualQty: number;
 }
 
 // Close DTO
@@ -308,7 +313,7 @@ export const deleteInventoryCounting = createAsyncThunk<
     async (id: string, { rejectWithValue }) => {
         try {
             await del<{ success: boolean; message: string }>(`/inventory-counting/${id}`);
-            return { success: true, id };
+            return {success: true, id};
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to delete inventory counting'));
         }
@@ -366,6 +371,24 @@ export const updateActualStock = createAsyncThunk<
     }
 );
 
+export const batchUpdateActualStock = createAsyncThunk<
+    { success: boolean; data: InventoryCountingDetailEntity[] },
+    { inventoryCountingId: string; items: BatchUpdateActualStockItemDto[] },
+    { rejectValue: string }
+>(
+    'inventoryCounting/batchUpdateActualStock',
+    async ({ inventoryCountingId, items }, { rejectWithValue }) => {
+        try {
+            return await patch<{ success: boolean; data: InventoryCountingDetailEntity[] }>(
+                `/inventory-counting/${inventoryCountingId}/details/batch`,
+                {items}
+            );
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to update actual stock'));
+        }
+    }
+);
+
 export const fetchInventoryCountingAttachments = createAsyncThunk<
     InventoryCountingAttachment[],
     string,
@@ -388,7 +411,7 @@ export const uploadInventoryCountingAttachments = createAsyncThunk<
     { rejectValue: string }
 >(
     'inventoryCounting/uploadAttachments',
-    async ({ id, files }, { rejectWithValue }) => {
+    async ({id, files}, { rejectWithValue }) => {
         try {
             const formData = new FormData();
             files.forEach((file) => formData.append('files', file));
@@ -409,14 +432,14 @@ export const previewInventoryCountingOcr = createAsyncThunk<
     { rejectValue: string }
 >(
     'inventoryCounting/previewOcr',
-    async ({ id, file }, { rejectWithValue }) => {
+    async ({id, file}, { rejectWithValue }) => {
         try {
             const formData = new FormData();
             formData.append('file', file);
             const response = await postFormData<unknown>(
                 `/inventory-counting/${id}/ocr/preview`,
                 formData,
-                { timeout: 120000 },
+                {timeout: 120000},
             );
             return normalizeOcrPreview(response);
         } catch (error: unknown) {
@@ -439,11 +462,11 @@ export const applyInventoryCountingOcr = createAsyncThunk<
     { rejectValue: string }
 >(
     'inventoryCounting/applyOcr',
-    async ({ id, results }, { rejectWithValue }) => {
+    async ({id, results}, { rejectWithValue }) => {
         try {
             return await post<{ success: boolean; updatedCount: number }>(
                 `/inventory-counting/${id}/ocr/apply`,
-                { results },
+                {results},
             );
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to apply OCR results'));
@@ -457,7 +480,7 @@ export const downloadInventoryCountingAttachment = createAsyncThunk<
     { rejectValue: string }
 >(
     'inventoryCounting/downloadAttachment',
-    async ({ id, attachment }, { rejectWithValue }) => {
+    async ({id, attachment}, { rejectWithValue }) => {
         try {
             await downloadFile(
                 `/inventory-counting/${id}/attachments/${attachment.Id}/download`,
@@ -475,7 +498,7 @@ export const deleteInventoryCountingAttachment = createAsyncThunk<
     { rejectValue: string }
 >(
     'inventoryCounting/deleteAttachment',
-    async ({ id, attachmentId }, { rejectWithValue }) => {
+    async ({id, attachmentId}, { rejectWithValue }) => {
         try {
             return await del<{ deleted: boolean; id: number }>(
                 `/inventory-counting/${id}/attachments/${attachmentId}`,
@@ -511,7 +534,7 @@ export const downloadWorksheet = createAsyncThunk<
     'inventoryCounting/downloadWorksheet',
     async (inventoryCountingId: string, { rejectWithValue }) => {
         try {
-            const blob = await postBlob('/inventory-counting/generate-ws', { id: inventoryCountingId });
+            const blob = await postBlob('/inventory-counting/generate-ws', {id: inventoryCountingId});
             const filename = `Inventory_Worksheet_${inventoryCountingId}.xlsx`;
 
             // Trigger download directly
@@ -524,7 +547,7 @@ export const downloadWorksheet = createAsyncThunk<
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            return { success: true, filename };
+            return {success: true, filename};
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to download worksheet'));
         }
@@ -538,9 +561,9 @@ export const generateTemporaryReport = createAsyncThunk<
     { rejectValue: string }
 >(
     'inventoryCounting/generateTemporaryReport',
-    async ({ inventoryCountingId }, { rejectWithValue }) => {
+    async ({inventoryCountingId}, { rejectWithValue }) => {
         try {
-            const blob = await postBlob('/inventory-counting/generate-temporary-report', { id: inventoryCountingId });
+            const blob = await postBlob('/inventory-counting/generate-temporary-report', {id: inventoryCountingId});
             const filename = `Inventory_Temporary_Report_${inventoryCountingId}.xlsx`;
 
             // Trigger download directly
@@ -553,7 +576,7 @@ export const generateTemporaryReport = createAsyncThunk<
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            return { success: true, filename };
+            return {success: true, filename};
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to download temporary report'));
         }
@@ -567,9 +590,9 @@ export const generateFinalReport = createAsyncThunk<
     { rejectValue: string }
 >(
     'inventoryCounting/generateFinalReport',
-    async ({ inventoryCountingId }, { rejectWithValue }) => {
+    async ({inventoryCountingId}, { rejectWithValue }) => {
         try {
-            const blob = await postBlob('/inventory-counting/generate-final-report', { id: inventoryCountingId });
+            const blob = await postBlob('/inventory-counting/generate-final-report', {id: inventoryCountingId});
             const filename = `Inventory_Final_Report_${inventoryCountingId}.xlsx`;
             const url = window.URL.createObjectURL(blob);
             const anchor = document.createElement('a');
@@ -580,7 +603,7 @@ export const generateFinalReport = createAsyncThunk<
             window.URL.revokeObjectURL(url);
             document.body.removeChild(anchor);
 
-            return { success: true, filename };
+            return {success: true, filename};
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to download final report'));
         }
@@ -596,7 +619,7 @@ export const downloadSnapshot = createAsyncThunk<
     'inventoryCounting/downloadSnapshot',
     async (inventoryCountingId: string, { rejectWithValue }) => {
         try {
-            const blob = await postBlob('/inventory-counting/generate-snapshot', { id: inventoryCountingId });
+            const blob = await postBlob('/inventory-counting/generate-snapshot', {id: inventoryCountingId});
             const filename = `Inventory_Snapshot_${inventoryCountingId}.xlsx`;
 
             // Trigger download directly
@@ -609,7 +632,7 @@ export const downloadSnapshot = createAsyncThunk<
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            return { success: true, filename };
+            return {success: true, filename};
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to download snapshot'));
         }
@@ -666,7 +689,7 @@ const inventoryCountingSlice = createSlice({
                     };
                 } else {
                     state.data = [];
-                    state.pagination = { page: 1, limit: 50, total: 0, totalPages: 0 };
+                    state.pagination = {page: 1, limit: 50, total: 0, totalPages: 0};
                 }
             })
             .addCase(fetchInventoryCounting.rejected, (state, action) => {
@@ -745,6 +768,12 @@ const inventoryCountingSlice = createSlice({
                         Notes: action.payload.data.Notes,
                     };
                 }
+            })
+            .addCase(batchUpdateActualStock.fulfilled, (state, action) => {
+                action.payload.data.forEach((updated) => {
+                    const index = state.details.findIndex(detail => detail.Id === updated.Id);
+                    if (index !== -1) state.details[index] = updated;
+                });
             })
             // Close
             .addCase(closeInventoryCounting.fulfilled, (state, action) => {
