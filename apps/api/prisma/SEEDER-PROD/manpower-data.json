@@ -1,0 +1,267 @@
+[
+  {
+    "nik": "EMP001",
+    "name": "SOBIRIN FADHILLAH",
+    "line": "LINE 1",
+    "status": true,
+    "picturePath": null,
+    "skillMatrix": [
+      {
+        "label": "LATCH RN 4L45",
+        "point": 4
+      },
+      {
+        "label": "LATCH QX 4P45",
+        "point": 4
+      },
+      {
+        "label": "T-GATE LATCH MY 22",
+        "point": 4
+      },
+      {
+        "label": "LOCK & RC ASSY-FR/RR DOOR 5H45",
+        "point": 4
+      },
+      {
+        "label": "ROD ASSY-LOCK KNOB FR/RR 5H45",
+        "point": 4
+      },
+      {
+        "label": "DANDORI 4L45",
+        "point": 4
+      },
+      {
+        "label": "DELIVERY 4L45",
+        "point": 4
+      },
+      {
+        "label": "DANDORI 5H45",
+        "point": 4
+      },
+      {
+        "label": "DELIVERY",
+        "point": 4
+      },
+      {
+        "label": "INSPECTION",
+        "point": 4
+      }
+    ]
+  },
+  {
+    "nik": "EMP002",
+    "name": "NANI",
+    "line": "LINE 2",
+    "status": true,
+    "picturePath": null,
+    "skillMatrix": [
+      {
+        "label": "LATCH RN 4L45",
+        "point": 3
+      },
+      {
+        "label": "LATCH QX 4P45",
+        "point": 3
+      },
+      {
+        "label": "T-GATE LATCH MY 22",
+        "point": 3
+      },
+      {
+        "label": "LOCK & RC ASSY-FR/RR DOOR 5H45",
+        "point": 3
+      },
+      {
+        "label": "ROD ASSY-LOCK KNOB FR/RR 5H45",
+        "point": 3
+      },
+      {
+        "label": "INSPECTION",
+        "point": 3
+      }
+    ]
+  },
+  {
+    "nik": "EMP003",
+    "name": "NENGSIH",
+    "line": "LINE 3",
+    "status": true,
+    "picturePath": null,
+    "skillMatrix": [
+      {
+        "label": "LATCH RN 4L45",
+        "point": 3
+      },
+      {
+        "label": "LATCH QX 4P45",
+        "point": 3
+      },
+      {
+        "label": "T-GATE LATCH MY 22",
+        "point": 3
+      },
+      {
+        "label": "LOCK & RC ASSY-FR/RR DOOR 5H45",
+        "point": 3
+      },
+      {
+        "label": "ROD ASSY-LOCK KNOB FR/RR 5H45",
+        "point": 3
+      }
+    ]
+  },
+  {
+    "nik": "EMP004",
+    "name": "MAURA DINA .M",
+    "line": "LINE 4",
+    "status": true,
+    "picturePath": null,
+    "skillMatrix": [
+      {
+        "label": "LATCH RN 4L45",
+        "point": 3
+      },
+      {
+        "label": "LATCH QX 4P45",
+        "point": 3
+      },
+      {
+        "label": "LOCK & RC ASSY-FR/RR DOOR 5H45",
+        "point": 3
+      },
+      {
+        "label": "ROD ASSY-LOCK KNOB FR/RR 5H45",
+        "point": 3
+      },
+      {
+        "label": "DANDORI 4L45",
+        "point": 1
+      }
+    ]
+  },
+  {
+    "nik": "EMP005",
+    "name": "HOLIFA",
+    "line": "LINE 5",
+    "status": true,
+    "picturePath": null,
+    "skillMatrix": [
+      {
+        "label": "LATCH RN 4L45",
+        "point": 3
+      },
+      {
+        "label": "LATCH QX 4P45",
+        "point": 3
+      },
+      {
+        "label": "LOCK & RC ASSY-FR/RR DOOR 5H45",
+        "point": 3
+      },
+      {
+        "label": "ROD ASSY-LOCK KNOB FR/RR 5H45",
+        "point": 3
+      }
+    ]
+  },
+  {
+    "nik": "EMP006",
+    "name": "INDRI RAMADANI",
+    "line": "LINE 6",
+    "status": true,
+    "picturePath": null,
+    "skillMatrix": [
+      {
+        "label": "LATCH RN 4L45",
+        "point": 3
+      },
+      {
+        "label": "LATCH QX 4P45",
+        "point": 3
+      },
+      {
+        "label": "T-GATE LATCH MY 22",
+        "point": 3
+      },
+      {
+        "label": "LOCK & RC ASSY-FR/RR DOOR 5H45",
+        "point": 3
+      },
+      {
+        "label": "ROD ASSY-LOCK KNOB FR/RR 5H45",
+        "point": 3
+      }
+    ]
+  },
+  {
+    "nik": "EMP007",
+    "name": "ARIF RAHMAN",
+    "line": "LINE 7",
+    "status": true,
+    "picturePath": null,
+    "skillMatrix": [
+      {
+        "label": "T-GATE LATCH MY 22",
+        "point": 3
+      },
+      {
+        "label": "DANDORI 4L45",
+        "point": 3
+      },
+      {
+        "label": "DELIVERY 4L45",
+        "point": 3
+      },
+      {
+        "label": "DANDORI 5H45",
+        "point": 3
+      },
+      {
+        "label": "DELIVERY",
+        "point": 3
+      }
+    ]
+  },
+  {
+    "nik": "EMP008",
+    "name": "NOVAN BUDIMAN",
+    "line": "LINE 8",
+    "status": true,
+    "picturePath": null,
+    "skillMatrix": [
+      {
+        "label": "LATCH RN 4L45",
+        "point": 3
+      },
+      {
+        "label": "LATCH QX 4P45",
+        "point": 3
+      },
+      {
+        "label": "DANDORI 4L45",
+        "point": 3
+      },
+      {
+        "label": "DELIVERY 4L45",
+        "point": 3
+      },
+      {
+        "label": "DANDORI 5H45",
+        "point": 3
+      }
+    ]
+  },
+  {
+    "nik": "EMP009",
+    "name": "NUR HASANAH",
+    "line": "LINE 9",
+    "status": true,
+    "picturePath": null,
+    "skillMatrix": [
+      {
+        "label": "INSPECTION",
+        "point": 3
+      }
+    ]
+  }
+]
