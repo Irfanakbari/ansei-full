@@ -14,26 +14,38 @@ const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
  * Mencakup Master Data, Transaksi Produksi, Warehouse, Ledger, dan Audit Logs.
  */
 const TABLES_TO_CLEAR = [
-  // 1. Audit Logs
+  // 1. Audit Logs & Traceability
+  'ActionAuditEvent',
+  'ProductionTraceEvent',
   'LogProcessDetail',
   'LogProcess',
 
   // 2. Production & Delivery Operations
-  'DeliveryHistory',
-  'PokayokeScanHistory',
-  'LabelData',
-  'DeliveryAttachment',
+  'BusinessCommand',
+  'ShoppingCompletion',
   'Shopping',
-  'Forecast',
-  'ProductionRelease',
+  'MaterialNgCase',
+  'MaterialNG',
+  'AssemblySession',
+  'PokayokeScanHistory',
+  'DeliveryHistory',
+  'LabelData',
   'ProductionReport',
+  'DeliveryAttachment',
+  'Forecast',
+  'ProductionBomSnapshotLine',
+  'ProductionBomSnapshot',
+  'BomRevisionLine',
+  'BomRevisionEvent',
+  'BomRevision',
+  'ProductionRelease',
 
   // 3. Warehouse & Inventory Operations
   'IncomingMaterial',
   'Incoming',
-  'MaterialNG',
   'MaterialDeliveryNoteDetail',
   'MaterialDeliveryNote',
+  'StockOpnameAttachment',
   'StockOpnameDetail',
   'StockOpname',
   'InventoryLedger',
@@ -42,9 +54,11 @@ const TABLES_TO_CLEAR = [
   'LineStatus',
   'BillOfMaterials',
   'BoxQTY',
-  'FinishGood',
-  'Material',
+  'SkillMatrix',
   'ManPower',
+  'SupplierBarcodeFormat',
+  'Material',
+  'FinishGood',
   'Supplier',
   'Satuan',
 ] as const;
