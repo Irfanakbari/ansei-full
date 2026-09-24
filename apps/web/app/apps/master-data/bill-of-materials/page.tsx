@@ -81,7 +81,9 @@ export default function BillOfMaterialsPage() {
         pagination,
         filters,
     ) => {
-        const search = String(filters.finishGood?.[0] ?? "").trim();
+        const search = String(
+            filters.partName?.[0] ?? filters.finishGood?.[0] ?? ""
+        ).trim();
         const selectedStatus = filters.status?.[0]
             ? String(filters.status[0])
             : undefined;
@@ -165,7 +167,14 @@ export default function BillOfMaterialsPage() {
             filteredValue: query.search ? [query.search] : null,
             filterIcon: (filtered) => <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>,
         },
-        {title: "FG Part Name", render: (_, r) => r.FinishGood.PartName},
+        {
+            title: "FG Part Name",
+            key: "partName",
+            render: (_, r) => r.FinishGood.PartName,
+            filterDropdown: renderFinishGoodSearch,
+            filteredValue: query.search ? [query.search] : null,
+            filterIcon: (filtered) => <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>,
+        },
         {title: "Materials", render: (_, r) => r.Lines.length},
         {title: "Approved By", dataIndex: "ApprovedBy"},
         {

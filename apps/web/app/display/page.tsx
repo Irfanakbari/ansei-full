@@ -553,7 +553,7 @@ function DisplayPageContent({
                         </div>
                     </div>
 
-                    {/* Middle Card: Skill Matrix (Desain 5 Mini-Cards Elegan) */}
+                    {/* Middle Card: Skill Matrix (Desain Max 3 Kolom Elegan) */}
                     <div
                         className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 shadow-sm shrink-0 flex flex-col">
                         <div className="w-full flex items-center justify-between mb-2.5 px-1">
@@ -566,15 +566,15 @@ function DisplayPageContent({
                             </span>
                         </div>
                         {activeManPower?.SkillMatrix && activeManPower.SkillMatrix.length > 0 ? (
-                            <div className="w-full grid grid-cols-5 gap-1.5 sm:gap-2">
+                            <div className="w-full grid grid-cols-3 gap-2 max-h-56 overflow-y-auto pr-0.5">
                                 {activeManPower.SkillMatrix.map((skill) => (
                                     <div
                                         key={skill.Id}
-                                        className="bg-slate-50 border border-slate-200/80 rounded-xl py-2 px-1 flex flex-col items-center justify-center text-center shadow-2xs"
+                                        className="bg-slate-50 border border-slate-200/80 rounded-xl py-2 px-1.5 flex flex-col items-center justify-center text-center shadow-2xs"
                                     >
-                                        <SkillQuadrantCircle level={skill.Point} size={42}/>
+                                        <SkillQuadrantCircle level={skill.Point} size={38}/>
                                         <span
-                                            className="text-[11px] sm:text-xs font-extrabold text-slate-800 mt-1.5 leading-none line-clamp-1"
+                                            className="text-[11px] font-extrabold text-slate-800 mt-1.5 leading-snug line-clamp-2"
                                             title={skill.Label}>
                                             {skill.Label}
                                         </span>
