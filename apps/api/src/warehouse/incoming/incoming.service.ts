@@ -454,52 +454,6 @@ export class IncomingService {
         throw new NotFoundException(`Incoming with id ${id} not found`);
       }
 
-      // POKAYOKE: Tolak transaksi jika sesi Inventory Counting sedang aktif
-      await assertNoActiveInventoryCounting(
-        this.prisma,
-        ItemCategory.MATERIAL,
-        'Receive Incoming',
-      );
-
-      // Cannot receive if already closed and approved
-      if (existing.Closed && existing.ApprovedAt) {
-        throw new BadRequestException(
-          'Incoming has already been received and approved.',
-        );
-      }
-
-      // Cannot receive if already closed but not approved
-      if (existing.Closed && !existing.ApprovedAt) {
-        throw new BadRequestException(
-          'Incoming is closed but not yet approved.',
-        );
-      }
-
-      // POKAYOKE: Validate QtyChecked equals Qty for all materials before receiving
-      const unmatchedItems = existing.IncomingMaterial.filter(
-        (item) => item.QtyChecked !== item.Qty,
-      );
-
-      if (unmatchedItems.length > 0) {
-        const details = unmatchedItems
-          .map((item) => {
-            const partNumber = item.MaterialData?.PartNumber || 'Unknown';
-            return `Material ${partNumber}: Qty=${item.Qty}, QtyChecked=${item.QtyChecked}`;
-          })
-          .join('; ');
-
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `POKAYOKE FAILED: Receive rejected - QtyChecked does not match Qty. Details: ${details}`,
-          type: 'ERROR',
-          location: 'incoming.service.ts:275',
-        });
-
-        throw new BadRequestException(
-          `POKAYOKE: QtyChecked must equal Qty for all materials before receiving. Unmatched items: ${details}`,
-        );
-      }
-
       await this.logService.addLog({
         processId: logProcess.ProcessId,
         message: `Receiving incoming ${existing.PoId} with ${existing.IncomingMaterial.length} items`,

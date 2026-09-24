@@ -4,6 +4,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
 import { NasUploadService } from '../../common/utils/nas-upload.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { auditContext } from '../../common/helpers/audit-context.helper';
+import { commandFingerprint } from '../../common/helpers/business-command.helper';
 
 describe('IncomingService', () => {
   let service: IncomingService;
@@ -57,6 +59,15 @@ describe('IncomingService', () => {
       inventoryLedger: {
         create: jest.fn(),
       },
+      businessCommand: {
+        findUnique: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+      },
+      actionAuditEvent: {
+        create: jest.fn(),
+      },
+      $executeRaw: jest.fn(),
       $transaction: jest.fn((callback) => callback(prismaService)),
     };
 
@@ -319,6 +330,46 @@ describe('IncomingService', () => {
       await expect(service.receive('uuid-1', 'receiver')).rejects.toThrow(
         BadRequestException,
       );
+    });
+
+    it('replays the committed command when status changes after the fast lookup', async () => {
+      const requestId = '7850b873-3cf3-498b-9c65-e8d66e58a587';
+      const result = {
+        id: 'uuid-1',
+        poId: 'PO-001',
+        status: 'APPROVED',
+        totalItems: 1,
+        totalQty: 100,
+        inventoryUpdated: true,
+      };
+      prismaService.businessCommand.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          Id: 'command-1',
+          Scope: 'INCOMING_RECEIVE',
+          RequestId: requestId,
+          Fingerprint: commandFingerprint({ id: 'uuid-1' }),
+          Actor: 'receiver',
+          Result: result,
+        });
+      prismaService.incoming.findUnique.mockResolvedValue({
+        ...mockIncomingForReceive,
+        Closed: true,
+        ApprovedAt: new Date(),
+      });
+
+      await expect(
+        auditContext.run(
+          {
+            requestId: 'http-request',
+            idempotencyKey: requestId,
+            processId: mockLogProcess.ProcessId,
+            actor: 'receiver',
+          },
+          () => service.receive('uuid-1', 'receiver'),
+        ),
+      ).resolves.toEqual(result);
+      expect(prismaService.inventoryLedger.create).not.toHaveBeenCalled();
     });
 
     it('should throw error when QtyChecked does not match Qty', async () => {

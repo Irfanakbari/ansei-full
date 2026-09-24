@@ -1,6 +1,6 @@
 {
   "name": "@ansei/api",
-  "version": "5.9.5",
+  "version": "5.9.7",
   "description": "",
   "author": "",
   "private": true,
@@ -18,6 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' pnpm exec jest --config ./test/jest-e2e.json --forceExit",
+    "test:e2e:extreme": "node ./test/extreme-inventory/run-extreme-e2e.cjs core",
+    "test:e2e:extreme:soak": "node ./test/extreme-inventory/run-extreme-e2e.cjs soak",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:permissions": "tsx prisma/seed-permissions.ts",
     "db:seed:users": "tsx prisma/seed-users.ts",

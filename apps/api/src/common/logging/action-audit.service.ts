@@ -16,6 +16,12 @@ export class ActionAuditService {
     if (request.method === 'GET' && status !== 401 && status !== 403) return;
     const context = auditContext.getStore();
     try {
+      const process = context?.processId
+        ? await this.prisma.logProcess.findUnique({
+            where: { ProcessId: context.processId },
+            select: { ProcessId: true },
+          })
+        : null;
       await this.prisma.actionAuditEvent.create({
         data: {
           SourceType: 'HTTP',
@@ -30,7 +36,7 @@ export class ActionAuditService {
             ? 'AUTHENTICATED_REQUEST'
             : 'UNAUTHENTICATED',
           RequestId: request.requestId,
-          ProcessId: context?.processId,
+          ProcessId: process?.ProcessId,
           After: {
             method: request.method,
             statusCode: status,

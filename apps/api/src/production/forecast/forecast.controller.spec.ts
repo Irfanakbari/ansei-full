@@ -118,11 +118,11 @@ describe('ForecastController', () => {
     it('should create a new forecast', async () => {
       const createDto: CreateForecastDto = {
         poId: 'PO-001',
-        date: new Date('2026-06-01'),
+        date: '2026-06-01',
         vendorCode: 'V001',
         vendorName: 'Test Vendor',
         receivingArea: 'Area A',
-        deliveryDate: new Date('2026-06-10'),
+        deliveryDate: '2026-06-10',
         deliveryPeriod: 5,
         classification: 'CLASS-A',
         poNumber: 'PO12345',

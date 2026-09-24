@@ -18,7 +18,7 @@ export class CreateForecastDto {
   /** Tanggal forecast */
   @ApiProperty({ description: 'Tanggal forecast', example: '2026-07-01' })
   @IsDateString()
-  date: Date;
+  date: string;
 
   @ApiProperty({ description: 'Kode vendor', example: 'V-001' })
   @IsString()
@@ -37,7 +37,7 @@ export class CreateForecastDto {
 
   @ApiProperty({ description: 'Tanggal pengiriman', example: '2026-07-15' })
   @IsDateString()
-  deliveryDate: Date;
+  deliveryDate: string;
 
   @ApiProperty({
     description: 'Delivery cycle / ritase count (number of delivery trips)',

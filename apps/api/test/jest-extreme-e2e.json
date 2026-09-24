@@ -1,0 +1,16 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testMatch": ["**/test/extreme-inventory/**/*.extreme-e2e-spec.ts"],
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@vuteq/sso-client-nest$": "<rootDir>/test/extreme-inventory/stubs/vuteq-sso-client-nest.cjs",
+    "^src/(.*)$": "<rootDir>/src/$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
+  "maxWorkers": 1,
+  "testTimeout": 600000
+}

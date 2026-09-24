@@ -214,11 +214,11 @@ describe('ForecastService', () => {
     it('should create a forecast', async () => {
       const createDto = {
         poId: 'PO-NEW',
-        date: new Date(),
+        date: new Date().toISOString(),
         vendorCode: 'V001',
         vendorName: 'Vendor A',
         receivingArea: 'Area 1',
-        deliveryDate: new Date(),
+        deliveryDate: new Date().toISOString(),
         deliveryPeriod: 5,
         classification: 'A',
         poNumber: 'PO123',
@@ -244,11 +244,11 @@ describe('ForecastService', () => {
           service.create(
             {
               poId: 'PO-NEW',
-              date: new Date(),
+              date: new Date().toISOString(),
               vendorCode: 'V001',
               vendorName: 'Vendor A',
               receivingArea: 'Area 1',
-              deliveryDate: new Date(),
+              deliveryDate: new Date().toISOString(),
               deliveryPeriod,
               classification: 'A',
               poNumber: 'PO123',

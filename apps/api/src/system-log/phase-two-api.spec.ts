@@ -153,4 +153,38 @@ describe('Phase 2 direct API contracts', () => {
     });
     expect(JSON.stringify(create.mock.calls)).not.toContain('secret');
   });
+  it('records a failed request without an orphan process reference after rollback', async () => {
+    const create = jest.fn().mockResolvedValue({});
+    const findUnique = jest.fn().mockResolvedValue(null);
+    const audit = new ActionAuditService({
+      logProcess: { findUnique },
+      actionAuditEvent: { create },
+    } as never);
+
+    await auditContext.run(
+      { requestId: 'rollback-request', processId: 'rolled-back-process' },
+      () =>
+        audit.failure(
+          {
+            method: 'POST',
+            route: { path: '/inventory/write' },
+            requestId: 'rollback-request',
+            user: { username: 'operator' },
+          } as never,
+          500,
+        ),
+    );
+
+    expect(findUnique).toHaveBeenCalledWith({
+      where: { ProcessId: 'rolled-back-process' },
+      select: { ProcessId: true },
+    });
+    expect(create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        Actor: 'operator',
+        RequestId: 'rollback-request',
+        ProcessId: undefined,
+      }),
+    });
+  });
 });
