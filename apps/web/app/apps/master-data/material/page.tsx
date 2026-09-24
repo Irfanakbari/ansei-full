@@ -2,22 +2,36 @@
 "use client";
 
 import React, {useState, useEffect, useRef} from 'react';
-import {Table, Card, Breadcrumb, Input, Space, Button} from 'antd';
+import {Table, Card, Breadcrumb, Input, Space, Button, Tag, Tooltip, App} from 'antd';
 import type {InputRef} from 'antd';
-import {ReloadOutlined, SearchOutlined, PlusOutlined, StopOutlined} from '@ant-design/icons';
+import {
+    ReloadOutlined,
+    SearchOutlined,
+    PlusOutlined,
+    StopOutlined,
+    CheckCircleOutlined,
+    SwapOutlined
+} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import {useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '@/store';
-import {MaterialEntity, fetchMaterial, setMaterialQuery} from '@/store/features/master/materialSlice';
+import {
+    MaterialEntity,
+    fetchMaterial,
+    setMaterialQuery,
+    reactivateMaterial
+} from '@/store/features/master/materialSlice';
 import CreateMaterialModal from './_components/CreateMaterialModal';
 import DiscontinueMaterialModal from './_components/DiscontinueMaterialModal';
+import TransferMaterialStockModal from './_components/TransferMaterialStockModal';
 import {formatDateTime} from '@/lib/utils/dateTime';
 import GoldenArrowAction from '@/components/GoldenArrowAction';
 import {useSingleRowSelection} from '@/hooks/useSingleRowSelection';
 import MaterialModal from './_components/MaterialModal';
 
 export default function MaterialPage() {
+    const {message, modal} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const {data, loading, pagination, query} = useSelector((state: RootState) => state.material);
     const {
@@ -31,6 +45,7 @@ export default function MaterialPage() {
     const [modalData, setModalData] = useState<MaterialEntity | null>(null);
     const [isDiscontinueModalVisible, setIsDiscontinueModalVisible] = useState(false);
     const [discontinueData, setDiscontinueData] = useState<MaterialEntity | null>(null);
+    const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
 
     useEffect(() => {
         dispatch(fetchMaterial(query));
@@ -85,6 +100,34 @@ export default function MaterialPage() {
             </Space>
         },
         {
+            title: 'Status',
+            dataIndex: 'IsActive',
+            key: 'IsActive',
+            align: 'center' as const,
+            render: (isActive: boolean, record: MaterialEntity) => (
+                isActive ? (
+                    <Tag color="success">Active</Tag>
+                ) : (
+                    <Tooltip title={record.DiscontinueDate ? `Discontinued on ${formatDateTime(record.DiscontinueDate)}` : 'Discontinued'}>
+                        <Tag color="error">Discontinued</Tag>
+                    </Tooltip>
+                )
+            ),
+        },
+        {
+            title: 'Source',
+            dataIndex: 'MaterialSource',
+            key: 'MaterialSource',
+            align: 'center' as const,
+            render: (source: string | null) => (
+                source === 'OVERSEAS' ? (
+                    <Tag color="cyan">OVERSEAS</Tag>
+                ) : (
+                    <Tag color="blue">LOKAL</Tag>
+                )
+            ),
+        },
+        {
             title: 'Part Name',
             dataIndex: 'PartName',
             key: 'PartName',
@@ -106,6 +149,12 @@ export default function MaterialPage() {
             title: 'Rack Location',
             dataIndex: 'RackLocation',
             key: 'RackLocation',
+            render: (val: string | null) => val || '-'
+        },
+        {
+            title: 'Remark',
+            dataIndex: 'Remark',
+            key: 'Remark',
             render: (val: string | null) => val || '-'
         },
         {
@@ -172,6 +221,28 @@ export default function MaterialPage() {
         }
     };
 
+    const handleReactivate = () => {
+        if (!selectedRecord) return;
+        modal.confirm({
+            title: 'Reactivate Material?',
+            icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+            content: `Are you sure you want to reactivate material "${selectedRecord.PartNumber}"?`,
+            okText: 'Reactivate',
+            centered: true,
+            onOk: async () => {
+                try {
+                    const result = await dispatch(reactivateMaterial(selectedRecord.PartNumber));
+                    if (reactivateMaterial.rejected.match(result)) {
+                        throw new Error((result.payload as string) || 'Failed to reactivate material');
+                    }
+                    message.success(`Material "${selectedRecord.PartNumber}" reactivated successfully`);
+                    dispatch(fetchMaterial(query));
+                } catch (error: unknown) {
+                    message.error(error instanceof Error ? error.message : 'Failed to reactivate material');
+                }
+            },
+        });
+    };
 
     return (
         <Card variant="borderless" styles={{body: {padding: 0}}}>
@@ -182,8 +253,24 @@ export default function MaterialPage() {
                     dispatch(fetchMaterial(query));
                 }}/>
                 <ButtonToolbar title="Create" icon={<PlusOutlined/>} onClick={() => setIsCreateModalVisible(true)}/>
-                <ButtonToolbar title="Discontinue" icon={<StopOutlined/>} onClick={handleDiscontinue}
-                               enable={Boolean(selectedRecord)}/>
+                <ButtonToolbar
+                    title="Transfer Stock"
+                    icon={<SwapOutlined/>}
+                    enable={Boolean(selectedRecord && (selectedRecord.QtyWarehouse > 0 || selectedRecord.QtyRack > 0))}
+                    onClick={() => setIsTransferModalVisible(true)}
+                />
+                <ButtonToolbar
+                    title="Discontinue"
+                    icon={<StopOutlined/>}
+                    onClick={handleDiscontinue}
+                    enable={Boolean(selectedRecord && selectedRecord.IsActive)}
+                />
+                <ButtonToolbar
+                    title="Reactivate"
+                    icon={<CheckCircleOutlined/>}
+                    onClick={handleReactivate}
+                    enable={Boolean(selectedRecord && !selectedRecord.IsActive)}
+                />
             </ToolbarWrapper>
 
             <Table
@@ -239,6 +326,20 @@ export default function MaterialPage() {
                         void dispatch(fetchMaterial(query));
                     }}
                     data={discontinueData}
+                />
+            )}
+
+            {selectedRecord && (
+                <TransferMaterialStockModal
+                    visible={isTransferModalVisible}
+                    onClose={() => {
+                        setIsTransferModalVisible(false);
+                    }}
+                    onSuccess={() => {
+                        clearSelection();
+                        void dispatch(fetchMaterial(query));
+                    }}
+                    data={selectedRecord}
                 />
             )}
         </Card>

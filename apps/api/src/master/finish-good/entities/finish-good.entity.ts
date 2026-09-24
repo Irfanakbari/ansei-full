@@ -55,4 +55,14 @@ export class FinishGoodEntity {
 
   @ApiProperty({ description: 'Qty stok', example: 200 })
   Qty: number;
+
+  @ApiProperty({ description: 'Status aktif finish good', example: true })
+  IsActive: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Tanggal discontinue finish good',
+    nullable: true,
+    example: '2026-07-20T10:00:00.000Z',
+  })
+  DiscontinueDate: Date | null;
 }

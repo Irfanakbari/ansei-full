@@ -41,6 +41,14 @@ export const ItemCategory = {
 export type ItemCategory = (typeof ItemCategory)[keyof typeof ItemCategory]
 
 
+export const MaterialSource = {
+  LOKAL: 'LOKAL',
+  OVERSEAS: 'OVERSEAS'
+} as const
+
+export type MaterialSource = (typeof MaterialSource)[keyof typeof MaterialSource]
+
+
 export const OpnameStatus = {
   DRAFT: 'DRAFT',
   IN_PROGRESS: 'IN_PROGRESS',

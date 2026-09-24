@@ -62,6 +62,8 @@ export type MaterialMinAggregateOutputType = {
   RackLocation: string | null
   IsActive: boolean | null
   DiscontinueDate: Date | null
+  MaterialSource: $Enums.MaterialSource | null
+  Remark: string | null
   QtyRack: number | null
   QtyWarehouse: number | null
   MinimumStock: number | null
@@ -83,6 +85,8 @@ export type MaterialMaxAggregateOutputType = {
   RackLocation: string | null
   IsActive: boolean | null
   DiscontinueDate: Date | null
+  MaterialSource: $Enums.MaterialSource | null
+  Remark: string | null
   QtyRack: number | null
   QtyWarehouse: number | null
   MinimumStock: number | null
@@ -104,6 +108,8 @@ export type MaterialCountAggregateOutputType = {
   RackLocation: number
   IsActive: number
   DiscontinueDate: number
+  MaterialSource: number
+  Remark: number
   QtyRack: number
   QtyWarehouse: number
   MinimumStock: number
@@ -149,6 +155,8 @@ export type MaterialMinAggregateInputType = {
   RackLocation?: true
   IsActive?: true
   DiscontinueDate?: true
+  MaterialSource?: true
+  Remark?: true
   QtyRack?: true
   QtyWarehouse?: true
   MinimumStock?: true
@@ -170,6 +178,8 @@ export type MaterialMaxAggregateInputType = {
   RackLocation?: true
   IsActive?: true
   DiscontinueDate?: true
+  MaterialSource?: true
+  Remark?: true
   QtyRack?: true
   QtyWarehouse?: true
   MinimumStock?: true
@@ -191,6 +201,8 @@ export type MaterialCountAggregateInputType = {
   RackLocation?: true
   IsActive?: true
   DiscontinueDate?: true
+  MaterialSource?: true
+  Remark?: true
   QtyRack?: true
   QtyWarehouse?: true
   MinimumStock?: true
@@ -299,6 +311,8 @@ export type MaterialGroupByOutputType = {
   RackLocation: string | null
   IsActive: boolean
   DiscontinueDate: Date | null
+  MaterialSource: $Enums.MaterialSource | null
+  Remark: string | null
   QtyRack: number
   QtyWarehouse: number
   MinimumStock: number
@@ -343,6 +357,8 @@ export type MaterialWhereInput = {
   RackLocation?: Prisma.StringNullableFilter<"Material"> | string | null
   IsActive?: Prisma.BoolFilter<"Material"> | boolean
   DiscontinueDate?: Prisma.DateTimeNullableFilter<"Material"> | Date | string | null
+  MaterialSource?: Prisma.EnumMaterialSourceNullableFilter<"Material"> | $Enums.MaterialSource | null
+  Remark?: Prisma.StringNullableFilter<"Material"> | string | null
   QtyRack?: Prisma.IntFilter<"Material"> | number
   QtyWarehouse?: Prisma.IntFilter<"Material"> | number
   MinimumStock?: Prisma.IntFilter<"Material"> | number
@@ -375,6 +391,8 @@ export type MaterialOrderByWithRelationInput = {
   RackLocation?: Prisma.SortOrderInput | Prisma.SortOrder
   IsActive?: Prisma.SortOrder
   DiscontinueDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  MaterialSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  Remark?: Prisma.SortOrderInput | Prisma.SortOrder
   QtyRack?: Prisma.SortOrder
   QtyWarehouse?: Prisma.SortOrder
   MinimumStock?: Prisma.SortOrder
@@ -410,6 +428,8 @@ export type MaterialWhereUniqueInput = Prisma.AtLeast<{
   RackLocation?: Prisma.StringNullableFilter<"Material"> | string | null
   IsActive?: Prisma.BoolFilter<"Material"> | boolean
   DiscontinueDate?: Prisma.DateTimeNullableFilter<"Material"> | Date | string | null
+  MaterialSource?: Prisma.EnumMaterialSourceNullableFilter<"Material"> | $Enums.MaterialSource | null
+  Remark?: Prisma.StringNullableFilter<"Material"> | string | null
   QtyRack?: Prisma.IntFilter<"Material"> | number
   QtyWarehouse?: Prisma.IntFilter<"Material"> | number
   MinimumStock?: Prisma.IntFilter<"Material"> | number
@@ -442,6 +462,8 @@ export type MaterialOrderByWithAggregationInput = {
   RackLocation?: Prisma.SortOrderInput | Prisma.SortOrder
   IsActive?: Prisma.SortOrder
   DiscontinueDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  MaterialSource?: Prisma.SortOrderInput | Prisma.SortOrder
+  Remark?: Prisma.SortOrderInput | Prisma.SortOrder
   QtyRack?: Prisma.SortOrder
   QtyWarehouse?: Prisma.SortOrder
   MinimumStock?: Prisma.SortOrder
@@ -471,6 +493,8 @@ export type MaterialScalarWhereWithAggregatesInput = {
   RackLocation?: Prisma.StringNullableWithAggregatesFilter<"Material"> | string | null
   IsActive?: Prisma.BoolWithAggregatesFilter<"Material"> | boolean
   DiscontinueDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Material"> | Date | string | null
+  MaterialSource?: Prisma.EnumMaterialSourceNullableWithAggregatesFilter<"Material"> | $Enums.MaterialSource | null
+  Remark?: Prisma.StringNullableWithAggregatesFilter<"Material"> | string | null
   QtyRack?: Prisma.IntWithAggregatesFilter<"Material"> | number
   QtyWarehouse?: Prisma.IntWithAggregatesFilter<"Material"> | number
   MinimumStock?: Prisma.IntWithAggregatesFilter<"Material"> | number
@@ -489,6 +513,8 @@ export type MaterialCreateInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -521,6 +547,8 @@ export type MaterialUncheckedCreateInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -548,6 +576,8 @@ export type MaterialUpdateInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -580,6 +610,8 @@ export type MaterialUncheckedUpdateInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -610,6 +642,8 @@ export type MaterialCreateManyInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -628,6 +662,8 @@ export type MaterialUpdateManyMutationInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -649,6 +685,8 @@ export type MaterialUncheckedUpdateManyInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -680,6 +718,8 @@ export type MaterialCountOrderByAggregateInput = {
   RackLocation?: Prisma.SortOrder
   IsActive?: Prisma.SortOrder
   DiscontinueDate?: Prisma.SortOrder
+  MaterialSource?: Prisma.SortOrder
+  Remark?: Prisma.SortOrder
   QtyRack?: Prisma.SortOrder
   QtyWarehouse?: Prisma.SortOrder
   MinimumStock?: Prisma.SortOrder
@@ -712,6 +752,8 @@ export type MaterialMaxOrderByAggregateInput = {
   RackLocation?: Prisma.SortOrder
   IsActive?: Prisma.SortOrder
   DiscontinueDate?: Prisma.SortOrder
+  MaterialSource?: Prisma.SortOrder
+  Remark?: Prisma.SortOrder
   QtyRack?: Prisma.SortOrder
   QtyWarehouse?: Prisma.SortOrder
   MinimumStock?: Prisma.SortOrder
@@ -733,6 +775,8 @@ export type MaterialMinOrderByAggregateInput = {
   RackLocation?: Prisma.SortOrder
   IsActive?: Prisma.SortOrder
   DiscontinueDate?: Prisma.SortOrder
+  MaterialSource?: Prisma.SortOrder
+  Remark?: Prisma.SortOrder
   QtyRack?: Prisma.SortOrder
   QtyWarehouse?: Prisma.SortOrder
   MinimumStock?: Prisma.SortOrder
@@ -855,6 +899,10 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type NullableEnumMaterialSourceFieldUpdateOperationsInput = {
+  set?: $Enums.MaterialSource | null
 }
 
 export type NullableIntFieldUpdateOperationsInput = {
@@ -1008,6 +1056,8 @@ export type MaterialCreateWithoutSatuanDataInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1038,6 +1088,8 @@ export type MaterialUncheckedCreateWithoutSatuanDataInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1097,6 +1149,8 @@ export type MaterialScalarWhereInput = {
   RackLocation?: Prisma.StringNullableFilter<"Material"> | string | null
   IsActive?: Prisma.BoolFilter<"Material"> | boolean
   DiscontinueDate?: Prisma.DateTimeNullableFilter<"Material"> | Date | string | null
+  MaterialSource?: Prisma.EnumMaterialSourceNullableFilter<"Material"> | $Enums.MaterialSource | null
+  Remark?: Prisma.StringNullableFilter<"Material"> | string | null
   QtyRack?: Prisma.IntFilter<"Material"> | number
   QtyWarehouse?: Prisma.IntFilter<"Material"> | number
   MinimumStock?: Prisma.IntFilter<"Material"> | number
@@ -1115,6 +1169,8 @@ export type MaterialCreateWithoutSupplierDataInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1145,6 +1201,8 @@ export type MaterialUncheckedCreateWithoutSupplierDataInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1198,6 +1256,8 @@ export type MaterialCreateWithoutBillOfMaterialsInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1229,6 +1289,8 @@ export type MaterialUncheckedCreateWithoutBillOfMaterialsInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1271,6 +1333,8 @@ export type MaterialUpdateWithoutBillOfMaterialsInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1302,6 +1366,8 @@ export type MaterialUncheckedUpdateWithoutBillOfMaterialsInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1328,6 +1394,8 @@ export type MaterialCreateWithoutInventoryLedgerInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1359,6 +1427,8 @@ export type MaterialUncheckedCreateWithoutInventoryLedgerInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1401,6 +1471,8 @@ export type MaterialUpdateWithoutInventoryLedgerInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1432,6 +1504,8 @@ export type MaterialUncheckedUpdateWithoutInventoryLedgerInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1458,6 +1532,8 @@ export type MaterialCreateWithoutStockOpnameDetailInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1489,6 +1565,8 @@ export type MaterialUncheckedCreateWithoutStockOpnameDetailInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1531,6 +1609,8 @@ export type MaterialUpdateWithoutStockOpnameDetailInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1562,6 +1642,8 @@ export type MaterialUncheckedUpdateWithoutStockOpnameDetailInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1588,6 +1670,8 @@ export type MaterialCreateWithoutIncomingMaterialInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1619,6 +1703,8 @@ export type MaterialUncheckedCreateWithoutIncomingMaterialInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1661,6 +1747,8 @@ export type MaterialUpdateWithoutIncomingMaterialInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1692,6 +1780,8 @@ export type MaterialUncheckedUpdateWithoutIncomingMaterialInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1718,6 +1808,8 @@ export type MaterialCreateWithoutMaterialNGInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1749,6 +1841,8 @@ export type MaterialUncheckedCreateWithoutMaterialNGInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1791,6 +1885,8 @@ export type MaterialUpdateWithoutMaterialNGInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1822,6 +1918,8 @@ export type MaterialUncheckedUpdateWithoutMaterialNGInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1848,6 +1946,8 @@ export type MaterialCreateWithoutShoppingInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1879,6 +1979,8 @@ export type MaterialUncheckedCreateWithoutShoppingInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -1921,6 +2023,8 @@ export type MaterialUpdateWithoutShoppingInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1952,6 +2056,8 @@ export type MaterialUncheckedUpdateWithoutShoppingInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1978,6 +2084,8 @@ export type MaterialCreateWithoutMaterialDeliveryNoteDetailsInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -2009,6 +2117,8 @@ export type MaterialUncheckedCreateWithoutMaterialDeliveryNoteDetailsInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -2051,6 +2161,8 @@ export type MaterialUpdateWithoutMaterialDeliveryNoteDetailsInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2082,6 +2194,8 @@ export type MaterialUncheckedUpdateWithoutMaterialDeliveryNoteDetailsInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2108,6 +2222,8 @@ export type MaterialCreateWithoutBomRevisionLinesInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -2139,6 +2255,8 @@ export type MaterialUncheckedCreateWithoutBomRevisionLinesInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -2181,6 +2299,8 @@ export type MaterialUpdateWithoutBomRevisionLinesInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2212,6 +2332,8 @@ export type MaterialUncheckedUpdateWithoutBomRevisionLinesInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2238,6 +2360,8 @@ export type MaterialCreateWithoutBomSnapshotLinesInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -2269,6 +2393,8 @@ export type MaterialUncheckedCreateWithoutBomSnapshotLinesInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -2311,6 +2437,8 @@ export type MaterialUpdateWithoutBomSnapshotLinesInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2342,6 +2470,8 @@ export type MaterialUncheckedUpdateWithoutBomSnapshotLinesInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2370,6 +2500,8 @@ export type MaterialCreateManySatuanDataInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -2388,6 +2520,8 @@ export type MaterialUpdateWithoutSatuanDataInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2418,6 +2552,8 @@ export type MaterialUncheckedUpdateWithoutSatuanDataInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2447,6 +2583,8 @@ export type MaterialUncheckedUpdateManyWithoutSatuanDataInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2467,6 +2605,8 @@ export type MaterialCreateManySupplierDataInput = {
   RackLocation?: string | null
   IsActive?: boolean
   DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
   QtyRack?: number
   QtyWarehouse?: number
   MinimumStock?: number
@@ -2485,6 +2625,8 @@ export type MaterialUpdateWithoutSupplierDataInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2515,6 +2657,8 @@ export type MaterialUncheckedUpdateWithoutSupplierDataInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2544,6 +2688,8 @@ export type MaterialUncheckedUpdateManyWithoutSupplierDataInput = {
   RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
   QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
   MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2668,6 +2814,8 @@ export type MaterialSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   RackLocation?: boolean
   IsActive?: boolean
   DiscontinueDate?: boolean
+  MaterialSource?: boolean
+  Remark?: boolean
   QtyRack?: boolean
   QtyWarehouse?: boolean
   MinimumStock?: boolean
@@ -2701,6 +2849,8 @@ export type MaterialSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   RackLocation?: boolean
   IsActive?: boolean
   DiscontinueDate?: boolean
+  MaterialSource?: boolean
+  Remark?: boolean
   QtyRack?: boolean
   QtyWarehouse?: boolean
   MinimumStock?: boolean
@@ -2724,6 +2874,8 @@ export type MaterialSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   RackLocation?: boolean
   IsActive?: boolean
   DiscontinueDate?: boolean
+  MaterialSource?: boolean
+  Remark?: boolean
   QtyRack?: boolean
   QtyWarehouse?: boolean
   MinimumStock?: boolean
@@ -2747,6 +2899,8 @@ export type MaterialSelectScalar = {
   RackLocation?: boolean
   IsActive?: boolean
   DiscontinueDate?: boolean
+  MaterialSource?: boolean
+  Remark?: boolean
   QtyRack?: boolean
   QtyWarehouse?: boolean
   MinimumStock?: boolean
@@ -2754,7 +2908,7 @@ export type MaterialSelectScalar = {
   QtyPerBox?: boolean
 }
 
-export type MaterialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "PartName" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Supplier" | "SupplierId" | "SatuanId" | "RackLocation" | "IsActive" | "DiscontinueDate" | "QtyRack" | "QtyWarehouse" | "MinimumStock" | "MaximumStock" | "QtyPerBox", ExtArgs["result"]["material"]>
+export type MaterialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "PartName" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Supplier" | "SupplierId" | "SatuanId" | "RackLocation" | "IsActive" | "DiscontinueDate" | "MaterialSource" | "Remark" | "QtyRack" | "QtyWarehouse" | "MinimumStock" | "MaximumStock" | "QtyPerBox", ExtArgs["result"]["material"]>
 export type MaterialInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   BomRevisionLines?: boolean | Prisma.Material$BomRevisionLinesArgs<ExtArgs>
   BomSnapshotLines?: boolean | Prisma.Material$BomSnapshotLinesArgs<ExtArgs>
@@ -2807,6 +2961,8 @@ export type $MaterialPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     RackLocation: string | null
     IsActive: boolean
     DiscontinueDate: Date | null
+    MaterialSource: $Enums.MaterialSource | null
+    Remark: string | null
     QtyRack: number
     QtyWarehouse: number
     MinimumStock: number
@@ -3259,6 +3415,8 @@ export interface MaterialFieldRefs {
   readonly RackLocation: Prisma.FieldRef<"Material", 'String'>
   readonly IsActive: Prisma.FieldRef<"Material", 'Boolean'>
   readonly DiscontinueDate: Prisma.FieldRef<"Material", 'DateTime'>
+  readonly MaterialSource: Prisma.FieldRef<"Material", 'MaterialSource'>
+  readonly Remark: Prisma.FieldRef<"Material", 'String'>
   readonly QtyRack: Prisma.FieldRef<"Material", 'Int'>
   readonly QtyWarehouse: Prisma.FieldRef<"Material", 'Int'>
   readonly MinimumStock: Prisma.FieldRef<"Material", 'Int'>

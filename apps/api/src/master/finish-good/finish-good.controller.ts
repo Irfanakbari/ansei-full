@@ -16,7 +16,12 @@ import {
   Query,
 } from '@nestjs/common';
 import { FinishGoodService } from './finish-good.service';
-import { CreateFinishGoodDto, UpdateFinishGoodDto } from './dto';
+import {
+  CreateFinishGoodDto,
+  UpdateFinishGoodDto,
+  DiscontinueFinishGoodDto,
+  TransferFinishGoodStockDto,
+} from './dto';
 import { FinishGoodEntity } from './entities/finish-good.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
@@ -108,5 +113,67 @@ export class FinishGoodController {
     @CurrentUser() user: ICurrentUser,
   ) {
     return this.finishGoodService.remove(id, user.username);
+  }
+
+  @ApiOperation({ summary: 'Discontinue finish good by part number' })
+  @ApiResponse({
+    status: 200,
+    type: FinishGoodEntity,
+    description: 'Finish good berhasil di-discontinue',
+  })
+  @ApiResponse({ status: 404, description: 'Finish good tidak ditemukan' })
+  @ApiResponse({
+    status: 409,
+    description: 'Finish good sudah di-discontinue',
+  })
+  @Post('part-number/:partNumber/discontinue')
+  @Permission('IPCS.FINISH_GOOD_DISCONTINUE')
+  async discontinue(
+    @Param('partNumber') partNumber: string,
+    @Body() dto: DiscontinueFinishGoodDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.finishGoodService.discontinue(
+      partNumber,
+      dto.reason,
+      user.username,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Reactivate discontinued finish good by part number',
+  })
+  @ApiResponse({
+    status: 200,
+    type: FinishGoodEntity,
+    description: 'Finish good berhasil di-reactivate',
+  })
+  @ApiResponse({ status: 404, description: 'Finish good tidak ditemukan' })
+  @ApiResponse({ status: 409, description: 'Finish good sudah aktif' })
+  @Post('part-number/:partNumber/reactivate')
+  @Permission('IPCS.FINISH_GOOD_REACTIVATE')
+  async reactivate(
+    @Param('partNumber') partNumber: string,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.finishGoodService.reactivate(partNumber, user.username);
+  }
+
+  @ApiOperation({
+    summary: 'Transfer stock between finish goods (supersession)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Stock finish good berhasil ditransfer',
+  })
+  @ApiResponse({ status: 400, description: 'Validasi stok atau status gagal' })
+  @ApiResponse({ status: 404, description: 'Finish good tidak ditemukan' })
+  @Post('transfer-stock')
+  @Permission('IPCS.FINISH_GOOD_TRANSFER_STOCK')
+  async transferStock(
+    @Body() dto: TransferFinishGoodStockDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.finishGoodService.transferStock(dto, user.username);
   }
 }

@@ -40,6 +40,11 @@ enum ItemCategory {
   FINISH_GOOD
 }
 
+enum MaterialSource {
+  LOKAL
+  OVERSEAS
+}
+
 enum OpnameStatus {
   DRAFT
   IN_PROGRESS
@@ -137,6 +142,8 @@ model Material {
 
   IsActive        Boolean   @default(true)
   DiscontinueDate DateTime?
+  MaterialSource  MaterialSource? @default(LOKAL)
+  Remark          String?
 
   // stok cache aja buat nampilin di ui biar cepet
   // realnya (source of truth) tetep hitung dari ledger kalau mau divalidasi
@@ -171,6 +178,9 @@ model FinishGood {
   IsPassthrough Boolean @default(false)
 
   Alias String?
+
+  IsActive        Boolean   @default(true)
+  DiscontinueDate DateTime?
 
   Price     Float?   @default(0)
   CreatedAt DateTime @default(now())

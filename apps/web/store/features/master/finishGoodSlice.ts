@@ -24,6 +24,8 @@ export interface FinishGoodEntity {
     UpdatedBy: string | null;
     UpdatedByName?: string | null;
     Qty: number;
+    IsActive: boolean;
+    DiscontinueDate: string | null;
 }
 
 interface FinishGoodState {
@@ -126,6 +128,55 @@ export const deleteFinishGood = createAsyncThunk(
             return id;
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to delete finish good'));
+        }
+    }
+);
+
+export const discontinueFinishGood = createAsyncThunk(
+    'finishGood/discontinue',
+    async ({partNumber, reason}: { partNumber: string; reason: string }, {rejectWithValue}) => {
+        try {
+            return await post<ApiSuccessEnvelope<FinishGoodEntity>, {
+                reason: string
+            }>(`/master/finish-good/part-number/${encodeURIComponent(partNumber)}/discontinue`, {reason});
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to discontinue finish good'));
+        }
+    }
+);
+
+export const reactivateFinishGood = createAsyncThunk(
+    'finishGood/reactivate',
+    async (partNumber: string, {rejectWithValue}) => {
+        try {
+            return await post<ApiSuccessEnvelope<FinishGoodEntity>>(`/master/finish-good/part-number/${encodeURIComponent(partNumber)}/reactivate`, {});
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to reactivate finish good'));
+        }
+    }
+);
+
+export const transferFinishGoodStock = createAsyncThunk(
+    'finishGood/transferStock',
+    async (transferData: {
+        sourcePartNumber: string;
+        targetPartNumber: string;
+        qty: number;
+        reason: string;
+    }, {rejectWithValue}) => {
+        try {
+            return await post<ApiSuccessEnvelope<{
+                sourcePartNumber: string;
+                targetPartNumber: string;
+                qty: number;
+                sourceBalanceBefore: number;
+                sourceBalanceAfter: number;
+                targetBalanceBefore: number;
+                targetBalanceAfter: number;
+                reason: string;
+            }>, typeof transferData>('/master/finish-good/transfer-stock', transferData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to transfer finish good stock'));
         }
     }
 );

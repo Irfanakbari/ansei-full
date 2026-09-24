@@ -192,6 +192,13 @@ export type DateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
+export type EnumMaterialSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.MaterialSource | Prisma.EnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MaterialSource[] | Prisma.ListEnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MaterialSource[] | Prisma.ListEnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMaterialSourceNullableFilter<$PrismaModel> | $Enums.MaterialSource | null
+}
+
 export type SortOrderInput = {
   sort: Prisma.SortOrder
   nulls?: Prisma.NullsOrder
@@ -251,6 +258,16 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type EnumMaterialSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MaterialSource | Prisma.EnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MaterialSource[] | Prisma.ListEnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MaterialSource[] | Prisma.ListEnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMaterialSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.MaterialSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMaterialSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMaterialSourceNullableFilter<$PrismaModel>
 }
 
 export type FloatNullableFilter<$PrismaModel = never> = {
@@ -836,6 +853,13 @@ export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
+export type NestedEnumMaterialSourceNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.MaterialSource | Prisma.EnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MaterialSource[] | Prisma.ListEnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MaterialSource[] | Prisma.ListEnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMaterialSourceNullableFilter<$PrismaModel> | $Enums.MaterialSource | null
+}
+
 export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
@@ -900,6 +924,16 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumMaterialSourceNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MaterialSource | Prisma.EnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MaterialSource[] | Prisma.ListEnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MaterialSource[] | Prisma.ListEnumMaterialSourceFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMaterialSourceNullableWithAggregatesFilter<$PrismaModel> | $Enums.MaterialSource | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMaterialSourceNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMaterialSourceNullableFilter<$PrismaModel>
 }
 
 export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {

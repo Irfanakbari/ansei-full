@@ -4332,6 +4332,8 @@ export const MaterialScalarFieldEnum = {
   RackLocation: 'RackLocation',
   IsActive: 'IsActive',
   DiscontinueDate: 'DiscontinueDate',
+  MaterialSource: 'MaterialSource',
+  Remark: 'Remark',
   QtyRack: 'QtyRack',
   QtyWarehouse: 'QtyWarehouse',
   MinimumStock: 'MinimumStock',
@@ -4349,6 +4351,8 @@ export const FinishGoodScalarFieldEnum = {
   PartName: 'PartName',
   IsPassthrough: 'IsPassthrough',
   Alias: 'Alias',
+  IsActive: 'IsActive',
+  DiscontinueDate: 'DiscontinueDate',
   Price: 'Price',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
@@ -5213,6 +5217,20 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'MaterialSource'
+ */
+export type EnumMaterialSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MaterialSource'>
+    
+
+
+/**
+ * Reference to a field of type 'MaterialSource[]'
+ */
+export type ListEnumMaterialSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MaterialSource[]'>
     
 
 

@@ -1,5 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsInt, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+  Min,
+  IsEnum,
+} from 'class-validator';
+import { MaterialSource } from '../../../generated/prisma/enums';
 
 export class CreateMaterialDto {
   /** Part number material */
@@ -68,4 +76,22 @@ export class CreateMaterialDto {
   @Min(0)
   @IsOptional()
   qtyPerBox?: number;
+
+  @ApiPropertyOptional({
+    description: 'Sumber material (LOKAL atau OVERSEAS)',
+    enum: MaterialSource,
+    example: MaterialSource.LOKAL,
+    default: MaterialSource.LOKAL,
+  })
+  @IsEnum(MaterialSource)
+  @IsOptional()
+  materialSource?: MaterialSource;
+
+  @ApiPropertyOptional({
+    description: 'Keterangan tambahan / remark material',
+    example: 'Material pengganti untuk model XYZ',
+  })
+  @IsString()
+  @IsOptional()
+  remark?: string;
 }

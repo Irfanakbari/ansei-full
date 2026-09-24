@@ -41,6 +41,30 @@ const allPermissions = [
   { Action: 'IPCS.MASTER_UPDATE', Description: 'Update master data' },
   { Action: 'IPCS.MASTER_DELETE', Description: 'Delete master data' },
   {
+    Action: 'IPCS.MATERIAL_DISCONTINUE',
+    Description: 'Discontinue material',
+  },
+  {
+    Action: 'IPCS.MATERIAL_REACTIVATE',
+    Description: 'Reactivate discontinued material',
+  },
+  {
+    Action: 'IPCS.MATERIAL_TRANSFER_STOCK',
+    Description: 'Transfer stock between materials (supersession)',
+  },
+  {
+    Action: 'IPCS.FINISH_GOOD_DISCONTINUE',
+    Description: 'Discontinue finish good',
+  },
+  {
+    Action: 'IPCS.FINISH_GOOD_REACTIVATE',
+    Description: 'Reactivate discontinued finish good',
+  },
+  {
+    Action: 'IPCS.FINISH_GOOD_TRANSFER_STOCK',
+    Description: 'Transfer stock between finish goods (supersession)',
+  },
+  {
     Action: 'IPCS.SUPPLIER_BARCODE_FORMAT_READ',
     Description: 'Read supplier barcode formats for receiving',
   },

@@ -7,12 +7,24 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
-import { CreateFinishGoodDto, UpdateFinishGoodDto } from './dto';
+import {
+  CreateFinishGoodDto,
+  UpdateFinishGoodDto,
+  TransferFinishGoodStockDto,
+} from './dto';
 import type {
   LogProcessModel,
   FinishGoodModel,
 } from '../../generated/prisma/models';
 import type { Prisma } from '../../generated/prisma/client';
+import {
+  ItemCategory,
+  LocationType,
+  TransactionType,
+} from '../../generated/prisma/enums';
+import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
+import { withInventoryTransaction } from '../../common/helpers/inventory-transaction.helper';
+import * as crypto from 'crypto';
 import type {
   ApiResult,
   PaginationMeta,
@@ -124,6 +136,8 @@ export class FinishGoodService {
             Price: dto.price ?? 0,
             IsPassthrough: dto.isPassthrough ?? false,
             Qty: dto.qty ?? 0,
+            IsActive: true,
+            DiscontinueDate: null,
             CreatedBy: createdBy,
             UpdatedBy: createdBy,
           },
@@ -182,8 +196,18 @@ export class FinishGoodService {
         throw new NotFoundException(`FinishGood with id ${id} not found`);
       }
 
-      // Check if new part number conflicts with existing
+      // Check if new part number conflicts with existing or violates immutability after transactions
       if (dto.partNumber && dto.partNumber !== existing.PartNumber) {
+        const ledgerCount = await this.prisma.inventoryLedger.count({
+          where: { FinishGoodId: existing.PartNumber },
+        });
+
+        if (ledgerCount > 0) {
+          throw new BadRequestException(
+            `Cannot change part number from "${existing.PartNumber}" to "${dto.partNumber}" because this finish good already has ${ledgerCount} ledger transaction history. Please create a new Finish Good and discontinue the old one.`,
+          );
+        }
+
         const partNumberConflict = await this.prisma.finishGood.findUnique({
           where: { PartNumber: dto.partNumber },
         });
@@ -291,6 +315,393 @@ export class FinishGoodService {
           message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
           type: 'ERROR',
           location: 'finish-good.service.ts:181',
+        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Discontinue a finish good - set IsActive=false and DiscontinueDate
+   * Validations before discontinue:
+   * 1. FinishGood must not have active Forecast with ProductionRelease (DRAFT/RELEASED)
+   */
+  async discontinue(
+    partNumber: string,
+    reason: string | undefined,
+    discontinuedBy: string,
+  ): Promise<FinishGoodModel> {
+    let logProcess: LogProcessModel | undefined;
+
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'FINISHGOOD_004',
+        functionName: 'FinishGoodService.Discontinue',
+        createdBy: discontinuedBy,
+      });
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Discontinuing finish good with part number: ${partNumber}${reason ? `, reason: ${reason}` : ''}`,
+        type: 'INFO',
+        location: 'finish-good.service.ts:discontinue',
+      });
+
+      const existing = await this.prisma.finishGood.findUnique({
+        where: { PartNumber: partNumber },
+      });
+
+      if (!existing) {
+        throw new NotFoundException(
+          `FinishGood with part number ${partNumber} not found`,
+        );
+      }
+
+      if (!existing.IsActive) {
+        throw new ConflictException(
+          `FinishGood with part number ${partNumber} is already discontinued on ${existing.DiscontinueDate?.toISOString() ?? 'N/A'}`,
+        );
+      }
+
+      // POKAYOKE: Check if FG is in active Forecast with ProductionRelease (DRAFT/RELEASED)
+      const activeForecasts = await this.prisma.forecast.findMany({
+        where: {
+          FinishGoodId: partNumber,
+          ProductionReleaseId: { not: null },
+          ProductionRelease: {
+            Status: { in: ['DRAFT', 'RELEASED'] },
+          },
+        },
+        select: {
+          PoId: true,
+          FinishGoodId: true,
+          ProductionRelease: {
+            select: {
+              ReleaseNumber: true,
+              Status: true,
+            },
+          },
+        },
+      });
+
+      if (activeForecasts.length > 0) {
+        const activeForecastDetails = activeForecasts.map(
+          (f) =>
+            `PO:${f.PoId} (Release:${f.ProductionRelease?.ReleaseNumber}, Status:${f.ProductionRelease?.Status})`,
+        );
+        throw new BadRequestException(
+          `POKAYOKE: Finish Good "${partNumber}" cannot be discontinued because it is associated with active production release(s): ${activeForecastDetails.join('; ')}. Please complete or cancel the production(s) first.`,
+        );
+      }
+
+      const now = new Date();
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.finishGood.update({
+          where: { PartNumber: partNumber },
+          data: {
+            IsActive: false,
+            DiscontinueDate: now,
+            UpdatedBy: discontinuedBy,
+          },
+        }),
+      );
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `FinishGood ${partNumber} (Id=${result.Id}) discontinued successfully. IsActive=false, DiscontinueDate=${now.toISOString()}${reason ? `, reason: ${reason}` : ''}`,
+        type: 'INFO',
+        location: 'finish-good.service.ts:discontinue',
+      });
+
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+
+      return result;
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'ERROR',
+          location: 'finish-good.service.ts:discontinue',
+        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Reactivate a discontinued finish good - set IsActive=true and DiscontinueDate=null
+   */
+  async reactivate(
+    partNumber: string,
+    reactivatedBy: string,
+  ): Promise<FinishGoodModel> {
+    let logProcess: LogProcessModel | undefined;
+
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'FINISHGOOD_005',
+        functionName: 'FinishGoodService.Reactivate',
+        createdBy: reactivatedBy,
+      });
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Reactivating finish good with part number: ${partNumber}`,
+        type: 'INFO',
+        location: 'finish-good.service.ts:reactivate',
+      });
+
+      const existing = await this.prisma.finishGood.findUnique({
+        where: { PartNumber: partNumber },
+      });
+
+      if (!existing) {
+        throw new NotFoundException(
+          `FinishGood with part number ${partNumber} not found`,
+        );
+      }
+
+      if (existing.IsActive) {
+        throw new ConflictException(
+          `FinishGood with part number ${partNumber} is already active`,
+        );
+      }
+
+      const result = await auditedWrite(this.prisma, (tx) =>
+        tx.finishGood.update({
+          where: { PartNumber: partNumber },
+          data: {
+            IsActive: true,
+            DiscontinueDate: null,
+            UpdatedBy: reactivatedBy,
+          },
+        }),
+      );
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `FinishGood ${partNumber} (Id=${result.Id}) reactivated successfully. IsActive=true, DiscontinueDate=null`,
+        type: 'INFO',
+        location: 'finish-good.service.ts:reactivate',
+      });
+
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+
+      return result;
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'ERROR',
+          location: 'finish-good.service.ts:reactivate',
+        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Transfer stock from one finish good part number to another (Supersession stock transfer)
+   * Validations:
+   * 1. Source and Target must not be identical
+   * 2. Qty must be a positive integer
+   * 3. Target finish good must exist and be active (IsActive = true)
+   * 4. Source finish good must exist and have sufficient stock
+   * 5. No active inventory counting session
+   *
+   * Ledger Invariant:
+   * - OUT entry for Source (ADJUSTMENT_MANUAL, QtyOut = qty, BalanceAfter = BalanceBefore - qty)
+   * - IN entry for Target (ADJUSTMENT_MANUAL, QtyIn = qty, BalanceAfter = BalanceBefore + qty)
+   */
+  async transferStock(
+    dto: TransferFinishGoodStockDto,
+    transferredBy: string,
+  ): Promise<{
+    sourcePartNumber: string;
+    targetPartNumber: string;
+    qty: number;
+    sourceBalanceBefore: number;
+    sourceBalanceAfter: number;
+    targetBalanceBefore: number;
+    targetBalanceAfter: number;
+    reason: string;
+  }> {
+    if (dto.sourcePartNumber === dto.targetPartNumber) {
+      throw new BadRequestException(
+        'Source part number and target part number cannot be the same.',
+      );
+    }
+
+    if (!Number.isSafeInteger(dto.qty) || dto.qty <= 0) {
+      throw new BadRequestException(
+        'Transfer quantity must be a positive integer.',
+      );
+    }
+
+    let logProcess: LogProcessModel | undefined;
+
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'FINISHGOOD_006',
+        functionName: 'FinishGoodService.TransferStock',
+        createdBy: transferredBy,
+      });
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Starting finish good stock transfer: Source=${dto.sourcePartNumber}, Target=${dto.targetPartNumber}, Qty=${dto.qty}, Reason=${dto.reason}`,
+        type: 'INFO',
+        location: 'finish-good.service.ts:transferStock',
+      });
+
+      const result = await withInventoryTransaction(
+        this.prisma,
+        ItemCategory.FINISH_GOOD,
+        async (tx) => {
+          await assertNoActiveInventoryCounting(
+            tx,
+            ItemCategory.FINISH_GOOD,
+            'Finish Good Stock Transfer',
+          );
+
+          const source = await tx.finishGood.findUnique({
+            where: { PartNumber: dto.sourcePartNumber },
+            select: {
+              Id: true,
+              PartNumber: true,
+              IsActive: true,
+              Qty: true,
+            },
+          });
+
+          if (!source) {
+            throw new NotFoundException(
+              `Source finish good "${dto.sourcePartNumber}" not found`,
+            );
+          }
+
+          const target = await tx.finishGood.findUnique({
+            where: { PartNumber: dto.targetPartNumber },
+            select: {
+              Id: true,
+              PartNumber: true,
+              IsActive: true,
+              Qty: true,
+            },
+          });
+
+          if (!target) {
+            throw new NotFoundException(
+              `Target finish good "${dto.targetPartNumber}" not found`,
+            );
+          }
+
+          if (!target.IsActive) {
+            throw new BadRequestException(
+              `Target finish good "${dto.targetPartNumber}" is discontinued. Cannot transfer stock to an inactive finish good.`,
+            );
+          }
+
+          if (source.Qty < dto.qty) {
+            throw new BadRequestException(
+              `Insufficient stock for finish good "${dto.sourcePartNumber}". Available: ${source.Qty}, Requested: ${dto.qty}`,
+            );
+          }
+
+          const sourceBalanceAfter = source.Qty - dto.qty;
+          const targetBalanceAfter = target.Qty + dto.qty;
+          const now = new Date();
+
+          // 1. OUT Ledger for Source Finish Good
+          await tx.inventoryLedger.create({
+            data: {
+              Id: crypto.randomUUID(),
+              TransactionDate: now,
+              ItemCategory: ItemCategory.FINISH_GOOD,
+              FinishGoodId: dto.sourcePartNumber,
+              Location: LocationType.FINISH_GOOD_AREA,
+              TransactionType: TransactionType.ADJUSTMENT_MANUAL,
+              ReferenceDoc: 'SUPERSESSION_TRANSFER',
+              BalanceBefore: source.Qty,
+              QtyIn: 0,
+              QtyOut: dto.qty,
+              BalanceAfter: sourceBalanceAfter,
+              CreatedBy: transferredBy,
+              Notes: `Transfer stock to ${dto.targetPartNumber}: ${dto.reason}`,
+            },
+          });
+
+          // 2. IN Ledger for Target Finish Good
+          await tx.inventoryLedger.create({
+            data: {
+              Id: crypto.randomUUID(),
+              TransactionDate: now,
+              ItemCategory: ItemCategory.FINISH_GOOD,
+              FinishGoodId: dto.targetPartNumber,
+              Location: LocationType.FINISH_GOOD_AREA,
+              TransactionType: TransactionType.ADJUSTMENT_MANUAL,
+              ReferenceDoc: 'SUPERSESSION_TRANSFER',
+              BalanceBefore: target.Qty,
+              QtyIn: dto.qty,
+              QtyOut: 0,
+              BalanceAfter: targetBalanceAfter,
+              CreatedBy: transferredBy,
+              Notes: `Received stock from ${dto.sourcePartNumber}: ${dto.reason}`,
+            },
+          });
+
+          // 3. Update stock caches
+          await tx.finishGood.update({
+            where: { PartNumber: dto.sourcePartNumber },
+            data: {
+              Qty: sourceBalanceAfter,
+              UpdatedBy: transferredBy,
+            },
+          });
+
+          await tx.finishGood.update({
+            where: { PartNumber: dto.targetPartNumber },
+            data: {
+              Qty: targetBalanceAfter,
+              UpdatedBy: transferredBy,
+            },
+          });
+
+          return {
+            sourcePartNumber: dto.sourcePartNumber,
+            targetPartNumber: dto.targetPartNumber,
+            qty: dto.qty,
+            sourceBalanceBefore: source.Qty,
+            sourceBalanceAfter,
+            targetBalanceBefore: target.Qty,
+            targetBalanceAfter,
+            reason: dto.reason,
+          };
+        },
+      );
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Finish good stock transfer completed successfully: Source ${dto.sourcePartNumber} (${result.sourceBalanceBefore} -> ${result.sourceBalanceAfter}), Target ${dto.targetPartNumber} (${result.targetBalanceBefore} -> ${result.targetBalanceAfter})`,
+        type: 'INFO',
+        location: 'finish-good.service.ts:transferStock',
+      });
+
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+
+      return result;
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'ERROR',
+          location: 'finish-good.service.ts:transferStock',
         });
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }

@@ -65,6 +65,10 @@ describe('FinishGoodService', () => {
       update: jest.Mock;
       delete: jest.Mock;
     };
+    inventoryLedger: {
+      count: jest.Mock;
+      create: jest.Mock;
+    };
   };
 
   let logService: {
@@ -82,6 +86,10 @@ describe('FinishGoodService', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+      },
+      inventoryLedger: {
+        count: jest.fn(),
+        create: jest.fn(),
       },
     };
 
@@ -296,12 +304,24 @@ describe('FinishGoodService', () => {
       };
 
       logService.startProcess.mockResolvedValue(mockLogProcess);
+      prismaService.inventoryLedger.count.mockResolvedValue(0);
       prismaService.finishGood.findUnique
         .mockResolvedValueOnce(mockFinishGood)
         .mockResolvedValueOnce(existingFinishGood);
 
       await expect(service.update(1, updateDto, 'admin')).rejects.toThrow(
         ConflictException,
+      );
+    });
+
+    it('should throw BadRequestException when changing part number with existing ledger history', async () => {
+      const updateDto = { partNumber: 'FG-NEW' };
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      prismaService.finishGood.findUnique.mockResolvedValueOnce(mockFinishGood);
+      prismaService.inventoryLedger.count.mockResolvedValue(5);
+
+      await expect(service.update(1, updateDto, 'admin')).rejects.toThrow(
+        BadRequestException,
       );
     });
 
@@ -341,6 +361,36 @@ describe('FinishGoodService', () => {
       await expect(service.remove(999, 'admin')).rejects.toThrow(
         NotFoundException,
       );
+    });
+  });
+
+  describe('transferStock', () => {
+    it('should throw BadRequestException when source and target part numbers are identical', async () => {
+      await expect(
+        service.transferStock(
+          {
+            sourcePartNumber: 'FG-001',
+            targetPartNumber: 'FG-001',
+            qty: 10,
+            reason: 'Test transfer',
+          },
+          'admin',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException when qty is <= 0', async () => {
+      await expect(
+        service.transferStock(
+          {
+            sourcePartNumber: 'FG-001',
+            targetPartNumber: 'FG-002',
+            qty: 0,
+            reason: 'Test transfer',
+          },
+          'admin',
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

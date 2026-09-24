@@ -33,6 +33,10 @@ export interface MaterialEntity {
     MinimumStock: number;
     MaximumStock: number;
     QtyPerBox: number;
+    IsActive: boolean;
+    DiscontinueDate: string | null;
+    MaterialSource: 'LOKAL' | 'OVERSEAS' | null;
+    Remark: string | null;
     SatuanData: SatuanData | null;
 }
 
@@ -101,6 +105,8 @@ export const createMaterial = createAsyncThunk(
         minimumStock?: number;
         maximumStock?: number;
         qtyPerBox?: number;
+        materialSource?: 'LOKAL' | 'OVERSEAS';
+        remark?: string;
     }, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<MaterialEntity>, typeof materialData>('/master/material', materialData);
@@ -123,6 +129,8 @@ export const updateMaterial = createAsyncThunk(
             minimumStock?: number;
             maximumStock?: number;
             qtyPerBox?: number;
+            materialSource?: 'LOKAL' | 'OVERSEAS';
+            remark?: string;
         }
     }, {rejectWithValue}) => {
         try {
@@ -151,9 +159,47 @@ export const discontinueMaterial = createAsyncThunk(
         try {
             return await post<ApiSuccessEnvelope<MaterialEntity>, {
                 reason: string
-            }>(`/master/material/part-number/${partNumber}/discontinue`, {reason});
+            }>(`/master/material/part-number/${encodeURIComponent(partNumber)}/discontinue`, {reason});
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to discontinue material'));
+        }
+    }
+);
+
+export const reactivateMaterial = createAsyncThunk(
+    'material/reactivate',
+    async (partNumber: string, {rejectWithValue}) => {
+        try {
+            return await post<ApiSuccessEnvelope<MaterialEntity>>(`/master/material/part-number/${encodeURIComponent(partNumber)}/reactivate`, {});
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to reactivate material'));
+        }
+    }
+);
+
+export const transferMaterialStock = createAsyncThunk(
+    'material/transferStock',
+    async (transferData: {
+        sourcePartNumber: string;
+        targetPartNumber: string;
+        location: 'WAREHOUSE' | 'RACK';
+        qty: number;
+        reason: string;
+    }, {rejectWithValue}) => {
+        try {
+            return await post<ApiSuccessEnvelope<{
+                sourcePartNumber: string;
+                targetPartNumber: string;
+                location: string;
+                qty: number;
+                sourceBalanceBefore: number;
+                sourceBalanceAfter: number;
+                targetBalanceBefore: number;
+                targetBalanceAfter: number;
+                reason: string;
+            }>, typeof transferData>('/master/material/transfer-stock', transferData);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to transfer material stock'));
         }
     }
 );

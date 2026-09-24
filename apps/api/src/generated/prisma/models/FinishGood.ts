@@ -45,6 +45,8 @@ export type FinishGoodMinAggregateOutputType = {
   PartName: string | null
   IsPassthrough: boolean | null
   Alias: string | null
+  IsActive: boolean | null
+  DiscontinueDate: Date | null
   Price: number | null
   CreatedAt: Date | null
   CreatedBy: string | null
@@ -60,6 +62,8 @@ export type FinishGoodMaxAggregateOutputType = {
   PartName: string | null
   IsPassthrough: boolean | null
   Alias: string | null
+  IsActive: boolean | null
+  DiscontinueDate: Date | null
   Price: number | null
   CreatedAt: Date | null
   CreatedBy: string | null
@@ -75,6 +79,8 @@ export type FinishGoodCountAggregateOutputType = {
   PartName: number
   IsPassthrough: number
   Alias: number
+  IsActive: number
+  DiscontinueDate: number
   Price: number
   CreatedAt: number
   CreatedBy: number
@@ -104,6 +110,8 @@ export type FinishGoodMinAggregateInputType = {
   PartName?: true
   IsPassthrough?: true
   Alias?: true
+  IsActive?: true
+  DiscontinueDate?: true
   Price?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -119,6 +127,8 @@ export type FinishGoodMaxAggregateInputType = {
   PartName?: true
   IsPassthrough?: true
   Alias?: true
+  IsActive?: true
+  DiscontinueDate?: true
   Price?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -134,6 +144,8 @@ export type FinishGoodCountAggregateInputType = {
   PartName?: true
   IsPassthrough?: true
   Alias?: true
+  IsActive?: true
+  DiscontinueDate?: true
   Price?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -236,6 +248,8 @@ export type FinishGoodGroupByOutputType = {
   PartName: string
   IsPassthrough: boolean
   Alias: string | null
+  IsActive: boolean
+  DiscontinueDate: Date | null
   Price: number | null
   CreatedAt: Date
   CreatedBy: string
@@ -274,6 +288,8 @@ export type FinishGoodWhereInput = {
   PartName?: Prisma.StringFilter<"FinishGood"> | string
   IsPassthrough?: Prisma.BoolFilter<"FinishGood"> | boolean
   Alias?: Prisma.StringNullableFilter<"FinishGood"> | string | null
+  IsActive?: Prisma.BoolFilter<"FinishGood"> | boolean
+  DiscontinueDate?: Prisma.DateTimeNullableFilter<"FinishGood"> | Date | string | null
   Price?: Prisma.FloatNullableFilter<"FinishGood"> | number | null
   CreatedAt?: Prisma.DateTimeFilter<"FinishGood"> | Date | string
   CreatedBy?: Prisma.StringFilter<"FinishGood"> | string
@@ -299,6 +315,8 @@ export type FinishGoodOrderByWithRelationInput = {
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrderInput | Prisma.SortOrder
+  IsActive?: Prisma.SortOrder
+  DiscontinueDate?: Prisma.SortOrderInput | Prisma.SortOrder
   Price?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -327,6 +345,8 @@ export type FinishGoodWhereUniqueInput = Prisma.AtLeast<{
   PartName?: Prisma.StringFilter<"FinishGood"> | string
   IsPassthrough?: Prisma.BoolFilter<"FinishGood"> | boolean
   Alias?: Prisma.StringNullableFilter<"FinishGood"> | string | null
+  IsActive?: Prisma.BoolFilter<"FinishGood"> | boolean
+  DiscontinueDate?: Prisma.DateTimeNullableFilter<"FinishGood"> | Date | string | null
   Price?: Prisma.FloatNullableFilter<"FinishGood"> | number | null
   CreatedAt?: Prisma.DateTimeFilter<"FinishGood"> | Date | string
   CreatedBy?: Prisma.StringFilter<"FinishGood"> | string
@@ -352,6 +372,8 @@ export type FinishGoodOrderByWithAggregationInput = {
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrderInput | Prisma.SortOrder
+  IsActive?: Prisma.SortOrder
+  DiscontinueDate?: Prisma.SortOrderInput | Prisma.SortOrder
   Price?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -375,6 +397,8 @@ export type FinishGoodScalarWhereWithAggregatesInput = {
   PartName?: Prisma.StringWithAggregatesFilter<"FinishGood"> | string
   IsPassthrough?: Prisma.BoolWithAggregatesFilter<"FinishGood"> | boolean
   Alias?: Prisma.StringNullableWithAggregatesFilter<"FinishGood"> | string | null
+  IsActive?: Prisma.BoolWithAggregatesFilter<"FinishGood"> | boolean
+  DiscontinueDate?: Prisma.DateTimeNullableWithAggregatesFilter<"FinishGood"> | Date | string | null
   Price?: Prisma.FloatNullableWithAggregatesFilter<"FinishGood"> | number | null
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinishGood"> | Date | string
   CreatedBy?: Prisma.StringWithAggregatesFilter<"FinishGood"> | string
@@ -388,6 +412,8 @@ export type FinishGoodCreateInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -413,6 +439,8 @@ export type FinishGoodUncheckedCreateInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -435,6 +463,8 @@ export type FinishGoodUpdateInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -460,6 +490,8 @@ export type FinishGoodUncheckedUpdateInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -484,6 +516,8 @@ export type FinishGoodCreateManyInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -497,6 +531,8 @@ export type FinishGoodUpdateManyMutationInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -512,6 +548,8 @@ export type FinishGoodUncheckedUpdateManyInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -527,6 +565,8 @@ export type FinishGoodCountOrderByAggregateInput = {
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrder
+  IsActive?: Prisma.SortOrder
+  DiscontinueDate?: Prisma.SortOrder
   Price?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -548,6 +588,8 @@ export type FinishGoodMaxOrderByAggregateInput = {
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrder
+  IsActive?: Prisma.SortOrder
+  DiscontinueDate?: Prisma.SortOrder
   Price?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -563,6 +605,8 @@ export type FinishGoodMinOrderByAggregateInput = {
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrder
+  IsActive?: Prisma.SortOrder
+  DiscontinueDate?: Prisma.SortOrder
   Price?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -762,6 +806,8 @@ export type FinishGoodCreateWithoutBoxQTYInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -786,6 +832,8 @@ export type FinishGoodUncheckedCreateWithoutBoxQTYInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -823,6 +871,8 @@ export type FinishGoodUpdateWithoutBoxQTYInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -847,6 +897,8 @@ export type FinishGoodUncheckedUpdateWithoutBoxQTYInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -868,6 +920,8 @@ export type FinishGoodCreateWithoutBillOfMaterialsInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -892,6 +946,8 @@ export type FinishGoodUncheckedCreateWithoutBillOfMaterialsInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -929,6 +985,8 @@ export type FinishGoodUpdateWithoutBillOfMaterialsInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -953,6 +1011,8 @@ export type FinishGoodUncheckedUpdateWithoutBillOfMaterialsInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -974,6 +1034,8 @@ export type FinishGoodCreateWithoutInventoryLedgerInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -998,6 +1060,8 @@ export type FinishGoodUncheckedCreateWithoutInventoryLedgerInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1035,6 +1099,8 @@ export type FinishGoodUpdateWithoutInventoryLedgerInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1059,6 +1125,8 @@ export type FinishGoodUncheckedUpdateWithoutInventoryLedgerInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1080,6 +1148,8 @@ export type FinishGoodCreateWithoutStockOpnameDetailInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1104,6 +1174,8 @@ export type FinishGoodUncheckedCreateWithoutStockOpnameDetailInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1141,6 +1213,8 @@ export type FinishGoodUpdateWithoutStockOpnameDetailInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1165,6 +1239,8 @@ export type FinishGoodUncheckedUpdateWithoutStockOpnameDetailInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1186,6 +1262,8 @@ export type FinishGoodCreateWithoutForecastInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1210,6 +1288,8 @@ export type FinishGoodUncheckedCreateWithoutForecastInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1247,6 +1327,8 @@ export type FinishGoodUpdateWithoutForecastInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1271,6 +1353,8 @@ export type FinishGoodUncheckedUpdateWithoutForecastInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1292,6 +1376,8 @@ export type FinishGoodCreateWithoutProductionReportInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1316,6 +1402,8 @@ export type FinishGoodUncheckedCreateWithoutProductionReportInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1353,6 +1441,8 @@ export type FinishGoodUpdateWithoutProductionReportInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1377,6 +1467,8 @@ export type FinishGoodUncheckedUpdateWithoutProductionReportInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1398,6 +1490,8 @@ export type FinishGoodCreateWithoutLabelDataInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1422,6 +1516,8 @@ export type FinishGoodUncheckedCreateWithoutLabelDataInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1459,6 +1555,8 @@ export type FinishGoodUpdateWithoutLabelDataInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1483,6 +1581,8 @@ export type FinishGoodUncheckedUpdateWithoutLabelDataInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1504,6 +1604,8 @@ export type FinishGoodCreateWithoutLineStatusInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1528,6 +1630,8 @@ export type FinishGoodUncheckedCreateWithoutLineStatusInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1565,6 +1669,8 @@ export type FinishGoodUpdateWithoutLineStatusInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1589,6 +1695,8 @@ export type FinishGoodUncheckedUpdateWithoutLineStatusInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1610,6 +1718,8 @@ export type FinishGoodCreateWithoutBomRevisionsInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1634,6 +1744,8 @@ export type FinishGoodUncheckedCreateWithoutBomRevisionsInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1660,6 +1772,8 @@ export type FinishGoodCreateWithoutActiveBomRevisionInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1683,6 +1797,8 @@ export type FinishGoodUncheckedCreateWithoutActiveBomRevisionInput = {
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
   Price?: number | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1721,6 +1837,8 @@ export type FinishGoodUpdateWithoutBomRevisionsInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1745,6 +1863,8 @@ export type FinishGoodUncheckedUpdateWithoutBomRevisionsInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1777,6 +1897,8 @@ export type FinishGoodUpdateWithoutActiveBomRevisionInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1800,6 +1922,8 @@ export type FinishGoodUncheckedUpdateWithoutActiveBomRevisionInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1918,6 +2042,8 @@ export type FinishGoodSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   PartName?: boolean
   IsPassthrough?: boolean
   Alias?: boolean
+  IsActive?: boolean
+  DiscontinueDate?: boolean
   Price?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -1944,6 +2070,8 @@ export type FinishGoodSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   PartName?: boolean
   IsPassthrough?: boolean
   Alias?: boolean
+  IsActive?: boolean
+  DiscontinueDate?: boolean
   Price?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -1960,6 +2088,8 @@ export type FinishGoodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   PartName?: boolean
   IsPassthrough?: boolean
   Alias?: boolean
+  IsActive?: boolean
+  DiscontinueDate?: boolean
   Price?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -1976,6 +2106,8 @@ export type FinishGoodSelectScalar = {
   PartName?: boolean
   IsPassthrough?: boolean
   Alias?: boolean
+  IsActive?: boolean
+  DiscontinueDate?: boolean
   Price?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -1984,7 +2116,7 @@ export type FinishGoodSelectScalar = {
   Qty?: boolean
 }
 
-export type FinishGoodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ActiveBomRevisionId" | "Id" | "PartNumber" | "PartName" | "IsPassthrough" | "Alias" | "Price" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Qty", ExtArgs["result"]["finishGood"]>
+export type FinishGoodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ActiveBomRevisionId" | "Id" | "PartNumber" | "PartName" | "IsPassthrough" | "Alias" | "IsActive" | "DiscontinueDate" | "Price" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Qty", ExtArgs["result"]["finishGood"]>
 export type FinishGoodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ActiveBomRevision?: boolean | Prisma.FinishGood$ActiveBomRevisionArgs<ExtArgs>
   BomRevisions?: boolean | Prisma.FinishGood$BomRevisionsArgs<ExtArgs>
@@ -2026,6 +2158,8 @@ export type $FinishGoodPayload<ExtArgs extends runtime.Types.Extensions.Internal
     PartName: string
     IsPassthrough: boolean
     Alias: string | null
+    IsActive: boolean
+    DiscontinueDate: Date | null
     Price: number | null
     CreatedAt: Date
     CreatedBy: string
@@ -2471,6 +2605,8 @@ export interface FinishGoodFieldRefs {
   readonly PartName: Prisma.FieldRef<"FinishGood", 'String'>
   readonly IsPassthrough: Prisma.FieldRef<"FinishGood", 'Boolean'>
   readonly Alias: Prisma.FieldRef<"FinishGood", 'String'>
+  readonly IsActive: Prisma.FieldRef<"FinishGood", 'Boolean'>
+  readonly DiscontinueDate: Prisma.FieldRef<"FinishGood", 'DateTime'>
   readonly Price: Prisma.FieldRef<"FinishGood", 'Float'>
   readonly CreatedAt: Prisma.FieldRef<"FinishGood", 'DateTime'>
   readonly CreatedBy: Prisma.FieldRef<"FinishGood", 'String'>

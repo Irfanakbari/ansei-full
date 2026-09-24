@@ -109,7 +109,9 @@ export default function FinishGoodModal({open, data, onClose, onChanged}: Props)
                                                                                                     loading={deleting}>Delete</Button>,
         <Button key="edit" type="primary" icon={<EditOutlined/>} onClick={() => setEditing(true)}
                 disabled={deleting}>Edit</Button>]}>
-        {editing ? <Form form={form} layout="vertical"><Form.Item name="partNumber" label="Part Number" rules={[{
+        {editing ? <Form form={form} layout="vertical"><Form.Item name="partNumber" label="Part Number"
+                       extra="Note: Part Number cannot be modified if ledger transaction history exists."
+                       rules={[{
                 required: true,
                 message: "Please enter part number"
             }]}><Input/></Form.Item><Form.Item name="partName" label="Part Name" rules={[{
@@ -128,6 +130,8 @@ export default function FinishGoodModal({open, data, onClose, onChanged}: Props)
             <Descriptions bordered size="small" column={2}><Descriptions.Item
                 label="Part Number">{data.PartNumber}</Descriptions.Item><Descriptions.Item
                 label="Part Name">{data.PartName}</Descriptions.Item><Descriptions.Item
+                label="Status">{data.IsActive ? <span style={{color: '#52c41a', fontWeight: 'bold'}}>Active</span> : <span style={{color: '#ff4d4f', fontWeight: 'bold'}}>Discontinued</span>}</Descriptions.Item><Descriptions.Item
+                label="Discontinue Date">{data.DiscontinueDate ? formatDateTime(data.DiscontinueDate) : "-"}</Descriptions.Item><Descriptions.Item
                 label="Passthrough">{data.IsPassthrough ? "Yes — skip Assy" : "No — Assy required"}</Descriptions.Item><Descriptions.Item
                 label="Alias">{data.Alias || "-"}</Descriptions.Item><Descriptions.Item
                 label="Price">{data.Price == null ? "-" : `Rp ${data.Price.toLocaleString("id-ID")}`}</Descriptions.Item><Descriptions.Item

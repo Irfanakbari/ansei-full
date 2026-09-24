@@ -7,12 +7,25 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
-import { CreateMaterialDto, UpdateMaterialDto } from './dto';
+import {
+  CreateMaterialDto,
+  UpdateMaterialDto,
+  TransferMaterialStockDto,
+} from './dto';
 import type {
   LogProcessModel,
   MaterialModel,
 } from '../../generated/prisma/models';
 import type { Prisma } from '../../generated/prisma/client';
+import {
+  ItemCategory,
+  LocationType,
+  TransactionType,
+  MaterialSource,
+} from '../../generated/prisma/enums';
+import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
+import { withInventoryTransaction } from '../../common/helpers/inventory-transaction.helper';
+import * as crypto from 'crypto';
 import type {
   ApiResult,
   PaginationMeta,
@@ -36,6 +49,7 @@ export class MaterialService {
             { PartName: { contains: query.search, mode: 'insensitive' } },
             { Supplier: { contains: query.search, mode: 'insensitive' } },
             { RackLocation: { contains: query.search, mode: 'insensitive' } },
+            { Remark: { contains: query.search, mode: 'insensitive' } },
           ],
         }
       : {};
@@ -142,6 +156,8 @@ export class MaterialService {
             MinimumStock: dto.minimumStock ?? 0,
             MaximumStock: dto.maximumStock ?? 0,
             QtyPerBox: dto.qtyPerBox ?? 0,
+            MaterialSource: dto.materialSource ?? MaterialSource.LOKAL,
+            Remark: dto.remark,
             CreatedBy: createdBy,
             UpdatedBy: createdBy,
           },
@@ -207,8 +223,19 @@ export class MaterialService {
         throw new NotFoundException(`Material with id ${id} not found`);
       }
 
-      // Check if new part number conflicts with existing
+      // Check if new part number conflicts with existing or violates immutability after transactions
       if (dto.partNumber && dto.partNumber !== existing.PartNumber) {
+        // POKAYOKE / AUDIT GUARDRAIL: Part number cannot be changed if ledger transactions already exist
+        const ledgerCount = await this.prisma.inventoryLedger.count({
+          where: { MaterialId: existing.PartNumber },
+        });
+
+        if (ledgerCount > 0) {
+          throw new BadRequestException(
+            `Cannot change part number from "${existing.PartNumber}" to "${dto.partNumber}" because this material already has ${ledgerCount} ledger transaction history. Please create a new Material and discontinue the old one.`,
+          );
+        }
+
         const partNumberConflict = await this.prisma.material.findUnique({
           where: { PartNumber: dto.partNumber },
         });
@@ -240,6 +267,8 @@ export class MaterialService {
             MinimumStock: dto.minimumStock,
             MaximumStock: dto.maximumStock,
             QtyPerBox: dto.qtyPerBox,
+            MaterialSource: dto.materialSource,
+            Remark: dto.remark,
             UpdatedBy: createdBy,
           },
           include: {
@@ -608,6 +637,237 @@ export class MaterialService {
           message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
           type: 'ERROR',
           location: 'material.service.ts:344',
+        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Transfer stock from one material part number to another (Supersession stock transfer)
+   * Validations:
+   * 1. Source and Target must not be identical
+   * 2. Qty must be a positive integer
+   * 3. Target material must exist and be active (IsActive = true)
+   * 4. Source material must exist and have sufficient stock at the given location
+   * 5. No active inventory counting session
+   *
+   * Ledger Invariant:
+   * - OUT entry for Source (ADJUSTMENT_MANUAL, QtyOut = qty, BalanceAfter = BalanceBefore - qty)
+   * - IN entry for Target (ADJUSTMENT_MANUAL, QtyIn = qty, BalanceAfter = BalanceBefore + qty)
+   */
+  async transferStock(
+    dto: TransferMaterialStockDto,
+    transferredBy: string,
+  ): Promise<{
+    sourcePartNumber: string;
+    targetPartNumber: string;
+    location: LocationType;
+    qty: number;
+    sourceBalanceBefore: number;
+    sourceBalanceAfter: number;
+    targetBalanceBefore: number;
+    targetBalanceAfter: number;
+    reason: string;
+  }> {
+    if (dto.sourcePartNumber === dto.targetPartNumber) {
+      throw new BadRequestException(
+        'Source part number and target part number cannot be the same.',
+      );
+    }
+
+    if (!Number.isSafeInteger(dto.qty) || dto.qty <= 0) {
+      throw new BadRequestException(
+        'Transfer quantity must be a positive integer.',
+      );
+    }
+
+    let logProcess: LogProcessModel | undefined;
+
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'MATERIAL_006',
+        functionName: 'MaterialService.TransferStock',
+        createdBy: transferredBy,
+      });
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Starting material stock transfer: Source=${dto.sourcePartNumber}, Target=${dto.targetPartNumber}, Location=${dto.location}, Qty=${dto.qty}, Reason=${dto.reason}`,
+        type: 'INFO',
+        location: 'material.service.ts:transferStock',
+      });
+
+      const result = await withInventoryTransaction(
+        this.prisma,
+        ItemCategory.MATERIAL,
+        async (tx) => {
+          await assertNoActiveInventoryCounting(
+            tx,
+            ItemCategory.MATERIAL,
+            'Material Stock Transfer',
+          );
+
+          const source = await tx.material.findUnique({
+            where: { PartNumber: dto.sourcePartNumber },
+            select: {
+              Id: true,
+              PartNumber: true,
+              IsActive: true,
+              QtyWarehouse: true,
+              QtyRack: true,
+            },
+          });
+
+          if (!source) {
+            throw new NotFoundException(
+              `Source material "${dto.sourcePartNumber}" not found`,
+            );
+          }
+
+          const target = await tx.material.findUnique({
+            where: { PartNumber: dto.targetPartNumber },
+            select: {
+              Id: true,
+              PartNumber: true,
+              IsActive: true,
+              QtyWarehouse: true,
+              QtyRack: true,
+            },
+          });
+
+          if (!target) {
+            throw new NotFoundException(
+              `Target material "${dto.targetPartNumber}" not found`,
+            );
+          }
+
+          if (!target.IsActive) {
+            throw new BadRequestException(
+              `Target material "${dto.targetPartNumber}" is discontinued. Cannot transfer stock to an inactive material.`,
+            );
+          }
+
+          const sourceStock =
+            dto.location === LocationType.WAREHOUSE
+              ? source.QtyWarehouse
+              : source.QtyRack;
+          const targetStock =
+            dto.location === LocationType.WAREHOUSE
+              ? target.QtyWarehouse
+              : target.QtyRack;
+
+          if (sourceStock < dto.qty) {
+            throw new BadRequestException(
+              `Insufficient stock for material "${dto.sourcePartNumber}" at ${dto.location}. Available: ${sourceStock}, Requested: ${dto.qty}`,
+            );
+          }
+
+          const sourceBalanceAfter = sourceStock - dto.qty;
+          const targetBalanceAfter = targetStock + dto.qty;
+          const now = new Date();
+
+          // 1. OUT Ledger for Source Material
+          await tx.inventoryLedger.create({
+            data: {
+              Id: crypto.randomUUID(),
+              TransactionDate: now,
+              ItemCategory: ItemCategory.MATERIAL,
+              MaterialId: dto.sourcePartNumber,
+              Location: dto.location,
+              TransactionType: TransactionType.ADJUSTMENT_MANUAL,
+              ReferenceDoc: 'SUPERSESSION_TRANSFER',
+              BalanceBefore: sourceStock,
+              QtyIn: 0,
+              QtyOut: dto.qty,
+              BalanceAfter: sourceBalanceAfter,
+              CreatedBy: transferredBy,
+              Notes: `Transfer stock to ${dto.targetPartNumber}: ${dto.reason}`,
+            },
+          });
+
+          // 2. IN Ledger for Target Material
+          await tx.inventoryLedger.create({
+            data: {
+              Id: crypto.randomUUID(),
+              TransactionDate: now,
+              ItemCategory: ItemCategory.MATERIAL,
+              MaterialId: dto.targetPartNumber,
+              Location: dto.location,
+              TransactionType: TransactionType.ADJUSTMENT_MANUAL,
+              ReferenceDoc: 'SUPERSESSION_TRANSFER',
+              BalanceBefore: targetStock,
+              QtyIn: dto.qty,
+              QtyOut: 0,
+              BalanceAfter: targetBalanceAfter,
+              CreatedBy: transferredBy,
+              Notes: `Received stock from ${dto.sourcePartNumber}: ${dto.reason}`,
+            },
+          });
+
+          // 3. Update stock caches
+          await tx.material.update({
+            where: { PartNumber: dto.sourcePartNumber },
+            data: {
+              QtyWarehouse:
+                dto.location === LocationType.WAREHOUSE
+                  ? sourceBalanceAfter
+                  : source.QtyWarehouse,
+              QtyRack:
+                dto.location === LocationType.RACK
+                  ? sourceBalanceAfter
+                  : source.QtyRack,
+              UpdatedBy: transferredBy,
+            },
+          });
+
+          await tx.material.update({
+            where: { PartNumber: dto.targetPartNumber },
+            data: {
+              QtyWarehouse:
+                dto.location === LocationType.WAREHOUSE
+                  ? targetBalanceAfter
+                  : target.QtyWarehouse,
+              QtyRack:
+                dto.location === LocationType.RACK
+                  ? targetBalanceAfter
+                  : target.QtyRack,
+              UpdatedBy: transferredBy,
+            },
+          });
+
+          return {
+            sourcePartNumber: dto.sourcePartNumber,
+            targetPartNumber: dto.targetPartNumber,
+            location: dto.location,
+            qty: dto.qty,
+            sourceBalanceBefore: sourceStock,
+            sourceBalanceAfter,
+            targetBalanceBefore: targetStock,
+            targetBalanceAfter,
+            reason: dto.reason,
+          };
+        },
+      );
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Material stock transfer completed successfully: Source ${dto.sourcePartNumber} (${result.sourceBalanceBefore} -> ${result.sourceBalanceAfter}), Target ${dto.targetPartNumber} (${result.targetBalanceBefore} -> ${result.targetBalanceAfter})`,
+        type: 'INFO',
+        location: 'material.service.ts:transferStock',
+      });
+
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+
+      return result;
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'ERROR',
+          location: 'material.service.ts:transferStock',
         });
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }

@@ -20,6 +20,7 @@ import {
   CreateMaterialDto,
   UpdateMaterialDto,
   DiscontinueMaterialDto,
+  TransferMaterialStockDto,
 } from './dto';
 import { MaterialEntity } from './entities/material.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
@@ -136,7 +137,7 @@ export class MaterialController {
   @ApiResponse({ status: 404, description: 'Material tidak ditemukan' })
   @ApiResponse({ status: 409, description: 'Material sudah di-discontinue' })
   @Post('part-number/:partNumber/discontinue')
-  @Permission('IPCS.MASTER_UPDATE')
+  @Permission('IPCS.MATERIAL_DISCONTINUE')
   async discontinue(
     @Param('partNumber') partNumber: string,
     @Body() dto: DiscontinueMaterialDto,
@@ -158,11 +159,27 @@ export class MaterialController {
   @ApiResponse({ status: 404, description: 'Material tidak ditemukan' })
   @ApiResponse({ status: 409, description: 'Material sudah aktif' })
   @Post('part-number/:partNumber/reactivate')
-  @Permission('IPCS.MASTER_UPDATE')
+  @Permission('IPCS.MATERIAL_REACTIVATE')
   async reactivate(
     @Param('partNumber') partNumber: string,
     @CurrentUser() user: ICurrentUser,
   ) {
     return this.materialService.reactivate(partNumber, user.username);
+  }
+
+  @ApiOperation({ summary: 'Transfer stock between materials (supersession)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Stock material berhasil ditransfer',
+  })
+  @ApiResponse({ status: 400, description: 'Validasi stok atau status gagal' })
+  @ApiResponse({ status: 404, description: 'Material tidak ditemukan' })
+  @Post('transfer-stock')
+  @Permission('IPCS.MATERIAL_TRANSFER_STOCK')
+  async transferStock(
+    @Body() dto: TransferMaterialStockDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.materialService.transferStock(dto, user.username);
   }
 }

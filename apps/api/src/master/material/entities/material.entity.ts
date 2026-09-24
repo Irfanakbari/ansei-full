@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { MaterialSource } from '../../../generated/prisma/enums';
 
 /**
  * Material Entity - Material response format with SatuanData
@@ -88,6 +89,20 @@ export class MaterialEntity {
     example: '2026-07-20T10:00:00.000Z',
   })
   DiscontinueDate: Date | null;
+
+  @ApiPropertyOptional({
+    description: 'Sumber material',
+    enum: MaterialSource,
+    example: MaterialSource.LOKAL,
+  })
+  MaterialSource: MaterialSource | null;
+
+  @ApiPropertyOptional({
+    description: 'Remark / catatan tambahan',
+    nullable: true,
+    example: 'Material pengganti',
+  })
+  Remark: string | null;
 
   @ApiPropertyOptional({
     description: 'Data satuan',
