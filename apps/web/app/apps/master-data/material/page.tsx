@@ -10,7 +10,8 @@ import {
     PlusOutlined,
     StopOutlined,
     CheckCircleOutlined,
-    SwapOutlined
+    SwapOutlined,
+    DownloadOutlined
 } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
@@ -20,8 +21,10 @@ import {
     MaterialEntity,
     fetchMaterial,
     setMaterialQuery,
-    reactivateMaterial
+    reactivateMaterial,
+    exportMaterialExcel
 } from '@/store/features/master/materialSlice';
+import { fetchSupplier } from '@/store/features/master/supplierSlice';
 import CreateMaterialModal from './_components/CreateMaterialModal';
 import DiscontinueMaterialModal from './_components/DiscontinueMaterialModal';
 import TransferMaterialStockModal from './_components/TransferMaterialStockModal';
@@ -34,6 +37,7 @@ export default function MaterialPage() {
     const {message, modal} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
     const {data, loading, pagination, query} = useSelector((state: RootState) => state.material);
+    const {data: suppliers} = useSelector((state: RootState) => state.supplier);
     const {
         selectedRecord,
         selectRecord,
@@ -50,6 +54,10 @@ export default function MaterialPage() {
     useEffect(() => {
         dispatch(fetchMaterial(query));
     }, [dispatch, query]);
+
+    useEffect(() => {
+        dispatch(fetchSupplier({ limit: 1000 }));
+    }, [dispatch]);
 
     const searchInput = useRef<InputRef>(null);
 
@@ -136,7 +144,10 @@ export default function MaterialPage() {
         {
             title: 'Supplier',
             dataIndex: 'Supplier',
-            key: 'Supplier',
+            key: 'SupplierId',
+            filters: suppliers.map(s => ({ text: s.Name, value: s.Id })),
+            filterSearch: true,
+            filteredValue: query.supplierId ? [query.supplierId] : null,
             render: (val: string | null) => val || '-'
         },
         {
@@ -256,7 +267,7 @@ export default function MaterialPage() {
                 <ButtonToolbar
                     title="Transfer Stock"
                     icon={<SwapOutlined/>}
-                    enable={Boolean(selectedRecord && (selectedRecord.QtyWarehouse > 0 || selectedRecord.QtyRack > 0))}
+                    enable={Boolean(selectedRecord && selectedRecord.Qty > 0)}
                     onClick={() => setIsTransferModalVisible(true)}
                 />
                 <ButtonToolbar
@@ -271,6 +282,11 @@ export default function MaterialPage() {
                     onClick={handleReactivate}
                     enable={Boolean(selectedRecord && !selectedRecord.IsActive)}
                 />
+                <ButtonToolbar
+                    title="Download Excel"
+                    icon={<DownloadOutlined/>}
+                    onClick={() => dispatch(exportMaterialExcel(query))}
+                />
             </ToolbarWrapper>
 
             <Table
@@ -279,9 +295,10 @@ export default function MaterialPage() {
                 size="small"
                 loading={loading}
                 onChange={(pageInfo, tableFilters) => dispatch(setMaterialQuery({
-                    page: tableFilters.PartNumber || tableFilters.PartName ? 1 : pageInfo.current,
+                    page: tableFilters.PartNumber || tableFilters.PartName || tableFilters.SupplierId ? 1 : pageInfo.current,
                     limit: pageInfo.pageSize,
-                    search: String(tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? '')
+                    search: String(tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? ''),
+                    supplierId: tableFilters.SupplierId?.[0] ? Number(tableFilters.SupplierId[0]) : undefined
                 }))}
                 pagination={{
                     size: 'small',

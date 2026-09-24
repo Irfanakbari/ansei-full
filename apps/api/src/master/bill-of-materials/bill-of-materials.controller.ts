@@ -24,6 +24,9 @@ import type { ICurrentUser } from '../../auth/interfaces/current-user.interface'
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
+import { Response } from 'express';
+import { Res } from '@nestjs/common';
+
 @ApiTags('BillOfMaterials')
 @Controller('master/bill-of-materials')
 export class BillOfMaterialsController {
@@ -45,6 +48,25 @@ export class BillOfMaterialsController {
     @CurrentUser() _user: ICurrentUser,
   ) {
     return this.billOfMaterialsService.findAll(query);
+  }
+
+  @ApiOperation({ summary: 'Export all bill of materials to Excel' })
+  @Get('export')
+  @Permission('IPCS.MASTER_READ')
+  async exportExcel(
+    @Query() query: SearchPaginationQueryDto,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.billOfMaterialsService.exportExcel(query);
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=bill-of-materials.xlsx',
+    );
+    res.send(buffer);
   }
 
   // IMPORTANT: Specific routes MUST come before parameterized routes

@@ -51,16 +51,36 @@ interface MaterialState {
 export interface MaterialQuery {
     page?: number;
     limit?: number;
-    search?: string
+    search?: string;
+    supplierId?: number;
 }
 
 const initialState: MaterialState = {
     data: [],
     loading: false,
     error: null,
-    query: {page: 1, limit: 50},
+    query: {page: 1, limit: 50, search: '', supplierId: undefined},
     pagination: {page: 1, limit: 50, totalItems: 0, totalPages: 0},
 };
+
+export const exportMaterialExcel = createAsyncThunk(
+    'material/exportExcel',
+    async (query: MaterialQuery | undefined, {rejectWithValue}) => {
+        try {
+            const { downloadWithAutoFilename } = await import('../../utils/apiService');
+            await downloadWithAutoFilename('/master/material/export', {
+                params: {
+                    search: query?.search,
+                    supplierId: query?.supplierId
+                }
+            });
+            return true;
+        } catch (error: unknown) {
+            const { getApiErrorMessage } = await import('../../utils/apiService');
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to export materials'));
+        }
+    }
+);
 
 export const fetchMaterial = createAsyncThunk<PaginatedApiSuccessEnvelope<MaterialEntity>, MaterialQuery | undefined, {
     rejectValue: string
@@ -72,7 +92,8 @@ export const fetchMaterial = createAsyncThunk<PaginatedApiSuccessEnvelope<Materi
                 params: {
                     page: query.page,
                     limit: query.limit,
-                    search: query.search
+                    search: query.search,
+                    supplierId: query.supplierId
                 }
             });
         } catch (error: unknown) {

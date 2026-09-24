@@ -29,6 +29,9 @@ import type { ICurrentUser } from '../../auth/interfaces/current-user.interface'
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
+import { Response } from 'express';
+import { Res } from '@nestjs/common';
+
 @ApiTags('FinishGood')
 @Controller('master/finish-good')
 export class FinishGoodController {
@@ -48,6 +51,25 @@ export class FinishGoodController {
     @CurrentUser() _user: ICurrentUser,
   ) {
     return this.finishGoodService.findAll(query);
+  }
+
+  @ApiOperation({ summary: 'Export all finish goods to Excel' })
+  @Get('export')
+  @Permission('IPCS.MASTER_READ')
+  async exportExcel(
+    @Query() query: SearchPaginationQueryDto,
+    @Res() res: Response,
+  ) {
+    const buffer = await this.finishGoodService.exportExcel(query);
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=finish-goods.xlsx',
+    );
+    res.send(buffer);
   }
 
   // IMPORTANT: Specific routes MUST come before parameterized routes
@@ -115,7 +137,7 @@ export class FinishGoodController {
     return this.finishGoodService.remove(id, user.username);
   }
 
-  @ApiOperation({ summary: 'Discontinue finish good by part number' })
+  @ApiOperation({ summary: 'Discontinue finish good by ID' })
   @ApiResponse({
     status: 200,
     type: FinishGoodEntity,
@@ -126,22 +148,18 @@ export class FinishGoodController {
     status: 409,
     description: 'Finish good sudah di-discontinue',
   })
-  @Post('part-number/:partNumber/discontinue')
+  @Post(':id/discontinue')
   @Permission('IPCS.FINISH_GOOD_DISCONTINUE')
   async discontinue(
-    @Param('partNumber') partNumber: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: DiscontinueFinishGoodDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.finishGoodService.discontinue(
-      partNumber,
-      dto.reason,
-      user.username,
-    );
+    return this.finishGoodService.discontinue(id, dto.reason, user.username);
   }
 
   @ApiOperation({
-    summary: 'Reactivate discontinued finish good by part number',
+    summary: 'Reactivate discontinued finish good by ID',
   })
   @ApiResponse({
     status: 200,
@@ -150,17 +168,17 @@ export class FinishGoodController {
   })
   @ApiResponse({ status: 404, description: 'Finish good tidak ditemukan' })
   @ApiResponse({ status: 409, description: 'Finish good sudah aktif' })
-  @Post('part-number/:partNumber/reactivate')
+  @Post(':id/reactivate')
   @Permission('IPCS.FINISH_GOOD_REACTIVATE')
   async reactivate(
-    @Param('partNumber') partNumber: string,
+    @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.finishGoodService.reactivate(partNumber, user.username);
+    return this.finishGoodService.reactivate(id, user.username);
   }
 
   @ApiOperation({
-    summary: 'Transfer stock between finish goods (supersession)',
+    summary: 'Transfer stock between finish goods (supersession) by ID',
   })
   @ApiResponse({
     status: 200,
@@ -168,12 +186,13 @@ export class FinishGoodController {
   })
   @ApiResponse({ status: 400, description: 'Validasi stok atau status gagal' })
   @ApiResponse({ status: 404, description: 'Finish good tidak ditemukan' })
-  @Post('transfer-stock')
+  @Post(':id/transfer-stock')
   @Permission('IPCS.FINISH_GOOD_TRANSFER_STOCK')
   async transferStock(
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: TransferFinishGoodStockDto,
     @CurrentUser() user: ICurrentUser,
   ) {
-    return this.finishGoodService.transferStock(dto, user.username);
+    return this.finishGoodService.transferStock(id, dto, user.username);
   }
 }

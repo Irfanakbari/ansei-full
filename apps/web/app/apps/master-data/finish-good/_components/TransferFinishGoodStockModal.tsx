@@ -64,7 +64,7 @@ const TransferFinishGoodStockModal: React.FC<Props> = ({ visible, onClose, onSuc
             setLoading(true);
 
             const payload = {
-                sourcePartNumber: data.PartNumber,
+                id: data.Id,
                 targetPartNumber: values.targetPartNumber,
                 qty: values.qty,
                 reason: values.reason,

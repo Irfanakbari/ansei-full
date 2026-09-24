@@ -11,6 +11,7 @@ import {
   CreateMaterialDto,
   UpdateMaterialDto,
   TransferMaterialStockDto,
+  MaterialQueryDto,
 } from './dto';
 import type {
   LogProcessModel,
@@ -26,6 +27,7 @@ import {
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 import { withInventoryTransaction } from '../../common/helpers/inventory-transaction.helper';
 import * as crypto from 'crypto';
+import * as ExcelJS from 'exceljs';
 import type {
   ApiResult,
   PaginationMeta,
@@ -39,20 +41,109 @@ export class MaterialService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async findAll(
-    query: SearchPaginationQueryDto,
-  ): Promise<ApiResult<MaterialModel[], PaginationMeta>> {
-    const where: Prisma.MaterialWhereInput = query.search
-      ? {
-          OR: [
-            { PartNumber: { contains: query.search, mode: 'insensitive' } },
-            { PartName: { contains: query.search, mode: 'insensitive' } },
-            { Supplier: { contains: query.search, mode: 'insensitive' } },
-            { RackLocation: { contains: query.search, mode: 'insensitive' } },
-            { Remark: { contains: query.search, mode: 'insensitive' } },
-          ],
+  async exportExcel(query: MaterialQueryDto): Promise<Buffer> {
+    const where: Prisma.MaterialWhereInput = {};
+    if (query.search) {
+      where.OR = [
+        { PartNumber: { contains: query.search, mode: 'insensitive' } },
+        { PartName: { contains: query.search, mode: 'insensitive' } },
+        { Supplier: { contains: query.search, mode: 'insensitive' } },
+        { RackLocation: { contains: query.search, mode: 'insensitive' } },
+        { Remark: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+    if (query.supplierId) {
+      where.SupplierId = query.supplierId;
+    }
+
+    const data = await this.prisma.material.findMany({
+      where,
+      orderBy: [{ Id: 'asc' }],
+      include: {
+        SatuanData: true,
+        SupplierData: true,
+      },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'ANSEI System';
+    const worksheet = workbook.addWorksheet('Materials');
+
+    worksheet.columns = [
+      { header: 'No', key: 'no', width: 5 },
+      { header: 'Part Number', key: 'partNumber', width: 20 },
+      { header: 'Part Name', key: 'partName', width: 35 },
+      { header: 'Supplier', key: 'supplier', width: 25 },
+      { header: 'Unit', key: 'unit', width: 10 },
+      { header: 'Rack Location', key: 'rackLocation', width: 20 },
+      { header: 'Qty Rack', key: 'qtyRack', width: 15 },
+      { header: 'Minimum Stock', key: 'minStock', width: 15 },
+      { header: 'Active', key: 'isActive', width: 10 },
+      { header: 'Discontinue Date', key: 'discontinueDate', width: 20 },
+    ];
+
+    // Header styling
+    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF004B87' }, // corporate blue
+    };
+    worksheet.getRow(1).alignment = {
+      vertical: 'middle',
+      horizontal: 'center',
+    };
+
+    data.forEach((item, index) => {
+      worksheet.addRow({
+        no: index + 1,
+        partNumber: item.PartNumber,
+        partName: item.PartName,
+        supplier: item.SupplierData?.Name || item.Supplier || '-',
+        unit: item.SatuanData?.Name || '-',
+        rackLocation: item.RackLocation || '-',
+        qtyRack: item.QtyRack,
+        minStock: item.MinimumStock,
+        isActive: item.IsActive ? 'Yes' : 'No',
+        discontinueDate: item.DiscontinueDate
+          ? item.DiscontinueDate.toISOString().split('T')[0]
+          : '-',
+      });
+    });
+
+    worksheet.eachRow((row, rowNumber) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        if (rowNumber > 1) {
+          cell.alignment = { vertical: 'middle' };
         }
-      : {};
+      });
+    });
+
+    return (await workbook.xlsx.writeBuffer()) as Buffer;
+  }
+
+  async findAll(
+    query: MaterialQueryDto,
+  ): Promise<ApiResult<MaterialModel[], PaginationMeta>> {
+    const where: Prisma.MaterialWhereInput = {};
+    if (query.search) {
+      where.OR = [
+        { PartNumber: { contains: query.search, mode: 'insensitive' } },
+        { PartName: { contains: query.search, mode: 'insensitive' } },
+        { Supplier: { contains: query.search, mode: 'insensitive' } },
+        { RackLocation: { contains: query.search, mode: 'insensitive' } },
+        { Remark: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+    if (query.supplierId) {
+      where.SupplierId = query.supplierId;
+    }
     const [totalItems, data] = await Promise.all([
       this.prisma.material.count({ where }),
       this.prisma.material.findMany({

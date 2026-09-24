@@ -21,13 +21,17 @@ import {
   UpdateMaterialDto,
   DiscontinueMaterialDto,
   TransferMaterialStockDto,
+  MaterialQueryDto,
 } from './dto';
 import { MaterialEntity } from './entities/material.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
-import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+import { MaterialQueryDto } from './dto';
 import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
+
+import { Response } from 'express';
+import { Res } from '@nestjs/common';
 
 @ApiTags('Material')
 @Controller('master/material')
@@ -45,10 +49,23 @@ export class MaterialController {
   @Get()
   @Permission('IPCS.MASTER_READ')
   async findAll(
-    @Query() query: SearchPaginationQueryDto,
+    @Query() query: MaterialQueryDto,
     @CurrentUser() _user: ICurrentUser,
   ) {
     return this.materialService.findAll(query);
+  }
+
+  @ApiOperation({ summary: 'Export all materials to Excel' })
+  @Get('export')
+  @Permission('IPCS.MASTER_READ')
+  async exportExcel(@Query() query: MaterialQueryDto, @Res() res: Response) {
+    const buffer = await this.materialService.exportExcel(query);
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-Disposition', 'attachment; filename=materials.xlsx');
+    res.send(buffer);
   }
 
   @ApiOperation({ summary: 'Get material by ID' })

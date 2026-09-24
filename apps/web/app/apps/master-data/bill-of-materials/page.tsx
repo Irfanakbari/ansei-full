@@ -18,7 +18,7 @@ import {
 } from "antd";
 import type {TableProps} from "antd";
 import type {FilterDropdownProps} from "antd/es/table/interface";
-import {PlusOutlined, ReloadOutlined, SearchOutlined} from "@ant-design/icons";
+import {PlusOutlined, ReloadOutlined, SearchOutlined, DownloadOutlined} from "@ant-design/icons";
 import {useDispatch, useSelector} from "react-redux";
 import {useRouter} from "next/navigation";
 import type {AppDispatch, RootState} from "@/store";
@@ -34,6 +34,7 @@ import {
 } from "@/store/features/traceability/traceabilitySlice";
 import type {BomRevision, Page} from "@/store/features/traceability/types";
 import {fetchFinishGood} from "@/store/features/master/finishGoodSlice";
+import {exportBomExcel} from "@/store/features/master/bomSlice";
 import RevisionDetailsModal from "./_components/RevisionDetailsModal";
 import {formatDateTime} from "@/lib/utils/dateTime";
 
@@ -258,6 +259,12 @@ export default function BillOfMaterialsPage() {
                         setOpen(true);
                         void dispatch(fetchFinishGood({limit: 50}));
                     }}
+                />
+                <ButtonToolbar
+                    title="Download Excel"
+                    icon={<DownloadOutlined/>}
+                    enable={can("IPCS.MASTER_READ")}
+                    onClick={() => dispatch(exportBomExcel({}))}
                 />
             </ToolbarWrapper>
             {error && <Alert type="error" title={error} showIcon/>}

@@ -1,0 +1,185 @@
+{
+  "templateEngine": "Handlebars-compatible",
+  "report": {
+    "title": "Judul edisi laporan",
+    "period_label": "Bulan dan tahun laporan",
+    "status_label": "DRAFT / APPROVED",
+    "cutoff_at": "Timestamp cutoff Asia/Jakarta",
+    "version": "Versi snapshot laporan"
+  },
+  "pages": {
+    "cover": {
+      "title": "Cover - ANSEI dalam 1 bulan",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "executive_summary": {
+      "title": "AI Executive Summary",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "forecast_context": {
+      "title": "GPT Forecast Context",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "monthly_performance": {
+      "title": "Monthly Performance",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "forecast_release": {
+      "title": "Forecast and Release",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "production_output": {
+      "title": "Production Output",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "end_to_end_flow": {
+      "title": "End-to-End Flow",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "delivery_backlog": {
+      "title": "Delivery and Backlog",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "material_readiness": {
+      "title": "Material Readiness",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "incoming_mrp": {
+      "title": "Incoming and MRP",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "inventory_control": {
+      "title": "Inventory Control",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "quality_pokayoke": {
+      "title": "Quality and Poka-Yoke",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "assembly_manpower": {
+      "title": "Assembly and Manpower",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "traceability_quality": {
+      "title": "Traceability and Data Quality",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    },
+    "management_actions": {
+      "title": "Management Action Agenda",
+      "placeholders": {
+        "section_label": "Label bagian yang tampil di header halaman",
+        "management_question": "Pertanyaan bisnis yang dijawab halaman ini",
+        "content_html": "KPI, chart, table, narrative, dan action block dari agregat tervalidasi",
+        "source_and_definition": "Sumber model, definisi metrik, cutoff, dan batas interpretasi"
+      }
+    }
+  },
+  "narrativePolicy": {
+    "externalContext": "GAIKINDO hanya dipakai pada executive summary dan forecast context.",
+    "unitBoundary": "Volume kendaraan tidak dibandingkan atau dikonversi langsung ke qty part ANSEI.",
+    "forecastBasis": "Perencanaan menggunakan customer forecast/PO per part, BOM snapshot, delivery due date, dan approved revision.",
+    "aiRole": "AI menyusun narasi dan pertanyaan manajemen; AI tidak mengubah forecast atau transaksi."
+  },
+  "suggestedSources": {
+    "demand": [
+      "Forecast",
+      "ProductionRelease"
+    ],
+    "production": [
+      "ProductionReport",
+      "LabelData"
+    ],
+    "flow": [
+      "ShoppingCompletion",
+      "AssemblySession",
+      "PokayokeScanHistory",
+      "DeliveryHistory"
+    ],
+    "material": [
+      "ProductionBomSnapshotLine",
+      "Shopping",
+      "Incoming",
+      "MaterialNgCase"
+    ],
+    "inventory": [
+      "InventoryLedger",
+      "StockOpname",
+      "StockOpnameDetail"
+    ],
+    "traceability": [
+      "ProductionTraceEvent",
+      "LogProcess",
+      "LogProcessDetail"
+    ]
+  }
+}

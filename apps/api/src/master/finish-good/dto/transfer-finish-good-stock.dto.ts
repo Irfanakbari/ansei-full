@@ -3,14 +3,6 @@ import { IsString, IsNotEmpty, IsInt, Min } from 'class-validator';
 
 export class TransferFinishGoodStockDto {
   @ApiProperty({
-    description: 'Part number finish good asal yang akan dikurangi stoknya',
-    example: 'FG-001',
-  })
-  @IsString()
-  @IsNotEmpty()
-  sourcePartNumber: string;
-
-  @ApiProperty({
     description: 'Part number finish good tujuan yang akan ditambah stoknya',
     example: 'FG-002',
   })

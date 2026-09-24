@@ -10,7 +10,8 @@ import {
     PlusOutlined,
     StopOutlined,
     CheckCircleOutlined,
-    SwapOutlined
+    SwapOutlined,
+    DownloadOutlined
 } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
@@ -20,7 +21,8 @@ import {
     FinishGoodEntity,
     fetchFinishGood,
     setFinishGoodQuery,
-    reactivateFinishGood
+    reactivateFinishGood,
+    exportFinishGoodExcel
 } from '@/store/features/master/finishGoodSlice';
 import CreateFinishGoodModal from './_components/CreateFinishGoodModal';
 import FinishGoodModal from './_components/FinishGoodModal';
@@ -190,7 +192,7 @@ export default function FinishGoodPage() {
             centered: true,
             onOk: async () => {
                 try {
-                    const result = await dispatch(reactivateFinishGood(selectedRecord.PartNumber));
+                    const result = await dispatch(reactivateFinishGood(selectedRecord.Id));
                     if (reactivateFinishGood.rejected.match(result)) {
                         throw new Error((result.payload as string) || 'Failed to reactivate finish good');
                     }
@@ -229,6 +231,11 @@ export default function FinishGoodPage() {
                     icon={<CheckCircleOutlined/>}
                     onClick={handleReactivate}
                     enable={Boolean(selectedRecord && !selectedRecord.IsActive)}
+                />
+                <ButtonToolbar
+                    title="Download Excel"
+                    icon={<DownloadOutlined/>}
+                    onClick={() => dispatch(exportFinishGoodExcel(query))}
                 />
             </ToolbarWrapper>
 

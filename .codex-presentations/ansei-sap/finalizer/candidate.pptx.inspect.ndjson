@@ -1,0 +1,208 @@
+{"kind":"deck","id":"pr/8uv1d0","name":"Deck"}
+{"kind":"layout","layoutId":"1eb7f442-b101-492e-9523-4fc12ce57a1e","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"5397c9b8-f44e-4240-b1f1-de24348126e1","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/v77wjp","slide":1,"title":"USULAN UNTUK MANAJEMEN","textShapes":5}
+{"kind":"textbox","id":"sh/h4bahwba","slide":1,"text":"USULAN UNTUK MANAJEMEN","textPreview":"USULAN UNTUK MANAJEMEN","textChars":22,"textLines":1,"bbox":[72,190,238,30]}
+{"kind":"textbox","id":"sh/i5krq1sv","slide":1,"text":"Sinkronisasi Data\nProduksi ANSEI ke SAP","textPreview":"Sinkronisasi Data | Produksi ANSEI ke SAP","textChars":39,"textLines":2,"bbox":[72,238,560,160]}
+{"kind":"textbox","id":"sh/36tsj6tg","slide":1,"text":"Konsep integrasi melalui NOVA Shopfloor/MES","textPreview":"Konsep integrasi melalui NOVA Shopfloor/MES","textChars":43,"textLines":1,"bbox":[74,420,510,46]}
+{"kind":"shape","id":"sh/47m9sba1","slide":1,"bbox":[73,493,84,5]}
+{"kind":"textbox","id":"sh/58valgb6","slide":1,"text":"Tujuan jangka panjang: seluruh data dan transaksi bisnis berpusat di SAP","textPreview":"Tujuan jangka panjang: seluruh data dan transaksi bisnis berpusat di SAP","textChars":72,"textLines":1,"bbox":[74,520,505,78]}
+{"kind":"textbox","id":"sh/q94rulsr","slide":1,"text":"IT & Accounting\nSeptember 2026","textPreview":"IT & Accounting | September 2026","textChars":30,"textLines":2,"bbox":[74,642,420,46]}
+{"kind":"image","id":"im/qxkbu1of","slide":1,"name":"","alt":"Ilustrasi lini produksi dan aliran data terintegrasi","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/d0ba5gn6","slide":1,"name":"","alt":"NOVA ANSEI Inventory and Production System","bbox":[70,52,290,112]}
+{"kind":"notes","id":"nt/v77wjp","slide":1,"text":"Pembuka: usulan ini menyatukan data produksi ANSEI ke SAP melalui NOVA. NOVA berfungsi sebagai Shopfloor/MES, sedangkan SAP tetap menjadi pusat data dan transaksi bisnis."}
+{"kind":"slide","id":"sl/06z2ka","slide":2,"title":"Mengapa usulan ini diperlukan","textShapes":13}
+{"kind":"shape","id":"sh/wruhs7qt","slide":2,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/bql0j298","slide":2,"text":"Mengapa usulan ini diperlukan","textPreview":"Mengapa usulan ini diperlukan","textChars":29,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/apczqx8n","slide":2,"text":"Trial bersama IT dan Accounting membuka opsi integrasi yang sebelumnya dianggap tidak memungkinkan","textPreview":"Trial bersama IT dan Accounting membuka opsi integrasi yang sebelumnya dianggap tidak memungkinkan","textChars":98,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"textbox","id":"sh/9o3ihsr2","slide":2,"text":"Kondisi saat ini","textPreview":"Kondisi saat ini","textChars":16,"textLines":1,"bbox":[72,160,480,40]}
+{"kind":"shape","id":"sh/onuho7qh","slide":2,"bbox":[620,154,0,430]}
+{"kind":"shape","id":"sh/nml0f29w","slide":2,"bbox":[72,228,10,10]}
+{"kind":"textbox","id":"sh/m1czmxsr","slide":2,"text":"Data produksi ANSEI masih banyak direkap melalui Excel dan belum menjadi transaksi SAP.","textPreview":"Data produksi ANSEI masih banyak direkap melalui Excel dan belum menjadi transaksi SAP.","textChars":87,"textLines":1,"bbox":[94,220,478,62]}
+{"kind":"shape","id":"sh/103idsr6","slide":2,"bbox":[72,318,10,10]}
+{"kind":"textbox","id":"sh/0zahknal","slide":2,"text":"Material dan aset inventory bukan milik Vuteq, sehingga posting tanpa desain yang tepat berisiko mengaburkan kepemilikan dan nilai inventory.","textPreview":"Material dan aset inventory bukan milik Vuteq, sehingga posting tanpa desain yang tepat berisiko mengaburkan kepemilikan dan nilai invent...","textChars":141,"textLines":1,"bbox":[94,310,478,92]}
+{"kind":"shape","id":"sh/e9of6lg7","slide":2,"bbox":[72,440,10,10]}
+{"kind":"textbox","id":"sh/zuxgfqxs","slide":2,"text":"Akibatnya, data operasional tersebar dan membutuhkan rekonsiliasi manual.","textPreview":"Akibatnya, data operasional tersebar dan membutuhkan rekonsiliasi manual.","textChars":73,"textLines":1,"bbox":[94,432,478,62]}
+{"kind":"textbox","id":"sh/0v6x8vyd","slide":2,"text":"Yang sudah berubah","textPreview":"Yang sudah berubah","textChars":18,"textLines":1,"bbox":[678,160,490,40]}
+{"kind":"shape","id":"sh/1wfyh0fy","slide":2,"bbox":[678,228,10,10]}
+{"kind":"textbox","id":"sh/q54f21gb","slide":2,"text":"IT dan Accounting telah melakukan trial serta simulasi fitur SAP untuk kasus ANSEI.","textPreview":"IT dan Accounting telah melakukan trial serta simulasi fitur SAP untuk kasus ANSEI.","textChars":83,"textLines":1,"bbox":[700,220,478,62]}
+{"kind":"shape","id":"sh/r6dgb6xg","slide":2,"bbox":[678,318,10,10]}
+{"kind":"textbox","id":"sh/c7mx4by1","slide":2,"text":"Hasil simulasi menunjukkan pencatatan di SAP dapat dilakukan dengan konfigurasi organisasi, ownership, valuation, dan accounting yang disepakati.","textPreview":"Hasil simulasi menunjukkan pencatatan di SAP dapat dilakukan dengan konfigurasi organisasi, ownership, valuation, dan accounting yang dis...","textChars":145,"textLines":1,"bbox":[700,310,478,92]}
+{"kind":"shape","id":"sh/d8vydgfm","slide":2,"bbox":[678,440,10,10]}
+{"kind":"textbox","id":"sh/21kfy1gz","slide":2,"text":"Peluang berikutnya adalah memindahkan transaksi ke SAP dan memakai NOVA sebagai antarmuka eksekusi produksi.","textPreview":"Peluang berikutnya adalah memindahkan transaksi ke SAP dan memakai NOVA sebagai antarmuka eksekusi produksi.","textChars":108,"textLines":1,"bbox":[700,432,478,72]}
+{"kind":"shape","id":"sh/32dg76xk","slide":2,"bbox":[144,555,992,78]}
+{"kind":"textbox","id":"sh/769cf2dc","slide":2,"text":"Arah yang diusulkan: SAP menjadi single source of truth, tanpa inventory bisnis independen di NOVA atau Excel.","textPreview":"Arah yang diusulkan: SAP menjadi single source of truth, tanpa inventory bisnis independen di NOVA atau Excel.","textChars":110,"textLines":1,"bbox":[178,571,924,48]}
+{"kind":"shape","id":"sh/650v6xwr","slide":2,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/t8ruhcvi","slide":2,"text":"ANSEI / NOVA Shopfloor/MES / SAP","textPreview":"ANSEI / NOVA Shopfloor/MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/87id87ex","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"notes","id":"nt/06z2ka","slide":2,"text":"Tekankan bahwa isu awal bukan kemampuan produksi, tetapi kejelasan kepemilikan material dan aset inventory. Trial IT dan Accounting menunjukkan skenario tersebut dapat ditangani. Detail konfigurasi final tetap memerlukan persetujuan Accounting dan tim SAP."}
+{"kind":"slide","id":"sl/1a8wzw","slide":3,"title":"Alur data ANSEI saat ini","textShapes":24}
+{"kind":"shape","id":"sh/2xcrq5cn","slide":3,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/pknq1kbe","slide":3,"text":"Alur data ANSEI saat ini","textPreview":"Alur data ANSEI saat ini","textChars":24,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/ozu9sfut","slide":3,"text":"ANSEI mencatat transaksi operasional dan saldo inventory secara lokal, sementara SAP belum menerima rangkaian transaksi ini","textPreview":"ANSEI mencatat transaksi operasional dan saldo inventory secara lokal, sementara SAP belum menerima rangkaian transaksi ini","textChars":123,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"shape","id":"sh/bm5s3ut4","slide":3,"bbox":[52,174,170,120]}
+{"kind":"textbox","id":"sh/qlwrupcz","slide":3,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[66,186,36,26]}
+{"kind":"textbox","id":"sh/dona5kba","slide":3,"text":"Incoming","textPreview":"Incoming","textChars":8,"textLines":1,"bbox":[66,216,142,54]}
+{"kind":"shape","id":"sh/cne9wzup","slide":3,"bbox":[252,174,170,120]}
+{"kind":"textbox","id":"sh/7q18rqt0","slide":3,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[266,186,36,26]}
+{"kind":"textbox","id":"sh/6psrilcf","slide":3,"text":"Production release","textPreview":"Production release","textChars":18,"textLines":1,"bbox":[266,216,142,54]}
+{"kind":"shape","id":"sh/8v2d0nu9","slide":3,"bbox":[452,174,170,120]}
+{"kind":"textbox","id":"sh/twbe9sbu","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[466,186,36,26]}
+{"kind":"textbox","id":"sh/mtkvyxcj","slide":3,"text":"Shopping","textPreview":"Shopping","textChars":8,"textLines":1,"bbox":[466,216,142,54]}
+{"kind":"shape","id":"sh/7utw72to","slide":3,"bbox":[652,174,170,120]}
+{"kind":"textbox","id":"sh/gzmd47al","slide":3,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[666,186,36,26]}
+{"kind":"textbox","id":"sh/hkvedcb6","slide":3,"text":"Assembly / FG","textPreview":"Assembly / FG","textChars":13,"textLines":1,"bbox":[666,216,142,54]}
+{"kind":"shape","id":"sh/uxkv2xsf","slide":3,"bbox":[852,174,170,120]}
+{"kind":"textbox","id":"sh/vytwb2t0","slide":3,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[866,186,36,26]}
+{"kind":"textbox","id":"sh/c3ids3u1","slide":3,"text":"Poka-Yoke","textPreview":"Poka-Yoke","textChars":9,"textLines":1,"bbox":[866,216,142,54]}
+{"kind":"shape","id":"sh/xore18bm","slide":3,"bbox":[1052,174,170,120]}
+{"kind":"textbox","id":"sh/dkju543q","slide":3,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1066,186,36,26]}
+{"kind":"textbox","id":"sh/cjatwzm5","slide":3,"text":"Delivery & close","textPreview":"Delivery & close","textChars":16,"textLines":1,"bbox":[1066,216,142,54]}
+{"kind":"shape","id":"sh/ri1c3ulk","slide":3,"bbox":[222,234,30,0]}
+{"kind":"shape","id":"sh/qhsbup4z","slide":3,"bbox":[422,234,30,0]}
+{"kind":"shape","id":"sh/1o3uto3m","slide":3,"bbox":[622,234,30,0]}
+{"kind":"shape","id":"sh/0nut0jm1","slide":3,"bbox":[822,234,30,0]}
+{"kind":"shape","id":"sh/zm1c7elg","slide":3,"bbox":[1022,234,30,0]}
+{"kind":"textbox","id":"sh/elsby94v","slide":3,"text":"DO supplier dicek, diterima, lalu material bertambah.","textPreview":"DO supplier dicek, diterima, lalu material bertambah.","textChars":53,"textLines":1,"bbox":[52,312,170,92]}
+{"kind":"textbox","id":"sh/9s3uxo3y","slide":3,"text":"Forecast/PO dijadwalkan dan label produksi dibuat.","textPreview":"Forecast/PO dijadwalkan dan label produksi dibuat.","textChars":50,"textLines":1,"bbox":[252,312,170,92]}
+{"kind":"textbox","id":"sh/orut4jmd","slide":3,"text":"Material BOM dipick dan stok material berkurang.","textPreview":"Material BOM dipick dan stok material berkurang.","textChars":48,"textLines":1,"bbox":[452,312,170,92]}
+{"kind":"textbox","id":"sh/6l4zihgj","slide":3,"text":"Hasil produksi masuk per forecast atau per box.","textPreview":"Hasil produksi masuk per forecast atau per box.","textChars":47,"textLines":1,"bbox":[652,312,170,92]}
+{"kind":"textbox","id":"sh/7md0bmx4","slide":3,"text":"Label divalidasi sebagai good quantity sebelum delivery.","textPreview":"Label divalidasi sebagai good quantity sebelum delivery.","textChars":56,"textLines":1,"bbox":[852,312,170,92]}
+{"kind":"textbox","id":"sh/8nmhkryp","slide":3,"text":"FG berkurang saat delivery; release tutup setelah semua PO terkirim.","textPreview":"FG berkurang saat delivery; release tutup setelah semua PO terkirim.","textChars":68,"textLines":1,"bbox":[1052,312,170,92]}
+{"kind":"shape","id":"sh/tovidwfu","slide":3,"bbox":[66,466,1148,144]}
+{"kind":"textbox","id":"sh/up4zm1gf","slide":3,"text":"Data yang menjadi bukti transaksi di ANSEI","textPreview":"Data yang menjadi bukti transaksi di ANSEI","textChars":42,"textLines":1,"bbox":[92,490,420,34]}
+{"kind":"textbox","id":"sh/vqd0f6x0","slide":3,"text":"InventoryLedger menyimpan saldo material/FG. Shopping menyimpan material pick. LabelData dan Assembly menyimpan hasil produksi. Poka-Yoke dan DeliveryHistory menyimpan validasi serta barang keluar.","textPreview":"InventoryLedger menyimpan saldo material/FG. Shopping menyimpan material pick. LabelData dan Assembly menyimpan hasil produksi. Poka-Yoke...","textChars":197,"textLines":1,"bbox":[92,538,1070,54]}
+{"kind":"shape","id":"sh/gr6hobyl","slide":3,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/hcfihgf6","slide":3,"text":"ANSEI / NOVA Shopfloor/MES / SAP","textPreview":"ANSEI / NOVA Shopfloor/MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/idozq1gr","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"notes","id":"nt/1a8wzw","slide":3,"text":"Alur yang berlaku: release produksi, shopping material, hasil produksi/assembly, Poka-Yoke, delivery, kemudian close setelah seluruh forecast atau PO selesai delivery. InventoryLedger adalah dasar saldo lokal ANSEI saat ini. Slide ini menjelaskan kondisi berjalan, bukan rancangan akhir integrasi SAP."}
+{"kind":"slide","id":"sl/2a0jvp","slide":4,"title":"Arsitektur target: SAP menjadi pusat data dan transaksi","textShapes":15}
+{"kind":"shape","id":"sh/p8zedwvi","slide":4,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/258f2hwr","slide":4,"text":"Arsitektur target: SAP menjadi pusat data dan transaksi","textPreview":"Arsitektur target: SAP menjadi pusat data dan transaksi","textChars":55,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/36hwbmdc","slide":4,"text":"NOVA menjalankan proses Shopfloor/MES, sedangkan saldo, dokumen, dan status bisnis tetap dikuasai SAP","textPreview":"NOVA menjalankan proses Shopfloor/MES, sedangkan saldo, dokumen, dan status bisnis tetap dikuasai SAP","textChars":101,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"shape","id":"sh/g3qx07e1","slide":4,"bbox":[444,162,392,144]}
+{"kind":"textbox","id":"sh/14ze9cv6","slide":4,"text":"SAP","textPreview":"SAP","textChars":3,"textLines":1,"bbox":[444,184,392,54]}
+{"kind":"textbox","id":"sh/e1ofyhwv","slide":4,"text":"Single source of truth","textPreview":"Single source of truth","textChars":22,"textLines":1,"bbox":[444,244,392,30]}
+{"kind":"shape","id":"sh/f2xw7mdg","slide":4,"bbox":[444,444,392,122]}
+{"kind":"textbox","id":"sh/sf6dw7ep","slide":4,"text":"NOVA Shopfloor/MES","textPreview":"NOVA Shopfloor/MES","textChars":18,"textLines":1,"bbox":[444,465,392,40]}
+{"kind":"textbox","id":"sh/tgfe5cva","slide":4,"text":"UI operator, scanning, validation, dan eksekusi proses","textPreview":"UI operator, scanning, validation, dan eksekusi proses","textChars":54,"textLines":1,"bbox":[474,512,332,34]}
+{"kind":"shape","id":"sh/dc32pcza","slide":4,"bbox":[70,260,282,150]}
+{"kind":"textbox","id":"sh/cbulw7i5","slide":4,"text":"Data dari SAP","textPreview":"Data dari SAP","textChars":13,"textLines":1,"bbox":[94,282,234,34]}
+{"kind":"textbox","id":"sh/balkn2hk","slide":4,"text":"Master material dan BOM\nProduction order / kebutuhan\nStok dan referensi dokumen","textPreview":"Master material dan BOM | Production order / kebutuhan | Stok dan referensi dokumen","textChars":79,"textLines":3,"bbox":[94,330,234,64]}
+{"kind":"shape","id":"sh/q9c3ux0z","slide":4,"bbox":[928,260,282,150]}
+{"kind":"textbox","id":"sh/p8j2lsze","slide":4,"text":"Keluaran SAP","textPreview":"Keluaran SAP","textChars":12,"textLines":1,"bbox":[952,282,234,34]}
+{"kind":"textbox","id":"sh/o7alsnit","slide":4,"text":"Saldo inventory resmi\nDokumen transaksi\nLaporan Accounting dan manajemen","textPreview":"Saldo inventory resmi | Dokumen transaksi | Laporan Accounting dan manajemen","textChars":72,"textLines":3,"bbox":[952,330,234,64]}
+{"kind":"shape","id":"sh/361kjih8","slide":4,"bbox":[352,234,92,101]}
+{"kind":"shape","id":"sh/25s3qx0n","slide":4,"bbox":[836,234,92,101]}
+{"kind":"shape","id":"sh/14j2hszi","slide":4,"bbox":[640,306,0,138]}
+{"kind":"textbox","id":"sh/g3alonix","slide":4,"text":"Master dan order","textPreview":"Master dan order","textChars":16,"textLines":1,"bbox":[430,350,172,25]}
+{"kind":"textbox","id":"sh/szetkrup","slide":4,"text":"Hasil transaksi","textPreview":"Hasil transaksi","textChars":15,"textLines":1,"bbox":[678,390,172,25]}
+{"kind":"shape","id":"sh/t07utcba","slide":4,"bbox":[172,596,936,50]}
+{"kind":"textbox","id":"sh/6xwbihcz","slide":4,"text":"NOVA tidak menyimpan saldo inventory atau dokumen bisnis independen. Data teknis sementara hanya untuk antrean, monitoring, dan audit integrasi.","textPreview":"NOVA tidak menyimpan saldo inventory atau dokumen bisnis independen. Data teknis sementara hanya untuk antrean, monitoring, dan audit int...","textChars":144,"textLines":1,"bbox":[204,608,872,28]}
+{"kind":"shape","id":"sh/ry5crmtk","slide":4,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/4vetg7ut","slide":4,"text":"ANSEI / NOVA Shopfloor/MES / SAP","textPreview":"ANSEI / NOVA Shopfloor/MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/5wnupcbe","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"notes","id":"nt/2a0jvp","slide":4,"text":"Pesan utama: SAP memiliki master, saldo, dokumen, dan status bisnis. NOVA hanya menyediakan pengalaman Shopfloor/MES bagi operator. Jika diperlukan, NOVA boleh menyimpan antrean teknis dan jejak integrasi sementara, tetapi bukan saldo atau transaksi bisnis tandingan."}
+{"kind":"slide","id":"sl/h3up4a","slide":5,"title":"Titik sinkronisasi ke SAP","textShapes":5}
+{"kind":"shape","id":"sh/fehgzmpo","slide":5,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/gfqh8769","slide":5,"text":"Titik sinkronisasi ke SAP","textPreview":"Titik sinkronisasi ke SAP","textChars":25,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/1gjy1c7u","slide":5,"text":"Posting dilakukan pada event bisnis yang sudah final, kemudian nomor dokumen SAP dikembalikan ke NOVA","textPreview":"Posting dilakukan pada event bisnis yang sudah final, kemudian nomor dokumen SAP dikembalikan ke NOVA","textChars":101,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"shape","id":"sh/rqhgv2pc","slide":5,"bbox":[130,592,1020,54]}
+{"kind":"textbox","id":"sh/srqh476x","slide":5,"text":"Catatan desain: jenis dokumen dan konfigurasi SAP final ditetapkan oleh Accounting dan tim SAP. Poka-Yoke menjadi gate kualitas, bukan saldo tandingan.","textPreview":"Catatan desain: jenis dokumen dan konfigurasi SAP final ditetapkan oleh Accounting dan tim SAP. Poka-Yoke menjadi gate kualitas, bukan sa...","textChars":151,"textLines":1,"bbox":[154,604,972,32]}
+{"kind":"shape","id":"sh/tszyxc7i","slide":5,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/ilozyxov","slide":5,"text":"ANSEI / NOVA Shopfloor/MES / SAP","textPreview":"ANSEI / NOVA Shopfloor/MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/jmxgr2pg","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"table","id":"tb/zidkbadw","slide":5,"name":"","rows":5,"cols":4,"preview":"Tahap Shopfloor | Trigger di NOVA | Transaksi / status di SAP | Bukti kembali ke NOVA","bbox":[64,154,1152,414]}
+{"kind":"notes","id":"nt/h3up4a","slide":5,"text":"Empat titik inti: GR material, consumption material, production result/finish good receipt, serta delivery dan penutupan. Poka-Yoke menjadi syarat sebelum delivery. Nama transaksi pada slide bersifat konsep bisnis, bukan keputusan konfigurasi atau transaction code SAP final."}
+{"kind":"slide","id":"sl/vcs0sa","slide":6,"title":"Kontrol agar transaksi aman dan inventory tidak rancu","textShapes":18}
+{"kind":"shape","id":"sh/itwrep4f","slide":6,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/5wnqpk3q","slide":6,"text":"Kontrol agar transaksi aman dan inventory tidak rancu","textPreview":"Kontrol agar transaksi aman dan inventory tidak rancu","textChars":53,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/4ve9gfm5","slide":6,"text":"Integrasi harus mengunci ownership, mencegah duplikasi, dan membuat kegagalan terlihat serta dapat direkonsiliasi","textPreview":"Integrasi harus mengunci ownership, mencegah duplikasi, dan membuat kegagalan terlihat serta dapat direkonsiliasi","textChars":113,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"textbox","id":"sh/ry58rulw","slide":6,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[72,178,80,62]}
+{"kind":"textbox","id":"sh/qxwrip4b","slide":6,"text":"Sebelum posting","textPreview":"Sebelum posting","textChars":15,"textLines":1,"bbox":[160,184,268,44]}
+{"kind":"shape","id":"sh/dk7at432","slide":6,"bbox":[72,248,344,0]}
+{"kind":"shape","id":"sh/sje9kzmh","slide":6,"bbox":[72,286,10,10]}
+{"kind":"textbox","id":"sh/72l8fqls","slide":6,"text":"Mapping material, plant, storage, valuation, dan ownership disetujui Accounting.","textPreview":"Mapping material, plant, storage, valuation, dan ownership disetujui Accounting.","textChars":80,"textLines":1,"bbox":[94,278,322,72]}
+{"kind":"shape","id":"sh/m1cr6547","slide":6,"bbox":[72,378,10,10]}
+{"kind":"textbox","id":"sh/4nm9cvq5","slide":6,"text":"Master data dan production order berasal dari SAP.","textPreview":"Master data dan production order berasal dari SAP.","textChars":50,"textLines":1,"bbox":[94,370,322,56]}
+{"kind":"textbox","id":"sh/5ofa507a","slide":6,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[468,178,80,62]}
+{"kind":"textbox","id":"sh/i14ral8z","slide":6,"text":"Saat posting","textPreview":"Saat posting","textChars":12,"textLines":1,"bbox":[556,184,268,44]}
+{"kind":"shape","id":"sh/3mds3qpk","slide":6,"bbox":[468,248,344,0]}
+{"kind":"shape","id":"sh/sr69gv61","slide":6,"bbox":[468,286,10,10]}
+{"kind":"textbox","id":"sh/dsfa907m","slide":6,"text":"Satu event bisnis memakai satu integration ID agar retry tidak membuat transaksi ganda.","textPreview":"Satu event bisnis memakai satu integration ID agar retry tidak membuat transaksi ganda.","textChars":87,"textLines":1,"bbox":[490,278,322,72]}
+{"kind":"shape","id":"sh/qpore5ov","slide":6,"bbox":[468,378,10,10]}
+{"kind":"textbox","id":"sh/rqxs7qpg","slide":6,"text":"NOVA menunggu respons SAP: Pending, Posted, atau Error.","textPreview":"NOVA menunggu respons SAP: Pending, Posted, atau Error.","textChars":55,"textLines":1,"bbox":[490,370,322,56]}
+{"kind":"textbox","id":"sh/8v294bqx","slide":6,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[864,178,80,62]}
+{"kind":"textbox","id":"sh/twvqxg7i","slide":6,"text":"Setelah posting","textPreview":"Setelah posting","textChars":15,"textLines":1,"bbox":[952,184,268,44]}
+{"kind":"shape","id":"sh/9sn61sz6","slide":6,"bbox":[864,248,344,0]}
+{"kind":"shape","id":"sh/8rups7il","slide":6,"bbox":[864,286,10,10]}
+{"kind":"textbox","id":"sh/nqloz2h0","slide":6,"text":"Nomor dokumen SAP disimpan sebagai referensi transaksi Shopfloor.","textPreview":"Nomor dokumen SAP disimpan sebagai referensi transaksi Shopfloor.","textChars":65,"textLines":1,"bbox":[886,278,322,72]}
+{"kind":"shape","id":"sh/mpc7qx0f","slide":6,"bbox":[864,378,10,10]}
+{"kind":"textbox","id":"sh/xgnq5cz2","slide":6,"text":"Exception masuk antrean perbaikan dan direkonsiliasi sebelum cut-off.","textPreview":"Exception masuk antrean perbaikan dan direkonsiliasi sebelum cut-off.","textChars":69,"textLines":1,"bbox":[886,370,322,64]}
+{"kind":"shape","id":"sh/wfepw7ix","slide":6,"bbox":[140,500,1000,112]}
+{"kind":"textbox","id":"sh/vu5o32hc","slide":6,"text":"Prinsip operasional","textPreview":"Prinsip operasional","textChars":19,"textLines":1,"bbox":[174,520,260,34]}
+{"kind":"textbox","id":"sh/atw7ux0r","slide":6,"text":"Tidak ada silent failure. Operator melihat status posting, tim terkait menerima exception, dan SAP tetap menjadi acuan saldo resmi.","textPreview":"Tidak ada silent failure. Operator melihat status posting, tim terkait menerima exception, dan SAP tetap menjadi acuan saldo resmi.","textChars":131,"textLines":1,"bbox":[174,562,920,36]}
+{"kind":"shape","id":"sh/5k7q9cze","slide":6,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/kjep0rit","slide":6,"text":"ANSEI / NOVA Shopfloor/MES / SAP","textPreview":"ANSEI / NOVA Shopfloor/MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/2583u9gb","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"notes","id":"nt/vcs0sa","slide":6,"text":"Kontrol utama mencegah dua risiko: transaksi ganda dan selisih saldo tersembunyi. Setiap event harus mempunyai integration ID, status posting, nomor dokumen SAP, serta jalur exception dan rekonsiliasi."}
+{"kind":"slide","id":"sl/m7bn30","slide":7,"title":"Tahapan implementasi yang terkendali","textShapes":25}
+{"kind":"shape","id":"sh/3exo7mdc","slide":7,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/4f6p0rex","slide":7,"text":"Tahapan implementasi yang terkendali","textPreview":"Tahapan implementasi yang terkendali","textChars":36,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/5gf69wvi","slide":7,"text":"Pilot terbatas memberi ruang untuk memvalidasi proses Accounting, stabilitas integrasi, dan kesiapan operator","textPreview":"Pilot terbatas memberi ruang untuk memvalidasi proses Accounting, stabilitas integrasi, dan kesiapan operator","textChars":109,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"shape","id":"sh/u9o7uhwv","slide":7,"bbox":[130,335,1020,0]}
+{"kind":"shape","id":"sh/vaxo3mdg","slide":7,"bbox":[78,178,44,44]}
+{"kind":"textbox","id":"sh/gb6pw7e1","slide":7,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[78,179,44,42]}
+{"kind":"textbox","id":"sh/hcf65cvm","slide":7,"text":"Desain & persetujuan","textPreview":"Desain & persetujuan","textChars":20,"textLines":1,"bbox":[134,175,204,34]}
+{"kind":"textbox","id":"sh/e58761wz","slide":7,"text":"Accounting menetapkan desain posting, ownership, valuation, dan kontrol rekonsiliasi.","textPreview":"Accounting menetapkan desain posting, ownership, valuation, dan kontrol rekonsiliasi.","textChars":85,"textLines":1,"bbox":[134,211,204,54]}
+{"kind":"shape","id":"sh/f6h8f6dk","slide":7,"bbox":[372,178,44,44]}
+{"kind":"textbox","id":"sh/vudoveto","slide":7,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[372,179,44,42]}
+{"kind":"textbox","id":"sh/ut4729sj","slide":7,"text":"Build & SIT","textPreview":"Build & SIT","textChars":11,"textLines":1,"bbox":[428,175,204,34]}
+{"kind":"textbox","id":"sh/hgf6x4bu","slide":7,"text":"IT/SAP membangun interface NOVA, mapping master, retry, dan monitoring.","textPreview":"IT/SAP membangun interface NOVA, mapping master, retry, dan monitoring.","textChars":71,"textLines":1,"bbox":[428,211,204,54]}
+{"kind":"shape","id":"sh/wf6poja9","slide":7,"bbox":[666,178,44,44]}
+{"kind":"textbox","id":"sh/jixozet0","slide":7,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[666,179,44,42]}
+{"kind":"textbox","id":"sh/iho7q9sf","slide":7,"text":"Pilot satu line","textPreview":"Pilot satu line","textChars":15,"textLines":1,"bbox":[722,175,204,34]}
+{"kind":"textbox","id":"sh/5kf61ob6","slide":7,"text":"Produksi menjalankan UAT untuk part terbatas dengan rekonsiliasi harian.","textPreview":"Produksi menjalankan UAT untuk part terbatas dengan rekonsiliasi harian.","textChars":72,"textLines":1,"bbox":[722,211,204,54]}
+{"kind":"shape","id":"sh/4j6psjal","slide":7,"bbox":[960,178,44,44]}
+{"kind":"textbox","id":"sh/rmho3ytw","slide":7,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[960,179,44,42]}
+{"kind":"textbox","id":"sh/6lo7utsb","slide":7,"text":"Go-live bertahap","textPreview":"Go-live bertahap","textChars":16,"textLines":1,"bbox":[1016,175,204,34]}
+{"kind":"textbox","id":"sh/2hsr2xcj","slide":7,"text":"Perluas scope setelah gate pilot lulus, lalu hentikan Excel sebagai sumber transaksi.","textPreview":"Perluas scope setelah gate pilot lulus, lalu hentikan Excel sebagai sumber transaksi.","textChars":85,"textLines":1,"bbox":[1016,211,204,54]}
+{"kind":"shape","id":"sh/3i1sv2d4","slide":7,"bbox":[160,313,44,44]}
+{"kind":"textbox","id":"sh/oja947up","slide":7,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[160,313,44,44]}
+{"kind":"shape","id":"sh/p4jaxsva","slide":7,"bbox":[454,313,44,44]}
+{"kind":"textbox","id":"sh/ed8rydcn","slide":7,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[454,313,44,44]}
+{"kind":"shape","id":"sh/fe18rid8","slide":7,"bbox":[748,313,44,44]}
+{"kind":"textbox","id":"sh/gfa90nut","slide":7,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[748,313,44,44]}
+{"kind":"shape","id":"sh/1gjatsve","slide":7,"bbox":[1042,313,44,44]}
+{"kind":"textbox","id":"sh/y9crahcr","slide":7,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[1042,313,44,44]}
+{"kind":"textbox","id":"sh/zals3mdc","slide":7,"text":"Gate sebelum perluasan scope","textPreview":"Gate sebelum perluasan scope","textChars":28,"textLines":1,"bbox":[96,412,350,38]}
+{"kind":"shape","id":"sh/9g7mp0jq","slide":7,"bbox":[96,476,10,10]}
+{"kind":"textbox","id":"sh/8fylgvi5","slide":7,"text":"Tidak ada transaksi ganda dan seluruh posting mempunyai nomor dokumen SAP.","textPreview":"Tidak ada transaksi ganda dan seluruh posting mempunyai nomor dokumen SAP.","textChars":74,"textLines":1,"bbox":[118,468,488,56]}
+{"kind":"shape","id":"sh/7epkna10","slide":7,"bbox":[96,550,10,10]}
+{"kind":"textbox","id":"sh/mdg3e50f","slide":7,"text":"Saldo dan nilai inventory sesuai hasil rekonsiliasi Accounting.","textPreview":"Saldo dan nilai inventory sesuai hasil rekonsiliasi Accounting.","textChars":63,"textLines":1,"bbox":[118,542,488,50]}
+{"kind":"shape","id":"sh/lc72l0ju","slide":7,"bbox":[660,476,10,10]}
+{"kind":"textbox","id":"sh/kbylcvi9","slide":7,"text":"Operator dapat menangani status Pending dan Error tanpa kembali ke Excel.","textPreview":"Operator dapat menangani status Pending dan Error tanpa kembali ke Excel.","textChars":73,"textLines":1,"bbox":[682,468,488,56]}
+{"kind":"shape","id":"sh/za5kjq1o","slide":7,"bbox":[660,550,10,10]}
+{"kind":"textbox","id":"sh/y9w3al03","slide":7,"text":"Prosedur cut-off, recovery, dan support telah diuji.","textPreview":"Prosedur cut-off, recovery, dan support telah diuji.","textChars":52,"textLines":1,"bbox":[682,542,488,50]}
+{"kind":"shape","id":"sh/58rmxkjy","slide":7,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/47ilofid","slide":7,"text":"ANSEI / NOVA Shopfloor/MES / SAP","textPreview":"ANSEI / NOVA Shopfloor/MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/cfmlsvex","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"notes","id":"nt/m7bn30","slide":7,"text":"Usulkan pilot terbatas, bukan big bang. Kelulusan pilot harus ditentukan oleh bukti transaksi SAP, rekonsiliasi saldo, penanganan exception, dan kesiapan operasional tanpa Excel sebagai sumber transaksi."}
+{"kind":"slide","id":"sl/kvsesm","slide":8,"title":"KEPUTUSAN YANG DIMINTA","textShapes":13}
+{"kind":"shape","id":"sh/14fmd8fy","slide":8,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/e143itg7","slide":8,"text":"KEPUTUSAN YANG DIMINTA","textPreview":"KEPUTUSAN YANG DIMINTA","textChars":22,"textLines":1,"bbox":[72,58,238,30]}
+{"kind":"textbox","id":"sh/f2dkbyxs","slide":8,"text":"Dukungan manajemen untuk memulai pengajuan resmi dan pilot integrasi","textPreview":"Dukungan manajemen untuk memulai pengajuan resmi dan pilot integrasi","textChars":68,"textLines":1,"bbox":[72,118,1040,104]}
+{"kind":"textbox","id":"sh/o76lo3yp","slide":8,"text":"Produksi mengajukan secara resmi kepada Accounting agar data dan transaksi ANSEI dapat dicatat di SAP melalui NOVA Shopfloor/MES.","textPreview":"Produksi mengajukan secara resmi kepada Accounting agar data dan transaksi ANSEI dapat dicatat di SAP melalui NOVA Shopfloor/MES.","textChars":129,"textLines":1,"bbox":[72,246,1100,74]}
+{"kind":"shape","id":"sh/p8fmh8fu","slide":8,"bbox":[72,346,1136,0]}
+{"kind":"textbox","id":"sh/25o3mdgj","slide":8,"text":"Produksi","textPreview":"Produksi","textChars":8,"textLines":1,"bbox":[72,382,250,34]}
+{"kind":"textbox","id":"sh/36x4fyx4","slide":8,"text":"Sponsor proses, validasi flow, UAT, dan kesiapan operator","textPreview":"Sponsor proses, validasi flow, UAT, dan kesiapan operator","textChars":57,"textLines":1,"bbox":[72,426,250,80]}
+{"kind":"textbox","id":"sh/cb6lsnel","slide":8,"text":"Accounting","textPreview":"Accounting","textChars":10,"textLines":1,"bbox":[360,382,250,34]}
+{"kind":"textbox","id":"sh/dwzmlsf6","slide":8,"text":"Menetapkan desain SAP, ownership, valuation, dan kontrol rekonsiliasi","textPreview":"Menetapkan desain SAP, ownership, valuation, dan kontrol rekonsiliasi","textChars":69,"textLines":1,"bbox":[360,426,250,80]}
+{"kind":"textbox","id":"sh/xgrmp8vm","slide":8,"text":"IT / SAP","textPreview":"IT / SAP","textChars":8,"textLines":1,"bbox":[648,382,250,34]}
+{"kind":"textbox","id":"sh/wfilg3u1","slide":8,"text":"Membangun integrasi NOVA, monitoring, retry, security, dan support","textPreview":"Membangun integrasi NOVA, monitoring, retry, security, dan support","textChars":66,"textLines":1,"bbox":[648,426,250,80]}
+{"kind":"textbox","id":"sh/vu9knidg","slide":8,"text":"Manajemen","textPreview":"Manajemen","textChars":9,"textLines":1,"bbox":[936,382,250,34]}
+{"kind":"textbox","id":"sh/at03edcv","slide":8,"text":"Menyetujui arah single source of truth dan scope pilot","textPreview":"Menyetujui arah single source of truth dan scope pilot","textChars":54,"textLines":1,"bbox":[936,426,250,80]}
+{"kind":"shape","id":"sh/5kbmtsvi","slide":8,"bbox":[72,564,1136,78]}
+{"kind":"textbox","id":"sh/kj2lknud","slide":8,"text":"Target akhir: operator bekerja melalui NOVA, seluruh transaksi tercatat di SAP, dan organisasi memakai satu data yang sama.","textPreview":"Target akhir: operator bekerja melalui NOVA, seluruh transaksi tercatat di SAP, dan organisasi memakai satu data yang sama.","textChars":123,"textLines":1,"bbox":[112,581,1056,44]}
+{"kind":"textbox","id":"sh/jit4rids","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1152,676,56,22]}
+{"kind":"notes","id":"nt/kvsesm","slide":8,"text":"Penutup: minta dukungan manajemen agar Produksi menjadi sponsor pengajuan resmi ke Accounting. Persetujuan hari ini berfokus pada arah arsitektur dan pilot, bukan keputusan final konfigurasi SAP."}

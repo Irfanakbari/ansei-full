@@ -59,6 +59,24 @@ const initialState: BOMState = {
   pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 
+export const exportBomExcel = createAsyncThunk(
+    'bom/exportExcel',
+    async (query: { search?: string } | undefined, {rejectWithValue}) => {
+        try {
+            const { downloadWithAutoFilename } = await import('../../utils/apiService');
+            await downloadWithAutoFilename('/master/bill-of-materials/export', {
+                params: {
+                    search: query?.search
+                }
+            });
+            return true;
+        } catch (error: unknown) {
+            const { getApiErrorMessage } = await import('../../utils/apiService');
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to export bill of materials'));
+        }
+    }
+);
+
 export const fetchBOM = createAsyncThunk<
   PaginatedApiSuccessEnvelope<BOMEntity>,
   BOMQuery | undefined,

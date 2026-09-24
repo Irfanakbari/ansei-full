@@ -27,7 +27,7 @@ const DiscontinueFinishGoodModal: React.FC<Props> = ({ visible, onClose, data })
             setLoading(true);
 
             const payload = {
-                partNumber: data.PartNumber,
+                id: data.Id,
                 reason: values.reason,
             };
 

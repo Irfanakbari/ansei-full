@@ -50,6 +50,24 @@ const initialState: FinishGoodState = {
     pagination: {page: 1, limit: 50, totalItems: 0, totalPages: 0},
 };
 
+export const exportFinishGoodExcel = createAsyncThunk(
+    'finishGood/exportExcel',
+    async (query: { search?: string } | undefined, {rejectWithValue}) => {
+        try {
+            const { downloadWithAutoFilename } = await import('../../utils/apiService');
+            await downloadWithAutoFilename('/master/finish-good/export', {
+                params: {
+                    search: query?.search
+                }
+            });
+            return true;
+        } catch (error: unknown) {
+            const { getApiErrorMessage } = await import('../../utils/apiService');
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to export finish goods'));
+        }
+    }
+);
+
 export const fetchFinishGood = createAsyncThunk<PaginatedApiSuccessEnvelope<FinishGoodEntity>, FinishGoodQuery | undefined, {
     rejectValue: string
 }>(
@@ -134,11 +152,11 @@ export const deleteFinishGood = createAsyncThunk(
 
 export const discontinueFinishGood = createAsyncThunk(
     'finishGood/discontinue',
-    async ({partNumber, reason}: { partNumber: string; reason: string }, {rejectWithValue}) => {
+    async ({id, reason}: { id: number; reason: string }, {rejectWithValue}) => {
         try {
             return await post<ApiSuccessEnvelope<FinishGoodEntity>, {
                 reason: string
-            }>(`/master/finish-good/part-number/${encodeURIComponent(partNumber)}/discontinue`, {reason});
+            }>(`/master/finish-good/${id}/discontinue`, {reason});
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to discontinue finish good'));
         }
@@ -147,9 +165,9 @@ export const discontinueFinishGood = createAsyncThunk(
 
 export const reactivateFinishGood = createAsyncThunk(
     'finishGood/reactivate',
-    async (partNumber: string, {rejectWithValue}) => {
+    async (id: number, {rejectWithValue}) => {
         try {
-            return await post<ApiSuccessEnvelope<FinishGoodEntity>>(`/master/finish-good/part-number/${encodeURIComponent(partNumber)}/reactivate`, {});
+            return await post<ApiSuccessEnvelope<FinishGoodEntity>>(`/master/finish-good/${id}/reactivate`, {});
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to reactivate finish good'));
         }
@@ -159,7 +177,7 @@ export const reactivateFinishGood = createAsyncThunk(
 export const transferFinishGoodStock = createAsyncThunk(
     'finishGood/transferStock',
     async (transferData: {
-        sourcePartNumber: string;
+        id: number;
         targetPartNumber: string;
         qty: number;
         reason: string;
@@ -174,7 +192,11 @@ export const transferFinishGoodStock = createAsyncThunk(
                 targetBalanceBefore: number;
                 targetBalanceAfter: number;
                 reason: string;
-            }>, typeof transferData>('/master/finish-good/transfer-stock', transferData);
+            }>, { targetPartNumber: string; qty: number; reason: string }>(`/master/finish-good/${transferData.id}/transfer-stock`, {
+                targetPartNumber: transferData.targetPartNumber,
+                qty: transferData.qty,
+                reason: transferData.reason,
+            });
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to transfer finish good stock'));
         }

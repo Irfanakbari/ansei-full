@@ -25,6 +25,7 @@ import {
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
 import { withInventoryTransaction } from '../../common/helpers/inventory-transaction.helper';
 import * as crypto from 'crypto';
+import * as ExcelJS from 'exceljs';
 import type {
   ApiResult,
   PaginationMeta,
@@ -37,6 +38,83 @@ export class FinishGoodService {
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
   ) {}
+
+  async exportExcel(query: SearchPaginationQueryDto): Promise<Buffer> {
+    const where: Prisma.FinishGoodWhereInput = query.search
+      ? {
+          OR: [
+            { PartNumber: { contains: query.search, mode: 'insensitive' } },
+            { PartName: { contains: query.search, mode: 'insensitive' } },
+            { Alias: { contains: query.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+
+    const data = await this.prisma.finishGood.findMany({
+      where,
+      orderBy: [{ Id: 'asc' }],
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'ANSEI System';
+    const worksheet = workbook.addWorksheet('Finish Goods');
+
+    worksheet.columns = [
+      { header: 'No', key: 'no', width: 5 },
+      { header: 'Part Number', key: 'partNumber', width: 25 },
+      { header: 'Part Name', key: 'partName', width: 35 },
+      { header: 'Alias', key: 'alias', width: 20 },
+      { header: 'Price', key: 'price', width: 15 },
+      { header: 'Qty', key: 'qty', width: 15 },
+      { header: 'Passthrough', key: 'isPassthrough', width: 15 },
+      { header: 'Active', key: 'isActive', width: 10 },
+      { header: 'Discontinue Date', key: 'discontinueDate', width: 20 },
+    ];
+
+    // Header styling
+    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF004B87' },
+    };
+    worksheet.getRow(1).alignment = {
+      vertical: 'middle',
+      horizontal: 'center',
+    };
+
+    data.forEach((item, index) => {
+      worksheet.addRow({
+        no: index + 1,
+        partNumber: item.PartNumber,
+        partName: item.PartName,
+        alias: item.Alias || '-',
+        price: item.Price || 0,
+        qty: item.Qty,
+        isPassthrough: item.IsPassthrough ? 'Yes' : 'No',
+        isActive: item.IsActive ? 'Yes' : 'No',
+        discontinueDate: item.DiscontinueDate
+          ? item.DiscontinueDate.toISOString().split('T')[0]
+          : '-',
+      });
+    });
+
+    worksheet.eachRow((row, rowNumber) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        if (rowNumber > 1) {
+          cell.alignment = { vertical: 'middle' };
+        }
+      });
+    });
+
+    return (await workbook.xlsx.writeBuffer()) as Buffer;
+  }
 
   async findAll(
     query: SearchPaginationQueryDto,
@@ -328,7 +406,7 @@ export class FinishGoodService {
    * 1. FinishGood must not have active Forecast with ProductionRelease (DRAFT/RELEASED)
    */
   async discontinue(
-    partNumber: string,
+    id: number,
     reason: string | undefined,
     discontinuedBy: string,
   ): Promise<FinishGoodModel> {
@@ -341,33 +419,31 @@ export class FinishGoodService {
         createdBy: discontinuedBy,
       });
 
+      const existing = await this.prisma.finishGood.findUnique({
+        where: { Id: id },
+      });
+
+      if (!existing) {
+        throw new NotFoundException(`FinishGood with id ${id} not found`);
+      }
+
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Discontinuing finish good with part number: ${partNumber}${reason ? `, reason: ${reason}` : ''}`,
+        message: `Discontinuing finish good with part number: ${existing.PartNumber}${reason ? `, reason: ${reason}` : ''}`,
         type: 'INFO',
         location: 'finish-good.service.ts:discontinue',
       });
 
-      const existing = await this.prisma.finishGood.findUnique({
-        where: { PartNumber: partNumber },
-      });
-
-      if (!existing) {
-        throw new NotFoundException(
-          `FinishGood with part number ${partNumber} not found`,
-        );
-      }
-
       if (!existing.IsActive) {
         throw new ConflictException(
-          `FinishGood with part number ${partNumber} is already discontinued on ${existing.DiscontinueDate?.toISOString() ?? 'N/A'}`,
+          `FinishGood with part number ${existing.PartNumber} is already discontinued on ${existing.DiscontinueDate?.toISOString() ?? 'N/A'}`,
         );
       }
 
       // POKAYOKE: Check if FG is in active Forecast with ProductionRelease (DRAFT/RELEASED)
       const activeForecasts = await this.prisma.forecast.findMany({
         where: {
-          FinishGoodId: partNumber,
+          FinishGoodId: existing.PartNumber,
           ProductionReleaseId: { not: null },
           ProductionRelease: {
             Status: { in: ['DRAFT', 'RELEASED'] },
@@ -391,14 +467,14 @@ export class FinishGoodService {
             `PO:${f.PoId} (Release:${f.ProductionRelease?.ReleaseNumber}, Status:${f.ProductionRelease?.Status})`,
         );
         throw new BadRequestException(
-          `POKAYOKE: Finish Good "${partNumber}" cannot be discontinued because it is associated with active production release(s): ${activeForecastDetails.join('; ')}. Please complete or cancel the production(s) first.`,
+          `POKAYOKE: Finish Good "${existing.PartNumber}" cannot be discontinued because it is associated with active production release(s): ${activeForecastDetails.join('; ')}. Please complete or cancel the production(s) first.`,
         );
       }
 
       const now = new Date();
       const result = await auditedWrite(this.prisma, (tx) =>
         tx.finishGood.update({
-          where: { PartNumber: partNumber },
+          where: { Id: id },
           data: {
             IsActive: false,
             DiscontinueDate: now,
@@ -409,7 +485,7 @@ export class FinishGoodService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `FinishGood ${partNumber} (Id=${result.Id}) discontinued successfully. IsActive=false, DiscontinueDate=${now.toISOString()}${reason ? `, reason: ${reason}` : ''}`,
+        message: `FinishGood ${existing.PartNumber} (Id=${result.Id}) discontinued successfully. IsActive=false, DiscontinueDate=${now.toISOString()}${reason ? `, reason: ${reason}` : ''}`,
         type: 'INFO',
         location: 'finish-good.service.ts:discontinue',
       });
@@ -435,7 +511,7 @@ export class FinishGoodService {
    * Reactivate a discontinued finish good - set IsActive=true and DiscontinueDate=null
    */
   async reactivate(
-    partNumber: string,
+    id: number,
     reactivatedBy: string,
   ): Promise<FinishGoodModel> {
     let logProcess: LogProcessModel | undefined;
@@ -447,32 +523,30 @@ export class FinishGoodService {
         createdBy: reactivatedBy,
       });
 
+      const existing = await this.prisma.finishGood.findUnique({
+        where: { Id: id },
+      });
+
+      if (!existing) {
+        throw new NotFoundException(`FinishGood with id ${id} not found`);
+      }
+
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Reactivating finish good with part number: ${partNumber}`,
+        message: `Reactivating finish good with part number: ${existing.PartNumber}`,
         type: 'INFO',
         location: 'finish-good.service.ts:reactivate',
       });
 
-      const existing = await this.prisma.finishGood.findUnique({
-        where: { PartNumber: partNumber },
-      });
-
-      if (!existing) {
-        throw new NotFoundException(
-          `FinishGood with part number ${partNumber} not found`,
-        );
-      }
-
       if (existing.IsActive) {
         throw new ConflictException(
-          `FinishGood with part number ${partNumber} is already active`,
+          `FinishGood with part number ${existing.PartNumber} is already active`,
         );
       }
 
       const result = await auditedWrite(this.prisma, (tx) =>
         tx.finishGood.update({
-          where: { PartNumber: partNumber },
+          where: { Id: id },
           data: {
             IsActive: true,
             DiscontinueDate: null,
@@ -483,7 +557,7 @@ export class FinishGoodService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `FinishGood ${partNumber} (Id=${result.Id}) reactivated successfully. IsActive=true, DiscontinueDate=null`,
+        message: `FinishGood ${existing.PartNumber} (Id=${result.Id}) reactivated successfully. IsActive=true, DiscontinueDate=null`,
         type: 'INFO',
         location: 'finish-good.service.ts:reactivate',
       });
@@ -519,6 +593,7 @@ export class FinishGoodService {
    * - IN entry for Target (ADJUSTMENT_MANUAL, QtyIn = qty, BalanceAfter = BalanceBefore + qty)
    */
   async transferStock(
+    id: number,
     dto: TransferFinishGoodStockDto,
     transferredBy: string,
   ): Promise<{
@@ -531,12 +606,6 @@ export class FinishGoodService {
     targetBalanceAfter: number;
     reason: string;
   }> {
-    if (dto.sourcePartNumber === dto.targetPartNumber) {
-      throw new BadRequestException(
-        'Source part number and target part number cannot be the same.',
-      );
-    }
-
     if (!Number.isSafeInteger(dto.qty) || dto.qty <= 0) {
       throw new BadRequestException(
         'Transfer quantity must be a positive integer.',
@@ -546,6 +615,22 @@ export class FinishGoodService {
     let logProcess: LogProcessModel | undefined;
 
     try {
+      const source = await this.prisma.finishGood.findUnique({
+        where: { Id: id },
+      });
+
+      if (!source) {
+        throw new NotFoundException(
+          `Source finish good with id ${id} not found`,
+        );
+      }
+
+      if (source.PartNumber === dto.targetPartNumber) {
+        throw new BadRequestException(
+          'Source part number and target part number cannot be the same.',
+        );
+      }
+
       logProcess = await this.logService.startProcess({
         functionId: 'FINISHGOOD_006',
         functionName: 'FinishGoodService.TransferStock',
@@ -554,7 +639,7 @@ export class FinishGoodService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Starting finish good stock transfer: Source=${dto.sourcePartNumber}, Target=${dto.targetPartNumber}, Qty=${dto.qty}, Reason=${dto.reason}`,
+        message: `Starting finish good stock transfer: Source=${source.PartNumber}, Target=${dto.targetPartNumber}, Qty=${dto.qty}, Reason=${dto.reason}`,
         type: 'INFO',
         location: 'finish-good.service.ts:transferStock',
       });
@@ -569,8 +654,9 @@ export class FinishGoodService {
             'Finish Good Stock Transfer',
           );
 
-          const source = await tx.finishGood.findUnique({
-            where: { PartNumber: dto.sourcePartNumber },
+          // Need to refetch source inside transaction to lock it and get latest qty
+          const sourceTx = await tx.finishGood.findUnique({
+            where: { Id: id },
             select: {
               Id: true,
               PartNumber: true,
@@ -579,10 +665,8 @@ export class FinishGoodService {
             },
           });
 
-          if (!source) {
-            throw new NotFoundException(
-              `Source finish good "${dto.sourcePartNumber}" not found`,
-            );
+          if (!sourceTx) {
+            throw new NotFoundException(`Source finish good not found`);
           }
 
           const target = await tx.finishGood.findUnique({
@@ -607,13 +691,13 @@ export class FinishGoodService {
             );
           }
 
-          if (source.Qty < dto.qty) {
+          if (sourceTx.Qty < dto.qty) {
             throw new BadRequestException(
-              `Insufficient stock for finish good "${dto.sourcePartNumber}". Available: ${source.Qty}, Requested: ${dto.qty}`,
+              `Insufficient stock for finish good "${sourceTx.PartNumber}". Available: ${sourceTx.Qty}, Requested: ${dto.qty}`,
             );
           }
 
-          const sourceBalanceAfter = source.Qty - dto.qty;
+          const sourceBalanceAfter = sourceTx.Qty - dto.qty;
           const targetBalanceAfter = target.Qty + dto.qty;
           const now = new Date();
 
@@ -623,11 +707,11 @@ export class FinishGoodService {
               Id: crypto.randomUUID(),
               TransactionDate: now,
               ItemCategory: ItemCategory.FINISH_GOOD,
-              FinishGoodId: dto.sourcePartNumber,
+              FinishGoodId: sourceTx.PartNumber,
               Location: LocationType.FINISH_GOOD_AREA,
               TransactionType: TransactionType.ADJUSTMENT_MANUAL,
               ReferenceDoc: 'SUPERSESSION_TRANSFER',
-              BalanceBefore: source.Qty,
+              BalanceBefore: sourceTx.Qty,
               QtyIn: 0,
               QtyOut: dto.qty,
               BalanceAfter: sourceBalanceAfter,
@@ -651,13 +735,13 @@ export class FinishGoodService {
               QtyOut: 0,
               BalanceAfter: targetBalanceAfter,
               CreatedBy: transferredBy,
-              Notes: `Received stock from ${dto.sourcePartNumber}: ${dto.reason}`,
+              Notes: `Received stock from ${sourceTx.PartNumber}: ${dto.reason}`,
             },
           });
 
           // 3. Update stock caches
           await tx.finishGood.update({
-            where: { PartNumber: dto.sourcePartNumber },
+            where: { Id: id },
             data: {
               Qty: sourceBalanceAfter,
               UpdatedBy: transferredBy,
@@ -673,10 +757,10 @@ export class FinishGoodService {
           });
 
           return {
-            sourcePartNumber: dto.sourcePartNumber,
+            sourcePartNumber: sourceTx.PartNumber,
             targetPartNumber: dto.targetPartNumber,
             qty: dto.qty,
-            sourceBalanceBefore: source.Qty,
+            sourceBalanceBefore: sourceTx.Qty,
             sourceBalanceAfter,
             targetBalanceBefore: target.Qty,
             targetBalanceAfter,
@@ -687,7 +771,7 @@ export class FinishGoodService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Finish good stock transfer completed successfully: Source ${dto.sourcePartNumber} (${result.sourceBalanceBefore} -> ${result.sourceBalanceAfter}), Target ${dto.targetPartNumber} (${result.targetBalanceBefore} -> ${result.targetBalanceAfter})`,
+        message: `Finish good stock transfer completed successfully: Source ${result.sourcePartNumber} (${result.sourceBalanceBefore} -> ${result.sourceBalanceAfter}), Target ${result.targetPartNumber} (${result.targetBalanceBefore} -> ${result.targetBalanceAfter})`,
         type: 'INFO',
         location: 'finish-good.service.ts:transferStock',
       });

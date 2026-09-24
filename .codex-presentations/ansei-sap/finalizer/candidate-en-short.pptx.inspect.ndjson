@@ -1,0 +1,169 @@
+{"kind":"deck","id":"pr/darzai","name":"Deck"}
+{"kind":"layout","layoutId":"c41744e3-dbfe-4487-9ce2-35c4522e6c3a","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"1990face-9fe8-4edc-9a4b-577315e6400f","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/0kfevu","slide":1,"title":"MANAGEMENT PROPOSAL","textShapes":5}
+{"kind":"textbox","id":"sh/nyp8vmxk","slide":1,"text":"MANAGEMENT PROPOSAL","textPreview":"MANAGEMENT PROPOSAL","textChars":19,"textLines":1,"bbox":[72,190,222,30]}
+{"kind":"textbox","id":"sh/w3i9sreh","slide":1,"text":"Connecting ANSEI\nProduction to SAP","textPreview":"Connecting ANSEI | Production to SAP","textChars":34,"textLines":2,"bbox":[72,238,560,160]}
+{"kind":"textbox","id":"sh/x4ra1wf2","slide":1,"text":"NOVA as the shopfloor and MES layer","textPreview":"NOVA as the shopfloor and MES layer","textChars":35,"textLines":1,"bbox":[74,420,510,46]}
+{"kind":"shape","id":"sh/a10rqhwb","slide":1,"bbox":[73,493,84,5]}
+{"kind":"textbox","id":"sh/v29szmxw","slide":1,"text":"SAP as the system of record","textPreview":"SAP as the system of record","textChars":27,"textLines":1,"bbox":[74,520,505,42]}
+{"kind":"textbox","id":"sh/k729wbed","slide":1,"text":"IT and Accounting\nSeptember 2026","textPreview":"IT and Accounting | September 2026","textChars":32,"textLines":2,"bbox":[74,642,420,46]}
+{"kind":"image","id":"im/wbit8zy9","slide":1,"name":"","alt":"Production line connected to an enterprise data platform","bbox":[0,0,1280,720]}
+{"kind":"image","id":"im/ba9szuho","slide":1,"name":"","alt":"NOVA ANSEI Inventory and Production System","bbox":[70,52,290,112]}
+{"kind":"notes","id":"nt/0kfevu","slide":1,"text":"This proposal connects the ANSEI production flow to SAP through NOVA. NOVA remains the shopfloor interface. SAP holds the business transactions and inventory records."}
+{"kind":"slide","id":"sl/lbizfh","slide":2,"title":"What we are proposing","textShapes":12}
+{"kind":"shape","id":"sh/futkbipc","slide":2,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/0v214nqx","slide":2,"text":"What we are proposing","textPreview":"What we are proposing","textChars":21,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/1wv2d87i","slide":2,"text":"Move ANSEI production transactions into SAP while keeping NOVA focused on shopfloor execution","textPreview":"Move ANSEI production transactions into SAP while keeping NOVA focused on shopfloor execution","textChars":93,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"textbox","id":"sh/2x4j6do3","slide":2,"text":"Why this matters","textPreview":"Why this matters","textChars":16,"textLines":1,"bbox":[76,166,480,42]}
+{"kind":"shape","id":"sh/nydkfipo","slide":2,"bbox":[620,160,0,382]}
+{"kind":"shape","id":"sh/ozml8n6t","slide":2,"bbox":[76,240,10,10]}
+{"kind":"textbox","id":"sh/p0v2hs7e","slide":2,"text":"ANSEI production data still sits outside SAP, with Excel used for reporting and handoffs.","textPreview":"ANSEI production data still sits outside SAP, with Excel used for reporting and handoffs.","textChars":89,"textLines":1,"bbox":[98,232,464,70]}
+{"kind":"shape","id":"sh/i10jut8j","slide":2,"bbox":[76,352,10,10]}
+{"kind":"textbox","id":"sh/329k3yp4","slide":2,"text":"Teams have to reconcile separate records, and SAP has no complete view of ANSEI material and finished goods movements.","textPreview":"Teams have to reconcile separate records, and SAP has no complete view of ANSEI material and finished goods movements.","textChars":118,"textLines":1,"bbox":[98,344,464,92]}
+{"kind":"textbox","id":"sh/zmlcnm1s","slide":2,"text":"What changed","textPreview":"What changed","textChars":12,"textLines":1,"bbox":[678,166,480,42]}
+{"kind":"shape","id":"sh/ylcbeh07","slide":2,"bbox":[678,240,10,10]}
+{"kind":"textbox","id":"sh/lo3upcji","slide":2,"text":"IT and Accounting tested the ANSEI scenario in SAP. SAP can handle it with the right ownership and valuation setup.","textPreview":"IT and Accounting tested the ANSEI scenario in SAP. SAP can handle it with the right ownership and valuation setup.","textChars":115,"textLines":1,"bbox":[700,232,478,92]}
+{"kind":"shape","id":"sh/0nudgrix","slide":2,"bbox":[678,372,10,10]}
+{"kind":"textbox","id":"sh/ri1cj21g","slide":2,"text":"NOVA can run the shopfloor process while SAP records the actual business transactions.","textPreview":"NOVA can run the shopfloor process while SAP records the actual business transactions.","textChars":86,"textLines":1,"bbox":[700,364,478,70]}
+{"kind":"shape","id":"sh/qxsbaxkv","slide":2,"bbox":[138,526,1004,106]}
+{"kind":"textbox","id":"sh/dkjulcjm","slide":2,"text":"What we need from management","textPreview":"What we need from management","textChars":28,"textLines":1,"bbox":[174,546,380,32]}
+{"kind":"textbox","id":"sh/cjatc721","slide":2,"text":"Support Production's formal request to Accounting so the SAP design can move forward.","textPreview":"Support Production's formal request to Accounting so the SAP design can move forward.","textChars":85,"textLines":1,"bbox":[174,584,902,34]}
+{"kind":"shape","id":"sh/3u1cf21k","slide":2,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/2tsb6xkz","slide":2,"text":"ANSEI / NOVA Shopfloor MES / SAP","textPreview":"ANSEI / NOVA Shopfloor MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/6p8vix4r","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"notes","id":"nt/lbizfh","slide":2,"text":"The earlier concern was ownership. IT and Accounting have now confirmed that SAP can support the ANSEI case with the right setup. The request is to move the formal discussion forward, led by Production and Accounting."}
+{"kind":"slide","id":"sl/tts1pr","slide":3,"title":"How ANSEI works today","textShapes":24}
+{"kind":"shape","id":"sh/0va10na5","slide":3,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/fu1kritk","slide":3,"text":"How ANSEI works today","textPreview":"How ANSEI works today","textChars":21,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/etsjydsz","slide":3,"text":"The operational flow is complete in ANSEI, but the resulting transactions do not reach SAP","textPreview":"The operational flow is complete in ANSEI, but the resulting transactions do not reach SAP","textChars":90,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"shape","id":"sh/pk32xsbm","slide":3,"bbox":[52,174,170,120]}
+{"kind":"textbox","id":"sh/oza147a1","slide":3,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[66,186,36,26]}
+{"kind":"textbox","id":"sh/ny1kv2tg","slide":3,"text":"Incoming","textPreview":"Incoming","textChars":8,"textLines":1,"bbox":[66,214,142,58]}
+{"kind":"shape","id":"sh/2xsj2xsv","slide":3,"bbox":[252,174,170,120]}
+{"kind":"textbox","id":"sh/5ozil8bi","slide":3,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[266,186,36,26]}
+{"kind":"textbox","id":"sh/43q1s3ax","slide":3,"text":"Production\nrelease","textPreview":"Production | release","textChars":18,"textLines":2,"bbox":[266,214,142,58]}
+{"kind":"shape","id":"sh/ypkzi98z","slide":3,"bbox":[452,174,170,120]}
+{"kind":"textbox","id":"sh/jqtgbe9k","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[466,186,36,26]}
+{"kind":"textbox","id":"sh/kr2hkjq5","slide":3,"text":"Material\npicking","textPreview":"Material | picking","textChars":16,"textLines":2,"bbox":[466,214,142,58]}
+{"kind":"shape","id":"sh/lsbydorq","slide":3,"bbox":[652,174,170,120]}
+{"kind":"textbox","id":"sh/6tkzmt8b","slide":3,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[666,186,36,26]}
+{"kind":"textbox","id":"sh/7udgfy9w","slide":3,"text":"Production\nresult","textPreview":"Production | result","textChars":17,"textLines":2,"bbox":[666,214,142,58]}
+{"kind":"shape","id":"sh/8vmhojqh","slide":3,"bbox":[852,174,170,120]}
+{"kind":"textbox","id":"sh/twvihor2","slide":3,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[866,186,36,26]}
+{"kind":"textbox","id":"sh/ux4zqt87","slide":3,"text":"Poka-Yoke","textPreview":"Poka-Yoke","textChars":9,"textLines":1,"bbox":[866,214,142,58]}
+{"kind":"shape","id":"sh/vyd0jy9s","slide":3,"bbox":[1052,174,170,120]}
+{"kind":"textbox","id":"sh/rmxg7y50","slide":3,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1066,186,36,26]}
+{"kind":"textbox","id":"sh/ql4fytof","slide":3,"text":"Delivery\nand close","textPreview":"Delivery | and close","textChars":18,"textLines":2,"bbox":[1066,214,142,58]}
+{"kind":"shape","id":"sh/dofy98n6","slide":3,"bbox":[222,234,30,0]}
+{"kind":"shape","id":"sh/sn6x036l","slide":3,"bbox":[422,234,30,0]}
+{"kind":"shape","id":"sh/3ydg3y54","slide":3,"bbox":[622,234,30,0]}
+{"kind":"shape","id":"sh/ix4futoj","slide":3,"bbox":[822,234,30,0]}
+{"kind":"shape","id":"sh/50vy5onu","slide":3,"bbox":[1022,234,30,0]}
+{"kind":"textbox","id":"sh/4zmxw369","slide":3,"text":"Supplier delivery is received and material stock increases.","textPreview":"Supplier delivery is received and material stock increases.","textChars":59,"textLines":1,"bbox":[52,312,170,100]}
+{"kind":"textbox","id":"sh/vudgze5s","slide":3,"text":"The PO or forecast is scheduled and labels are created.","textPreview":"The PO or forecast is scheduled and labels are created.","textChars":55,"textLines":1,"bbox":[252,312,170,100]}
+{"kind":"textbox","id":"sh/utkfq9o7","slide":3,"text":"BOM material is issued and material stock decreases.","textPreview":"BOM material is issued and material stock decreases.","textChars":52,"textLines":1,"bbox":[452,312,170,100]}
+{"kind":"textbox","id":"sh/0nylkvit","slide":3,"text":"Finished goods are recorded after shopping or box assembly.","textPreview":"Finished goods are recorded after shopping or box assembly.","textChars":59,"textLines":1,"bbox":[652,312,170,100]}
+{"kind":"textbox","id":"sh/lo7md0ze","slide":3,"text":"Each label is checked before delivery.","textPreview":"Each label is checked before delivery.","textChars":38,"textLines":1,"bbox":[852,312,170,100]}
+{"kind":"textbox","id":"sh/ylg3il0n","slide":3,"text":"FG stock decreases. The release closes after every PO is delivered.","textPreview":"FG stock decreases. The release closes after every PO is delivered.","textChars":67,"textLines":1,"bbox":[1052,312,170,100]}
+{"kind":"shape","id":"sh/zmp4bqh8","slide":3,"bbox":[92,492,1096,118]}
+{"kind":"textbox","id":"sh/8ri5ovi5","slide":3,"text":"Where the data lives today","textPreview":"Where the data lives today","textChars":26,"textLines":1,"bbox":[120,514,330,34]}
+{"kind":"textbox","id":"sh/9srmh0zq","slide":3,"text":"ANSEI holds the operational stock trail in InventoryLedger. Excel remains part of the reporting handoff because SAP has no matching transactions.","textPreview":"ANSEI holds the operational stock trail in InventoryLedger. Excel remains part of the reporting handoff because SAP has no matching trans...","textChars":145,"textLines":1,"bbox":[120,560,1010,34]}
+{"kind":"shape","id":"sh/mp0nml0z","slide":3,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/nq94fqhk","slide":3,"text":"ANSEI / NOVA Shopfloor MES / SAP","textPreview":"ANSEI / NOVA Shopfloor MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/ovelcbil","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"notes","id":"nt/tts1pr","slide":3,"text":"The current ANSEI sequence runs from incoming material through production release, material picking, production result, Poka-Yoke, delivery, and release close. SAP does not receive the matching transactions today."}
+{"kind":"slide","id":"sl/6qg2aa","slide":4,"title":"Integrated production flow","textShapes":36}
+{"kind":"shape","id":"sh/sf25032p","slide":4,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/re947il4","slide":4,"text":"Integrated production flow","textPreview":"Integrated production flow","textChars":26,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/6d0nydkj","slide":4,"text":"NOVA runs the shopfloor steps and sends each completed business event to SAP","textPreview":"NOVA runs the shopfloor steps and sends each completed business event to SAP","textChars":76,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"textbox","id":"sh/1kbmds36","slide":4,"text":"SAP provides the production order, material master, BOM, and current document status","textPreview":"SAP provides the production order, material master, BOM, and current document status","textChars":84,"textLines":1,"bbox":[126,146,1028,32]}
+{"kind":"shape","id":"sh/gj254n21","slide":4,"bbox":[142,194,996,0]}
+{"kind":"shape","id":"sh/fit4bilg","slide":4,"bbox":[54,226,200,250]}
+{"kind":"textbox","id":"sh/ehkn2dkv","slide":4,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[70,240,42,26]}
+{"kind":"textbox","id":"sh/p8v6hs3i","slide":4,"text":"Material receipt","textPreview":"Material receipt","textChars":16,"textLines":1,"bbox":[70,278,168,54]}
+{"kind":"textbox","id":"sh/o7m58n2x","slide":4,"text":"NOVA","textPreview":"NOVA","textChars":4,"textLines":1,"bbox":[70,342,70,24]}
+{"kind":"textbox","id":"sh/yl4ve1kb","slide":4,"text":"NOVA checks and approves the incoming delivery.","textPreview":"NOVA checks and approves the incoming delivery.","textChars":47,"textLines":1,"bbox":[70,370,168,66]}
+{"kind":"shape","id":"sh/zmdwn61w","slide":4,"bbox":[70,446,168,0]}
+{"kind":"textbox","id":"sh/0n6dgb21","slide":4,"text":"SAP","textPreview":"SAP","textChars":3,"textLines":1,"bbox":[70,458,70,24]}
+{"kind":"textbox","id":"sh/l8fepgjm","slide":4,"text":"SAP posts the material goods receipt.","textPreview":"SAP posts the material goods receipt.","textChars":37,"textLines":1,"bbox":[70,486,168,72]}
+{"kind":"shape","id":"sh/m9ovilk7","slide":4,"bbox":[298,226,200,250]}
+{"kind":"textbox","id":"sh/naxwrq1s","slide":4,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[314,240,42,26]}
+{"kind":"textbox","id":"sh/8b6dkv2d","slide":4,"text":"Release and picking","textPreview":"Release and picking","textChars":19,"textLines":1,"bbox":[314,278,168,54]}
+{"kind":"textbox","id":"sh/9cfet0jy","slide":4,"text":"NOVA","textPreview":"NOVA","textChars":4,"textLines":1,"bbox":[314,342,70,24]}
+{"kind":"textbox","id":"sh/2dkv6hk3","slide":4,"text":"NOVA releases the PO and confirms BOM picking.","textPreview":"NOVA releases the PO and confirms BOM picking.","textChars":46,"textLines":1,"bbox":[314,370,168,66]}
+{"kind":"shape","id":"sh/3etwfm1o","slide":4,"bbox":[314,446,168,0]}
+{"kind":"textbox","id":"sh/7i9snihg","slide":4,"text":"SAP","textPreview":"SAP","textChars":3,"textLines":1,"bbox":[314,458,70,24]}
+{"kind":"textbox","id":"sh/6x0bex0v","slide":4,"text":"SAP posts material consumption to the production order.","textPreview":"SAP posts material consumption to the production order.","textChars":55,"textLines":1,"bbox":[314,486,168,72]}
+{"kind":"shape","id":"sh/tkrapsz6","slide":4,"bbox":[542,226,200,250]}
+{"kind":"textbox","id":"sh/sjitgni1","slide":4,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[558,240,42,26]}
+{"kind":"textbox","id":"sh/jupsjih4","slide":4,"text":"Production output","textPreview":"Production output","textChars":17,"textLines":1,"bbox":[558,278,168,54]}
+{"kind":"textbox","id":"sh/itgbad0j","slide":4,"text":"NOVA","textPreview":"NOVA","textChars":4,"textLines":1,"bbox":[558,342,70,24]}
+{"kind":"textbox","id":"sh/5wralsza","slide":4,"text":"NOVA records passthrough completion or each finished assembly box.","textPreview":"NOVA records passthrough completion or each finished assembly box.","textChars":66,"textLines":1,"bbox":[558,370,168,66]}
+{"kind":"shape","id":"sh/kvytcnip","slide":4,"bbox":[558,446,168,0]}
+{"kind":"textbox","id":"sh/3qtcv2ho","slide":4,"text":"SAP","textPreview":"SAP","textChars":3,"textLines":1,"bbox":[558,458,70,24]}
+{"kind":"textbox","id":"sh/2pkbmh03","slide":4,"text":"SAP posts production confirmation and the FG receipt.","textPreview":"SAP posts production confirmation and the FG receipt.","textChars":53,"textLines":1,"bbox":[558,486,168,72]}
+{"kind":"shape","id":"sh/0vupgzyl","slide":4,"bbox":[786,226,200,250]}
+{"kind":"textbox","id":"sh/lw3qp4fq","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[802,240,42,26]}
+{"kind":"textbox","id":"sh/ytc7e9gf","slide":4,"text":"Poka-Yoke and delivery","textPreview":"Poka-Yoke and delivery","textChars":22,"textLines":1,"bbox":[802,278,168,54]}
+{"kind":"textbox","id":"sh/zul8nux0","slide":4,"text":"NOVA","textPreview":"NOVA","textChars":4,"textLines":1,"bbox":[802,342,70,24]}
+{"kind":"textbox","id":"sh/8zepkjyh","slide":4,"text":"Poka-Yoke must pass before NOVA accepts the delivery scan.","textPreview":"Poka-Yoke must pass before NOVA accepts the delivery scan.","textChars":58,"textLines":1,"bbox":[802,370,168,66]}
+{"kind":"shape","id":"sh/90nqtof2","slide":4,"bbox":[802,446,168,0]}
+{"kind":"textbox","id":"sh/mxw7i9gb","slide":4,"text":"SAP","textPreview":"SAP","textChars":3,"textLines":1,"bbox":[802,458,70,24]}
+{"kind":"textbox","id":"sh/ny58rexw","slide":4,"text":"SAP posts the FG goods issue or delivery transaction.","textPreview":"SAP posts the FG goods issue or delivery transaction.","textChars":53,"textLines":1,"bbox":[802,486,168,72]}
+{"kind":"shape","id":"sh/w3e9ojyt","slide":4,"bbox":[1030,226,200,250]}
+{"kind":"textbox","id":"sh/xonqxofy","slide":4,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1046,240,42,26]}
+{"kind":"textbox","id":"sh/hkvihkf2","slide":4,"text":"Order close","textPreview":"Order close","textChars":11,"textLines":1,"bbox":[1046,278,168,54]}
+{"kind":"textbox","id":"sh/wzmhofyh","slide":4,"text":"NOVA","textPreview":"NOVA","textChars":4,"textLines":1,"bbox":[1046,342,70,24]}
+{"kind":"textbox","id":"sh/vyd0faxw","slide":4,"text":"NOVA confirms that every label and PO has been delivered.","textPreview":"NOVA confirms that every label and PO has been delivered.","textChars":57,"textLines":1,"bbox":[1046,370,168,66]}
+{"kind":"shape","id":"sh/ux4zmpgb","slide":4,"bbox":[1046,446,168,0]}
+{"kind":"textbox","id":"sh/9wvydkf6","slide":4,"text":"SAP","textPreview":"SAP","textChars":3,"textLines":1,"bbox":[1046,458,70,24]}
+{"kind":"textbox","id":"sh/8vmhkfyl","slide":4,"text":"SAP finalizes the order after every posting is complete.","textPreview":"SAP finalizes the order after every posting is complete.","textChars":56,"textLines":1,"bbox":[1046,486,168,72]}
+{"kind":"shape","id":"sh/7udgbax0","slide":4,"bbox":[254,351,44,0]}
+{"kind":"shape","id":"sh/mtkzi5gf","slide":4,"bbox":[498,351,44,0]}
+{"kind":"shape","id":"sh/tsfip4fa","slide":4,"bbox":[742,351,44,0]}
+{"kind":"shape","id":"sh/sr6hwzyp","slide":4,"bbox":[986,351,44,0]}
+{"kind":"shape","id":"sh/ax0fa1w7","slide":4,"bbox":[154,590,972,56]}
+{"kind":"textbox","id":"sh/by9wj6ds","slide":4,"text":"NOVA marks a transaction as posted only after SAP returns the document number. Errors remain visible for follow-up.","textPreview":"NOVA marks a transaction as posted only after SAP returns the document number. Errors remain visible for follow-up.","textChars":115,"textLines":1,"bbox":[184,603,912,30]}
+{"kind":"shape","id":"sh/czixcbed","slide":4,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/x0relgvy","slide":4,"text":"ANSEI / NOVA Shopfloor MES / SAP","textPreview":"ANSEI / NOVA Shopfloor MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/29gv61wb","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"notes","id":"nt/6qg2aa","slide":4,"text":"This is the proposed transaction sequence. NOVA controls the line process and sends completed events to SAP. SAP returns a document number for each posting. Poka-Yoke remains a quality gate, and the order closes only after every PO and label has been delivered and posted."}
+{"kind":"slide","id":"sl/casz6i","slide":5,"title":"Target connection to SAP","textShapes":15}
+{"kind":"shape","id":"sh/elgrqdcz","slide":5,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/1orq1sba","slide":5,"text":"Target connection to SAP","textPreview":"Target connection to SAP","textChars":24,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/0ni9snu5","slide":5,"text":"SAP holds the business records. NOVA provides the shopfloor screens, scanning, and transaction status","textPreview":"SAP holds the business records. NOVA provides the shopfloor screens, scanning, and transaction status","textChars":101,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"shape","id":"sh/ryp8vyd8","slide":5,"bbox":[444,156,392,138]}
+{"kind":"textbox","id":"sh/qxg7mdcn","slide":5,"text":"SAP","textPreview":"SAP","textChars":3,"textLines":1,"bbox":[444,176,392,52]}
+{"kind":"textbox","id":"sh/d07qx8ve","slide":5,"text":"Inventory and accounting record","textPreview":"Inventory and accounting record","textChars":31,"textLines":1,"bbox":[444,238,392,30]}
+{"kind":"shape","id":"sh/szy9o3ut","slide":5,"bbox":[444,438,392,122]}
+{"kind":"textbox","id":"sh/3u58rydc","slide":5,"text":"NOVA Shopfloor MES","textPreview":"NOVA Shopfloor MES","textChars":18,"textLines":1,"bbox":[444,458,392,40]}
+{"kind":"textbox","id":"sh/itw7itcr","slide":5,"text":"Operator screens, scanning, checks, and integration status","textPreview":"Operator screens, scanning, checks, and integration status","textChars":58,"textLines":1,"bbox":[474,508,332,36]}
+{"kind":"shape","id":"sh/876hkz25","slide":5,"bbox":[70,258,282,166]}
+{"kind":"textbox","id":"sh/98fyd4ja","slide":5,"text":"SAP sends","textPreview":"SAP sends","textChars":9,"textLines":1,"bbox":[94,280,234,34]}
+{"kind":"textbox","id":"sh/m5ofipkz","slide":5,"text":"Material and BOM master\nProduction orders\nStock and document status","textPreview":"Material and BOM master | Production orders | Stock and document status","textChars":67,"textLines":3,"bbox":[94,330,234,76]}
+{"kind":"shape","id":"sh/76xgbu1k","slide":5,"bbox":[928,238,282,206]}
+{"kind":"textbox","id":"sh/k36xgf2t","slide":5,"text":"NOVA sends","textPreview":"NOVA sends","textChars":10,"textLines":1,"bbox":[952,260,234,34]}
+{"kind":"textbox","id":"sh/l4fy9kje","slide":5,"text":"Material receipt and consumption\nProduction confirmation and FG receipt\nFG delivery posting","textPreview":"Material receipt and consumption | Production confirmation and FG receipt | FG delivery posting","textChars":91,"textLines":3,"bbox":[952,310,234,112]}
+{"kind":"shape","id":"sh/yh4fepkn","slide":5,"bbox":[640,294,0,144]}
+{"kind":"textbox","id":"sh/zidg7a18","slide":5,"text":"Master data and orders","textPreview":"Master data and orders","textChars":22,"textLines":1,"bbox":[420,344,192,24]}
+{"kind":"textbox","id":"sh/4zqhsj2x","slide":5,"text":"Posted transactions","textPreview":"Posted transactions","textChars":19,"textLines":1,"bbox":[674,390,184,24]}
+{"kind":"shape","id":"sh/50zyloji","slide":5,"bbox":[164,590,952,58]}
+{"kind":"textbox","id":"sh/dwvy5obm","slide":5,"text":"NOVA keeps only the technical data needed to run and monitor the interface. SAP remains the source for balances and business documents.","textPreview":"NOVA keeps only the technical data needed to run and monitor the interface. SAP remains the source for balances and business documents.","textChars":135,"textLines":1,"bbox":[194,603,892,32]}
+{"kind":"shape","id":"sh/cvmxwjuh","slide":5,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/rudg3etw","slide":5,"text":"ANSEI / NOVA Shopfloor MES / SAP","textPreview":"ANSEI / NOVA Shopfloor MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/qt4fu9cb","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"notes","id":"nt/casz6i","slide":5,"text":"SAP sends the master data and production orders needed on the line. NOVA returns the completed business events. NOVA may hold technical queue and monitoring data, but SAP remains the source for inventory balances and accounting documents."}
+{"kind":"slide","id":"sl/lsob0l","slide":6,"title":"SAP transaction points","textShapes":7}
+{"kind":"shape","id":"sh/mtcby5oz","slide":6,"bbox":[0,0,1280,10]}
+{"kind":"textbox","id":"sh/9w3utkna","slide":6,"text":"SAP transaction points","textPreview":"SAP transaction points","textChars":22,"textLines":1,"bbox":[64,38,1120,54]}
+{"kind":"textbox","id":"sh/ovut0f65","slide":6,"text":"NOVA posts each transaction only after the related shopfloor event is complete","textPreview":"NOVA posts each transaction only after the related shopfloor event is complete","textChars":78,"textLines":1,"bbox":[66,96,1080,34]}
+{"kind":"shape","id":"sh/ahwb2pov","slide":6,"bbox":[114,562,1052,90]}
+{"kind":"textbox","id":"sh/xknux4nm","slide":6,"text":"Management ask","textPreview":"Management ask","textChars":14,"textLines":1,"bbox":[144,590,206,32]}
+{"kind":"textbox","id":"sh/wjet4z61","slide":6,"text":"Support Production's formal request to Accounting and the SAP design review.","textPreview":"Support Production's formal request to Accounting and the SAP design review.","textChars":76,"textLines":1,"bbox":[360,578,758,34]}
+{"kind":"textbox","id":"sh/jm5czu5s","slide":6,"text":"Accounting and the SAP team will confirm the final document types and account setup.","textPreview":"Accounting and the SAP team will confirm the final document types and account setup.","textChars":84,"textLines":1,"bbox":[360,620,758,20]}
+{"kind":"shape","id":"sh/ylwb6po7","slide":6,"bbox":[64,681,1152,0]}
+{"kind":"textbox","id":"sh/g3i1076x","slide":6,"text":"ANSEI / NOVA Shopfloor MES / SAP","textPreview":"ANSEI / NOVA Shopfloor MES / SAP","textChars":32,"textLines":1,"bbox":[64,688,520,20]}
+{"kind":"textbox","id":"sh/h4r2tc7i","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1160,686,56,22]}
+{"kind":"table","id":"tb/q10fapc7","slide":6,"name":"","rows":5,"cols":4,"preview":"Shopfloor event | When NOVA sends it | SAP record | Confirmation back to NOVA","bbox":[64,154,1152,390]}
+{"kind":"notes","id":"nt/lsob0l","slide":6,"text":"The four transaction points are material receipt, material consumption, production output, and finished goods delivery. Accounting and the SAP team will decide the exact document types and account setup. The management decision today is to support the formal request and design review."}

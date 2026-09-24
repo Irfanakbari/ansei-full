@@ -10,12 +10,99 @@ import type {
 } from '../../common/interceptors/api-response.interface';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
+import * as ExcelJS from 'exceljs';
+
 @Injectable()
 export class BillOfMaterialsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
   ) {}
+
+  async exportExcel(query: SearchPaginationQueryDto): Promise<Buffer> {
+    const where: Prisma.BillOfMaterialWhereInput = query.search
+      ? {
+          OR: [
+            { PartNumberFG: { contains: query.search, mode: 'insensitive' } },
+            {
+              PartNumberMaterial: {
+                contains: query.search,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        }
+      : {};
+
+    const data = await this.prisma.billOfMaterial.findMany({
+      where,
+      orderBy: [{ PartNumberFG: 'asc' }, { PartNumberMaterial: 'asc' }],
+      include: {
+        FinishGoodData: true,
+        MaterialData: {
+          include: {
+            SatuanData: true,
+          },
+        },
+      },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'ANSEI System';
+    const worksheet = workbook.addWorksheet('Bill of Materials');
+
+    worksheet.columns = [
+      { header: 'No', key: 'no', width: 5 },
+      { header: 'Parent FG', key: 'parentFg', width: 25 },
+      { header: 'FG Name', key: 'fgName', width: 35 },
+      { header: 'Child Material', key: 'childMaterial', width: 25 },
+      { header: 'Material Name', key: 'materialName', width: 35 },
+      { header: 'Qty', key: 'qty', width: 15 },
+      { header: 'Unit', key: 'unit', width: 10 },
+      { header: 'Active', key: 'isActive', width: 10 },
+    ];
+
+    // Header styling
+    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF004B87' },
+    };
+    worksheet.getRow(1).alignment = {
+      vertical: 'middle',
+      horizontal: 'center',
+    };
+
+    data.forEach((item, index) => {
+      worksheet.addRow({
+        no: index + 1,
+        parentFg: item.PartNumberFG,
+        fgName: item.FinishGoodData?.PartName || '-',
+        childMaterial: item.PartNumberMaterial,
+        materialName: item.MaterialData?.PartName || '-',
+        qty: item.UsageQty,
+        unit: item.MaterialData?.SatuanData?.Name || '-',
+        isActive: item.IsActive ? 'Yes' : 'No',
+      });
+    });
+
+    worksheet.eachRow((row, rowNumber) => {
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+        if (rowNumber > 1) {
+          cell.alignment = { vertical: 'middle' };
+        }
+      });
+    });
+
+    return (await workbook.xlsx.writeBuffer()) as Buffer;
+  }
 
   async findAll(
     query: SearchPaginationQueryDto,

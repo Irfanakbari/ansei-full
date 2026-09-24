@@ -2,3 +2,4 @@ export * from './create-material.dto';
 export * from './update-material.dto';
 export * from './discontinue-material.dto';
 export * from './transfer-material-stock.dto';
+export * from './material-query.dto';
