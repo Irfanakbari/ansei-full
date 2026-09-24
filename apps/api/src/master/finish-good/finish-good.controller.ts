@@ -29,7 +29,7 @@ import type { ICurrentUser } from '../../auth/interfaces/current-user.interface'
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
-import { Response } from 'express';
+import type { Response } from 'express';
 import { Res } from '@nestjs/common';
 
 @ApiTags('FinishGood')

@@ -21,7 +21,6 @@ import {
   UpdateMaterialDto,
   DiscontinueMaterialDto,
   TransferMaterialStockDto,
-  MaterialQueryDto,
 } from './dto';
 import { MaterialEntity } from './entities/material.entity';
 import { Permission } from '../../auth/decorators/permission.decorator';
@@ -30,7 +29,7 @@ import type { ICurrentUser } from '../../auth/interfaces/current-user.interface'
 import { MaterialQueryDto } from './dto';
 import { ApiSuccessEnvelope } from '../../common/interceptors/api-response.swagger';
 
-import { Response } from 'express';
+import type { Response } from 'express';
 import { Res } from '@nestjs/common';
 
 @ApiTags('Material')

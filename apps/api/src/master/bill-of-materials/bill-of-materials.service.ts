@@ -20,25 +20,22 @@ export class BillOfMaterialsService {
   ) {}
 
   async exportExcel(query: SearchPaginationQueryDto): Promise<Buffer> {
-    const where: Prisma.BillOfMaterialWhereInput = query.search
+    const where: Prisma.BillOfMaterialsWhereInput = query.search
       ? {
           OR: [
-            { PartNumberFG: { contains: query.search, mode: 'insensitive' } },
+            { FGData: { PartNumber: { contains: query.search, mode: 'insensitive' } } },
             {
-              PartNumberMaterial: {
-                contains: query.search,
-                mode: 'insensitive',
-              },
+              MaterialData: { PartNumber: { contains: query.search, mode: 'insensitive' } },
             },
           ],
         }
       : {};
 
-    const data = await this.prisma.billOfMaterial.findMany({
+    const data = await this.prisma.billOfMaterials.findMany({
       where,
-      orderBy: [{ PartNumberFG: 'asc' }, { PartNumberMaterial: 'asc' }],
+      orderBy: { Id: 'asc' },
       include: {
-        FinishGoodData: true,
+        FGData: true,
         MaterialData: {
           include: {
             SatuanData: true,
@@ -59,7 +56,6 @@ export class BillOfMaterialsService {
       { header: 'Material Name', key: 'materialName', width: 35 },
       { header: 'Qty', key: 'qty', width: 15 },
       { header: 'Unit', key: 'unit', width: 10 },
-      { header: 'Active', key: 'isActive', width: 10 },
     ];
 
     // Header styling
@@ -77,13 +73,12 @@ export class BillOfMaterialsService {
     data.forEach((item, index) => {
       worksheet.addRow({
         no: index + 1,
-        parentFg: item.PartNumberFG,
-        fgName: item.FinishGoodData?.PartName || '-',
-        childMaterial: item.PartNumberMaterial,
+        parentFg: item.FGData?.PartNumber || '-',
+        fgName: item.FGData?.PartName || '-',
+        childMaterial: item.MaterialData?.PartNumber || '-',
         materialName: item.MaterialData?.PartName || '-',
-        qty: item.UsageQty,
+        qty: item.Qty,
         unit: item.MaterialData?.SatuanData?.Name || '-',
-        isActive: item.IsActive ? 'Yes' : 'No',
       });
     });
 
@@ -101,7 +96,7 @@ export class BillOfMaterialsService {
       });
     });
 
-    return (await workbook.xlsx.writeBuffer()) as Buffer;
+    return (await workbook.xlsx.writeBuffer()) as unknown as Buffer;
   }
 
   async findAll(
