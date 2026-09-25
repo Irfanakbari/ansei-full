@@ -267,7 +267,7 @@ export default function MaterialPage() {
                 <ButtonToolbar
                     title="Transfer Stock"
                     icon={<SwapOutlined/>}
-                    enable={Boolean(selectedRecord && selectedRecord.Qty > 0)}
+                    enable={Boolean(selectedRecord && (selectedRecord.QtyRack > 0 || selectedRecord.QtyWarehouse > 0))}
                     onClick={() => setIsTransferModalVisible(true)}
                 />
                 <ButtonToolbar
