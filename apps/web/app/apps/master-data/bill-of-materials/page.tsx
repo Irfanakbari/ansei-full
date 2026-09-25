@@ -83,7 +83,7 @@ export default function BillOfMaterialsPage() {
         filters,
     ) => {
         const search = String(
-            filters.partName?.[0] ?? filters.finishGood?.[0] ?? ""
+            filters.finishGood?.[0] ?? ""
         ).trim();
         const selectedStatus = filters.status?.[0]
             ? String(filters.status[0])
@@ -123,13 +123,14 @@ export default function BillOfMaterialsPage() {
                 style={{display: "block", marginBottom: 8, width: 240}}
             />
             <Space>
-                <Button type="primary" icon={<SearchOutlined/>} onClick={() => confirm()}>
+                <Button type="primary" icon={<SearchOutlined/>} size="small" style={{width: 90}} onClick={() => confirm()}>
                     Search
                 </Button>
                 <Button
+                    size="small"
+                    style={{width: 90}}
                     onClick={() => {
-                        clearFilters?.();
-                        confirm();
+                        clearFilters?.({ confirm: true });
                     }}
                 >
                     Reset
@@ -172,9 +173,6 @@ export default function BillOfMaterialsPage() {
             title: "FG Part Name",
             key: "partName",
             render: (_, r) => r.FinishGood.PartName,
-            filterDropdown: renderFinishGoodSearch,
-            filteredValue: query.search ? [query.search] : null,
-            filterIcon: (filtered) => <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>,
         },
         {title: "Materials", render: (_, r) => r.Lines.length},
         {title: "Approved By", dataIndex: "ApprovedBy"},

@@ -3,13 +3,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, InputNumber, Select, App, Alert } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store';
 import {
     FinishGoodEntity,
-    fetchFinishGood,
     transferFinishGoodStock
 } from '@/store/features/master/finishGoodSlice';
+import { get, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 interface Props {
     visible: boolean;
@@ -23,26 +23,46 @@ const TransferFinishGoodStockModal: React.FC<Props> = ({ visible, onClose, onSuc
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
+    const [fetchingTargets, setFetchingTargets] = useState(false);
+    const [targetFinishGoods, setTargetFinishGoods] = useState<FinishGoodEntity[]>([]);
 
-    const { data: allFinishGoods } = useSelector((state: RootState) => state.finishGood);
+    const partNumber = data?.PartNumber;
 
     useEffect(() => {
-        if (visible && data) {
+        if (visible && partNumber) {
             form.setFieldsValue({
                 qty: 1,
                 targetPartNumber: undefined,
                 reason: '',
             });
-            dispatch(fetchFinishGood({ page: 1, limit: 100 }));
+            let alive = true;
+            setFetchingTargets(true);
+            void (async () => {
+                try {
+                    const res = await get<PaginatedApiSuccessEnvelope<FinishGoodEntity>>('/master/finish-good', {
+                        params: { limit: 200 }
+                    });
+                    if (alive && Array.isArray(res.data)) {
+                        setTargetFinishGoods(res.data);
+                    }
+                } catch {
+                    // ignore
+                } finally {
+                    if (alive) setFetchingTargets(false);
+                }
+            })();
+            return () => {
+                alive = false;
+            };
         }
-    }, [visible, data, form, dispatch]);
+    }, [visible, partNumber, form]);
 
     if (!data) return null;
 
     const availableStock = data.Qty;
 
     // Filter candidate target FG: active and not source FG
-    const targetOptions = allFinishGoods
+    const targetOptions = targetFinishGoods
         .filter((fg) => fg.IsActive && fg.PartNumber !== data.PartNumber)
         .map((fg) => ({
             value: fg.PartNumber,
@@ -129,6 +149,7 @@ const TransferFinishGoodStockModal: React.FC<Props> = ({ visible, onClose, onSuc
                     <Select
                         placeholder="Select active target finish good"
                         showSearch
+                        loading={fetchingTargets}
                         optionFilterProp="label"
                         options={targetOptions}
                     />
