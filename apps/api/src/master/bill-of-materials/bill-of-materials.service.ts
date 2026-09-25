@@ -85,7 +85,7 @@ export class BillOfMaterialsService {
 
     data.forEach((item) => {
       const isNewFg = currentFgId !== item.FinishGoodId;
-      
+
       if (isNewFg) {
         currentFgId = item.FinishGoodId;
         level2Counter = 2;

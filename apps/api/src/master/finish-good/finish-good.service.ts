@@ -112,8 +112,9 @@ export class FinishGoodService {
           if ([1, 5, 6, 7, 8, 9].includes(colNumber)) {
             cell.alignment.horizontal = 'center';
           }
-          if (colNumber === 5 && cell.value !== '-') { // Price column format
-             cell.numFmt = '#,##0';
+          if (colNumber === 5 && cell.value !== '-') {
+            // Price column format
+            cell.numFmt = '#,##0';
           }
         }
       });
