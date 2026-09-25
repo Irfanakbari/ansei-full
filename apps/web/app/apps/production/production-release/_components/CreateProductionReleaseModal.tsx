@@ -2,8 +2,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, App, DatePicker, Table, Tag } from 'antd';
-import type { InputRef, TablePaginationConfig } from 'antd';
+import { Modal, Form, Input, App, DatePicker, Table, Tag, Button, Space } from 'antd';
+import type { TablePaginationConfig } from 'antd';
+import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { createProductionRelease, type CreateProductionReleasePayload } from '@/store/features/production/productionRelease/productionReleaseSlice';
@@ -47,8 +49,8 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
     const [loading, setLoading] = useState(false);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [searchText, setSearchText] = useState('');
-    const [query, setQuery] = useState({ page: 1, limit: 10, search: '' });
-    const searchInput = React.useRef<InputRef>(null);
+    const [query, setQuery] = useState<{ page: number; limit: number; search?: string; poNumber?: string; partNumber?: string; deliveryDate?: string }>({ page: 1, limit: 10, search: '' });
+    const searchInput = React.useRef<any>(null);
 
     const { data: forecasts, loading: forecastLoading, pagination } = useSelector((state: RootState) => state.forecast);
 
@@ -66,14 +68,44 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
         const trimmed = value.trim();
         const newQuery = { ...query, page: 1, search: trimmed };
         setQuery(newQuery);
-        dispatch(fetchForecast({ page: 1, limit: query.limit, search: trimmed || undefined }));
+        dispatch(fetchForecast({ 
+            page: 1, 
+            limit: query.limit, 
+            search: trimmed || undefined,
+            poNumber: query.poNumber,
+            partNumber: query.partNumber,
+            deliveryDate: query.deliveryDate
+        }));
     };
 
-    const handleTableChange = (tablePagination: TablePaginationConfig) => {
+    const handleTableChange = (tablePagination: TablePaginationConfig, filters: any) => {
         const newPage = tablePagination.current || 1;
         const newLimit = tablePagination.pageSize || 10;
-        setQuery(prev => ({ ...prev, page: newPage, limit: newLimit }));
-        dispatch(fetchForecast({ page: newPage, limit: newLimit, search: query.search || undefined }));
+        
+        const poNumber = filters.PoId?.[0] as string | undefined;
+        const partNumber = filters.PartNumber?.[0] as string | undefined;
+        const deliveryDate = filters.DeliveryDate?.[0] as string | undefined;
+
+        const isFilterChanged = poNumber !== query.poNumber || partNumber !== query.partNumber || deliveryDate !== query.deliveryDate;
+        const targetPage = isFilterChanged ? 1 : newPage;
+
+        setQuery(prev => ({ 
+            ...prev, 
+            page: targetPage, 
+            limit: newLimit,
+            poNumber,
+            partNumber,
+            deliveryDate
+        }));
+        
+        dispatch(fetchForecast({ 
+            page: targetPage, 
+            limit: newLimit, 
+            search: query.search || undefined,
+            poNumber,
+            partNumber,
+            deliveryDate
+        }));
     };
 
     const handleOk = async () => {
@@ -131,24 +163,70 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
         onClose();
     };
 
+    const getColumnSearchProps = (title: string) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
+            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${title}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => confirm()}
+                    style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Space>
+                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+                        Search
+                    </Button>
+                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
+                        Reset
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        ),
+    });
+
     const columns = [
         {
             title: 'PO Number',
             dataIndex: 'PoId',
             key: 'PoId',
             render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
+            ...getColumnSearchProps('PO Number'),
         },
         {
             title: 'Part Number',
             dataIndex: ['PartData', 'PartNumber'],
             key: 'PartNumber',
             render: (val: string) => val || '-',
+            ...getColumnSearchProps('Part Number'),
         },
         {
             title: 'Delivery Date',
             dataIndex: 'DeliveryDate',
             key: 'DeliveryDate',
             render: (val: string) => formatDate(val),
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
+                <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                    <DatePicker
+                        value={selectedKeys[0] ? dayjs(selectedKeys[0]) : null}
+                        onChange={(date, dateString) => setSelectedKeys(date ? [dateString] : [])}
+                        style={{ marginBottom: 8, display: 'flex' }}
+                    />
+                    <Space>
+                        <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+                            Filter
+                        </Button>
+                        <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
+                            Reset
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            filterIcon: (filtered: boolean) => <FilterOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
         },
         {
             title: 'Qty',

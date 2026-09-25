@@ -57,6 +57,9 @@ export interface ForecastQuery {
     page?: number;
     limit?: number;
     search?: string;
+    poNumber?: string;
+    partNumber?: string;
+    deliveryDate?: string;
     deliveryDateFrom?: string;
     deliveryDateTo?: string;
 }

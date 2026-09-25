@@ -92,7 +92,20 @@ export class ForecastService {
       ];
     }
 
-    if (query?.deliveryDateFrom || query?.deliveryDateTo) {
+    if (query?.poNumber) {
+      where.PoId = { contains: query.poNumber, mode: 'insensitive' };
+    }
+
+    if (query?.partNumber) {
+      where.FinishGoodId = { contains: query.partNumber, mode: 'insensitive' };
+    }
+
+    if (query?.deliveryDate) {
+      where.DeliveryDate = {
+        gte: new Date(`${query.deliveryDate}T00:00:00.000Z`),
+        lte: new Date(`${query.deliveryDate}T23:59:59.999Z`),
+      };
+    } else if (query?.deliveryDateFrom || query?.deliveryDateTo) {
       where.DeliveryDate = {
         ...(query.deliveryDateFrom
           ? { gte: new Date(`${query.deliveryDateFrom}T00:00:00.000Z`) }

@@ -129,7 +129,7 @@ const initialState: ProductionReleaseState = {
     forecastCandidatesPagination: { page: 1, limit: 10, totalItems: 0, totalPages: 0 },
 };
 
-export const fetchProductionReleaseForecastCandidates = createAsyncThunk<PaginatedForecastCandidates, { id: string; mode: 'tag' | 'untag'; page: number; limit: number; search?: string }, { rejectValue: string }>(
+export const fetchProductionReleaseForecastCandidates = createAsyncThunk<PaginatedForecastCandidates, { id: string; mode: 'tag' | 'untag'; page: number; limit: number; search?: string; poNumber?: string; partNumber?: string; deliveryDate?: string; }, { rejectValue: string }>(
     'productionRelease/fetchForecastCandidates',
     async ({ id, ...params }, { rejectWithValue }) => {
         try {

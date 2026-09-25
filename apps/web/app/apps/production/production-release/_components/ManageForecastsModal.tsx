@@ -1,8 +1,10 @@
 "use client";
 
-import { App, Form, Input, Modal, Segmented, Table, Tag } from 'antd';
+import { App, Form, Input, Modal, Segmented, Table, Tag, Button, Space, DatePicker } from 'antd';
 import type { TableColumnsType, TablePaginationConfig } from 'antd';
-import { useEffect, useState } from 'react';
+import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import {
@@ -29,8 +31,9 @@ export default function ManageForecastsModal({ open, release, onClose, onSuccess
     const [mode, setMode] = useState<'tag' | 'untag'>('tag');
     const [selected, setSelected] = useState<React.Key[]>([]);
     const [submitting, setSubmitting] = useState(false);
-    const [query, setQuery] = useState({ page: 1, limit: 10, search: '' });
+    const [query, setQuery] = useState<{ page: number; limit: number; search?: string; poNumber?: string; partNumber?: string; deliveryDate?: string }>({ page: 1, limit: 10, search: '' });
     const [form] = Form.useForm<{ reason: string }>();
+    const searchInput = useRef<any>(null);
 
     useEffect(() => {
         if (open && release) {
@@ -41,9 +44,59 @@ export default function ManageForecastsModal({ open, release, onClose, onSuccess
         }
     }, [dispatch, form, mode, open, release]);
 
+    const getColumnSearchProps = (title: string) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
+            <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${title}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => confirm()}
+                    style={{ marginBottom: 8, display: 'block' }}
+                />
+                <Space>
+                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+                        Search
+                    </Button>
+                    <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
+                        Reset
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered: boolean) => (
+            <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+        ),
+    });
+
     const columns: TableColumnsType<ForecastItem> = [
-        { title: 'PO Number', dataIndex: 'PoId', key: 'PoId' },
-        { title: 'Part Number', dataIndex: 'FinishGoodId', key: 'FinishGoodId' },
+        { 
+            title: 'Delivery Date', 
+            dataIndex: 'DeliveryDate', 
+            key: 'DeliveryDate',
+            render: (val: string) => (val ? dayjs(val).format('YYYY-MM-DD') : '-'),
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }: any) => (
+                <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+                    <DatePicker
+                        value={selectedKeys[0] ? dayjs(selectedKeys[0]) : null}
+                        onChange={(date, dateString) => setSelectedKeys(date ? [dateString] : [])}
+                        style={{ marginBottom: 8, display: 'flex' }}
+                    />
+                    <Space>
+                        <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+                            Filter
+                        </Button>
+                        <Button onClick={() => { if (clearFilters) clearFilters(); confirm(); }} size="small" style={{ width: 90 }}>
+                            Reset
+                        </Button>
+                    </Space>
+                </div>
+            ),
+            filterIcon: (filtered: boolean) => <FilterOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
+        },
+        { title: 'PO Number', dataIndex: 'PoId', key: 'PoId', ...getColumnSearchProps('PO Number') },
+        { title: 'Part Number', dataIndex: 'FinishGoodId', key: 'FinishGoodId', ...getColumnSearchProps('Part Number') },
         { title: 'Qty', dataIndex: 'Qty', key: 'Qty', align: 'right' },
         { title: 'State', key: 'state', render: (_, item) => <Tag color={item.ProductionReleaseId ? 'blue' : 'default'}>{item.ProductionReleaseId ? 'LINKED' : 'UNLINKED'}</Tag> },
     ];
@@ -58,14 +111,24 @@ export default function ManageForecastsModal({ open, release, onClose, onSuccess
             page: nextQuery.page,
             limit: nextQuery.limit,
             search: nextQuery.search || undefined,
+            poNumber: nextQuery.poNumber || undefined,
+            partNumber: nextQuery.partNumber || undefined,
+            deliveryDate: nextQuery.deliveryDate || undefined,
         }));
     };
 
-    const handleTableChange = (pagination: TablePaginationConfig) => {
+    const handleTableChange = (pagination: TablePaginationConfig, filters: any) => {
+        const poNumber = filters.PoId?.[0] as string | undefined;
+        const partNumber = filters.FinishGoodId?.[0] as string | undefined;
+        const deliveryDate = filters.DeliveryDate?.[0] as string | undefined;
+
         loadCandidates({
             ...query,
-            page: pagination.current ?? 1,
+            page: (poNumber !== query.poNumber || partNumber !== query.partNumber || deliveryDate !== query.deliveryDate) ? 1 : (pagination.current ?? 1),
             limit: pagination.pageSize ?? 10,
+            poNumber,
+            partNumber,
+            deliveryDate,
         });
     };
 
