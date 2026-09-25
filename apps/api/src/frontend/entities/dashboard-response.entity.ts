@@ -17,6 +17,7 @@ export class DailyForecastStatEntity {
 
 export class DailyIncomingStatEntity {
   @ApiProperty() date: string;
+  @ApiPropertyOptional() count?: number;
   @ApiProperty() totalQty: number;
 }
 
@@ -29,6 +30,7 @@ export class DashboardDailyEntity {
   @ApiProperty() date: string;
   @ApiProperty() demandQty: number;
   @ApiProperty() approvedIncomingMaterialQty: number;
+  @ApiPropertyOptional() approvedIncomingDocumentCount?: number;
   @ApiProperty({
     description:
       'Good output reported through ProductionReport because LabelData has no scan timestamp',
@@ -40,6 +42,30 @@ export class DashboardDailyEntity {
   })
   deliveredQty: number;
   @ApiProperty() reportedNgQty: number;
+}
+
+export class DashboardTopSupplierEntity {
+  @ApiProperty() supplierId: number;
+  @ApiProperty() supplierName: string;
+  @ApiProperty() documentCount: number;
+  @ApiProperty() totalQty: number;
+}
+
+export class DashboardTopIncomingMaterialEntity {
+  @ApiProperty() partNumber: string;
+  @ApiProperty() partName: string;
+  @ApiProperty() totalQty: number;
+}
+
+export class DashboardRecentIncomingEntity {
+  @ApiProperty() id: string;
+  @ApiProperty() poId: string;
+  @ApiProperty() supplierName: string;
+  @ApiPropertyOptional({ nullable: true }) approvedAt: Date | null;
+  @ApiProperty() createdAt: Date;
+  @ApiProperty() closed: boolean;
+  @ApiProperty() totalQty: number;
+  @ApiProperty() materialCount: number;
 }
 
 export class DashboardResponseEntity {
@@ -91,6 +117,7 @@ export class DashboardResponseEntity {
       approvedDocumentCount: number;
       approvedMaterialQty: number;
       openDocumentCount: number;
+      activeSupplierCount?: number;
     };
     production: {
       releaseCountsByStatus: Record<string, number>;
@@ -124,6 +151,12 @@ export class DashboardResponseEntity {
   releasePipeline: DashboardReleasePipelineEntity[];
   @ApiProperty() inventoryRisk: DashboardInventoryRiskEntity[];
   @ApiProperty() topParts: DashboardTopPartEntity[];
+  @ApiPropertyOptional({ type: [DashboardTopSupplierEntity] })
+  topSuppliers?: DashboardTopSupplierEntity[];
+  @ApiPropertyOptional({ type: [DashboardTopIncomingMaterialEntity] })
+  topIncomingMaterials?: DashboardTopIncomingMaterialEntity[];
+  @ApiPropertyOptional({ type: [DashboardRecentIncomingEntity] })
+  recentIncoming?: DashboardRecentIncomingEntity[];
   @ApiProperty() exceptions: DashboardExceptionEntity[];
   @ApiPropertyOptional() summary: DashboardSummaryEntity;
   @ApiPropertyOptional() forecastDailyStats: DailyForecastStatEntity[];

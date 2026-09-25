@@ -621,12 +621,27 @@ export class FrontendService {
         },
       }),
       this.prisma.incoming.findMany({
-        where: { Closed: true, ApprovedAt: range },
+        where: {
+          OR: [{ Closed: true, ApprovedAt: range }, { CreatedAt: range }],
+        },
         select: {
           Id: true,
+          PoId: true,
           ApprovedAt: true,
-          IncomingMaterial: { select: { Qty: true } },
+          CreatedAt: true,
+          Closed: true,
+          SupplierId: true,
+          SupplierData: { select: { Id: true, Name: true } },
+          IncomingMaterial: {
+            select: {
+              Qty: true,
+              QtyChecked: true,
+              MaterialId: true,
+              MaterialData: { select: { PartNumber: true, PartName: true } },
+            },
+          },
         },
+        orderBy: { CreatedAt: 'desc' },
       }),
       this.prisma.incoming.count({ where: { Closed: false } }),
       this.prisma.productionRelease.findMany({
@@ -760,12 +775,25 @@ export class FrontendService {
         (a, b) => b.shortageQty - a.shortageQty || a.totalStock - b.totalStock,
       );
     const inventoryRisk = allInventoryRisk.slice(0, 8);
-    const incomingQty = incoming.reduce(
+    const approvedIncoming = incoming.filter(
+      (doc) =>
+        doc.Closed !== false &&
+        doc.ApprovedAt &&
+        doc.ApprovedAt >= periodStart &&
+        doc.ApprovedAt < periodEndExclusive,
+    );
+    const incomingQty = approvedIncoming.reduce(
       (sum, document) =>
         sum +
-        document.IncomingMaterial.reduce((value, item) => value + item.Qty, 0),
+        document.IncomingMaterial.reduce(
+          (value, item) => value + (item.Qty ?? 0),
+          0,
+        ),
       0,
     );
+    const activeSupplierCount = new Set(
+      approvedIncoming.map((item) => item.SupplierId),
+    ).size;
     const forecastQty = forecasts.reduce((sum, item) => sum + item.Qty, 0);
     const deliveredQty = forecasts.reduce(
       (sum, item) =>
@@ -844,6 +872,7 @@ export class FrontendService {
       {
         demandQty: number;
         approvedIncomingMaterialQty: number;
+        approvedIncomingDocumentCount: number;
         reportedGoodQty: number;
         deliveredQty: number;
         reportedNgQty: number;
@@ -857,6 +886,7 @@ export class FrontendService {
       dailyMap.set(cursor.format('YYYY-MM-DD'), {
         demandQty: 0,
         approvedIncomingMaterialQty: 0,
+        approvedIncomingDocumentCount: 0,
         reportedGoodQty: 0,
         deliveredQty: 0,
         reportedNgQty: 0,
@@ -864,11 +894,20 @@ export class FrontendService {
     const dayKey = (date: Date) =>
       moment.tz(date, timezone).format('YYYY-MM-DD');
     forecasts.forEach((item) => {
-      dailyMap.get(dayKey(item.DeliveryDate))!.demandQty += item.Qty;
+      const day = dailyMap.get(dayKey(item.DeliveryDate));
+      if (day) day.demandQty += item.Qty;
     });
-    incoming.forEach((item) => {
-      dailyMap.get(dayKey(item.ApprovedAt!))!.approvedIncomingMaterialQty +=
-        item.IncomingMaterial.reduce((sum, material) => sum + material.Qty, 0);
+    approvedIncoming.forEach((item) => {
+      if (item.ApprovedAt) {
+        const day = dailyMap.get(dayKey(item.ApprovedAt));
+        if (day) {
+          day.approvedIncomingMaterialQty += item.IncomingMaterial.reduce(
+            (sum, material) => sum + (material.Qty ?? 0),
+            0,
+          );
+          day.approvedIncomingDocumentCount += 1;
+        }
+      }
     });
     reports.forEach((item) => {
       const day = dailyMap.get(dayKey(item.ProductionStamp))!;
@@ -913,6 +952,72 @@ export class FrontendService {
     const topParts = [...topPartsMap.values()]
       .sort((a, b) => b.demandQty - a.demandQty)
       .slice(0, 8);
+
+    const topSuppliersMap = new Map<
+      number,
+      {
+        supplierId: number;
+        supplierName: string;
+        documentCount: number;
+        totalQty: number;
+      }
+    >();
+    const topIncomingMaterialsMap = new Map<
+      string,
+      {
+        partNumber: string;
+        partName: string;
+        totalQty: number;
+      }
+    >();
+
+    incoming.forEach((doc) => {
+      const supplierId = doc.SupplierId;
+      const supplierName = doc.SupplierData?.Name ?? `Supplier #${supplierId}`;
+      const docQty = doc.IncomingMaterial.reduce((s, m) => s + (m.Qty ?? 0), 0);
+      const currentSup = topSuppliersMap.get(supplierId) || {
+        supplierId,
+        supplierName,
+        documentCount: 0,
+        totalQty: 0,
+      };
+      currentSup.documentCount += 1;
+      currentSup.totalQty += docQty;
+      topSuppliersMap.set(supplierId, currentSup);
+
+      doc.IncomingMaterial.forEach((mat) => {
+        const partNumber =
+          mat.MaterialData?.PartNumber ??
+          (mat.MaterialId ? String(mat.MaterialId) : 'Unknown');
+        const partName = mat.MaterialData?.PartName ?? partNumber;
+        const currentMat = topIncomingMaterialsMap.get(partNumber) || {
+          partNumber,
+          partName,
+          totalQty: 0,
+        };
+        currentMat.totalQty += mat.Qty ?? 0;
+        topIncomingMaterialsMap.set(partNumber, currentMat);
+      });
+    });
+
+    const topSuppliers = [...topSuppliersMap.values()]
+      .sort((a, b) => b.totalQty - a.totalQty)
+      .slice(0, 8);
+
+    const topIncomingMaterials = [...topIncomingMaterialsMap.values()]
+      .sort((a, b) => b.totalQty - a.totalQty)
+      .slice(0, 8);
+
+    const recentIncoming = incoming.slice(0, 8).map((doc) => ({
+      id: doc.Id,
+      poId: doc.PoId,
+      supplierName: doc.SupplierData?.Name ?? `Supplier #${doc.SupplierId}`,
+      approvedAt: doc.ApprovedAt,
+      createdAt: doc.CreatedAt,
+      closed: doc.Closed,
+      totalQty: doc.IncomingMaterial.reduce((s, m) => s + (m.Qty ?? 0), 0),
+      materialCount: doc.IncomingMaterial.length,
+    }));
     const overdue = forecasts.filter(
       (item) =>
         item.DeliveryDate < plantToday &&
@@ -1037,9 +1142,10 @@ export class FrontendService {
             .reduce((sum, item) => sum + item.Qty, 0),
         },
         incoming: {
-          approvedDocumentCount: incoming.length,
+          approvedDocumentCount: approvedIncoming.length,
           approvedMaterialQty: incomingQty,
           openDocumentCount: openIncomingCount,
+          activeSupplierCount,
         },
         production: {
           releaseCountsByStatus,
@@ -1101,6 +1207,9 @@ export class FrontendService {
       releasePipeline,
       inventoryRisk,
       topParts,
+      topSuppliers,
+      topIncomingMaterials,
+      recentIncoming,
       exceptions,
       summary,
       forecastDailyStats: daily.map((item) => ({
@@ -1112,6 +1221,7 @@ export class FrontendService {
       })),
       incomingDailyStats: daily.map((item) => ({
         date: item.date,
+        count: item.approvedIncomingDocumentCount,
         totalQty: item.approvedIncomingMaterialQty,
       })),
       deliveryDailyStats: daily.map((item) => ({

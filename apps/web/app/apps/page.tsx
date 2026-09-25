@@ -5,9 +5,11 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   ExperimentOutlined,
+  ImportOutlined,
   InboxOutlined,
   ReloadOutlined,
   SafetyCertificateOutlined,
+  ShopOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
 import type { Dayjs } from "dayjs";
@@ -53,6 +55,9 @@ import {
   type DashboardExceptionItem,
   type DashboardInventoryRiskItem,
   type DashboardReleasePipelineItem,
+  type DashboardTopSupplierItem,
+  type DashboardTopIncomingMaterialItem,
+  type DashboardRecentIncomingItem,
 } from "@/store/features/dashboard/dashboardSlice";
 
 const { Text, Title } = Typography;
@@ -200,6 +205,9 @@ export default function DashboardPage() {
       approvedIncomingMaterialQty:
         data?.incomingDailyStats?.find((entry) => entry.date === item.date)
           ?.totalQty ?? 0,
+      approvedIncomingDocumentCount:
+        data?.incomingDailyStats?.find((entry) => entry.date === item.date)
+          ?.count ?? 0,
       reportedGoodQty: 0,
       deliveredQty:
         data?.deliveryDailyStats?.find((entry) => entry.date === item.date)
@@ -334,6 +342,118 @@ export default function DashboardPage() {
       render: (value: string) => (
         <Tag color={severityColor(value)}>{value || "WARNING"}</Tag>
       ),
+    },
+  ];
+
+  const supplierColumns: TableProps<DashboardTopSupplierItem>["columns"] = [
+    {
+      title: "Supplier",
+      dataIndex: "supplierName",
+      ellipsis: { showTitle: false },
+      render: (value: string) => (
+        <Tooltip title={value}>
+          <Text strong>{value}</Text>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Shipments",
+      dataIndex: "documentCount",
+      align: "right",
+      width: 90,
+      render: (val: number) => `${formatNumber(val)} DN`,
+    },
+    {
+      title: "Total Qty",
+      dataIndex: "totalQty",
+      align: "right",
+      width: 110,
+      render: (val: number) => (
+        <Text strong style={{ color: "#13c2c2" }}>
+          {formatNumber(val)}
+        </Text>
+      ),
+    },
+  ];
+
+  const incomingMaterialColumns: TableProps<DashboardTopIncomingMaterialItem>["columns"] = [
+    {
+      title: "Material",
+      dataIndex: "partNumber",
+      width: 150,
+      ellipsis: { showTitle: false },
+      render: (value: string, record) => (
+        <Tooltip title={record.partName ? `${value} — ${record.partName}` : value}>
+          <Link href="/apps/master-data/material">{value}</Link>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Name",
+      dataIndex: "partName",
+      ellipsis: { showTitle: true },
+      render: (value: string) => value || "—",
+    },
+    {
+      title: "Total Inflow",
+      dataIndex: "totalQty",
+      align: "right",
+      width: 110,
+      render: (val: number) => (
+        <Text strong style={{ color: "#1677ff" }}>
+          {formatNumber(val)}
+        </Text>
+      ),
+    },
+  ];
+
+  const recentIncomingColumns: TableProps<DashboardRecentIncomingItem>["columns"] = [
+    {
+      title: "DN / PO",
+      dataIndex: "poId",
+      width: 140,
+      render: (value: string) => (
+        <Link href="/apps/warehouse/incoming">
+          <Text strong>{value}</Text>
+        </Link>
+      ),
+    },
+    {
+      title: "Supplier",
+      dataIndex: "supplierName",
+      ellipsis: { showTitle: true },
+    },
+    {
+      title: "Items",
+      dataIndex: "materialCount",
+      align: "right",
+      width: 80,
+      render: (val: number) => `${val} parts`,
+    },
+    {
+      title: "Total Qty",
+      dataIndex: "totalQty",
+      align: "right",
+      width: 100,
+      render: formatNumber,
+    },
+    {
+      title: "Date",
+      dataIndex: "createdAt",
+      width: 110,
+      render: formatDate,
+    },
+    {
+      title: "Status",
+      dataIndex: "closed",
+      width: 95,
+      align: "center",
+      render: (closed: boolean) =>
+        closed ? (
+          <Tag color="green">Approved</Tag>
+        ) : (
+          <Tag color="orange">Pending</Tag>
+        ),
     },
   ];
 
@@ -743,6 +863,196 @@ export default function DashboardPage() {
           </Card>
         </Col>
       </Row>
+
+      {/* INCOMING SUPPLY & MATERIAL INFLOW SECTION */}
+      <Card
+        title={
+          <Space size={8}>
+            <ImportOutlined style={{ color: "#13c2c2" }} />
+            <span>Incoming Supply & Material Inflow Trend</span>
+          </Space>
+        }
+        extra={
+          <Link href="/apps/warehouse/incoming">
+            View Incoming Delivery Notes
+          </Link>
+        }
+        style={sectionCardStyle}
+      >
+        <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+          <Col xs={12} sm={6}>
+            <Card size="small" styles={compactCardBodyStyle} style={{ background: "#f6ffed", border: "1px solid #b7eb8f" }}>
+              <Statistic
+                title="Approved Material Inflow"
+                value={formatNumber(monthly?.incoming.approvedMaterialQty)}
+                suffix="pcs"
+                styles={{ content: { color: "#389e0d", fontWeight: 600 } }}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card size="small" styles={compactCardBodyStyle} style={{ background: "#e6f4ff", border: "1px solid #91caff" }}>
+              <Statistic
+                title="Approved Delivery Notes"
+                value={formatNumber(monthly?.incoming.approvedDocumentCount)}
+                suffix="DNs"
+                styles={{ content: { color: "#1677ff", fontWeight: 600 } }}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card size="small" styles={compactCardBodyStyle} style={{ background: "#fff7e6", border: "1px solid #ffd591" }}>
+              <Statistic
+                title="Open / Pending Notes"
+                value={formatNumber(monthly?.incoming.openDocumentCount)}
+                suffix="DNs"
+                styles={{ content: { color: "#d46b08", fontWeight: 600 } }}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={6}>
+            <Card size="small" styles={compactCardBodyStyle} style={{ background: "#f9f0ff", border: "1px solid #d3adf7" }}>
+              <Statistic
+                title="Active Delivering Suppliers"
+                value={formatNumber(monthly?.incoming.activeSupplierCount ?? data.topSuppliers?.length ?? 0)}
+                suffix="Suppliers"
+                styles={{ content: { color: "#722ed1", fontWeight: 600 } }}
+              />
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]} align="stretch">
+          <Col xs={24} lg={15} style={{ display: "flex" }}>
+            <Card
+              size="small"
+              title="Daily Inflow Trend (Material Quantity & Delivery Notes)"
+              styles={{ body: { height: 280 } }}
+              style={{ ...equalSectionCardStyle, width: "100%", background: "#fafafa" }}
+            >
+              {daily.some((d) => d.approvedIncomingMaterialQty > 0 || (d.approvedIncomingDocumentCount ?? 0) > 0) ? (
+                <div style={{ width: "100%", height: 240 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart
+                      data={daily}
+                      margin={{ left: 0, right: 16, top: 10, bottom: 0 }}
+                    >
+                      <CartesianGrid stroke="#edf0f3" vertical={false} />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(value: string) => dayjs(value).format("D")}
+                        minTickGap={10}
+                      />
+                      <YAxis
+                        yAxisId="qty"
+                        tickFormatter={(value: number) => numberFormatter.format(value)}
+                        width={64}
+                      />
+                      <YAxis
+                        yAxisId="count"
+                        orientation="right"
+                        allowDecimals={false}
+                        width={36}
+                      />
+                      <ChartTooltip
+                        labelFormatter={(value) => formatDate(String(value))}
+                        formatter={(value, name) => [
+                          formatNumber(Number(value)),
+                          name === "approvedIncomingMaterialQty" ? "Material Quantity (pcs)" : "Approved DNs",
+                        ]}
+                      />
+                      <Legend
+                        formatter={(value) =>
+                          value === "approvedIncomingMaterialQty"
+                            ? "Material Inflow Quantity (pcs)"
+                            : "Approved Delivery Notes (DNs)"
+                        }
+                      />
+                      <Bar
+                        yAxisId="qty"
+                        name="approvedIncomingMaterialQty"
+                        dataKey="approvedIncomingMaterialQty"
+                        fill="#13c2c2"
+                        radius={[3, 3, 0, 0]}
+                      />
+                      <Line
+                        yAxisId="count"
+                        name="approvedIncomingDocumentCount"
+                        type="monotone"
+                        dataKey="approvedIncomingDocumentCount"
+                        stroke="#fa8c16"
+                        strokeWidth={2}
+                        dot={{ r: 3 }}
+                      />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description="No material inflow recorded in this period"
+                />
+              )}
+            </Card>
+          </Col>
+          <Col xs={24} lg={9} style={{ display: "flex" }}>
+            <Card
+              size="small"
+              title="Top Delivering Suppliers"
+              extra={<ShopOutlined style={{ color: "#13c2c2" }} />}
+              styles={{ body: { height: 280, overflowY: "auto" } }}
+              style={{ ...equalSectionCardStyle, width: "100%" }}
+            >
+              <Table<DashboardTopSupplierItem>
+                size="small"
+                rowKey="supplierId"
+                columns={supplierColumns}
+                dataSource={data.topSuppliers ?? []}
+                pagination={false}
+                locale={{ emptyText: "No supplier inflow data" }}
+              />
+            </Card>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }} align="stretch">
+          <Col xs={24} lg={12} style={{ display: "flex" }}>
+            <Card
+              size="small"
+              title="Top Received Raw Materials"
+              styles={{ body: { height: 260, overflowY: "auto" } }}
+              style={{ ...equalSectionCardStyle, width: "100%" }}
+            >
+              <Table<DashboardTopIncomingMaterialItem>
+                size="small"
+                rowKey="partNumber"
+                columns={incomingMaterialColumns}
+                dataSource={data.topIncomingMaterials ?? []}
+                pagination={false}
+                locale={{ emptyText: "No material inflow data" }}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} lg={12} style={{ display: "flex" }}>
+            <Card
+              size="small"
+              title="Recent Incoming Shipments"
+              extra={<Link href="/apps/warehouse/incoming">All</Link>}
+              styles={{ body: { height: 260, overflowY: "auto" } }}
+              style={{ ...equalSectionCardStyle, width: "100%" }}
+            >
+              <Table<DashboardRecentIncomingItem>
+                size="small"
+                rowKey="id"
+                columns={recentIncomingColumns}
+                dataSource={data.recentIncoming ?? []}
+                pagination={false}
+                locale={{ emptyText: "No recent incoming shipments" }}
+              />
+            </Card>
+          </Col>
+        </Row>
+      </Card>
 
       <Card
         title="Production release pipeline"

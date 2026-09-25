@@ -64,7 +64,7 @@ export interface DashboardSnapshot {
 
 export interface DashboardMonthly {
     demand: { forecastCount: number; forecastQty: number; unscheduledCount: number; unscheduledQty: number; releasedQty: number };
-    incoming: { approvedDocumentCount: number; approvedMaterialQty: number; openDocumentCount: number };
+    incoming: { approvedDocumentCount: number; approvedMaterialQty: number; openDocumentCount: number; activeSupplierCount?: number };
     production: {
         releaseCountsByStatus: Record<string, number>;
         targetQty: number;
@@ -99,6 +99,7 @@ export interface DashboardDailyItem {
     date: string;
     demandQty: number;
     approvedIncomingMaterialQty: number;
+    approvedIncomingDocumentCount?: number;
     reportedGoodQty: number;
     deliveredQty: number;
     reportedNgQty: number;
@@ -151,6 +152,30 @@ export interface DashboardTopPartItem {
     quantity?: number;
 }
 
+export interface DashboardTopSupplierItem {
+    supplierId: number;
+    supplierName: string;
+    documentCount: number;
+    totalQty: number;
+}
+
+export interface DashboardTopIncomingMaterialItem {
+    partNumber: string;
+    partName: string;
+    totalQty: number;
+}
+
+export interface DashboardRecentIncomingItem {
+    id: string;
+    poId: string;
+    supplierName: string;
+    approvedAt: string | null;
+    createdAt: string;
+    closed: boolean;
+    totalQty: number;
+    materialCount: number;
+}
+
 export interface DashboardExceptionItem {
     type: string;
     title: string;
@@ -180,6 +205,7 @@ export interface ForecastDailyStat {
 
 export interface IncomingDailyStat {
     date: string;
+    count?: number;
     totalQty: number;
 }
 
@@ -205,6 +231,9 @@ export interface DashboardData {
     releasePipeline: DashboardReleasePipelineItem[];
     inventoryRisk: DashboardInventoryRiskItem[];
     topParts: DashboardTopPartItem[];
+    topSuppliers?: DashboardTopSupplierItem[];
+    topIncomingMaterials?: DashboardTopIncomingMaterialItem[];
+    recentIncoming?: DashboardRecentIncomingItem[];
     exceptions: DashboardExceptionItem[];
     systemCoverage?: DashboardSystemCoverage;
     summary?: DashboardSummary;
