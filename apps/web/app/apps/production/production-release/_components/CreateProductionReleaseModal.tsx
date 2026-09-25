@@ -49,18 +49,18 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
     const [loading, setLoading] = useState(false);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [searchText, setSearchText] = useState('');
-    const [query, setQuery] = useState<{ page: number; limit: number; search?: string; poNumber?: string; partNumber?: string; deliveryDate?: string }>({ page: 1, limit: 10, search: '' });
+    const [query, setQuery] = useState<{ page: number; limit: number; search?: string; poNumber?: string; partNumber?: string; deliveryDate?: string; status?: string }>({ page: 1, limit: 10, search: '', status: 'OPEN' });
     const searchInput = React.useRef<any>(null);
 
     const { data: forecasts, loading: forecastLoading, pagination } = useSelector((state: RootState) => state.forecast);
 
     useEffect(() => {
         if (visible) {
-            const initialQuery = { page: 1, limit: 10, search: '' };
+            const initialQuery = { page: 1, limit: 10, search: '', status: 'OPEN' };
             setQuery(initialQuery);
             setSearchText('');
             setSelectedRowKeys([]);
-            dispatch(fetchForecast({ page: 1, limit: 10 }));
+            dispatch(fetchForecast({ page: 1, limit: 10, status: 'OPEN' }));
         }
     }, [visible, dispatch]);
 
@@ -74,7 +74,8 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
             search: trimmed || undefined,
             poNumber: query.poNumber,
             partNumber: query.partNumber,
-            deliveryDate: query.deliveryDate
+            deliveryDate: query.deliveryDate,
+            status: query.status
         }));
     };
 
@@ -104,7 +105,8 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
             search: query.search || undefined,
             poNumber,
             partNumber,
-            deliveryDate
+            deliveryDate,
+            status: query.status
         }));
     };
 

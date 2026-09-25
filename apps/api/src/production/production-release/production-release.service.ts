@@ -523,7 +523,7 @@ export class ProductionReleaseService {
           VendorName: true,
           PartData: { select: { PartNumber: true, PartName: true } },
         },
-        orderBy: [{ DeliveryDate: 'asc' }, { PoId: 'asc' }],
+        orderBy: [{ DeliveryDate: 'asc' }, { Id: 'desc' }],
         skip: (query.page - 1) * query.limit,
         take: query.limit,
       }),

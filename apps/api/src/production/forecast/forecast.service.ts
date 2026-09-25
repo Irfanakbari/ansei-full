@@ -115,6 +115,11 @@ export class ForecastService {
           : {}),
       };
     }
+
+    if (query?.status === 'OPEN') {
+      where.ProductionReleaseId = null;
+    }
+
     const [totalItems, data] = await Promise.all([
       this.prisma.forecast.count({ where }),
       this.prisma.forecast.findMany({
@@ -129,7 +134,7 @@ export class ForecastService {
           },
           ProductionRelease: { select: { ReleaseNumber: true } },
         },
-        orderBy: [{ DeliveryDate: 'desc' }, { Id: 'desc' }],
+        orderBy: [{ DeliveryDate: 'asc' }, { Id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),

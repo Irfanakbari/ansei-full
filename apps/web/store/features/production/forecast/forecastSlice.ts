@@ -62,6 +62,7 @@ export interface ForecastQuery {
     deliveryDate?: string;
     deliveryDateFrom?: string;
     deliveryDateTo?: string;
+    status?: string;
 }
 
 const initialState: ForecastState = {

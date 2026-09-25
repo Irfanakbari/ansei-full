@@ -42,4 +42,12 @@ export class ForecastQueryDto extends SearchPaginationQueryDto {
   @IsOptional()
   @IsDateString({ strict: true })
   deliveryDateTo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by forecast status (e.g., OPEN)',
+    example: 'OPEN',
+  })
+  @IsOptional()
+  @IsString()
+  status?: string;
 }
