@@ -57,31 +57,31 @@ export class FinishGoodService {
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'ANSEI System';
-    const worksheet = workbook.addWorksheet('Finish Goods');
+    const worksheet = workbook.addWorksheet('Finish Goods', {
+      views: [{ state: 'frozen', ySplit: 1 }],
+    });
 
     worksheet.columns = [
-      { header: 'No', key: 'no', width: 5 },
+      { header: 'No', key: 'no', width: 6 },
       { header: 'Part Number', key: 'partNumber', width: 25 },
-      { header: 'Part Name', key: 'partName', width: 35 },
-      { header: 'Alias', key: 'alias', width: 20 },
-      { header: 'Price', key: 'price', width: 15 },
+      { header: 'Part Name', key: 'partName', width: 40 },
+      { header: 'Alias', key: 'alias', width: 25 },
+      { header: 'Price (Rp)', key: 'price', width: 15 },
       { header: 'Qty', key: 'qty', width: 15 },
       { header: 'Passthrough', key: 'isPassthrough', width: 15 },
-      { header: 'Active', key: 'isActive', width: 10 },
-      { header: 'Discontinue Date', key: 'discontinueDate', width: 20 },
+      { header: 'Status', key: 'isActive', width: 15 },
+      { header: 'Disc. Date', key: 'discontinueDate', width: 18 },
     ];
 
-    // Header styling
-    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    worksheet.getRow(1).fill = {
+    const headerRow = worksheet.getRow(1);
+    headerRow.height = 25;
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+    headerRow.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FF004B87' },
+      fgColor: { argb: 'FF0F172A' },
     };
-    worksheet.getRow(1).alignment = {
-      vertical: 'middle',
-      horizontal: 'center',
-    };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
     data.forEach((item, index) => {
       worksheet.addRow({
@@ -91,8 +91,8 @@ export class FinishGoodService {
         alias: item.Alias || '-',
         price: item.Price || 0,
         qty: item.Qty,
-        isPassthrough: item.IsPassthrough ? 'Yes' : 'No',
-        isActive: item.IsActive ? 'Yes' : 'No',
+        isPassthrough: item.IsPassthrough ? 'YES' : 'NO',
+        isActive: item.IsActive ? 'ACTIVE' : 'DISCONTINUED',
         discontinueDate: item.DiscontinueDate
           ? item.DiscontinueDate.toISOString().split('T')[0]
           : '-',
@@ -100,15 +100,21 @@ export class FinishGoodService {
     });
 
     worksheet.eachRow((row, rowNumber) => {
-      row.eachCell((cell) => {
+      row.eachCell((cell, colNumber) => {
         cell.border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' },
+          top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
         };
         if (rowNumber > 1) {
           cell.alignment = { vertical: 'middle' };
+          if ([1, 5, 6, 7, 8, 9].includes(colNumber)) {
+            cell.alignment.horizontal = 'center';
+          }
+          if (colNumber === 5 && cell.value !== '-') { // Price column format
+             cell.numFmt = '#,##0';
+          }
         }
       });
     });

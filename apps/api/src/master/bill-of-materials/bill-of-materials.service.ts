@@ -39,7 +39,10 @@ export class BillOfMaterialsService {
 
     const data = await this.prisma.billOfMaterials.findMany({
       where,
-      orderBy: { Id: 'asc' },
+      orderBy: [
+        { FGData: { PartNumber: 'asc' } },
+        { MaterialData: { PartNumber: 'asc' } },
+      ],
       include: {
         FGData: true,
         MaterialData: {
@@ -52,33 +55,45 @@ export class BillOfMaterialsService {
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'ANSEI System';
-    const worksheet = workbook.addWorksheet('Bill of Materials');
+    const worksheet = workbook.addWorksheet('Bill of Materials', {
+      views: [{ state: 'frozen', ySplit: 1 }],
+    });
 
     worksheet.columns = [
-      { header: 'No', key: 'no', width: 5 },
-      { header: 'Parent FG', key: 'parentFg', width: 25 },
-      { header: 'FG Name', key: 'fgName', width: 35 },
-      { header: 'Child Material', key: 'childMaterial', width: 25 },
-      { header: 'Material Name', key: 'materialName', width: 35 },
-      { header: 'Qty', key: 'qty', width: 15 },
-      { header: 'Unit', key: 'unit', width: 10 },
+      { header: 'Lvl 1', key: 'level1', width: 6 },
+      { header: 'Lvl 2', key: 'level2', width: 6 },
+      { header: 'FG Part Number', key: 'parentFg', width: 25 },
+      { header: 'FG Part Name', key: 'fgName', width: 35 },
+      { header: 'Component Part Number', key: 'childMaterial', width: 25 },
+      { header: 'Component Part Name', key: 'materialName', width: 35 },
+      { header: 'Usage / Qty', key: 'qty', width: 15 },
+      { header: 'UOM', key: 'unit', width: 10 },
     ];
 
-    // Header styling
-    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    worksheet.getRow(1).fill = {
+    const headerRow = worksheet.getRow(1);
+    headerRow.height = 25;
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+    headerRow.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FF004B87' },
+      fgColor: { argb: 'FF0F172A' },
     };
-    worksheet.getRow(1).alignment = {
-      vertical: 'middle',
-      horizontal: 'center',
-    };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
-    data.forEach((item, index) => {
-      worksheet.addRow({
-        no: index + 1,
+    let currentFgId: number | null = null;
+    let level2Counter = 2;
+
+    data.forEach((item) => {
+      const isNewFg = currentFgId !== item.FinishGoodId;
+      
+      if (isNewFg) {
+        currentFgId = item.FinishGoodId;
+        level2Counter = 2;
+      }
+
+      const row = worksheet.addRow({
+        level1: isNewFg ? 1 : '',
+        level2: isNewFg ? '' : level2Counter++,
         parentFg: item.FGData?.PartNumber || '-',
         fgName: item.FGData?.PartName || '-',
         childMaterial: item.MaterialData?.PartNumber || '-',
@@ -86,18 +101,30 @@ export class BillOfMaterialsService {
         qty: item.Qty,
         unit: item.MaterialData?.SatuanData?.Name || '-',
       });
+
+      if (isNewFg) {
+        row.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF1F5F9' },
+        };
+        row.font = { bold: true };
+      }
     });
 
     worksheet.eachRow((row, rowNumber) => {
-      row.eachCell((cell) => {
+      row.eachCell((cell, colNumber) => {
         cell.border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' },
+          top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
         };
         if (rowNumber > 1) {
           cell.alignment = { vertical: 'middle' };
+          if (colNumber === 1 || colNumber === 2 || colNumber === 7) {
+            cell.alignment.horizontal = 'center';
+          }
         }
       });
     });

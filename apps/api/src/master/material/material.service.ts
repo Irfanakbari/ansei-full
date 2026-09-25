@@ -67,32 +67,37 @@ export class MaterialService {
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'ANSEI System';
-    const worksheet = workbook.addWorksheet('Materials');
+    const worksheet = workbook.addWorksheet('Materials', {
+      views: [{ state: 'frozen', ySplit: 1 }],
+    });
 
     worksheet.columns = [
-      { header: 'No', key: 'no', width: 5 },
-      { header: 'Part Number', key: 'partNumber', width: 20 },
-      { header: 'Part Name', key: 'partName', width: 35 },
-      { header: 'Supplier', key: 'supplier', width: 25 },
+      { header: 'No', key: 'no', width: 6 },
+      { header: 'Part Number', key: 'partNumber', width: 22 },
+      { header: 'Part Name', key: 'partName', width: 40 },
+      { header: 'Supplier', key: 'supplier', width: 30 },
       { header: 'Unit', key: 'unit', width: 10 },
       { header: 'Rack Location', key: 'rackLocation', width: 20 },
+      { header: 'Source', key: 'source', width: 15 },
       { header: 'Qty Rack', key: 'qtyRack', width: 15 },
-      { header: 'Minimum Stock', key: 'minStock', width: 15 },
-      { header: 'Active', key: 'isActive', width: 10 },
-      { header: 'Discontinue Date', key: 'discontinueDate', width: 20 },
+      { header: 'Qty WHS', key: 'qtyWarehouse', width: 15 },
+      { header: 'Min Stock', key: 'minStock', width: 15 },
+      { header: 'Max Stock', key: 'maxStock', width: 15 },
+      { header: 'Qty/Box', key: 'qtyPerBox', width: 15 },
+      { header: 'Status', key: 'isActive', width: 15 },
+      { header: 'Disc. Date', key: 'discontinueDate', width: 18 },
+      { header: 'Remark', key: 'remark', width: 35 },
     ];
 
-    // Header styling
-    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    worksheet.getRow(1).fill = {
+    const headerRow = worksheet.getRow(1);
+    headerRow.height = 25;
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+    headerRow.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FF004B87' }, // corporate blue
+      fgColor: { argb: 'FF0F172A' },
     };
-    worksheet.getRow(1).alignment = {
-      vertical: 'middle',
-      horizontal: 'center',
-    };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
     data.forEach((item, index) => {
       worksheet.addRow({
@@ -102,25 +107,33 @@ export class MaterialService {
         supplier: item.SupplierData?.Name || item.Supplier || '-',
         unit: item.SatuanData?.Name || '-',
         rackLocation: item.RackLocation || '-',
+        source: item.MaterialSource || '-',
         qtyRack: item.QtyRack,
+        qtyWarehouse: item.QtyWarehouse,
         minStock: item.MinimumStock,
-        isActive: item.IsActive ? 'Yes' : 'No',
+        maxStock: item.MaximumStock,
+        qtyPerBox: item.QtyPerBox,
+        isActive: item.IsActive ? 'ACTIVE' : 'DISCONTINUED',
         discontinueDate: item.DiscontinueDate
           ? item.DiscontinueDate.toISOString().split('T')[0]
           : '-',
+        remark: item.Remark || '-',
       });
     });
 
     worksheet.eachRow((row, rowNumber) => {
-      row.eachCell((cell) => {
+      row.eachCell((cell, colNumber) => {
         cell.border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' },
+          top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+          right: { style: 'thin', color: { argb: 'FFCBD5E1' } },
         };
         if (rowNumber > 1) {
           cell.alignment = { vertical: 'middle' };
+          if ([1, 5, 7, 8, 9, 10, 11, 12, 13, 14].includes(colNumber)) {
+            cell.alignment.horizontal = 'center';
+          }
         }
       });
     });
