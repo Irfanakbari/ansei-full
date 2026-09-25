@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
   const response = await sso.fetch(
     request,
-    new URL(`${getApiUrl('v1')}/auth/profile`),
+    new URL(`${getApiUrl('v1', request)}/auth/profile`),
     { cache: 'no-store' },
   );
   let profile: { RoleName?: string | null; Permission?: string[] } | undefined;
@@ -31,7 +31,14 @@ export async function GET(request: Request) {
     const body = await response.text();
     if (body) {
       try {
-        profile = JSON.parse(body) as {
+        const payload = JSON.parse(body) as
+          | { RoleName?: string | null; Permission?: string[] }
+          | { data?: { RoleName?: string | null; Permission?: string[] } };
+        const data =
+          payload && typeof payload === 'object' && 'data' in payload && payload.data
+            ? payload.data
+            : payload;
+        profile = data as {
           RoleName?: string | null;
           Permission?: string[];
         };
