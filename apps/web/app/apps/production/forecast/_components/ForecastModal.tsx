@@ -453,7 +453,7 @@ const ForecastModal: React.FC<Props> = ({
             column={2}
             style={{ marginBottom: 16 }}
           >
-            <Descriptions.Item label="PO Number">
+            <Descriptions.Item label="PO ID">
               <code style={{ fontSize: 11 }}>{data.PoId}</code>
             </Descriptions.Item>
             <Descriptions.Item label="Status">
@@ -480,10 +480,10 @@ const ForecastModal: React.FC<Props> = ({
             <Descriptions.Item label="Classification">
               {data.Classification || "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="PO Number">
+            <Descriptions.Item label="PO Item">
               {data.PoNumber || "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="Item">{data.Item}</Descriptions.Item>
+            <Descriptions.Item label="Item No.">{data.Item}</Descriptions.Item>
             <Descriptions.Item label="Date">
               {formatDateTime(data.Date)}
             </Descriptions.Item>
