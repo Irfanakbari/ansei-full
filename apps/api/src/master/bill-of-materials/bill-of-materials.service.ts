@@ -23,9 +23,15 @@ export class BillOfMaterialsService {
     const where: Prisma.BillOfMaterialsWhereInput = query.search
       ? {
           OR: [
-            { FGData: { PartNumber: { contains: query.search, mode: 'insensitive' } } },
             {
-              MaterialData: { PartNumber: { contains: query.search, mode: 'insensitive' } },
+              FGData: {
+                PartNumber: { contains: query.search, mode: 'insensitive' },
+              },
+            },
+            {
+              MaterialData: {
+                PartNumber: { contains: query.search, mode: 'insensitive' },
+              },
             },
           ],
         }
