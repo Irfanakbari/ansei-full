@@ -80,10 +80,22 @@ describe('MaterialController', () => {
       const expected = [mockMaterial];
       service.findAll.mockResolvedValue(expected);
 
-      const result = await controller.findAll(mockUser);
+      const query = { page: 1, limit: 50 };
+      const result = await controller.findAll(query, mockUser);
 
       expect(result).toEqual(expected);
-      expect(service.findAll).toHaveBeenCalled();
+      expect(service.findAll).toHaveBeenCalledWith(query);
+    });
+
+    it('should forward the option query to the service', async () => {
+      const query = { page: 1, limit: 50, option: true };
+      const expected = [{ Id: 1, PartNumber: 'MAT-001', PartName: 'Baut M8' }];
+      service.findAll.mockResolvedValue(expected);
+
+      await expect(controller.findAll(query, mockUser)).resolves.toEqual(
+        expected,
+      );
+      expect(service.findAll).toHaveBeenCalledWith(query);
     });
   });
 

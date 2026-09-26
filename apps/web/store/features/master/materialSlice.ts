@@ -15,10 +15,13 @@ export interface SatuanData {
     Name: string;
 }
 
-export interface MaterialEntity {
+export interface MaterialOption {
     Id: number;
     PartNumber: string;
     PartName: string;
+}
+
+export interface MaterialEntity extends MaterialOption {
     CreatedAt: string;
     CreatedBy: string;
     CreatedByName?: string;
@@ -42,6 +45,8 @@ export interface MaterialEntity {
 
 interface MaterialState {
     data: MaterialEntity[];
+    options: MaterialOption[];
+    optionsLoading: boolean;
     loading: boolean;
     error: string | null;
     query: MaterialQuery;
@@ -57,6 +62,8 @@ export interface MaterialQuery {
 
 const initialState: MaterialState = {
     data: [],
+    options: [],
+    optionsLoading: false,
     loading: false,
     error: null,
     query: {page: 1, limit: 50, search: '', supplierId: undefined},
@@ -98,6 +105,21 @@ export const fetchMaterial = createAsyncThunk<PaginatedApiSuccessEnvelope<Materi
             });
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch material data'));
+        }
+    }
+);
+
+export const fetchMaterialOptions = createAsyncThunk<ApiSuccessEnvelope<MaterialOption[]>, void, {
+    rejectValue: string
+}>(
+    'material/fetchOptions',
+    async (_, {rejectWithValue}) => {
+        try {
+            return await get<ApiSuccessEnvelope<MaterialOption[]>>('/master/material', {
+                params: {option: true}
+            });
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch material options'));
         }
     }
 );
@@ -246,6 +268,17 @@ const materialSlice = createSlice({
             })
             .addCase(fetchMaterial.rejected, (state, action) => {
                 state.loading = false;
+                state.error = action.payload as string;
+            })
+            .addCase(fetchMaterialOptions.pending, (state) => {
+                state.optionsLoading = true;
+            })
+            .addCase(fetchMaterialOptions.fulfilled, (state, action) => {
+                state.optionsLoading = false;
+                state.options = Array.isArray(action.payload?.data) ? action.payload.data : [];
+            })
+            .addCase(fetchMaterialOptions.rejected, (state, action) => {
+                state.optionsLoading = false;
                 state.error = action.payload as string;
             });
     },

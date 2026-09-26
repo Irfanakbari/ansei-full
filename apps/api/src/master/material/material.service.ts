@@ -32,7 +32,12 @@ import type {
   ApiResult,
   PaginationMeta,
 } from '../../common/interceptors/api-response.interface';
-import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
+
+export interface MaterialOption {
+  Id: number;
+  PartNumber: string;
+  PartName: string;
+}
 
 @Injectable()
 export class MaterialService {
@@ -143,7 +148,7 @@ export class MaterialService {
 
   async findAll(
     query: MaterialQueryDto,
-  ): Promise<ApiResult<MaterialModel[], PaginationMeta>> {
+  ): Promise<ApiResult<MaterialModel[], PaginationMeta> | MaterialOption[]> {
     const where: Prisma.MaterialWhereInput = {};
     if (query.search) {
       where.OR = [
@@ -157,6 +162,19 @@ export class MaterialService {
     if (query.supplierId) {
       where.SupplierId = query.supplierId;
     }
+
+    if (query.option) {
+      return this.prisma.material.findMany({
+        where,
+        select: {
+          Id: true,
+          PartNumber: true,
+          PartName: true,
+        },
+        orderBy: [{ PartNumber: 'asc' }],
+      });
+    }
+
     const [totalItems, data] = await Promise.all([
       this.prisma.material.count({ where }),
       this.prisma.material.findMany({

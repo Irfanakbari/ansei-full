@@ -24,8 +24,8 @@ import {
   fetchCheckRequirement,
 } from "@/store/features/production/shopping/shoppingSlice";
 import {
-  fetchMaterial,
-  MaterialEntity,
+  fetchMaterialOptions,
+  MaterialOption,
 } from "@/store/features/master/materialSlice";
 import { fetchProductionRelease } from "@/store/features/production/productionRelease/productionReleaseSlice";
 import { DeleteOutlined } from "@ant-design/icons";
@@ -36,7 +36,7 @@ interface Props {
   onSuccess?: () => void;
 }
 
-interface MaterialWithRequirement extends MaterialEntity {
+interface MaterialWithRequirement extends MaterialOption {
   isCompleted: boolean;
   qtyRemaining: number;
 }
@@ -85,7 +85,9 @@ const CreateShoppingModal: React.FC<Props> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progressCount, setProgressCount] = useState({ current: 0, total: 0 });
 
-  const { data: materials } = useSelector((state: RootState) => state.material);
+  const { options: materials, optionsLoading: materialOptionsLoading } = useSelector(
+    (state: RootState) => state.material,
+  );
   const { data: productionReleases, loading: prLoading } = useSelector(
     (state: RootState) => state.productionRelease,
   );
@@ -128,7 +130,7 @@ const CreateShoppingModal: React.FC<Props> = ({
   useEffect(() => {
     if (visible) {
       requestIds.current.clear();
-      dispatch(fetchMaterial());
+      dispatch(fetchMaterialOptions());
       dispatch(fetchProductionRelease());
       setShoppingType("REGULER");
       setSelectedForecastId(undefined);
@@ -498,7 +500,11 @@ const CreateShoppingModal: React.FC<Props> = ({
                 : "Select materials"
             }
             showSearch={{ optionFilterProp: "label" }}
-            disabled={shoppingType === "REGULER" && !selectedForecastId}
+            loading={materialOptionsLoading}
+            disabled={
+              materialOptionsLoading ||
+              (shoppingType === "REGULER" && !selectedForecastId)
+            }
             onChange={handleMaterialSelectChange}
             value={selectedMaterials.map((m) => m.materialId)}
             options={availableMaterials.map((material) => ({

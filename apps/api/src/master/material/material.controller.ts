@@ -2,6 +2,7 @@ import {
   ApiTags,
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
 import {
@@ -38,6 +39,13 @@ export class MaterialController {
   constructor(private readonly materialService: MaterialService) {}
 
   @ApiOperation({ summary: 'Get all materials' })
+  @ApiQuery({
+    name: 'option',
+    required: false,
+    type: Boolean,
+    description:
+      'When true, returns all materials as unpaginated ID, part number, and part name options',
+  })
   @ApiSuccessEnvelope({
     status: 200,
     type: MaterialEntity,

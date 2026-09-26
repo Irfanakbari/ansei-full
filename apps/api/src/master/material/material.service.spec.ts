@@ -142,6 +142,21 @@ describe('MaterialService', () => {
       });
     });
 
+    it('should return unpaginated material options with minimal fields', async () => {
+      const options = [{ Id: 1, PartNumber: 'MAT-001', PartName: 'Baut M8' }];
+      prismaService.material.findMany.mockResolvedValue(options);
+
+      await expect(
+        service.findAll({ page: 1, limit: 50, option: true }),
+      ).resolves.toEqual(options);
+      expect(prismaService.material.count).not.toHaveBeenCalled();
+      expect(prismaService.material.findMany).toHaveBeenCalledWith({
+        where: {},
+        select: { Id: true, PartNumber: true, PartName: true },
+        orderBy: [{ PartNumber: 'asc' }],
+      });
+    });
+
     it('should return empty array when no materials exist', async () => {
       prismaService.material.count.mockResolvedValue(0);
       prismaService.material.findMany.mockResolvedValue([]);
