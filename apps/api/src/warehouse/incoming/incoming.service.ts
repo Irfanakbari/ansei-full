@@ -824,6 +824,12 @@ export class IncomingService {
     processId: string,
   ): Promise<void> {
     const materialIds = materials.map((m) => m.materialId);
+    if (materialIds.length === 0) {
+      throw new BadRequestException('At least one material is required');
+    }
+    if (new Set(materialIds).size !== materialIds.length) {
+      throw new BadRequestException('Duplicate material IDs are not allowed');
+    }
 
     await this.logService.addLog({
       processId,

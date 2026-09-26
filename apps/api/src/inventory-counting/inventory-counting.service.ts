@@ -2077,85 +2077,100 @@ export class InventoryCountingService {
         location: 'inventory-counting.service.ts',
       });
 
-      const results = await auditedTransaction(this.prisma, async (tx) => {
-        const inventoryCounting = await tx.stockOpname.findUnique({
+      const inventoryCountingCategory =
+        await this.prisma.stockOpname.findUnique({
           where: { Id: id },
+          select: { Category: true },
         });
-        if (!inventoryCounting) {
-          throw new NotFoundException(
-            `Inventory counting with ID ${id} not found`,
-          );
-        }
-        if (inventoryCounting.Status !== OpnameStatus.IN_PROGRESS) {
-          throw new BadRequestException(
-            `Cannot update actual stock because inventory counting status is ${inventoryCounting.Status}`,
-          );
-        }
-
-        const details = await tx.stockOpnameDetail.findMany({
-          where: { Id: { in: detailIds }, OpnameId: id },
-        });
-        if (details.length !== detailIds.length) {
-          const foundIds = new Set(details.map((detail) => detail.Id));
-          const missingId = detailIds.find(
-            (detailId) => !foundIds.has(detailId),
-          );
-          throw new NotFoundException(
-            `StockOpnameDetail with ID ${missingId} was not found for inventory counting ${id}`,
-          );
-        }
-
-        const detailById = new Map(
-          details.map((detail) => [detail.Id, detail]),
+      if (!inventoryCountingCategory) {
+        throw new NotFoundException(
+          `Inventory counting with ID ${id} not found`,
         );
-        const updatedDetails: StockOpnameDetailModel[] = [];
-        for (const item of dto.items) {
-          const detail = detailById.get(item.detailId)!;
-          const updateData: Prisma.StockOpnameDetailUpdateInput = {
-            ActualQty: item.actualQty,
-            DiffQty: item.actualQty - detail.SystemQty,
-            Notes: item.notes ?? detail.Notes,
-          };
-          if (item.actualQtyRack !== undefined) {
-            updateData.ActualQtyRack = item.actualQtyRack;
-            updateData.DiffQtyRack =
-              item.actualQtyRack - (detail.SystemQtyRack ?? 0);
+      }
+
+      const results = await withInventoryTransaction(
+        this.prisma,
+        inventoryCountingCategory.Category,
+        async (tx) => {
+          const inventoryCounting = await tx.stockOpname.findUnique({
+            where: { Id: id },
+          });
+          if (!inventoryCounting) {
+            throw new NotFoundException(
+              `Inventory counting with ID ${id} not found`,
+            );
+          }
+          if (inventoryCounting.Status !== OpnameStatus.IN_PROGRESS) {
+            throw new BadRequestException(
+              `Cannot update actual stock because inventory counting status is ${inventoryCounting.Status}`,
+            );
           }
 
-          const updated = await tx.stockOpnameDetail.update({
-            where: { Id: detail.Id },
-            data: updateData,
+          const details = await tx.stockOpnameDetail.findMany({
+            where: { Id: { in: detailIds }, OpnameId: id },
           });
-          updatedDetails.push(updated);
+          if (details.length !== detailIds.length) {
+            const foundIds = new Set(details.map((detail) => detail.Id));
+            const missingId = detailIds.find(
+              (detailId) => !foundIds.has(detailId),
+            );
+            throw new NotFoundException(
+              `StockOpnameDetail with ID ${missingId} was not found for inventory counting ${id}`,
+            );
+          }
 
-          if (
-            detail.MaterialId &&
-            detail.Location === LocationType.WAREHOUSE &&
-            item.actualQtyRack !== undefined
-          ) {
-            const rackDetail = await tx.stockOpnameDetail.findFirst({
-              where: {
-                OpnameId: id,
-                MaterialId: detail.MaterialId,
-                Location: LocationType.RACK,
-              },
+          const detailById = new Map(
+            details.map((detail) => [detail.Id, detail]),
+          );
+          const updatedDetails: StockOpnameDetailModel[] = [];
+          for (const item of dto.items) {
+            const detail = detailById.get(item.detailId)!;
+            const updateData: Prisma.StockOpnameDetailUpdateInput = {
+              ActualQty: item.actualQty,
+              DiffQty: item.actualQty - detail.SystemQty,
+              Notes: item.notes ?? detail.Notes,
+            };
+            if (item.actualQtyRack !== undefined) {
+              updateData.ActualQtyRack = item.actualQtyRack;
+              updateData.DiffQtyRack =
+                item.actualQtyRack - (detail.SystemQtyRack ?? 0);
+            }
+
+            const updated = await tx.stockOpnameDetail.update({
+              where: { Id: detail.Id },
+              data: updateData,
             });
-            if (rackDetail) {
-              await tx.stockOpnameDetail.update({
-                where: { Id: rackDetail.Id },
-                data: {
-                  ActualQty: item.actualQtyRack,
-                  ActualQtyRack: item.actualQtyRack,
-                  DiffQty: item.actualQtyRack - rackDetail.SystemQty,
-                  DiffQtyRack:
-                    item.actualQtyRack - (rackDetail.SystemQtyRack ?? 0),
+            updatedDetails.push(updated);
+
+            if (
+              detail.MaterialId &&
+              detail.Location === LocationType.WAREHOUSE &&
+              item.actualQtyRack !== undefined
+            ) {
+              const rackDetail = await tx.stockOpnameDetail.findFirst({
+                where: {
+                  OpnameId: id,
+                  MaterialId: detail.MaterialId,
+                  Location: LocationType.RACK,
                 },
               });
+              if (rackDetail) {
+                await tx.stockOpnameDetail.update({
+                  where: { Id: rackDetail.Id },
+                  data: {
+                    ActualQty: item.actualQtyRack,
+                    ActualQtyRack: item.actualQtyRack,
+                    DiffQty: item.actualQtyRack - rackDetail.SystemQty,
+                    DiffQtyRack:
+                      item.actualQtyRack - (rackDetail.SystemQtyRack ?? 0),
+                  },
+                });
+              }
             }
           }
-        }
-        return updatedDetails;
-      });
+          return updatedDetails;
+        },
+      );
 
       await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
       return {
@@ -2417,6 +2432,7 @@ export class InventoryCountingService {
                   message: `MATERIAL ${detail.MaterialId} [${detail.Location}]: ${currentQty} -> ${newQty} (diff=${actualDiff})`,
                   type: 'INFO',
                   location: 'inventory-counting.service.ts:870',
+                  client: tx,
                 });
               }
             } else if (detail.FinishGoodId) {
@@ -2461,6 +2477,7 @@ export class InventoryCountingService {
                   message: `FINISHGOOD ${detail.FinishGoodId}: ${currentQty} -> ${newQty} (diff=${actualDiff})`,
                   type: 'INFO',
                   location: 'inventory-counting.service.ts:910',
+                  client: tx,
                 });
               }
             }
@@ -2493,6 +2510,7 @@ export class InventoryCountingService {
               message: `Created ${cleanLedgerData.length} InventoryLedger entries`,
               type: 'INFO',
               location: 'inventory-counting.service.ts:952',
+              client: tx,
             });
           }
 
@@ -2501,6 +2519,7 @@ export class InventoryCountingService {
             message: `Stock adjustments completed: ${adjustedCount} items adjusted`,
             type: 'INFO',
             location: 'inventory-counting.service.ts:958',
+            client: tx,
           });
 
           // STEP 5: Update status to COMPLETED
@@ -2530,6 +2549,7 @@ export class InventoryCountingService {
             message: 'Inventory counting status updated to COMPLETED',
             type: 'INFO',
             location: 'inventory-counting.service.ts:970',
+            client: tx,
           });
         },
       );

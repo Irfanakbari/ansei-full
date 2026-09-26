@@ -122,18 +122,6 @@ export class NasUploadService {
     return `${config.protocol}://${config.host}:${config.port}/webapi`;
   }
 
-  /**
-   * Validate that a string is a valid URL
-   */
-  private isValidUrl(urlString: string): boolean {
-    try {
-      new URL(urlString);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
   // ---------------------------------------------------------------------------
   // FileStation Session helper
   // ---------------------------------------------------------------------------
@@ -222,14 +210,16 @@ export class NasUploadService {
    */
   async uploadFile(dto: NasUploadFile): Promise<string> {
     const config = this.getConfig();
+    const fileName = this.validatePathSegment(dto.fileName, 'file name');
+    const subFolder = dto.subFolder
+      ? this.validateRelativePath(dto.subFolder, 'subfolder')
+      : '';
     const sid = await this.login(dto.signal);
 
     try {
       // Path tujuan di dalam share: /AssetStorage/ProductionAttachment/production-release-id
-      const subFolder = dto.subFolder
-        ? `/${dto.subFolder.replace(/\\/g, '/')}`
-        : '';
-      const destFolderPath = `/${config.share}/${config.subfolder}${subFolder}`;
+      const nestedFolder = subFolder ? `/${subFolder}` : '';
+      const destFolderPath = `/${config.share}/${config.subfolder}${nestedFolder}`;
 
       // Buat folder rekursif jika belum ada
       await this.ensureDirectory(sid, destFolderPath, dto.signal);
@@ -245,7 +235,7 @@ export class NasUploadService {
       formData.append('overwrite', 'true');
 
       const blob = new Blob([new Uint8Array(dto.fileBuffer)]);
-      formData.append('file', blob, dto.fileName);
+      formData.append('file', blob, fileName);
 
       // _sid harus ada di query string URL, bukan hanya di form body
       const uploadUrl = `${this.baseApiUrl}/entry.cgi?_sid=${encodeURIComponent(sid)}`;
@@ -273,7 +263,7 @@ export class NasUploadService {
       }
 
       this.logger.log('File uploaded to NAS');
-      return this.buildPublicUrl(dto.subFolder ?? '', dto.fileName);
+      return this.buildPublicUrl(subFolder, fileName);
     } finally {
       await this.logout(sid);
     }
@@ -516,36 +506,96 @@ export class NasUploadService {
    */
   private publicUrlToNasPath(publicUrl: string): string | null {
     const config = this.getConfig();
-    if (!publicUrl) return null;
+    if (!publicUrl || publicUrl !== publicUrl.trim()) return null;
 
     try {
-      // Normalize URL - ensure it has proper protocol
-      let normalizedUrl = publicUrl.trim();
       if (
-        !normalizedUrl.startsWith('http://') &&
-        !normalizedUrl.startsWith('https://')
-      ) {
-        normalizedUrl = `http://${normalizedUrl}`;
+        /[^\x20-\x7e]/.test(publicUrl) ||
+        /%25/i.test(publicUrl) ||
+        /(?:^|\/)(?:\.|%2e)(?:\.|%2e)?(?:\/|$)/i.test(publicUrl)
+      )
+        return null;
+      if (/%(?:2f|5c)/i.test(publicUrl)) return null;
+
+      let pathname: string;
+      if (publicUrl.startsWith('/')) {
+        if (publicUrl.startsWith('//') || /[?#]/.test(publicUrl)) return null;
+        pathname = publicUrl;
+      } else {
+        const url = new URL(publicUrl);
+        if (
+          url.origin !== config.baseUrl.origin ||
+          url.username ||
+          url.password ||
+          url.search ||
+          url.hash
+        )
+          return null;
+        pathname = url.pathname;
       }
 
-      const url = new URL(normalizedUrl);
-      let path = url.pathname; // e.g. /ProductionAttachment/release-id/file.pdf
+      const decodedPath = decodeURIComponent(pathname);
+      if (/[^\x20-\x7e]/.test(decodedPath) || decodedPath.includes('\\'))
+        return null;
+      const segments = decodedPath.split('/').filter(Boolean);
+      if (
+        segments.length === 0 ||
+        segments.some((segment) => segment === '.' || segment === '..')
+      )
+        return null;
 
-      if (!path.startsWith('/')) {
-        path = '/' + path;
+      const managedSegments = [config.share, config.subfolder];
+      const baseSegments = config.baseUrl.pathname
+        .split('/')
+        .filter(Boolean)
+        .map((segment) => decodeURIComponent(segment));
+      const startsWith = (prefix: string[]) =>
+        prefix.every((segment, index) => segments[index] === segment);
+
+      let relativeSegments: string[];
+      if (startsWith(managedSegments)) {
+        relativeSegments = segments.slice(managedSegments.length);
+      } else if (baseSegments.length > 0 && startsWith(baseSegments)) {
+        relativeSegments = segments.slice(baseSegments.length);
+      } else {
+        return null;
       }
 
-      // Jika path tidak diawali dengan /NAS_SMB_SHARE/, tambahkan /NAS_SMB_SHARE di depannya
-      const sharePrefix = `/${config.share}/`;
-      if (!path.startsWith(sharePrefix) && path !== `/${config.share}`) {
-        path = `/${config.share}${path}`;
-      }
-
-      return path;
+      if (relativeSegments.length === 0) return null;
+      return `/${[...managedSegments, ...relativeSegments].join('/')}`;
     } catch {
       this.logger.warn('Failed to parse public URL');
       return null;
     }
+  }
+
+  private validatePathSegment(value: string, label: string): string {
+    const hasControlCharacter = [...value].some((character) => {
+      const code = character.charCodeAt(0);
+      return code < 32 || code === 127;
+    });
+    if (
+      !value ||
+      value !== value.trim() ||
+      value === '.' ||
+      value === '..' ||
+      hasControlCharacter ||
+      /[/\\]/.test(value) ||
+      /%(?:25|2e|2f|5c)/i.test(value)
+    ) {
+      throw new Error(`Invalid NAS ${label}`);
+    }
+    return value;
+  }
+
+  private validateRelativePath(value: string, label: string): string {
+    if (value.startsWith('/') || value.endsWith('/') || value.includes('\\')) {
+      throw new Error(`Invalid NAS ${label}`);
+    }
+    return value
+      .split('/')
+      .map((segment) => this.validatePathSegment(segment, label))
+      .join('/');
   }
 
   /**

@@ -3,8 +3,11 @@ import {
   IsString,
   IsArray,
   ValidateNested,
-  IsNumber,
+  ArrayMinSize,
+  IsInt,
+  IsNotEmpty,
   IsOptional,
+  Max,
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -12,11 +15,13 @@ import { Type } from 'class-transformer';
 export class CreateMaterialDeliveryNoteItemDto {
   @ApiProperty({ description: 'Material PartNumber', example: 'MAT-001' })
   @IsString()
+  @IsNotEmpty()
   materialId: string;
 
   @ApiProperty({ description: 'Requested quantity', example: 100 })
-  @IsNumber()
+  @IsInt()
   @Min(1)
+  @Max(Number.MAX_SAFE_INTEGER)
   qtyRequested: number;
 
   @ApiPropertyOptional({
@@ -71,6 +76,7 @@ export class CreateMaterialDeliveryNoteDto {
     ],
   })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateMaterialDeliveryNoteItemDto)
   items: CreateMaterialDeliveryNoteItemDto[];

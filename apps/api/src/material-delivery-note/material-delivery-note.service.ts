@@ -98,7 +98,13 @@ export class MaterialDeliveryNoteService {
       // Inventory Counting blocks the subsequent picking and shipping activities instead.
 
       // Validate materials exist and are active
-      const materialIds = dto.items.map((i) => i.materialId);
+      const materialIds = dto.items.map((item) => item.materialId.trim());
+      if (materialIds.some((materialId) => materialId.length === 0)) {
+        throw new BadRequestException('Material IDs must not be empty');
+      }
+      if (new Set(materialIds).size !== materialIds.length) {
+        throw new BadRequestException('Duplicate material IDs are not allowed');
+      }
       const materials = await this.prisma.material.findMany({
         where: { PartNumber: { in: materialIds } },
         select: {
@@ -438,128 +444,147 @@ export class MaterialDeliveryNoteService {
         createdBy: pickedBy,
       });
 
-      const dn = await this.prisma.materialDeliveryNote.findUnique({
-        where: { Id: id },
-        include: { Details: true },
-      });
-
-      if (!dn) {
-        throw new NotFoundException(`Delivery note not found: ${id}`);
+      const materialIds = dto.items.map((item) => item.materialId.trim());
+      if (materialIds.some((materialId) => materialId.length === 0)) {
+        throw new BadRequestException('Material IDs must not be empty');
+      }
+      if (new Set(materialIds).size !== materialIds.length) {
+        throw new BadRequestException('Duplicate material IDs are not allowed');
       }
 
-      // POKAYOKE: Picking validates warehouse availability and must pause during counting.
-      await assertNoActiveInventoryCounting(
+      const processId = logProcess.ProcessId;
+      const updatedDetails = await withInventoryTransaction(
         this.prisma,
         ItemCategory.MATERIAL,
-        'Pick Material Delivery Note',
+        async (tx) => {
+          const dn = await tx.materialDeliveryNote.findUnique({
+            where: { Id: id },
+            include: { Details: true },
+          });
+
+          if (!dn) {
+            throw new NotFoundException(`Delivery note not found: ${id}`);
+          }
+
+          // POKAYOKE: Picking validates warehouse availability and must pause during counting.
+          await assertNoActiveInventoryCounting(
+            tx,
+            ItemCategory.MATERIAL,
+            'Pick Material Delivery Note',
+          );
+
+          // POKAYOKE: Check status is DRAFT
+          if (dn.Status !== DeliveryNoteStatus.DRAFT) {
+            await this.logService.addLog({
+              processId,
+              message: `Cannot pick - DN status is ${dn.Status}, must be DRAFT`,
+              type: 'ERROR',
+              location: 'material-delivery-note.service.ts:313',
+            });
+            await this.logService.completeProcess(processId, 'FAILED');
+            throw new BadRequestException('Can only pick DRAFT delivery notes');
+          }
+
+          await this.logService.addLog({
+            processId,
+            message: `Starting pick for DN: ${dn.DeliveryNoteNum}, ${dto.items.length} items`,
+            type: 'INFO',
+            location: 'material-delivery-note.service.ts:320',
+          });
+
+          // Validate and update picking
+          const updatedDetails: string[] = [];
+
+          for (const item of dto.items) {
+            // Find existing detail
+            const detail = dn.Details.find(
+              (d) => d.MaterialId === item.materialId,
+            );
+            if (!detail) {
+              await this.logService.addLog({
+                processId,
+                message: `Material ${item.materialId} not found in DN`,
+                type: 'ERROR',
+                location: 'material-delivery-note.service.ts:333',
+              });
+              await this.logService.completeProcess(processId, 'FAILED');
+              throw new BadRequestException(
+                `Material ${item.materialId} not found in delivery note`,
+              );
+            }
+
+            // POKAYOKE: QtyPicking tidak boleh lebih dari QtyRequested
+            if (item.qtyPicking > detail.QtyRequested) {
+              await this.logService.addLog({
+                processId,
+                message: `POKAYOKE FAIL: QtyPicking (${item.qtyPicking}) > QtyRequested (${detail.QtyRequested}) for ${item.materialId}`,
+                type: 'ERROR',
+                location: 'material-delivery-note.service.ts:343',
+              });
+              await this.logService.completeProcess(processId, 'FAILED');
+              throw new BadRequestException(
+                `Qty picking tidak boleh lebih dari qty requested untuk ${item.materialId}`,
+              );
+            }
+
+            // POKAYOKE: QtyPicking tidak boleh lebih dari stock warehouse
+            const material = await tx.material.findUnique({
+              where: { PartNumber: item.materialId },
+              select: { QtyWarehouse: true, IsActive: true, PartName: true },
+            });
+
+            if (!material) {
+              throw new NotFoundException(
+                `Material ${item.materialId} not found`,
+              );
+            }
+
+            // POKAYOKE: Material tidak boleh discontinue
+            if (!material.IsActive) {
+              await this.logService.addLog({
+                processId,
+                message: `POKAYOKE FAIL: Material ${item.materialId} is discontinued (IsActive=false)`,
+                type: 'ERROR',
+                location: 'material-delivery-note.service.ts:365',
+              });
+              await this.logService.completeProcess(processId, 'FAILED');
+              throw new BadRequestException(
+                `Material ${item.materialId} (${material.PartName}) is discontinued and cannot be used in transactions. Please reactivate the material first.`,
+              );
+            }
+
+            if (item.qtyPicking > material.QtyWarehouse) {
+              await this.logService.addLog({
+                processId,
+                message: `POKAYOKE FAIL: QtyPicking (${item.qtyPicking}) > Stock (${material.QtyWarehouse}) for ${item.materialId}`,
+                type: 'ERROR',
+                location: 'material-delivery-note.service.ts:378',
+              });
+              await this.logService.completeProcess(processId, 'FAILED');
+              throw new BadRequestException(
+                `Stock tidak cukup untuk picking material ${item.materialId}. Available: ${material.QtyWarehouse}`,
+              );
+            }
+
+            // Update QtyPicking
+            await tx.materialDeliveryNoteDetail.update({
+              where: { Id: detail.Id },
+              data: { QtyPicking: item.qtyPicking },
+            });
+
+            updatedDetails.push(`${item.materialId}: ${item.qtyPicking}`);
+
+            await this.logService.addLog({
+              processId,
+              message: `Picked ${item.materialId}: ${item.qtyPicking}/${detail.QtyRequested}`,
+              type: 'INFO',
+              location: 'material-delivery-note.service.ts:377',
+            });
+          }
+
+          return updatedDetails;
+        },
       );
-
-      // POKAYOKE: Check status is DRAFT
-      if (dn.Status !== DeliveryNoteStatus.DRAFT) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Cannot pick - DN status is ${dn.Status}, must be DRAFT`,
-          type: 'ERROR',
-          location: 'material-delivery-note.service.ts:313',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-        throw new BadRequestException('Can only pick DRAFT delivery notes');
-      }
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Starting pick for DN: ${dn.DeliveryNoteNum}, ${dto.items.length} items`,
-        type: 'INFO',
-        location: 'material-delivery-note.service.ts:320',
-      });
-
-      // Validate and update picking
-      const updatedDetails: string[] = [];
-
-      for (const item of dto.items) {
-        // Find existing detail
-        const detail = dn.Details.find((d) => d.MaterialId === item.materialId);
-        if (!detail) {
-          await this.logService.addLog({
-            processId: logProcess.ProcessId,
-            message: `Material ${item.materialId} not found in DN`,
-            type: 'ERROR',
-            location: 'material-delivery-note.service.ts:333',
-          });
-          await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-          throw new BadRequestException(
-            `Material ${item.materialId} not found in delivery note`,
-          );
-        }
-
-        // POKAYOKE: QtyPicking tidak boleh lebih dari QtyRequested
-        if (item.qtyPicking > detail.QtyRequested) {
-          await this.logService.addLog({
-            processId: logProcess.ProcessId,
-            message: `POKAYOKE FAIL: QtyPicking (${item.qtyPicking}) > QtyRequested (${detail.QtyRequested}) for ${item.materialId}`,
-            type: 'ERROR',
-            location: 'material-delivery-note.service.ts:343',
-          });
-          await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-          throw new BadRequestException(
-            `Qty picking tidak boleh lebih dari qty requested untuk ${item.materialId}`,
-          );
-        }
-
-        // POKAYOKE: QtyPicking tidak boleh lebih dari stock warehouse
-        const material = await this.prisma.material.findUnique({
-          where: { PartNumber: item.materialId },
-          select: { QtyWarehouse: true, IsActive: true, PartName: true },
-        });
-
-        if (!material) {
-          throw new NotFoundException(`Material ${item.materialId} not found`);
-        }
-
-        // POKAYOKE: Material tidak boleh discontinue
-        if (!material.IsActive) {
-          await this.logService.addLog({
-            processId: logProcess.ProcessId,
-            message: `POKAYOKE FAIL: Material ${item.materialId} is discontinued (IsActive=false)`,
-            type: 'ERROR',
-            location: 'material-delivery-note.service.ts:365',
-          });
-          await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-          throw new BadRequestException(
-            `Material ${item.materialId} (${material.PartName}) is discontinued and cannot be used in transactions. Please reactivate the material first.`,
-          );
-        }
-
-        if (item.qtyPicking > material.QtyWarehouse) {
-          await this.logService.addLog({
-            processId: logProcess.ProcessId,
-            message: `POKAYOKE FAIL: QtyPicking (${item.qtyPicking}) > Stock (${material.QtyWarehouse}) for ${item.materialId}`,
-            type: 'ERROR',
-            location: 'material-delivery-note.service.ts:378',
-          });
-          await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-          throw new BadRequestException(
-            `Stock tidak cukup untuk picking material ${item.materialId}. Available: ${material.QtyWarehouse}`,
-          );
-        }
-
-        // Update QtyPicking
-        await auditedWrite(this.prisma, (tx) =>
-          tx.materialDeliveryNoteDetail.update({
-            where: { Id: detail.Id },
-            data: { QtyPicking: item.qtyPicking },
-          }),
-        );
-
-        updatedDetails.push(`${item.materialId}: ${item.qtyPicking}`);
-
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Picked ${item.materialId}: ${item.qtyPicking}/${detail.QtyRequested}`,
-          type: 'INFO',
-          location: 'material-delivery-note.service.ts:377',
-        });
-      }
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

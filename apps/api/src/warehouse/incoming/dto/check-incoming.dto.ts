@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsArray, ValidateNested, IsNotEmpty } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsInt,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -7,15 +14,18 @@ import { Type } from 'class-transformer';
  */
 export class CheckIncomingMaterialDto {
   @ApiProperty({ description: 'ID incoming material', example: 1 })
-  @IsNumber()
+  @IsInt()
+  @Min(1)
+  @Max(Number.MAX_SAFE_INTEGER)
   incomingMaterialId: number;
 
   @ApiProperty({
     description: 'Qty yang dicek/real (QtyChecked)',
     example: 100,
   })
-  @IsNumber()
-  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  @Max(Number.MAX_SAFE_INTEGER)
   qtyChecked: number;
 }
 
@@ -29,6 +39,7 @@ export class CheckIncomingDto {
     type: [CheckIncomingMaterialDto],
   })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CheckIncomingMaterialDto)
   materials: CheckIncomingMaterialDto[];

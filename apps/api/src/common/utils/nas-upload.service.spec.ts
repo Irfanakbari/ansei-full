@@ -124,4 +124,91 @@ describe('NasUploadService', () => {
     await download.response.body?.cancel(new Error('client disconnected'));
     expect(fetchMock.mock.calls[2][0]).toContain('method=logout');
   });
+
+  it.each([
+    'https://evil.example/uploads/release/file.pdf',
+    'https://files.example.test/uploads/../secret.pdf',
+    'https://files.example.test/uploads/%2e%2e/secret.pdf',
+    'https://files.example.test/uploads/release%2ffile.pdf',
+    'https://files.example.test/uploads/release%252ffile.pdf',
+    'https://files.example.test/uploads/release/file.pdf?download=1',
+    '/share/uploads',
+    '/uploads',
+    '/other/file.pdf',
+    '/uploads/release/file\u0000.pdf',
+  ])(
+    'rejects an untrusted download path without accessing NAS: %s',
+    async (path) => {
+      const fetchMock = jest.spyOn(global, 'fetch');
+
+      await expect(new NasUploadService().downloadFile(path)).rejects.toThrow(
+        'Cannot resolve NAS path from URL',
+      );
+      expect(fetchMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    'https://evil.example/uploads/file.pdf',
+    '/uploads/../file.pdf',
+    '/uploads/release%5cfile.pdf',
+  ])('fails closed for invalid existence paths: %s', async (path) => {
+    const fetchMock = jest.spyOn(global, 'fetch');
+
+    await expect(new NasUploadService().fileExists(path)).resolves.toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    'https://evil.example/uploads/file.pdf',
+    '/share/uploads',
+    '/uploads/%252e%252e/file.pdf',
+  ])('fails closed for invalid delete paths: %s', async (path) => {
+    const fetchMock = jest.spyOn(global, 'fetch');
+
+    await expect(
+      new NasUploadService().deleteFile(path),
+    ).resolves.toBeUndefined();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [
+      'https://files.example.test/uploads/release/file.pdf',
+      '/share/uploads/release/file.pdf',
+    ],
+    ['/uploads/release/file.pdf', '/share/uploads/release/file.pdf'],
+    ['/share/uploads/release/file.pdf', '/share/uploads/release/file.pdf'],
+  ])('accepts a managed file path: %s', async (path, expectedNasPath) => {
+    const fetchMock = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(loginResponse())
+      .mockResolvedValueOnce(successResponse())
+      .mockResolvedValueOnce(successResponse());
+
+    await expect(new NasUploadService().fileExists(path)).resolves.toBe(true);
+    const requestUrl = new URL(fetchMock.mock.calls[1][0] as string);
+    expect(JSON.parse(requestUrl.searchParams.get('path') as string)).toEqual([
+      expectedNasPath,
+    ]);
+  });
+
+  it.each([
+    { fileName: '../file.pdf' },
+    { fileName: 'folder/file.pdf' },
+    { fileName: 'file%252epdf' },
+    { fileName: 'file.pdf', subFolder: '../release' },
+    { fileName: 'file.pdf', subFolder: '/release' },
+    { fileName: 'file.pdf', subFolder: 'release\\nested' },
+  ])('rejects invalid upload paths before accessing NAS: %o', async (input) => {
+    const fetchMock = jest.spyOn(global, 'fetch');
+
+    await expect(
+      new NasUploadService().uploadFile({
+        fileBuffer: Buffer.from('%PDF-1.7'),
+        ...input,
+      }),
+    ).rejects.toThrow('Invalid NAS');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });

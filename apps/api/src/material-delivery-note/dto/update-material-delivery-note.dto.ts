@@ -2,8 +2,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsOptional,
-  IsNumber,
+  ArrayMinSize,
+  IsInt,
+  IsNotEmpty,
   IsArray,
+  Max,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -29,10 +33,13 @@ export class UpdateMaterialDeliveryNoteDto {
 export class PickItemDto {
   @ApiProperty({ description: 'Material PartNumber', example: 'MAT-001' })
   @IsString()
+  @IsNotEmpty()
   materialId: string;
 
   @ApiProperty({ description: 'Picked quantity', example: 100 })
-  @IsNumber()
+  @IsInt()
+  @Min(0)
+  @Max(Number.MAX_SAFE_INTEGER)
   qtyPicking: number;
 }
 
@@ -46,6 +53,7 @@ export class PickMaterialDto {
     ],
   })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => PickItemDto)
   items: PickItemDto[];
