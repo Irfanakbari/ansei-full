@@ -4,7 +4,11 @@ import { MaterialDeliveryNoteService } from './material-delivery-note.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
 import { SmtpService } from '../common/utils/smtp.service';
-import { DeliveryNoteStatus } from '../generated/prisma/enums';
+import {
+  DeliveryNoteStatus,
+  LocationType,
+  TransactionType,
+} from '../generated/prisma/enums';
 import { OutboxService } from '../common/outbox/outbox.service';
 
 describe('MaterialDeliveryNoteService', () => {
@@ -399,21 +403,31 @@ describe('MaterialDeliveryNoteService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should throw BadRequestException when stock insufficient', async () => {
+    it('should throw BadRequestException when rack stock is insufficient', async () => {
+      const deliveryNoteWithLargerRequest = {
+        ...mockDeliveryNote,
+        Details: [
+          {
+            ...mockDeliveryNote.Details[0],
+            QtyRequested: 200,
+          },
+        ],
+      };
       const pickDto = {
-        items: [{ materialId: 'MAT-001', qtyPicking: 1000 }], // More than stock
+        items: [{ materialId: 'MAT-001', qtyPicking: 150 }],
       };
       prismaService.materialDeliveryNote.findUnique.mockResolvedValue(
-        mockDeliveryNote,
+        deliveryNoteWithLargerRequest,
       );
       prismaService.material.findUnique.mockResolvedValue({
         ...mockMaterial,
         QtyWarehouse: 500,
+        QtyRack: 100,
       });
 
       await expect(
         service.pick('uuid-1234', pickDto, 'operator'),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow('Stock rack tidak cukup');
     });
   });
 
@@ -457,6 +471,7 @@ describe('MaterialDeliveryNoteService', () => {
       prismaService.material.findUnique.mockResolvedValue({
         ...mockMaterial,
         QtyWarehouse: 500,
+        QtyRack: 100,
       });
       prismaService.material.update.mockResolvedValue({});
       prismaService.inventoryLedger.createMany.mockResolvedValue({ count: 1 });
@@ -466,8 +481,23 @@ describe('MaterialDeliveryNoteService', () => {
 
       const result = await service.ship('uuid-1234', 'admin');
 
-      expect(prismaService.material.update).toHaveBeenCalled();
-      expect(prismaService.inventoryLedger.createMany).toHaveBeenCalled();
+      expect(prismaService.material.update).toHaveBeenCalledWith({
+        where: { PartNumber: 'MAT-001' },
+        data: { QtyRack: 0, UpdatedBy: 'admin' },
+      });
+      expect(prismaService.inventoryLedger.createMany).toHaveBeenCalledWith({
+        data: [
+          expect.objectContaining({
+            MaterialId: 'MAT-001',
+            Location: LocationType.RACK,
+            TransactionType: TransactionType.MATERIAL_OUT_DELIVERY,
+            BalanceBefore: 100,
+            QtyIn: 0,
+            QtyOut: 100,
+            BalanceAfter: 0,
+          }),
+        ],
+      });
     });
 
     it('should throw BadRequestException when not fully picked', async () => {

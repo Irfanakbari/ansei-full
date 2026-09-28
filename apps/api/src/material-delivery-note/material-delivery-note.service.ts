@@ -110,7 +110,7 @@ export class MaterialDeliveryNoteService {
         select: {
           PartNumber: true,
           PartName: true,
-          QtyWarehouse: true,
+          QtyRack: true,
           IsActive: true,
         },
       });
@@ -466,7 +466,7 @@ export class MaterialDeliveryNoteService {
             throw new NotFoundException(`Delivery note not found: ${id}`);
           }
 
-          // POKAYOKE: Picking validates warehouse availability and must pause during counting.
+          // POKAYOKE: Picking validates rack availability and must pause during counting.
           await assertNoActiveInventoryCounting(
             tx,
             ItemCategory.MATERIAL,
@@ -527,10 +527,10 @@ export class MaterialDeliveryNoteService {
               );
             }
 
-            // POKAYOKE: QtyPicking tidak boleh lebih dari stock warehouse
+            // POKAYOKE: QtyPicking tidak boleh lebih dari stock rack
             const material = await tx.material.findUnique({
               where: { PartNumber: item.materialId },
-              select: { QtyWarehouse: true, IsActive: true, PartName: true },
+              select: { QtyRack: true, IsActive: true, PartName: true },
             });
 
             if (!material) {
@@ -553,16 +553,16 @@ export class MaterialDeliveryNoteService {
               );
             }
 
-            if (item.qtyPicking > material.QtyWarehouse) {
+            if (item.qtyPicking > material.QtyRack) {
               await this.logService.addLog({
                 processId,
-                message: `POKAYOKE FAIL: QtyPicking (${item.qtyPicking}) > Stock (${material.QtyWarehouse}) for ${item.materialId}`,
+                message: `POKAYOKE FAIL: QtyPicking (${item.qtyPicking}) > Rack Stock (${material.QtyRack}) for ${item.materialId}`,
                 type: 'ERROR',
                 location: 'material-delivery-note.service.ts:378',
               });
               await this.logService.completeProcess(processId, 'FAILED');
               throw new BadRequestException(
-                `Stock tidak cukup untuk picking material ${item.materialId}. Available: ${material.QtyWarehouse}`,
+                `Stock rack tidak cukup untuk picking material ${item.materialId}. Available: ${material.QtyRack}`,
               );
             }
 
@@ -698,7 +698,7 @@ export class MaterialDeliveryNoteService {
       for (const detail of dn.Details) {
         const material = await this.prisma.material.findUnique({
           where: { PartNumber: detail.MaterialId },
-          select: { QtyWarehouse: true, PartName: true },
+          select: { QtyRack: true, PartName: true },
         });
 
         if (!material) {
@@ -707,22 +707,22 @@ export class MaterialDeliveryNoteService {
           );
         }
 
-        if (material.QtyWarehouse < detail.QtyPicking) {
+        if (material.QtyRack < detail.QtyPicking) {
           await this.logService.addLog({
             processId: logProcess.ProcessId,
-            message: `POKAYOKE FAIL: Insufficient stock for ${detail.MaterialId}. Needed: ${detail.QtyPicking}, Available: ${material.QtyWarehouse}`,
+            message: `POKAYOKE FAIL: Insufficient rack stock for ${detail.MaterialId}. Needed: ${detail.QtyPicking}, Available: ${material.QtyRack}`,
             type: 'ERROR',
             location: 'material-delivery-note.service.ts:472',
           });
           await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
           throw new BadRequestException(
-            `Stock tidak cukup untuk ${detail.MaterialId} (${material.PartName}). Needed: ${detail.QtyPicking}, Available: ${material.QtyWarehouse}`,
+            `Stock rack tidak cukup untuk ${detail.MaterialId} (${material.PartName}). Needed: ${detail.QtyPicking}, Available: ${material.QtyRack}`,
           );
         }
 
         await this.logService.addLog({
           processId: logProcess.ProcessId,
-          message: `Stock OK: ${detail.MaterialId} - ${material.QtyWarehouse} >= ${detail.QtyPicking}`,
+          message: `Rack stock OK: ${detail.MaterialId} - ${material.QtyRack} >= ${detail.QtyPicking}`,
           type: 'INFO',
           location: 'material-delivery-note.service.ts:480',
         });
@@ -766,17 +766,17 @@ export class MaterialDeliveryNoteService {
             // Get current stock
             const material = await tx.material.findUnique({
               where: { PartNumber: detail.MaterialId },
-              select: { QtyWarehouse: true },
+              select: { QtyRack: true },
             });
 
             if (!material) continue;
 
-            const balanceBefore = material.QtyWarehouse;
+            const balanceBefore = material.QtyRack;
             const qtyOut = detail.QtyPicking;
             const balanceAfter = balanceBefore - qtyOut;
             if (balanceAfter < 0) {
               throw new BadRequestException(
-                `Insufficient warehouse stock for ${detail.MaterialId}. Available: ${balanceBefore}, Required: ${qtyOut}`,
+                `Insufficient rack stock for ${detail.MaterialId}. Available: ${balanceBefore}, Required: ${qtyOut}`,
               );
             }
 
@@ -792,14 +792,14 @@ export class MaterialDeliveryNoteService {
             // Cut stock
             await tx.material.update({
               where: { PartNumber: detail.MaterialId },
-              data: { QtyWarehouse: balanceAfter, UpdatedBy: shippedBy },
+              data: { QtyRack: balanceAfter, UpdatedBy: shippedBy },
             });
 
             // Create ledger entry
             ledgerEntries.push({
               ItemCategory: ItemCategory.MATERIAL,
               MaterialId: detail.MaterialId,
-              Location: LocationType.WAREHOUSE,
+              Location: LocationType.RACK,
               TransactionType: TransactionType.MATERIAL_OUT_DELIVERY,
               ReferenceDoc: currentDn.DeliveryNoteNum,
               BalanceBefore: balanceBefore,
