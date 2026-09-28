@@ -296,6 +296,25 @@ suite(
         ).rejects.toMatchObject({ status: 409 });
     });
     it('keeps printer PROCESSING after enqueue and publishes a tracked job', async () => {
+      const agent = await db.printAgent.create({
+        data: {
+          Name: 'Phase 3 print agent',
+          CreatedBy: 'TEST',
+          UpdatedBy: 'TEST',
+        },
+      });
+      const profile = await db.profilePrinter.create({
+        data: {
+          AgentId: agent.Id,
+          ExternalId: `phase3-${randomUUID()}`,
+          Name: 'Phase 3 default profile',
+          DocumentType: 'PART_TAG_ANSEI',
+          IsDefault: true,
+          Revision: 1,
+          ProfileSnapshot: { printerName: 'Phase 3 test printer' },
+          SyncedAt: new Date(),
+        },
+      });
       const event = await create({ Status: 'QUEUED', Attempts: 1 });
       const processor = new OutboxProcessor(
         db,
@@ -318,6 +337,12 @@ suite(
       });
       expect(job?.OutboxEventId).toBe(event.Id);
       expect(job?.Status).toBe('QUEUED');
+      if (job) {
+        await db.printJobEvent.deleteMany({ where: { JobId: job.Id } });
+        await db.printJob.delete({ where: { Id: job.Id } });
+      }
+      await db.profilePrinter.delete({ where: { Id: profile.Id } });
+      await db.printAgent.delete({ where: { Id: agent.Id } });
     });
     it('recovers a queued job lost from Redis without losing database evidence', async () => {
       const event = await create({
