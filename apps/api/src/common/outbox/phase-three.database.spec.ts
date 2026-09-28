@@ -25,7 +25,6 @@ suite(
     let state: OutboxStateService;
     let service: OutboxService;
     let queue: Queue;
-    let printer: Queue;
     const connection = {
       host: '127.0.0.1',
       port: 6385,
@@ -68,8 +67,7 @@ suite(
       await db.$connect();
       state = new OutboxStateService(db, new LogProcessService(db));
       queue = new Queue(`phase3-outbox-${randomUUID()}`, { connection });
-      printer = new Queue(`phase3-printer-${randomUUID()}`, { connection });
-      service = new OutboxService(db, state, queue, printer);
+      service = new OutboxService(db, state, queue);
     });
     afterEach(async () => {
       await db.outboxEvent.updateMany({
@@ -79,9 +77,7 @@ suite(
     });
     afterAll(async () => {
       await queue.obliterate({ force: true });
-      await printer.obliterate({ force: true });
       await queue.close();
-      await printer.close();
       await db.$disconnect();
     });
     it('allows one dispatcher claim and an immediately running consumer sees QUEUED', async () => {
@@ -103,8 +99,8 @@ suite(
       });
       try {
         await Promise.all([
-          new OutboxDispatcher(db, queue, state, printer).dispatch(),
-          new OutboxDispatcher(db, queue, state, printer).dispatch(),
+          new OutboxDispatcher(db, queue, state).dispatch(),
+          new OutboxDispatcher(db, queue, state).dispatch(),
         ]);
         await completed;
         expect(observed).toBe('QUEUED');
@@ -174,8 +170,8 @@ suite(
         Attempts: 1,
         LastErrorCode: UNCERTAIN,
       });
-      const job = await printer.add(
-        'printPartTagAnsei',
+      const job = await queue.add(
+        'dispatchOutboxEvent',
         {},
         { jobId: `${event.Id}-1` },
       );
@@ -221,7 +217,7 @@ suite(
         LastErrorCode: SENDING,
         UpdatedAt: new Date(Date.now() - 700000),
       });
-      await new OutboxDispatcher(db, queue, state, printer).dispatch();
+      await new OutboxDispatcher(db, queue, state).dispatch();
       const current = await db.outboxEvent.findUniqueOrThrow({
         where: { Id: event.Id },
       });
@@ -305,7 +301,6 @@ suite(
         db,
         {} as never,
         {} as never,
-        printer,
         state,
       );
       await processor.process({
@@ -318,10 +313,11 @@ suite(
       expect(row.Status).toBe('PROCESSING');
       expect(row.LastErrorCode).toBe(PRINT_READY);
       expect(row.SucceededAt).toBeNull();
-      const job = await printer.getJob(`${event.Id}-1`);
-      expect(job?.data.outboxEventId).toBe(event.Id);
-      expect(job?.opts.attempts).toBe(1);
-      await job?.remove();
+      const job = await db.printJob.findUnique({
+        where: { OutboxEventId: event.Id },
+      });
+      expect(job?.OutboxEventId).toBe(event.Id);
+      expect(job?.Status).toBe('QUEUED');
     });
     it('recovers a queued job lost from Redis without losing database evidence', async () => {
       const event = await create({
@@ -329,7 +325,7 @@ suite(
         Attempts: 1,
         UpdatedAt: new Date(Date.now() - 700000),
       });
-      await new OutboxDispatcher(db, queue, state, printer).dispatch();
+      await new OutboxDispatcher(db, queue, state).dispatch();
       expect(
         (await db.outboxEvent.findUniqueOrThrow({ where: { Id: event.Id } }))
           .Attempts,

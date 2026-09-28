@@ -13,12 +13,7 @@ describe('OutboxService', () => {
       },
     };
     const state = { changeInTransaction: jest.fn(), record: jest.fn() };
-    const service = new OutboxService(
-      {} as never,
-      state as never,
-      {} as never,
-      {} as never,
-    );
+    const service = new OutboxService({} as never, state as never, {} as never);
     const input = {
       idempotencyKey: 'key',
       type: 'DELIVERY_NOTE_EMAIL' as const,
@@ -45,12 +40,7 @@ describe('OutboxService', () => {
     );
   });
   it('rejects legacy blind retry instead of resetting the attempt history', async () => {
-    const service = new OutboxService(
-      {} as never,
-      {} as never,
-      {} as never,
-      {} as never,
-    );
+    const service = new OutboxService({} as never, {} as never, {} as never);
     await expect(
       service.retryLatest('MATERIAL_DELIVERY_NOTE', 'dn'),
     ).rejects.toMatchObject({ status: 409 });

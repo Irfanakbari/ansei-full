@@ -113,6 +113,74 @@ export const PartType = {
 export type PartType = (typeof PartType)[keyof typeof PartType]
 
 
+export const PrintDocumentType = {
+  PART_TAG_ANSEI: 'PART_TAG_ANSEI'
+} as const
+
+export type PrintDocumentType = (typeof PrintDocumentType)[keyof typeof PrintDocumentType]
+
+
+export const PrintAgentStatus = {
+  ACTIVE: 'ACTIVE',
+  DISABLED: 'DISABLED'
+} as const
+
+export type PrintAgentStatus = (typeof PrintAgentStatus)[keyof typeof PrintAgentStatus]
+
+
+export const PrintEnrollmentStatus = {
+  PENDING: 'PENDING',
+  CONSUMED: 'CONSUMED',
+  REVOKED: 'REVOKED',
+  EXPIRED: 'EXPIRED'
+} as const
+
+export type PrintEnrollmentStatus = (typeof PrintEnrollmentStatus)[keyof typeof PrintEnrollmentStatus]
+
+
+export const PrintCredentialStatus = {
+  ACTIVE: 'ACTIVE',
+  REVOKED: 'REVOKED'
+} as const
+
+export type PrintCredentialStatus = (typeof PrintCredentialStatus)[keyof typeof PrintCredentialStatus]
+
+
+export const ProfilePrinterStatus = {
+  READY: 'READY',
+  DISABLED: 'DISABLED'
+} as const
+
+export type ProfilePrinterStatus = (typeof ProfilePrinterStatus)[keyof typeof ProfilePrinterStatus]
+
+
+export const PrintJobStatus = {
+  QUEUED: 'QUEUED',
+  LEASED: 'LEASED',
+  DOWNLOADED: 'DOWNLOADED',
+  SPOOLING: 'SPOOLING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  UNCERTAIN: 'UNCERTAIN'
+} as const
+
+export type PrintJobStatus = (typeof PrintJobStatus)[keyof typeof PrintJobStatus]
+
+
+export const PrintJobEventType = {
+  CREATED: 'CREATED',
+  LEASED: 'LEASED',
+  RENEWED: 'RENEWED',
+  DOWNLOADED: 'DOWNLOADED',
+  SPOOLING: 'SPOOLING',
+  SUCCEEDED: 'SUCCEEDED',
+  FAILED: 'FAILED',
+  LEASE_EXPIRED: 'LEASE_EXPIRED'
+} as const
+
+export type PrintJobEventType = (typeof PrintJobEventType)[keyof typeof PrintJobEventType]
+
+
 export const ProductionStatus = {
   DRAFT: 'DRAFT',
   RELEASED: 'RELEASED',

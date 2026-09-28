@@ -12,7 +12,7 @@ import { LogProcessService } from '../log-process/log-process.service';
 
 @Module({
   imports: [
-    BullModule.registerQueue({ name: OUTBOX_QUEUE }, { name: 'printer_queue' }),
+    BullModule.registerQueue({ name: OUTBOX_QUEUE }),
     forwardRef(() => MaterialDeliveryNoteModule),
   ],
   controllers: [OutboxController],

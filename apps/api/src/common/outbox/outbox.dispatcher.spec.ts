@@ -10,6 +10,7 @@ describe('OutboxDispatcher', () => {
           .mockResolvedValueOnce(active)
           .mockResolvedValueOnce(pending),
       },
+      printJob: { findUnique: jest.fn().mockResolvedValue(null) },
     };
     const queue = {
       add: jest.fn().mockResolvedValue({}),
@@ -32,7 +33,6 @@ describe('OutboxDispatcher', () => {
         db as never,
         queue as never,
         state as never,
-        queue as never,
       ),
     };
   };
@@ -105,5 +105,39 @@ describe('OutboxDispatcher', () => {
     });
     await dispatcher.dispatch();
     expect(state.change).not.toHaveBeenCalled();
+  });
+  it('leaves print-ready processing events to their durable print job', async () => {
+    const { dispatcher, db, state, queue } = fixture([
+      {
+        ...event,
+        Status: 'PROCESSING',
+        Attempts: 1,
+        LastErrorCode: 'OUTBOX_PRINT_READY',
+      },
+    ]);
+    db.printJob.findUnique.mockResolvedValue({ Id: 'print-job-1' });
+    await dispatcher.dispatch();
+    expect(db.printJob.findUnique).toHaveBeenCalledWith({
+      where: { OutboxEventId: event.Id },
+      select: { Id: true },
+    });
+    expect(queue.getJob).not.toHaveBeenCalled();
+    expect(state.change).not.toHaveBeenCalled();
+  });
+  it('safely recovers print-ready processing events without a print job', async () => {
+    const { dispatcher, state } = fixture([
+      {
+        ...event,
+        Status: 'PROCESSING',
+        Attempts: 1,
+        LastErrorCode: 'OUTBOX_PRINT_READY',
+      },
+    ]);
+    await dispatcher.dispatch();
+    expect(state.change).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ Status: 'FAILED', LastErrorCode: SAFE_RETRY }),
+      'RECOVER',
+    );
   });
 });

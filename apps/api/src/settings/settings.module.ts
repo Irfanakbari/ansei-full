@@ -1,20 +1,20 @@
 import { Module } from '@nestjs/common';
 import { DashboardSettingModule } from './dashboard-setting/dashboard-setting.module';
 import { EmailNotificationModule } from './email-notification/email-notification.module';
-import { PrinterSettingModule } from './printer-setting/printer-setting.module';
+import { PrintAgentModule } from './print-agent/print-agent.module';
 import { DisplayConfigModule } from './display-config/display-config.module';
 
 @Module({
   imports: [
     DashboardSettingModule,
     EmailNotificationModule,
-    PrinterSettingModule,
+    PrintAgentModule,
     DisplayConfigModule,
   ],
   exports: [
     DashboardSettingModule,
     EmailNotificationModule,
-    PrinterSettingModule,
+    PrintAgentModule,
     DisplayConfigModule,
   ],
 })

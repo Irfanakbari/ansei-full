@@ -49,8 +49,19 @@ describe('OutboxProcessor', () => {
               receivingArea: 'test',
             },
     };
+    const printJob = { Id: 'print-job' };
     const db = {
       outboxEvent: { findUnique: jest.fn().mockResolvedValue(event) },
+      profilePrinter: {
+        findFirst: jest.fn().mockResolvedValue({
+          Id: 'profile',
+          AgentId: 'agent',
+          ProfileSnapshot: { printer: 'fixture' },
+        }),
+      },
+      printJob: { create: jest.fn().mockResolvedValue(printJob) },
+      printJobEvent: { create: jest.fn() },
+      $transaction: jest.fn((callback) => callback(db)),
       materialDeliveryNote: {
         findUniqueOrThrow: jest.fn().mockResolvedValue(dn),
       },
@@ -83,7 +94,6 @@ describe('OutboxProcessor', () => {
         db as never,
         smtp as never,
         notes as never,
-        queue as never,
         state as never,
       ),
       job: {
@@ -92,14 +102,21 @@ describe('OutboxProcessor', () => {
       },
     };
   }
-  it('does not report printer success just because the downstream queue accepted the job', async () => {
+  it('creates an immutable agent print job without completing the outbox event', async () => {
     const f = fixture('PRINT_PART_TAG_ANSEI');
     await f.processor.process(f.job as never);
-    expect(f.queue.add).toHaveBeenCalledWith(
-      'printPartTagAnsei',
-      expect.objectContaining({ outboxEventId: 'event', outboxAttempt: 1 }),
-      expect.objectContaining({ attempts: 1 }),
-    );
+    expect(f.db.printJob.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        OutboxEventId: 'event',
+        AgentId: 'agent',
+        ProfileId: 'profile',
+        PayloadSnapshot: expect.objectContaining({ poId: 'po' }),
+        ProfileSnapshot: { printer: 'fixture' },
+      }),
+    });
+    expect(f.db.printJobEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ JobId: 'print-job', Type: 'CREATED' }),
+    });
     expect(
       f.state.change.mock.calls.some((call) => call[1].Status === 'SUCCEEDED'),
     ).toBe(false);

@@ -66,7 +66,7 @@ const TABLES_TO_CLEAR = [
 /**
  * Daftar tabel yang DIKECUALIKAN / TETAP DIPERTAHANKAN (TIDAK BOLEH DIHAPUS):
  * - User, Role, & Permission: MTCUserManagement, MTCRole, MTCPermission, _MTCPermissionToMTCRole, MTCUserSession, MTCAuthLog, ApiKey
- * - System Config & Settings: EmailNotification, DashboardSetting, PrinterSetting, DisplayConfig
+ * - System Config & Settings: EmailNotification, DashboardSetting, PrintAgent, PrintAgentEnrollment, PrintAgentCredential, ProfilePrinter, PrintJob, PrintJobEvent, DisplayConfig
  */
 const PRESERVED_TABLES = [
   'MTCUserManagement',
@@ -78,15 +78,20 @@ const PRESERVED_TABLES = [
   'ApiKey',
   'EmailNotification',
   'DashboardSetting',
-  'PrinterSetting',
+  'PrintAgent',
+  'PrintAgentEnrollment',
+  'PrintAgentCredential',
+  'ProfilePrinter',
+  'PrintJob',
+  'PrintJobEvent',
   'DisplayConfig',
 ] as const;
 
 async function getTableRowCount(tableName: string): Promise<number> {
   try {
-    const result = await prisma.$queryRawUnsafe<Array<{ count: bigint | number | string }>>(
-      `SELECT count(*)::text AS count FROM "${tableName}"`,
-    );
+    const result = await prisma.$queryRawUnsafe<
+      Array<{ count: bigint | number | string }>
+    >(`SELECT count(*)::text AS count FROM "${tableName}"`);
     return Number(result[0]?.count ?? 0);
   } catch {
     return 0;
@@ -103,7 +108,9 @@ async function getExistingTables(): Promise<Set<string>> {
 async function main(): Promise<void> {
   console.log('🧹 Menyiapkan pembersihan database...');
   console.log('   (Semua tabel operasional & master data akan di-clear;');
-  console.log('    Tabel User, Role, Permission, dan Config/Settings TETAP DIPERTAHANKAN)\n');
+  console.log(
+    '    Tabel User, Role, Permission, dan Config/Settings TETAP DIPERTAHANKAN)\n',
+  );
 
   const existingDbTables = await getExistingTables();
 
@@ -133,7 +140,9 @@ async function main(): Promise<void> {
   }
 
   // 3. Eksekusi TRUNCATE TABLE ... RESTART IDENTITY CASCADE
-  console.log(`Menjalankan TRUNCATE CASCADE pada ${activeTablesToClear.length} tabel...`);
+  console.log(
+    `Menjalankan TRUNCATE CASCADE pada ${activeTablesToClear.length} tabel...`,
+  );
   const truncateSql = `TRUNCATE TABLE ${activeTablesToClear.map((t) => `"${t}"`).join(', ')} RESTART IDENTITY CASCADE;`;
   await prisma.$executeRawUnsafe(truncateSql);
 

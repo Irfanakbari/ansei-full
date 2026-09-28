@@ -328,6 +328,7 @@ export type OutboxEventWhereInput = {
   Actor?: Prisma.StringNullableFilter<"OutboxEvent"> | string | null
   ReferenceType?: Prisma.StringNullableFilter<"OutboxEvent"> | string | null
   ReferenceId?: Prisma.StringNullableFilter<"OutboxEvent"> | string | null
+  PrintJob?: Prisma.XOR<Prisma.PrintJobNullableScalarRelationFilter, Prisma.PrintJobWhereInput> | null
 }
 
 export type OutboxEventOrderByWithRelationInput = {
@@ -350,6 +351,7 @@ export type OutboxEventOrderByWithRelationInput = {
   Actor?: Prisma.SortOrderInput | Prisma.SortOrder
   ReferenceType?: Prisma.SortOrderInput | Prisma.SortOrder
   ReferenceId?: Prisma.SortOrderInput | Prisma.SortOrder
+  PrintJob?: Prisma.PrintJobOrderByWithRelationInput
 }
 
 export type OutboxEventWhereUniqueInput = Prisma.AtLeast<{
@@ -375,6 +377,7 @@ export type OutboxEventWhereUniqueInput = Prisma.AtLeast<{
   Actor?: Prisma.StringNullableFilter<"OutboxEvent"> | string | null
   ReferenceType?: Prisma.StringNullableFilter<"OutboxEvent"> | string | null
   ReferenceId?: Prisma.StringNullableFilter<"OutboxEvent"> | string | null
+  PrintJob?: Prisma.XOR<Prisma.PrintJobNullableScalarRelationFilter, Prisma.PrintJobWhereInput> | null
 }, "Id" | "IdempotencyKey">
 
 export type OutboxEventOrderByWithAggregationInput = {
@@ -449,6 +452,7 @@ export type OutboxEventCreateInput = {
   Actor?: string | null
   ReferenceType?: string | null
   ReferenceId?: string | null
+  PrintJob?: Prisma.PrintJobCreateNestedOneWithoutOutboxEventInput
 }
 
 export type OutboxEventUncheckedCreateInput = {
@@ -471,6 +475,7 @@ export type OutboxEventUncheckedCreateInput = {
   Actor?: string | null
   ReferenceType?: string | null
   ReferenceId?: string | null
+  PrintJob?: Prisma.PrintJobUncheckedCreateNestedOneWithoutOutboxEventInput
 }
 
 export type OutboxEventUpdateInput = {
@@ -493,6 +498,7 @@ export type OutboxEventUpdateInput = {
   Actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ReferenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ReferenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  PrintJob?: Prisma.PrintJobUpdateOneWithoutOutboxEventNestedInput
 }
 
 export type OutboxEventUncheckedUpdateInput = {
@@ -515,6 +521,7 @@ export type OutboxEventUncheckedUpdateInput = {
   Actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ReferenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ReferenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  PrintJob?: Prisma.PrintJobUncheckedUpdateOneWithoutOutboxEventNestedInput
 }
 
 export type OutboxEventCreateManyInput = {
@@ -657,12 +664,135 @@ export type OutboxEventSumOrderByAggregateInput = {
   MaxAttempts?: Prisma.SortOrder
 }
 
+export type OutboxEventScalarRelationFilter = {
+  is?: Prisma.OutboxEventWhereInput
+  isNot?: Prisma.OutboxEventWhereInput
+}
+
 export type EnumOutboxEventTypeFieldUpdateOperationsInput = {
   set?: $Enums.OutboxEventType
 }
 
 export type EnumOutboxEventStatusFieldUpdateOperationsInput = {
   set?: $Enums.OutboxEventStatus
+}
+
+export type OutboxEventCreateNestedOneWithoutPrintJobInput = {
+  create?: Prisma.XOR<Prisma.OutboxEventCreateWithoutPrintJobInput, Prisma.OutboxEventUncheckedCreateWithoutPrintJobInput>
+  connectOrCreate?: Prisma.OutboxEventCreateOrConnectWithoutPrintJobInput
+  connect?: Prisma.OutboxEventWhereUniqueInput
+}
+
+export type OutboxEventUpdateOneRequiredWithoutPrintJobNestedInput = {
+  create?: Prisma.XOR<Prisma.OutboxEventCreateWithoutPrintJobInput, Prisma.OutboxEventUncheckedCreateWithoutPrintJobInput>
+  connectOrCreate?: Prisma.OutboxEventCreateOrConnectWithoutPrintJobInput
+  upsert?: Prisma.OutboxEventUpsertWithoutPrintJobInput
+  connect?: Prisma.OutboxEventWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OutboxEventUpdateToOneWithWhereWithoutPrintJobInput, Prisma.OutboxEventUpdateWithoutPrintJobInput>, Prisma.OutboxEventUncheckedUpdateWithoutPrintJobInput>
+}
+
+export type OutboxEventCreateWithoutPrintJobInput = {
+  Id?: string
+  IdempotencyKey: string
+  Type: $Enums.OutboxEventType
+  Payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  Status?: $Enums.OutboxEventStatus
+  Attempts?: number
+  MaxAttempts?: number
+  NextAttemptAt?: Date | string
+  LastErrorCode?: string | null
+  LastError?: string | null
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  QueuedAt?: Date | string | null
+  ProcessingAt?: Date | string | null
+  SucceededAt?: Date | string | null
+  FailedAt?: Date | string | null
+  Actor?: string | null
+  ReferenceType?: string | null
+  ReferenceId?: string | null
+}
+
+export type OutboxEventUncheckedCreateWithoutPrintJobInput = {
+  Id?: string
+  IdempotencyKey: string
+  Type: $Enums.OutboxEventType
+  Payload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  Status?: $Enums.OutboxEventStatus
+  Attempts?: number
+  MaxAttempts?: number
+  NextAttemptAt?: Date | string
+  LastErrorCode?: string | null
+  LastError?: string | null
+  CreatedAt?: Date | string
+  UpdatedAt?: Date | string
+  QueuedAt?: Date | string | null
+  ProcessingAt?: Date | string | null
+  SucceededAt?: Date | string | null
+  FailedAt?: Date | string | null
+  Actor?: string | null
+  ReferenceType?: string | null
+  ReferenceId?: string | null
+}
+
+export type OutboxEventCreateOrConnectWithoutPrintJobInput = {
+  where: Prisma.OutboxEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.OutboxEventCreateWithoutPrintJobInput, Prisma.OutboxEventUncheckedCreateWithoutPrintJobInput>
+}
+
+export type OutboxEventUpsertWithoutPrintJobInput = {
+  update: Prisma.XOR<Prisma.OutboxEventUpdateWithoutPrintJobInput, Prisma.OutboxEventUncheckedUpdateWithoutPrintJobInput>
+  create: Prisma.XOR<Prisma.OutboxEventCreateWithoutPrintJobInput, Prisma.OutboxEventUncheckedCreateWithoutPrintJobInput>
+  where?: Prisma.OutboxEventWhereInput
+}
+
+export type OutboxEventUpdateToOneWithWhereWithoutPrintJobInput = {
+  where?: Prisma.OutboxEventWhereInput
+  data: Prisma.XOR<Prisma.OutboxEventUpdateWithoutPrintJobInput, Prisma.OutboxEventUncheckedUpdateWithoutPrintJobInput>
+}
+
+export type OutboxEventUpdateWithoutPrintJobInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  IdempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  Type?: Prisma.EnumOutboxEventTypeFieldUpdateOperationsInput | $Enums.OutboxEventType
+  Payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  Status?: Prisma.EnumOutboxEventStatusFieldUpdateOperationsInput | $Enums.OutboxEventStatus
+  Attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  MaxAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  NextAttemptAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  LastErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  LastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  QueuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ProcessingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  SucceededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  FailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReferenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReferenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type OutboxEventUncheckedUpdateWithoutPrintJobInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  IdempotencyKey?: Prisma.StringFieldUpdateOperationsInput | string
+  Type?: Prisma.EnumOutboxEventTypeFieldUpdateOperationsInput | $Enums.OutboxEventType
+  Payload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  Status?: Prisma.EnumOutboxEventStatusFieldUpdateOperationsInput | $Enums.OutboxEventStatus
+  Attempts?: Prisma.IntFieldUpdateOperationsInput | number
+  MaxAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  NextAttemptAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  LastErrorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  LastError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  QueuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ProcessingAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  SucceededAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  FailedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Actor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReferenceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ReferenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -687,6 +817,7 @@ export type OutboxEventSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   Actor?: boolean
   ReferenceType?: boolean
   ReferenceId?: boolean
+  PrintJob?: boolean | Prisma.OutboxEvent$PrintJobArgs<ExtArgs>
 }, ExtArgs["result"]["outboxEvent"]>
 
 export type OutboxEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -756,10 +887,17 @@ export type OutboxEventSelectScalar = {
 }
 
 export type OutboxEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "IdempotencyKey" | "Type" | "Payload" | "Status" | "Attempts" | "MaxAttempts" | "NextAttemptAt" | "LastErrorCode" | "LastError" | "CreatedAt" | "UpdatedAt" | "QueuedAt" | "ProcessingAt" | "SucceededAt" | "FailedAt" | "Actor" | "ReferenceType" | "ReferenceId", ExtArgs["result"]["outboxEvent"]>
+export type OutboxEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  PrintJob?: boolean | Prisma.OutboxEvent$PrintJobArgs<ExtArgs>
+}
+export type OutboxEventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type OutboxEventIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $OutboxEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "OutboxEvent"
-  objects: {}
+  objects: {
+    PrintJob: Prisma.$PrintJobPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: string
     IdempotencyKey: string
@@ -1174,6 +1312,7 @@ readonly fields: OutboxEventFieldRefs;
  */
 export interface Prisma__OutboxEventClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  PrintJob<T extends Prisma.OutboxEvent$PrintJobArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OutboxEvent$PrintJobArgs<ExtArgs>>): Prisma.Prisma__PrintJobClient<runtime.Types.Result.GetResult<Prisma.$PrintJobPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1239,6 +1378,10 @@ export type OutboxEventFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
+  /**
    * Filter, which OutboxEvent to fetch.
    */
   where: Prisma.OutboxEventWhereUniqueInput
@@ -1257,6 +1400,10 @@ export type OutboxEventFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
+  /**
    * Filter, which OutboxEvent to fetch.
    */
   where: Prisma.OutboxEventWhereUniqueInput
@@ -1274,6 +1421,10 @@ export type OutboxEventFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the OutboxEvent
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
   /**
    * Filter, which OutboxEvent to fetch.
    */
@@ -1323,6 +1474,10 @@ export type OutboxEventFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
+  /**
    * Filter, which OutboxEvent to fetch.
    */
   where?: Prisma.OutboxEventWhereInput
@@ -1370,6 +1525,10 @@ export type OutboxEventFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the OutboxEvent
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
   /**
    * Filter, which OutboxEvents to fetch.
    */
@@ -1419,6 +1578,10 @@ export type OutboxEventCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
+  /**
    * The data needed to create a OutboxEvent.
    */
   data: Prisma.XOR<Prisma.OutboxEventCreateInput, Prisma.OutboxEventUncheckedCreateInput>
@@ -1466,6 +1629,10 @@ export type OutboxEventUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the OutboxEvent
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
   /**
    * The data needed to update a OutboxEvent.
    */
@@ -1533,6 +1700,10 @@ export type OutboxEventUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
+  /**
    * The filter to search for the OutboxEvent to update in case it exists.
    */
   where: Prisma.OutboxEventWhereUniqueInput
@@ -1559,6 +1730,10 @@ export type OutboxEventDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
+  /**
    * Filter which OutboxEvent to delete.
    */
   where: Prisma.OutboxEventWhereUniqueInput
@@ -1579,6 +1754,25 @@ export type OutboxEventDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
+ * OutboxEvent.PrintJob
+ */
+export type OutboxEvent$PrintJobArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PrintJob
+   */
+  select?: Prisma.PrintJobSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PrintJob
+   */
+  omit?: Prisma.PrintJobOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PrintJobInclude<ExtArgs> | null
+  where?: Prisma.PrintJobWhereInput
+}
+
+/**
  * OutboxEvent without action
  */
 export type OutboxEventDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1590,4 +1784,8 @@ export type OutboxEventDefaultArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the OutboxEvent
    */
   omit?: Prisma.OutboxEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutboxEventInclude<ExtArgs> | null
 }

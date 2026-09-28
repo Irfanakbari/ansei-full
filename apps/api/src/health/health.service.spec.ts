@@ -7,7 +7,6 @@ describe('HealthService', () => {
     VUTEQ_SSO_ENABLED: 'false',
     NAS_ENABLED: 'false',
     SMTP_ENABLED: 'false',
-    PRINTER_ENABLED: 'false',
     DOCUMENT_CONVERTER_ENABLED: 'false',
   });
 

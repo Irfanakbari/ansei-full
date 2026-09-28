@@ -9,6 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { PermissionsGuard } from './permissions.guard';
 import { ApiKeyStrategy } from '../strategies/api-key.strategy';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { IS_PRINT_AGENT_ROUTE } from '../decorators/print-agent-route.decorator';
 import { PERMISSIONS_KEY } from '../decorators/permission.decorator';
 import type { ICurrentUser } from '../interfaces/current-user.interface';
 import { SsoAuthService } from '../sso-auth.service';
@@ -46,6 +47,12 @@ export class DualAuthGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
+
+    const isPrintAgentRoute = this.reflector.getAllAndOverride<boolean>(
+      IS_PRINT_AGENT_ROUTE,
+      [context.getHandler(), context.getClass()],
+    );
+    if (isPrintAgentRoute) return true;
 
     // Extract auth headers
     const rawApiKey =

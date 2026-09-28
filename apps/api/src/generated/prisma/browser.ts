@@ -218,10 +218,35 @@ export type MaterialDeliveryNote = Prisma.MaterialDeliveryNoteModel
  */
 export type MaterialDeliveryNoteDetail = Prisma.MaterialDeliveryNoteDetailModel
 /**
- * Model PrinterSetting
+ * Model PrintAgent
  * 
  */
-export type PrinterSetting = Prisma.PrinterSettingModel
+export type PrintAgent = Prisma.PrintAgentModel
+/**
+ * Model PrintAgentEnrollment
+ * 
+ */
+export type PrintAgentEnrollment = Prisma.PrintAgentEnrollmentModel
+/**
+ * Model PrintAgentCredential
+ * 
+ */
+export type PrintAgentCredential = Prisma.PrintAgentCredentialModel
+/**
+ * Model ProfilePrinter
+ * 
+ */
+export type ProfilePrinter = Prisma.ProfilePrinterModel
+/**
+ * Model PrintJob
+ * 
+ */
+export type PrintJob = Prisma.PrintJobModel
+/**
+ * Model PrintJobEvent
+ * 
+ */
+export type PrintJobEvent = Prisma.PrintJobEventModel
 /**
  * Model ApiKey
  * 

@@ -28,7 +28,6 @@ export class OutboxDispatcher implements OnModuleInit, OnModuleDestroy {
     private readonly prisma: PrismaService,
     @InjectQueue(OUTBOX_QUEUE) private readonly queue: Queue,
     private readonly state: OutboxStateService,
-    @InjectQueue('printer_queue') private readonly printerQueue: Queue,
   ) {}
   onModuleInit() {
     this.timer = setInterval(() => this.scheduleDispatch(), 5000);
@@ -82,9 +81,25 @@ export class OutboxDispatcher implements OnModuleInit, OnModuleDestroy {
           );
           continue;
         }
-        const queue =
-          event.Status === 'QUEUED' ? this.queue : this.printerQueue;
-        const job = await integrationDeadline(queue.getJob(jobIdentity(event)));
+        if (
+          event.Status === 'PROCESSING' &&
+          event.LastErrorCode === PRINT_READY
+        ) {
+          const printJob = await (
+            this.prisma as unknown as {
+              printJob: {
+                findUnique(input: object): Promise<{ Id: string } | null>;
+              };
+            }
+          ).printJob.findUnique({
+            where: { OutboxEventId: event.Id },
+            select: { Id: true },
+          });
+          if (printJob) continue;
+        }
+        const job = await integrationDeadline(
+          this.queue.getJob(jobIdentity(event)),
+        );
         const status = job
           ? await integrationDeadline(job.getState())
           : 'missing';
@@ -98,7 +113,6 @@ export class OutboxDispatcher implements OnModuleInit, OnModuleDestroy {
           ].includes(status)
         )
           continue;
-        // The printer writes its result to PostgreSQL. A completed queue job alone is not success evidence.
         await this.state.change(
           event,
           {

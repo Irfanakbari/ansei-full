@@ -33,18 +33,9 @@ case "$TARGET" in
     fi
     ;;
 
-  printer|worker)
-    echo "[ANSEI] Starting Printer worker..."
-    exec node apps/printer/dist/main.js
-    ;;
-
   all|monolith)
-    echo "[ANSEI] Starting all services in single container mode..."
-    trap 'kill -TERM $PRINTER_PID $API_PID $WEB_PID 2>/dev/null' SIGTERM SIGINT
-
-    echo "[ANSEI] Starting printer worker..."
-    node apps/printer/dist/main.js &
-    PRINTER_PID=$!
+    echo "[ANSEI] Starting API and web services in single container mode..."
+    trap 'kill -TERM $API_PID $WEB_PID 2>/dev/null' SIGTERM SIGINT
 
     echo "[ANSEI] Starting API server..."
     node apps/api/dist/src/main.js &
@@ -54,14 +45,14 @@ case "$TARGET" in
       echo "[ANSEI] Starting Web frontend..."
       (cd /app/web-runtime && node apps/web/server.js) &
       WEB_PID=$!
-      wait -n $PRINTER_PID $API_PID $WEB_PID
+      wait -n $API_PID $WEB_PID
     else
-      wait -n $PRINTER_PID $API_PID
+      wait -n $API_PID
     fi
 
     EXIT_CODE=$?
     echo "[ANSEI] A service exited with code $EXIT_CODE. Stopping remaining services..."
-    kill -TERM $PRINTER_PID $API_PID $WEB_PID 2>/dev/null || true
+    kill -TERM $API_PID $WEB_PID 2>/dev/null || true
     exit $EXIT_CODE
     ;;
 

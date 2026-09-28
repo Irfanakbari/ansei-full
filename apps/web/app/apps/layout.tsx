@@ -356,15 +356,6 @@ const baseMenuItems: MenuItem[] = [
         [...PERMISSIONS.stockTransactionLogs],
       ),
       getItem(
-        <Link href="/apps/system-administration/printer-config">
-          Printer Config
-        </Link>,
-        "sa-printer-config",
-        undefined,
-        undefined,
-        [...PERMISSIONS.printer],
-      ),
-      getItem(
         <Link href="/apps/system-administration/email-config">
           Email Config
         </Link>,
@@ -535,8 +526,6 @@ const getMenuKeyFromPath = (path: string): string => {
     return "sa-system-logs";
   if (path.startsWith("/apps/system-administration/stock-transaction-log"))
     return "sa-stock-transaction-log";
-  if (path.startsWith("/apps/system-administration/printer-config"))
-    return "sa-printer-config";
   if (path.startsWith("/apps/system-administration/email-config"))
     return "sa-email-config";
   if (path.startsWith("/apps/system-administration/display-config"))

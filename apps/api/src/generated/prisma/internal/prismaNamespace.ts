@@ -437,7 +437,12 @@ export const ModelName = {
   MTCPermission: 'MTCPermission',
   MaterialDeliveryNote: 'MaterialDeliveryNote',
   MaterialDeliveryNoteDetail: 'MaterialDeliveryNoteDetail',
-  PrinterSetting: 'PrinterSetting',
+  PrintAgent: 'PrintAgent',
+  PrintAgentEnrollment: 'PrintAgentEnrollment',
+  PrintAgentCredential: 'PrintAgentCredential',
+  ProfilePrinter: 'ProfilePrinter',
+  PrintJob: 'PrintJob',
+  PrintJobEvent: 'PrintJobEvent',
   ApiKey: 'ApiKey',
   DisplayConfig: 'DisplayConfig',
   BomRevision: 'BomRevision',
@@ -463,7 +468,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "satuan" | "supplier" | "supplierBarcodeFormat" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "stockOpnameAttachment" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingCompletion" | "outboxEvent" | "productionReport" | "labelData" | "assemblySession" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "actionAuditEvent" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printerSetting" | "apiKey" | "displayConfig" | "bomRevision" | "bomRevisionLine" | "bomRevisionEvent" | "productionBomSnapshot" | "productionBomSnapshotLine" | "materialNgCase" | "businessCommand" | "productionTraceEvent"
+    modelProps: "satuan" | "supplier" | "supplierBarcodeFormat" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "stockOpnameDetail" | "stockOpnameAttachment" | "incoming" | "incomingMaterial" | "materialNG" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingCompletion" | "outboxEvent" | "productionReport" | "labelData" | "assemblySession" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "actionAuditEvent" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printAgent" | "printAgentEnrollment" | "printAgentCredential" | "profilePrinter" | "printJob" | "printJobEvent" | "apiKey" | "displayConfig" | "bomRevision" | "bomRevisionLine" | "bomRevisionEvent" | "productionBomSnapshot" | "productionBomSnapshotLine" | "materialNgCase" | "businessCommand" | "productionTraceEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3427,77 +3432,447 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    PrinterSetting: {
-      payload: Prisma.$PrinterSettingPayload<ExtArgs>
-      fields: Prisma.PrinterSettingFieldRefs
+    PrintAgent: {
+      payload: Prisma.$PrintAgentPayload<ExtArgs>
+      fields: Prisma.PrintAgentFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.PrinterSettingFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload> | null
+          args: Prisma.PrintAgentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.PrinterSettingFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload>
+          args: Prisma.PrintAgentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload>
         }
         findFirst: {
-          args: Prisma.PrinterSettingFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload> | null
+          args: Prisma.PrintAgentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.PrinterSettingFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload>
+          args: Prisma.PrintAgentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload>
         }
         findMany: {
-          args: Prisma.PrinterSettingFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload>[]
+          args: Prisma.PrintAgentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload>[]
         }
         create: {
-          args: Prisma.PrinterSettingCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload>
+          args: Prisma.PrintAgentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload>
         }
         createMany: {
-          args: Prisma.PrinterSettingCreateManyArgs<ExtArgs>
+          args: Prisma.PrintAgentCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.PrinterSettingCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload>[]
+          args: Prisma.PrintAgentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload>[]
         }
         delete: {
-          args: Prisma.PrinterSettingDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload>
+          args: Prisma.PrintAgentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload>
         }
         update: {
-          args: Prisma.PrinterSettingUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload>
+          args: Prisma.PrintAgentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload>
         }
         deleteMany: {
-          args: Prisma.PrinterSettingDeleteManyArgs<ExtArgs>
+          args: Prisma.PrintAgentDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.PrinterSettingUpdateManyArgs<ExtArgs>
+          args: Prisma.PrintAgentUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.PrinterSettingUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload>[]
+          args: Prisma.PrintAgentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload>[]
         }
         upsert: {
-          args: Prisma.PrinterSettingUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrinterSettingPayload>
+          args: Prisma.PrintAgentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentPayload>
         }
         aggregate: {
-          args: Prisma.PrinterSettingAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregatePrinterSetting>
+          args: Prisma.PrintAgentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePrintAgent>
         }
         groupBy: {
-          args: Prisma.PrinterSettingGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PrinterSettingGroupByOutputType>[]
+          args: Prisma.PrintAgentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintAgentGroupByOutputType>[]
         }
         count: {
-          args: Prisma.PrinterSettingCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.PrinterSettingCountAggregateOutputType> | number
+          args: Prisma.PrintAgentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintAgentCountAggregateOutputType> | number
+        }
+      }
+    }
+    PrintAgentEnrollment: {
+      payload: Prisma.$PrintAgentEnrollmentPayload<ExtArgs>
+      fields: Prisma.PrintAgentEnrollmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PrintAgentEnrollmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PrintAgentEnrollmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload>
+        }
+        findFirst: {
+          args: Prisma.PrintAgentEnrollmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PrintAgentEnrollmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload>
+        }
+        findMany: {
+          args: Prisma.PrintAgentEnrollmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload>[]
+        }
+        create: {
+          args: Prisma.PrintAgentEnrollmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload>
+        }
+        createMany: {
+          args: Prisma.PrintAgentEnrollmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PrintAgentEnrollmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload>[]
+        }
+        delete: {
+          args: Prisma.PrintAgentEnrollmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload>
+        }
+        update: {
+          args: Prisma.PrintAgentEnrollmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.PrintAgentEnrollmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PrintAgentEnrollmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PrintAgentEnrollmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.PrintAgentEnrollmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentEnrollmentPayload>
+        }
+        aggregate: {
+          args: Prisma.PrintAgentEnrollmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePrintAgentEnrollment>
+        }
+        groupBy: {
+          args: Prisma.PrintAgentEnrollmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintAgentEnrollmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PrintAgentEnrollmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintAgentEnrollmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    PrintAgentCredential: {
+      payload: Prisma.$PrintAgentCredentialPayload<ExtArgs>
+      fields: Prisma.PrintAgentCredentialFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PrintAgentCredentialFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PrintAgentCredentialFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload>
+        }
+        findFirst: {
+          args: Prisma.PrintAgentCredentialFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PrintAgentCredentialFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload>
+        }
+        findMany: {
+          args: Prisma.PrintAgentCredentialFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload>[]
+        }
+        create: {
+          args: Prisma.PrintAgentCredentialCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload>
+        }
+        createMany: {
+          args: Prisma.PrintAgentCredentialCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PrintAgentCredentialCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload>[]
+        }
+        delete: {
+          args: Prisma.PrintAgentCredentialDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload>
+        }
+        update: {
+          args: Prisma.PrintAgentCredentialUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload>
+        }
+        deleteMany: {
+          args: Prisma.PrintAgentCredentialDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PrintAgentCredentialUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PrintAgentCredentialUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload>[]
+        }
+        upsert: {
+          args: Prisma.PrintAgentCredentialUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintAgentCredentialPayload>
+        }
+        aggregate: {
+          args: Prisma.PrintAgentCredentialAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePrintAgentCredential>
+        }
+        groupBy: {
+          args: Prisma.PrintAgentCredentialGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintAgentCredentialGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PrintAgentCredentialCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintAgentCredentialCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProfilePrinter: {
+      payload: Prisma.$ProfilePrinterPayload<ExtArgs>
+      fields: Prisma.ProfilePrinterFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProfilePrinterFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProfilePrinterFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload>
+        }
+        findFirst: {
+          args: Prisma.ProfilePrinterFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProfilePrinterFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload>
+        }
+        findMany: {
+          args: Prisma.ProfilePrinterFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload>[]
+        }
+        create: {
+          args: Prisma.ProfilePrinterCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload>
+        }
+        createMany: {
+          args: Prisma.ProfilePrinterCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProfilePrinterCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload>[]
+        }
+        delete: {
+          args: Prisma.ProfilePrinterDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload>
+        }
+        update: {
+          args: Prisma.ProfilePrinterUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProfilePrinterDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProfilePrinterUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProfilePrinterUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProfilePrinterUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProfilePrinterPayload>
+        }
+        aggregate: {
+          args: Prisma.ProfilePrinterAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProfilePrinter>
+        }
+        groupBy: {
+          args: Prisma.ProfilePrinterGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProfilePrinterGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProfilePrinterCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProfilePrinterCountAggregateOutputType> | number
+        }
+      }
+    }
+    PrintJob: {
+      payload: Prisma.$PrintJobPayload<ExtArgs>
+      fields: Prisma.PrintJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PrintJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PrintJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        findFirst: {
+          args: Prisma.PrintJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PrintJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        findMany: {
+          args: Prisma.PrintJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>[]
+        }
+        create: {
+          args: Prisma.PrintJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        createMany: {
+          args: Prisma.PrintJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PrintJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>[]
+        }
+        delete: {
+          args: Prisma.PrintJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        update: {
+          args: Prisma.PrintJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.PrintJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PrintJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PrintJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.PrintJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobPayload>
+        }
+        aggregate: {
+          args: Prisma.PrintJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePrintJob>
+        }
+        groupBy: {
+          args: Prisma.PrintJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PrintJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintJobCountAggregateOutputType> | number
+        }
+      }
+    }
+    PrintJobEvent: {
+      payload: Prisma.$PrintJobEventPayload<ExtArgs>
+      fields: Prisma.PrintJobEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PrintJobEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PrintJobEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload>
+        }
+        findFirst: {
+          args: Prisma.PrintJobEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PrintJobEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload>
+        }
+        findMany: {
+          args: Prisma.PrintJobEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload>[]
+        }
+        create: {
+          args: Prisma.PrintJobEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload>
+        }
+        createMany: {
+          args: Prisma.PrintJobEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PrintJobEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload>[]
+        }
+        delete: {
+          args: Prisma.PrintJobEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload>
+        }
+        update: {
+          args: Prisma.PrintJobEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.PrintJobEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PrintJobEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PrintJobEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.PrintJobEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PrintJobEventPayload>
+        }
+        aggregate: {
+          args: Prisma.PrintJobEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePrintJobEvent>
+        }
+        groupBy: {
+          args: Prisma.PrintJobEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintJobEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PrintJobEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PrintJobEventCountAggregateOutputType> | number
         }
       }
     }
@@ -4925,17 +5300,109 @@ export const MaterialDeliveryNoteDetailScalarFieldEnum = {
 export type MaterialDeliveryNoteDetailScalarFieldEnum = (typeof MaterialDeliveryNoteDetailScalarFieldEnum)[keyof typeof MaterialDeliveryNoteDetailScalarFieldEnum]
 
 
-export const PrinterSettingScalarFieldEnum = {
+export const PrintAgentScalarFieldEnum = {
   Id: 'Id',
   Name: 'Name',
-  IpAddress: 'IpAddress',
+  Status: 'Status',
+  LastHeartbeatAt: 'LastHeartbeatAt',
+  Version: 'Version',
+  Metadata: 'Metadata',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
   UpdatedBy: 'UpdatedBy'
 } as const
 
-export type PrinterSettingScalarFieldEnum = (typeof PrinterSettingScalarFieldEnum)[keyof typeof PrinterSettingScalarFieldEnum]
+export type PrintAgentScalarFieldEnum = (typeof PrintAgentScalarFieldEnum)[keyof typeof PrintAgentScalarFieldEnum]
+
+
+export const PrintAgentEnrollmentScalarFieldEnum = {
+  Id: 'Id',
+  AgentId: 'AgentId',
+  TokenHash: 'TokenHash',
+  TokenPrefix: 'TokenPrefix',
+  Status: 'Status',
+  ExpiresAt: 'ExpiresAt',
+  ConsumedAt: 'ConsumedAt',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy'
+} as const
+
+export type PrintAgentEnrollmentScalarFieldEnum = (typeof PrintAgentEnrollmentScalarFieldEnum)[keyof typeof PrintAgentEnrollmentScalarFieldEnum]
+
+
+export const PrintAgentCredentialScalarFieldEnum = {
+  Id: 'Id',
+  AgentId: 'AgentId',
+  SecretHash: 'SecretHash',
+  SecretPrefix: 'SecretPrefix',
+  Status: 'Status',
+  LastUsedAt: 'LastUsedAt',
+  ExpiresAt: 'ExpiresAt',
+  RevokedAt: 'RevokedAt',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy'
+} as const
+
+export type PrintAgentCredentialScalarFieldEnum = (typeof PrintAgentCredentialScalarFieldEnum)[keyof typeof PrintAgentCredentialScalarFieldEnum]
+
+
+export const ProfilePrinterScalarFieldEnum = {
+  Id: 'Id',
+  AgentId: 'AgentId',
+  ExternalId: 'ExternalId',
+  Name: 'Name',
+  DocumentType: 'DocumentType',
+  Status: 'Status',
+  IsDefault: 'IsDefault',
+  Revision: 'Revision',
+  ProfileSnapshot: 'ProfileSnapshot',
+  SyncedAt: 'SyncedAt',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt'
+} as const
+
+export type ProfilePrinterScalarFieldEnum = (typeof ProfilePrinterScalarFieldEnum)[keyof typeof ProfilePrinterScalarFieldEnum]
+
+
+export const PrintJobScalarFieldEnum = {
+  Id: 'Id',
+  OutboxEventId: 'OutboxEventId',
+  ProfileId: 'ProfileId',
+  AgentId: 'AgentId',
+  DocumentType: 'DocumentType',
+  Status: 'Status',
+  PayloadSnapshot: 'PayloadSnapshot',
+  ProfileSnapshot: 'ProfileSnapshot',
+  Attempt: 'Attempt',
+  LeaseTokenHash: 'LeaseTokenHash',
+  LeaseExpiresAt: 'LeaseExpiresAt',
+  DownloadedAt: 'DownloadedAt',
+  SpoolingAt: 'SpoolingAt',
+  SucceededAt: 'SucceededAt',
+  FailedAt: 'FailedAt',
+  ErrorCode: 'ErrorCode',
+  ErrorMessage: 'ErrorMessage',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt'
+} as const
+
+export type PrintJobScalarFieldEnum = (typeof PrintJobScalarFieldEnum)[keyof typeof PrintJobScalarFieldEnum]
+
+
+export const PrintJobEventScalarFieldEnum = {
+  Id: 'Id',
+  JobId: 'JobId',
+  AgentId: 'AgentId',
+  Type: 'Type',
+  FromStatus: 'FromStatus',
+  ToStatus: 'ToStatus',
+  Attempt: 'Attempt',
+  Detail: 'Detail',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type PrintJobEventScalarFieldEnum = (typeof PrintJobEventScalarFieldEnum)[keyof typeof PrintJobEventScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {
@@ -5487,6 +5954,104 @@ export type ListEnumDeliveryNoteStatusFieldRefInput<$PrismaModel> = FieldRefInpu
 
 
 /**
+ * Reference to a field of type 'PrintAgentStatus'
+ */
+export type EnumPrintAgentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintAgentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintAgentStatus[]'
+ */
+export type ListEnumPrintAgentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintAgentStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintEnrollmentStatus'
+ */
+export type EnumPrintEnrollmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintEnrollmentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintEnrollmentStatus[]'
+ */
+export type ListEnumPrintEnrollmentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintEnrollmentStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintCredentialStatus'
+ */
+export type EnumPrintCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintCredentialStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintCredentialStatus[]'
+ */
+export type ListEnumPrintCredentialStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintCredentialStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintDocumentType'
+ */
+export type EnumPrintDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintDocumentType'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintDocumentType[]'
+ */
+export type ListEnumPrintDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintDocumentType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ProfilePrinterStatus'
+ */
+export type EnumProfilePrinterStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfilePrinterStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ProfilePrinterStatus[]'
+ */
+export type ListEnumProfilePrinterStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProfilePrinterStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintJobStatus'
+ */
+export type EnumPrintJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintJobStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintJobStatus[]'
+ */
+export type ListEnumPrintJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintJobStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintJobEventType'
+ */
+export type EnumPrintJobEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintJobEventType'>
+    
+
+
+/**
+ * Reference to a field of type 'PrintJobEventType[]'
+ */
+export type ListEnumPrintJobEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PrintJobEventType[]'>
+    
+
+
+/**
  * Reference to a field of type 'BomRevisionStatus'
  */
 export type EnumBomRevisionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BomRevisionStatus'>
@@ -5704,7 +6269,12 @@ export type GlobalOmitConfig = {
   mTCPermission?: Prisma.MTCPermissionOmit
   materialDeliveryNote?: Prisma.MaterialDeliveryNoteOmit
   materialDeliveryNoteDetail?: Prisma.MaterialDeliveryNoteDetailOmit
-  printerSetting?: Prisma.PrinterSettingOmit
+  printAgent?: Prisma.PrintAgentOmit
+  printAgentEnrollment?: Prisma.PrintAgentEnrollmentOmit
+  printAgentCredential?: Prisma.PrintAgentCredentialOmit
+  profilePrinter?: Prisma.ProfilePrinterOmit
+  printJob?: Prisma.PrintJobOmit
+  printJobEvent?: Prisma.PrintJobEventOmit
   apiKey?: Prisma.ApiKeyOmit
   displayConfig?: Prisma.DisplayConfigOmit
   bomRevision?: Prisma.BomRevisionOmit

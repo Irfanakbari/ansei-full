@@ -166,8 +166,6 @@ export async function createExtremeTestApp(): Promise<{
     .useValue({})
     .overrideProvider(getQueueToken('outbox_queue'))
     .useValue(inertQueue)
-    .overrideProvider(getQueueToken('printer_queue'))
-    .useValue(inertQueue)
     .compile();
 
   const app = moduleRef.createNestApplication();

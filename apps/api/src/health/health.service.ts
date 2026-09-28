@@ -37,7 +37,6 @@ export class HealthService {
       sso: await this.optionalTcp('VUTEQ_SSO_ENABLED', 'VUTEQ_SSO_BASE_URL'),
       nas: await this.optionalTcp('NAS_ENABLED', 'NAS_HOST', 'NAS_PORT'),
       smtp: await this.optionalTcp('SMTP_ENABLED', 'SMTP_HOST', 'SMTP_PORT'),
-      printer: this.configured('PRINTER_ENABLED', ['REDIS_HOST']),
       converter: await this.converterStatus(),
     };
     const requiredUp = databaseUp && (!redisRequired || redisUp === 'up');

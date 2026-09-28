@@ -87,6 +87,5 @@ export class IntegrationSummaryDto {
   @ApiProperty() exhausted: number;
   @ApiProperty({ nullable: true, type: Date }) oldestPendingAt: Date | null;
   @ApiProperty() queueAvailable: boolean;
-  @ApiProperty() printerQueueAvailable: boolean;
   @ApiProperty() observedAt: Date;
 }

@@ -29,7 +29,6 @@ export class OutboxService {
     private readonly prisma: PrismaService,
     private readonly state: OutboxStateService,
     @InjectQueue('outbox_queue') private readonly queue: Queue,
-    @InjectQueue('printer_queue') private readonly printerQueue: Queue,
   ) {}
 
   static fingerprint(parts: unknown[]): string {
@@ -166,41 +165,30 @@ export class OutboxService {
     };
   }
   async summary() {
-    const [
-      groups,
-      oldest,
-      uncertain,
-      exhausted,
-      queueAvailable,
-      printerQueueAvailable,
-    ] = await Promise.all([
-      this.prisma.outboxEvent.groupBy({ by: ['Status'], _count: true }),
-      this.prisma.outboxEvent.findFirst({
-        where: { Status: { in: ['PENDING', 'QUEUED', 'PROCESSING'] } },
-        orderBy: { CreatedAt: 'asc' },
-        select: { CreatedAt: true },
-      }),
-      this.prisma.outboxEvent.count({
-        where: { Status: 'FAILED', LastErrorCode: UNCERTAIN },
-      }),
-      this.prisma.outboxEvent.count({
-        where: {
-          Status: 'FAILED',
-          LastErrorCode: SAFE_RETRY,
-          Attempts: { gte: this.prisma.outboxEvent.fields.MaxAttempts },
-        },
-      }),
-      integrationDeadline(
-        this.queue.getJobCounts('waiting', 'active', 'failed'),
-      )
-        .then(() => true)
-        .catch(() => false),
-      integrationDeadline(
-        this.printerQueue.getJobCounts('waiting', 'active', 'failed'),
-      )
-        .then(() => true)
-        .catch(() => false),
-    ]);
+    const [groups, oldest, uncertain, exhausted, queueAvailable] =
+      await Promise.all([
+        this.prisma.outboxEvent.groupBy({ by: ['Status'], _count: true }),
+        this.prisma.outboxEvent.findFirst({
+          where: { Status: { in: ['PENDING', 'QUEUED', 'PROCESSING'] } },
+          orderBy: { CreatedAt: 'asc' },
+          select: { CreatedAt: true },
+        }),
+        this.prisma.outboxEvent.count({
+          where: { Status: 'FAILED', LastErrorCode: UNCERTAIN },
+        }),
+        this.prisma.outboxEvent.count({
+          where: {
+            Status: 'FAILED',
+            LastErrorCode: SAFE_RETRY,
+            Attempts: { gte: this.prisma.outboxEvent.fields.MaxAttempts },
+          },
+        }),
+        integrationDeadline(
+          this.queue.getJobCounts('waiting', 'active', 'failed'),
+        )
+          .then(() => true)
+          .catch(() => false),
+      ]);
     const count = (status: string) =>
       groups.find((row) => row.Status === status)?._count ?? 0;
     return {
@@ -212,7 +200,6 @@ export class OutboxService {
       exhausted,
       oldestPendingAt: oldest?.CreatedAt ?? null,
       queueAvailable,
-      printerQueueAvailable,
       observedAt: new Date(),
     };
   }
@@ -259,12 +246,9 @@ export class OutboxService {
           throw new ConflictException(
             'Document changed; submit a new reviewed email request.',
           );
-        const jobs = await integrationDeadline(
-          Promise.all([
-            this.queue.getJob(jobIdentity(event)),
-            this.printerQueue.getJob(jobIdentity(event)),
-          ]),
-        );
+        const jobs = [
+          await integrationDeadline(this.queue.getJob(jobIdentity(event))),
+        ];
         for (const job of jobs) {
           if (
             job &&

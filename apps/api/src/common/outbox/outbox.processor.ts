@@ -1,9 +1,9 @@
 import { integrationDeadline } from './integration-deadline';
 import { OutboxService } from './outbox.service';
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
-import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import type { Job, Queue } from 'bullmq';
+import type { Job } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SmtpService } from '../utils/smtp.service';
 import { MaterialDeliveryNoteService } from '../../material-delivery-note/material-delivery-note.service';
@@ -24,7 +24,6 @@ import {
   SENDING,
   SAFE_RETRY,
   UNCERTAIN,
-  jobIdentity,
 } from './outbox-state.service';
 
 function printPayload(value: unknown): PartTagAnseiPayload {
@@ -60,7 +59,6 @@ export class OutboxProcessor extends WorkerHost {
     private readonly prisma: PrismaService,
     private readonly smtp: SmtpService,
     private readonly deliveryNotes: MaterialDeliveryNoteService,
-    @InjectQueue('printer_queue') private readonly printerQueue: Queue,
     private readonly state: OutboxStateService,
   ) {
     super();
@@ -96,23 +94,53 @@ export class OutboxProcessor extends WorkerHost {
           'PRINT_READY',
         );
         if (!event) return;
-        await integrationDeadline(
-          this.printerQueue.add(
-            PRINT_PART_TAG_ANSEI,
-            {
-              ...payload,
-              outboxEventId: event.Id,
-              outboxAttempt: event.Attempts,
+        const printDb = this.prisma as unknown as {
+          profilePrinter: {
+            findFirst(input: object): Promise<{
+              Id: string;
+              AgentId: string;
+              ProfileSnapshot: object;
+            } | null>;
+          };
+          $transaction<T>(
+            fn: (tx: {
+              printJob: { create(input: object): Promise<{ Id: string }> };
+              printJobEvent: { create(input: object): Promise<unknown> };
+            }) => Promise<T>,
+          ): Promise<T>;
+        };
+        const outboxEventId = event.Id;
+        const profile = await printDb.profilePrinter.findFirst({
+          where: {
+            DocumentType: 'PART_TAG_ANSEI',
+            Status: 'READY',
+            IsDefault: true,
+            Agent: { Status: 'ACTIVE' },
+          },
+          orderBy: { UpdatedAt: 'desc' },
+        });
+        if (!profile) throw new Error('No default ready print profile');
+        await printDb.$transaction(async (tx) => {
+          const printJob = await tx.printJob.create({
+            data: {
+              OutboxEventId: outboxEventId,
+              ProfileId: profile.Id,
+              AgentId: profile.AgentId,
+              DocumentType: 'PART_TAG_ANSEI',
+              PayloadSnapshot: payload,
+              ProfileSnapshot: profile.ProfileSnapshot,
             },
-            {
-              jobId: jobIdentity(event),
-              attempts: 1,
-              removeOnComplete: { age: 604800 },
-              removeOnFail: { age: 604800 },
+          });
+          await tx.printJobEvent.create({
+            data: {
+              JobId: printJob.Id,
+              Type: 'CREATED',
+              ToStatus: 'QUEUED',
+              Attempt: 0,
             },
-          ),
-        );
-        return; // Only the printer worker can persist transport success.
+          });
+        });
+        return;
       }
       if (event.Type === 'PALLET_CONNECTOR_HISTORY') {
         const payload =

@@ -39,7 +39,6 @@ import deliveryReducer from "./features/production/delivery/deliverySlice";
 import notificationsReducer from "./features/notifications/notificationsSlice";
 
 // Settings slices
-import printerSettingReducer from "./features/settings/printerSettingSlice";
 import emailNotificationReducer from "./features/settings/emailNotificationSlice";
 import displayConfigReducer from "./features/settings/displayConfig/displayConfigSlice";
 import displayReducer from "./features/display/displaySlice";
@@ -89,7 +88,6 @@ export const store = configureStore({
     notifications: notificationsReducer,
 
     // Settings
-    printerSetting: printerSettingReducer,
     emailNotification: emailNotificationReducer,
     displayConfig: displayConfigReducer,
     display: displayReducer,

@@ -49,7 +49,12 @@ async function clearSeededTables(): Promise<void> {
       "Satuan",
       "EmailNotification",
       "DashboardSetting",
-      "PrinterSetting",
+      "PrintJobEvent",
+      "PrintJob",
+      "ProfilePrinter",
+      "PrintAgentCredential",
+      "PrintAgentEnrollment",
+      "PrintAgent",
       "DisplayConfig"
     RESTART IDENTITY CASCADE
   `);
@@ -558,18 +563,6 @@ async function main(): Promise<void> {
         StartDate: dateUtc('2026-09-01'),
         EndDate: new Date('2026-10-31T23:59:59.999Z'),
         UpdatedAt: new Date(),
-      },
-    });
-  const printer = await prisma.printerSetting.findUnique({
-    where: { IpAddress: '192.0.2.10' },
-  });
-  if (!printer)
-    await prisma.printerSetting.create({
-      data: {
-        Name: `${settingsMarker} Label Printer`,
-        IpAddress: '192.0.2.10',
-        CreatedBy: ACTOR,
-        UpdatedBy: ACTOR,
       },
     });
   const display = await prisma.displayConfig.findFirst({

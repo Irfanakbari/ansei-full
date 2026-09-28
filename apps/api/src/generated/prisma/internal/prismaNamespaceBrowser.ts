@@ -91,7 +91,12 @@ export const ModelName = {
   MTCPermission: 'MTCPermission',
   MaterialDeliveryNote: 'MaterialDeliveryNote',
   MaterialDeliveryNoteDetail: 'MaterialDeliveryNoteDetail',
-  PrinterSetting: 'PrinterSetting',
+  PrintAgent: 'PrintAgent',
+  PrintAgentEnrollment: 'PrintAgentEnrollment',
+  PrintAgentCredential: 'PrintAgentCredential',
+  ProfilePrinter: 'ProfilePrinter',
+  PrintJob: 'PrintJob',
+  PrintJobEvent: 'PrintJobEvent',
   ApiKey: 'ApiKey',
   DisplayConfig: 'DisplayConfig',
   BomRevision: 'BomRevision',
@@ -765,17 +770,109 @@ export const MaterialDeliveryNoteDetailScalarFieldEnum = {
 export type MaterialDeliveryNoteDetailScalarFieldEnum = (typeof MaterialDeliveryNoteDetailScalarFieldEnum)[keyof typeof MaterialDeliveryNoteDetailScalarFieldEnum]
 
 
-export const PrinterSettingScalarFieldEnum = {
+export const PrintAgentScalarFieldEnum = {
   Id: 'Id',
   Name: 'Name',
-  IpAddress: 'IpAddress',
+  Status: 'Status',
+  LastHeartbeatAt: 'LastHeartbeatAt',
+  Version: 'Version',
+  Metadata: 'Metadata',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
   UpdatedBy: 'UpdatedBy'
 } as const
 
-export type PrinterSettingScalarFieldEnum = (typeof PrinterSettingScalarFieldEnum)[keyof typeof PrinterSettingScalarFieldEnum]
+export type PrintAgentScalarFieldEnum = (typeof PrintAgentScalarFieldEnum)[keyof typeof PrintAgentScalarFieldEnum]
+
+
+export const PrintAgentEnrollmentScalarFieldEnum = {
+  Id: 'Id',
+  AgentId: 'AgentId',
+  TokenHash: 'TokenHash',
+  TokenPrefix: 'TokenPrefix',
+  Status: 'Status',
+  ExpiresAt: 'ExpiresAt',
+  ConsumedAt: 'ConsumedAt',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy'
+} as const
+
+export type PrintAgentEnrollmentScalarFieldEnum = (typeof PrintAgentEnrollmentScalarFieldEnum)[keyof typeof PrintAgentEnrollmentScalarFieldEnum]
+
+
+export const PrintAgentCredentialScalarFieldEnum = {
+  Id: 'Id',
+  AgentId: 'AgentId',
+  SecretHash: 'SecretHash',
+  SecretPrefix: 'SecretPrefix',
+  Status: 'Status',
+  LastUsedAt: 'LastUsedAt',
+  ExpiresAt: 'ExpiresAt',
+  RevokedAt: 'RevokedAt',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy'
+} as const
+
+export type PrintAgentCredentialScalarFieldEnum = (typeof PrintAgentCredentialScalarFieldEnum)[keyof typeof PrintAgentCredentialScalarFieldEnum]
+
+
+export const ProfilePrinterScalarFieldEnum = {
+  Id: 'Id',
+  AgentId: 'AgentId',
+  ExternalId: 'ExternalId',
+  Name: 'Name',
+  DocumentType: 'DocumentType',
+  Status: 'Status',
+  IsDefault: 'IsDefault',
+  Revision: 'Revision',
+  ProfileSnapshot: 'ProfileSnapshot',
+  SyncedAt: 'SyncedAt',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt'
+} as const
+
+export type ProfilePrinterScalarFieldEnum = (typeof ProfilePrinterScalarFieldEnum)[keyof typeof ProfilePrinterScalarFieldEnum]
+
+
+export const PrintJobScalarFieldEnum = {
+  Id: 'Id',
+  OutboxEventId: 'OutboxEventId',
+  ProfileId: 'ProfileId',
+  AgentId: 'AgentId',
+  DocumentType: 'DocumentType',
+  Status: 'Status',
+  PayloadSnapshot: 'PayloadSnapshot',
+  ProfileSnapshot: 'ProfileSnapshot',
+  Attempt: 'Attempt',
+  LeaseTokenHash: 'LeaseTokenHash',
+  LeaseExpiresAt: 'LeaseExpiresAt',
+  DownloadedAt: 'DownloadedAt',
+  SpoolingAt: 'SpoolingAt',
+  SucceededAt: 'SucceededAt',
+  FailedAt: 'FailedAt',
+  ErrorCode: 'ErrorCode',
+  ErrorMessage: 'ErrorMessage',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt'
+} as const
+
+export type PrintJobScalarFieldEnum = (typeof PrintJobScalarFieldEnum)[keyof typeof PrintJobScalarFieldEnum]
+
+
+export const PrintJobEventScalarFieldEnum = {
+  Id: 'Id',
+  JobId: 'JobId',
+  AgentId: 'AgentId',
+  Type: 'Type',
+  FromStatus: 'FromStatus',
+  ToStatus: 'ToStatus',
+  Attempt: 'Attempt',
+  Detail: 'Detail',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type PrintJobEventScalarFieldEnum = (typeof PrintJobEventScalarFieldEnum)[keyof typeof PrintJobEventScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {
