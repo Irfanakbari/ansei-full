@@ -11,6 +11,7 @@ import {
     updatePrinterSetting
 } from "@/store/features/settings/printerSettingSlice";
 import {formatDateTime} from "@/lib/utils/dateTime";
+import {isValidPrinterAddress} from "./printerAddressValidation";
 
 type FormValues = { name: string; ipAddress: string };
 type Props = {
@@ -116,14 +117,15 @@ export default function PrinterSettingModal({visible, data, onClose, onUpdated, 
         ]}>
         {isEditing ? <Form form={form} layout="vertical">
             <Form.Item name="name" label="Printer Name" rules={[{required: true, message: "Printer name is required"}]}><Input/></Form.Item>
-            <Form.Item name="ipAddress" label="IP Address"
-                       rules={[{required: true, message: "IP Address is required"}, {
-                           pattern: /^(\d{1,3}\.){3}\d{1,3}$/,
-                           message: "Invalid IP Address format"
-                       }]}><Input/></Form.Item>
+            <Form.Item name="ipAddress" label="Printer Address"
+                       extra="Use a hostname or IP address with an optional port, for example printer-01:5000."
+                       rules={[
+                           {required: true, whitespace: true, message: "Printer address is required"},
+                           {validator: isValidPrinterAddress}
+                       ]}><Input placeholder="Example: printer-01:5000"/></Form.Item>
         </Form> : <Descriptions bordered size="small" column={1}>
             <Descriptions.Item label="Printer Name">{data.Name || "-"}</Descriptions.Item>
-            <Descriptions.Item label="IP Address"><Tag color="blue">{data.IpAddress}</Tag></Descriptions.Item>
+            <Descriptions.Item label="Printer Address"><Tag color="blue">{data.IpAddress}</Tag></Descriptions.Item>
             <Descriptions.Item label="Created Date">{formatDateTime(data.CreatedAt)}</Descriptions.Item>
             <Descriptions.Item label="Created By">{data.CreatedByName || data.CreatedBy || "-"}</Descriptions.Item>
             <Descriptions.Item label="Updated Date">{formatDateTime(data.UpdatedAt)}</Descriptions.Item>

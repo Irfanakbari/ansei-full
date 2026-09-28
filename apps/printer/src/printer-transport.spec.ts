@@ -22,6 +22,37 @@ describe("Printer transport evidence", () => {
       ),
     ).rejects.toThrow("did not accept");
   });
+  it("uses an explicit RAW TCP port from the printer address", async () => {
+    const oldPort = process.env.PRINTER_RAW_PORT;
+    let accept: (value: Buffer) => void = () => undefined;
+    const received = new Promise<Buffer>((resolve) => {
+      accept = resolve;
+    });
+    const server = createServer((socket) => {
+      const chunks: Buffer[] = [];
+      socket.on("data", (chunk) => chunks.push(chunk));
+      socket.on("end", () => accept(Buffer.concat(chunks)));
+    });
+    await new Promise<void>((resolve) =>
+      server.listen(0, "127.0.0.1", resolve),
+    );
+    const address = server.address();
+    if (!address || typeof address === "string")
+      throw new Error("No local fixture port");
+    process.env.PRINTER_RAW_PORT = "9100";
+    try {
+      await new IpPrinterService().printPdf(
+        Buffer.from("custom-port-fixture"),
+        `127.0.0.1:${address.port}`,
+      );
+      expect((await received).toString()).toBe("custom-port-fixture");
+    } finally {
+      if (oldPort === undefined) delete process.env.PRINTER_RAW_PORT;
+      else process.env.PRINTER_RAW_PORT = oldPort;
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
+
   it("transmits fixture bytes through an actual local TCP socket", async () => {
     const oldPort = process.env.PRINTER_RAW_PORT;
     let accept: (value: Buffer) => void = () => undefined;

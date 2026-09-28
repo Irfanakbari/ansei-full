@@ -4,7 +4,7 @@
 import React, {useCallback, useState, useEffect, useRef} from 'react';
 import {Table, Card, Breadcrumb, App, Input, Button, DatePicker, Space, Tag, Tooltip} from 'antd';
 import type {InputRef, TableProps} from 'antd';
-import type {FilterDropdownProps} from 'antd/es/table/interface';
+import type {ColumnType, FilterDropdownProps, FilterValue} from 'antd/es/table/interface';
 import dayjs, {type Dayjs} from 'dayjs';
 import {ReloadOutlined, SearchOutlined, PlusOutlined, UploadOutlined, PrinterOutlined, DownloadOutlined} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
@@ -90,31 +90,45 @@ export default function ForecastPage() {
         }
     };
 
-    const handleTableChange: TableProps<ForecastEntity>['onChange'] = (tablePagination, filters, sorter) => {
+    const getFilterText = (value: FilterValue | null | undefined): string | undefined => {
+        const filterValue = value?.[0];
+        return typeof filterValue === 'string' && filterValue.trim() ? filterValue.trim() : undefined;
+    };
+
+    const handleTableChange: TableProps<ForecastEntity>['onChange'] = (tablePagination, filters, sorter, extra) => {
         setSortedInfo(Array.isArray(sorter) ? sorter[0] ?? {} : sorter);
-        const search = Object.entries(filters)
-            .filter(([key]) => key !== 'DeliveryDate')
-            .flatMap(([, values]) => values ?? [])
-            .find((value) => typeof value === 'string') as string | undefined;
         const deliveryDateRange = filters.DeliveryDate as string[] | null;
 
         dispatch(setForecastQuery({
-            page: deliveryDateRange ? 1 : tablePagination.current,
+            page: extra.action === 'filter' ? 1 : tablePagination.current,
             limit: tablePagination.pageSize,
-            search,
+            poNumber: getFilterText(filters.PoId),
+            partNumber: getFilterText(filters.PartNumber),
+            search: getFilterText(filters.VendorName),
             deliveryDateFrom: deliveryDateRange?.[0],
             deliveryDateTo: deliveryDateRange?.[1],
         }));
     };
 
-    const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: any) => (
-            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
+    const resetColumnFilter = (
+        clearFilters: FilterDropdownProps['clearFilters'],
+        confirm: FilterDropdownProps['confirm'],
+    ) => {
+        clearFilters?.({confirm: false});
+        confirm({closeDropdown: true});
+    };
+
+    const getColumnSearchProps = (
+        label: string,
+        filteredValue?: string,
+    ): Pick<ColumnType<ForecastEntity>, 'filterDropdown' | 'filterIcon' | 'filteredValue'> => ({
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: FilterDropdownProps) => (
+            <div style={{padding: 8}} onKeyDown={(event) => event.stopPropagation()}>
                 <Input
-                    ref={searchInput as any}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    ref={searchInput}
+                    placeholder={`Search ${label}`}
+                    value={selectedKeys[0] as string | undefined}
+                    onChange={(event) => setSelectedKeys(event.target.value ? [event.target.value] : [])}
                     onPressEnter={() => confirm()}
                     style={{marginBottom: 8, display: 'block'}}
                 />
@@ -123,10 +137,7 @@ export default function ForecastPage() {
                             style={{width: 90}}>
                         Search
                     </Button>
-                    <Button onClick={() => {
-                        if (clearFilters) clearFilters();
-                        confirm();
-                    }} size="small" style={{width: 90}}>
+                    <Button onClick={() => resetColumnFilter(clearFilters, confirm)} size="small" style={{width: 90}}>
                         Reset
                     </Button>
                 </Space>
@@ -135,10 +146,7 @@ export default function ForecastPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
         ),
-        filteredValue: query.search ? [query.search] : null,
-        onFilter: (value: any, record: any) => {
-            return record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase());
-        },
+        filteredValue: filteredValue ? [filteredValue] : null,
     });
 
     const columns = [
@@ -160,12 +168,12 @@ export default function ForecastPage() {
                     <Tooltip title={val}><code style={{fontSize: 11}}>{val}</code></Tooltip>
                 </Space>
             ),
-            ...getColumnSearchProps('PoId'),
+            ...getColumnSearchProps('PO Number', query.poNumber),
         },
         {
             title: 'Finish Good',
             dataIndex: ['PartData', 'PartNumber'],
-            key: 'PartData',
+            key: 'PartNumber',
             render: (_: any, record: ForecastEntity) => (
                 <Space size={4}>
                     <GoldenArrowAction
@@ -178,14 +186,14 @@ export default function ForecastPage() {
                     </Tooltip>
                 </Space>
             ),
-            ...getColumnSearchProps('PartData.PartNumber'),
+            ...getColumnSearchProps('Finish Good', query.partNumber),
         },
         {
             title: 'Vendor',
             dataIndex: 'VendorName',
             key: 'VendorName',
             ellipsis: true,
-            ...getColumnSearchProps('VendorName'),
+            ...getColumnSearchProps('Vendor', query.search),
         },
         {
             title: 'Qty',
@@ -224,10 +232,7 @@ export default function ForecastPage() {
                             </Button>
                             <Button
                                 size="small"
-                                onClick={() => {
-                                    clearFilters?.();
-                                    confirm();
-                                }}
+                                onClick={() => resetColumnFilter(clearFilters, confirm)}
                                 style={{width: 90}}
                             >
                                 Reset

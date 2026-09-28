@@ -17,6 +17,64 @@ const LprClient = require("node-lpr") as new (options: {
 };
 
 const PRINTER_TIMEOUT_MS = 10000;
+const MIN_PORT = 1;
+const MAX_PORT = 65535;
+
+const parsePort = (value: string, destination: string): number => {
+  const port = Number(value);
+  if (
+    !/^\d+$/.test(value) ||
+    !Number.isInteger(port) ||
+    port < MIN_PORT ||
+    port > MAX_PORT
+  ) {
+    throw new Error(
+      `[Printer Configuration Error] Port pada alamat printer ${destination} harus berupa angka 1-65535`,
+    );
+  }
+  return port;
+};
+
+const parseRawDestination = (
+  destination: string,
+): { host: string; port: number } => {
+  const trimmedDestination = destination.trim();
+  const defaultPort = parsePort(
+    process.env.PRINTER_RAW_PORT || "9100",
+    "PRINTER_RAW_PORT",
+  );
+  const ipv6Match = trimmedDestination.match(/^\[([^\]]+)](?::([^:]+))?$/);
+  if (ipv6Match) {
+    return {
+      host: ipv6Match[1],
+      port: ipv6Match[2]
+        ? parsePort(ipv6Match[2], trimmedDestination)
+        : defaultPort,
+    };
+  }
+
+  const separatorIndex = trimmedDestination.lastIndexOf(":");
+  if (separatorIndex > -1) {
+    if (trimmedDestination.indexOf(":") !== separatorIndex) {
+      throw new Error(
+        `[Printer Configuration Error] IPv6 harus menggunakan format [alamat]:port`,
+      );
+    }
+    const host = trimmedDestination.slice(0, separatorIndex);
+    const portValue = trimmedDestination.slice(separatorIndex + 1);
+    if (!host || !portValue) {
+      throw new Error(
+        `[Printer Configuration Error] Alamat printer tidak valid: ${trimmedDestination}`,
+      );
+    }
+    return { host, port: parsePort(portValue, trimmedDestination) };
+  }
+
+  if (!trimmedDestination) {
+    throw new Error("[Printer Configuration Error] Alamat printer wajib diisi");
+  }
+  return { host: trimmedDestination, port: defaultPort };
+};
 
 @Injectable()
 export class IpPrinterService {
@@ -27,24 +85,33 @@ export class IpPrinterService {
     printerIpOrUrl: string,
     jobName: string = "ANSEI Print Job",
   ): Promise<void> {
-    this.logger.log(`Preparing to print ${jobName} to ${printerIpOrUrl}`);
+    const destination = printerIpOrUrl.trim();
+    const normalizedDestination = destination.toLowerCase();
+    this.logger.log(`Preparing to print ${jobName} to ${destination}`);
 
     if (
-      printerIpOrUrl.startsWith("http://") ||
-      printerIpOrUrl.startsWith("https://") ||
-      printerIpOrUrl.startsWith("ipp://")
+      normalizedDestination.startsWith("http://") ||
+      normalizedDestination.startsWith("https://") ||
+      normalizedDestination.startsWith("ipp://")
     ) {
-      return this.printViaIpp(pdfBuffer, printerIpOrUrl, jobName);
+      return this.printViaIpp(pdfBuffer, destination, jobName);
     }
 
     if (
-      printerIpOrUrl.startsWith("lpr://") ||
-      printerIpOrUrl.startsWith("lpd://")
+      normalizedDestination.startsWith("lpr://") ||
+      normalizedDestination.startsWith("lpd://")
     ) {
-      return this.printViaLpr(pdfBuffer, printerIpOrUrl, jobName);
+      return this.printViaLpr(pdfBuffer, destination, jobName);
     }
 
-    return this.printViaRawTcp(pdfBuffer, printerIpOrUrl);
+    if (destination.includes("://")) {
+      throw new Error(
+        `[Printer Configuration Error] Protokol printer tidak didukung: ${destination}`,
+      );
+    }
+
+    const { host, port } = parseRawDestination(destination);
+    return this.printViaRawTcp(pdfBuffer, host, port);
   }
 
   private printViaIpp(

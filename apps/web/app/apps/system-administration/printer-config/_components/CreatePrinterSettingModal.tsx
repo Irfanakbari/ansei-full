@@ -6,6 +6,7 @@ import {Modal, Form, Input, App} from 'antd';
 import {createPrinterSetting} from '@/store/features/settings/printerSettingSlice';
 import {AppDispatch} from '@/store';
 import {useDispatch} from 'react-redux';
+import {isValidPrinterAddress} from './printerAddressValidation';
 
 interface Props {
     visible: boolean;
@@ -82,16 +83,14 @@ const CreatePrinterSettingModal: React.FC<Props> = ({visible, onClose, onSuccess
 
                 <Form.Item
                     name="ipAddress"
-                    label="IP Address"
+                    label="Printer Address"
+                    extra="Use a hostname or IP address with an optional port, for example printer-01:5000."
                     rules={[
-                        {required: true, message: 'IP Address is required'},
-                        {
-                            pattern: /^(\d{1,3}\.){3}\d{1,3}$/,
-                            message: 'Invalid IP Address format',
-                        },
+                        {required: true, whitespace: true, message: 'Printer address is required'},
+                        {validator: isValidPrinterAddress},
                     ]}
                 >
-                    <Input placeholder="Example: 192.168.1.100"/>
+                    <Input placeholder="Example: printer-01:5000"/>
                 </Form.Item>
             </Form>
         </Modal>
