@@ -55,7 +55,6 @@
     "i": "^0.3.7",
     "moment-timezone": "^0.6.2",
     "multer": "^2.3.0",
-    "mysql2": "^3.24.4",
     "nodemailer": "^9.1.0",
     "pg": "^8.21.0",
     "reflect-metadata": "^0.2.2",
