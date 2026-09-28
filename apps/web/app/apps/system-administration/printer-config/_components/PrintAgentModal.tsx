@@ -3,7 +3,7 @@
 "use client";
 
 import {KeyOutlined} from "@ant-design/icons";
-import {Alert, App, Button, Descriptions, Form, InputNumber, Modal, Skeleton, Space, Tag} from "antd";
+import {Alert, App, Button, Descriptions, Modal, Skeleton, Space, Tag, Typography} from "antd";
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import type {AppDispatch, RootState} from "@/store";
@@ -27,16 +27,14 @@ export default function PrintAgentModal({open, agentId, onClose, onEnrollmentCre
     const dispatch = useDispatch<AppDispatch>();
     const {selected, detailLoading, detailError, enrollmentLoading} = useSelector((state: RootState) => state.printAgent);
     const [showEnrollmentForm, setShowEnrollmentForm] = useState(false);
-    const [form] = Form.useForm<{expiresInMinutes: number}>();
 
     useEffect(() => {
         if (open && agentId) void dispatch(fetchPrintAgent(agentId));
         if (!open) {
             setShowEnrollmentForm(false);
-            form.resetFields();
             dispatch(clearSelectedPrintAgent());
         }
-    }, [agentId, dispatch, form, open]);
+    }, [agentId, dispatch, open]);
 
     const close = () => {
         if (enrollmentLoading) return;
@@ -46,11 +44,9 @@ export default function PrintAgentModal({open, agentId, onClose, onEnrollmentCre
     const generateEnrollment = async () => {
         if (!agentId) return;
         try {
-            const values = await form.validateFields();
-            const response = await dispatch(createPrintAgentEnrollment({id: agentId, expiresInMinutes: values.expiresInMinutes})).unwrap();
+            const response = await dispatch(createPrintAgentEnrollment({id: agentId})).unwrap();
             message.success("Enrollment token generated");
             setShowEnrollmentForm(false);
-            form.resetFields();
             onEnrollmentCreated(response.data);
         } catch (error: unknown) {
             if (typeof error === "object" && error !== null && "errorFields" in error) return;
@@ -85,20 +81,15 @@ export default function PrintAgentModal({open, agentId, onClose, onEnrollmentCre
                         <Descriptions.Item label="Updated By">{selected.UpdatedBy || "-"}</Descriptions.Item>
                     </Descriptions>
                     {showEnrollmentForm && (
-                        <Form form={form} layout="inline" initialValues={{expiresInMinutes: 15}}>
-                            <Form.Item name="expiresInMinutes" label="Valid for" rules={[
-                                {required: true, message: "Validity is required"},
-                                {type: "number", min: 1, message: "Minimum 1 minute"},
-                            ]}>
-                                <InputNumber min={1} max={1440} addonAfter="minutes"/>
-                            </Form.Item>
-                            <Form.Item>
+                        <Space orientation="vertical">
+                            <Typography.Text type="secondary">
+                                Valid until used or replaced by a newly generated token
+                            </Typography.Text>
+                            <Space>
                                 <Button type="primary" onClick={generateEnrollment} loading={enrollmentLoading}>Generate</Button>
-                            </Form.Item>
-                            <Form.Item>
                                 <Button onClick={() => setShowEnrollmentForm(false)} disabled={enrollmentLoading}>Cancel</Button>
-                            </Form.Item>
-                        </Form>
+                            </Space>
+                        </Space>
                     )}
                 </Space>
             )}

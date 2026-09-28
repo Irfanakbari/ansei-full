@@ -36,7 +36,7 @@ export interface PrintAgentQuery {
 
 export interface EnrollmentToken {
     token: string;
-    expiresAt: string;
+    expiresAt: string | null;
 }
 
 type PrintAgentState = {
@@ -102,13 +102,13 @@ export const createPrintAgent = createAsyncThunk<ApiSuccessEnvelope<PrintAgentEn
     },
 );
 
-export const createPrintAgentEnrollment = createAsyncThunk<ApiSuccessEnvelope<EnrollmentToken>, {id: string; expiresInMinutes: number}, {rejectValue: string}>(
+export const createPrintAgentEnrollment = createAsyncThunk<ApiSuccessEnvelope<EnrollmentToken>, {id: string}, {rejectValue: string}>(
     "printAgent/createEnrollment",
-    async ({id, expiresInMinutes}, {rejectWithValue}) => {
+    async ({id}, {rejectWithValue}) => {
         try {
-            return await post<ApiSuccessEnvelope<EnrollmentToken>, {expiresInMinutes: number}>(
+            return await post<ApiSuccessEnvelope<EnrollmentToken>, Record<string, never>>(
                 `/settings/print-agents/${id}/enrollments`,
-                {expiresInMinutes},
+                {},
             );
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, "Failed to generate enrollment token"));

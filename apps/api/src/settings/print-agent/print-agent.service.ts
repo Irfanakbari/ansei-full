@@ -219,9 +219,8 @@ export class PrintAgentService {
 
   async issueEnrollment(
     agentId: string,
-    minutes: number,
     actor: string,
-  ): Promise<{ token: string; expiresAt: Date }> {
+  ): Promise<{ token: string; expiresAt: null }> {
     const log = await this.logs.startProcess({
       functionId: 'PRINT_AGENT_ENROLLMENT',
       functionName: 'PrintAgentService.issueEnrollment',
@@ -229,22 +228,27 @@ export class PrintAgentService {
     });
     try {
       const token = secret();
-      const expiresAt = new Date(Date.now() + minutes * 60_000);
-      await this.db.printAgentEnrollment.create({
-        data: {
-          AgentId: agentId,
-          TokenHash: hash(token),
-          TokenPrefix: token.slice(0, 12),
-          ExpiresAt: expiresAt,
-          CreatedBy: actor,
-        },
+      await this.db.$transaction(async (tx) => {
+        await tx.printAgentEnrollment.updateMany({
+          where: { AgentId: agentId, Status: 'PENDING' },
+          data: { Status: 'REVOKED' },
+        });
+        await tx.printAgentEnrollment.create({
+          data: {
+            AgentId: agentId,
+            TokenHash: hash(token),
+            TokenPrefix: token.slice(0, 12),
+            ExpiresAt: null,
+            CreatedBy: actor,
+          },
+        });
       });
       await this.logs.completeProcess(
         log.ProcessId,
         'SUCCESS',
         'Enrollment issued',
       );
-      return { token, expiresAt };
+      return { token, expiresAt: null };
     } catch (error) {
       await this.logs.completeProcess(log.ProcessId, 'FAILED');
       throw error;
@@ -261,7 +265,7 @@ export class PrintAgentService {
         where: {
           TokenHash: tokenHash,
           Status: 'PENDING',
-          ExpiresAt: { gt: now },
+          OR: [{ ExpiresAt: null }, { ExpiresAt: { gt: now } }],
           Agent: { Status: 'ACTIVE' },
         },
       })) as Row | null;
@@ -271,7 +275,7 @@ export class PrintAgentService {
         where: {
           Id: enrollment.Id,
           Status: 'PENDING',
-          ExpiresAt: { gt: now },
+          OR: [{ ExpiresAt: null }, { ExpiresAt: { gt: now } }],
           Agent: { Status: 'ACTIVE' },
         },
         data: { Status: 'CONSUMED', ConsumedAt: now },

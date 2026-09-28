@@ -4,7 +4,6 @@
 
 import {CopyOutlined} from "@ant-design/icons";
 import {Alert, App, Button, Input, Modal, Space, Typography} from "antd";
-import {formatDateTime} from "@/lib/utils/dateTime";
 import type {EnrollmentToken} from "@/store/features/settings/printAgentSlice";
 
 type Props = {
@@ -36,7 +35,7 @@ export default function EnrollmentTokenModal({open, enrollment, onClose}: Props)
                     <Input.TextArea value={enrollment.token} readOnly autoSize={{minRows: 3, maxRows: 6}}/>
                     <Button icon={<CopyOutlined/>} onClick={copyToken}>Copy Token</Button>
                     <Typography.Text type="secondary">
-                        Expires at {formatDateTime(enrollment.expiresAt)}. The token cannot be recovered after this modal closes.
+                        Valid until used or replaced by a newly generated token. The token cannot be recovered after this modal closes.
                     </Typography.Text>
                 </Space>
             )}

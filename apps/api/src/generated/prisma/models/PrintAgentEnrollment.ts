@@ -177,7 +177,7 @@ export type PrintAgentEnrollmentGroupByOutputType = {
   TokenHash: string
   TokenPrefix: string
   Status: $Enums.PrintEnrollmentStatus
-  ExpiresAt: Date
+  ExpiresAt: Date | null
   ConsumedAt: Date | null
   CreatedAt: Date
   CreatedBy: string
@@ -210,7 +210,7 @@ export type PrintAgentEnrollmentWhereInput = {
   TokenHash?: Prisma.StringFilter<"PrintAgentEnrollment"> | string
   TokenPrefix?: Prisma.StringFilter<"PrintAgentEnrollment"> | string
   Status?: Prisma.EnumPrintEnrollmentStatusFilter<"PrintAgentEnrollment"> | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFilter<"PrintAgentEnrollment"> | Date | string
+  ExpiresAt?: Prisma.DateTimeNullableFilter<"PrintAgentEnrollment"> | Date | string | null
   ConsumedAt?: Prisma.DateTimeNullableFilter<"PrintAgentEnrollment"> | Date | string | null
   CreatedAt?: Prisma.DateTimeFilter<"PrintAgentEnrollment"> | Date | string
   CreatedBy?: Prisma.StringFilter<"PrintAgentEnrollment"> | string
@@ -223,7 +223,7 @@ export type PrintAgentEnrollmentOrderByWithRelationInput = {
   TokenHash?: Prisma.SortOrder
   TokenPrefix?: Prisma.SortOrder
   Status?: Prisma.SortOrder
-  ExpiresAt?: Prisma.SortOrder
+  ExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   ConsumedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -239,7 +239,7 @@ export type PrintAgentEnrollmentWhereUniqueInput = Prisma.AtLeast<{
   AgentId?: Prisma.StringFilter<"PrintAgentEnrollment"> | string
   TokenPrefix?: Prisma.StringFilter<"PrintAgentEnrollment"> | string
   Status?: Prisma.EnumPrintEnrollmentStatusFilter<"PrintAgentEnrollment"> | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFilter<"PrintAgentEnrollment"> | Date | string
+  ExpiresAt?: Prisma.DateTimeNullableFilter<"PrintAgentEnrollment"> | Date | string | null
   ConsumedAt?: Prisma.DateTimeNullableFilter<"PrintAgentEnrollment"> | Date | string | null
   CreatedAt?: Prisma.DateTimeFilter<"PrintAgentEnrollment"> | Date | string
   CreatedBy?: Prisma.StringFilter<"PrintAgentEnrollment"> | string
@@ -252,7 +252,7 @@ export type PrintAgentEnrollmentOrderByWithAggregationInput = {
   TokenHash?: Prisma.SortOrder
   TokenPrefix?: Prisma.SortOrder
   Status?: Prisma.SortOrder
-  ExpiresAt?: Prisma.SortOrder
+  ExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   ConsumedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -270,7 +270,7 @@ export type PrintAgentEnrollmentScalarWhereWithAggregatesInput = {
   TokenHash?: Prisma.StringWithAggregatesFilter<"PrintAgentEnrollment"> | string
   TokenPrefix?: Prisma.StringWithAggregatesFilter<"PrintAgentEnrollment"> | string
   Status?: Prisma.EnumPrintEnrollmentStatusWithAggregatesFilter<"PrintAgentEnrollment"> | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeWithAggregatesFilter<"PrintAgentEnrollment"> | Date | string
+  ExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PrintAgentEnrollment"> | Date | string | null
   ConsumedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PrintAgentEnrollment"> | Date | string | null
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"PrintAgentEnrollment"> | Date | string
   CreatedBy?: Prisma.StringWithAggregatesFilter<"PrintAgentEnrollment"> | string
@@ -281,7 +281,7 @@ export type PrintAgentEnrollmentCreateInput = {
   TokenHash: string
   TokenPrefix: string
   Status?: $Enums.PrintEnrollmentStatus
-  ExpiresAt: Date | string
+  ExpiresAt?: Date | string | null
   ConsumedAt?: Date | string | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -294,7 +294,7 @@ export type PrintAgentEnrollmentUncheckedCreateInput = {
   TokenHash: string
   TokenPrefix: string
   Status?: $Enums.PrintEnrollmentStatus
-  ExpiresAt: Date | string
+  ExpiresAt?: Date | string | null
   ConsumedAt?: Date | string | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -305,7 +305,7 @@ export type PrintAgentEnrollmentUpdateInput = {
   TokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   TokenPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.EnumPrintEnrollmentStatusFieldUpdateOperationsInput | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ConsumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -318,7 +318,7 @@ export type PrintAgentEnrollmentUncheckedUpdateInput = {
   TokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   TokenPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.EnumPrintEnrollmentStatusFieldUpdateOperationsInput | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ConsumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -330,7 +330,7 @@ export type PrintAgentEnrollmentCreateManyInput = {
   TokenHash: string
   TokenPrefix: string
   Status?: $Enums.PrintEnrollmentStatus
-  ExpiresAt: Date | string
+  ExpiresAt?: Date | string | null
   ConsumedAt?: Date | string | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -341,7 +341,7 @@ export type PrintAgentEnrollmentUpdateManyMutationInput = {
   TokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   TokenPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.EnumPrintEnrollmentStatusFieldUpdateOperationsInput | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ConsumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -353,7 +353,7 @@ export type PrintAgentEnrollmentUncheckedUpdateManyInput = {
   TokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   TokenPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.EnumPrintEnrollmentStatusFieldUpdateOperationsInput | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ConsumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -456,7 +456,7 @@ export type PrintAgentEnrollmentCreateWithoutAgentInput = {
   TokenHash: string
   TokenPrefix: string
   Status?: $Enums.PrintEnrollmentStatus
-  ExpiresAt: Date | string
+  ExpiresAt?: Date | string | null
   ConsumedAt?: Date | string | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -467,7 +467,7 @@ export type PrintAgentEnrollmentUncheckedCreateWithoutAgentInput = {
   TokenHash: string
   TokenPrefix: string
   Status?: $Enums.PrintEnrollmentStatus
-  ExpiresAt: Date | string
+  ExpiresAt?: Date | string | null
   ConsumedAt?: Date | string | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -508,7 +508,7 @@ export type PrintAgentEnrollmentScalarWhereInput = {
   TokenHash?: Prisma.StringFilter<"PrintAgentEnrollment"> | string
   TokenPrefix?: Prisma.StringFilter<"PrintAgentEnrollment"> | string
   Status?: Prisma.EnumPrintEnrollmentStatusFilter<"PrintAgentEnrollment"> | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFilter<"PrintAgentEnrollment"> | Date | string
+  ExpiresAt?: Prisma.DateTimeNullableFilter<"PrintAgentEnrollment"> | Date | string | null
   ConsumedAt?: Prisma.DateTimeNullableFilter<"PrintAgentEnrollment"> | Date | string | null
   CreatedAt?: Prisma.DateTimeFilter<"PrintAgentEnrollment"> | Date | string
   CreatedBy?: Prisma.StringFilter<"PrintAgentEnrollment"> | string
@@ -519,7 +519,7 @@ export type PrintAgentEnrollmentCreateManyAgentInput = {
   TokenHash: string
   TokenPrefix: string
   Status?: $Enums.PrintEnrollmentStatus
-  ExpiresAt: Date | string
+  ExpiresAt?: Date | string | null
   ConsumedAt?: Date | string | null
   CreatedAt?: Date | string
   CreatedBy: string
@@ -530,7 +530,7 @@ export type PrintAgentEnrollmentUpdateWithoutAgentInput = {
   TokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   TokenPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.EnumPrintEnrollmentStatusFieldUpdateOperationsInput | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ConsumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -541,7 +541,7 @@ export type PrintAgentEnrollmentUncheckedUpdateWithoutAgentInput = {
   TokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   TokenPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.EnumPrintEnrollmentStatusFieldUpdateOperationsInput | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ConsumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -552,7 +552,7 @@ export type PrintAgentEnrollmentUncheckedUpdateManyWithoutAgentInput = {
   TokenHash?: Prisma.StringFieldUpdateOperationsInput | string
   TokenPrefix?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.EnumPrintEnrollmentStatusFieldUpdateOperationsInput | $Enums.PrintEnrollmentStatus
-  ExpiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   ConsumedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -633,7 +633,7 @@ export type $PrintAgentEnrollmentPayload<ExtArgs extends runtime.Types.Extension
     TokenHash: string
     TokenPrefix: string
     Status: $Enums.PrintEnrollmentStatus
-    ExpiresAt: Date
+    ExpiresAt: Date | null
     ConsumedAt: Date | null
     CreatedAt: Date
     CreatedBy: string

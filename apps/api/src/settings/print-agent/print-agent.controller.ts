@@ -10,7 +10,6 @@ import {
   EnrollPrintAgentDto,
   FailPrintJobDto,
   HeartbeatDto,
-  IssueEnrollmentDto,
   LeasePrintJobDto,
   PrintAgentQueryDto,
   PrintJobLeaseDto,
@@ -50,17 +49,9 @@ export class PrintAgentController {
   @Post(':id/enrollments')
   @ApiBearerAuth()
   @Permission('IPCS.MASTER_CREATE')
-  async issue(
-    @Param('id') id: string,
-    @Body() dto: IssueEnrollmentDto,
-    @CurrentUser() user: ICurrentUser,
-  ) {
+  async issue(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {
     await this.service.requireAgent(id);
-    return this.service.issueEnrollment(
-      id,
-      dto.expiresInMinutes ?? 15,
-      user.username,
-    );
+    return this.service.issueEnrollment(id, user.username);
   }
 
   @Post('enroll')

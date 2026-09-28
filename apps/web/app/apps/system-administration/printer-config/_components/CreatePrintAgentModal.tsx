@@ -3,7 +3,7 @@
 "use client";
 
 import {useEffect} from "react";
-import {App, Form, Input, InputNumber, Modal} from "antd";
+import {App, Form, Input, Modal, Typography} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import type {AppDispatch, RootState} from "@/store";
 import {
@@ -14,7 +14,6 @@ import {
 
 type FormValues = {
     name: string;
-    expiresInMinutes: number;
 };
 
 type Props = {
@@ -31,7 +30,7 @@ export default function CreatePrintAgentModal({open, onClose, onCreated, onEnrol
     const [form] = Form.useForm<FormValues>();
 
     useEffect(() => {
-        if (open) form.setFieldsValue({name: "", expiresInMinutes: 15});
+        if (open) form.setFieldsValue({name: ""});
     }, [form, open]);
 
     const close = () => {
@@ -44,10 +43,7 @@ export default function CreatePrintAgentModal({open, onClose, onCreated, onEnrol
         try {
             const values = await form.validateFields();
             const created = await dispatch(createPrintAgent({name: values.name.trim()})).unwrap();
-            const enrollment = await dispatch(createPrintAgentEnrollment({
-                id: created.data.Id,
-                expiresInMinutes: values.expiresInMinutes,
-            })).unwrap();
+            const enrollment = await dispatch(createPrintAgentEnrollment({id: created.data.Id})).unwrap();
             message.success("Print agent created and enrollment token generated");
             form.resetFields();
             onClose();
@@ -63,19 +59,16 @@ export default function CreatePrintAgentModal({open, onClose, onCreated, onEnrol
         <Modal title="Create Print Agent" open={open} onCancel={close} onOk={submit} centered destroyOnHidden
                confirmLoading={createLoading || enrollmentLoading} okText="Create & Generate Token"
                mask={{closable: !createLoading && !enrollmentLoading}} closable={!createLoading && !enrollmentLoading}>
-            <Form form={form} layout="vertical" style={{marginTop: 16}} initialValues={{expiresInMinutes: 15}}>
+            <Form form={form} layout="vertical" style={{marginTop: 16}}>
                 <Form.Item name="name" label="Agent Name" rules={[
                     {required: true, whitespace: true, message: "Agent name is required"},
                     {max: 120, message: "Agent name cannot exceed 120 characters"},
                 ]}>
                     <Input placeholder="Example: Production Office Agent" maxLength={120}/>
                 </Form.Item>
-                <Form.Item name="expiresInMinutes" label="Enrollment Token Validity" rules={[
-                    {required: true, message: "Token validity is required"},
-                    {type: "number", min: 1, message: "Token validity must be at least 1 minute"},
-                ]}>
-                    <InputNumber min={1} max={1440} addonAfter="minutes" style={{width: "100%"}}/>
-                </Form.Item>
+                <Typography.Text type="secondary">
+                    Valid until used or replaced by a newly generated token
+                </Typography.Text>
             </Form>
         </Modal>
     );

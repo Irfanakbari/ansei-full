@@ -991,7 +991,7 @@ model PrintAgentEnrollment {
   TokenHash   String                @unique @db.VarChar(64)
   TokenPrefix String                @db.VarChar(16)
   Status      PrintEnrollmentStatus @default(PENDING)
-  ExpiresAt   DateTime
+  ExpiresAt   DateTime?
   ConsumedAt  DateTime?
   CreatedAt   DateTime              @default(now())
   CreatedBy   String

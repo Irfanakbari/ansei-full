@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { LogProcessService } from '../../common/log-process/log-process.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PrintAgentService } from './print-agent.service';
@@ -124,6 +124,110 @@ describe('PrintAgentService admin reads', () => {
 
     await expect(service.findOneAgent('missing')).rejects.toThrow(
       NotFoundException,
+    );
+  });
+});
+
+describe('PrintAgentService enrollment tokens', () => {
+  const enrollment = {
+    create: jest.fn(),
+    findFirst: jest.fn(),
+    updateMany: jest.fn(),
+  };
+  const credential = { create: jest.fn() };
+  const printAgent = { updateMany: jest.fn() };
+  const audit = { create: jest.fn() };
+  const tx = {
+    printAgentEnrollment: enrollment,
+    printAgentCredential: credential,
+    printAgent,
+    actionAuditEvent: audit,
+  };
+  const prisma = {
+    $transaction: jest.fn(
+      async (callback: (transaction: typeof tx) => Promise<unknown>) =>
+        callback(tx),
+    ),
+  };
+  const logs = {
+    startProcess: jest.fn().mockResolvedValue({ ProcessId: 'process-1' }),
+    completeProcess: jest.fn(),
+  };
+  const service = new PrintAgentService(
+    prisma as unknown as PrismaService,
+    logs as unknown as LogProcessService,
+  );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    enrollment.create.mockResolvedValue({});
+    enrollment.updateMany.mockResolvedValue({ count: 1 });
+    credential.create.mockResolvedValue({});
+    printAgent.updateMany.mockResolvedValue({ count: 1 });
+    audit.create.mockResolvedValue({});
+  });
+
+  it('revokes pending tokens and issues a non-expiring token atomically', async () => {
+    const result = await service.issueEnrollment('agent-1', 'admin');
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(enrollment.updateMany).toHaveBeenCalledWith({
+      where: { AgentId: 'agent-1', Status: 'PENDING' },
+      data: { Status: 'REVOKED' },
+    });
+    expect(enrollment.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        AgentId: 'agent-1',
+        ExpiresAt: null,
+        CreatedBy: 'admin',
+      }),
+    });
+    expect(result).toEqual({ token: expect.any(String), expiresAt: null });
+  });
+
+  it('accepts a pending token with null expiry and consumes it once', async () => {
+    enrollment.findFirst.mockResolvedValue({
+      Id: 'enrollment-1',
+      AgentId: 'agent-1',
+    });
+
+    await expect(service.enroll({ token: 'token' })).resolves.toEqual({
+      agentId: 'agent-1',
+      secret: expect.any(String),
+    });
+    expect(enrollment.findFirst).toHaveBeenCalledWith({
+      where: expect.objectContaining({
+        Status: 'PENDING',
+        OR: [{ ExpiresAt: null }, { ExpiresAt: { gt: expect.any(Date) } }],
+      }),
+    });
+    expect(enrollment.updateMany).toHaveBeenCalledWith({
+      where: expect.objectContaining({
+        Id: 'enrollment-1',
+        Status: 'PENDING',
+        OR: [{ ExpiresAt: null }, { ExpiresAt: { gt: expect.any(Date) } }],
+      }),
+      data: { Status: 'CONSUMED', ConsumedAt: expect.any(Date) },
+    });
+  });
+
+  it('rejects a token after its pending claim is already consumed', async () => {
+    enrollment.findFirst.mockResolvedValue({
+      Id: 'enrollment-1',
+      AgentId: 'agent-1',
+    });
+    enrollment.updateMany.mockResolvedValue({ count: 0 });
+
+    await expect(service.enroll({ token: 'token' })).rejects.toThrow(
+      'Enrollment token is no longer valid',
+    );
+  });
+
+  it('rejects an expired legacy token', async () => {
+    enrollment.findFirst.mockResolvedValue(null);
+
+    await expect(service.enroll({ token: 'expired-token' })).rejects.toThrow(
+      UnauthorizedException,
     );
   });
 });

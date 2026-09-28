@@ -1,6 +1,6 @@
 {
   "name": "@ansei/web",
-  "version": "5.12.10",
+  "version": "5.12.11",
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",

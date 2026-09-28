@@ -51,13 +51,6 @@ export class CreatePrintAgentDto {
   name: string;
 }
 
-export class IssueEnrollmentDto {
-  @IsInt()
-  @Min(1)
-  @IsOptional()
-  expiresInMinutes?: number;
-}
-
 export class EnrollPrintAgentDto {
   @IsString()
   token: string;
