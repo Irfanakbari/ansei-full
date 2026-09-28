@@ -1,3 +1,5 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
@@ -5,12 +7,42 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
+import { PrintAgentStatus } from '../../../generated/prisma/enums';
 
 export enum PrintDocumentTypeDto {
   PART_TAG_ANSEI = 'PART_TAG_ANSEI',
+}
+
+export class PrintAgentQueryDto {
+  @ApiPropertyOptional({ default: 1, minimum: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page = 1;
+
+  @ApiPropertyOptional({ default: 50, minimum: 1, maximum: 100 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit = 50;
+
+  @ApiPropertyOptional({ maxLength: 120 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  search?: string;
+
+  @ApiPropertyOptional({ enum: PrintAgentStatus })
+  @IsOptional()
+  @IsEnum(PrintAgentStatus)
+  status?: PrintAgentStatus;
 }
 
 export class CreatePrintAgentDto {

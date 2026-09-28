@@ -40,6 +40,7 @@ import notificationsReducer from "./features/notifications/notificationsSlice";
 
 // Settings slices
 import emailNotificationReducer from "./features/settings/emailNotificationSlice";
+import printAgentReducer from "./features/settings/printAgentSlice";
 import displayConfigReducer from "./features/settings/displayConfig/displayConfigSlice";
 import displayReducer from "./features/display/displaySlice";
 
@@ -89,6 +90,7 @@ export const store = configureStore({
 
     // Settings
     emailNotification: emailNotificationReducer,
+    printAgent: printAgentReducer,
     displayConfig: displayConfigReducer,
     display: displayReducer,
 

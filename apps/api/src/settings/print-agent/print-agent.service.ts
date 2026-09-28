@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
 import { Prisma } from '../../generated/prisma/client';
+import type { PrintAgentStatus } from '../../generated/prisma/enums';
 import { LogProcessService } from '../../common/log-process/log-process.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import type {
@@ -14,6 +15,7 @@ import type {
   FailPrintJobDto,
   HeartbeatDto,
   LeasePrintJobDto,
+  PrintAgentQueryDto,
   PrintJobLeaseDto,
   SyncPrinterProfileDto,
 } from './dto/print-agent.dto';
@@ -43,6 +45,54 @@ type PrintDb = {
 type Row = Record<string, unknown>;
 type Count = { count: number };
 
+type PrintAgentBaseRow = {
+  Id: string;
+  Name: string;
+  Status: PrintAgentStatus;
+  LastHeartbeatAt: Date | null;
+  Version: string | null;
+  CreatedAt: Date;
+  CreatedBy: string;
+  UpdatedAt: Date;
+  UpdatedBy: string;
+};
+
+type PrintAgentListRow = PrintAgentBaseRow & {
+  _count: { Profiles: number };
+};
+
+type PrintAgentDetailRow = PrintAgentListRow & {
+  Profiles: Array<{
+    Id: string;
+    ExternalId: string;
+    Name: string;
+    DocumentType: string;
+    Status: string;
+    IsDefault: boolean;
+    Revision: number;
+    SyncedAt: Date;
+    CreatedAt: Date;
+    UpdatedAt: Date;
+  }>;
+  Enrollments: Array<{ Status: string }>;
+  Credentials: Array<{ Status: string }>;
+};
+
+const PRINT_AGENT_OFFLINE_AFTER_MS = 120_000;
+
+const printAgentListSelect = {
+  Id: true,
+  Name: true,
+  Status: true,
+  LastHeartbeatAt: true,
+  Version: true,
+  CreatedAt: true,
+  CreatedBy: true,
+  UpdatedAt: true,
+  UpdatedBy: true,
+  _count: { select: { Profiles: true } },
+} satisfies Prisma.PrintAgentSelect;
+
 type RuntimeJob = {
   id: string;
   status: string;
@@ -63,6 +113,84 @@ export class PrintAgentService {
 
   private get db(): PrintDb {
     return this.prisma as unknown as PrintDb;
+  }
+
+  async findAllAgents(query: PrintAgentQueryDto) {
+    const search = query.search?.trim();
+    const where: Prisma.PrintAgentWhereInput = {
+      ...(query.status ? { Status: query.status } : {}),
+      ...(search
+        ? {
+            OR: [
+              { Name: { contains: search, mode: 'insensitive' } },
+              { Id: { contains: search, mode: 'insensitive' } },
+              { Version: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+    };
+    const [total, agents] = (await Promise.all([
+      this.db.printAgent.count({ where }),
+      this.db.printAgent.findMany({
+        where,
+        select: printAgentListSelect,
+        orderBy: { CreatedAt: 'desc' },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ])) as [number, PrintAgentListRow[]];
+
+    return {
+      data: agents.map(({ _count, ...agent }) => ({
+        ...this.withDisplayStatus(agent),
+        ProfilesCount: _count.Profiles,
+      })),
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / query.limit),
+      },
+    };
+  }
+
+  async findOneAgent(id: string) {
+    const agent = (await this.db.printAgent.findUnique({
+      where: { Id: id },
+      select: {
+        ...printAgentListSelect,
+        Profiles: {
+          select: {
+            Id: true,
+            ExternalId: true,
+            Name: true,
+            DocumentType: true,
+            Status: true,
+            IsDefault: true,
+            Revision: true,
+            SyncedAt: true,
+            CreatedAt: true,
+            UpdatedAt: true,
+          },
+          orderBy: { Name: 'asc' },
+        },
+        Enrollments: { select: { Status: true } },
+        Credentials: { select: { Status: true } },
+      },
+    })) as PrintAgentDetailRow | null;
+    if (!agent) throw new NotFoundException('Print agent not found');
+
+    const { Profiles, Enrollments, Credentials, _count, ...safeAgent } = agent;
+    return {
+      ...this.withDisplayStatus(safeAgent),
+      ProfilesCount: _count.Profiles,
+      profileCount: Profiles.length,
+      profiles: Profiles,
+      enrollmentCount: Enrollments.length,
+      enrollmentStatusCounts: this.statusCounts(Enrollments),
+      credentialCount: Credentials.length,
+      credentialStatusCounts: this.statusCounts(Credentials),
+    };
   }
 
   async createAgent(dto: CreatePrintAgentDto, actor: string): Promise<unknown> {
@@ -663,6 +791,24 @@ export class PrintAgentService {
         ProcessId: log.ProcessId,
       },
     });
+  }
+
+  private withDisplayStatus<T extends PrintAgentBaseRow>(agent: T) {
+    const online =
+      agent.Status === 'ACTIVE' &&
+      agent.LastHeartbeatAt !== null &&
+      Date.now() - agent.LastHeartbeatAt.getTime() <=
+        PRINT_AGENT_OFFLINE_AFTER_MS;
+    return { ...agent, displayStatus: online ? 'ONLINE' : 'OFFLINE' } as const;
+  }
+
+  private statusCounts(
+    items: Array<{ Status: string }>,
+  ): Record<string, number> {
+    return items.reduce<Record<string, number>>((counts, item) => {
+      counts[item.Status] = (counts[item.Status] ?? 0) + 1;
+      return counts;
+    }, {});
   }
 
   async requireAgent(id: string): Promise<void> {

@@ -1,5 +1,5 @@
-import { Body, Controller, Param, Post, Req } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { PrintAgentRoute } from '../../auth/decorators/print-agent-route.decorator';
@@ -12,6 +12,7 @@ import {
   HeartbeatDto,
   IssueEnrollmentDto,
   LeasePrintJobDto,
+  PrintAgentQueryDto,
   PrintJobLeaseDto,
   SyncPrinterProfileDto,
 } from './dto/print-agent.dto';
@@ -22,6 +23,22 @@ import { PrintAgentService } from './print-agent.service';
 @Controller('settings/print-agents')
 export class PrintAgentController {
   constructor(private readonly service: PrintAgentService) {}
+
+  @Get()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'List print agents' })
+  @Permission('IPCS.MASTER_READ')
+  findAll(@Query() query: PrintAgentQueryDto) {
+    return this.service.findAllAgents(query);
+  }
+
+  @Get(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get print agent details' })
+  @Permission('IPCS.MASTER_READ')
+  findOne(@Param('id') id: string) {
+    return this.service.findOneAgent(id);
+  }
 
   @Post()
   @ApiBearerAuth()
