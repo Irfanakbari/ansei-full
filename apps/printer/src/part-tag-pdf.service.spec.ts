@@ -5,6 +5,11 @@ import {
   PartTagPdfRenderer,
   type PartTagPayload,
 } from "@ansei/label-renderer";
+import {
+  EPSON_CARRIER_HEIGHT_PT,
+  EPSON_CARRIER_WIDTH_PT,
+  PartTagPdfService,
+} from "./part-tag-pdf.service";
 
 const payload: PartTagPayload = {
   poId: "PO-2026-000001",
@@ -19,13 +24,18 @@ const payload: PartTagPayload = {
   receivingArea: "ANSEI RECEIVING",
 };
 
-const expectA7Pages = async (buffer: Buffer, expectedCount: number) => {
+const expectPages = async (
+  buffer: Buffer,
+  expectedCount: number,
+  expectedWidth: number,
+  expectedHeight: number,
+) => {
   const pdf = await PDFDocument.load(buffer);
   expect(pdf.getPageCount()).toBe(expectedCount);
   for (const page of pdf.getPages()) {
     const { width, height } = page.getSize();
-    expect(width).toBeCloseTo(A7_LANDSCAPE_WIDTH_PT, 1);
-    expect(height).toBeCloseTo(A7_LANDSCAPE_HEIGHT_PT, 1);
+    expect(width).toBeCloseTo(expectedWidth, 1);
+    expect(height).toBeCloseTo(expectedHeight, 1);
   }
 };
 
@@ -33,11 +43,16 @@ describe("PartTagPdfRenderer", () => {
   const renderer = new PartTagPdfRenderer();
 
   it("renders one box as exactly one A7 landscape page", async () => {
-    await expectA7Pages(await renderer.generatePartTagPdf(payload), 1);
+    await expectPages(
+      await renderer.generatePartTagPdf(payload),
+      1,
+      A7_LANDSCAPE_WIDTH_PT,
+      A7_LANDSCAPE_HEIGHT_PT,
+    );
   });
 
   it("keeps long field values on one A7 page", async () => {
-    await expectA7Pages(
+    await expectPages(
       await renderer.generatePartTagPdf({
         ...payload,
         partNumber: "LONG-PART-NUMBER-1234567890-ABCDEFGHIJKLMN",
@@ -49,17 +64,47 @@ describe("PartTagPdfRenderer", () => {
         receivingArea: "WAREHOUSE RECEIVING AREA WITH A LONG DESCRIPTION",
       }),
       1,
+      A7_LANDSCAPE_WIDTH_PT,
+      A7_LANDSCAPE_HEIGHT_PT,
     );
   });
 
-  it("renders exactly one page per calculated box", async () => {
-    await expectA7Pages(
+  it("renders exactly one A7 page per calculated box", async () => {
+    await expectPages(
       await renderer.generatePartTagPdf({
         ...payload,
         qtyOrder: 101,
         qtyPerbox: 20,
       }),
       6,
+      A7_LANDSCAPE_WIDTH_PT,
+      A7_LANDSCAPE_HEIGHT_PT,
+    );
+  });
+});
+
+describe("PartTagPdfService", () => {
+  const service = new PartTagPdfService();
+
+  it("places each A7 label on one Epson-compatible carrier page", async () => {
+    await expectPages(
+      await service.generatePartTagPdf(payload),
+      1,
+      EPSON_CARRIER_WIDTH_PT,
+      EPSON_CARRIER_HEIGHT_PT,
+    );
+  });
+
+  it("preserves one carrier page per calculated box", async () => {
+    await expectPages(
+      await service.generatePartTagPdf({
+        ...payload,
+        qtyOrder: 101,
+        qtyPerbox: 20,
+      }),
+      6,
+      EPSON_CARRIER_WIDTH_PT,
+      EPSON_CARRIER_HEIGHT_PT,
     );
   });
 });

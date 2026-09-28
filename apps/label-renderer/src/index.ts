@@ -256,7 +256,7 @@ export class PartTagPdfRenderer {
         {
           colSpan: 2,
           margin: [0, 0, 0, 0],
-          fit: 32,
+          fit: 40,
           qr: partTag.poId,
           border: [true, true, true, false],
           alignment: "center",
@@ -266,7 +266,7 @@ export class PartTagPdfRenderer {
           colSpan: 2,
           margin: [0, 0, 0, 0],
           border: [true, true, true, false],
-          fit: 32,
+          fit: 40,
           qr: labelNumber,
           alignment: "center",
         },
