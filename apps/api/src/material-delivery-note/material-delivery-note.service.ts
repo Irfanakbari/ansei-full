@@ -1066,6 +1066,7 @@ export class MaterialDeliveryNoteService {
       const worksheet = workbook.addWorksheet('Delivery Note');
       const dateStr = dayjs().format('DD-MM-YYYY HH:mm');
       const code = dn.DeliveryNoteNum;
+      const qrCodeValue = dn.Id;
 
       const subStartRow = 10;
       const headerRowIdx = subStartRow + 4; // Row 14: Table Headers
@@ -1290,10 +1291,10 @@ export class MaterialDeliveryNoteService {
       worksheet.getCell(`A${subStartRow + 1}`).value = 'Notes';
       worksheet.getCell(`C${subStartRow + 1}`).value = `: ${dn.Notes || '-'}`;
 
-      // Generate QR Code image using bwip-js
+      // Encode the delivery note record UUID so scans can resolve the exact record.
       const qrRaw = await bwipjs.toBuffer({
         bcid: 'qrcode',
-        text: code,
+        text: qrCodeValue,
         scale: 3,
       });
 

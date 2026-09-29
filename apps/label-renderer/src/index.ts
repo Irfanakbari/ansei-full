@@ -5,7 +5,7 @@ import { PDFDocument } from "pdf-lib";
 
 export const A7_LANDSCAPE_WIDTH_PT = 297.64;
 export const A7_LANDSCAPE_HEIGHT_PT = 209.76;
-export const A7_SAFE_MARGIN_PT = 8.5;
+export const A7_SAFE_MARGIN_PT = 4;
 
 export interface PartTagPayload {
   poId: string;
@@ -67,11 +67,19 @@ export class PartTagPdfRenderer {
           {
             alignment: "center",
             style: "tableContent",
+            layout: {
+              hLineWidth: () => 0.5,
+              vLineWidth: () => 0.5,
+              paddingLeft: () => 2,
+              paddingRight: () => 2,
+              paddingTop: () => 1.5,
+              paddingBottom: () => 1.5,
+            },
             table: {
-              widths: [70, 70, 70, 70],
-              heights: [20, 26, 24, 24, 38, 11],
+              widths: [67, 67, 67, 67],
+              heights: [22, 27, 27, 27, 49, 14],
+              headerRows: 0,
               dontBreakRows: true,
-              keepWithHeaderRows: 0,
               body: this.createTableBody(
                 partTag,
                 qtyInBox,
@@ -83,18 +91,18 @@ export class PartTagPdfRenderer {
         ],
         styles: {
           header: {
-            fontSize: 6,
+            fontSize: 8,
             bold: true,
             alignment: "left",
-            margin: [1, 1, 1, 1],
+            margin: [0, 0, 0, 0],
           },
           tableHeader: {
-            fontSize: 6,
+            fontSize: 8,
             bold: true,
             alignment: "left",
-            margin: [1, 1, 1, 1],
+            margin: [0, 0, 0, 0],
           },
-          tableContent: { fontSize: 7, margin: [0, 0, 0, 0] },
+          tableContent: { fontSize: 8, margin: [0, 0, 0, 0] },
         },
       };
 
@@ -133,17 +141,19 @@ export class PartTagPdfRenderer {
     return Buffer.from(finalBytes);
   }
 
-  private compactText(value: unknown, maxLength: number): string {
-    const normalized = String(value ?? "")
-      .replace(/[\r\n]+/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-    if (normalized.length <= maxLength) return normalized;
-    return `${normalized.slice(0, Math.max(0, maxLength - 1))}…`;
-  }
-
-  private field(label: string, value: unknown, maxLength: number): string {
-    return `${label}\n${this.compactText(value, maxLength)}`;
+  private field(label: string, value: unknown, valueMarginTop = 3) {
+    return {
+      stack: [
+        {text: label, fontSize: 7, bold: true, lineHeight: 1},
+        {
+          text: String(value ?? ""),
+          fontSize: 8,
+          bold: true,
+          lineHeight: 1,
+          margin: [0, valueMarginTop, 0, 0],
+        },
+      ],
+    };
   }
 
   private createTableBody(
@@ -185,7 +195,7 @@ export class PartTagPdfRenderer {
         {},
         {},
         {
-          text: this.field("Delivery Date", deliveryDateStr, 16),
+          ...this.field("Delivery Date", deliveryDateStr),
           style: "tableHeader",
           colSpan: 1,
           alignment: "left",
@@ -193,51 +203,51 @@ export class PartTagPdfRenderer {
       ],
       [
         {
-          text: this.field("Part Number", partTag.partNumber, 20),
+          ...this.field("Part Number", partTag.partNumber),
           style: "tableHeader",
           alignment: "left",
         },
         {
-          text: this.field("Part Name", partTag.partName, 36),
+          ...this.field("Part Name", partTag.partName, 2),
           style: "tableHeader",
           colSpan: 2,
           alignment: "left",
         },
         {},
         {
-          text: this.field("Receiving Area", partTag.receivingArea, 18),
+          ...this.field("Receiving Area", partTag.receivingArea, 2),
           style: "tableHeader",
           alignment: "left",
         },
       ],
       [
         {
-          text: this.field("Qty In Box", `${qtyInBox} (Box ${boxNumber})`, 18),
+          ...this.field("Qty In Box", `${qtyInBox} (Box ${boxNumber})`),
           style: "tableHeader",
           alignment: "left",
         },
         {
-          text: this.field("Qty Order", partTag.qtyOrder, 12),
+          ...this.field("Qty Order", partTag.qtyOrder),
           style: "tableHeader",
           alignment: "left",
         },
         {
-          text: this.field("Classification", partTag.classificationCode, 18),
+          ...this.field("Classification", partTag.classificationCode),
           style: "tableHeader",
           alignment: "left",
         },
         {
-          text: this.field("Shelf No.", "AN01", 10),
+          ...this.field("Shelf No.", "AN01"),
           style: "tableHeader",
           alignment: "left",
         },
       ],
       [
         {
-          text: this.field(
+          ...this.field(
             "Vendor",
             `${partTag.vendorCode} - PT ANSEI INDONESIA JAYA`,
-            52,
+            2,
           ),
           style: "tableHeader",
           alignment: "left",
@@ -246,7 +256,7 @@ export class PartTagPdfRenderer {
         {},
         {},
         {
-          text: this.field("PO Number", partTag.poNumber, 20),
+          ...this.field("PO Number", partTag.poNumber, 2),
           style: "tableHeader",
           colSpan: 1,
           alignment: "left",
@@ -256,7 +266,7 @@ export class PartTagPdfRenderer {
         {
           colSpan: 2,
           margin: [0, 0, 0, 0],
-          fit: 40,
+          fit: 45,
           qr: partTag.poId,
           border: [true, true, true, false],
           alignment: "center",
@@ -266,7 +276,7 @@ export class PartTagPdfRenderer {
           colSpan: 2,
           margin: [0, 0, 0, 0],
           border: [true, true, true, false],
-          fit: 40,
+          fit: 45,
           qr: labelNumber,
           alignment: "center",
         },
@@ -278,7 +288,9 @@ export class PartTagPdfRenderer {
           bold: true,
           border: [true, false, true, true],
           alignment: "center",
-          fontSize: 8,
+          fontSize: 7,
+          noWrap: true,
+          characterSpacing: -0.15,
           margin: [0, 0, 0, 0],
           text: `${partTag.poId}`,
         },
@@ -289,7 +301,9 @@ export class PartTagPdfRenderer {
           margin: [0, 0, 0, 0],
           border: [true, false, true, true],
           alignment: "center",
-          fontSize: 8,
+          fontSize: 7,
+          noWrap: true,
+          characterSpacing: -0.15,
           text: `${labelNumber}`,
         },
         {},
