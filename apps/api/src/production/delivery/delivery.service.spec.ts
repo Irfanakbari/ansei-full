@@ -120,7 +120,7 @@ describe('DeliveryService', () => {
     });
 
     it('should create delivery successfully', async () => {
-      const dto = { labelDataId: 1 };
+      const dto = { labelNumber: 'LBL001' };
       const mockLabelData = {
         Id: 1,
         LabelNumber: 'LBL001',
@@ -169,10 +169,16 @@ describe('DeliveryService', () => {
       const result = await service.create(dto, 'admin');
 
       expect(result.success).toBe(true);
+      expect(mockPrismaService.labelData.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { LabelNumber: 'LBL001' } }),
+      );
+      expect(mockTx.labelData.findUnique).toHaveBeenCalledWith({
+        where: { Id: 1 },
+      });
     });
 
     it('should create delivery with palletNumber and enqueue outbox event', async () => {
-      const dto = { labelDataId: 1, palletNumber: 'PP2PANS001' };
+      const dto = { labelNumber: 'LBL001', palletNumber: 'PP2PANS001' };
       const mockLabelData = {
         Id: 1,
         LabelNumber: 'LBL001',
@@ -245,7 +251,7 @@ describe('DeliveryService', () => {
       mockPrismaService.labelData.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.create({ labelDataId: 999 }, 'admin'),
+        service.create({ labelNumber: 'MISSING-LABEL' }, 'admin'),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -313,7 +319,7 @@ describe('DeliveryService', () => {
           (callback: (client: typeof tx) => Promise<unknown>) => callback(tx),
         );
         await expect(
-          service.create({ labelDataId: 1 }, 'admin'),
+          service.create({ labelNumber: 'LBL001' }, 'admin'),
         ).rejects.toThrow(BadRequestException);
         expect(tx.finishGood.update).not.toHaveBeenCalled();
         expect(tx.inventoryLedger.create).not.toHaveBeenCalled();
@@ -325,9 +331,9 @@ describe('DeliveryService', () => {
       const mockLabelData = { Id: 1, LabelNumber: 'LBL001', Scanned: false };
       mockPrismaService.labelData.findUnique.mockResolvedValue(mockLabelData);
 
-      await expect(service.create({ labelDataId: 1 }, 'admin')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.create({ labelNumber: 'LBL001' }, 'admin'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 

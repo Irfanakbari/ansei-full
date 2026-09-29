@@ -1,16 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsString, IsInt, IsOptional, Min } from 'class-validator';
+import { IsString, IsInt, IsNotEmpty, IsOptional, Min } from 'class-validator';
 
 export class CreateDeliveryDto {
   @ApiProperty({
     description:
-      'LabelData ID to deliver (qty will be taken from LabelData.QtyThisBox)',
-    example: 1,
+      'Label number to deliver (qty will be taken from LabelData.QtyThisBox)',
+    example: 'LBL001',
   })
-  @IsInt()
-  @Min(1)
-  labelDataId: number;
+  @IsString()
+  @IsNotEmpty()
+  labelNumber: string;
 
   @ApiPropertyOptional({
     description: 'Optional Pallet ID / Code for delivery',

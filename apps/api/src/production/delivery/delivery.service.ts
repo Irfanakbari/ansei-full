@@ -93,7 +93,7 @@ export class DeliveryService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Starting delivery process: LabelDataId=${dto.labelDataId}`,
+        message: `Starting delivery process: LabelNumber=${dto.labelNumber}`,
         type: 'INFO',
         location: 'delivery.service.ts:30',
       });
@@ -107,7 +107,7 @@ export class DeliveryService {
 
       // ========== POKAYOKE 1: Validate LabelData exists ==========
       const labelData = await this.prisma.labelData.findUnique({
-        where: { Id: dto.labelDataId },
+        where: { LabelNumber: dto.labelNumber },
         include: {
           PartData: {
             select: {
@@ -128,13 +128,13 @@ export class DeliveryService {
       if (!labelData) {
         await this.logService.addLog({
           processId: logProcess.ProcessId,
-          message: `POKAYOKE 1 FAILED: LabelData with ID ${dto.labelDataId} not found`,
+          message: `POKAYOKE 1 FAILED: LabelData with LabelNumber ${dto.labelNumber} not found`,
           type: 'ERROR',
           location: 'delivery.service.ts:48',
         });
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
         throw new BadRequestException(
-          `POKAYOKE 1: LabelData with ID ${dto.labelDataId} not found in system`,
+          `POKAYOKE 1: LabelData with LabelNumber ${dto.labelNumber} not found in system`,
         );
       }
 
@@ -365,6 +365,7 @@ export class DeliveryService {
 
       // Store processId in local variable to avoid shadowing with Node.js global process
       const localProcessId = logProcess.ProcessId;
+      const internalLabelDataId = labelData.Id;
 
       // Create DeliveryHistory and update stock in transaction
       const result = await withInventoryTransaction(
@@ -373,7 +374,7 @@ export class DeliveryService {
         async (tx) => {
           await lockProductionFlow(tx);
           const { label: labelData, forecast: currentForecast } =
-            await assertLabelReady(tx, dto.labelDataId, true);
+            await assertLabelReady(tx, internalLabelDataId, true);
           await assertNoActiveInventoryCounting(
             tx,
             ItemCategory.FINISH_GOOD,

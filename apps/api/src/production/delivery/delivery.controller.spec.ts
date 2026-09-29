@@ -49,7 +49,7 @@ describe('DeliveryController', () => {
 
   describe('create', () => {
     it('should create a delivery successfully', async () => {
-      const createDto: CreateDeliveryDto = { labelDataId: 1 };
+      const createDto: CreateDeliveryDto = { labelNumber: 'LBL001' };
       const mockResult = {
         success: true,
         message: 'Delivery successful',

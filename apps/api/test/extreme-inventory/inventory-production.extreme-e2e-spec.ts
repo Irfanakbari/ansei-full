@@ -786,7 +786,7 @@ describe('Extreme inventory and production E2E', () => {
       ).Scanned,
     ).toBe(false);
     await post('/production/delivery', {
-      labelDataId: assemblyLabels[0].Id,
+      labelNumber: assemblyLabels[0].LabelNumber,
       palletNumber: 'EXT-PALLET-BLOCKED',
     }).expect(400);
     const scanRace = await race(() =>
@@ -824,7 +824,7 @@ describe('Extreme inventory and production E2E', () => {
       })
     ).Qty;
     const failedDelivery = await post('/production/delivery', {
-      labelDataId: assemblyLabels[0].Id,
+      labelNumber: assemblyLabels[0].LabelNumber,
       palletNumber: 'EXT-PALLET-FAIL',
     });
     expect(failedDelivery.status).toBeGreaterThanOrEqual(500);
@@ -842,7 +842,7 @@ describe('Extreme inventory and production E2E', () => {
     await prisma.$executeRawUnsafe('DROP FUNCTION extreme_fail_delivery()');
     const deliveryRace = await race(() =>
       post('/production/delivery', {
-        labelDataId: assemblyLabels[0].Id,
+        labelNumber: assemblyLabels[0].LabelNumber,
         palletNumber: 'EXT-PALLET-1',
       }),
     );
@@ -907,7 +907,7 @@ describe('Extreme inventory and production E2E', () => {
       status: 'SUKSES',
     }).expect(201);
     await post('/production/delivery', {
-      labelDataId: winningLabel.Id,
+      labelNumber: winningLabel.LabelNumber,
       palletNumber: 'EXT-PALLET-ASSY-RACE-WINNER',
     }).expect(201);
 
@@ -928,7 +928,7 @@ describe('Extreme inventory and production E2E', () => {
       status: 'SUKSES',
     }).expect(201);
     await post('/production/delivery', {
-      labelDataId: losingLabel.Id,
+      labelNumber: losingLabel.LabelNumber,
       palletNumber: 'EXT-PALLET-ASSY-RACE-LOSER',
     }).expect(201);
 
@@ -937,7 +937,7 @@ describe('Extreme inventory and production E2E', () => {
       status: 'SUKSES',
     }).expect(201);
     await post('/production/delivery', {
-      labelDataId: passLabels[0].Id,
+      labelNumber: passLabels[0].LabelNumber,
       palletNumber: 'EXT-PALLET-PASS-1',
     }).expect(201);
     const outstandingKey = randomUUID();
@@ -972,7 +972,7 @@ describe('Extreme inventory and production E2E', () => {
 
     const closeRace = await Promise.all([
       post('/production/delivery', {
-        labelDataId: passLabels[1].Id,
+        labelNumber: passLabels[1].LabelNumber,
         palletNumber: 'EXT-PALLET-PASS-2',
       }),
       patch(`/production/production-release/${String(release.Id)}`, {
