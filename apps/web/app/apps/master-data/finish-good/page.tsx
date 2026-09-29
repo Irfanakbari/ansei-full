@@ -3,7 +3,8 @@
 
 import React, {useState, useEffect, useRef} from 'react';
 import {Table, Card, Breadcrumb, Input, Space, Button, Tag, Tooltip, App} from 'antd';
-import type {InputRef} from 'antd';
+import type {InputRef, TableProps} from 'antd';
+import type {FilterDropdownProps} from 'antd/es/table/interface';
 import {
     ReloadOutlined,
     SearchOutlined,
@@ -56,12 +57,12 @@ export default function FinishGoodPage() {
     const searchInput = useRef<InputRef>(null);
 
     const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: any) => (
+        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: FilterDropdownProps) => (
             <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
                 <Input
                     ref={searchInput}
                     placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
+                    value={String(selectedKeys[0] ?? '')}
                     onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                     onPressEnter={() => confirm()}
                     style={{marginBottom: 8, display: 'block'}}
@@ -71,10 +72,7 @@ export default function FinishGoodPage() {
                             style={{width: 90}}>
                         Search
                     </Button>
-                    <Button onClick={() => {
-                        if (clearFilters) clearFilters();
-                        confirm();
-                    }} size="small" style={{width: 90}}>
+                    <Button onClick={() => clearFilters?.({confirm: true})} size="small" style={{width: 90}}>
                         Reset
                     </Button>
                 </Space>
@@ -86,7 +84,7 @@ export default function FinishGoodPage() {
         filteredValue: query.search ? [query.search] : null,
     });
 
-    const columns = [
+    const columns: TableProps<FinishGoodEntity>['columns'] = [
         {
             title: 'Part Number',
             dataIndex: 'PartNumber',
