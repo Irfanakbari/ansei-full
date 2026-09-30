@@ -2,11 +2,12 @@
   "repository": {
     "source": "combined-git-history",
     "upstreamRepository": "https://github.com/Vuteq-Indonesia/api-ansei-revamp",
-    "generatedAt": "2026-09-26",
-    "commitCount": 126,
+    "generatedAt": "2026-09-30",
+    "commitCount": 127,
     "format": "standardized-curated-commit-summaries"
   },
   "commits": [
+    { "hash": "fcb8827453cabbd4a0c86eb073b46212777fb365", "shortHash": "fcb8827", "author": "irfanakbari", "date": "2026-09-30T10:57:18+07:00", "category": "Feature", "summary": "Unify NG reporting, add ASSY replacement flow, and introduce readable operational record numbers" },
     { "hash": "49f6ac6c6b82c9972f85e9928bba25f626ad8754", "shortHash": "49f6ac6", "author": "irfanakbari", "date": "2026-09-26T14:15:50+07:00", "category": "Fix", "summary": "Harden inventory input and NAS paths" },
     { "hash": "a28c04ac2cd8040c94b72fc7dec7b76d5176b703", "shortHash": "a28c04a", "author": "irfanakbari", "date": "2026-09-25T16:24:46+07:00", "category": "Feature", "summary": "Add incoming supply inflow trends, supplier breakdown, and raw material metrics" },
     { "hash": "400a43fa44986ce144abeed50074b3d3486f15fa", "shortHash": "400a43f", "author": "irfanakbari", "date": "2026-09-25T14:15:17+07:00", "category": "Fix", "summary": "Resolve infinite stock transfer fetch loop and fix BOM search reset" },
