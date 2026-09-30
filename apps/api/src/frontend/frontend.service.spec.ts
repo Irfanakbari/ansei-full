@@ -27,7 +27,6 @@ describe('FrontendService', () => {
     deliveryHistory: { findMany: jest.Mock; groupBy: jest.Mock };
     productionReport: { findMany: jest.Mock };
     pokayokeScanHistory: { count: jest.Mock };
-    materialNgCase: { findMany: jest.Mock };
   };
 
   beforeEach(async () => {
@@ -54,7 +53,6 @@ describe('FrontendService', () => {
       deliveryHistory: { findMany: jest.fn(), groupBy: jest.fn() },
       productionReport: { findMany: jest.fn() },
       pokayokeScanHistory: { count: jest.fn() },
-      materialNgCase: { findMany: jest.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -207,7 +205,6 @@ describe('FrontendService', () => {
       prisma.deliveryHistory.findMany.mockResolvedValue([]);
       prisma.deliveryHistory.groupBy.mockResolvedValue([]);
       prisma.shoppingCompletion.findMany.mockResolvedValue([]);
-      prisma.materialNgCase.findMany.mockResolvedValue([]);
     });
 
     it('uses half-open Jakarta month boundaries and null percentages for zero denominators', async () => {

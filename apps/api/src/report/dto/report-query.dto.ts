@@ -74,11 +74,6 @@ export class ProductionReportQueryDto extends DateRangeQueryDto {}
 export class ShoppingHistoryReportQueryDto extends DateRangeQueryDto {}
 
 /**
- * DTO for Material NG Report
- */
-export class MaterialNgReportQueryDto extends DateRangeQueryDto {}
-
-/**
  * DTO for Inventory Ledger Report
  */
 export class InventoryLedgerReportQueryDto extends DateRangeQueryDto {
@@ -110,8 +105,3 @@ export class ProductionEfficiencyReportQueryDto extends DateRangeQueryDto {}
  * DTO for Pokayoke Falloff Report
  */
 export class PokayokeFalloffReportQueryDto extends DateRangeQueryDto {}
-
-/**
- * DTO for Material Scrap Rate Report
- */
-export class MaterialScrapRateReportQueryDto extends DateRangeQueryDto {}

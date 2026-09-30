@@ -86,7 +86,9 @@ export class OutboxService {
       type:
         | 'PRINT_PART_TAG_ANSEI'
         | 'DELIVERY_NOTE_EMAIL'
-        | 'PALLET_CONNECTOR_HISTORY';
+        | 'PALLET_CONNECTOR_HISTORY'
+        | 'INVENTORY_COUNTING_PACKAGE'
+        | 'INVENTORY_COUNTING_PACKAGE_EMAIL';
       payload: OutboxPayload;
       actor: string;
       referenceType: string;

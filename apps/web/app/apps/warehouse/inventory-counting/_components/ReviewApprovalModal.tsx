@@ -266,7 +266,7 @@ const ReviewApprovalModal: React.FC<Props> = ({
             title={
                 <Space>
                     <CheckCircleOutlined style={{ color: '#1677ff' }} />
-                    <span>Review & Inventory Counting Approval: {data?.OpnameNumber || '-'}</span>
+                    <span>Review & Inventory Counting Approval: {data?.RecordNumber || '-'}</span>
                 </Space>
             }
             open={visible}
@@ -297,8 +297,8 @@ const ReviewApprovalModal: React.FC<Props> = ({
             }
         >
             <Descriptions size="small" column={3} style={{ marginBottom: 16 }}>
-                <Descriptions.Item label="Opname Number">
-                    <code>{data?.OpnameNumber || '-'}</code>
+                <Descriptions.Item label="Record Number">
+                    <code>{data?.RecordNumber || '-'}</code>
                 </Descriptions.Item>
                 <Descriptions.Item label="Category">
                     <Tag color={data?.Category === 'MATERIAL' ? 'blue' : 'purple'}>

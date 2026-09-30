@@ -67,20 +67,9 @@ export class ShoppingQueryDto extends SearchPaginationQueryDto {
   scope?: 'OPERATIONS';
 
   @ApiPropertyOptional({
-    enum: [
-      'STANDARD',
-      'NG_REPLACEMENT',
-      'NON_PRODUCTION',
-      'LEGACY_UNCLASSIFIED',
-    ],
+    enum: ['STANDARD', 'NON_PRODUCTION', 'LEGACY_UNCLASSIFIED'],
   })
   @IsOptional()
-  @IsEnum([
-    'STANDARD',
-    'NG_REPLACEMENT',
-    'NON_PRODUCTION',
-    'LEGACY_UNCLASSIFIED',
-  ])
-  purpose?:
-    'STANDARD' | 'NG_REPLACEMENT' | 'NON_PRODUCTION' | 'LEGACY_UNCLASSIFIED';
+  @IsEnum(['STANDARD', 'NON_PRODUCTION', 'LEGACY_UNCLASSIFIED'])
+  purpose?: 'STANDARD' | 'NON_PRODUCTION' | 'LEGACY_UNCLASSIFIED';
 }

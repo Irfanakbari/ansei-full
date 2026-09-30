@@ -12,6 +12,7 @@ import {
     Input,
     InputNumber,
     Modal,
+    Select,
     Space,
     Switch,
     Tag,
@@ -37,6 +38,7 @@ import {
     updateManPower,
     uploadManPowerPicture
 } from "@/store/features/master/manPowerSlice";
+import type {EmployeeType} from "@/store/features/master/manPowerSlice";
 import {formatDateTime} from "@/lib/utils/dateTime";
 
 const {Text} = Typography;
@@ -44,6 +46,7 @@ const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 type FormValues = {
     nik: string;
     name: string;
+    employeeType: EmployeeType;
     line?: string;
     status?: boolean;
     skillMatrix?: { label: string; point: number }[]
@@ -80,6 +83,7 @@ export default function ManPowerModal({open, data, onClose, onChanged}: Props) {
         form.setFieldsValue({
             nik: data.Nik,
             name: data.Name,
+            employeeType: data.EmployeeType,
             line: data.Line ?? undefined,
             status: data.Status,
             skillMatrix: data.SkillMatrix?.map((skill) => ({label: skill.Label, point: skill.Point})) ?? []
@@ -198,6 +202,9 @@ export default function ManPowerModal({open, data, onClose, onChanged}: Props) {
             message: "Please enter NIK"
         }]}><Input/></Form.Item><Form.Item name="name" label="Name"
                                            rules={[{required: true, message: "Please enter name"}]}><Input/></Form.Item><Form.Item
+            name="employeeType" label="Employee Type"
+            rules={[{required: true, message: "Please select employee type"}]}><Select
+            options={[{value: "DAILY", label: "DAILY"}, {value: "PCS", label: "PCS"}]}/></Form.Item><Form.Item
             name="line" label="Line"><Input/></Form.Item><Form.Item label="Foto Karyawan (Max 5MB)">{displayPicture ?
             <Space><Image src={displayPicture} alt="Foto Manpower" preview={false} style={{
                 width: 64,
@@ -243,6 +250,7 @@ export default function ManPowerModal({open, data, onClose, onChanged}: Props) {
                                                                  valuePropName="checked"><Switch/></Form.Item></Form> : <>
             <Descriptions bordered size="small" column={2}><Descriptions.Item label="NIK">{data.Nik}</Descriptions.Item><Descriptions.Item
                 label="Name">{data.Name}</Descriptions.Item><Descriptions.Item
+                label="Employee Type">{data.EmployeeType}</Descriptions.Item><Descriptions.Item
                 label="Line">{data.Line || "-"}</Descriptions.Item><Descriptions.Item label="Status"><Tag
                 color={data.Status ? "green" : "red"}>{data.Status ? "Active" : "Inactive"}</Tag></Descriptions.Item><Descriptions.Item
                 label="Photo">{data.PicturePath ? <Avatar src={data.PicturePath} size={64} shape="square"/> :

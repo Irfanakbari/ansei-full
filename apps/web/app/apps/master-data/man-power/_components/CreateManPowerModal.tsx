@@ -1,6 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-09-16*/
 import React, {useState, useEffect} from 'react';
-import {Modal, Form, Input, InputNumber, App, Switch, Upload, Button, Space, Typography} from 'antd';
+import {Modal, Form, Input, InputNumber, App, Switch, Upload, Button, Space, Typography, Select} from 'antd';
 import {UploadOutlined, DeleteOutlined, PictureOutlined, MinusCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '@/store';
@@ -74,6 +74,7 @@ const CreateManPowerModal: React.FC<Props> = ({visible, onClose, onSuccess}) => 
             const payload = {
                 nik: values.nik,
                 name: values.name,
+                employeeType: values.employeeType,
                 line: values.line,
                 status: values.status !== undefined ? values.status : true,
                 skillMatrix: values.skillMatrix || [],
@@ -120,12 +121,16 @@ const CreateManPowerModal: React.FC<Props> = ({visible, onClose, onSuccess}) => 
             width={500}
             zIndex={1050}
         >
-            <Form form={form} layout="vertical" initialValues={{status: true}}>
+            <Form form={form} layout="vertical" initialValues={{status: true, employeeType: 'PCS'}}>
                 <Form.Item name="nik" label="NIK" rules={[{required: true, message: 'Please enter NIK'}]}>
                     <Input placeholder="Enter NIK"/>
                 </Form.Item>
                 <Form.Item name="name" label="Name" rules={[{required: true, message: 'Please enter name'}]}>
                     <Input placeholder="Enter name"/>
+                </Form.Item>
+                <Form.Item name="employeeType" label="Employee Type"
+                           rules={[{required: true, message: 'Please select employee type'}]}>
+                    <Select options={[{value: 'DAILY', label: 'DAILY'}, {value: 'PCS', label: 'PCS'}]}/>
                 </Form.Item>
                 <Form.Item name="line" label="Line">
                     <Input placeholder="Enter production line"/>

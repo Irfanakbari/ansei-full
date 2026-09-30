@@ -24,8 +24,6 @@ const TABLES_TO_CLEAR = [
   'BusinessCommand',
   'ShoppingCompletion',
   'Shopping',
-  'MaterialNgCase',
-  'MaterialNG',
   'AssemblySession',
   'PokayokeScanHistory',
   'DeliveryHistory',

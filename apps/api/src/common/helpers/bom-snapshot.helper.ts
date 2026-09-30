@@ -138,20 +138,6 @@ export async function snapshotRelease(
   }
 }
 
-export async function assertNoOutstandingReplacement(
-  tx: Client,
-  releaseId: string,
-) {
-  if (
-    await tx.materialNgCase.count({
-      where: { ReleaseId: releaseId, Status: 'OPEN' },
-    })
-  )
-    throw new ConflictException(
-      'Resolve or close outstanding material replacement cases before completing the release.',
-    );
-}
-
 /** Shape adapter for existing order consumers; all quantities/names come from immutable snapshots. */
 export async function snapshotBomEntries(tx: Client, forecastId: string) {
   const snapshot = await orderBom(tx, forecastId);

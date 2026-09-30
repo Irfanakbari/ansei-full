@@ -83,32 +83,6 @@ export class SnapshotResponseDto {
     unknown
   >;
 }
-export class NgCaseResponseDto {
-  @ApiProperty() Id: string;
-  @ApiProperty() CaseNumber: string;
-  @ApiProperty() ForecastId: string;
-  @ApiProperty() ReleaseId: string;
-  @ApiProperty() SnapshotId: string;
-  @ApiProperty() Stage: string;
-  @ApiProperty() Reason: string;
-  @ApiProperty({ enum: ['OPEN', 'FULFILLED', 'CLOSED', 'CANCELLED'] })
-  Status: string;
-  @ApiProperty() CreatedBy: string;
-  @ApiProperty({ format: 'date-time' }) CreatedAt: string;
-  @ApiProperty({ nullable: true, type: String }) ClosedBy: string | null;
-  @ApiProperty({ nullable: true, type: String }) CloseReason: string | null;
-  @ApiProperty({ nullable: true, type: String, format: 'date-time' }) ClosedAt:
-    string | null;
-  @ApiProperty({
-    type: 'array',
-    items: { type: 'object', additionalProperties: true },
-    description:
-      'MaterialNG details with SnapshotLine and Replacements shopping records',
-  })
-  Details: Record<string, unknown>[];
-  @ApiPropertyOptional({ type: 'object', additionalProperties: true })
-  Snapshot?: Record<string, unknown>;
-}
 export class TraceSearchResponseDto {
   @ApiProperty() PoId: string;
   @ApiProperty() PoNumber: string;
@@ -143,10 +117,62 @@ export class MaterialUsageResponseDto {
   @ApiProperty({ nullable: true, type: String }) unitName: string | null;
   @ApiProperty() standardRequired: number;
   @ApiProperty() standardIssued: number;
-  @ApiProperty() materialNg: number;
-  @ApiProperty() replacementIssued: number;
   @ApiProperty() totalIssued: number;
-  @ApiProperty() remainingReplacement: number;
+}
+export class ProductionFindingShoppingResponseDto {
+  @ApiProperty() Id: string;
+  @ApiProperty() MaterialId: string;
+  @ApiProperty() QtyPick: number;
+  @ApiProperty() Purpose: string;
+  @ApiProperty({ nullable: true, type: String }) Destination: string | null;
+  @ApiProperty({ nullable: true, type: String }) Description: string | null;
+  @ApiProperty({ format: 'date-time' }) CreatedAt: string;
+}
+export class ProductionFindingAllocationResponseDto {
+  @ApiProperty() Id: string;
+  @ApiProperty() Qty: number;
+  @ApiProperty({ type: ProductionFindingShoppingResponseDto })
+  Shopping: ProductionFindingShoppingResponseDto;
+}
+export class ProductionFindingSnapshotLineResponseDto {
+  @ApiProperty() PartNumber: string;
+  @ApiProperty() PartName: string;
+  @ApiProperty({ nullable: true, type: String }) UnitName: string | null;
+  @ApiProperty() QtyPerUnit: number;
+}
+export class ProductionFindingComponentResponseDto {
+  @ApiProperty() Id: string;
+  @ApiProperty({ description: 'Required component quantity for the finding' })
+  Qty: number;
+  @ApiProperty({ type: ProductionFindingSnapshotLineResponseDto })
+  SnapshotLine: ProductionFindingSnapshotLineResponseDto;
+  @ApiProperty({ type: [ProductionFindingAllocationResponseDto] })
+  Allocations: ProductionFindingAllocationResponseDto[];
+}
+export class ProductionFindingTraceResponseDto {
+  @ApiProperty() Id: string;
+  @ApiProperty() RecordNumber: string;
+  @ApiProperty({ enum: ['FINISH_GOOD'] }) Category: 'FINISH_GOOD';
+  @ApiProperty({
+    enum: ['PENDING', 'WAITING_PART_CHANGE', 'COMPLETED', 'REJECTED'],
+  })
+  Status: string;
+  @ApiProperty() Qty: number;
+  @ApiProperty() Reason: string;
+  @ApiProperty() Reporter: string;
+  @ApiProperty({ format: 'date-time' }) SubmittedAt: string;
+  @ApiProperty() ForecastId: string;
+  @ApiProperty({ nullable: true, type: String }) ReleaseId: string | null;
+  @ApiProperty({ nullable: true, type: String }) SnapshotId: string | null;
+  @ApiProperty({ nullable: true, type: Number }) LabelId: number | null;
+  @ApiProperty({
+    type: 'object',
+    additionalProperties: true,
+    nullable: true,
+  })
+  Label: Record<string, unknown> | null;
+  @ApiProperty({ type: [ProductionFindingComponentResponseDto] })
+  Components: ProductionFindingComponentResponseDto[];
 }
 export class TraceDetailResponseDto {
   @ApiProperty({ type: 'object', additionalProperties: true }) forecast: Record<
@@ -162,7 +188,8 @@ export class TraceDetailResponseDto {
     items: { type: 'object', additionalProperties: true },
   })
   shopping: Record<string, unknown>[];
-  @ApiProperty({ type: [NgCaseResponseDto] }) cases: NgCaseResponseDto[];
+  @ApiProperty({ type: [ProductionFindingTraceResponseDto] })
+  findings: ProductionFindingTraceResponseDto[];
   @ApiProperty({
     type: 'array',
     items: { type: 'object', additionalProperties: true },

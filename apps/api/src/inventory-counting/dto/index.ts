@@ -8,3 +8,4 @@ export * from './generate-cutoff.dto';
 export * from './inventory-counting-query.dto';
 export * from './generate-excel.dto';
 export * from './apply-ocr-results.dto';
+export * from './send-inventory-counting-package-email.dto';

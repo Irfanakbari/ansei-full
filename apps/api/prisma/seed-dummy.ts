@@ -458,6 +458,7 @@ async function main(): Promise<void> {
       update: {
         Name: `Dummy Operator ${index + 1}`,
         Line: `LINE-${String.fromCharCode(65 + (index % 4))}`,
+        EmployeeType: 'PCS',
         Status: index !== 15,
         UpdatedBy: ACTOR,
       },
@@ -465,6 +466,7 @@ async function main(): Promise<void> {
         Nik: nik,
         Name: `Dummy Operator ${index + 1}`,
         Line: `LINE-${String.fromCharCode(65 + (index % 4))}`,
+        EmployeeType: 'PCS',
         Status: index !== 15,
         CreatedBy: ACTOR,
         UpdatedBy: ACTOR,

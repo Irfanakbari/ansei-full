@@ -21,7 +21,6 @@ export default function MaterialUsageTable({
         { title: "Unit", dataIndex: "unitName" },
         { title: "Standard Required", dataIndex: "standardRequired" },
         { title: "Standard Issued", dataIndex: "standardIssued" },
-        { title: "NG Qty", dataIndex: "materialNg" },
         { title: "Replacement Issued", dataIndex: "replacementIssued" },
         { title: "Total Issued", dataIndex: "totalIssued" },
         { title: "Outstanding Replacement", dataIndex: "remainingReplacement" },

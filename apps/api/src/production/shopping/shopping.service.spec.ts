@@ -26,7 +26,6 @@ describe('ShoppingService', () => {
 
   beforeEach(async () => {
     prismaService = {
-      materialNG: { findMany: jest.fn().mockResolvedValue([]) },
       businessCommand: {
         findUnique: jest.fn(),
         create: jest.fn().mockResolvedValue({ Id: 'command' }),
@@ -311,7 +310,7 @@ describe('ShoppingService', () => {
     it('should throw BadRequestException if active inventory counting is in progress', async () => {
       prismaService.stockOpname.findFirst.mockResolvedValueOnce({
         Id: 'opname-1',
-        OpnameNumber: 'IC-2026-001',
+        RecordNumber: 'IC-2026-001',
         Category: 'MATERIAL',
         Status: 'IN_PROGRESS',
       });

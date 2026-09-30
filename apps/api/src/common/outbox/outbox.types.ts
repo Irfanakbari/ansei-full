@@ -18,10 +18,25 @@ export interface PalletConnectorHistoryPayload {
   deliveryId: number;
 }
 
+export interface InventoryCountingPackagePayload {
+  inventoryCountingId: string;
+  actor: string;
+}
+
+export interface InventoryCountingPackageEmailPayload {
+  inventoryCountingId: string;
+  recipients: string[];
+  actor: string;
+  subject?: string;
+  message?: string;
+}
+
 export type OutboxPayload =
   | PartTagAnseiPayload
   | DeliveryNoteEmailPayload
-  | PalletConnectorHistoryPayload;
+  | PalletConnectorHistoryPayload
+  | InventoryCountingPackagePayload
+  | InventoryCountingPackageEmailPayload;
 
 export interface OutboxJobPayload {
   eventId: string;

@@ -198,7 +198,7 @@ describe('MaterialDeliveryNoteService', () => {
       prismaService.stockOpname = {
         findFirst: jest.fn().mockResolvedValue({
           Id: 'opname-1234',
-          OpnameNumber: 'SO-MAT/2026/06/0001',
+          RecordNumber: 'SO-MAT/2026/06/0001',
           Category: 'MATERIAL',
           Status: 'IN_PROGRESS',
         }),
@@ -360,7 +360,7 @@ describe('MaterialDeliveryNoteService', () => {
       prismaService.stockOpname = {
         findFirst: jest.fn().mockResolvedValue({
           Id: 'opname-1234',
-          OpnameNumber: 'SO-MAT/2026/06/0001',
+          RecordNumber: 'SO-MAT/2026/06/0001',
           Category: 'MATERIAL',
           Status: 'IN_PROGRESS',
         }),

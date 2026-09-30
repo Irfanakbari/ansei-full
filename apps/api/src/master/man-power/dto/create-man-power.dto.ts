@@ -9,6 +9,7 @@ import {
   IsInt,
   Min,
   Max,
+  IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -37,6 +38,16 @@ export class CreateManPowerDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty({
+    description: 'Tipe karyawan',
+    enum: ['DAILY', 'PCS'],
+    example: 'PCS',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @IsIn(['DAILY', 'PCS'])
+  employeeType: string;
 
   @ApiPropertyOptional({ description: 'Line produksi', example: 'LINE-A' })
   @IsString()

@@ -121,7 +121,6 @@ describe('Master Modules E2E', () => {
     await prisma.materialDeliveryNoteDetail.deleteMany({ where: {} });
     await prisma.materialDeliveryNote.deleteMany({ where: {} });
     await prisma.shopping.deleteMany({ where: {} });
-    await prisma.materialNG.deleteMany({ where: {} });
     await prisma.incomingMaterial.deleteMany({ where: {} });
     await prisma.incoming.deleteMany({ where: {} });
     await prisma.stockOpnameDetail.deleteMany({ where: {} });

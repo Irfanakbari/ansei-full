@@ -222,9 +222,9 @@ export default function IncomingPage() {
             <ToolbarWrapper>
                 <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>} onClick={() => dispatch(fetchIncoming(query))}/>
                 <ButtonToolbar title="Create" icon={<PlusOutlined/>} onClick={() => setIsCreateModalVisible(true)}/>
-                <ButtonToolbar title="Receive" icon={<CheckOutlined/>} onClick={handleReceive}
-                               enable={Boolean(selectedRecord && !selectedRecord.Closed)}/>
                 <ButtonToolbar title="Checking" icon={<CheckCircleOutlined/>} onClick={handleChecking}
+                               enable={Boolean(selectedRecord && !selectedRecord.Closed)}/>
+                <ButtonToolbar title="Receive" icon={<CheckOutlined/>} onClick={handleReceive}
                                enable={Boolean(selectedRecord && !selectedRecord.Closed)}/>
                 <ButtonToolbar title="Attachment" icon={<PaperClipOutlined/>} onClick={handleUploadAttachment}
                                enable={Boolean(selectedRecord)}/>

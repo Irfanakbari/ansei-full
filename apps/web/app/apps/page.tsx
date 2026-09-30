@@ -524,7 +524,7 @@ export default function DashboardPage() {
       percent: true,
       color: "#cf1322",
       icon: <ExperimentOutlined />,
-      context: `${formatNumber(monthly?.materialNg.openCaseCount)} open cases · ${formatNumber(monthly?.materialNg.outstandingReplacementQty)} outstanding`,
+      context: `${formatNumber(monthly?.production.reportedNgQty)} reported NG quantity`,
     },
     {
       title: "Inventory risk",
@@ -597,14 +597,6 @@ export default function DashboardPage() {
       icon: <AlertOutlined />,
       color: "#cf1322",
       href: "/apps/warehouse/inventory-counting",
-    },
-    {
-      label: "Material NG open",
-      value: monthly?.materialNg.openCaseCount,
-      detail: `${formatNumber(monthly?.materialNg.outstandingReplacementQty)} replacement quantity`,
-      icon: <ExperimentOutlined />,
-      color: "#d46b08",
-      href: "/apps/production/material-ng",
     },
   ];
   const topPartHeight = Math.max(

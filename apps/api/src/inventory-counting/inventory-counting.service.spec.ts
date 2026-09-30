@@ -8,12 +8,14 @@ import { InventoryCountingService } from './inventory-counting.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
 import { NasUploadService } from '../common/utils/nas-upload.service';
+import { OutboxService } from '../common/outbox/outbox.service';
 import { ItemCategory, OpnameStatus } from '../generated/prisma/enums';
 
 describe('InventoryCountingService', () => {
   let service: InventoryCountingService;
   let prismaService: any;
-  let logService: any;
+  let logService: jest.Mocked<LogProcessService>;
+  let outboxService: { create: jest.Mock; findLatest: jest.Mock };
 
   const mockLogProcess = {
     ProcessId: 'PR202506110000001',
@@ -28,6 +30,7 @@ describe('InventoryCountingService', () => {
 
   beforeEach(async () => {
     const mockPrismaService = {
+      $queryRaw: jest.fn(),
       stockOpname: {
         findUnique: jest.fn(),
         findFirst: jest.fn(),
@@ -78,18 +81,25 @@ describe('InventoryCountingService', () => {
       deleteFile: jest.fn(),
     };
 
+    const mockOutboxService = {
+      create: jest.fn().mockResolvedValue({ Id: 'event-1' }),
+      findLatest: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         InventoryCountingService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: LogProcessService, useValue: mockLogProcessService },
         { provide: NasUploadService, useValue: mockNasUploadService },
+        { provide: OutboxService, useValue: mockOutboxService },
       ],
     }).compile();
 
     service = module.get<InventoryCountingService>(InventoryCountingService);
     prismaService = module.get(PrismaService);
     logService = module.get(LogProcessService);
+    outboxService = module.get(OutboxService);
     prismaService.$transaction.mockImplementation(
       (callback: (tx: typeof prismaService) => unknown) =>
         callback(prismaService),
@@ -102,7 +112,6 @@ describe('InventoryCountingService', () => {
 
   describe('create', () => {
     const createDto = {
-      opnameNumber: 'INV-2025-001',
       category: ItemCategory.MATERIAL,
       notes: 'Test notes',
     };
@@ -110,7 +119,7 @@ describe('InventoryCountingService', () => {
     it('should create inventory counting successfully', async () => {
       const mockResult = {
         Id: '123',
-        OpnameNumber: createDto.opnameNumber,
+        RecordNumber: 'AIC-01012601',
         Category: createDto.category,
         Status: OpnameStatus.DRAFT,
         CreatedAt: new Date(),
@@ -118,6 +127,19 @@ describe('InventoryCountingService', () => {
         Notes: createDto.notes,
       };
 
+      const tx = {
+        $queryRaw: jest
+          .fn()
+          .mockResolvedValue([{ BusinessDate: new Date(), LastSequence: 1 }]),
+        stockOpname: {
+          create: jest.fn().mockResolvedValue(mockResult),
+        },
+      };
+      prismaService.$transaction.mockImplementation((cb) => cb(tx));
+
+      prismaService.$queryRaw.mockResolvedValue([
+        { BusinessDate: new Date(), LastSequence: 1 },
+      ]);
       prismaService.stockOpname.findUnique.mockResolvedValue(null);
       prismaService.stockOpname.create.mockResolvedValue(mockResult);
 
@@ -125,10 +147,10 @@ describe('InventoryCountingService', () => {
 
       expect(result.success).toBe(true);
       expect(result.processId).toBe(mockLogProcess.ProcessId);
-      expect(result.data.OpnameNumber).toBe(createDto.opnameNumber);
+      expect(result.data.RecordNumber).toBe('AIC-01012601');
       expect(prismaService.stockOpname.create).toHaveBeenCalledWith({
         data: {
-          OpnameNumber: createDto.opnameNumber,
+          RecordNumber: expect.stringMatching(/^AIC-\d{8}$/),
           Category: createDto.category,
           Status: OpnameStatus.DRAFT,
           Notes: createDto.notes,
@@ -143,21 +165,6 @@ describe('InventoryCountingService', () => {
         'Inventory counting created successfully',
       );
     });
-
-    it('should throw BadRequestException for duplicate opnameNumber', async () => {
-      prismaService.stockOpname.findUnique.mockResolvedValue({
-        Id: '123',
-        OpnameNumber: createDto.opnameNumber,
-      });
-
-      await expect(service.create(createDto, 'test')).rejects.toThrow(
-        BadRequestException,
-      );
-      expect(logService.completeProcess).toHaveBeenCalledWith(
-        mockLogProcess.ProcessId,
-        'FAILED',
-      );
-    });
   });
 
   describe('findAll', () => {
@@ -165,7 +172,7 @@ describe('InventoryCountingService', () => {
       const mockList = [
         {
           Id: '1',
-          OpnameNumber: 'INV-001',
+          RecordNumber: 'INV-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.DRAFT,
           CreatedAt: new Date(),
@@ -207,7 +214,7 @@ describe('InventoryCountingService', () => {
     it('should return inventory counting with details', async () => {
       const mockResult = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Category: ItemCategory.MATERIAL,
         Status: OpnameStatus.DRAFT,
         CreatedAt: new Date(),
@@ -251,7 +258,7 @@ describe('InventoryCountingService', () => {
     it('should update notes successfully', async () => {
       const mockExisting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.DRAFT,
       };
 
@@ -286,7 +293,7 @@ describe('InventoryCountingService', () => {
     it('should delete DRAFT inventory counting', async () => {
       const mockExisting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.DRAFT,
         _count: { Details: 0 },
       };
@@ -305,7 +312,7 @@ describe('InventoryCountingService', () => {
     it('should throw BadRequestException when deleting non-DRAFT', async () => {
       const mockExisting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.COMPLETED,
         _count: { Details: 0 },
       };
@@ -320,7 +327,7 @@ describe('InventoryCountingService', () => {
     it('should start DRAFT inventory counting', async () => {
       const mockExisting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.DRAFT,
         Category: ItemCategory.MATERIAL,
         Details: [],
@@ -371,12 +378,65 @@ describe('InventoryCountingService', () => {
 
       expect(result.success).toBe(true);
       expect(result.data.Status).toBe(OpnameStatus.IN_PROGRESS);
+      expect(outboxService.create).toHaveBeenCalledWith(expect.anything(), {
+        idempotencyKey: 'inventory-counting-package:123',
+        type: 'INVENTORY_COUNTING_PACKAGE',
+        payload: { inventoryCountingId: '123', actor: 'test' },
+        actor: 'test',
+        referenceType: 'STOCK_OPNAME_PACKAGE',
+        referenceId: '123',
+      });
+    });
+
+    it('should queue an idempotent document package for an existing started MATERIAL session', async () => {
+      const startedMaterial = {
+        Id: '123',
+        RecordNumber: 'INV-001',
+        Category: ItemCategory.MATERIAL,
+        Status: OpnameStatus.IN_PROGRESS,
+        StartedAt: new Date(),
+        Tolerance: 0,
+        CreatedAt: new Date(),
+        CreatedBy: 'test',
+        CompletedAt: null,
+        CompletedBy: null,
+        Notes: null,
+        Details: [],
+      };
+      prismaService.stockOpname.findUnique.mockResolvedValue(startedMaterial);
+      outboxService.create.mockResolvedValue({
+        Id: 'outbox-1',
+        Type: 'INVENTORY_COUNTING_PACKAGE',
+        Status: 'PENDING',
+        Attempts: 0,
+        MaxAttempts: 3,
+        NextAttemptAt: new Date(),
+        LastErrorCode: null,
+        LastError: null,
+        CreatedAt: new Date(),
+        UpdatedAt: new Date(),
+        SucceededAt: null,
+        FailedAt: null,
+        ReferenceType: 'STOCK_OPNAME_PACKAGE',
+        ReferenceId: '123',
+      });
+
+      await service.queueDocumentPackage('123', 'test');
+
+      expect(outboxService.create).toHaveBeenCalledWith(expect.anything(), {
+        idempotencyKey: 'inventory-counting-package:123',
+        type: 'INVENTORY_COUNTING_PACKAGE',
+        payload: { inventoryCountingId: '123', actor: 'test' },
+        actor: 'test',
+        referenceType: 'STOCK_OPNAME_PACKAGE',
+        referenceId: '123',
+      });
     });
 
     it('should throw BadRequestException when starting non-DRAFT', async () => {
       const mockExisting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.COMPLETED,
         Category: ItemCategory.MATERIAL,
         Details: [],
@@ -394,7 +454,7 @@ describe('InventoryCountingService', () => {
     it('should generate cut-off items for MATERIAL', async () => {
       const mockExisting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.DRAFT,
         Details: [],
       };
@@ -443,7 +503,7 @@ describe('InventoryCountingService', () => {
     it('should reject cut-off generation for IN_PROGRESS counting', async () => {
       const mockExisting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.IN_PROGRESS,
         Details: [],
       };
@@ -897,7 +957,7 @@ describe('InventoryCountingService', () => {
     it('should close inventory counting and adjust stock', async () => {
       const mockExisting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.IN_PROGRESS,
         Details: [
           {
@@ -967,7 +1027,7 @@ describe('InventoryCountingService', () => {
     it('should throw BadRequestException when items have null ActualQty', async () => {
       const mockExisting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.IN_PROGRESS,
         Details: [
           {
@@ -1003,7 +1063,7 @@ describe('InventoryCountingService', () => {
     it('should roll back close when the conditional status update loses the race', async () => {
       const counting = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Status: OpnameStatus.IN_PROGRESS,
         Category: ItemCategory.MATERIAL,
         Details: [],
@@ -1049,7 +1109,7 @@ describe('InventoryCountingService', () => {
     it('should generate worksheet with printTitlesRow set to include table header row (1:18)', async () => {
       const mockOpname = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Category: ItemCategory.MATERIAL,
         Status: OpnameStatus.IN_PROGRESS,
         CreatedAt: new Date(),
@@ -1095,7 +1155,7 @@ describe('InventoryCountingService', () => {
     it('should generate snapshot with printTitlesRow set to include table header row (1:14)', async () => {
       const mockOpname = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Category: ItemCategory.MATERIAL,
         Status: OpnameStatus.IN_PROGRESS,
         CreatedAt: new Date(),

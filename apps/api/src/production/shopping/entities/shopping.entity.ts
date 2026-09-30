@@ -130,7 +130,6 @@ export class BomSummaryEntity {
   @ApiProperty() standardRequired: number;
   @ApiProperty() standardIssued: number;
   @ApiProperty() replacementIssued: number;
-  @ApiProperty() materialNg: number;
   @ApiProperty() remainingReplacement: number;
   @ApiProperty({ description: 'ID material', example: 'MAT-001' })
   materialId: string;
@@ -222,7 +221,6 @@ export class CheckRequirementItemEntity {
   @ApiProperty() standardRequired: number;
   @ApiProperty() standardIssued: number;
   @ApiProperty() replacementIssued: number;
-  @ApiProperty() materialNg: number;
   @ApiProperty() remainingReplacement: number;
   @ApiProperty({ description: 'ID material', example: 'MAT-001' })
   materialId: string;

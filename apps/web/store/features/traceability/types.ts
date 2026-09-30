@@ -88,41 +88,13 @@ export interface ShoppingRecord {
     CreatedAt: string;
 }
 
-export interface NgDetail {
-    Id: number;
-    MaterialId: string;
-    Qty: number;
-    ReplacementRequestedQty: number;
-    Replacements: ShoppingRecord[];
-    SnapshotLine?: SnapshotLine;
-}
-
-export interface NgCase {
-    Id: string;
-    CaseNumber: string;
-    ForecastId: string;
-    ReleaseId: string;
-    Stage: string;
-    Reason: string;
-    Status: "OPEN" | "FULFILLED" | "CLOSED" | "CANCELLED";
-    CreatedBy: string;
-    CreatedByName?: string;
-    CreatedAt: string;
-    CloseReason: string | null;
-    Details: NgDetail[];
-    Snapshot: BomSnapshot;
-}
-
 export interface MaterialUsage {
     materialId: string;
     materialName: string;
     unitName: string | null;
     standardRequired: number;
     standardIssued: number;
-    materialNg: number;
-    replacementIssued: number;
     totalIssued: number;
-    remainingReplacement: number;
 }
 
 export interface TraceSearchRow {
@@ -156,7 +128,41 @@ export interface TraceData {
     snapshot: BomSnapshot | null;
     materials: MaterialUsage[];
     shopping: ShoppingRecord[];
-    cases: NgCase[];
+    findings?: {
+        Id: string;
+        RecordNumber: string;
+        Category: "MATERIAL" | "FINISH_GOOD";
+        Status: "PENDING" | "WAITING_PART_CHANGE" | "COMPLETED" | "REJECTED";
+        Qty: number;
+        Reason: string;
+        Reporter: string;
+        SubmittedAt: string;
+        Label?: { LabelNumber: string } | null;
+        Components: {
+            Id: string;
+            MaterialId: string;
+            Qty: number;
+            SnapshotLine: {
+                PartNumber: string;
+                PartName: string;
+                UnitName: string | null;
+                QtyPerUnit: number;
+            };
+            Allocations: {
+                Id: string;
+                Qty: number;
+                Shopping: {
+                    Id: string;
+                    MaterialId: string;
+                    QtyPick: number;
+                    Purpose: string;
+                    Destination: string | null;
+                    Description: string | null;
+                    CreatedAt: string;
+                };
+            }[];
+        }[];
+    }[];
     materialLotTracked: false;
     completeness: "LEGACY" | "DOCUMENT_LEVEL";
     relationLevel: "PO";
@@ -178,16 +184,4 @@ export interface TraceData {
             CreatedAt: string;
         } | null;
     }[];
-}
-
-export interface CreateNgInput {
-    requestId: string;
-    forecastId: string;
-    snapshotId: string;
-    stage: string;
-    reason: string;
-    labelId?: number;
-    assemblySessionId?: string;
-    productionReportId?: number;
-    lines: { materialId: string; qtyNg: number; qtyReplacement: number }[];
 }

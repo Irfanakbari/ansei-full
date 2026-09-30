@@ -70,6 +70,7 @@ async function main() {
         data: {
           Name: item.name,
           Line: item.line,
+          EmployeeType: 'PCS',
           Status: item.status,
           PicturePath: item.picturePath,
           UpdatedBy: SEED_ACTOR,
@@ -101,6 +102,7 @@ async function main() {
           Nik: item.nik,
           Name: item.name,
           Line: item.line,
+          EmployeeType: 'PCS',
           Status: item.status,
           PicturePath: item.picturePath,
           CreatedBy: SEED_ACTOR,

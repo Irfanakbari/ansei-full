@@ -4,7 +4,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   AssemblyStatus,
   ItemCategory,
-  MaterialNgCaseStatus,
   PokayokeCompareStatus,
   ProductionStatus,
   OpnameStatus,
@@ -352,7 +351,7 @@ export class FrontendService {
       },
       select: {
         Id: true,
-        OpnameNumber: true,
+        RecordNumber: true,
         Category: true,
         StartedAt: true,
       },
@@ -496,7 +495,7 @@ export class FrontendService {
     for (const opname of stockOpnameInProgress) {
       messages.push({
         menu: 'STOCK_OPNAME',
-        message: `STOCK OPNAME ${opname.OpnameNumber} Still In Progress`,
+        message: `STOCK OPNAME ${opname.RecordNumber} Still In Progress`,
       });
     }
 
@@ -531,7 +530,7 @@ export class FrontendService {
       totalStockOpnameInProgress: stockOpnameInProgress.length,
       stockOpnameInProgress: stockOpnameInProgress.map((opname) => ({
         id: opname.Id,
-        opnameNumber: opname.OpnameNumber,
+        recordNumber: opname.RecordNumber,
         category: opname.Category,
         startedAt: opname.StartedAt,
       })),
@@ -580,7 +579,6 @@ export class FrontendService {
       labels,
       failedAttempts,
       deliveries,
-      materialNgCases,
     ] = await Promise.all([
       this.prisma.material.count({ where: { IsActive: true } }),
       this.prisma.supplier.count(),
@@ -602,7 +600,7 @@ export class FrontendService {
         where: { Status: OpnameStatus.IN_PROGRESS },
         select: {
           Id: true,
-          OpnameNumber: true,
+          RecordNumber: true,
           Category: true,
           StartedAt: true,
           Details: { select: { ActualQty: true, ActualQtyRack: true } },
@@ -698,21 +696,6 @@ export class FrontendService {
       this.prisma.deliveryHistory.findMany({
         where: { CreatedAt: range },
         select: { ForecastId: true, Qty: true, CreatedAt: true },
-      }),
-      this.prisma.materialNgCase.findMany({
-        where: { CreatedAt: range },
-        select: {
-          Status: true,
-          CreatedAt: true,
-          CaseNumber: true,
-          Reason: true,
-          Details: {
-            select: {
-              ReplacementRequestedQty: true,
-              Replacements: { select: { QtyPick: true } },
-            },
-          },
-        },
       }),
     ]);
     const forecastIds = [
@@ -1023,9 +1006,6 @@ export class FrontendService {
         item.DeliveryDate < plantToday &&
         (deliveredByForecast.get(item.PoId) ?? 0) < item.Qty,
     );
-    const openMaterialNg = materialNgCases.filter(
-      (item) => item.Status === MaterialNgCaseStatus.OPEN,
-    );
     const pendingLabels = labels.filter((item) => !item.Scanned).length;
     const unvalidatedReports = reports.filter(
       (item) => item.ValidatedAt === null,
@@ -1039,14 +1019,6 @@ export class FrontendService {
         route: '/apps/production/delivery',
         severity: 'HIGH' as const,
       })),
-      ...openMaterialNg.map((item) => ({
-        type: 'MATERIAL_NG',
-        title: item.CaseNumber,
-        description: item.Reason,
-        occurredAt: item.CreatedAt,
-        route: '/apps/production/material-ng',
-        severity: 'MEDIUM' as const,
-      })),
     ]
       .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime())
       .slice(0, 10);
@@ -1055,7 +1027,7 @@ export class FrontendService {
         .filter((item) => item.Category === category)
         .map((item) => ({
           id: item.Id,
-          opnameNumber: item.OpnameNumber,
+          recordNumber: item.RecordNumber,
           startedAt: item.StartedAt,
           progress: item.Details.length
             ? (item.Details.filter(
@@ -1066,25 +1038,6 @@ export class FrontendService {
               100
             : 0,
         }));
-    const outstandingReplacementQty = openMaterialNg.reduce(
-      (sum, item) =>
-        sum +
-        item.Details.reduce(
-          (lineSum, line) =>
-            lineSum +
-            Math.max(
-              line.ReplacementRequestedQty -
-                line.Replacements.reduce(
-                  (replacementSum, replacement) =>
-                    replacementSum + replacement.QtyPick,
-                  0,
-                ),
-              0,
-            ),
-          0,
-        ),
-      0,
-    );
     const summary: DashboardSummaryEntity = {
       totalMaterials: activeMaterials,
       totalSuppliers: suppliers,
@@ -1124,7 +1077,6 @@ export class FrontendService {
           openIncomingCount,
           unvalidatedReportCount: unvalidatedReports,
           pendingLabelCount: pendingLabels,
-          openMaterialNgCaseCount: openMaterialNg.length,
         },
       },
       monthly: {
@@ -1197,10 +1149,6 @@ export class FrontendService {
               sum + item.Qty - (deliveredByForecast.get(item.PoId) ?? 0),
             0,
           ),
-        },
-        materialNg: {
-          openCaseCount: openMaterialNg.length,
-          outstandingReplacementQty,
         },
       },
       daily,

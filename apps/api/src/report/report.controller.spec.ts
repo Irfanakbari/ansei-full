@@ -18,7 +18,6 @@ describe('ReportController', () => {
     generateDeliveryHistoryReport: jest.fn(),
     generateProductionReport: jest.fn(),
     generateShoppingHistoryReport: jest.fn(),
-    generateMaterialNgReport: jest.fn(),
     generateInventoryLedgerReport: jest.fn(),
   };
   const mockReconciliationService = { reconcile: jest.fn() };
@@ -228,17 +227,6 @@ describe('ReportController', () => {
       );
 
       expect(reportService.generateShoppingHistoryReport).toHaveBeenCalled();
-    });
-  });
-
-  describe('generateMaterialNgReport', () => {
-    it('should generate material NG report', async () => {
-      const mockBuffer = Buffer.from('mock excel data');
-      mockReportService.generateMaterialNgReport.mockResolvedValue(mockBuffer);
-
-      await controller.generateMaterialNgReport(mockUser, mockResponse, {});
-
-      expect(reportService.generateMaterialNgReport).toHaveBeenCalled();
     });
   });
 

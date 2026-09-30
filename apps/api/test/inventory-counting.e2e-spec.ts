@@ -80,21 +80,21 @@ describe('Inventory Counting E2E', () => {
         .post('/inventory-counting')
         .set('Authorization', `Bearer ${token}`)
         .send({
-          opnameNumber: 'TEST-INV-001',
+          recordNumber: 'TEST-INV-001',
           category: ItemCategory.MATERIAL,
           notes: 'Test inventory counting',
         })
         .expect(201);
 
       expect(res.body.success).toBe(true);
-      expect(res.body.data.OpnameNumber).toBe('TEST-INV-001');
+      expect(res.body.data.RecordNumber).toBe('TEST-INV-001');
     });
 
     it('GET /inventory-counting - should list all inventory counting', async () => {
       await prisma.stockOpname.create({
         data: {
           Id: 'TEST-INV-LIST-001',
-          OpnameNumber: 'TEST-INV-LIST-001',
+          RecordNumber: 'TEST-INV-LIST-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.DRAFT,
           CreatedBy: 'admin',
@@ -115,7 +115,7 @@ describe('Inventory Counting E2E', () => {
       const created = await prisma.stockOpname.create({
         data: {
           Id: 'TEST-INV-GET-001',
-          OpnameNumber: 'TEST-INV-GET-001',
+          RecordNumber: 'TEST-INV-GET-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.DRAFT,
           CreatedBy: 'admin',
@@ -134,7 +134,7 @@ describe('Inventory Counting E2E', () => {
       const created = await prisma.stockOpname.create({
         data: {
           Id: 'TEST-INV-UPD-001',
-          OpnameNumber: 'TEST-INV-UPD-001',
+          RecordNumber: 'TEST-INV-UPD-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.DRAFT,
           CreatedBy: 'admin',
@@ -154,7 +154,7 @@ describe('Inventory Counting E2E', () => {
       const created = await prisma.stockOpname.create({
         data: {
           Id: 'TEST-INV-DEL-001',
-          OpnameNumber: 'TEST-INV-DEL-001',
+          RecordNumber: 'TEST-INV-DEL-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.DRAFT,
           CreatedBy: 'admin',
@@ -171,7 +171,7 @@ describe('Inventory Counting E2E', () => {
       const created = await prisma.stockOpname.create({
         data: {
           Id: 'TEST-INV-START-001',
-          OpnameNumber: 'TEST-INV-START-001',
+          RecordNumber: 'TEST-INV-START-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.DRAFT,
           CreatedBy: 'admin',
@@ -190,7 +190,7 @@ describe('Inventory Counting E2E', () => {
       const opname = await prisma.stockOpname.create({
         data: {
           Id: 'TEST-INV-CUTOFF-001',
-          OpnameNumber: 'TEST-INV-CUTOFF-001',
+          RecordNumber: 'TEST-INV-CUTOFF-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.DRAFT,
           CreatedBy: 'admin',
@@ -214,7 +214,7 @@ describe('Inventory Counting E2E', () => {
       const opname = await prisma.stockOpname.create({
         data: {
           Id: 'TEST-INV-CLOSE-001',
-          OpnameNumber: 'TEST-INV-CLOSE-001',
+          RecordNumber: 'TEST-INV-CLOSE-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.IN_PROGRESS,
           StartedAt: new Date(),

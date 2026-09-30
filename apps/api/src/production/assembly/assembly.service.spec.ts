@@ -255,7 +255,7 @@ describe('AssemblyService', () => {
     tx.assemblySession.findUnique.mockResolvedValueOnce(session);
     tx.stockOpname.findFirst.mockResolvedValue({
       Id: 'count',
-      OpnameNumber: 'IC',
+      RecordNumber: 'IC',
       Category: 'FINISH_GOOD',
       Status: 'IN_PROGRESS',
     });

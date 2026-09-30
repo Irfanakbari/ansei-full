@@ -17,10 +17,13 @@ export interface SkillMatrixEntity {
     Point: number;
 }
 
+export type EmployeeType = 'DAILY' | 'PCS';
+
 export interface ManPowerEntity {
     Uid: string;
     Nik: string;
     Name: string;
+    EmployeeType: EmployeeType;
     CreatedAt: string;
     CreatedBy: string;
     CreatedByName?: string | null;
@@ -79,6 +82,7 @@ export const createManPower = createAsyncThunk(
     async (manPowerData: {
         nik: string;
         name: string;
+        employeeType: EmployeeType;
         line?: string;
         status?: boolean;
         skillMatrix?: { label: string; point: number }[];
@@ -98,6 +102,7 @@ export const updateManPower = createAsyncThunk(
         data: {
             nik?: string;
             name?: string;
+            employeeType?: EmployeeType;
             line?: string;
             status?: boolean;
             skillMatrix?: { label: string; point: number }[];

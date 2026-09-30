@@ -20,7 +20,15 @@ export class TraceabilityService {
         { ProductionRelease: { ReleaseNumber: contains } },
         { LabelData: { some: { LabelNumber: contains } } },
         { Shopping: { some: { Id: contains } } },
-        { MaterialNgCases: { some: { CaseNumber: contains } } },
+        {
+          ProductionFindings: {
+            some: {
+              Category: 'FINISH_GOOD',
+              DeletedAt: null,
+              RecordNumber: contains,
+            },
+          },
+        },
       ],
     };
     const [data, totalItems] = await Promise.all([
@@ -61,16 +69,67 @@ export class TraceabilityService {
       },
     });
     if (!forecast) throw new NotFoundException('PO not found.');
-    const [snapshot, shopping, cases, labels, reports] = await Promise.all([
+    const [snapshot, shopping, findings, labels, reports] = await Promise.all([
       latestSnapshot(this.prisma, poId),
       this.prisma.shopping.findMany({
         where: { ForecastId: poId },
         orderBy: { CreatedAt: 'asc' },
       }),
-      this.prisma.materialNgCase.findMany({
-        where: { ForecastId: poId },
-        include: { Details: { include: { Replacements: true } } },
-        orderBy: { CreatedAt: 'desc' },
+      this.prisma.productionFinding.findMany({
+        where: {
+          ForecastId: poId,
+          Category: 'FINISH_GOOD',
+          DeletedAt: null,
+        },
+        select: {
+          Id: true,
+          RecordNumber: true,
+          Category: true,
+          Status: true,
+          Qty: true,
+          Reason: true,
+          Reporter: true,
+          SubmittedAt: true,
+          ForecastId: true,
+          ReleaseId: true,
+          SnapshotId: true,
+          LabelId: true,
+          Label: { select: { LabelNumber: true } },
+          Components: {
+            select: {
+              Id: true,
+              Qty: true,
+              SnapshotLine: {
+                select: {
+                  PartNumber: true,
+                  PartName: true,
+                  UnitName: true,
+                  QtyPerUnit: true,
+                },
+              },
+              Allocations: {
+                select: {
+                  Id: true,
+                  Qty: true,
+                  Shopping: {
+                    select: {
+                      Id: true,
+                      MaterialId: true,
+                      QtyPick: true,
+                      Purpose: true,
+                      Destination: true,
+                      Description: true,
+                      CreatedAt: true,
+                    },
+                  },
+                },
+                orderBy: [{ CreatedAt: 'asc' }, { Id: 'asc' }],
+              },
+            },
+            orderBy: { Id: 'asc' },
+          },
+        },
+        orderBy: [{ SubmittedAt: 'desc' }, { Id: 'desc' }],
       }),
       this.prisma.labelData.findMany({
         where: { ForecastId: poId },
@@ -97,59 +156,28 @@ export class TraceabilityService {
       const standardIssued = movements
         .filter((s) => s.Purpose === 'STANDARD')
         .reduce((n, s) => n + s.QtyPick, 0);
-      const replacementIssued = movements
-        .filter((s) => s.Purpose === 'NG_REPLACEMENT')
-        .reduce((n, s) => n + s.QtyPick, 0);
-      const details = cases
-        .filter((c) => c.Status !== 'CANCELLED')
-        .flatMap((c) => c.Details)
-        .filter((d) => d.SnapshotLineId === line.Id);
-      const openDetails = cases
-        .filter((c) => c.Status === 'OPEN')
-        .flatMap((c) => c.Details)
-        .filter((d) => d.SnapshotLineId === line.Id);
       return {
         materialId: line.PartNumber,
         materialName: line.PartName,
         unitName: line.UnitName,
         standardRequired: line.RequiredQty,
         standardIssued,
-        materialNg: details.reduce((n, d) => n + d.Qty, 0),
-        replacementIssued,
-        totalIssued: standardIssued + replacementIssued,
-        remainingReplacement: openDetails.reduce(
-          (n, d) =>
-            n +
-            Math.max(
-              0,
-              d.ReplacementRequestedQty -
-                d.Replacements.reduce((sum, s) => sum + s.QtyPick, 0),
-            ),
-          0,
-        ),
+        totalIssued: standardIssued,
       };
     });
-    const allActors = [
-      ...shopping.map((s) => s.CreatedBy),
-      ...cases.map((c) => c.CreatedBy),
-    ];
+    const allActors = shopping.map((item) => item.CreatedBy);
     const actorNameMap = await getUserDisplayNameMap(allActors, this.prisma);
 
     const enrichedShopping = shopping.map((s) => ({
       ...s,
       CreatedByName: actorNameMap.get(s.CreatedBy) ?? s.CreatedBy,
     }));
-    const enrichedCases = cases.map((c) => ({
-      ...c,
-      CreatedByName: actorNameMap.get(c.CreatedBy) ?? c.CreatedBy,
-    }));
-
     return {
       forecast,
       snapshot,
       materials,
       shopping: enrichedShopping,
-      cases: enrichedCases,
+      findings,
       labels,
       reports,
       materialLotTracked: false,
@@ -180,7 +208,10 @@ export class TraceabilityService {
     const snapshotIds = data
       .filter((event) => event.SourceType === 'ProductionBomSnapshot')
       .map((event) => event.SourceId);
-    const [actorNames, assemblySessions, releases, snapshots] =
+    const findingIds = data
+      .filter((event) => event.SourceType === 'ProductionFinding')
+      .map((event) => event.SourceId);
+    const [actorNames, assemblySessions, releases, snapshots, findings] =
       await Promise.all([
         getUserDisplayNameMap(
           data.map((event) => event.Actor),
@@ -217,6 +248,12 @@ export class TraceabilityService {
               },
             })
           : Promise.resolve([]),
+        findingIds.length
+          ? this.prisma.productionFinding.findMany({
+              where: { Id: { in: findingIds }, DeletedAt: null },
+              select: { Id: true, RecordNumber: true },
+            })
+          : Promise.resolve([]),
       ]);
     const assemblyReferences = new Map<string, string>(
       assemblySessions.map(
@@ -244,6 +281,9 @@ export class TraceabilityService {
           ] as const,
       ),
     );
+    const findingReferences = new Map<string, string>(
+      findings.map((finding) => [finding.Id, finding.RecordNumber] as const),
+    );
     const enrichedData = data.map((event) => ({
       ...event,
       actorName: actorNames.get(event.Actor) ?? event.Actor,
@@ -251,6 +291,7 @@ export class TraceabilityService {
         assemblyReferences.get(event.SourceId) ??
         releaseReferences.get(event.SourceId) ??
         snapshotReferences.get(event.SourceId) ??
+        findingReferences.get(event.SourceId) ??
         event.SourceId,
     }));
     return {

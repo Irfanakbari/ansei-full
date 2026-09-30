@@ -27,6 +27,7 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
+import { Readable } from 'node:stream';
 import { InventoryCountingService } from './inventory-counting.service';
 import {
   CreateInventoryCountingDto,
@@ -39,7 +40,9 @@ import {
   ValidateMaterialRackDto,
   ApplyOcrResultsDto,
   BatchUpdateActualStockDto,
+  SendInventoryCountingPackageEmailDto,
 } from './dto';
+import { InventoryCountingDocumentService } from './inventory-counting-document.service';
 import {
   InventoryCountingEntity,
   InventoryCountingDetailEntity,
@@ -57,6 +60,7 @@ import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
 export class InventoryCountingController {
   constructor(
     private readonly inventoryCountingService: InventoryCountingService,
+    private readonly documentService: InventoryCountingDocumentService,
   ) {}
 
   @Post()
@@ -265,6 +269,64 @@ export class InventoryCountingController {
   @ApiResponse({ status: 200, type: InventoryCountingResponseEntity })
   async start(@Param('id') id: string, @CurrentUser() user: ICurrentUser) {
     return this.inventoryCountingService.start(id, user.username);
+  }
+
+  @Post(':id/document-package/generate')
+  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
+  @ApiOperation({
+    summary:
+      'Queue a document package for an existing started MATERIAL inventory counting',
+  })
+  async queueDocumentPackage(
+    @Param('id') id: string,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.inventoryCountingService.queueDocumentPackage(
+      id,
+      user.username,
+    );
+  }
+
+  @Get(':id/document-package')
+  @Permission('IPCS.INVENTORY_COUNTING_READ')
+  @ApiOperation({ summary: 'Get inventory counting document package status' })
+  async getDocumentPackageStatus(@Param('id') id: string) {
+    return this.inventoryCountingService.getDocumentPackageStatus(id);
+  }
+
+  @Get(':id/document-package/download')
+  @Permission('IPCS.INVENTORY_COUNTING_READ')
+  @ApiOperation({
+    summary: 'Download completed inventory counting document package',
+  })
+  async downloadDocumentPackage(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const download = await this.documentService.download(id);
+    response.setHeader('Content-Type', 'application/zip');
+    response.setHeader(
+      'Content-Disposition',
+      `attachment; filename*=UTF-8''${encodeURIComponent(download.artifact.FileName)}`,
+    );
+    return new StreamableFile(
+      Readable.fromWeb(download.response.response.body as never),
+    );
+  }
+
+  @Post(':id/document-package/email')
+  @Permission('IPCS.INVENTORY_COUNTING_READ')
+  @ApiOperation({ summary: 'Queue inventory counting document package email' })
+  async sendDocumentPackageEmail(
+    @Param('id') id: string,
+    @Body() dto: SendInventoryCountingPackageEmailDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.inventoryCountingService.sendDocumentPackageEmail(
+      id,
+      dto,
+      user.username,
+    );
   }
 
   @Post('generate-cutoff')

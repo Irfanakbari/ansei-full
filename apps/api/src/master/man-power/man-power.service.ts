@@ -126,6 +126,7 @@ export class ManPowerService {
           data: {
             Nik: dto.nik,
             Name: dto.name,
+            EmployeeType: dto.employeeType,
             Line: dto.line,
             Status: dto.status ?? true,
             PicturePath: dto.picturePath,
@@ -216,6 +217,7 @@ export class ManPowerService {
           data: {
             Nik: dto.nik,
             Name: dto.name,
+            EmployeeType: dto.employeeType,
             Line: dto.line,
             Status: dto.status,
             UpdatedBy: updatedBy,

@@ -4,7 +4,6 @@ import {
 } from '../../common/helpers/audited-transaction.helper';
 import {
   snapshotRelease,
-  assertNoOutstandingReplacement,
   latestSnapshot,
 } from '../../common/helpers/bom-snapshot.helper';
 import {
@@ -1291,7 +1290,6 @@ export class ProductionReleaseService {
             });
           }
 
-          if (isClosing) await assertNoOutstandingReplacement(tx, id);
           if (
             dto.status === ProductionStatus.RELEASED ||
             existing.Status === ProductionStatus.RELEASED

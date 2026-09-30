@@ -48,11 +48,7 @@ export class BomSnapshotsController {
   constructor(private readonly service: TraceabilityService) {}
   @ApiSuccessEnvelope({ status: 200, type: SnapshotResponseDto, isArray: true })
   @Get(':id/bom-snapshots')
-  @Permission(
-    'IPCS.PRODUCTION_RELEASE_READ',
-    'IPCS.TRACEABILITY_READ',
-    'IPCS.MATERIAL_NG_CREATE',
-  )
+  @Permission('IPCS.PRODUCTION_RELEASE_READ', 'IPCS.TRACEABILITY_READ')
   snapshots(@Param('id') id: string) {
     return this.service.snapshots(id);
   }

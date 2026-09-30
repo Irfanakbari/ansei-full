@@ -34,6 +34,7 @@ import productionReportReducer from "./features/production/productionReport/prod
 import preDeliveryReducer from "./features/production/preDelivery/preDeliverySlice";
 import pokayokeReducer from "./features/production/pokayoke/pokayokeSlice";
 import deliveryReducer from "./features/production/delivery/deliverySlice";
+import productionFindingsReducer from "./features/production/productionFinding/productionFindingSlice";
 
 // Notifications slice
 import notificationsReducer from "./features/notifications/notificationsSlice";
@@ -84,6 +85,7 @@ export const store = configureStore({
     preDelivery: preDeliveryReducer,
     pokayoke: pokayokeReducer,
     delivery: deliveryReducer,
+    productionFindings: productionFindingsReducer,
 
     // Notifications
     notifications: notificationsReducer,

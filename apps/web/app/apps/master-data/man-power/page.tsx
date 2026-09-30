@@ -108,6 +108,11 @@ export default function ManPowerPage() {
             render: (val: string | null) => val || '-'
         },
         {
+            title: 'Employee Type',
+            dataIndex: 'EmployeeType',
+            key: 'EmployeeType',
+        },
+        {
             title: 'Status',
             dataIndex: 'Status',
             key: 'Status',

@@ -26,13 +26,20 @@ import {
     downloadSnapshot,
     InventoryCountingEntity,
     InventoryCountingQuery,
+    fetchInventoryCountingPackageStatus,
+    generateInventoryCountingPackage,
+    downloadInventoryCountingPackage,
+    sendInventoryCountingPackageEmail,
+    InventoryCountingPackageStatus,
 } from '@/store/features/warehouse/inventoryCounting/inventoryCountingSlice';
 import CreateInventoryCountingModal from './_components/CreateInventoryCountingModal';
 import DetailInventoryCountingModal from './_components/DetailInventoryCountingModal';
 import ReviewApprovalModal from './_components/ReviewApprovalModal';
+import InventoryCountingPackageModal from './_components/InventoryCountingPackageModal';
 import {formatDateTime} from '@/lib/utils/dateTime';
 import GoldenArrowAction from '@/components/GoldenArrowAction';
 import {useSingleRowSelection} from '@/hooks/useSingleRowSelection';
+import {getApiErrorMessage} from '@/store/utils/apiService';
 
 const STATUS_COLORS: Record<string, string> = {
     DRAFT: 'default',
@@ -58,6 +65,10 @@ export default function InventoryCountingPage() {
     const [detailData, setDetailData] = useState<InventoryCountingEntity | null>(null);
     const [downloadingWs, setDownloadingWs] = useState(false);
     const [downloadingSnapshot, setDownloadingSnapshot] = useState(false);
+    const [packageOpen, setPackageOpen] = useState(false);
+    const [packageStatus, setPackageStatus] = useState<InventoryCountingPackageStatus | null>(null);
+    const [packageLoading, setPackageLoading] = useState(false);
+    const [packageSending, setPackageSending] = useState(false);
 
     const getInventoryCountingKey = useCallback((record: InventoryCountingEntity) => record.Id, []);
     const {
@@ -82,7 +93,7 @@ export default function InventoryCountingPage() {
     const handleTableChange: TableProps<InventoryCountingEntity>['onChange'] = (pagination, tableFilters) => {
         const newFilters: InventoryCountingQuery = {
             ...filters,
-            page: tableFilters.OpnameNumber || tableFilters.Category || tableFilters.Status ? 1 : pagination.current,
+            page: tableFilters.RecordNumber || tableFilters.Category || tableFilters.Status ? 1 : pagination.current,
             limit: pagination.pageSize,
             createdBy: filters.createdBy,
             category: String(tableFilters.Category?.[0] ?? ''),
@@ -142,7 +153,7 @@ export default function InventoryCountingPage() {
             modal.confirm({
                 title: 'Start Inventory Counting?',
                 icon: <PlayCircleOutlined/>,
-                content: `Start ${selectedRecord.OpnameNumber}? Status will change to IN_PROGRESS.`,
+                content: `Start ${selectedRecord.RecordNumber}? Status will change to IN_PROGRESS.`,
                 okText: 'Start',
                 okType: 'primary',
                 cancelText: 'Cancel',
@@ -164,6 +175,67 @@ export default function InventoryCountingPage() {
         }
     };
 
+    const refreshPackage = useCallback(async () => {
+        if (!selectedRecord) return;
+        setPackageLoading(true);
+        try {
+            setPackageStatus(await dispatch(fetchInventoryCountingPackageStatus(selectedRecord.Id)).unwrap());
+        } catch (error: unknown) {
+            message.error(error instanceof Error ? error.message : String(error));
+        } finally {
+            setPackageLoading(false);
+        }
+    }, [dispatch, message, selectedRecord]);
+
+    useEffect(() => {
+        if (!packageOpen || !selectedRecord) return;
+        void refreshPackage();
+        const intervalId = window.setInterval(() => void refreshPackage(), 5000);
+        return () => window.clearInterval(intervalId);
+    }, [packageOpen, refreshPackage, selectedRecord]);
+
+    const openPackage = () => {
+        setPackageOpen(true);
+        void refreshPackage();
+    };
+
+    const handleGeneratePackage = async () => {
+        if (!selectedRecord) return;
+        setPackageLoading(true);
+        try {
+            await dispatch(generateInventoryCountingPackage(selectedRecord.Id)).unwrap();
+            message.success('Document package generation queued');
+            await refreshPackage();
+        } catch (error: unknown) {
+            message.error(error instanceof Error ? error.message : String(error));
+        } finally {
+            setPackageLoading(false);
+        }
+    };
+
+    const handleDownloadPackage = async () => {
+        if (!selectedRecord) return;
+        try {
+            await dispatch(downloadInventoryCountingPackage(selectedRecord.Id)).unwrap();
+        } catch (error: unknown) {
+            message.error(getApiErrorMessage(error, 'Unable to download the document package. Please try again or contact the administrator.'));
+        }
+    };
+
+    const handleSendPackage = async (recipients: string[], subject?: string, emailMessage?: string) => {
+        if (!selectedRecord) return;
+        setPackageSending(true);
+        try {
+            await dispatch(sendInventoryCountingPackageEmail({id: selectedRecord.Id, recipients, subject, message: emailMessage})).unwrap();
+            message.success('Document package email queued');
+            await refreshPackage();
+        } catch (error: unknown) {
+            message.error(error instanceof Error ? error.message : String(error));
+        } finally {
+            setPackageSending(false);
+        }
+    };
+
     const handleOpenApproval = () => {
         if (selectedRecord) {
             setIsReviewModalVisible(true);
@@ -172,15 +244,15 @@ export default function InventoryCountingPage() {
 
     const columns = [
         {
-            title: 'Opname Number',
-            dataIndex: 'OpnameNumber',
-            key: 'OpnameNumber',
+            title: 'Record Number',
+            dataIndex: 'RecordNumber',
+            key: 'RecordNumber',
             ellipsis: true,
             render: (val: string, record: InventoryCountingEntity) => (
                 <Space size={4}>
                     <GoldenArrowAction
                         tooltip="View inventory counting details"
-                        ariaLabel={`View inventory counting details for ${record.OpnameNumber}`}
+                        ariaLabel={`View inventory counting details for ${record.RecordNumber}`}
                         disabled={!canRead}
                         onClick={() => {
                             selectRecord(record);
@@ -340,6 +412,13 @@ export default function InventoryCountingPage() {
                                 onClick: handleDownloadSnapshot,
                                 disabled: !selectedRecord || !canRead,
                             },
+                            {
+                                key: 'package',
+                                label: 'Document Package',
+                                icon: <DownloadOutlined/>,
+                                onClick: openPackage,
+                                disabled: !selectedRecord || selectedRecord.Category !== 'MATERIAL' || selectedRecord.Status === 'DRAFT' || !canRead,
+                            },
                         ],
                     }}
                     trigger={['click', 'hover']}
@@ -412,6 +491,18 @@ export default function InventoryCountingPage() {
                     }}
                 />
             )}
+
+            <InventoryCountingPackageModal
+                open={packageOpen}
+                status={packageStatus}
+                loading={packageLoading}
+                sending={packageSending}
+                onClose={() => setPackageOpen(false)}
+                onRefresh={refreshPackage}
+                onGenerate={handleGeneratePackage}
+                onDownload={handleDownloadPackage}
+                onSend={handleSendPackage}
+            />
 
             <ReviewApprovalModal
                 visible={isReviewModalVisible}

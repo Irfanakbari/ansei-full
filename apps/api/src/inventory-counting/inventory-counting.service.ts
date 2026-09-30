@@ -45,6 +45,9 @@ import { withInventoryTransaction } from '../common/helpers/inventory-transactio
 import { NasUploadService } from '../common/utils/nas-upload.service';
 import { validateUploadContent } from '../common/utils/upload-security.util';
 import { randomUUID } from 'node:crypto';
+import { OutboxService } from '../common/outbox/outbox.service';
+import { nextRecordNumber } from '../common/helpers/record-number.helper';
+import type { SendInventoryCountingPackageEmailDto } from './dto';
 
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 const MAX_OCR_FILE_SIZE = 5 * 1024 * 1024;
@@ -90,6 +93,7 @@ export class InventoryCountingService {
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
     private readonly nasUploadService: NasUploadService,
+    private readonly outboxService: OutboxService,
   ) {}
 
   async create(dto: CreateInventoryCountingDto, createdBy: string) {
@@ -105,44 +109,11 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Starting create inventory counting: OpnameNumber=${dto.opnameNumber}, Category=${dto.category}`,
+        message: `Starting create inventory counting: Category=${dto.category}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:38',
       });
 
-      // STEP 2: Validate opnameNumber uniqueness
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: 'Validating opnameNumber uniqueness',
-        type: 'INFO',
-        location: 'inventory-counting.service.ts:44',
-      });
-
-      const existingOpname = await this.prisma.stockOpname.findUnique({
-        where: { OpnameNumber: dto.opnameNumber },
-      });
-
-      if (existingOpname) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Duplicate opnameNumber: ${dto.opnameNumber}`,
-          type: 'ERROR',
-          location: 'inventory-counting.service.ts:52',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-        throw new BadRequestException(
-          `Inventory counting with OpnameNumber ${dto.opnameNumber} already exists`,
-        );
-      }
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `OpnameNumber ${dto.opnameNumber} is unique, proceeding with creation`,
-        type: 'INFO',
-        location: 'inventory-counting.service.ts:60',
-      });
-
-      // STEP 3: Create StockOpname record
       await this.logService.addLog({
         processId: logProcess.ProcessId,
         message: 'Creating StockOpname record',
@@ -150,22 +121,23 @@ export class InventoryCountingService {
         location: 'inventory-counting.service.ts:66',
       });
 
-      const result = await auditedWrite(this.prisma, (tx) =>
-        tx.stockOpname.create({
+      const result = await auditedWrite(this.prisma, async (tx) => {
+        const recordNumber = await nextRecordNumber(tx, 'AIC');
+        return tx.stockOpname.create({
           data: {
-            OpnameNumber: dto.opnameNumber,
+            RecordNumber: recordNumber,
             Category: dto.category,
             Status: OpnameStatus.DRAFT,
             Notes: dto.notes,
             Tolerance: dto.tolerance ?? 0,
             CreatedBy: createdBy,
           },
-        }),
-      );
+        });
+      });
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `StockOpname created successfully: ID=${result.Id}, OpnameNumber=${result.OpnameNumber}`,
+        message: `StockOpname created successfully: ID=${result.Id}, RecordNumber=${result.RecordNumber}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:80',
       });
@@ -249,7 +221,7 @@ export class InventoryCountingService {
     return {
       data: data.map((item) => ({
         Id: item.Id,
-        OpnameNumber: item.OpnameNumber,
+        RecordNumber: item.RecordNumber,
         Category: item.Category,
         Status: item.Status,
         Tolerance: item.Tolerance,
@@ -320,7 +292,7 @@ export class InventoryCountingService {
 
     await this.logService.addLog({
       processId: logProcess.ProcessId,
-      message: `Inventory counting found: ${result.OpnameNumber}, Status=${result.Status}`,
+      message: `Inventory counting found: ${result.RecordNumber}, Status=${result.Status}`,
       type: 'INFO',
       location: 'inventory-counting.service.ts:208',
     });
@@ -329,7 +301,7 @@ export class InventoryCountingService {
 
     return {
       Id: result.Id,
-      OpnameNumber: result.OpnameNumber,
+      RecordNumber: result.RecordNumber,
       Category: result.Category,
       Status: result.Status,
       Tolerance: result.Tolerance,
@@ -395,7 +367,7 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Found existing inventory counting: ${existing.OpnameNumber}, Status=${existing.Status}`,
+        message: `Found existing inventory counting: ${existing.RecordNumber}, Status=${existing.Status}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:254',
       });
@@ -436,7 +408,7 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Inventory counting updated successfully: ${result.OpnameNumber}`,
+        message: `Inventory counting updated successfully: ${result.RecordNumber}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:276',
       });
@@ -503,7 +475,7 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Found existing inventory counting: ${existing.OpnameNumber}, Status=${existing.Status}`,
+        message: `Found existing inventory counting: ${existing.RecordNumber}, Status=${existing.Status}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:330',
       });
@@ -538,7 +510,7 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Inventory counting ${existing.OpnameNumber} deleted successfully`,
+        message: `Inventory counting ${existing.RecordNumber} deleted successfully`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:358',
       });
@@ -604,7 +576,7 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Found existing inventory counting: ${existing.OpnameNumber}, Current Status=${existing.Status}`,
+        message: `Found existing inventory counting: ${existing.RecordNumber}, Current Status=${existing.Status}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:481',
       });
@@ -797,6 +769,17 @@ export class InventoryCountingService {
             }
           }
 
+          if (existing.Category === ItemCategory.MATERIAL) {
+            await this.outboxService.create(tx, {
+              idempotencyKey: `inventory-counting-package:${id}`,
+              type: 'INVENTORY_COUNTING_PACKAGE',
+              payload: { inventoryCountingId: id, actor: startedBy },
+              actor: startedBy,
+              referenceType: 'STOCK_OPNAME_PACKAGE',
+              referenceId: id,
+            });
+          }
+
           await this.logService.addLog({
             processId: localProcessId,
             message: 'Inventory counting status updated to IN_PROGRESS',
@@ -824,6 +807,119 @@ export class InventoryCountingService {
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }
       throw error;
+    }
+  }
+
+  async queueDocumentPackage(id: string, actor: string) {
+    let logProcess: LogProcessModel | undefined;
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'INV_COUNT_014',
+        functionName: 'InventoryCountingService.queueDocumentPackage',
+        createdBy: actor,
+      });
+      const counting = await this.findOne(id);
+      this.assertDocumentPackageEligible(counting);
+      const event = await auditedTransaction(this.prisma, (tx) =>
+        this.outboxService.create(tx, {
+          idempotencyKey: `inventory-counting-package:${id}`,
+          type: 'INVENTORY_COUNTING_PACKAGE',
+          payload: { inventoryCountingId: id, actor },
+          actor,
+          referenceType: 'STOCK_OPNAME_PACKAGE',
+          referenceId: id,
+        }),
+      );
+      await this.logService.completeProcess(
+        logProcess.ProcessId,
+        'SUCCESS',
+        'Inventory counting document package queued',
+      );
+      return OutboxService.safeEvent(event);
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'ERROR',
+          location: 'inventory-counting.service.ts:queueDocumentPackage',
+        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  async getDocumentPackageStatus(id: string) {
+    const counting = await this.findOne(id);
+    this.assertDocumentPackageEligible(counting);
+    const [generation, email, artifact] = await Promise.all([
+      this.outboxService.findLatest('STOCK_OPNAME_PACKAGE', id),
+      this.outboxService.findLatest('STOCK_OPNAME_PACKAGE_EMAIL', id),
+      this.prisma.stockOpnameAttachment.findFirst({
+        where: { OpnameId: id, MimeType: 'application/zip' },
+        orderBy: { CreatedAt: 'desc' },
+        select: { Id: true, FileName: true, FileSize: true, CreatedAt: true },
+      }),
+    ]);
+    return { generation, email, artifact };
+  }
+
+  async sendDocumentPackageEmail(
+    id: string,
+    dto: SendInventoryCountingPackageEmailDto,
+    actor: string,
+  ) {
+    const counting = await this.findOne(id);
+    this.assertDocumentPackageEligible(counting);
+    const artifact = await this.prisma.stockOpnameAttachment.findFirst({
+      where: { OpnameId: id, MimeType: 'application/zip' },
+      orderBy: { CreatedAt: 'desc' },
+    });
+    if (!artifact)
+      throw new ConflictException('Inventory counting package is not ready');
+    const recipients = [
+      ...new Set(dto.recipients.map((value) => value.trim().toLowerCase())),
+    ].sort();
+    const fingerprint = OutboxService.fingerprint([
+      artifact.Id,
+      recipients,
+      dto.subject ?? null,
+      dto.message ?? null,
+    ]);
+    const event = await auditedTransaction(this.prisma, (tx) =>
+      this.outboxService.create(tx, {
+        idempotencyKey: `inventory-counting-package-email:${id}:${fingerprint}`,
+        type: 'INVENTORY_COUNTING_PACKAGE_EMAIL',
+        payload: {
+          inventoryCountingId: id,
+          recipients,
+          actor,
+          ...(dto.subject ? { subject: dto.subject } : {}),
+          ...(dto.message ? { message: dto.message } : {}),
+        },
+        actor,
+        referenceType: 'STOCK_OPNAME_PACKAGE_EMAIL',
+        referenceId: id,
+      }),
+    );
+    return OutboxService.safeEvent(event);
+  }
+
+  private assertDocumentPackageEligible(counting: {
+    Category: ItemCategory;
+    Status: OpnameStatus;
+    StartedAt: Date | null;
+  }): void {
+    if (counting.Category !== ItemCategory.MATERIAL) {
+      throw new BadRequestException(
+        'Document package is only available for MATERIAL inventory counting.',
+      );
+    }
+    if (counting.Status !== OpnameStatus.IN_PROGRESS || !counting.StartedAt) {
+      throw new BadRequestException(
+        'Document package requires a started MATERIAL inventory counting in IN_PROGRESS status.',
+      );
     }
   }
 
@@ -864,7 +960,7 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Found inventory counting: ${inventoryCounting.OpnameNumber}, Status=${inventoryCounting.Status}`,
+        message: `Found inventory counting: ${inventoryCounting.RecordNumber}, Status=${inventoryCounting.Status}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:498',
       });
@@ -1859,11 +1955,13 @@ export class InventoryCountingService {
       const candidate = item as Record<string, unknown>;
       if (
         typeof candidate.partNumber !== 'string' ||
-        ![
-          LocationType.RACK,
-          LocationType.WAREHOUSE,
-          LocationType.FINISH_GOOD_AREA,
-        ].includes(candidate.location as LocationType) ||
+        !(
+          [
+            LocationType.RACK,
+            LocationType.WAREHOUSE,
+            LocationType.FINISH_GOOD_AREA,
+          ] as LocationType[]
+        ).includes(candidate.location as LocationType) ||
         typeof candidate.actualQty !== 'number' ||
         !Number.isInteger(candidate.actualQty) ||
         candidate.actualQty < 0
@@ -2243,7 +2341,7 @@ export class InventoryCountingService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Found inventory counting: ${inventoryCounting.OpnameNumber}, Status=${inventoryCounting.Status}, Details=${inventoryCounting.Details.length}`,
+        message: `Found inventory counting: ${inventoryCounting.RecordNumber}, Status=${inventoryCounting.Status}, Details=${inventoryCounting.Details.length}`,
         type: 'INFO',
         location: 'inventory-counting.service.ts:758',
       });
@@ -2415,13 +2513,13 @@ export class InventoryCountingService {
                   FinishGoodId: null,
                   Location: detail.Location,
                   TransactionType: { create: { create: {} } } as any,
-                  ReferenceDoc: inventoryCounting.OpnameNumber,
+                  ReferenceDoc: inventoryCounting.RecordNumber,
                   BalanceBefore: currentQty,
                   QtyIn: actualDiff > 0 ? actualDiff : 0,
                   QtyOut: actualDiff < 0 ? Math.abs(actualDiff) : 0,
                   BalanceAfter: newQty,
                   CreatedBy: closedBy,
-                  Notes: `Stock Opname ${inventoryCounting.OpnameNumber} - ${isRack ? 'RACK' : 'WAREHOUSE'}`,
+                  Notes: `Stock Opname ${inventoryCounting.RecordNumber} - ${isRack ? 'RACK' : 'WAREHOUSE'}`,
                 };
                 ledgerEntries.push(ledgerEntry);
 
@@ -2460,13 +2558,13 @@ export class InventoryCountingService {
                   FinishGoodId: detail.FinishGoodId,
                   Location: detail.Location,
                   TransactionType: { create: { create: {} } } as any,
-                  ReferenceDoc: inventoryCounting.OpnameNumber,
+                  ReferenceDoc: inventoryCounting.RecordNumber,
                   BalanceBefore: currentQty,
                   QtyIn: actualDiff > 0 ? actualDiff : 0,
                   QtyOut: actualDiff < 0 ? Math.abs(actualDiff) : 0,
                   BalanceAfter: newQty,
                   CreatedBy: closedBy,
-                  Notes: `Stock Opname ${inventoryCounting.OpnameNumber}`,
+                  Notes: `Stock Opname ${inventoryCounting.RecordNumber}`,
                 };
                 ledgerEntries.push(ledgerEntry);
 
@@ -2709,7 +2807,7 @@ export class InventoryCountingService {
 
       const workbook = new Workbook();
       const dateStr = dayjs().format('DD-MM-YYYY HH:mm');
-      const code = inventoryCounting.OpnameNumber;
+      const code = inventoryCounting.RecordNumber;
 
       // Sort locations
       const sortedLocations = Array.from(itemsByLocation.keys()).sort();
@@ -3212,7 +3310,7 @@ export class InventoryCountingService {
       worksheet.views = [{ showGridLines: false }];
 
       const dateStr = dayjs().format('DD-MM-YYYY HH:mm');
-      const code = inventoryCounting.OpnameNumber;
+      const code = inventoryCounting.RecordNumber;
 
       // Watermark
       const watermark = worksheet.getCell('A1');
@@ -3692,7 +3790,7 @@ export class InventoryCountingService {
       worksheet.views = [{ showGridLines: false }];
 
       const dateStr = dayjs().format('DD-MM-YYYY HH:mm');
-      const code = inventoryCounting.OpnameNumber;
+      const code = inventoryCounting.RecordNumber;
       const userNames = await getUserDisplayNameMap(
         [inventoryCounting.CreatedBy, inventoryCounting.CompletedBy],
         this.prisma,

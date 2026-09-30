@@ -105,14 +105,6 @@ const reports: ReportItem[] = [
         hasLocationFilter: false,
     },
     {
-        key: 'material-ng',
-        name: 'Material NG Report',
-        description: 'Data material NG (reject) dengan filter tanggal',
-        hasDateFilter: true,
-        hasCategoryFilter: false,
-        hasLocationFilter: false,
-    },
-    {
         key: 'inventory-ledger',
         name: 'Inventory Ledger Report',
         description: 'Buku besar inventory dengan filter tanggal, kategori, dan lokasi',

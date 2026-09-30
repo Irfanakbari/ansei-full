@@ -45,7 +45,6 @@ export interface DashboardSnapshot {
         openIncomingCount: number;
         unvalidatedReportCount: number;
         pendingLabelCount: number;
-        openMaterialNgCaseCount: number;
     };
     demand?: number;
     reportedGoodOutput?: number;
@@ -78,7 +77,6 @@ export interface DashboardMonthly {
     assembly: { inProgress: number; completed: number; cancelled: number };
     pokayoke: { scannedLabels: number; pendingLabels: number; failedAttempts: number };
     delivery: { deliveredQty: number; attainmentPct: number | null; overdueForecastCount: number; overdueOpenQty: number };
-    materialNg: { openCaseCount: number; outstandingReplacementQty: number };
     reportedGoodOutput?: number;
     delivered?: number;
     deliveryAttainment?: number | null;

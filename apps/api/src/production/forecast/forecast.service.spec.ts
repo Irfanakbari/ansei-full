@@ -2,7 +2,6 @@
 jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
   snapshotRelease: () => Promise.resolve(undefined),
   latestSnapshot: jest.fn().mockResolvedValue(null),
-  assertNoOutstandingReplacement: () => Promise.resolve(undefined),
 }));
 jest.mock('../../common/utils/upload-security.util', () => ({
   validateUploadContent: jest.fn(),

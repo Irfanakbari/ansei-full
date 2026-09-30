@@ -1,7 +1,6 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16*/
 "use client";
 
-import {useRouter} from "next/navigation";
 import {usePhasePermission} from "@/components/traceability/usePhasePermission";
 import React, {useCallback, useState, useEffect, useRef} from "react";
 import {
@@ -23,7 +22,6 @@ import {
     CheckCircleOutlined,
     CloseCircleOutlined,
     PlusOutlined,
-    WarningOutlined,
 } from "@ant-design/icons";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import ButtonToolbar from "@/components/ButtonToolbar";
@@ -50,7 +48,6 @@ const formatDate = (val: string | null | undefined) => {
 export default function ProductionReportPage() {
     const {message, modal} = App.useApp();
     const {can} = usePhasePermission();
-    const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
     const {data, loading, pagination, filters} = useSelector(
         (state: RootState) => state.productionReport,
@@ -391,16 +388,6 @@ export default function ProductionReportPage() {
                     onClick={handleUnvalidate}
                     loading={actionLoading === "unvalidate"}
                     enable={Boolean(selectedRow?.validatedAt && can("IPCS.PRODUCTION_REPORT_UPDATE"))}
-                />
-                <ButtonToolbar
-                    title="Material NG"
-                    icon={<WarningOutlined/>}
-                    enable={can("IPCS.MATERIAL_NG_CREATE")}
-                    onClick={() => router.push(
-                        selectedRow?.forecastId
-                            ? `/apps/production/material-ng?poId=${encodeURIComponent(selectedRow.forecastId)}&productionReportId=${selectedRow.id}`
-                            : "/apps/production/material-ng"
-                    )}
                 />
             </ToolbarWrapper>
 

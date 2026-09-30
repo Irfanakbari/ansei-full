@@ -190,7 +190,8 @@ async function request<T>(
 
   const url = buildUrl(path, params, apiVersion);
   const bodyCommand = method === 'POST' && (
-    path === '/production/shopping' || path.startsWith('/production/material-ng-cases')
+    path === '/production/shopping'
+
   ) && typeof body === 'object' && body !== null && !Array.isArray(body);
   const commandPayload = bodyCommand ? { ...body as Record<string, unknown>, requestId: undefined } : body;
   const protectedCommand = method !== 'GET' && (

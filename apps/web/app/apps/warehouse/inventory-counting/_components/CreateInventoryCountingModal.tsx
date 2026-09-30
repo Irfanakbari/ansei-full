@@ -61,14 +61,6 @@ const CreateInventoryCountingModal: React.FC<Props> = ({ visible, onClose, onSuc
                 onFinish={handleFinish}
             >
                 <Form.Item
-                    name="opnameNumber"
-                    label="Opname Number"
-                    rules={[{ required: true, message: 'Please enter Opname Number' }]}
-                >
-                    <Input placeholder="Example: INV-2025-001" size="large" />
-                </Form.Item>
-
-                <Form.Item
                     name="category"
                     label="Category"
                     rules={[{ required: true, message: 'Please select Category' }]}

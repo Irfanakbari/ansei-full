@@ -1,6 +1,6 @@
 {
   "name": "@ansei/api",
-  "version": "5.12.14",
+  "version": "6.1.0",
   "description": "",
   "author": "",
   "private": true,
@@ -44,6 +44,7 @@
     "@prisma/client": "^7.8.0",
     "@types/multer": "^2.1.0",
     "@vuteq/sso-client-nest": "file:../../vendor/vuteq-sso-client-nest-0.1.2.tgz",
+    "archiver": "^7.0.1",
     "bullmq": "^6.3.6",
     "bwip-js": "^4.11.1",
     "class-transformer": "^0.5.1",
@@ -70,6 +71,7 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@types/archiver": "^6.0.3",
     "@types/exceljs": "^1.3.2",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",

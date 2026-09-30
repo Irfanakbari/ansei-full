@@ -32,6 +32,7 @@ Read the owning `page.tsx`, nearest comparable `_components`, the connected Redu
 - Use contextual Ant Design feedback through the existing app/provider pattern.
 - Disable duplicate submissions, show pending state, and only close/reset a form after success.
 - Reset fields/local state deliberately when the target record changes or the dialog closes.
+- When using `Form.useForm()` with an initially closed Ant Design `Modal`, pass `forceRender` to the Modal so the form is connected before any `setFieldsValue`, `setFieldValue`, `validateFields`, or `resetFields` call. If forms live in inactive `Tabs`, set `forceRender: true` on each tab containing a referenced form. Never suppress the "Instance created by useForm is not connected" warning; fix the mount lifecycle.
 - Preserve backend rejection messages; provide an English fallback only when no safe meaningful message exists.
 
 ## Verify

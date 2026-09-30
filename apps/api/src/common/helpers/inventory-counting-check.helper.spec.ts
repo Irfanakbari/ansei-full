@@ -25,7 +25,7 @@ describe('assertNoActiveInventoryCounting', () => {
       },
       select: {
         Id: true,
-        OpnameNumber: true,
+        RecordNumber: true,
         Category: true,
         Status: true,
       },
@@ -37,7 +37,7 @@ describe('assertNoActiveInventoryCounting', () => {
       stockOpname: {
         findFirst: jest.fn().mockResolvedValue({
           Id: 'op-123',
-          OpnameNumber: 'IC-20260916-001',
+          RecordNumber: 'IC-20260916-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.IN_PROGRESS,
         }),
@@ -69,7 +69,7 @@ describe('assertNoActiveInventoryCounting', () => {
       },
       select: {
         Id: true,
-        OpnameNumber: true,
+        RecordNumber: true,
         Category: true,
         Status: true,
       },

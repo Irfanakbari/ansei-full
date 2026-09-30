@@ -62,7 +62,7 @@ export class StockOpnameNotificationEntity {
   id: string;
 
   @ApiProperty()
-  opnameNumber: string;
+  recordNumber: string;
 
   @ApiProperty()
   category: string;

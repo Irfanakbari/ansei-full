@@ -7,6 +7,8 @@ import type { Job } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SmtpService } from '../utils/smtp.service';
 import { MaterialDeliveryNoteService } from '../../material-delivery-note/material-delivery-note.service';
+import { InventoryCountingDocumentService } from '../../inventory-counting/inventory-counting-document.service';
+import { InventoryCountingService } from '../../inventory-counting/inventory-counting.service';
 import {
   PRINT_PART_TAG_ANSEI,
   type PartTagAnseiPayload,
@@ -14,6 +16,8 @@ import {
 import {
   type DeliveryNoteEmailPayload,
   type PalletConnectorHistoryPayload,
+  type InventoryCountingPackagePayload,
+  type InventoryCountingPackageEmailPayload,
   DISPATCH_OUTBOX_EVENT,
   type OutboxJobPayload,
   OUTBOX_QUEUE,
@@ -25,6 +29,74 @@ import {
   SAFE_RETRY,
   UNCERTAIN,
 } from './outbox-state.service';
+
+function escapeHtml(value: string): string {
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[character] ?? character,
+  );
+}
+
+function inventoryPackagePayload(
+  value: unknown,
+): InventoryCountingPackagePayload {
+  if (!value || typeof value !== 'object')
+    throw new Error('Invalid inventory counting package payload');
+  const payload = value as Record<string, unknown>;
+  if (
+    typeof payload.inventoryCountingId !== 'string' ||
+    !payload.inventoryCountingId ||
+    typeof payload.actor !== 'string' ||
+    !payload.actor
+  ) {
+    throw new Error('Invalid inventory counting package payload');
+  }
+  return {
+    inventoryCountingId: payload.inventoryCountingId,
+    actor: payload.actor,
+  };
+}
+
+function inventoryPackageEmailPayload(
+  value: unknown,
+): InventoryCountingPackageEmailPayload {
+  if (!value || typeof value !== 'object')
+    throw new Error('Invalid inventory counting package email payload');
+  const payload = value as Record<string, unknown>;
+  if (
+    typeof payload.inventoryCountingId !== 'string' ||
+    !payload.inventoryCountingId ||
+    typeof payload.actor !== 'string' ||
+    !payload.actor ||
+    !Array.isArray(payload.recipients) ||
+    payload.recipients.length === 0 ||
+    !payload.recipients.every(
+      (recipient) => typeof recipient === 'string' && recipient.length > 0,
+    ) ||
+    (payload.subject !== undefined && typeof payload.subject !== 'string') ||
+    (payload.message !== undefined && typeof payload.message !== 'string')
+  ) {
+    throw new Error('Invalid inventory counting package email payload');
+  }
+  return {
+    inventoryCountingId: payload.inventoryCountingId,
+    actor: payload.actor,
+    recipients: payload.recipients,
+    ...(typeof payload.subject === 'string'
+      ? { subject: payload.subject }
+      : {}),
+    ...(typeof payload.message === 'string'
+      ? { message: payload.message }
+      : {}),
+  };
+}
 
 function printPayload(value: unknown): PartTagAnseiPayload {
   const data = value as PartTagAnseiPayload;
@@ -59,6 +131,8 @@ export class OutboxProcessor extends WorkerHost {
     private readonly prisma: PrismaService,
     private readonly smtp: SmtpService,
     private readonly deliveryNotes: MaterialDeliveryNoteService,
+    private readonly inventoryCountingDocuments: InventoryCountingDocumentService,
+    private readonly inventoryCountingService: InventoryCountingService,
     private readonly state: OutboxStateService,
   ) {
     super();
@@ -140,6 +214,77 @@ export class OutboxProcessor extends WorkerHost {
             },
           });
         });
+        return;
+      }
+      if (event.Type === 'INVENTORY_COUNTING_PACKAGE') {
+        const payload = inventoryPackagePayload(event.Payload);
+        const snapshot = await this.inventoryCountingService.generateSnapshot(
+          payload.inventoryCountingId,
+        );
+        await this.inventoryCountingDocuments.buildAndPersist(
+          payload.inventoryCountingId,
+          payload.actor,
+          snapshot,
+        );
+        await this.state.change(
+          event,
+          {
+            Status: 'SUCCEEDED',
+            SucceededAt: new Date(),
+            LastErrorCode: 'OUTBOX_ARTIFACT_PERSISTED',
+            LastError: null,
+          },
+          'ARTIFACT_PERSISTED',
+        );
+        return;
+      }
+      if (event.Type === 'INVENTORY_COUNTING_PACKAGE_EMAIL') {
+        const payload = inventoryPackageEmailPayload(event.Payload);
+        const counting = await this.prisma.stockOpname.findUnique({
+          where: { Id: payload.inventoryCountingId },
+          select: { RecordNumber: true },
+        });
+        if (!counting) throw new Error('Inventory counting not found');
+        const download = await this.inventoryCountingDocuments.download(
+          payload.inventoryCountingId,
+        );
+        event = await this.state.change(
+          event,
+          { LastErrorCode: SENDING },
+          'SEND',
+        );
+        if (!event) return;
+        externalStarted = true;
+        const result = await this.smtp.sendEmail(
+          {
+            to: payload.recipients,
+            subject:
+              payload.subject ??
+              `Inventory Counting Package - ${counting.RecordNumber}`,
+            html: `<p>Please find attached the inventory counting document package for <strong>${escapeHtml(counting.RecordNumber)}</strong>.</p>${payload.message ? `<p>${escapeHtml(payload.message).replace(/\r?\n/g, '<br>')}</p>` : ''}`,
+            attachments: [
+              {
+                filename: download.artifact.FileName,
+                content: Buffer.from(
+                  await download.response.response.arrayBuffer(),
+                ),
+                contentType: 'application/zip',
+              },
+            ],
+          },
+          payload.actor,
+        );
+        if (!result.success) throw new Error('SMTP outcome unavailable');
+        await this.state.change(
+          event,
+          {
+            Status: 'SUCCEEDED',
+            SucceededAt: new Date(),
+            LastErrorCode: 'OUTBOX_TRANSPORT_ACCEPTED',
+            LastError: null,
+          },
+          'TRANSPORT_ACCEPTED',
+        );
         return;
       }
       if (event.Type === 'PALLET_CONNECTOR_HISTORY') {

@@ -49,9 +49,6 @@ import { lockProductionFlow } from '../../common/helpers/production-flow.helper'
 export interface BomSummary {
   standardRequired: number;
   standardIssued: number;
-  replacementIssued: number;
-  materialNg: number;
-  remainingReplacement: number;
   materialId: string;
   materialName: string;
   bomQtyPerUnit: number;
@@ -86,9 +83,6 @@ export interface ForecastPickingStatus {
 export interface CheckRequirementItem {
   standardRequired: number;
   standardIssued: number;
-  replacementIssued: number;
-  materialNg: number;
-  remainingReplacement: number;
   materialId: string;
   materialName: string;
   bomQtyPerUnit: number;
@@ -1326,13 +1320,6 @@ export class ShoppingService {
 
     // Build requirements
     const snapshot = await orderBom(this.prisma, forecastId);
-    const replacements = await this.prisma.shopping.findMany({
-      where: { ForecastId: forecastId, Purpose: 'NG_REPLACEMENT' },
-    });
-    const ngDetails = await this.prisma.materialNG.findMany({
-      where: { Case: { ForecastId: forecastId, Status: { not: 'CANCELLED' } } },
-      include: { Case: true, Replacements: true },
-    });
     const requirements: CheckRequirementItem[] = bomEntries.map((bom) => {
       const qtyNeeded = forecast.Qty * bom.Qty;
       const qtyPicked = pickedByMaterial.get(bom.MaterialData.PartNumber) || 0;
@@ -1341,28 +1328,6 @@ export class ShoppingService {
       return {
         standardRequired: qtyNeeded,
         standardIssued: qtyPicked,
-        replacementIssued: replacements
-          .filter((s) => s.MaterialId === bom.MaterialData.PartNumber)
-          .reduce((sum, s) => sum + s.QtyPick, 0),
-        materialNg: ngDetails
-          .filter((d) => d.MaterialId === bom.MaterialData.PartNumber)
-          .reduce((sum, d) => sum + d.Qty, 0),
-        remainingReplacement: ngDetails
-          .filter(
-            (d) =>
-              d.MaterialId === bom.MaterialData.PartNumber &&
-              d.Case?.Status === 'OPEN',
-          )
-          .reduce(
-            (sum, d) =>
-              sum +
-              Math.max(
-                0,
-                d.ReplacementRequestedQty -
-                  d.Replacements.reduce((n, s) => n + s.QtyPick, 0),
-              ),
-            0,
-          ),
         materialId: bom.MaterialData.PartNumber,
         materialName: bom.MaterialData.PartName,
         bomQtyPerUnit: bom.Qty,

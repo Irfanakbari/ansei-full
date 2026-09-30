@@ -76,7 +76,6 @@ async function clearAllData(): Promise<void> {
     'StockOpname',
     'IncomingMaterial',
     'Incoming',
-    'MaterialNG',
     'Shopping',
     'ProductionReport',
     'DeliveryHistory',
@@ -814,6 +813,7 @@ async function main() {
       await prisma.manPower.create({
         data: {
           ...data,
+          EmployeeType: 'PCS',
           Uid: crypto.randomUUID(),
           CreatedBy: SEED_ACTOR,
           UpdatedBy: SEED_ACTOR,

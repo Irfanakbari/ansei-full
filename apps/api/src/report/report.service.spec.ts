@@ -36,9 +36,6 @@ describe('ReportService', () => {
     shopping: {
       findMany: jest.fn(),
     },
-    materialNG: {
-      findMany: jest.fn(),
-    },
   };
 
   const mockLogService = {
@@ -382,34 +379,6 @@ describe('ReportService', () => {
 
       expect(result).toBeInstanceOf(Buffer);
       expect(mockPrismaService.shopping.findMany).toHaveBeenCalled();
-    });
-  });
-
-  describe('generateMaterialNgReport', () => {
-    it('should generate material NG report', async () => {
-      const mockNgData = [
-        {
-          Id: 1,
-          MaterialId: 'MAT-001',
-          Qty: 10,
-          Description: 'Defective',
-          CreatedAt: new Date(),
-          CreatedBy: 'John',
-          MaterialData: { PartNumber: 'MAT-001', PartName: 'Material 1' },
-        },
-      ];
-
-      mockPrismaService.materialNG.findMany.mockResolvedValue(
-        mockNgData as any,
-      );
-
-      const result = await service.generateMaterialNgReport(
-        '01072026',
-        '31072026',
-      );
-
-      expect(result).toBeInstanceOf(Buffer);
-      expect(mockPrismaService.materialNG.findMany).toHaveBeenCalled();
     });
   });
 

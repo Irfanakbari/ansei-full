@@ -97,7 +97,7 @@ const PERMISSIONS = {
   forecast: ["IPCS.FORECAST_READ"],
   productionRelease: ["IPCS.PRODUCTION_RELEASE_READ"],
   shopping: ["IPCS.SHOPPING_READ"],
-  materialNg: ["IPCS.MATERIAL_NG_READ", "IPCS.MATERIAL_NG_CREATE"],
+  productionFindings: ["IPCS.MATERIAL_NG_REVIEW"],
   assembly: ["IPCS.ASSEMBLY_READ"],
   preDelivery: ["IPCS.PRE_DELIVERY_READ"],
   pokayoke: ["IPCS.POKAYOKE_READ", "IPCS.POKAYOKE_CREATE"],
@@ -291,11 +291,11 @@ const baseMenuItems: MenuItem[] = [
       [...PERMISSIONS.productionReport],
     ),
     getItem(
-      <Link href="/apps/production/material-ng">Material NG</Link>,
+      <Link href="/apps/production/material-ng">NG Report</Link>,
       "prod-material-ng",
       undefined,
       undefined,
-      [...PERMISSIONS.materialNg],
+      [...PERMISSIONS.productionFindings],
     ),
   ]),
   getItem(

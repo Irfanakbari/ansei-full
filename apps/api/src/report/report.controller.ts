@@ -19,11 +19,9 @@ import {
   DeliveryHistoryReportQueryDto,
   ProductionReportQueryDto,
   ShoppingHistoryReportQueryDto,
-  MaterialNgReportQueryDto,
   InventoryLedgerReportQueryDto,
   ProductionEfficiencyReportQueryDto,
   PokayokeFalloffReportQueryDto,
-  MaterialScrapRateReportQueryDto,
 } from './dto';
 import { Permission } from '../auth/decorators/permission.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -467,54 +465,6 @@ export class ReportController {
     res.send(buffer);
   }
 
-  // ========== MATERIAL NG REPORT ==========
-
-  @Get('material-ng')
-  @Permission('IPCS.REPORT_READ')
-  @ApiOperation({
-    summary: 'Generate Material NG Report',
-    description:
-      'Downloads Excel file containing material NG (reject) data with date range filter',
-  })
-  @ApiQuery({
-    name: 'fromdate',
-    required: false,
-    description: 'Start date in DDMMYYYY format (e.g., 01072026)',
-  })
-  @ApiQuery({
-    name: 'todate',
-    required: false,
-    description: 'End date in DDMMYYYY format (e.g., 31072026)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Excel file download',
-    content: {
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
-        schema: { type: 'string', format: 'binary' },
-      },
-    },
-  })
-  async generateMaterialNgReport(
-    @CurrentUser() _user: ICurrentUser,
-    @Res() res: Response,
-    @Query() query: MaterialNgReportQueryDto,
-  ) {
-    const buffer = await this.reportService.generateMaterialNgReport(
-      query.fromdate,
-      query.todate,
-    );
-
-    res.set({
-      'Content-Type':
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': `attachment; filename=Material_NG_Report_${new Date().toISOString().slice(0, 10)}.xlsx`,
-      'Content-Length': buffer.length,
-    });
-
-    res.send(buffer);
-  }
-
   // ========== INVENTORY LEDGER REPORT ==========
 
   @Get('inventory-ledger')
@@ -665,54 +615,6 @@ export class ReportController {
       'Content-Type':
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': `attachment; filename=Pokayoke_Falloff_Report_${new Date().toISOString().slice(0, 10)}.xlsx`,
-      'Content-Length': buffer.length,
-    });
-
-    res.send(buffer);
-  }
-
-  // ========== MATERIAL SCRAP RATE REPORT ==========
-
-  @Get('material-scrap-rate')
-  @Permission('IPCS.REPORT_READ')
-  @ApiOperation({
-    summary: 'Generate Material Scrap Rate Report',
-    description:
-      'Downloads Excel file containing material scrap rate data with date range filter',
-  })
-  @ApiQuery({
-    name: 'fromdate',
-    required: false,
-    description: 'Start date in DDMMYYYY format (e.g., 01072026)',
-  })
-  @ApiQuery({
-    name: 'todate',
-    required: false,
-    description: 'End date in DDMMYYYY format (e.g., 31072026)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Excel file download',
-    content: {
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
-        schema: { type: 'string', format: 'binary' },
-      },
-    },
-  })
-  async generateMaterialScrapRateReport(
-    @CurrentUser() _user: ICurrentUser,
-    @Res() res: Response,
-    @Query() query: MaterialScrapRateReportQueryDto,
-  ) {
-    const buffer = await this.reportService.generateMaterialScrapRateReport(
-      query.fromdate,
-      query.todate,
-    );
-
-    res.set({
-      'Content-Type':
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': `attachment; filename=Material_Scrap_Rate_Report_${new Date().toISOString().slice(0, 10)}.xlsx`,
       'Content-Length': buffer.length,
     });
 

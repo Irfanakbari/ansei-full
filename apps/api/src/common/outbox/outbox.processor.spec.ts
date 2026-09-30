@@ -65,6 +65,9 @@ describe('OutboxProcessor', () => {
       materialDeliveryNote: {
         findUniqueOrThrow: jest.fn().mockResolvedValue(dn),
       },
+      stockOpname: {
+        findUnique: jest.fn().mockResolvedValue({ RecordNumber: 'STO-001' }),
+      },
     };
     const state = {
       change: jest.fn().mockImplementation((previous, data) =>
@@ -76,11 +79,26 @@ describe('OutboxProcessor', () => {
     };
     const smtp = {
       sendDeliveryNoteEmail: jest.fn().mockResolvedValue({ success: true }),
+      sendEmail: jest.fn().mockResolvedValue({ success: true }),
     };
     const notes = {
       generateDeliveryNotePDF: jest
         .fn()
         .mockResolvedValue(Buffer.from('fixture')),
+    };
+    const documents = {
+      buildAndPersist: jest.fn(),
+      download: jest.fn().mockResolvedValue({
+        artifact: { FileName: 'package.zip' },
+        response: {
+          response: {
+            arrayBuffer: jest.fn().mockResolvedValue(Buffer.from('zip')),
+          },
+        },
+      }),
+    };
+    const inventoryCounting = {
+      generateSnapshot: jest.fn().mockResolvedValue(Buffer.from('snapshot')),
     };
     const queue = { add: jest.fn() };
     return {
@@ -89,11 +107,15 @@ describe('OutboxProcessor', () => {
       state,
       smtp,
       notes,
+      documents,
+      inventoryCounting,
       queue,
       processor: new OutboxProcessor(
         db as never,
         smtp as never,
         notes as never,
+        documents as never,
+        inventoryCounting as never,
         state as never,
       ),
       job: {
@@ -102,6 +124,51 @@ describe('OutboxProcessor', () => {
       },
     };
   }
+  it('uses the established stock snapshot workbook for inventory package generation', async () => {
+    const f = fixture('INVENTORY_COUNTING_PACKAGE');
+    f.event.Payload = { inventoryCountingId: 'sto-1', actor: 'counter' };
+
+    await f.processor.process(f.job as never);
+
+    expect(f.inventoryCounting.generateSnapshot).toHaveBeenCalledWith('sto-1');
+    expect(f.documents.buildAndPersist).toHaveBeenCalledWith(
+      'sto-1',
+      'counter',
+      Buffer.from('snapshot'),
+    );
+    expect(f.state.change).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        Status: 'SUCCEEDED',
+        LastErrorCode: 'OUTBOX_ARTIFACT_PERSISTED',
+      }),
+      'ARTIFACT_PERSISTED',
+    );
+  });
+
+  it('escapes package email content before SMTP submission', async () => {
+    const f = fixture('INVENTORY_COUNTING_PACKAGE_EMAIL');
+    f.event.Payload = {
+      inventoryCountingId: 'sto-1',
+      actor: 'counter',
+      recipients: ['user@example.test'],
+      message: '<script>alert("x")</script>\nNext',
+    };
+    f.smtp.sendEmail = jest.fn().mockResolvedValue({ success: true });
+
+    await f.processor.process(f.job as never);
+
+    expect(f.smtp.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: ['user@example.test'],
+        html: expect.stringContaining(
+          '&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;<br>Next',
+        ),
+      }),
+      'counter',
+    );
+  });
+
   it('creates an immutable agent print job without completing the outbox event', async () => {
     const f = fixture('PRINT_PART_TAG_ANSEI');
     await f.processor.process(f.job as never);

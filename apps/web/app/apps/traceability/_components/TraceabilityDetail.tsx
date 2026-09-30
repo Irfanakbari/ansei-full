@@ -1,7 +1,6 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
 "use client";
 
-import Link from "next/link";
 import {Descriptions, Table, Tabs, Tag, Tooltip, Typography} from "antd";
 import SnapshotTable from "@/components/traceability/SnapshotTable";
 import MaterialUsageTable from "@/components/traceability/MaterialUsageTable";
@@ -165,41 +164,48 @@ export default function TraceabilityDetail({
                             </>
                         ),
                     },
-                    {
-                        key: "ng",
-                        label: "NG & Replacement",
+                    ...(data.findings ? [{
+                        key: "findings",
+                        label: "NG Report",
                         children: (
                             <Table
                                 size="small"
                                 rowKey="Id"
-                                dataSource={data.cases}
+                                dataSource={data.findings}
                                 columns={[
-                                    {
-                                        title: "Case",
-                                        render: (_, record) => (
-                                            <Link
-                                                href={`/apps/production/material-ng?ngCaseId=${record.Id}`}
-                                            >
-                                                {record.CaseNumber}
-                                            </Link>
-                                        ),
-                                    },
-                                    {title: "Stage", dataIndex: "Stage"},
+                                    {title: "Finding", dataIndex: "RecordNumber"},
+                                    {title: "Category", dataIndex: "Category"},
+                                    {title: "Label", render: (_: unknown, record: NonNullable<TraceData["findings"]>[number]) => record.Label?.LabelNumber ?? "-"},
+                                    {title: "FG NG Qty", dataIndex: "Qty"},
                                     {title: "Reason", dataIndex: "Reason"},
-                                    {title: "Status", dataIndex: "Status"},
-                                    {
-                                        title: "Actor",
-                                        render: (_, record) =>
-                                            rawValueTooltip(
-                                                record.CreatedByName || record.CreatedBy || "-",
-                                                record.CreatedBy,
-                                            ),
-                                    },
+                                    {title: "Reporter", dataIndex: "Reporter"},
+                                    {title: "Status", dataIndex: "Status", render: (status: string) => <Tag color={status === "COMPLETED" ? "green" : status === "REJECTED" ? "red" : status === "WAITING_PART_CHANGE" ? "gold" : "blue"}>{status.replaceAll("_", " ")}</Tag>},
                                 ]}
+                                expandable={{
+                                    expandedRowRender: (record) => (
+                                        <Table
+                                            size="small"
+                                            rowKey="Id"
+                                            pagination={false}
+                                            dataSource={record.Components}
+                                            scroll={{x: "max-content"}}
+                                            columns={[
+                                                {title: "BOM Component", render: (_: unknown, component) => `${component.SnapshotLine.PartNumber} - ${component.SnapshotLine.PartName}`},
+                                                {title: "Qty / FG", render: (_: unknown, component) => `${component.SnapshotLine.QtyPerUnit} ${component.SnapshotLine.UnitName ?? ""}`.trim()},
+                                                {title: "Required / Replace", dataIndex: "Qty"},
+                                                {title: "Allocated", render: (_: unknown, component) => component.Allocations.reduce((total, allocation) => total + allocation.Qty, 0)},
+                                                {title: "Remaining", render: (_: unknown, component) => component.Qty - component.Allocations.reduce((total, allocation) => total + allocation.Qty, 0)},
+                                                {title: "Non-production Shopping", render: (_: unknown, component) => component.Allocations.length ? component.Allocations.map((allocation) => `${allocation.Shopping.Id} (${allocation.Qty}/${allocation.Shopping.QtyPick})`).join(", ") : "-"},
+                                            ]}
+                                        />
+                                    ),
+                                    rowExpandable: (record) => record.Components.length > 0,
+                                }}
                                 scroll={{x: "max-content"}}
+                                pagination={false}
                             />
                         ),
-                    },
+                    }] : []),
                     {
                         key: "labels",
                         label: "Labels & Delivery",

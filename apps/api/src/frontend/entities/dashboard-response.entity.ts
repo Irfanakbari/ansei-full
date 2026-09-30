@@ -98,7 +98,6 @@ export class DashboardResponseEntity {
       openIncomingCount: number;
       unvalidatedReportCount: number;
       pendingLabelCount: number;
-      openMaterialNgCaseCount: number;
     };
   };
   @ApiProperty({
@@ -141,7 +140,6 @@ export class DashboardResponseEntity {
       overdueForecastCount: number;
       overdueOpenQty: number;
     };
-    materialNg: { openCaseCount: number; outstandingReplacementQty: number };
   };
   @ApiProperty({ type: [DashboardDailyEntity] }) daily: DashboardDailyEntity[];
   @ApiProperty({
@@ -168,7 +166,7 @@ export class DashboardResponseEntity {
 
 export class DashboardFreezeEntity {
   id: string;
-  opnameNumber: string;
+  recordNumber: string;
   startedAt: Date | null;
   progress: number;
 }

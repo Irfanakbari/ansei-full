@@ -2,7 +2,6 @@
 jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
   snapshotRelease: jest.fn().mockResolvedValue(undefined),
   latestSnapshot: () => Promise.resolve(null),
-  assertNoOutstandingReplacement: () => Promise.resolve(undefined),
 }));
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductionReleaseService } from './production-release.service';

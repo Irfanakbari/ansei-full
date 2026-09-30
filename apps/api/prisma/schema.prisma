@@ -18,6 +18,7 @@ datasource db {
 enum LocationType {
   WAREHOUSE
   RACK
+  ASSY
   FINISH_GOOD_AREA
 }
 
@@ -72,6 +73,8 @@ enum OutboxEventType {
   PRINT_PART_TAG_ANSEI
   DELIVERY_NOTE_EMAIL
   PALLET_CONNECTOR_HISTORY
+  INVENTORY_COUNTING_PACKAGE
+  INVENTORY_COUNTING_PACKAGE_EMAIL
 }
 
 enum OutboxEventStatus {
@@ -206,8 +209,9 @@ model Material {
   // relasi ke tabel lain
   BillOfMaterials             BillOfMaterials[]
   IncomingMaterial            IncomingMaterial[]
-  MaterialNG                  MaterialNG[]
   Shopping                    Shopping[]
+  ProductionFindings          ProductionFinding[]
+  ProductionFindingComponents ProductionFindingComponent[]
   InventoryLedger             InventoryLedger[]
   StockOpnameDetail           StockOpnameDetail[]
   MaterialDeliveryNoteDetails MaterialDeliveryNoteDetail[]
@@ -284,6 +288,7 @@ model ManPower {
   UpdatedBy        String
   Status           Boolean            @default(true)
   Line             String?
+  EmployeeType     String
   ProductionReport ProductionReport[]
   SkillMatrix      SkillMatrix[]
 }
@@ -336,7 +341,7 @@ model InventoryLedger {
 // --- FITUR STOCK OPNAME ---
 model StockOpname {
   Id           String       @id @default(uuid())
-  OpnameNumber String       @unique
+  RecordNumber String       @unique
   Category     ItemCategory
   Status       OpnameStatus @default(DRAFT)
   Tolerance    Float?       @default(0)
@@ -350,6 +355,17 @@ model StockOpname {
 
   Details     StockOpnameDetail[]
   Attachments StockOpnameAttachment[]
+}
+
+model RecordNumberCounter {
+  Id           String   @id @default(uuid())
+  Prefix       String
+  BusinessDate DateTime @db.Date
+  LastSequence Int
+  CreatedAt    DateTime @default(now())
+  UpdatedAt    DateTime @updatedAt
+
+  @@unique([Prefix, BusinessDate])
 }
 
 model StockOpnameDetail {
@@ -431,30 +447,11 @@ model IncomingMaterial {
   @@index([MaterialId], map: "IncomingMaterial_materialId_fkey")
 }
 
-model MaterialNG {
-  CaseId                  String?
-  SnapshotLineId          String?
-  ReplacementRequestedQty Int                        @default(0)
-  Case                    MaterialNgCase?            @relation(fields: [CaseId], references: [Id], onDelete: Restrict)
-  SnapshotLine            ProductionBomSnapshotLine? @relation(fields: [SnapshotLineId], references: [Id], onDelete: Restrict)
-  Replacements            Shopping[]
-  Id                      Int                        @id @default(autoincrement())
-  MaterialId              String
-  Qty                     Int                        @default(0)
-  CreatedAt               DateTime                   @default(now())
-  CreatedBy               String
-  Description             String
-  MaterialData            Material                   @relation(fields: [MaterialId], references: [PartNumber])
-
-  @@unique([CaseId, MaterialId])
-  @@index([MaterialId], map: "MaterialNG_materialId_fkey")
-}
-
 model Forecast {
   BomSnapshots    ProductionBomSnapshot[]
-  MaterialNgCases MaterialNgCase[]
-  TraceEvents     ProductionTraceEvent[]
-  Id              Int                     @id @default(autoincrement())
+  ProductionFindings ProductionFinding[]
+  TraceEvents       ProductionTraceEvent[]
+  Id                Int                     @id @default(autoincrement())
   PoId            String                  @unique
   Date            DateTime
   VendorCode      String
@@ -494,9 +491,9 @@ enum ProductionStatus {
 
 // --- HEADER JADWAL PRODUKSI ---
 model ProductionRelease {
-  BomSnapshots    ProductionBomSnapshot[]
-  MaterialNgCases MaterialNgCase[]
-  TraceEvents     ProductionTraceEvent[]
+  BomSnapshots       ProductionBomSnapshot[]
+  ProductionFindings ProductionFinding[]
+  TraceEvents        ProductionTraceEvent[]
   Id              String                  @id @default(uuid())
   ReleaseNumber   String                  @unique
   PlanDate        DateTime
@@ -551,10 +548,8 @@ model Shopping {
   Purpose        ShoppingPurpose            @default(LEGACY_UNCLASSIFIED)
   Destination    String?
   SnapshotLineId String?
-  MaterialNgId   Int?
   CommandId      String?
   SnapshotLine   ProductionBomSnapshotLine? @relation(fields: [SnapshotLineId], references: [Id], onDelete: Restrict)
-  MaterialNg     MaterialNG?                @relation(fields: [MaterialNgId], references: [Id], onDelete: Restrict)
   Command        BusinessCommand?           @relation(fields: [CommandId], references: [Id], onDelete: Restrict)
   Id             String                     @id
   Description    String?
@@ -566,8 +561,9 @@ model Shopping {
   QtyPick        Int
   MaterialId     String
 
-  ForecastData Forecast? @relation(fields: [ForecastId], references: [PoId], onDelete: Restrict)
-  MaterialData Material  @relation(fields: [MaterialId], references: [PartNumber])
+  ForecastData      Forecast?                     @relation(fields: [ForecastId], references: [PoId], onDelete: Restrict)
+  MaterialData      Material                      @relation(fields: [MaterialId], references: [PartNumber])
+  FindingAllocation ProductionFindingAllocation?
 
   @@index([ForecastId], map: "Shopping_forecastId_fkey")
   @@index([MaterialId], map: "Shopping_materialId_fkey")
@@ -611,7 +607,6 @@ model OutboxEvent {
 }
 
 model ProductionReport {
-  MaterialNgCases MaterialNgCase[]
   Id              Int              @id @default(autoincrement())
   Date            String?
   Time            String?
@@ -655,8 +650,8 @@ model ProductionReport {
 }
 
 model LabelData {
-  MaterialNgCases  MaterialNgCase[]
-  RequiresAssembly Boolean?
+  ProductionFindings ProductionFinding[]
+  RequiresAssembly  Boolean?
   AssemblySessions AssemblySession[]
   Id               Int               @id @default(autoincrement())
   LabelNumber      String            @unique
@@ -685,7 +680,6 @@ enum AssemblyStatus {
 }
 
 model AssemblySession {
-  MaterialNgCases   MaterialNgCase[]
   Id                String           @id @default(uuid())
   LabelDataId       Int
   ManPowerUid       String
@@ -1122,16 +1116,20 @@ enum BomRevisionStatus {
 
 enum ShoppingPurpose {
   STANDARD
-  NG_REPLACEMENT
   NON_PRODUCTION
   LEGACY_UNCLASSIFIED
 }
 
-enum MaterialNgCaseStatus {
-  OPEN
-  FULFILLED
-  CLOSED
-  CANCELLED
+enum ProductionFindingCategory {
+  MATERIAL
+  FINISH_GOOD
+}
+
+enum ProductionFindingStatus {
+  PENDING
+  WAITING_PART_CHANGE
+  COMPLETED
+  REJECTED
 }
 
 model BomRevision {
@@ -1207,7 +1205,7 @@ model ProductionBomSnapshot {
   Previous             ProductionBomSnapshot?      @relation("PreviousSnapshot", fields: [PreviousId], references: [Id], onDelete: Restrict)
   Next                 ProductionBomSnapshot?      @relation("PreviousSnapshot")
   Lines                ProductionBomSnapshotLine[]
-  MaterialNgCases      MaterialNgCase[]
+  ProductionFindings   ProductionFinding[]
 
   @@unique([ForecastId, ReleaseId, Version])
   @@index([ReleaseId])
@@ -1224,39 +1222,10 @@ model ProductionBomSnapshotLine {
   UnitName    String?
   Snapshot    ProductionBomSnapshot @relation(fields: [SnapshotId], references: [Id], onDelete: Restrict)
   Material    Material              @relation(fields: [MaterialId], references: [Id], onDelete: Restrict)
-  Shopping    Shopping[]
-  MaterialNG  MaterialNG[]
+  Shopping                    Shopping[]
+  ProductionFindingComponents ProductionFindingComponent[]
 
   @@unique([SnapshotId, MaterialId])
-}
-
-model MaterialNgCase {
-  Id                 String                @id @default(uuid())
-  CaseNumber         String                @unique
-  ForecastId         String
-  ReleaseId          String
-  SnapshotId         String
-  Stage              String
-  Reason             String
-  Status             MaterialNgCaseStatus  @default(OPEN)
-  CreatedBy          String
-  CreatedAt          DateTime              @default(now())
-  ClosedBy           String?
-  ClosedAt           DateTime?
-  CloseReason        String?
-  LabelId            Int?
-  AssemblySessionId  String?
-  ProductionReportId Int?
-  Forecast           Forecast              @relation(fields: [ForecastId], references: [PoId], onDelete: Restrict)
-  Release            ProductionRelease     @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
-  Snapshot           ProductionBomSnapshot @relation(fields: [SnapshotId], references: [Id], onDelete: Restrict)
-  Label              LabelData?            @relation(fields: [LabelId], references: [Id], onDelete: Restrict)
-  AssemblySession    AssemblySession?      @relation(fields: [AssemblySessionId], references: [Id], onDelete: Restrict)
-  ProductionReport   ProductionReport?     @relation(fields: [ProductionReportId], references: [Id], onDelete: Restrict)
-  Details            MaterialNG[]
-
-  @@index([ForecastId, CreatedAt])
-  @@index([ReleaseId, Status])
 }
 
 model BusinessCommand {
@@ -1270,6 +1239,87 @@ model BusinessCommand {
   Shopping    Shopping[]
 
   @@unique([Scope, RequestId])
+}
+
+model ProductionFinding {
+  Id             String                    @id @default(uuid())
+  RecordNumber   String                    @unique
+  Category       ProductionFindingCategory
+  Status         ProductionFindingStatus   @default(PENDING)
+  Location       LocationType?
+  MaterialId     String?
+  Qty            Int
+  Reason         String
+  Reporter       String
+  SubmittedAt    DateTime                  @default(now())
+  ForecastId     String?
+  ReleaseId      String?
+  SnapshotId     String?
+  LabelId        Int?
+  ReviewedBy     String?
+  ReviewedAt     DateTime?
+  ReviewNote     String?
+  CompletedBy    String?
+  CompletedAt    DateTime?
+  CreatedAt      DateTime                  @default(now())
+  UpdatedAt      DateTime                  @updatedAt
+  DeletedAt      DateTime?
+  DeletedBy      String?
+  Material       Material?                 @relation(fields: [MaterialId], references: [PartNumber], onDelete: Restrict)
+  Forecast       Forecast?                 @relation(fields: [ForecastId], references: [PoId], onDelete: Restrict)
+  Release        ProductionRelease?        @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
+  Snapshot       ProductionBomSnapshot?    @relation(fields: [SnapshotId], references: [Id], onDelete: Restrict)
+  Label          LabelData?                @relation(fields: [LabelId], references: [Id], onDelete: Restrict)
+  Components     ProductionFindingComponent[]
+  Allocations    ProductionFindingAllocation[]
+  Events         ProductionFindingEvent[]
+
+  @@index([Status, SubmittedAt])
+  @@index([ForecastId, SubmittedAt])
+  @@index([MaterialId, SubmittedAt])
+}
+
+model ProductionFindingComponent {
+  Id             String                     @id @default(uuid())
+  FindingId      String
+  SnapshotLineId String?
+  MaterialId     String
+  Qty            Int
+  Finding        ProductionFinding          @relation(fields: [FindingId], references: [Id], onDelete: Restrict)
+  SnapshotLine   ProductionBomSnapshotLine? @relation(fields: [SnapshotLineId], references: [Id], onDelete: Restrict)
+  Material       Material                   @relation(fields: [MaterialId], references: [PartNumber], onDelete: Restrict)
+  Allocations    ProductionFindingAllocation[]
+
+  @@unique([FindingId, SnapshotLineId])
+  @@index([MaterialId])
+}
+
+model ProductionFindingAllocation {
+  Id          String                     @id @default(uuid())
+  FindingId   String
+  ComponentId String
+  ShoppingId  String                     @unique
+  Qty         Int
+  CreatedBy   String
+  CreatedAt   DateTime                   @default(now())
+  Finding     ProductionFinding          @relation(fields: [FindingId], references: [Id], onDelete: Restrict)
+  Component   ProductionFindingComponent @relation(fields: [ComponentId], references: [Id], onDelete: Restrict)
+  Shopping    Shopping                   @relation(fields: [ShoppingId], references: [Id], onDelete: Restrict)
+
+  @@index([FindingId, CreatedAt])
+  @@index([ComponentId])
+}
+
+model ProductionFindingEvent {
+  Id         String            @id @default(uuid())
+  FindingId  String
+  Type       String
+  Actor      String
+  Metadata   Json?
+  CreatedAt  DateTime          @default(now())
+  Finding    ProductionFinding @relation(fields: [FindingId], references: [Id], onDelete: Restrict)
+
+  @@index([FindingId, CreatedAt])
 }
 
 model ProductionTraceEvent {

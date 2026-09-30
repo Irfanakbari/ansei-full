@@ -12,6 +12,7 @@ import {
     CheckCircleOutlined,
     FormOutlined,
     HistoryOutlined,
+    WarningOutlined,
 } from '@ant-design/icons';
 import {Button, Modal, Form, Select, App, Spin, Tag, Avatar, ConfigProvider} from 'antd';
 import {useDispatch, useSelector} from 'react-redux';
@@ -23,6 +24,7 @@ import {
 } from '@/store/features/display/displaySlice';
 import AssemblyScanPanel from './_components/AssemblyScanPanel';
 import OperatorReportModal from './_components/OperatorReportModal';
+import ProductionFindingModal from './_components/ProductionFindingModal';
 
 export interface DisplayManPower {
     Nik: string;
@@ -123,6 +125,7 @@ function DisplayPageContent({
     const [assemblyLocked, setAssemblyLocked] = useState(false);
     const [isConfigOpen, setIsConfigOpen] = useState(false);
     const [isReportOpen, setIsReportOpen] = useState(false);
+    const [isFindingOpen, setIsFindingOpen] = useState(false);
     const [reportInitialTab, setReportInitialTab] = useState<'form' | 'history'>('form');
     const [manPowerList, setManPowerList] = useState<DisplayManPower[]>([]);
     const [finishGoodsList, setFinishGoodsList] = useState<DisplayFinishGood[]>([]);
@@ -412,6 +415,15 @@ function DisplayPageContent({
                         Input Laporan
                     </Button>
                     <Button
+                        danger
+                        type="default"
+                        icon={<WarningOutlined/>}
+                        onClick={() => setIsFindingOpen(true)}
+                        className="font-semibold"
+                    >
+                        Finding / NG
+                    </Button>
+                    <Button
                         type="default"
                         icon={<HistoryOutlined/>}
                         onClick={() => handleOpenReportModal('history')}
@@ -654,7 +666,7 @@ function DisplayPageContent({
             </section>
 
             <AssemblyScanPanel nik={stationConfig.selectedNik ?? stationConfig.manpower?.Nik ?? null}
-                               paused={isConfigOpen || isReportOpen} onLocked={setAssemblyLocked}
+                               paused={isConfigOpen || isReportOpen || isFindingOpen} onLocked={setAssemblyLocked}
                                getContainer={getOverlayContainer}/>
             {/* Config Modal */}
             <Modal
@@ -787,6 +799,12 @@ function DisplayPageContent({
                 </div>
             </Modal>
 
+            <ProductionFindingModal
+                open={isFindingOpen}
+                onClose={() => setIsFindingOpen(false)}
+                reporter={activeManPower?.Name ?? activeManPower?.Nik}
+                getContainer={getOverlayContainer}
+            />
             {/* Operator Report & History Modal */}
             <OperatorReportModal
                 open={isReportOpen}

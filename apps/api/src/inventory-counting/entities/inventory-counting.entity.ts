@@ -47,7 +47,7 @@ export class InventoryCountingEntity {
   Id: string;
 
   @ApiProperty()
-  OpnameNumber: string;
+  RecordNumber: string;
 
   @ApiProperty({ enum: ItemCategory })
   Category: ItemCategory;

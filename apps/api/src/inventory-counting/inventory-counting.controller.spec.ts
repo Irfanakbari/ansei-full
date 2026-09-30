@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { InventoryCountingController } from './inventory-counting.controller';
 import { InventoryCountingService } from './inventory-counting.service';
+import { InventoryCountingDocumentService } from './inventory-counting-document.service';
 import { CreateInventoryCountingDto, UpdateInventoryCountingDto } from './dto';
 import { ItemCategory, OpnameStatus } from '../generated/prisma/enums';
 import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
@@ -8,6 +9,7 @@ import type { ICurrentUser } from '../auth/interfaces/current-user.interface';
 describe('InventoryCountingController', () => {
   let controller: InventoryCountingController;
   let service: any;
+  let documentService: { download: jest.Mock };
 
   const mockUser: ICurrentUser = {
     username: 'testuser',
@@ -46,13 +48,20 @@ describe('InventoryCountingController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [InventoryCountingController],
-      providers: [{ provide: InventoryCountingService, useValue: mockService }],
+      providers: [
+        { provide: InventoryCountingService, useValue: mockService },
+        {
+          provide: InventoryCountingDocumentService,
+          useValue: { download: jest.fn() },
+        },
+      ],
     }).compile();
 
     controller = module.get<InventoryCountingController>(
       InventoryCountingController,
     );
     service = module.get(InventoryCountingService);
+    documentService = module.get(InventoryCountingDocumentService);
   });
 
   afterEach(() => {
@@ -62,7 +71,7 @@ describe('InventoryCountingController', () => {
   describe('create', () => {
     it('should create inventory counting', async () => {
       const createDto: CreateInventoryCountingDto = {
-        opnameNumber: 'INV-2025-001',
+        recordNumber: 'INV-2025-001',
         category: ItemCategory.MATERIAL,
         notes: 'Test notes',
       };
@@ -72,7 +81,7 @@ describe('InventoryCountingController', () => {
         processId: mockProcessId,
         data: {
           Id: '123',
-          OpnameNumber: createDto.opnameNumber,
+          RecordNumber: createDto.recordNumber,
           Category: createDto.category,
           Status: OpnameStatus.DRAFT,
           CreatedAt: new Date(),
@@ -99,7 +108,7 @@ describe('InventoryCountingController', () => {
         data: [
           {
             id: '123',
-            opnameNumber: 'INV-001',
+            recordNumber: 'INV-001',
             category: ItemCategory.MATERIAL,
             status: OpnameStatus.DRAFT,
             createdAt: new Date(),
@@ -132,7 +141,7 @@ describe('InventoryCountingController', () => {
     it('should return inventory counting by id', async () => {
       const mockResult = {
         Id: '123',
-        OpnameNumber: 'INV-001',
+        RecordNumber: 'INV-001',
         Category: ItemCategory.MATERIAL,
         Status: OpnameStatus.DRAFT,
         CreatedAt: new Date(),
@@ -191,7 +200,7 @@ describe('InventoryCountingController', () => {
         processId: mockProcessId,
         data: {
           Id: '123',
-          OpnameNumber: 'INV-001',
+          RecordNumber: 'INV-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.DRAFT,
           CreatedAt: new Date(),
@@ -240,7 +249,7 @@ describe('InventoryCountingController', () => {
         processId: mockProcessId,
         data: {
           Id: '123',
-          OpnameNumber: 'INV-001',
+          RecordNumber: 'INV-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.IN_PROGRESS,
           CreatedAt: new Date(),
@@ -258,6 +267,38 @@ describe('InventoryCountingController', () => {
 
       expect(result).toEqual(mockResult);
       expect(service.start).toHaveBeenCalledWith('123', mockUser.username);
+    });
+  });
+
+  describe('document package download', () => {
+    it('should convert the NAS Web ReadableStream into a Node download stream', async () => {
+      const response = { setHeader: jest.fn() };
+      const body = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new Uint8Array([1, 2, 3]));
+          controller.close();
+        },
+      });
+      documentService.download.mockResolvedValue({
+        artifact: { FileName: 'Inventory_Counting_INV-001.zip' },
+        response: { response: { body } },
+      });
+
+      const result = await controller.downloadDocumentPackage(
+        '123',
+        response as never,
+      );
+
+      expect(documentService.download).toHaveBeenCalledWith('123');
+      expect(response.setHeader).toHaveBeenCalledWith(
+        'Content-Type',
+        'application/zip',
+      );
+      expect(response.setHeader).toHaveBeenCalledWith(
+        'Content-Disposition',
+        "attachment; filename*=UTF-8''Inventory_Counting_INV-001.zip",
+      );
+      expect(result.getStream()).toBeDefined();
     });
   });
 
@@ -388,7 +429,7 @@ describe('InventoryCountingController', () => {
         processId: mockProcessId,
         data: {
           Id: '123',
-          OpnameNumber: 'INV-001',
+          RecordNumber: 'INV-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.COMPLETED,
           CreatedAt: new Date(),
@@ -422,7 +463,7 @@ describe('InventoryCountingController', () => {
         processId: mockProcessId,
         data: {
           Id: '123',
-          OpnameNumber: 'INV-001',
+          RecordNumber: 'INV-001',
           Category: ItemCategory.MATERIAL,
           Status: OpnameStatus.COMPLETED,
           CreatedAt: new Date(),

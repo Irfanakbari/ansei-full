@@ -37,7 +37,7 @@ export interface InventoryCountingDetailEntity {
 
 export interface InventoryCountingEntity {
     Id: string;
-    OpnameNumber: string;
+    RecordNumber: string;
     Category: 'MATERIAL' | 'FINISH_GOOD';
     Status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
     Tolerance: number;
@@ -76,6 +76,27 @@ export interface OcrPreviewItem {
 export interface OcrPreviewResponse {
     attachment: InventoryCountingAttachment | null;
     items: OcrPreviewItem[];
+}
+
+export interface InventoryCountingPackageStatus {
+    generation: {status: string; error: {code: string; message: string} | null} | null;
+    email: {status: string; error: {code: string; message: string} | null} | null;
+    artifact: {Id: number; FileName: string; FileSize: number; CreatedAt: string} | null;
+}
+
+function normalizeInventoryCountingPackageStatus(value: unknown): InventoryCountingPackageStatus {
+    const candidate = value && typeof value === 'object' && 'data' in value
+        ? (value as {data?: unknown}).data
+        : value;
+    if (!candidate || typeof candidate !== 'object') {
+        throw new Error('Document package status response is invalid.');
+    }
+    const status = candidate as Partial<InventoryCountingPackageStatus>;
+    return {
+        generation: status.generation ?? null,
+        email: status.email ?? null,
+        artifact: status.artifact ?? null,
+    };
 }
 
 function normalizeInventoryCountingAttachments(
@@ -139,7 +160,6 @@ export interface InventoryCountingQuery {
 
 // Create DTO
 export interface CreateInventoryCountingDto {
-    opnameNumber: string;
     category: 'MATERIAL' | 'FINISH_GOOD';
     tolerance?: number;
     notes?: string;
@@ -638,6 +658,54 @@ export const downloadSnapshot = createAsyncThunk<
         }
     }
 );
+
+export const generateInventoryCountingPackage = createAsyncThunk<
+    {status: string},
+    string,
+    {rejectValue: string}
+>('inventoryCounting/generatePackage', async (id, {rejectWithValue}) => {
+    try {
+        return await post<{status: string}>(`/inventory-counting/${id}/document-package/generate`, {});
+    } catch (error: unknown) {
+        return rejectWithValue(getApiErrorMessage(error, 'Failed to queue document package'));
+    }
+});
+
+export const fetchInventoryCountingPackageStatus = createAsyncThunk<
+    InventoryCountingPackageStatus,
+    string,
+    {rejectValue: string}
+>('inventoryCounting/packageStatus', async (id, {rejectWithValue}) => {
+    try {
+        const response = await get<unknown>(`/inventory-counting/${id}/document-package`);
+        return normalizeInventoryCountingPackageStatus(response);
+    } catch (error: unknown) {
+        return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch document package status'));
+    }
+});
+
+export const downloadInventoryCountingPackage = createAsyncThunk<void, string, {rejectValue: string}>(
+    'inventoryCounting/downloadPackage',
+    async (id, {rejectWithValue}) => {
+        try {
+            await downloadFile(`/inventory-counting/${id}/document-package/download`, `Inventory_Counting_${id}.zip`);
+        } catch (error: unknown) {
+            return rejectWithValue(getApiErrorMessage(error, 'Failed to download document package'));
+        }
+    },
+);
+
+export const sendInventoryCountingPackageEmail = createAsyncThunk<
+    {status: string},
+    {id: string; recipients: string[]; subject?: string; message?: string},
+    {rejectValue: string}
+>('inventoryCounting/sendPackageEmail', async ({id, recipients, subject, message}, {rejectWithValue}) => {
+    try {
+        return await post<{status: string}>(`/inventory-counting/${id}/document-package/email`, {recipients, subject, message});
+    } catch (error: unknown) {
+        return rejectWithValue(getApiErrorMessage(error, 'Failed to queue document package email'));
+    }
+});
 
 // Slice
 const inventoryCountingSlice = createSlice({

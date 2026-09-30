@@ -110,7 +110,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
         modal.confirm({
             title: 'Delete Inventory Counting?',
             icon: <DeleteOutlined/>,
-            content: `Delete ${data.OpnameNumber}?`,
+            content: `Delete ${data.RecordNumber}?`,
             okText: 'Delete',
             okType: 'danger',
             cancelText: 'Cancel',
@@ -638,7 +638,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({visible, onClose, data, 
 
     return (
         <Modal
-            title={`Inventory Counting: ${data?.OpnameNumber || '-'}`}
+            title={`Inventory Counting: ${data?.RecordNumber || '-'}`}
             open={visible}
             onCancel={onClose}
             footer={

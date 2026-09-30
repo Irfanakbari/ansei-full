@@ -14,6 +14,13 @@ export class ManPowerEntity {
   Name: string;
 
   @ApiProperty({
+    description: 'Tipe karyawan',
+    enum: ['DAILY', 'PCS'],
+    example: 'PCS',
+  })
+  EmployeeType: string;
+
+  @ApiProperty({
     description: 'Tanggal dibuat',
     example: '2026-01-15T08:00:00.000Z',
   })

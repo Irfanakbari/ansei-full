@@ -11,13 +11,13 @@ export interface ActiveInventoryCountingPrismaTarget {
       };
       select?: {
         Id: true;
-        OpnameNumber: true;
+        RecordNumber: true;
         Category: true;
         Status: true;
       };
     }): Promise<{
       Id: string;
-      OpnameNumber: string;
+      RecordNumber: string;
       Category: ItemCategory;
       Status: OpnameStatus;
     } | null>;
@@ -56,7 +56,7 @@ export async function assertNoActiveInventoryCounting(
     where: whereClause,
     select: {
       Id: true,
-      OpnameNumber: true,
+      RecordNumber: true,
       Category: true,
       Status: true,
     },
@@ -65,7 +65,7 @@ export async function assertNoActiveInventoryCounting(
   if (activeOpname) {
     const actionDesc = transactionName ? ` for ${transactionName}` : '';
     throw new BadRequestException(
-      `Transaction denied: Inventory Counting session ${activeOpname.OpnameNumber} (${activeOpname.Category}) is currently active (IN_PROGRESS). All inventory transactions and mutations${actionDesc} are temporarily frozen until counting is completed and approved.`,
+      `Transaction denied: Inventory Counting session ${activeOpname.RecordNumber} (${activeOpname.Category}) is currently active (IN_PROGRESS). All inventory transactions and mutations${actionDesc} are temporarily frozen until counting is completed and approved.`,
     );
   }
 }

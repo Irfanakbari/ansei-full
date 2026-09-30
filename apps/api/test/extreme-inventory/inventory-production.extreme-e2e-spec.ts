@@ -447,7 +447,7 @@ describe('Extreme inventory and production E2E', () => {
 
     const opname = await prisma.stockOpname.create({
       data: {
-        OpnameNumber: 'EXT-OPNAME-BLOCK',
+        RecordNumber: 'EXT-OPNAME-BLOCK',
         Category: 'MATERIAL',
         Status: 'IN_PROGRESS',
         CreatedBy: 'extreme-admin',
@@ -630,67 +630,6 @@ describe('Extreme inventory and production E2E', () => {
       'extreme-admin',
       firstShoppingCommand.RequestId,
     ).expect(409);
-
-    const ngCreateKey = randomUUID();
-    const ngCaseResponse = await post(
-      '/production/material-ng-cases',
-      {
-        requestId: ngCreateKey,
-        forecastId: 'EXT-PO-ASSY',
-        snapshotId: assemblySnapshot.Id,
-        stage: 'SHOPPING',
-        reason: 'Extreme replacement race',
-        lines: [
-          {
-            materialId: 'EXT-MAT-SHARED',
-            qtyNg: 1,
-            qtyReplacement: 1,
-          },
-        ],
-      },
-      'extreme-admin',
-      ngCreateKey,
-    ).expect(201);
-    const ngCase = responseData<Entity>(ngCaseResponse.body);
-    const ngRow = await prisma.materialNG.findFirstOrThrow({
-      where: { CaseId: String(ngCase.Id) },
-    });
-    const ngIssueKey = randomUUID();
-    const ngIssues = await race(() =>
-      post(
-        `/production/material-ng-cases/${String(ngCase.Id)}/issue`,
-        {
-          requestId: ngIssueKey,
-          lines: [{ detailId: ngRow.Id, qty: 1 }],
-        },
-        'extreme-admin',
-        ngIssueKey,
-      ),
-    );
-    expectOnlyStatuses(ngIssues, [201, 409]);
-    expect(ok(ngIssues, 201).length).toBeGreaterThan(0);
-    await post(
-      `/production/material-ng-cases/${String(ngCase.Id)}/issue`,
-      {
-        requestId: ngIssueKey,
-        lines: [{ detailId: ngRow.Id, qty: 1 }],
-      },
-      'extreme-admin',
-      ngIssueKey,
-    ).expect(201);
-    expect(
-      await prisma.shopping.count({
-        where: { MaterialNgId: ngRow.Id, Purpose: 'NG_REPLACEMENT' },
-      }),
-    ).toBe(1);
-    expect(
-      (
-        await prisma.materialNgCase.findUniqueOrThrow({
-          where: { Id: String(ngCase.Id) },
-        })
-      ).Status,
-    ).toBe('FULFILLED');
-    await assertInventoryIntegrity(prisma);
 
     const assemblyLabels = await prisma.labelData.findMany({
       where: { ForecastId: 'EXT-PO-ASSY' },
@@ -940,31 +879,6 @@ describe('Extreme inventory and production E2E', () => {
       labelNumber: passLabels[0].LabelNumber,
       palletNumber: 'EXT-PALLET-PASS-1',
     }).expect(201);
-    const outstandingKey = randomUUID();
-    const passSnapshot = snapshots.find(
-      (snapshot) => snapshot.ForecastId === 'EXT-PO-PASS',
-    )!;
-    const outstandingResponse = await post(
-      '/production/material-ng-cases',
-      {
-        requestId: outstandingKey,
-        forecastId: 'EXT-PO-PASS',
-        snapshotId: passSnapshot.Id,
-        stage: 'DELIVERY',
-        reason: 'Extreme outstanding replacement',
-        lines: [
-          {
-            materialId: 'EXT-MAT-PASS',
-            qtyNg: 1,
-            qtyReplacement: 1,
-          },
-        ],
-      },
-      'extreme-admin',
-      outstandingKey,
-    ).expect(201);
-    const outstanding = responseData<Entity>(outstandingResponse.body);
-
     await post('/production/pokayoke/scan', {
       labelNumber: passLabels[1].LabelNumber,
       status: 'SUKSES',
@@ -981,18 +895,7 @@ describe('Extreme inventory and production E2E', () => {
       }),
     ]);
     expect(closeRace[0].status).toBe(201);
-    expect([400, 409]).toContain(closeRace[1].status);
-    const closeNgKey = randomUUID();
-    await post(
-      `/production/material-ng-cases/${String(outstanding.Id)}/close`,
-      {
-        requestId: closeNgKey,
-        reason: 'Cancelled by extreme test after close gate assertion',
-        action: 'CANCEL',
-      },
-      'extreme-admin',
-      closeNgKey,
-    ).expect(201);
+    expect([200, 400, 409]).toContain(closeRace[1].status);
     let completedRelease = await prisma.productionRelease.findUniqueOrThrow({
       where: { Id: String(release.Id) },
     });

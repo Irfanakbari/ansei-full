@@ -10,8 +10,6 @@ import {
 import type {
   BomRevision,
   BomSnapshot,
-  CreateNgInput,
-  NgCase,
   Page,
   TraceData,
   TraceEvent,
@@ -88,18 +86,6 @@ export const fetchBomSnapshots = reader<BomSnapshot[], string>(
   "snapshots",
   (id) => `/production/production-release/${id}/bom-snapshots`,
 );
-export const fetchNgCases = listing<NgCase>(
-  "ngCases",
-  "/production/material-ng-cases",
-);
-export const fetchNgCase = reader<NgCase, string>(
-  "ngCase",
-  (id) => `/production/material-ng-cases/${id}`,
-);
-export const searchNgOrders = listing<TraceSearchRow>(
-  "ngOrders",
-  "/production/material-ng-cases/candidates",
-);
 export const searchTrace = listing<TraceSearchRow>(
   "search",
   "/traceability/search",
@@ -174,54 +160,6 @@ export const changeRevision = createAsyncThunk<
     }
   },
 );
-export const createNgCase = createAsyncThunk<
-  NgCase,
-  CreateNgInput,
-  { rejectValue: string }
->("phaseOne/createNg", async (body, { rejectWithValue }) => {
-  try {
-    return (
-      await post<ApiSuccessEnvelope<NgCase>>(
-        "/production/material-ng-cases",
-        body,
-      )
-    ).data;
-  } catch (e) {
-    return rejectWithValue(getApiErrorMessage(e));
-  }
-});
-export const issueNg = createAsyncThunk<
-  NgCase,
-  { id: string; requestId: string; lines: { detailId: number; qty: number }[] },
-  { rejectValue: string }
->("phaseOne/issueNg", async ({ id, ...body }, { rejectWithValue }) => {
-  try {
-    return (
-      await post<ApiSuccessEnvelope<NgCase>>(
-        `/production/material-ng-cases/${id}/issue`,
-        body,
-      )
-    ).data;
-  } catch (e) {
-    return rejectWithValue(getApiErrorMessage(e));
-  }
-});
-export const closeNg = createAsyncThunk<
-  NgCase,
-  { id: string; requestId: string; reason: string; action: "CLOSE" | "CANCEL" },
-  { rejectValue: string }
->("phaseOne/closeNg", async ({ id, ...body }, { rejectWithValue }) => {
-  try {
-    return (
-      await post<ApiSuccessEnvelope<NgCase>>(
-        `/production/material-ng-cases/${id}/close`,
-        body,
-      )
-    ).data;
-  } catch (e) {
-    return rejectWithValue(getApiErrorMessage(e));
-  }
-});
 const slice = createSlice({
   name: "phaseOne",
   initialState: {

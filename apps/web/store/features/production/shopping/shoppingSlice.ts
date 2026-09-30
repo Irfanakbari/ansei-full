@@ -83,9 +83,6 @@ export interface ShoppingStatusResponse {
 export interface RequirementItem {
   standardRequired: number;
   standardIssued: number;
-  replacementIssued: number;
-  materialNg: number;
-  remainingReplacement: number;
   materialId: string;
   materialName: string;
   bomQtyPerUnit: number;
