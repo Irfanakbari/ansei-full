@@ -320,6 +320,8 @@ suite(
         db,
         {} as never,
         {} as never,
+        {} as never,
+        {} as never,
         state,
       );
       await processor.process({
