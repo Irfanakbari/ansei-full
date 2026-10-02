@@ -1,5 +1,6 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-18 */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { withBasePath } from "@/lib/base-path";
 import {
   get,
   post,
@@ -47,7 +48,7 @@ export interface AssemblyQuery {
   productionReleaseId?: string;
 }
 async function displayRequest<T>(path: string, body?: unknown): Promise<T> {
-  const response = await fetch(`/api/display/assembly/${path}`, {
+  const response = await fetch(withBasePath(`/api/display/assembly/${path}`), {
     method: body === undefined ? "GET" : "POST",
     cache: "no-store",
     headers:

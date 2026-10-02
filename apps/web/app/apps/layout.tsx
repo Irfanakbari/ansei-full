@@ -46,8 +46,9 @@ import {
 } from "@/store/features/notifications/notificationsSlice";
 import CreditInformationModal from "./_components/CreditInformationModal";
 import "../batik.css";
+import { withBasePath } from "@/lib/base-path";
 
-const APP_VERSION = "5.7.3";
+const APP_VERSION = "6.1.1";
 const APP_YEAR = "2026";
 
 const LATEST_RELEASE_SUMMARY = [
@@ -631,7 +632,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     setCommitHistoryLoading(true);
     setCommitHistoryError(null);
     try {
-      const response = await fetch("/data/project-commit-history.json");
+      const response = await fetch(withBasePath("/data/project-commit-history.json"));
       if (!response.ok) {
         throw new Error("Unable to load update history.");
       }
@@ -688,7 +689,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      window.location.replace("/auth/login");
+      window.location.replace(withBasePath("/auth/login"));
     };
 
     checkAuth();
@@ -716,7 +717,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         dispatch(clearAuth());
         const form = document.createElement("form");
         form.method = "POST";
-        form.action = "/auth/logout";
+        form.action = withBasePath("/auth/logout");
         document.body.appendChild(form);
         form.submit();
       },
@@ -898,7 +899,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         }}
       >
         <Image
-          src="/images/ansei-white.png"
+          src={withBasePath("/images/ansei-white.png")}
           alt="ANSEI logo"
           width={180}
           height={90}
@@ -937,7 +938,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         >
           <div className="text-center justify-center flex p-1">
             <Image
-              src="/images/ansei-white.png"
+              src={withBasePath("/images/ansei-white.png")}
               alt="ANSEI logo"
               width={200}
               height={100}

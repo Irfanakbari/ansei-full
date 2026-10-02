@@ -34,6 +34,7 @@ import {
     AppstoreOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import {withBasePath} from '@/lib/base-path';
 
 export interface ActiveForecastItem {
     poId: string;
@@ -139,7 +140,7 @@ export default function OperatorReportModal({
         setLoadingForecasts(true);
         try {
             const res = await fetch(
-                `/api/display/active-forecasts?finishGoodId=${encodeURIComponent(activePartNumber)}`,
+                withBasePath(`/api/display/active-forecasts?finishGoodId=${encodeURIComponent(activePartNumber)}`),
                 {cache: 'no-store'},
             );
             if (res.ok) {
@@ -167,7 +168,7 @@ export default function OperatorReportModal({
             }
 
             const res = await fetch(
-                `/api/display/production-report?${queryParams.toString()}`,
+                withBasePath(`/api/display/production-report?${queryParams.toString()}`),
                 {cache: 'no-store'},
             );
             if (res.ok) {
@@ -380,7 +381,7 @@ export default function OperatorReportModal({
                                 icon={<CheckCircleOutlined/>}
                                 loading={submitting}
                                 disabled={sessionLoading || (!!session && !canCreateReport)}
-                                href={!session && !sessionLoading ? '/auth/login' : undefined}
+                                href={!session && !sessionLoading ? withBasePath('/auth/login') : undefined}
                                 title={!canCreateReport ? 'Login with production report creation permission to save a report' : undefined}
                                 onClick={session ? handleSubmit : undefined}
                             >

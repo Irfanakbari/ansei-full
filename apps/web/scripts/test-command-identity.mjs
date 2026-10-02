@@ -20,6 +20,11 @@ async function main() {
     removeItem: key => storage.delete(key),
   };
   const identityUrl = moduleUrl(compile('store/utils/commandIdentity.ts'));
+  const basePathUrl = moduleUrl(compile('lib/base-path.ts'));
+  const { withBasePath, withoutBasePath } = await import(basePathUrl);
+  assert.equal(withBasePath('/api/auth/session'), '/ansei/api/auth/session');
+  assert.equal(withBasePath('/ansei/apps'), '/ansei/apps');
+  assert.equal(withoutBasePath('/ansei/api/proxy/v1'), '/api/proxy/v1');
   const { commandIdentity } = await import(identityUrl);
   const a = await commandIdentity('POST', '/example', { b: 2, a: 1 });
   const b = await commandIdentity('POST', '/example', { a: 1, b: 2 });
@@ -29,18 +34,21 @@ async function main() {
   assert.notEqual((await commandIdentity('POST', '/example', { a: 1, b: 2 })).id, a.id);
   storage.clear();
 
-  const apiSource = compile('store/utils/apiService.ts').replace("'./commandIdentity'", JSON.stringify(identityUrl));
+  const apiSource = compile('store/utils/apiService.ts')
+    .replace("'./commandIdentity'", JSON.stringify(identityUrl))
+    .replace("'@/lib/base-path'", JSON.stringify(basePathUrl));
   const { post, get } = await import(moduleUrl(apiSource));
   const sent = [];
   let fail = true;
-  global.fetch = async (_url, options) => {
-    sent.push(options);
+  global.fetch = async (url, options) => {
+    sent.push({ url, ...options });
     if (fail) throw new Error('Simulated lost response');
     return new Response(JSON.stringify({ success: true, data: { saved: true } }), { status: 201, headers: { 'Content-Type': 'application/json' } });
   };
   const payload = { requestId: 'component-local-id-1', qtyPick: 2, description: 'sensitive fixture' };
   await assert.rejects(post('/production/shopping', payload));
   assert.equal(sent.length, 1, 'Transport must not blindly retry mutations');
+  assert.equal(sent[0].url, '/ansei/api/proxy/v1/production/shopping');
   fail = false;
   await post('/production/shopping', { ...payload, requestId: 'component-local-id-after-reload' });
   assert.equal(JSON.parse(sent[0].body).requestId, JSON.parse(sent[1].body).requestId, 'Reloaded form must reuse the pending command');
@@ -84,6 +92,6 @@ async function main() {
   assert.equal(JSON.parse(sent.at(-1).body).requestId, recoveryKey);
   await store.dispatch(recoverIntegration({ ...recovery, expectedAttempts: 6 })).unwrap();
   assert.notEqual(JSON.parse(sent.at(-1).body).requestId, recoveryKey);
-  console.log('PASS: stable keys, reload recovery, new-action identity, payload minimization, read bypass, and no blind mutation retry.');
+  console.log('PASS: base-path routing, stable keys, reload recovery, new-action identity, payload minimization, read bypass, and no blind mutation retry.');
 }
 main().catch(error => { console.error(error.message); process.exitCode = 1; });

@@ -1,5 +1,6 @@
 import {NextResponse} from "next/server";
 import type {NextRequest} from "next/server";
+import {withBasePath} from "@/lib/base-path";
 
 export async function middleware(request: NextRequest) {
     // Check if the SSO session cookie exists.
@@ -10,7 +11,7 @@ export async function middleware(request: NextRequest) {
         request.cookies.has('__Host-ansei_sso');
 
     if (request.nextUrl.pathname === '/' && hasSessionCookie) {
-        return NextResponse.redirect(new URL('/apps', request.url));
+        return NextResponse.redirect(new URL(withBasePath('/apps'), request.url));
     }
 
     if (!hasSessionCookie) {
@@ -24,11 +25,11 @@ export async function middleware(request: NextRequest) {
             request.nextUrl.searchParams.has('_rsc');
 
         if (isRsc) {
-            return NextResponse.redirect(new URL('/', request.url));
+            return NextResponse.redirect(new URL(withBasePath('/'), request.url));
         }
 
         // Redirect directly to login to provide a seamless auto-SSO experience
-        return NextResponse.redirect(new URL('/auth/login', request.url));
+        return NextResponse.redirect(new URL(withBasePath('/auth/login'), request.url));
     }
 
     return NextResponse.next();

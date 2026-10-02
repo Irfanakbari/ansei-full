@@ -10,6 +10,7 @@ import ButtonToolbar from '@/components/ButtonToolbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { calculateMRP, clearMRP } from '@/store/features/warehouse/mrp/mrpSlice';
+import { withBasePath } from '@/lib/base-path';
 
 interface DailyDemand {
     date: string;
@@ -69,7 +70,7 @@ export default function MRPPage() {
         try {
             message.loading({ content: 'Exporting MRP data...', key: 'export' });
 
-            const response = await fetch('/api/warehouse/mrp/export', {
+            const response = await fetch(withBasePath('/api/warehouse/mrp/export'), {
                 method: 'POST',
             });
 

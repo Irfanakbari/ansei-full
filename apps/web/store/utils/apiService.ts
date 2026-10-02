@@ -20,6 +20,7 @@
  */
 
 import type { ApiVersion } from '@/lib/config';
+import { withBasePath } from '@/lib/base-path';
 import { commandIdentity } from './commandIdentity';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -119,7 +120,7 @@ async function handleUnauthorized(notify = true): Promise<void> {
     ]);
     store.dispatch(clearAuth());
 
-    await fetch('/auth/logout', {
+    await fetch(withBasePath('/auth/logout'), {
       method: 'POST',
       credentials: 'include',
       keepalive: true,
@@ -129,7 +130,7 @@ async function handleUnauthorized(notify = true): Promise<void> {
 
   if (notify) broadcastAuth('logout');
 
-  window.location.href = '/?sessionExpired=true';
+  window.location.href = withBasePath('/?sessionExpired=true');
 }
 
 /**
@@ -158,7 +159,7 @@ function buildUrl(
 
   // Route browser requests through the same-origin authenticated proxy
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  const fullUrl = `/api/proxy/${apiVersion}${cleanPath}`;
+  const fullUrl = withBasePath(`/api/proxy/${apiVersion}${cleanPath}`);
 
   if (!params || Object.keys(params).length === 0) {
     return fullUrl;
@@ -325,7 +326,7 @@ export async function postBff<T, B = unknown>(path: string, body: B): Promise<T>
     throw new ApiError('Invalid BFF path', 400);
   }
   const bffPath = `${path}`;
-  const response = await fetch(bffPath, {
+  const response = await fetch(withBasePath(bffPath), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     credentials: 'include',
