@@ -1,6 +1,5 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-16*/
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { withBasePath } from '@/lib/base-path';
 
 // Incoming not closed interface
 export interface IncomingNotClosed {
@@ -94,7 +93,7 @@ export const fetchNotifications = createAsyncThunk<
     'notifications/fetch',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await fetch(withBasePath('/api/frontend/notifications'));
+            const response = await fetch('/api/frontend/notifications');
             const result: unknown = await response.json();
             if (!response.ok) {
                 const message = typeof result === 'object' && result !== null && 'message' in result && typeof result.message === 'string'

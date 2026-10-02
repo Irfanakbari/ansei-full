@@ -4,7 +4,6 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {Modal, Button, Space, App, Spin} from 'antd';
 import {DownloadOutlined, PrinterOutlined, FilePdfOutlined} from '@ant-design/icons';
-import {withBasePath} from '@/lib/base-path';
 
 interface Props {
     visible: boolean;
@@ -32,7 +31,7 @@ const DeliveryNotePreviewModal: React.FC<Props> = ({
         setPdfUrl(null);
 
         try {
-            const response = await fetch(withBasePath(`/api/warehouse/transfer-material/${deliveryNoteId}/generate-dn`), {
+            const response = await fetch(`/api/warehouse/transfer-material/${deliveryNoteId}/generate-dn`, {
                 method: 'POST',
                 credentials: 'include',
             });

@@ -1,7 +1,6 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-08-20 - Updated 2026-09-17 */
 
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { withBasePath } from '@/lib/base-path';
 
 export interface ActiveDisplayConfig {
     Id: number;
@@ -64,7 +63,7 @@ export const fetchActiveDisplayConfig = createAsyncThunk<
 >('display/fetchActive', async (line, { rejectWithValue }) => {
     try {
         const query = line ? `?line=${encodeURIComponent(line)}` : '';
-        const response = await fetch(withBasePath(`/api/display${query}`), { cache: 'no-store' });
+        const response = await fetch(`/api/display${query}`, { cache: 'no-store' });
         const data: unknown = await response.json();
 
         if (!response.ok) {
@@ -84,7 +83,7 @@ export const fetchDisplayTarget = createAsyncThunk<DisplayTarget, string, { reje
     async (partNumber, { rejectWithValue }) => {
         try {
             const query = new URLSearchParams({ partNumber });
-            const response = await fetch(withBasePath(`/api/display/target?${query.toString()}`), {
+            const response = await fetch(`/api/display/target?${query.toString()}`, {
                 cache: 'no-store',
             });
             const data: unknown = await response.json();

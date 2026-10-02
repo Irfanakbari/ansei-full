@@ -13,7 +13,6 @@ async function main() {
         process.env.EDGE_EXECUTABLE ||
         'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe';
     const base = process.env.ASSEMBLY_WEB_TEST_URL || 'http://127.0.0.1:3219';
-    const appBase = `${base}/ansei`;
     assert(
         ['127.0.0.1', 'localhost'].includes(new URL(base).hostname),
         'Use a local test server'
@@ -116,10 +115,7 @@ async function main() {
                 const { requestId, request } = payload.params;
                 const url = new URL(request.url);
                 let data = envelope(null);
-                const appPath = url.pathname.startsWith('/ansei')
-                    ? url.pathname.slice('/ansei'.length) || '/'
-                    : url.pathname;
-                if (appPath === '/api/auth/session')
+                if (url.pathname === '/api/auth/session')
                     data = authorized
                         ? {
                               user: {
@@ -186,7 +182,7 @@ async function main() {
                                       totalPages: 1,
                                   },
                               };
-                } else if (appPath === '/api/frontend/notifications')
+                } else if (url.pathname === '/api/frontend/notifications')
                     data = envelope({
                         totalPOWithoutAttachment: 0,
                         byProductionRelease: [],
@@ -198,7 +194,7 @@ async function main() {
                         labelDataNotScanned: [],
                         messages: [],
                     });
-                else if (appPath === '/api/display/manpower')
+                else if (url.pathname === '/api/display/manpower')
                     data = envelope([
                         {
                             Nik: 'TEST-OP',
@@ -208,7 +204,7 @@ async function main() {
                             SkillMatrix: [],
                         },
                     ]);
-                else if (appPath === '/api/display/finish-goods')
+                else if (url.pathname === '/api/display/finish-goods')
                     data = envelope([
                         {
                             PartNumber: 'SAVED-PART',
@@ -216,7 +212,7 @@ async function main() {
                             Alias: null,
                         },
                     ]);
-                else if (appPath === '/api/display/assembly/operator') {
+                else if (url.pathname === '/api/display/assembly/operator') {
                     operatorRequests.push(url.searchParams.get('manPowerNik'));
                     if (networkFailure) {
                         await send('Fetch.failRequest', {
@@ -230,7 +226,7 @@ async function main() {
                         session: activeSession,
                         serverTime: new Date().toISOString(),
                     });
-                } else if (appPath === '/api/display/assembly/start') {
+                } else if (url.pathname === '/api/display/assembly/start') {
                     const body = JSON.parse(request.postData);
                     assert.equal(body.manPowerNik, 'TEST-OP');
                     starts++;
@@ -253,7 +249,7 @@ async function main() {
                         },
                     };
                     data = envelope(activeSession);
-                } else if (appPath.endsWith('/complete')) {
+                } else if (url.pathname.endsWith('/complete')) {
                     const body = JSON.parse(request.postData);
                     assert.equal(body.manPowerNik, 'TEST-OP');
                     completions++;
@@ -287,7 +283,7 @@ async function main() {
         });
         await send('Fetch.enable', {
             patterns: [
-                { urlPattern: '*://*/ansei/api/*' },
+                { urlPattern: '*://*/api/*' },
                 { urlPattern: 'http://192.168.1.15*' },
             ],
         });
@@ -324,7 +320,7 @@ async function main() {
                 windowsVirtualKeyCode: 13,
             });
         };
-        await send('Page.navigate', { url: `${appBase}/display` });
+        await send('Page.navigate', { url: `${base}/display` });
         await waitFor(`${input} && !${input}.disabled`, 'saved manpower ready');
         assert.equal(operatorRequests[0], 'TEST-OP');
         await scan('BOX-ONE');
@@ -418,7 +414,7 @@ async function main() {
             url: base,
         });
         await send('Page.navigate', {
-            url: `${appBase}/apps/master-data/finish-good`,
+            url: `${base}/apps/master-data/finish-good`,
         });
         await waitFor(
             `document.body.textContent.includes('MASTER-FG')`,
@@ -467,7 +463,7 @@ async function main() {
         console.log(
             'PASS: FinishGood browser test: passthrough column, edit switch payload, refresh, reopen preserves saved value.'
         );
-        await send('Page.navigate', { url: appBase + '/apps/production/assembly' });
+        await send('Page.navigate', { url: base + '/apps/production/assembly' });
         await waitFor("document.body.textContent.includes('Create Assembly')", 'assembly toolbar');
         assert(await evalJs("Boolean(document.querySelector('.small-table'))"));
         await evalJs("Array.from(document.querySelectorAll('span')).find(e => e.textContent === 'Create Assembly')?.click()");

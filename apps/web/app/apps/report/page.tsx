@@ -19,7 +19,6 @@ import {
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
 import dayjs, { Dayjs } from 'dayjs';
-import { withBasePath } from '@/lib/base-path';
 
 const { RangePicker } = DatePicker;
 
@@ -144,8 +143,8 @@ const ReportPage: React.FC = () => {
 
             const queryString = params.toString();
             const url = queryString
-                ? withBasePath(`/api/proxy/v1/report/${report.key}?${queryString}`)
-                : withBasePath(`/api/proxy/v1/report/${report.key}`);
+                ? `/api/proxy/v1/report/${report.key}?${queryString}`
+                : `/api/proxy/v1/report/${report.key}`;
 
             const response = await fetch(url, {
                 method: 'GET',

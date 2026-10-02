@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Button, Modal } from 'antd';
 import { DesktopOutlined, HeartOutlined, InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
 import Image from 'next/image';
-import { withBasePath } from '@/lib/base-path';
 
 interface CreditInformationModalProps {
     open: boolean;
@@ -323,14 +322,14 @@ const CreditInformationModal: React.FC<CreditInformationModalProps> = ({
                     </div>
                     <div style={{ display: 'flex', gap: '24px', alignItems: 'center', justifyContent: 'center' }}>
                         <Image
-                            src={withBasePath('/images/ssl.png')}
+                            src="/images/ssl.png"
                             alt="SSL Secured"
                             width={120}
                             height={30}
                             style={{ objectFit: 'contain' }}
                         />
                         <Image
-                            src={withBasePath('/images/aes.webp')}
+                            src="/images/aes.webp"
                             alt="AES 256 Encryption"
                             width={60}
                             height={60}

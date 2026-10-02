@@ -25,7 +25,6 @@ import {
 import AssemblyScanPanel from './_components/AssemblyScanPanel';
 import OperatorReportModal from './_components/OperatorReportModal';
 import ProductionFindingModal from './_components/ProductionFindingModal';
-import {withBasePath} from '@/lib/base-path';
 
 export interface DisplayManPower {
     Nik: string;
@@ -158,8 +157,8 @@ function DisplayPageContent({
         async (targetNikOverride?: string | null, targetPartNumberOverride?: string | null) => {
             try {
                 const [mpRes, fgRes] = await Promise.all([
-                    fetch(withBasePath('/api/display/manpower'), {cache: 'no-store'}),
-                    fetch(withBasePath('/api/display/finish-goods'), {cache: 'no-store'}),
+                    fetch('/api/display/manpower', {cache: 'no-store'}),
+                    fetch('/api/display/finish-goods', {cache: 'no-store'}),
                 ]);
 
                 let updatedMpList: DisplayManPower[] = [];
@@ -387,7 +386,7 @@ function DisplayPageContent({
                 className="flex min-h-14 shrink-0 items-center justify-between gap-2 bg-white px-3 py-2 shadow-xs border-b border-slate-200 z-10 sm:min-h-16 sm:px-6">
                 <div className="flex items-center gap-4">
                     <Image
-                        src={withBasePath('/images/vtq.png')}
+                        src="/images/vtq.png"
                         alt="Vuteq Indonesia"
                         width={120}
                         height={40}

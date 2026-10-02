@@ -1,7 +1,5 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-04-03 - Updated 2026-06-16*/
 
-import { withBasePath, withoutBasePath } from '@/lib/base-path';
-
 async function clearAuthenticationState(): Promise<void> {
     const [{store}, {clearAuth}] = await Promise.all([
         import('@/store'),
@@ -32,7 +30,7 @@ export async function fetchWithAuth(
     // the authenticated BFF proxy instead of expecting the browser to provide
     // an Authorization header.
     const requestUrl = new URL(url, window.location.origin);
-    const pathWithoutBase = withoutBasePath(requestUrl.pathname);
+    const pathWithoutBase = requestUrl.pathname;
     const preservedRoutePrefixes = [
         '/api/auth/',
         '/api/display',
@@ -47,10 +45,9 @@ export async function fetchWithAuth(
     const isLegacyApiRoute = pathWithoutBase.startsWith('/api/') &&
         !pathWithoutBase.startsWith('/api/proxy/') &&
         !preservedRoutePrefixes.some((prefix) => pathWithoutBase.startsWith(prefix));
-    const targetPath = isLegacyApiRoute
+    const targetUrl = isLegacyApiRoute
         ? `/api/proxy/v1${pathWithoutBase.slice('/api'.length)}${requestUrl.search}`
         : `${pathWithoutBase}${requestUrl.search}`;
-    const targetUrl = withBasePath(targetPath);
 
     const response = await fetch(targetUrl, {
         ...options,
@@ -81,7 +78,7 @@ export async function fetchWithAuth(
             }, 1000);
 
             // Navigate to login with sessionExpired flag
-            window.location.href = withBasePath('/?sessionExpired=true');
+            window.location.href = '/?sessionExpired=true';
         }
     }
 

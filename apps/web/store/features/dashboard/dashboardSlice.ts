@@ -1,6 +1,5 @@
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import type {ApiSuccessEnvelope} from "@/store/utils/apiService";
-import {withBasePath} from "@/lib/base-path";
 
 export interface DashboardQuery {
     month: number;
@@ -270,7 +269,7 @@ export const fetchDashboard = createAsyncThunk<
         }
         const queryString = searchParams.toString();
         const response = await fetch(
-            withBasePath(`/api/frontend/dashboard${queryString ? `?${queryString}` : ""}`),
+            `/api/frontend/dashboard${queryString ? `?${queryString}` : ""}`,
             {cache: "no-store"},
         );
         const envelope = (await response.json()) as

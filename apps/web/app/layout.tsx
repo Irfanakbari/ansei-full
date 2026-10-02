@@ -7,7 +7,6 @@ import {ReduxProvider} from "@/store/provider";
 import {ConfigProvider, App} from "antd";
 import {VuteqSsoProvider} from "@vuteq/sso-client-react/react";
 import React from "react";
-import {withBasePath} from "@/lib/base-path";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -29,9 +28,9 @@ export default function RootLayout({
         <html lang="en">
         <body className={`${inter.variable} antialiased`}>
         <VuteqSsoProvider
-            sessionEndpoint={withBasePath("/api/auth/session")}
-            loginPath={withBasePath("/auth/login")}
-            logoutPath={withBasePath("/auth/logout")}
+            sessionEndpoint="/api/auth/session"
+            loginPath="/auth/login"
+            logoutPath="/auth/logout"
         >
             <ReduxProvider>
                 <ConfigProvider

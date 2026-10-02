@@ -1,7 +1,6 @@
 import 'server-only';
 import { createNextVuteqSso } from '@vuteq/sso-client-react/next';
 import { ssoSessionStore } from './sso-session-store';
-import { withBasePath } from './base-path';
 
 // Runtime secrets are injected by Docker/Compose. Keep build-time evaluation safe;
 // the SDK validates the real credentials when an auth route is actually used.
@@ -15,9 +14,9 @@ export const sso = createNextVuteqSso({
   publicOrigin,
   store: ssoSessionStore,
   cookieName: 'ansei_sso',
-  callbackPath: withBasePath('/auth/callback'),
-  homePath: withBasePath('/apps'),
-  errorPath: withBasePath('/auth/error'),
+  callbackPath: '/auth/callback',
+  homePath: '/apps',
+  errorPath: '/auth/error',
   trustProxy: process.env.VUTEQ_SSO_TRUST_PROXY === 'true',
   onCallbackError: (diagnostic) => {
     console.error(JSON.stringify({ event: 'sso_callback_failed', ...diagnostic }));
