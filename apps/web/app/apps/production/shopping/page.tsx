@@ -227,6 +227,7 @@ export default function ShoppingPage() {
                 />
                 <div style={{marginLeft: "auto", display: "flex", alignItems: "center"}}>
                     <Segmented
+                        size="small"
                         value={query.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}
                         onChange={(val) =>
                             dispatch(

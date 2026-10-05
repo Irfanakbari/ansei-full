@@ -193,6 +193,7 @@ export default function PokayokePage() {
                 />
                 <div style={{marginLeft: "auto", display: "flex", alignItems: "center"}}>
                     <Segmented
+                        size="small"
                         value={filters.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}
                         onChange={(val) =>
                             dispatch(
