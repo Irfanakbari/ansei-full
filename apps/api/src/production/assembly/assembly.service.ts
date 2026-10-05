@@ -165,6 +165,11 @@ export class AssemblyService {
               LabelNumber: { contains: query.labelNumber, mode: 'insensitive' },
             }
           : {}),
+        ...(query.activeReleaseOnly
+          ? {
+              ProductionRelease: { Status: 'RELEASED' },
+            }
+          : {}),
       },
     };
     const [data, totalItems] = await Promise.all([

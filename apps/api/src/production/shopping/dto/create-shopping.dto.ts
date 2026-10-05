@@ -1,5 +1,6 @@
 import { SearchPaginationQueryDto } from '../../../common/dto/search-pagination-query.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
@@ -9,6 +10,7 @@ import {
   ValidateIf,
   IsUUID,
   IsInt,
+  IsBoolean,
   Min,
 } from 'class-validator';
 import { TypeShopping } from '../../../generated/prisma/enums';
@@ -72,4 +74,17 @@ export class ShoppingQueryDto extends SearchPaginationQueryDto {
   @IsOptional()
   @IsEnum(['STANDARD', 'NON_PRODUCTION', 'LEGACY_UNCLASSIFIED'])
   purpose?: 'STANDARD' | 'NON_PRODUCTION' | 'LEGACY_UNCLASSIFIED';
+
+  @ApiPropertyOptional({
+    description:
+      'Filter records belonging to active (RELEASED) production release only',
+  })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) => {
+    if (value === true || value === 'true' || value === '1') return true;
+    if (value === false || value === 'false' || value === '0') return false;
+    return undefined;
+  })
+  @IsBoolean()
+  activeReleaseOnly?: boolean;
 }

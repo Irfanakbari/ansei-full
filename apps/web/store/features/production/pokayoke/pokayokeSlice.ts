@@ -69,6 +69,7 @@ export interface PokayokeQuery {
     poId?: string;
     status?: PokayokeScanEntity['status'];
     createdBy?: string;
+    activeReleaseOnly?: boolean;
 }
 
 interface PaginatedPokayoke {
@@ -88,7 +89,7 @@ const initialState: PokayokeState = {
     error: null,
     scanResult: null,
     pagination: {page: 1, limit: 50, total: 0, totalPages: 0},
-    filters: {page: 1, limit: 50},
+    filters: {page: 1, limit: 50, activeReleaseOnly: true},
 };
 
 // Fetch all pokayoke scans

@@ -108,13 +108,36 @@ describe('ShoppingService', () => {
       await service.findAll({ page: 1, limit: 50, scope: 'OPERATIONS' });
 
       expect(prismaService.shopping.count).toHaveBeenCalledWith({
-        where: { Purpose: { in: ['STANDARD', 'NON_PRODUCTION'] } },
+        where: { AND: [{ Purpose: { in: ['STANDARD', 'NON_PRODUCTION'] } }] },
       });
       expect(prismaService.shopping.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { Purpose: { in: ['STANDARD', 'NON_PRODUCTION'] } },
+          where: { AND: [{ Purpose: { in: ['STANDARD', 'NON_PRODUCTION'] } }] },
         }),
       );
+    });
+
+    it('filters by active production release when activeReleaseOnly is true', async () => {
+      prismaService.shopping.findMany.mockResolvedValue([]);
+
+      await service.findAll({ page: 1, limit: 50, activeReleaseOnly: true });
+
+      expect(prismaService.shopping.count).toHaveBeenCalledWith({
+        where: {
+          AND: [
+            {
+              OR: [
+                { ForecastData: { ProductionRelease: { Status: 'RELEASED' } } },
+                {
+                  SnapshotLine: {
+                    Snapshot: { Release: { Status: 'RELEASED' } },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      });
     });
   });
 

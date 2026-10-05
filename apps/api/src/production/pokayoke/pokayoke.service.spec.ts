@@ -569,5 +569,23 @@ describe('PokayokeService', () => {
         }),
       );
     });
+    it('should filter by active release when activeReleaseOnly is true', async () => {
+      mockPrismaService.pokayokeScanHistory.count.mockResolvedValue(0);
+      mockPrismaService.pokayokeScanHistory.findMany.mockResolvedValue([]);
+
+      await service.findAll({ activeReleaseOnly: true });
+
+      expect(
+        mockPrismaService.pokayokeScanHistory.findMany,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            LabelData: {
+              ProductionRelease: { Status: 'RELEASED' },
+            },
+          }),
+        }),
+      );
+    });
   });
 });

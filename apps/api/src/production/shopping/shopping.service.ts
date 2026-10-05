@@ -120,17 +120,34 @@ export class ShoppingService {
   ) {}
 
   async findAll(query: ShoppingQueryDto) {
-    const where: Prisma.ShoppingWhereInput = query.search
-      ? {
-          OR: [
-            { ForecastId: { contains: query.search, mode: 'insensitive' } },
-            { MaterialId: { contains: query.search, mode: 'insensitive' } },
-          ],
-        }
-      : {};
-    if (query.purpose) where.Purpose = query.purpose;
-    else if (query.scope === 'OPERATIONS')
-      where.Purpose = { in: ['STANDARD', 'NON_PRODUCTION'] };
+    const whereConditions: Prisma.ShoppingWhereInput[] = [];
+    if (query.search) {
+      whereConditions.push({
+        OR: [
+          { ForecastId: { contains: query.search, mode: 'insensitive' } },
+          { MaterialId: { contains: query.search, mode: 'insensitive' } },
+        ],
+      });
+    }
+    if (query.purpose) {
+      whereConditions.push({ Purpose: query.purpose });
+    } else if (query.scope === 'OPERATIONS') {
+      whereConditions.push({ Purpose: { in: ['STANDARD', 'NON_PRODUCTION'] } });
+    }
+    if (query.activeReleaseOnly) {
+      whereConditions.push({
+        OR: [
+          { ForecastData: { ProductionRelease: { Status: 'RELEASED' } } },
+          {
+            SnapshotLine: {
+              Snapshot: { Release: { Status: 'RELEASED' } },
+            },
+          },
+        ],
+      });
+    }
+    const where: Prisma.ShoppingWhereInput =
+      whereConditions.length > 0 ? { AND: whereConditions } : {};
     const [totalItems, data] = await Promise.all([
       this.prisma.shopping.count({ where }),
       this.prisma.shopping.findMany({

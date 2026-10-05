@@ -42,6 +42,7 @@ export interface DeliveryQuery {
     limit?: number;
     forecastId?: string;
     createdBy?: string;
+    activeReleaseOnly?: boolean;
 }
 
 // Create delivery request interface
@@ -86,6 +87,7 @@ const initialState: DeliveryState = {
     filters: {
         page: 1,
         limit: 50,
+        activeReleaseOnly: true,
     },
 };
 
@@ -95,7 +97,13 @@ export const fetchDelivery = createAsyncThunk<PaginatedApiSuccessEnvelope<Delive
     async (filters: DeliveryQuery, { rejectWithValue }) => {
         try {
             return await get<PaginatedApiSuccessEnvelope<DeliveryEntity>>('/production/delivery', {
-                params: { page: filters.page ?? 1, limit: filters.limit ?? 50, forecastId: filters.forecastId, createdBy: filters.createdBy },
+                params: {
+                    page: filters.page ?? 1,
+                    limit: filters.limit ?? 50,
+                    forecastId: filters.forecastId,
+                    createdBy: filters.createdBy,
+                    activeReleaseOnly: filters.activeReleaseOnly,
+                },
             });
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to fetch delivery data'));

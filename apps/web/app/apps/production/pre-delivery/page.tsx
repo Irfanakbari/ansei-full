@@ -11,6 +11,7 @@ import {
     Input,
     Button,
     Select,
+    Segmented,
     Tag,
     Tooltip,
     Space,
@@ -300,6 +301,23 @@ export default function PreDeliveryPage() {
                     icon={<ReloadOutlined/>}
                     onClick={() => dispatch(fetchPreDelivery(filters))}
                 />
+                <div style={{marginLeft: "auto", display: "flex", alignItems: "center"}}>
+                    <Segmented
+                        value={filters.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}
+                        onChange={(val) =>
+                            dispatch(
+                                setFilters({
+                                    page: 1,
+                                    activeReleaseOnly: val === "ACTIVE",
+                                }),
+                            )
+                        }
+                        options={[
+                            {label: "Active Release", value: "ACTIVE"},
+                            {label: "All History", value: "ALL"},
+                        ]}
+                    />
+                </div>
             </ToolbarWrapper>
 
             <Table

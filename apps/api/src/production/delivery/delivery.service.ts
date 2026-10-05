@@ -582,6 +582,12 @@ export class DeliveryService {
       };
     }
 
+    if (query?.activeReleaseOnly) {
+      where.LabelData = {
+        ProductionRelease: { Status: 'RELEASED' },
+      };
+    }
+
     const [total, data] = await Promise.all([
       this.prisma.deliveryHistory.count({ where }),
       this.prisma.deliveryHistory.findMany({

@@ -206,6 +206,28 @@ describe('PreDeliveryService', () => {
       expect(result.labelNumber).toBe('LBL001');
     });
 
+    it('filters by active production release when activeReleaseOnly is true', async () => {
+      mockPrismaService.forecast.findMany.mockResolvedValue([
+        { PoId: 'PO-001' },
+      ]);
+      mockPrismaService.labelData.findMany.mockResolvedValue([]);
+      mockPrismaService.labelData.count.mockResolvedValue(0);
+
+      await service.findAll({ activeReleaseOnly: true });
+
+      expect(mockPrismaService.forecast.findMany).toHaveBeenCalledWith({
+        where: { ProductionRelease: { Status: 'RELEASED' } },
+        select: { PoId: true },
+      });
+      expect(mockPrismaService.labelData.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            ProductionRelease: { Status: 'RELEASED' },
+          }),
+        }),
+      );
+    });
+
     it('should return null when not found', async () => {
       mockPrismaService.labelData.findUnique.mockResolvedValue(null);
 

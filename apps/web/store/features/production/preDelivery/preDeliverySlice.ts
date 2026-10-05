@@ -26,6 +26,7 @@ export interface PreDeliveryQuery {
     finishGoodId?: string;
     labelNumber?: string;
     scanned?: boolean;
+    activeReleaseOnly?: boolean;
 }
 
 // Paginated response
@@ -64,6 +65,7 @@ const initialState: PreDeliveryState = {
     filters: {
         page: 1,
         limit: 50,
+        activeReleaseOnly: true,
     },
 };
 

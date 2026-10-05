@@ -8,6 +8,7 @@ import {
     Breadcrumb,
     Input,
     Button,
+    Segmented,
     Space,
     Tag,
     Tooltip,
@@ -224,6 +225,23 @@ export default function ShoppingPage() {
                     icon={<PlusOutlined/>}
                     onClick={() => setIsCreateModalVisible(true)}
                 />
+                <div style={{marginLeft: "auto", display: "flex", alignItems: "center"}}>
+                    <Segmented
+                        value={query.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}
+                        onChange={(val) =>
+                            dispatch(
+                                setShoppingQuery({
+                                    page: 1,
+                                    activeReleaseOnly: val === "ACTIVE",
+                                }),
+                            )
+                        }
+                        options={[
+                            {label: "Active Release", value: "ACTIVE"},
+                            {label: "All History", value: "ALL"},
+                        ]}
+                    />
+                </div>
             </ToolbarWrapper>
 
             <Table

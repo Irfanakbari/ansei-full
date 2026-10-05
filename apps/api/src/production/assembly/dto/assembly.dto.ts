@@ -69,6 +69,17 @@ export class AssemblyQueryDto {
   @IsOptional()
   @IsEnum(AssemblyStatus)
   status?: AssemblyStatus;
+  @ApiPropertyOptional({
+    description:
+      'Filter records belonging to active (RELEASED) production release only',
+  })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) => {
+    if (value === true || value === 'true' || value === '1') return true;
+    if (value === false || value === 'false' || value === '0') return false;
+    return undefined;
+  })
+  activeReleaseOnly?: boolean;
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
   @Type(() => Number)

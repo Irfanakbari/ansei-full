@@ -33,4 +33,10 @@ export class DeliveryQueryDto {
 
   @ApiPropertyOptional({ description: 'Filter by CreatedBy' })
   createdBy?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Filter records belonging to active (RELEASED) production release only',
+  })
+  activeReleaseOnly?: boolean;
 }

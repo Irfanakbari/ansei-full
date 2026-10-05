@@ -436,6 +436,12 @@ export class PokayokeService {
       };
     }
 
+    if (query?.activeReleaseOnly) {
+      where.LabelData = {
+        ProductionRelease: { Status: 'RELEASED' },
+      };
+    }
+
     const [total, data] = await Promise.all([
       this.prisma.pokayokeScanHistory.count({ where }),
       this.prisma.pokayokeScanHistory.findMany({

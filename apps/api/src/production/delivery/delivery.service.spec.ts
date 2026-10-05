@@ -389,6 +389,23 @@ describe('DeliveryService', () => {
         }),
       );
     });
+
+    it('should filter by active release when activeReleaseOnly is true', async () => {
+      mockPrismaService.deliveryHistory.count.mockResolvedValue(0);
+      mockPrismaService.deliveryHistory.findMany.mockResolvedValue([]);
+
+      await service.findAll({ activeReleaseOnly: true });
+
+      expect(mockPrismaService.deliveryHistory.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            LabelData: {
+              ProductionRelease: { Status: 'RELEASED' },
+            },
+          }),
+        }),
+      );
+    });
   });
 
   describe('getPalletOptions', () => {

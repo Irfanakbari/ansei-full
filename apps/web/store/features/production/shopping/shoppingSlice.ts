@@ -136,6 +136,7 @@ export interface ShoppingQuery {
   page?: number;
   limit?: number;
   search?: string;
+  activeReleaseOnly?: boolean;
 }
 
 const initialState: ShoppingState = {
@@ -146,7 +147,7 @@ const initialState: ShoppingState = {
   checkLoading: false,
   error: null,
   checkRequirement: null,
-  query: { page: 1, limit: 50, scope: "OPERATIONS" },
+  query: { page: 1, limit: 50, scope: "OPERATIONS", activeReleaseOnly: true },
   pagination: { page: 1, limit: 50, totalItems: 0, totalPages: 0 },
 };
 

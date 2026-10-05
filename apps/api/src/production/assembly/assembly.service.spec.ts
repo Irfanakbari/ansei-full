@@ -47,6 +47,8 @@ describe('AssemblyService', () => {
       findUniqueOrThrow: jest.fn(),
       findUnique: jest.fn(),
       findFirst: jest.fn(),
+      findMany: jest.fn(),
+      count: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -274,6 +276,21 @@ describe('AssemblyService', () => {
     );
     expect(tx.assemblySession.update).not.toHaveBeenCalled();
     expect(log.completeProcess).toHaveBeenLastCalledWith('audit', 'FAILED');
+  });
+  it('filters assembly sessions by active release when activeReleaseOnly is true', async () => {
+    tx.assemblySession.findMany.mockResolvedValue([session]);
+    tx.assemblySession.count.mockResolvedValue(1);
+    const result = await service.findAll({ activeReleaseOnly: true });
+    expect(result.data).toEqual([session]);
+    expect(tx.assemblySession.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          LabelData: expect.objectContaining({
+            ProductionRelease: { Status: 'RELEASED' },
+          }),
+        }),
+      }),
+    );
   });
   it('cancels with history and no stock mutation', async () => {
     tx.assemblySession.findUnique.mockResolvedValue(session);

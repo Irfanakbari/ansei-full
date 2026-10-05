@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePhasePermission } from "@/components/traceability/usePhasePermission";
 import React, { useEffect, useRef, useState } from "react";
-import { Table, Card, Breadcrumb, Input, Button, Space, Tag } from "antd";
+import { Table, Card, Breadcrumb, Input, Button, Segmented, Space, Tag } from "antd";
 import type { InputRef } from "antd";
 import {
   ReloadOutlined,
@@ -212,6 +212,23 @@ export default function DeliveryPage() {
           icon={<PlusOutlined />}
           onClick={handleOpenCreateModal}
         />
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+          <Segmented
+            value={filters.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}
+            onChange={(val) =>
+              dispatch(
+                setFilters({
+                  page: 1,
+                  activeReleaseOnly: val === "ACTIVE",
+                }),
+              )
+            }
+            options={[
+              { label: "Active Release", value: "ACTIVE" },
+              { label: "All History", value: "ALL" },
+            ]}
+          />
+        </div>
       </ToolbarWrapper>
 
       <Table

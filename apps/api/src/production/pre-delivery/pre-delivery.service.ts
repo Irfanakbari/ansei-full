@@ -75,6 +75,22 @@ export class PreDeliveryService {
           totalPages: 0,
         };
       }
+    } else if (query.activeReleaseOnly) {
+      const forecasts = await this.prisma.forecast.findMany({
+        where: { ProductionRelease: { Status: 'RELEASED' } },
+        select: { PoId: true },
+      });
+      forecastIds = forecasts.map((f) => f.PoId);
+
+      if (forecastIds.length === 0) {
+        return {
+          data: [],
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+        };
+      }
     } else {
       // No productionReleaseId filter - get ALL forecasts that have Shopping records
       forecastIds = await this.getAllForecastIdsWithShopping();
@@ -161,6 +177,8 @@ export class PreDeliveryService {
     // If direct ProductionReleaseId filter on LabelData (not via Forecasts)
     if (query.productionReleaseId) {
       where.ProductionReleaseId = query.productionReleaseId;
+    } else if (query.activeReleaseOnly) {
+      where.ProductionRelease = { Status: 'RELEASED' };
     }
 
     const [total, data] = await Promise.all([

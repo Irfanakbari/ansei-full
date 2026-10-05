@@ -3,13 +3,11 @@
 import {useEffect, useState} from "react";
 import {
     Alert,
-    App,
     Button,
     Card,
     Breadcrumb,
-    Form,
     Input,
-    Modal,
+    Segmented,
     Space,
     Table,
     Tag,
@@ -21,7 +19,6 @@ import {
     SearchOutlined,
     PlusOutlined,
 } from "@ant-design/icons";
-import EndAssemblyModal from "./_components/EndAssemblyModal";
 import CreateAssemblyModal from "./_components/CreateAssemblyModal";
 import AssemblyDetailModal from "./_components/AssemblyDetailModal";
 import FinishGoodLinkedModal from "@/components/production/FinishGoodLinkedModal";
@@ -32,16 +29,13 @@ import {useDispatch, useSelector} from "react-redux";
 import type {AppDispatch, RootState} from "@/store";
 import {
     fetchAssemblySessions,
-    cancelAssembly,
     type AssemblySession,
     type AssemblyQuery,
 } from "@/store/features/production/assembly/assemblySlice";
 
 export default function AssemblyPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const {message} = App.useApp();
     const user = useSelector((state: RootState) => state.auth.user);
-    const [ending, setEnding] = useState<AssemblySession | null>(null);
     const [createOpen, setCreateOpen] = useState(false);
     const [detailSession, setDetailSession] = useState<AssemblySession | null>(null);
     const [linkedFinishGood, setLinkedFinishGood] = useState<string | null>(null);
@@ -51,19 +45,14 @@ export default function AssemblyPage() {
         user?.Permission.some((p) =>
             ["SUPER", "*", "IPCS.ASSEMBLY_CREATE"].includes(p),
         );
-    const canCancel =
-        user?.RoleName === "SUPER" ||
-        user?.GlobalRoles?.includes("SUPER_ADMINISTRATOR") ||
-        user?.Permission.some((p) =>
-            ["SUPER", "*", "IPCS.ASSEMBLY_CANCEL"].includes(p),
-        );
     const {sessions, total, loading, error} = useSelector(
         (state: RootState) => state.assembly,
     );
-    const [query, setQuery] = useState<AssemblyQuery>({page: 1, limit: 50});
-    const [selected, setSelected] = useState<AssemblySession | null>(null);
-    const [saving, setSaving] = useState(false);
-    const [form] = Form.useForm<{ reason: string }>();
+    const [query, setQuery] = useState<AssemblyQuery>({
+        page: 1,
+        limit: 50,
+        activeReleaseOnly: true,
+    });
     useEffect(() => {
         void dispatch(fetchAssemblySessions(query));
     }, [dispatch, query]);
@@ -193,57 +182,7 @@ export default function AssemblyPage() {
                 </Tag>
             ),
         },
-        {
-            title: "Action",
-            key: "action",
-            render: (_, row) => (
-                <Space>
-                    {row.Status === "IN_PROGRESS" && canCreate && (
-                        <Button
-                            type="primary"
-                            size="small"
-                            onClick={() => setEnding(row)}
-                        >
-                            End Assembly
-                        </Button>
-                    )}
-                    {row.Status === "IN_PROGRESS" && canCancel && (
-                        <Button
-                            danger
-                            size="small"
-                            onClick={() => {
-                                form.resetFields();
-                                setSelected(row);
-                            }}
-                        >
-                            Cancel
-                        </Button>
-                    )}
-                </Space>
-            ),
-        },
     ];
-    const cancel = async () => {
-        if (!selected || saving) return;
-        try {
-            const values = await form.validateFields();
-            setSaving(true);
-            await dispatch(
-                cancelAssembly({
-                    id: selected.Id,
-                    reason: values.reason.trim(),
-                }),
-            ).unwrap();
-            setSelected(null);
-            message.success("Assembly cancelled");
-            void dispatch(fetchAssemblySessions(query));
-        } catch (err) {
-            if (typeof err === "string" || err instanceof Error)
-                message.error(String(err));
-        } finally {
-            setSaving(false);
-        }
-    };
     return (
         <Card variant="borderless" styles={{body: {padding: 0}}}>
             <Breadcrumb
@@ -271,6 +210,22 @@ export default function AssemblyPage() {
                         onClick={() => setCreateOpen(true)}
                     />
                 )}
+                <div style={{marginLeft: "auto", display: "flex", alignItems: "center"}}>
+                    <Segmented
+                        value={query.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}
+                        onChange={(val) =>
+                            setQuery((prev) => ({
+                                ...prev,
+                                page: 1,
+                                activeReleaseOnly: val === "ACTIVE",
+                            }))
+                        }
+                        options={[
+                            {label: "Active Release", value: "ACTIVE"},
+                            {label: "All History", value: "ALL"},
+                        ]}
+                    />
+                </div>
             </ToolbarWrapper>
             {error && <Alert type="error" title={error} showIcon/>}
             <Table<AssemblySession>
@@ -285,14 +240,15 @@ export default function AssemblyPage() {
                     onDoubleClick: () => setDetailSession(row),
                 })}
                 onChange={(pagination, filters, _sorter, extra) =>
-                    setQuery({
+                    setQuery((prev) => ({
+                        ...prev,
                         page: extra.action === "filter" ? 1 : pagination.current,
                         limit: pagination.pageSize,
                         labelNumber: filters.labelNumber?.[0]?.toString(),
                         productionReleaseId: filters.productionReleaseId?.[0]?.toString(),
                         manPowerNik: filters.manPowerNik?.[0]?.toString(),
                         status: filters.status?.[0]?.toString(),
-                    })
+                    }))
                 }
                 pagination={{
                     size: "small",
@@ -305,17 +261,6 @@ export default function AssemblyPage() {
                     showTotal: (count, range) => `${range[0]}-${range[1]} of ${count}`,
                 }}
             />
-            {ending && (
-                <EndAssemblyModal
-                    key={ending.Id}
-                    session={ending}
-                    onClose={() => setEnding(null)}
-                    onCompleted={() => {
-                        setEnding(null);
-                        void dispatch(fetchAssemblySessions(query));
-                    }}
-                />
-            )}
             {createOpen && (
                 <CreateAssemblyModal
                     onClose={() => setCreateOpen(false)}
@@ -325,29 +270,6 @@ export default function AssemblyPage() {
                     }}
                 />
             )}
-            <Modal
-                title="Cancel active assembly"
-                open={Boolean(selected)}
-                centered
-                confirmLoading={saving}
-                onOk={() => void cancel()}
-                onCancel={() => {
-                    if (!saving) setSelected(null);
-                }}
-            >
-                <p>
-                    {selected?.LabelData.LabelNumber} · {selected?.ManPowerName}
-                </p>
-                <Form form={form} layout="vertical">
-                    <Form.Item
-                        name="reason"
-                        label="Reason"
-                        rules={[{required: true, whitespace: true, max: 500}]}
-                    >
-                        <Input.TextArea rows={3} maxLength={500}/>
-                    </Form.Item>
-                </Form>
-            </Modal>
             <AssemblyDetailModal session={detailSession} onClose={() => setDetailSession(null)}/>
             <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood}
                                    onClose={() => setLinkedFinishGood(null)}/>

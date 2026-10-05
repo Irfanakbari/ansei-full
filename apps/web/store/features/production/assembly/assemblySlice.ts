@@ -46,6 +46,7 @@ export interface AssemblyQuery {
   labelNumber?: string;
   manPowerNik?: string;
   productionReleaseId?: string;
+  activeReleaseOnly?: boolean;
 }
 async function displayRequest<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(withBasePath(`/api/display/assembly/${path}`), {

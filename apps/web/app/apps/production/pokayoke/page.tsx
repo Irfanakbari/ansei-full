@@ -2,7 +2,7 @@
 "use client";
 
 import React, {useEffect, useRef} from 'react';
-import {Table, Card, Breadcrumb, App, Input, Button, Select, Tag, Tooltip, Space} from 'antd';
+import {Table, Card, Breadcrumb, App, Input, Button, Select, Segmented, Tag, Tooltip, Space} from 'antd';
 import type {InputRef} from 'antd';
 import {ReloadOutlined, SearchOutlined, ScanOutlined} from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
@@ -191,6 +191,23 @@ export default function PokayokePage() {
                     icon={<ScanOutlined/>}
                     onClick={() => setIsScanModalVisible(true)}
                 />
+                <div style={{marginLeft: "auto", display: "flex", alignItems: "center"}}>
+                    <Segmented
+                        value={filters.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}
+                        onChange={(val) =>
+                            dispatch(
+                                setFilters({
+                                    page: 1,
+                                    activeReleaseOnly: val === "ACTIVE",
+                                }),
+                            )
+                        }
+                        options={[
+                            {label: "Active Release", value: "ACTIVE"},
+                            {label: "All History", value: "ALL"},
+                        ]}
+                    />
+                </div>
             </ToolbarWrapper>
 
             <Table
