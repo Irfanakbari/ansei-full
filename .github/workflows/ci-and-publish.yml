@@ -79,6 +79,9 @@ jobs:
       - name: Verify retained browser command identities
         run: pnpm --filter @ansei/web exec node scripts/test-command-identity.mjs
 
+      - name: Verify base-path normalization
+        run: pnpm --filter @ansei/web exec node scripts/test-base-path.mjs
+
       - name: Lint API
         run: pnpm lint:api
 
@@ -93,10 +96,6 @@ jobs:
 
       - name: Build web
         run: pnpm build:web
-        env:
-          API_URL: ${{ vars.API_URL || secrets.API_URL }}
-          NEXT_PUBLIC_SSO_URL: ${{ vars.NEXT_PUBLIC_SSO_URL || secrets.NEXT_PUBLIC_SSO_URL }}
-          NEXT_PUBLIC_CALLBACK_AUTH_URL: ${{ vars.NEXT_PUBLIC_CALLBACK_AUTH_URL || secrets.NEXT_PUBLIC_CALLBACK_AUTH_URL }}
 
   publish:
     name: Publish ANSEI container
@@ -141,7 +140,3 @@ jobs:
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ steps.image.outputs.environment }}
           cache-from: type=gha,scope=ansei-app
           cache-to: type=gha,mode=max,scope=ansei-app
-          build-args: |
-            API_URL=${{ vars.API_URL || secrets.API_URL }}
-            NEXT_PUBLIC_SSO_URL=${{ vars.NEXT_PUBLIC_SSO_URL || secrets.NEXT_PUBLIC_SSO_URL }}
-            NEXT_PUBLIC_CALLBACK_AUTH_URL=${{ vars.NEXT_PUBLIC_CALLBACK_AUTH_URL || secrets.NEXT_PUBLIC_CALLBACK_AUTH_URL }}

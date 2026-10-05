@@ -16,13 +16,6 @@ RUN pnpm install --frozen-lockfile
 FROM dependencies AS build
 COPY apps apps
 
-ARG API_URL
-ARG NEXT_PUBLIC_SSO_URL
-ARG NEXT_PUBLIC_CALLBACK_AUTH_URL
-ENV API_URL=${API_URL}
-ENV NEXT_PUBLIC_SSO_URL=${NEXT_PUBLIC_SSO_URL}
-ENV NEXT_PUBLIC_CALLBACK_AUTH_URL=${NEXT_PUBLIC_CALLBACK_AUTH_URL}
-
 WORKDIR /workspace/apps/api
 RUN pnpm exec prisma generate && pnpm run build
 
@@ -80,6 +73,9 @@ VOLUME ["/app/storage/error-logs"]
 
 EXPOSE 7500
 EXPOSE 3005
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD ["node", "-e", "const role=process.env.SERVICE_ROLE||'api';const port=process.env.PORT||(role==='web'?'3005':'7500');const path=role==='web'?'/ansei/api/health':'/v1/health';fetch('http://127.0.0.1:'+port+path).then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
 
 ENTRYPOINT ["dumb-init", "--", "./start.sh"]
 CMD ["api"]

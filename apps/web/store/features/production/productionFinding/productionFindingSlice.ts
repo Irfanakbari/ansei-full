@@ -1,6 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-29 */
 
 import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {withBasePath} from "@/lib/base-path";
 import {del, get, getApiErrorMessage, post, type ApiSuccessEnvelope} from "@/store/utils/apiService";
 
 export type FindingCategory = "MATERIAL" | "FINISH_GOOD";
@@ -90,7 +91,7 @@ const payload = <T,>(value: T | ApiSuccessEnvelope<T>): T =>
     typeof value === "object" && value !== null && "data" in value ? value.data : value;
 
 async function publicRequest<T>(path: string, options?: RequestInit): Promise<T> {
-    const response = await fetch(path, {cache: "no-store", ...options});
+    const response = await fetch(withBasePath(path), {cache: "no-store", ...options});
     const body: unknown = await response.json();
     if (!response.ok) {
         const message = typeof body === "object" && body !== null && "message" in body && typeof body.message === "string"

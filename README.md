@@ -31,7 +31,7 @@ pnpm build:web
 pnpm build:api
 ```
 
-The frontend uses `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SSO_URL`, and `NEXT_PUBLIC_CALLBACK_AUTH_URL` at build time. These values are public and must not contain credentials. The API requires PostgreSQL and Redis at runtime; database migrations must be run explicitly with `prisma migrate deploy` before deployment and are not run when the container starts.
+The web application is served below `/ansei`. Authentication is integrated via Vuteq SSO SDK using server-side runtime variables (`VUTEQ_SSO_BASE_URL`, `VUTEQ_SSO_SECRET`, `VUTEQ_SSO_PUBLIC_ORIGIN`). The API requires PostgreSQL and Redis at runtime; database migrations must be run explicitly with `prisma migrate deploy` before deployment and are not run when the container starts.
 
 Build image from the repository root:
 

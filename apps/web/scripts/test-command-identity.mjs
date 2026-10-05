@@ -20,6 +20,7 @@ async function main() {
     removeItem: key => storage.delete(key),
   };
   const identityUrl = moduleUrl(compile('store/utils/commandIdentity.ts'));
+  const basePathUrl = moduleUrl(compile('lib/base-path.ts'));
   const { commandIdentity } = await import(identityUrl);
   const a = await commandIdentity('POST', '/example', { b: 2, a: 1 });
   const b = await commandIdentity('POST', '/example', { a: 1, b: 2 });
@@ -29,7 +30,9 @@ async function main() {
   assert.notEqual((await commandIdentity('POST', '/example', { a: 1, b: 2 })).id, a.id);
   storage.clear();
 
-  const apiSource = compile('store/utils/apiService.ts').replace("'./commandIdentity'", JSON.stringify(identityUrl));
+  const apiSource = compile('store/utils/apiService.ts')
+    .replace("'./commandIdentity'", JSON.stringify(identityUrl))
+    .replace("'@/lib/base-path'", JSON.stringify(basePathUrl));
   const { post, get } = await import(moduleUrl(apiSource));
   const sent = [];
   let fail = true;

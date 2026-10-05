@@ -18,6 +18,7 @@ import {
 } from '@ant-design/icons';
 import ToolbarWrapper from '@/components/ToolbarWrapper';
 import ButtonToolbar from '@/components/ButtonToolbar';
+import { withBasePath } from '@/lib/base-path';
 import dayjs, { Dayjs } from 'dayjs';
 
 const { RangePicker } = DatePicker;
@@ -142,9 +143,9 @@ const ReportPage: React.FC = () => {
             }
 
             const queryString = params.toString();
-            const url = queryString
+            const url = withBasePath(queryString
                 ? `/api/proxy/v1/report/${report.key}?${queryString}`
-                : `/api/proxy/v1/report/${report.key}`;
+                : `/api/proxy/v1/report/${report.key}`);
 
             const response = await fetch(url, {
                 method: 'GET',

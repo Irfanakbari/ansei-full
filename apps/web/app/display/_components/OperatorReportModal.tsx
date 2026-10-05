@@ -6,6 +6,7 @@ import type {AppDispatch as CommandDispatch} from '@/store';
 import {createProductionReport} from '@/store/features/production/productionReport/productionReportSlice';
 import {useVuteqSso} from '@vuteq/sso-client-react/react';
 import React, {useState, useEffect, useCallback} from 'react';
+import {withBasePath} from '@/lib/base-path';
 import {
     Modal,
     Form,
@@ -139,7 +140,7 @@ export default function OperatorReportModal({
         setLoadingForecasts(true);
         try {
             const res = await fetch(
-                `/api/display/active-forecasts?finishGoodId=${encodeURIComponent(activePartNumber)}`,
+                withBasePath(`/api/display/active-forecasts?finishGoodId=${encodeURIComponent(activePartNumber)}`),
                 {cache: 'no-store'},
             );
             if (res.ok) {
@@ -167,7 +168,7 @@ export default function OperatorReportModal({
             }
 
             const res = await fetch(
-                `/api/display/production-report?${queryParams.toString()}`,
+                withBasePath(`/api/display/production-report?${queryParams.toString()}`),
                 {cache: 'no-store'},
             );
             if (res.ok) {

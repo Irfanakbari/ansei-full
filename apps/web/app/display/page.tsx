@@ -16,6 +16,7 @@ import {
 } from '@ant-design/icons';
 import {Button, Modal, Form, Select, App, Spin, Tag, Avatar, ConfigProvider} from 'antd';
 import {useDispatch, useSelector} from 'react-redux';
+import {withBasePath} from '@/lib/base-path';
 import type {AppDispatch, RootState} from '@/store';
 import {
     clearDisplayTarget,
@@ -157,8 +158,8 @@ function DisplayPageContent({
         async (targetNikOverride?: string | null, targetPartNumberOverride?: string | null) => {
             try {
                 const [mpRes, fgRes] = await Promise.all([
-                    fetch('/api/display/manpower', {cache: 'no-store'}),
-                    fetch('/api/display/finish-goods', {cache: 'no-store'}),
+                    fetch(withBasePath('/api/display/manpower'), {cache: 'no-store'}),
+                    fetch(withBasePath('/api/display/finish-goods'), {cache: 'no-store'}),
                 ]);
 
                 let updatedMpList: DisplayManPower[] = [];
@@ -386,7 +387,7 @@ function DisplayPageContent({
                 className="flex min-h-14 shrink-0 items-center justify-between gap-2 bg-white px-3 py-2 shadow-xs border-b border-slate-200 z-10 sm:min-h-16 sm:px-6">
                 <div className="flex items-center gap-4">
                     <Image
-                        src="/images/vtq.png"
+                        src={withBasePath("/images/vtq.png")}
                         alt="Vuteq Indonesia"
                         width={120}
                         height={40}

@@ -38,6 +38,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useVuteqSso } from "@vuteq/sso-client-react/react";
 import { useDispatch, useSelector } from "react-redux";
+import { withBasePath, withoutBasePath } from "@/lib/base-path";
 import { RootState, AppDispatch } from "@/store";
 import { setAuthData, clearAuth } from "@/store/features/auth/authSlice";
 import {
@@ -577,7 +578,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     null,
   );
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = withoutBasePath(usePathname());
   const dispatch = useDispatch<AppDispatch>();
   const { session, loading: sessionLoadingSso } = useVuteqSso();
   const ssoGlobalRoles = session?.globalRoles ?? [];
@@ -631,7 +632,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     setCommitHistoryLoading(true);
     setCommitHistoryError(null);
     try {
-      const response = await fetch("/data/project-commit-history.json");
+      const response = await fetch(withBasePath("/data/project-commit-history.json"));
       if (!response.ok) {
         throw new Error("Unable to load update history.");
       }
@@ -688,7 +689,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      window.location.replace("/auth/login");
+      window.location.replace(withBasePath("/auth/login"));
     };
 
     checkAuth();
@@ -716,7 +717,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         dispatch(clearAuth());
         const form = document.createElement("form");
         form.method = "POST";
-        form.action = "/auth/logout";
+        form.action = withBasePath("/auth/logout");
         document.body.appendChild(form);
         form.submit();
       },
@@ -898,7 +899,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         }}
       >
         <Image
-          src="/images/ansei-white.png"
+          src={withBasePath("/images/ansei-white.png")}
           alt="ANSEI logo"
           width={180}
           height={90}
@@ -937,7 +938,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         >
           <div className="text-center justify-center flex p-1">
             <Image
-              src="/images/ansei-white.png"
+              src={withBasePath("/images/ansei-white.png")}
               alt="ANSEI logo"
               width={200}
               height={100}
