@@ -51,6 +51,11 @@ describe('DisplayConfigService', () => {
     completeProcess: jest.Mock;
   };
 
+  let nasUploadService: {
+    uploadFile: jest.Mock;
+    deleteFile: jest.Mock;
+  };
+
   beforeEach(async () => {
     prismaService = {
       displayConfig: {
@@ -69,6 +74,11 @@ describe('DisplayConfigService', () => {
       completeProcess: jest.fn(),
     };
 
+    nasUploadService = {
+      uploadFile: jest.fn(),
+      deleteFile: jest.fn(),
+    };
+
     (PrismaService as unknown as jest.Mock).mockImplementation(
       () => prismaService,
     );
@@ -83,7 +93,7 @@ describe('DisplayConfigService', () => {
         { provide: LogProcessService, useValue: logService },
         {
           provide: NasUploadService,
-          useValue: { uploadFile: jest.fn(), deleteFile: jest.fn() },
+          useValue: nasUploadService,
         },
       ],
     }).compile();
@@ -163,6 +173,39 @@ describe('DisplayConfigService', () => {
         mockLogProcess.ProcessId,
         'SUCCESS',
       );
+    });
+
+    it('should upload optional media and create the config with its URL', async () => {
+      const createDto = {
+        description: 'Display Utama Gudang',
+        isOpen: false,
+        loop: true,
+      };
+      const file = {
+        originalname: 'screen.png',
+        mimetype: 'image/png',
+        buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      } as Express.Multer.File;
+      const fileUrl = 'https://nas.example.com/display_media/screen.png';
+      const createdWithMedia = { ...mockDisplayConfig, FilePath: fileUrl };
+
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({} as any);
+      logService.completeProcess.mockResolvedValue(undefined);
+      nasUploadService.uploadFile.mockResolvedValue(fileUrl);
+      prismaService.displayConfig.create.mockResolvedValue(createdWithMedia);
+
+      const result = await service.create(createDto, 'admin', file);
+
+      expect(nasUploadService.uploadFile).toHaveBeenCalledWith({
+        fileName: expect.stringMatching(/^display_\d+_[0-9a-f-]+\.png$/),
+        fileBuffer: file.buffer,
+        subFolder: 'display_media',
+      });
+      expect(prismaService.displayConfig.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ FilePath: fileUrl }),
+      });
+      expect(result).toEqual(createdWithMedia);
     });
 
     it('should create with isOpen = true and close other open displays (mutex)', async () => {

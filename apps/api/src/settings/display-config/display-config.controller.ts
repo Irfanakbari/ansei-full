@@ -4,6 +4,7 @@ import {
   ApiResponse,
   ApiOperation,
   ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import {
   Controller,
@@ -63,13 +64,42 @@ export class DisplayConfigController {
 
   @Post()
   @Permission('DISPLAY_CONFIG_CREATE')
+  @ApiOperation({ summary: 'Create display config with optional media' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['description'],
+      properties: {
+        description: { type: 'string' },
+        url: { type: 'string' },
+        line: { type: 'string' },
+        isOpen: { type: 'boolean', default: false },
+        loop: { type: 'boolean', default: true },
+        file: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 50 * 1024 * 1024, files: 1, fields: 6, parts: 7 },
+    }),
+  )
   async create(
     @Body() createDisplayConfigDto: CreateDisplayConfigDto,
     @CurrentUser() user: ICurrentUser,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 50 * 1024 * 1024 })],
+        fileIsRequired: false,
+      }),
+    )
+    file: Express.Multer.File | undefined,
   ) {
     return this.displayConfigService.create(
       createDisplayConfigDto,
       user.username,
+      file,
     );
   }
 

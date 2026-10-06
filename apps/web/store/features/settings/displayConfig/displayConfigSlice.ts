@@ -6,7 +6,6 @@ import {
     get,
     getApiErrorMessage,
     patch,
-    post,
     postFormData,
     type ApiSuccessEnvelope,
     type PaginatedApiSuccessEnvelope
@@ -81,9 +80,16 @@ export const fetchDisplayConfig = createAsyncThunk<PaginatedApiSuccessEnvelope<D
 
 export const createDisplayConfig = createAsyncThunk(
     'displayConfig/create',
-    async (payload: CreateDisplayConfigDto, {rejectWithValue}) => {
+    async ({data: payload, file}: { data: CreateDisplayConfigDto; file?: File }, {rejectWithValue}) => {
         try {
-            return await post<ApiSuccessEnvelope<DisplayConfigEntity>, CreateDisplayConfigDto>('/settings/display-config', payload);
+            const formData = new FormData();
+            formData.append('description', payload.description);
+            if (payload.url) formData.append('url', payload.url);
+            if (payload.line) formData.append('line', payload.line);
+            formData.append('isOpen', String(payload.isOpen));
+            formData.append('loop', String(payload.loop));
+            if (file) formData.append('file', file);
+            return await postFormData<ApiSuccessEnvelope<DisplayConfigEntity>>('/settings/display-config', formData);
         } catch (error: unknown) {
             return rejectWithValue(getApiErrorMessage(error, 'Failed to create display config'));
         }

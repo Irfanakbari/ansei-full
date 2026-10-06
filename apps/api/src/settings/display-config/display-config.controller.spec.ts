@@ -2,6 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DisplayConfigController } from './display-config.controller';
 import { DisplayConfigService } from './display-config.service';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import { CreateDisplayConfigDto } from './dto';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 describe('DisplayConfigController', () => {
   let controller: DisplayConfigController;
@@ -80,6 +83,18 @@ describe('DisplayConfigController', () => {
   });
 
   describe('create', () => {
+    it('should transform multipart boolean fields before validation', async () => {
+      const dto = plainToInstance(CreateDisplayConfigDto, {
+        description: 'Display Utama Gudang',
+        isOpen: 'false',
+        loop: 'true',
+      });
+
+      await expect(validate(dto)).resolves.toEqual([]);
+      expect(dto.isOpen).toBe(false);
+      expect(dto.loop).toBe(true);
+    });
+
     it('should create a new display config', async () => {
       const createDto = {
         description: 'Display Utama Gudang',
@@ -90,7 +105,34 @@ describe('DisplayConfigController', () => {
       const result = await controller.create(createDto, mockUser);
 
       expect(result).toEqual(mockDisplayConfig);
-      expect(service.create).toHaveBeenCalledWith(createDto, mockUser.username);
+      expect(service.create).toHaveBeenCalledWith(
+        createDto,
+        mockUser.username,
+        undefined,
+      );
+    });
+
+    it('should create a display config with media in one request', async () => {
+      const createDto = {
+        description: 'Display Utama Gudang',
+        isOpen: false,
+        loop: true,
+      };
+      const file = {
+        originalname: 'screen.png',
+        mimetype: 'image/png',
+        buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47]),
+      } as Express.Multer.File;
+      service.create.mockResolvedValue(mockDisplayConfig);
+
+      const result = await controller.create(createDto, mockUser, file);
+
+      expect(result).toEqual(mockDisplayConfig);
+      expect(service.create).toHaveBeenCalledWith(
+        createDto,
+        mockUser.username,
+        file,
+      );
     });
   });
 

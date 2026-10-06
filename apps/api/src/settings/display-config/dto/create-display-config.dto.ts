@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
+import { Transform } from 'class-transformer';
+
+const transformMultipartBoolean = ({ value }: { value: unknown }): unknown => {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return value;
+};
 
 export class CreateDisplayConfigDto {
   /** Deskripsi display */
@@ -27,6 +34,7 @@ export class CreateDisplayConfigDto {
     default: false,
   })
   @IsOptional()
+  @Transform(transformMultipartBoolean)
   @IsBoolean()
   isOpen?: boolean;
 
@@ -37,6 +45,7 @@ export class CreateDisplayConfigDto {
     default: true,
   })
   @IsOptional()
+  @Transform(transformMultipartBoolean)
   @IsBoolean()
   loop?: boolean;
 

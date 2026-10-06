@@ -14,6 +14,7 @@ import type {
 import type { Prisma } from '../../generated/prisma/client';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 import { validateUploadContent } from '../../common/utils/upload-security.util';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class DisplayConfigService {
@@ -71,8 +72,11 @@ export class DisplayConfigService {
   async create(
     dto: CreateDisplayConfigDto,
     createdBy: string,
+    file?: Express.Multer.File,
   ): Promise<DisplayConfigModel> {
     let logProcess: LogProcessModel | undefined;
+    let uploadedFileUrl: string | undefined;
+    let created = false;
 
     try {
       logProcess = await this.logService.startProcess({
@@ -87,6 +91,13 @@ export class DisplayConfigService {
         type: 'INFO',
         location: 'display-config.service.ts:36',
       });
+
+      if (file) {
+        uploadedFileUrl = await this.uploadMediaFile(
+          file,
+          `display_${Date.now()}_${randomUUID()}`,
+        );
+      }
 
       // If creating with isOpen = true, ensure no other display has isOpen = true
       if (dto.isOpen === true) {
@@ -105,11 +116,12 @@ export class DisplayConfigService {
           IsOpen: dto.isOpen ?? false,
           Loop: dto.loop ?? true,
           Line: dto.line ?? null,
-          FilePath: dto.filePath ?? null,
+          FilePath: uploadedFileUrl ?? dto.filePath ?? null,
           CreatedBy: createdBy,
           UpdatedBy: createdBy,
         } as never,
       });
+      created = true;
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -122,6 +134,13 @@ export class DisplayConfigService {
 
       return result;
     } catch (error) {
+      if (uploadedFileUrl && !created) {
+        try {
+          await this.nasUploadService.deleteFile(uploadedFileUrl);
+        } catch {
+          // Best-effort cleanup; preserve the original create error.
+        }
+      }
       if (logProcess) {
         await this.logService.addLog({
           processId: logProcess.ProcessId,
@@ -339,6 +358,29 @@ export class DisplayConfigService {
       throw new NotFoundException(`DisplayConfig with id ${id} not found`);
     }
 
+    if (existing.FilePath) {
+      try {
+        await this.nasUploadService.deleteFile(existing.FilePath);
+      } catch (error) {
+        // ignore delete error
+      }
+    }
+
+    const fileUrl = await this.uploadMediaFile(
+      file,
+      `display_${id}_${Date.now()}`,
+    );
+
+    return this.prisma.displayConfig.update({
+      where: { Id: id },
+      data: { FilePath: fileUrl, UpdatedBy: updatedBy } as never,
+    });
+  }
+
+  private async uploadMediaFile(
+    file: Express.Multer.File,
+    fileNameStem: string,
+  ): Promise<string> {
     const fileKind = validateUploadContent(file, [
       'png',
       'jpeg',
@@ -350,26 +392,10 @@ export class DisplayConfigService {
     ]);
     const fileExt = fileKind === 'jpeg' ? 'jpg' : fileKind;
 
-    if (existing.FilePath) {
-      try {
-        await this.nasUploadService.deleteFile(existing.FilePath);
-      } catch (error) {
-        // ignore delete error
-      }
-    }
-
-    const fileName = `display_${id}_${Date.now()}.${fileExt}`;
-    const subFolder = 'display_media';
-
-    const fileUrl = await this.nasUploadService.uploadFile({
-      fileName,
+    return this.nasUploadService.uploadFile({
+      fileName: `${fileNameStem}.${fileExt}`,
       fileBuffer: file.buffer,
-      subFolder,
-    });
-
-    return this.prisma.displayConfig.update({
-      where: { Id: id },
-      data: { FilePath: fileUrl, UpdatedBy: updatedBy } as never,
+      subFolder: 'display_media',
     });
   }
 

@@ -70,10 +70,13 @@ const CreateEditDisplayConfigModal: React.FC<Props> = ({
             if (isEdit && data) {
                 result = await store.dispatch(updateDisplayConfig({ id: data.Id, data: payload }));
             } else {
-                result = await store.dispatch(createDisplayConfig(payload));
+                result = await store.dispatch(createDisplayConfig({
+                    data: payload,
+                    file: mediaFile ?? undefined,
+                }));
             }
 
-            let savedId: number;
+            let savedId: number | undefined;
             if (isEdit && data) {
                 if (updateDisplayConfig.rejected.match(result)) {
                     throw new Error((result.payload as string) || 'Failed to update display config');
@@ -83,11 +86,9 @@ const CreateEditDisplayConfigModal: React.FC<Props> = ({
                 if (createDisplayConfig.rejected.match(result)) {
                     throw new Error((result.payload as string) || 'Failed to create display config');
                 }
-                const created = result.payload as { data?: DisplayConfigEntity };
-                savedId = created.data?.Id as number;
             }
 
-            if (mediaFile && savedId) {
+            if (isEdit && mediaFile && savedId) {
                 const uploadResult = await store.dispatch(uploadDisplayMedia({ id: savedId, file: mediaFile }));
                 if (uploadDisplayMedia.rejected.match(uploadResult)) {
                     throw new Error((uploadResult.payload as string) || 'Display config saved, but media upload failed');
