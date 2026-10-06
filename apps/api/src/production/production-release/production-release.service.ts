@@ -46,7 +46,9 @@ export class ProductionReleaseService {
     private readonly nasUploadService: NasUploadService,
   ) {}
 
-  private isUniqueConstraintError(error: unknown): boolean {
+  private isUniqueConstraintError(
+    error: unknown,
+  ): error is Prisma.PrismaClientKnownRequestError {
     return (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2002'
@@ -55,7 +57,7 @@ export class ProductionReleaseService {
 
   private isReleaseNumberUniqueConstraintError(error: unknown): boolean {
     if (!this.isUniqueConstraintError(error)) return false;
-    const target = (error as any).meta?.target;
+    const target = error.meta?.target;
     return Array.isArray(target)
       ? target.includes('ReleaseNumber')
       : String(target).includes('ReleaseNumber');
@@ -66,6 +68,15 @@ export class ProductionReleaseService {
       throw new ConflictException('Production release number already exists.');
     }
     if (this.isUniqueConstraintError(error)) {
+      if (
+        String(error.meta?.target).includes(
+          'ProductionRelease_one_released_key',
+        )
+      ) {
+        throw new ConflictException(
+          'Cannot start this production release because another release is still active. Only one release can be active at a time. Open Production Release and complete the active release before starting this one.',
+        );
+      }
       throw new ConflictException(
         'Production release conflicts with current database state. Refresh and try again.',
       );
@@ -1072,6 +1083,23 @@ export class ProductionReleaseService {
             throw new BadRequestException(
               'Forecast assignments can only be edited directly while the production release is DRAFT. Use Manage Forecasts for a RELEASED production release.',
             );
+          }
+          if (
+            existing.Status === ProductionStatus.DRAFT &&
+            dto.status === ProductionStatus.RELEASED
+          ) {
+            const activeRelease = await tx.productionRelease.findFirst({
+              where: {
+                Status: ProductionStatus.RELEASED,
+                Id: { not: id },
+              },
+              select: { ReleaseNumber: true },
+            });
+            if (activeRelease) {
+              throw new ConflictException(
+                `Cannot start production release ${existing.ReleaseNumber} because ${activeRelease.ReleaseNumber} is still active. Only one release can be active at a time. Complete all production and deliveries for ${activeRelease.ReleaseNumber}, then mark it as COMPLETED before starting this release.`,
+              );
+            }
           }
           if (
             dto.status === ProductionStatus.DRAFT &&

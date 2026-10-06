@@ -566,27 +566,66 @@ describe('ProductionReleaseService', () => {
       });
     });
 
-    it('maps the concurrent RELEASED unique invariant to 409', async () => {
-      prismaService.$transaction.mockRejectedValue(
-        new Prisma.PrismaClientKnownRequestError('unique conflict', {
-          code: 'P2002',
-          clientVersion: '7.0.0',
-          meta: { target: 'ProductionRelease_one_released_key' },
-        }),
+    it('names the active release and blocks the transition before any production writes', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue(
+        existingRelease,
       );
+      prismaService.productionRelease.findFirst.mockResolvedValue({
+        ReleaseNumber: 'PR-ACTIVE',
+      });
 
-      await expect(
-        service.update(
-          'rel-1',
-          { status: ProductionStatus.RELEASED },
-          'testuser',
-        ),
-      ).rejects.toThrow(ConflictException);
+      const error = await service
+        .update('rel-1', { status: ProductionStatus.RELEASED }, 'testuser')
+        .catch((cause: unknown) => cause);
+
+      expect(error).toBeInstanceOf(ConflictException);
+      expect((error as ConflictException).getStatus()).toBe(409);
+      expect((error as ConflictException).message).toBe(
+        'Cannot start production release PR-001 because PR-ACTIVE is still active. Only one release can be active at a time. Complete all production and deliveries for PR-ACTIVE, then mark it as COMPLETED before starting this release.',
+      );
+      expect(prismaService.productionRelease.findFirst).toHaveBeenCalledWith({
+        where: { Status: ProductionStatus.RELEASED, Id: { not: 'rel-1' } },
+        select: { ReleaseNumber: true },
+      });
+      expect(prismaService.forecast.updateMany).not.toHaveBeenCalled();
+      expect(prismaService.labelData.createMany).not.toHaveBeenCalled();
+      expect(snapshotRelease).not.toHaveBeenCalled();
+      expect(prismaService.productionRelease.update).not.toHaveBeenCalled();
       expect(logService.completeProcess).toHaveBeenCalledWith(
         'PR123456',
         'FAILED',
       );
     });
+
+    it.each([
+      { target: 'ProductionRelease_one_released_key' },
+      { target: ['ProductionRelease_one_released_key'] },
+    ])(
+      'explains the active-release database conflict for target %j',
+      async ({ target }) => {
+        prismaService.$transaction.mockRejectedValue(
+          new Prisma.PrismaClientKnownRequestError('unique conflict', {
+            code: 'P2002',
+            clientVersion: '7.0.0',
+            meta: { target },
+          }),
+        );
+
+        await expect(
+          service.update(
+            'rel-1',
+            { status: ProductionStatus.RELEASED },
+            'testuser',
+          ),
+        ).rejects.toThrow(
+          'Cannot start this production release because another release is still active. Only one release can be active at a time. Open Production Release and complete the active release before starting this one.',
+        );
+        expect(logService.completeProcess).toHaveBeenCalledWith(
+          'PR123456',
+          'FAILED',
+        );
+      },
+    );
 
     const completedForecast = {
       PoId: 'PO-001',
