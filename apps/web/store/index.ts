@@ -47,6 +47,7 @@ import displayReducer from "./features/display/displaySlice";
 
 // Dashboard slice
 import dashboardReducer from "./features/dashboard/dashboardSlice";
+import productionDashboardReducer from "./features/dashboard/productionDashboardSlice";
 
 export const store = configureStore({
   reducer: {
@@ -98,6 +99,7 @@ export const store = configureStore({
 
     // Dashboard
     dashboard: dashboardReducer,
+    productionDashboard: productionDashboardReducer,
   },
 });
 

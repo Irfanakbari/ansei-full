@@ -122,6 +122,7 @@ export class ProductionReleaseService {
               FinishGoodId: true,
               Qty: true,
               DeliveryDate: true,
+              DeliveryPeriod: true,
               PartData: {
                 select: {
                   PartNumber: true,
@@ -519,6 +520,7 @@ export class ProductionReleaseService {
           FinishGoodId: true,
           ProductionReleaseId: true,
           DeliveryDate: true,
+          DeliveryPeriod: true,
           VendorName: true,
           PartData: { select: { PartNumber: true, PartName: true } },
         },

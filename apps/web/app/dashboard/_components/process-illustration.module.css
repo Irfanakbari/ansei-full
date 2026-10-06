@@ -1,0 +1,117 @@
+.illustration {
+    display: block;
+    width: 36%;
+    min-width: 37px;
+    max-width: 70px;
+    flex-shrink: 0;
+    overflow: visible;
+    color: var(--process-color);
+}
+.structure {
+    stroke: var(--muted);
+}
+.surface,
+.wheel {
+    fill: var(--panel);
+}
+.accent {
+    fill: var(--process-tint);
+}
+.joint {
+    fill: var(--panel);
+    stroke: var(--process-color);
+}
+.barcode {
+    stroke: var(--text);
+    stroke-width: 2.5;
+}
+.scanLine {
+    stroke-width: 4;
+}
+.road {
+    stroke: var(--muted);
+    stroke-width: 2;
+}
+.robotArm {
+    transform-origin: 25px 54px;
+}
+.illustration[data-active="true"] .pickBox {
+    animation: place-box 4s ease-in-out infinite;
+}
+.illustration[data-active="true"] .robotArm {
+    animation: assemble 4.5s ease-in-out infinite;
+}
+.illustration[data-active="true"] .belt {
+    animation: convey 3s ease-in-out infinite;
+}
+.illustration[data-active="true"] .scanLine {
+    animation: scan-label 3.5s ease-in-out infinite;
+}
+.illustration[data-active="true"] .truck {
+    animation: drive 3s ease-in-out infinite;
+}
+.illustration[data-active="true"] .road {
+    animation: road 3s linear infinite;
+}
+.illustration * {
+    animation-play-state: var(--motion-state, running) !important;
+}
+@keyframes place-box {
+    0%,
+    100% {
+        transform: translateY(-5px);
+    }
+    45%,
+    65% {
+        transform: translateY(2px);
+    }
+}
+@keyframes assemble {
+    0%,
+    100% {
+        transform: rotate(-8deg);
+    }
+    50% {
+        transform: rotate(5deg);
+    }
+}
+@keyframes convey {
+    0%,
+    100% {
+        transform: translateX(-2px);
+    }
+    50% {
+        transform: translateX(3px);
+    }
+}
+@keyframes scan-label {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(27px);
+    }
+}
+@keyframes drive {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
+}
+@keyframes road {
+    from {
+        transform: translateX(4px);
+    }
+    to {
+        transform: translateX(-4px);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .illustration * {
+        animation: none !important;
+    }
+}

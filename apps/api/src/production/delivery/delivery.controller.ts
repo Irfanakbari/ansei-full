@@ -26,6 +26,11 @@ export class DeliveryController {
     summary: 'Create delivery with POKAYOKE validation',
   })
   @ApiResponse({ status: 201, type: DeliveryResponseEntity })
+  @ApiResponse({
+    status: 409,
+    description:
+      'An earlier delivery period in this production release is incomplete',
+  })
   async create(
     @Body() dto: CreateDeliveryDto,
     @CurrentUser() user: ICurrentUser,

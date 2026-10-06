@@ -204,6 +204,14 @@ export default function ForecastPage() {
             sortOrder: sortedInfo.columnKey === 'Qty' ? sortedInfo.order : null,
         },
         {
+            title: 'Delivery Period',
+            dataIndex: 'DeliveryPeriod',
+            key: 'DeliveryPeriod',
+            align: 'right' as const,
+            sorter: (a: ForecastEntity, b: ForecastEntity) => a.DeliveryPeriod - b.DeliveryPeriod,
+            sortOrder: sortedInfo.columnKey === 'DeliveryPeriod' ? sortedInfo.order : null,
+        },
+        {
             title: 'Delivery Date',
             dataIndex: 'DeliveryDate',
             key: 'DeliveryDate',

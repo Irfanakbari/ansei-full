@@ -71,6 +71,12 @@ export default function ManageForecastsModal({ open, release, onClose, onSuccess
     });
 
     const columns: TableColumnsType<ForecastItem> = [
+        {
+            title: 'Delivery Period',
+            dataIndex: 'DeliveryPeriod',
+            key: 'DeliveryPeriod',
+            align: 'right',
+        },
         { 
             title: 'Delivery Date', 
             dataIndex: 'DeliveryDate', 

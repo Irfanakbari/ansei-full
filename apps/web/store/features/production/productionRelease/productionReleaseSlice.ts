@@ -10,6 +10,7 @@ export interface ForecastItem {
     FinishGoodId: string;
     Qty: number;
     DeliveryDate: string;
+    DeliveryPeriod: number;
     ProductionReleaseId?: string | null;
     PartData: {
         PartNumber: string;

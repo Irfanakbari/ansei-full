@@ -207,6 +207,12 @@ const CreateProductionReleaseModal: React.FC<Props> = ({ visible, onClose, onSuc
             ...getColumnSearchProps('Part Number'),
         },
         {
+            title: 'Delivery Period',
+            dataIndex: 'DeliveryPeriod',
+            key: 'DeliveryPeriod',
+            align: 'right' as const,
+        },
+        {
             title: 'Delivery Date',
             dataIndex: 'DeliveryDate',
             key: 'DeliveryDate',

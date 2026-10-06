@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -22,6 +23,7 @@ import {
   lockProductionFlow,
 } from '../../common/helpers/production-flow.helper';
 import { OutboxService } from '../../common/outbox/outbox.service';
+import { getDeliveryProgress } from '../../common/helpers/delivery-progress.helper';
 
 @Injectable()
 export class DeliveryService {
@@ -375,6 +377,7 @@ export class DeliveryService {
           await lockProductionFlow(tx);
           const { label: labelData, forecast: currentForecast } =
             await assertLabelReady(tx, internalLabelDataId, true);
+          await this.assertEarlierDeliveryPeriodsComplete(tx, currentForecast);
           await assertNoActiveInventoryCounting(
             tx,
             ItemCategory.FINISH_GOOD,
@@ -561,6 +564,52 @@ export class DeliveryService {
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
       }
       throw error;
+    }
+  }
+
+  private async assertEarlierDeliveryPeriodsComplete(
+    tx: Prisma.TransactionClient,
+    forecast: {
+      PoId: string;
+      DeliveryPeriod: number;
+      ProductionReleaseId: string | null;
+      ProductionRelease: { ReleaseNumber: string } | null;
+    },
+  ): Promise<void> {
+    if (!forecast.ProductionReleaseId) {
+      throw new BadRequestException(
+        'Forecast is not linked to a production release.',
+      );
+    }
+
+    const earlierForecasts = await tx.forecast.findMany({
+      where: {
+        ProductionReleaseId: forecast.ProductionReleaseId,
+        DeliveryPeriod: { lt: forecast.DeliveryPeriod },
+      },
+      orderBy: [{ DeliveryPeriod: 'asc' }, { PoId: 'asc' }],
+      select: {
+        PoId: true,
+        Qty: true,
+        DeliveryPeriod: true,
+        LabelData: {
+          select: {
+            LabelNumber: true,
+            QtyThisBox: true,
+          },
+        },
+        DeliveryHistory: {
+          select: { ForecastId: true, LabelDataId: true, Qty: true },
+        },
+      },
+    });
+
+    for (const earlier of earlierForecasts) {
+      const progress = getDeliveryProgress(earlier);
+      if (progress.complete) continue;
+      throw new ConflictException(
+        `Delivery period ${forecast.DeliveryPeriod} is blocked in production release ${forecast.ProductionRelease?.ReleaseNumber ?? forecast.ProductionReleaseId}: period ${earlier.DeliveryPeriod} is incomplete. PO ${earlier.PoId}: ${progress.deliveredLabels}/${earlier.LabelData.length} labels delivered, ${progress.deliveredQty}/${earlier.Qty} units delivered (${progress.pendingLabels} labels and ${progress.pendingQty} units pending). ${progress.issue} Complete period ${earlier.DeliveryPeriod} before scanning period ${forecast.DeliveryPeriod}.`,
+      );
     }
   }
 

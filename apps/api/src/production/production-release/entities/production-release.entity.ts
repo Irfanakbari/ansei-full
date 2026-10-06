@@ -78,6 +78,9 @@ export class ForecastItemEntity {
   @ApiProperty({ example: '2026-07-20' })
   DeliveryDate: Date;
 
+  @ApiProperty({ example: 1 })
+  DeliveryPeriod: number;
+
   @ApiPropertyOptional({ example: 'attachment.pdf' })
   AttachmentDelivery?: string | null;
 
@@ -318,6 +321,9 @@ export class ForecastWithShoppingEntity {
 
   @ApiProperty({ example: '2026-07-21T00:00:00.000Z' })
   DeliveryDate: Date;
+
+  @ApiProperty({ example: 1 })
+  DeliveryPeriod: number;
 
   @ApiPropertyOptional({ example: 'attachment.pdf' })
   AttachmentDelivery?: string | null;

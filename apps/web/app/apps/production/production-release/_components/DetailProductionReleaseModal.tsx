@@ -165,6 +165,12 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
             },
         },
         {
+            title: "Delivery Period",
+            dataIndex: "DeliveryPeriod",
+            key: "DeliveryPeriod",
+            align: "right" as const,
+        },
+        {
             title: "Delivery Date",
             dataIndex: "DeliveryDate",
             key: "DeliveryDate",
