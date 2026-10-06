@@ -2,6 +2,7 @@
 'use client';
 
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {
     FullscreenExitOutlined,
@@ -25,7 +26,11 @@ import {
 } from '@/store/features/display/displaySlice';
 import AssemblyScanPanel from './_components/AssemblyScanPanel';
 import OperatorReportModal from './_components/OperatorReportModal';
-import ProductionFindingModal from './_components/ProductionFindingModal';
+
+const ProductionFindingModal = dynamic(
+    () => import('./_components/ProductionFindingModal'),
+    {ssr: false},
+);
 
 export interface DisplayManPower {
     Nik: string;

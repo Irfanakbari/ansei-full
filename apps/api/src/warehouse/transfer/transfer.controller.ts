@@ -28,6 +28,7 @@ export class TransferController {
       dto.qty,
       user.username,
       dto.requestId,
+      dto.scanCode,
     );
   }
 }

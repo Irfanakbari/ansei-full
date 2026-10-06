@@ -26,6 +26,7 @@ describe('TransferService', () => {
     Id: 1,
     PartNumber: 'MAT-001',
     PartName: 'Test Material',
+    RackLocation: 'RACK-A1',
     QtyRack: 50,
     QtyWarehouse: 100,
     IsActive: true,
@@ -94,6 +95,35 @@ describe('TransferService', () => {
       expect(result.transferQty).toBe(30);
       expect(logService.startProcess).toHaveBeenCalled();
       expect(logService.completeProcess).toHaveBeenCalled();
+    });
+
+    it.each(['MAT-001', 'rack-a1'])(
+      'accepts a scan matching the selected material: %s',
+      async (scanCode) => {
+        prismaService.material.findUnique.mockResolvedValue(mockMaterial);
+
+        const result = await service.transferToRack(
+          'MAT-001',
+          10,
+          'admin',
+          undefined,
+          scanCode,
+        );
+
+        expect(result.success).toBe(true);
+        expect(prismaService.inventoryLedger.create).toHaveBeenCalledTimes(2);
+      },
+    );
+
+    it('rejects a scan for another material without changing stock', async () => {
+      prismaService.material.findUnique.mockResolvedValue(mockMaterial);
+
+      await expect(
+        service.transferToRack('MAT-001', 10, 'admin', undefined, 'RACK-B2'),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(prismaService.material.update).not.toHaveBeenCalled();
+      expect(prismaService.inventoryLedger.create).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException if material not found', async () => {

@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, Min, Max, IsUUID } from 'class-validator';
+import {
+  IsInt,
+  Min,
+  Max,
+  IsUUID,
+  IsOptional,
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+} from 'class-validator';
 
 export class TransferToRackDto {
   @ApiProperty({
@@ -17,4 +26,15 @@ export class TransferToRackDto {
   })
   @IsUUID()
   requestId: string;
+
+  @ApiProperty({
+    required: false,
+    description:
+      'Scanned material PartNumber or RackLocation for PDA verification.',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
+  scanCode?: string;
 }

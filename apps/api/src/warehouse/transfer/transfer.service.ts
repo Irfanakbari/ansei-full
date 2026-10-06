@@ -36,6 +36,7 @@ export class TransferService {
     qty: number,
     transferredBy: string,
     requestId?: string,
+    scanCode?: string,
   ): Promise<TransferResult> {
     if (!Number.isSafeInteger(qty) || qty <= 0 || qty > 2147483647) {
       throw new BadRequestException(
@@ -69,7 +70,11 @@ export class TransferService {
                 'TRANSFER_TO_RACK',
                 requestId,
                 transferredBy,
-                { partNumber, qty },
+                {
+                  partNumber,
+                  qty,
+                  ...(scanCode === undefined ? {} : { scanCode }),
+                },
               )
             : null;
           if (claimed?.duplicate) {
@@ -88,7 +93,13 @@ export class TransferService {
           );
           const material = await tx.material.findUnique({
             where: { PartNumber: partNumber },
-            select: { IsActive: true, QtyWarehouse: true, QtyRack: true },
+            select: {
+              PartNumber: true,
+              RackLocation: true,
+              IsActive: true,
+              QtyWarehouse: true,
+              QtyRack: true,
+            },
           });
           if (!material) {
             throw new BadRequestException(
@@ -99,6 +110,18 @@ export class TransferService {
             throw new BadRequestException(
               `POKAYOKE: Material ${partNumber} is discontinued and cannot be used in transactions. Please reactivate the material first.`,
             );
+          }
+          if (scanCode !== undefined) {
+            const scanned = scanCode.trim().toUpperCase();
+            if (
+              !scanned ||
+              (scanned !== material.PartNumber.trim().toUpperCase() &&
+                scanned !== material.RackLocation?.trim().toUpperCase())
+            ) {
+              throw new BadRequestException(
+                'Scanned code does not match the selected material PartNumber or RackLocation.',
+              );
+            }
           }
           if (material.QtyWarehouse < qty) {
             throw new BadRequestException(

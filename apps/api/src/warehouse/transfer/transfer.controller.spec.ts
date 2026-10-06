@@ -51,7 +51,11 @@ describe('TransferController', () => {
 
       const result = await controller.transferToRack(
         'MAT-001',
-        { qty: 30, requestId: '00000000-0000-4000-8000-000000000001' },
+        {
+          qty: 30,
+          requestId: '00000000-0000-4000-8000-000000000001',
+          scanCode: 'RACK-A1',
+        },
         mockUser,
       );
 
@@ -61,6 +65,7 @@ describe('TransferController', () => {
         30,
         mockUser.username,
         '00000000-0000-4000-8000-000000000001',
+        'RACK-A1',
       );
     });
   });
