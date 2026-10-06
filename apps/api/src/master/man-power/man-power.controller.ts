@@ -119,7 +119,9 @@ export class ManPowerController {
   @Permission('IPCS.MASTER_UPDATE')
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+      // Busboy emits partsLimit when the count reaches the configured value.
+      // Keep one slot of headroom; files/fields still allow only one file.
+      limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 2 },
     }),
   )
   async uploadPicture(
