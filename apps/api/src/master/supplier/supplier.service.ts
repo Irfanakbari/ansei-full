@@ -19,6 +19,18 @@ import type {
 } from '../../common/interceptors/api-response.interface';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 
+type SupplierBarcodeFormatView = {
+  Id: number;
+  SupplierId: number;
+  Delimiter: string;
+  Fields: SupplierBarcodeField[];
+  FieldOffsets: number[];
+  CreatedAt: Date;
+  CreatedBy: string;
+  UpdatedAt: Date;
+  UpdatedBy: string;
+};
+
 @Injectable()
 export class SupplierService {
   constructor(
@@ -26,23 +38,14 @@ export class SupplierService {
     private readonly logService: LogProcessService,
   ) {}
 
-  async getBarcodeFormat(id: number): Promise<{
-    Id: number;
-    SupplierId: number;
-    Delimiter: string;
-    Fields: SupplierBarcodeField[];
-    CreatedAt: Date;
-    CreatedBy: string;
-    UpdatedAt: Date;
-    UpdatedBy: string;
-  } | null> {
+  async getBarcodeFormat(
+    id: number,
+  ): Promise<SupplierBarcodeFormatView | null> {
     await this.findOne(id);
     const result = await this.prisma.supplierBarcodeFormat.findUnique({
       where: { SupplierId: id },
     });
-    return result
-      ? { ...result, Fields: result.Fields as SupplierBarcodeField[] }
-      : null;
+    return result ? this.toBarcodeFormatView(result) : null;
   }
 
   async upsertBarcodeFormat(
@@ -58,19 +61,24 @@ export class SupplierService {
         createdBy: updatedBy,
       });
       await this.findOne(id);
+      const fieldOffsets = dto.fieldOffsets ?? dto.fields.map(() => 0);
+      const storedFields = {
+        fields: dto.fields,
+        fieldOffsets,
+      };
       const result = await auditedWrite(this.prisma, (tx) =>
         tx.supplierBarcodeFormat.upsert({
           where: { SupplierId: id },
           create: {
             SupplierId: id,
             Delimiter: dto.delimiter,
-            Fields: dto.fields,
+            Fields: storedFields,
             CreatedBy: updatedBy,
             UpdatedBy: updatedBy,
           },
           update: {
             Delimiter: dto.delimiter,
-            Fields: dto.fields,
+            Fields: storedFields,
             UpdatedBy: updatedBy,
           },
         }),
@@ -82,7 +90,7 @@ export class SupplierService {
         location: 'supplier.service.ts:upsertBarcodeFormat',
       });
       await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
-      return { ...result, Fields: result.Fields as SupplierBarcodeField[] };
+      return this.toBarcodeFormatView(result);
     } catch (error) {
       if (logProcess) {
         await this.logService.addLog({
@@ -95,6 +103,42 @@ export class SupplierService {
       }
       throw error;
     }
+  }
+
+  private toBarcodeFormatView(format: {
+    Id: number;
+    SupplierId: number;
+    Delimiter: string;
+    Fields: Prisma.JsonValue;
+    CreatedAt: Date;
+    CreatedBy: string;
+    UpdatedAt: Date;
+    UpdatedBy: string;
+  }): SupplierBarcodeFormatView {
+    const stored = format.Fields;
+    const fields = Array.isArray(stored)
+      ? (stored as SupplierBarcodeField[])
+      : this.isRecord(stored) && Array.isArray(stored.fields)
+        ? (stored.fields as SupplierBarcodeField[])
+        : [];
+    const storedOffsets =
+      this.isRecord(stored) && Array.isArray(stored.fieldOffsets)
+        ? stored.fieldOffsets
+        : [];
+    const fieldOffsets = fields.map((_, index) => {
+      const offset = storedOffsets[index];
+      return typeof offset === 'number' &&
+        Number.isInteger(offset) &&
+        offset >= 0
+        ? offset
+        : 0;
+    });
+
+    return { ...format, Fields: fields, FieldOffsets: fieldOffsets };
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
   }
 
   async findAll(

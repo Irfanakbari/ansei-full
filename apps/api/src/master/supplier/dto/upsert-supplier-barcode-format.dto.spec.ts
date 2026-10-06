@@ -5,10 +5,15 @@ import {
 } from './upsert-supplier-barcode-format.dto';
 
 describe('UpsertSupplierBarcodeFormatDto', () => {
-  const validateDto = (delimiter: string, fields: SupplierBarcodeField[]) => {
+  const validateDto = (
+    delimiter: string,
+    fields: SupplierBarcodeField[],
+    fieldOffsets?: number[],
+  ) => {
     const dto = new UpsertSupplierBarcodeFormatDto();
     dto.delimiter = delimiter;
     dto.fields = fields;
+    dto.fieldOffsets = fieldOffsets;
     return validate(dto);
   };
 
@@ -32,6 +37,36 @@ describe('UpsertSupplierBarcodeFormatDto', () => {
     ]);
 
     expect(errors.some((error) => error.property === 'fields')).toBe(true);
+  });
+
+  it('accepts one non-negative start offset for every field', async () => {
+    await expect(
+      validateDto(
+        ' ',
+        [
+          SupplierBarcodeField.PART_NUMBER,
+          SupplierBarcodeField.QUANTITY,
+          SupplierBarcodeField.IGNORE,
+        ],
+        [11, 0, 0],
+      ),
+    ).resolves.toHaveLength(0);
+  });
+
+  it.each([
+    [[11], 'different offset count'],
+    [[-1, 0], 'negative offset'],
+    [[501, 0], 'offset above limit'],
+  ] as const)('rejects %s for %s', async (fieldOffsets) => {
+    const errors = await validateDto(
+      ' ',
+      [SupplierBarcodeField.PART_NUMBER, SupplierBarcodeField.QUANTITY],
+      [...fieldOffsets],
+    );
+
+    expect(errors.some((error) => error.property === 'fieldOffsets')).toBe(
+      true,
+    );
   });
 
   it.each(['', 'abcdef', '\t', '\n'])(

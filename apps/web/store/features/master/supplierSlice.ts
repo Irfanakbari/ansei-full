@@ -29,6 +29,7 @@ export interface SupplierBarcodeFormat {
     SupplierId: number;
     Delimiter: string;
     Fields: SupplierBarcodeField[];
+    FieldOffsets: number[];
     CreatedAt: string;
     CreatedBy: string;
     UpdatedAt: string;
@@ -123,7 +124,7 @@ export const fetchSupplierBarcodeFormat = createAsyncThunk<ApiSuccessEnvelope<Su
 
 export const upsertSupplierBarcodeFormat = createAsyncThunk<ApiSuccessEnvelope<SupplierBarcodeFormat>, {
     id: number;
-    data: {delimiter: string; fields: SupplierBarcodeField[]};
+    data: {delimiter: string; fields: SupplierBarcodeField[]; fieldOffsets: number[]};
 }, {rejectValue: string}>(
     'supplier/upsertBarcodeFormat',
     async ({id, data}, {rejectWithValue}) => {

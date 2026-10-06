@@ -141,15 +141,23 @@ describe('SupplierService', () => {
   });
 
   describe('barcode format', () => {
-    const barcodeFormat = {
+    const storedBarcodeFormat = {
       Id: 1,
       SupplierId: 1,
       Delimiter: '#',
-      Fields: ['PART_NUMBER', 'QUANTITY'],
+      Fields: {
+        fields: ['PART_NUMBER', 'QUANTITY'],
+        fieldOffsets: [11, 0],
+      },
       CreatedAt: new Date(),
       CreatedBy: 'admin',
       UpdatedAt: new Date(),
       UpdatedBy: 'admin',
+    };
+    const barcodeFormat = {
+      ...storedBarcodeFormat,
+      Fields: ['PART_NUMBER', 'QUANTITY'],
+      FieldOffsets: [11, 0],
     };
 
     it('should return null when supplier exists without a barcode format', async () => {
@@ -170,18 +178,35 @@ describe('SupplierService', () => {
       ).not.toHaveBeenCalled();
     });
 
+    it('should normalize a legacy field array with zero offsets', async () => {
+      prismaService.supplier.findUnique.mockResolvedValue(mockSupplier);
+      prismaService.supplierBarcodeFormat.findUnique.mockResolvedValue({
+        ...storedBarcodeFormat,
+        Fields: ['PART_NUMBER', 'QUANTITY'],
+      });
+
+      await expect(service.getBarcodeFormat(1)).resolves.toMatchObject({
+        Fields: ['PART_NUMBER', 'QUANTITY'],
+        FieldOffsets: [0, 0],
+      });
+    });
+
     it('should audit and upsert a barcode format', async () => {
       logService.startProcess.mockResolvedValue(mockLogProcess);
       logService.addLog.mockResolvedValue({});
       logService.completeProcess.mockResolvedValue(undefined);
       prismaService.supplier.findUnique.mockResolvedValue(mockSupplier);
       prismaService.supplierBarcodeFormat.upsert.mockResolvedValue(
-        barcodeFormat,
+        storedBarcodeFormat,
       );
 
       const result = await service.upsertBarcodeFormat(
         1,
-        { delimiter: '#', fields: ['PART_NUMBER', 'QUANTITY'] } as never,
+        {
+          delimiter: '#',
+          fields: ['PART_NUMBER', 'QUANTITY'],
+          fieldOffsets: [11, 0],
+        } as never,
         'admin',
       );
 
@@ -191,13 +216,19 @@ describe('SupplierService', () => {
         create: {
           SupplierId: 1,
           Delimiter: '#',
-          Fields: ['PART_NUMBER', 'QUANTITY'],
+          Fields: {
+            fields: ['PART_NUMBER', 'QUANTITY'],
+            fieldOffsets: [11, 0],
+          },
           CreatedBy: 'admin',
           UpdatedBy: 'admin',
         },
         update: {
           Delimiter: '#',
-          Fields: ['PART_NUMBER', 'QUANTITY'],
+          Fields: {
+            fields: ['PART_NUMBER', 'QUANTITY'],
+            fieldOffsets: [11, 0],
+          },
           UpdatedBy: 'admin',
         },
       });

@@ -1,11 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
   IsEnum,
+  IsInt,
+  IsOptional,
   IsString,
   Matches,
+  Max,
+  Min,
   Validate,
+  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
@@ -32,6 +37,19 @@ class SupplierBarcodeRequiredFieldsConstraint implements ValidatorConstraintInte
 
   defaultMessage(): string {
     return 'fields must contain exactly one PART_NUMBER and exactly one QUANTITY';
+  }
+}
+
+@ValidatorConstraint({ name: 'supplierBarcodeFieldOffsets', async: false })
+class SupplierBarcodeFieldOffsetsConstraint implements ValidatorConstraintInterface {
+  validate(offsets: unknown, args: ValidationArguments): boolean {
+    if (offsets === undefined) return true;
+    const fields = (args.object as UpsertSupplierBarcodeFormatDto).fields;
+    return Array.isArray(offsets) && offsets.length === fields?.length;
+  }
+
+  defaultMessage(): string {
+    return 'fieldOffsets must contain one offset for every field';
   }
 }
 
@@ -62,4 +80,17 @@ export class UpsertSupplierBarcodeFormatDto {
   @IsEnum(SupplierBarcodeField, { each: true })
   @Validate(SupplierBarcodeRequiredFieldsConstraint)
   fields: SupplierBarcodeField[];
+
+  @ApiPropertyOptional({
+    description:
+      'Characters to ignore from the start of each segment after splitting by delimiter',
+    example: [11, 0, 0],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  @Min(0, { each: true })
+  @Max(500, { each: true })
+  @Validate(SupplierBarcodeFieldOffsetsConstraint)
+  fieldOffsets?: number[];
 }

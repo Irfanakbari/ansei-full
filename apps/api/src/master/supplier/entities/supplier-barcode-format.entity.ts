@@ -14,6 +14,13 @@ export class SupplierBarcodeFormatEntity {
   @ApiProperty({ enum: SupplierBarcodeField, isArray: true })
   Fields: SupplierBarcodeField[];
 
+  @ApiProperty({
+    type: [Number],
+    example: [11, 0, 0],
+    description: 'Leading characters ignored for each delimited field',
+  })
+  FieldOffsets: number[];
+
   @ApiProperty()
   CreatedAt: Date;
 
