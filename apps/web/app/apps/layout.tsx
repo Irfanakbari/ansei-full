@@ -48,7 +48,7 @@ import {
 import CreditInformationModal from "./_components/CreditInformationModal";
 import "../batik.css";
 
-const APP_VERSION = "6.6.11";
+const APP_VERSION = "6.6.12";
 const APP_YEAR = "2026";
 
 const LATEST_RELEASE_SUMMARY = [
