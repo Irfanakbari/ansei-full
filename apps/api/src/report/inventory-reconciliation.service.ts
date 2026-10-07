@@ -166,7 +166,7 @@ export class InventoryReconciliationService {
       WHERE l."Scanned" <> COALESCE((s.count > 0), false)
       UNION ALL
       SELECT 'LABEL_FORECAST_MISMATCH', l."LabelNumber", f."FinishGoodId", l."FinishGoodId"
-      FROM "LabelData" l JOIN "Forecast" f ON f."PoId" = l."ForecastId"
+      FROM "LabelData" l JOIN "ProductionOrder" f ON f."PoId" = l."ProductionDemandId"
       WHERE l."FinishGoodId" <> f."FinishGoodId"
       UNION ALL
       SELECT 'DELIVERED_LABEL_NOT_SCANNED', l."LabelNumber", 'true', l."Scanned"::text
@@ -180,9 +180,9 @@ export class InventoryReconciliationService {
     return this.prisma.$queryRaw<ReconciliationIssue[]>`
       WITH totals AS (
         SELECT r."Id", r."ReleaseNumber", r."TotalTargetQty", r."TotalGoodQty", r."TotalNgQty",
-          COALESCE((SELECT sum(f."Qty") FROM "Forecast" f WHERE f."ProductionReleaseId" = r."Id"), 0) AS target,
+          COALESCE((SELECT sum(f."Qty") FROM "ProductionOrder" f WHERE f."ProductionReleaseId" = r."Id"), 0) AS target,
           COALESCE((SELECT sum(l."QtyThisBox") FROM "LabelData" l WHERE l."ProductionReleaseId" = r."Id" AND l."Scanned"), 0) AS good,
-          COALESCE((SELECT sum(p."NgQty") FROM "ProductionReport" p JOIN "Forecast" f ON f."PoId" = p."ForecastId" WHERE f."ProductionReleaseId" = r."Id"), 0) AS ng
+          COALESCE((SELECT sum(p."NgQty") FROM "ProductionReport" p JOIN "ProductionOrder" f ON f."PoId" = p."ProductionDemandId" WHERE f."ProductionReleaseId" = r."Id"), 0) AS ng
         FROM "ProductionRelease" r
       )
       SELECT 'RELEASE_TARGET_TOTAL_MISMATCH' AS issue, "ReleaseNumber" AS key, target::text AS expected, "TotalTargetQty"::text AS actual FROM totals WHERE target <> "TotalTargetQty"

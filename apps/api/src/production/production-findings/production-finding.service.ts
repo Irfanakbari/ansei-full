@@ -59,7 +59,12 @@ export class ProductionFindingService {
                 RecordNumber: { contains: query.search, mode: 'insensitive' },
               },
               { MaterialId: { contains: query.search, mode: 'insensitive' } },
-              { ForecastId: { contains: query.search, mode: 'insensitive' } },
+              {
+                ProductionDemandId: {
+                  contains: query.search,
+                  mode: 'insensitive',
+                },
+              },
               {
                 Label: {
                   LabelNumber: { contains: query.search, mode: 'insensitive' },
@@ -190,7 +195,7 @@ export class ProductionFindingService {
         LabelNumber: true,
         QtyThisBox: true,
         FinishGoodId: true,
-        ForecastId: true,
+        ProductionDemandId: true,
         ProductionReleaseId: true,
         PartData: { select: { PartName: true } },
         ProductionRelease: { select: { Status: true } },
@@ -207,7 +212,7 @@ export class ProductionFindingService {
       );
     const snapshot = await this.prisma.productionBomSnapshot.findFirst({
       where: {
-        ForecastId: label.ForecastId,
+        ProductionDemandId: label.ProductionDemandId,
         ReleaseId: label.ProductionReleaseId,
       },
       select: {
@@ -365,7 +370,7 @@ export class ProductionFindingService {
           );
         const snapshot = await tx.productionBomSnapshot.findFirst({
           where: {
-            ForecastId: label.ForecastId,
+            ProductionDemandId: label.ProductionDemandId,
             ReleaseId: label.ProductionReleaseId,
           },
           include: { Lines: true },
@@ -393,7 +398,7 @@ export class ProductionFindingService {
             Qty: dto.qty,
             Reason: dto.reason.trim(),
             Reporter: dto.reporter.trim(),
-            ForecastId: label.ForecastId,
+            ProductionDemandId: label.ProductionDemandId,
             ReleaseId: label.ProductionReleaseId,
             SnapshotId: snapshot.Id,
             LabelId: label.Id,
@@ -412,7 +417,7 @@ export class ProductionFindingService {
         });
         await tx.productionTraceEvent.create({
           data: {
-            ForecastId: label.ForecastId,
+            ProductionDemandId: label.ProductionDemandId,
             ReleaseId: label.ProductionReleaseId,
             Type: 'PRODUCTION_FINDING_SUBMITTED',
             SourceType: 'ProductionFinding',
@@ -674,7 +679,7 @@ export class ProductionFindingService {
           !shopping ||
           shopping.Type !== 'ADDITIONAL' ||
           shopping.Purpose !== 'NON_PRODUCTION' ||
-          shopping.ForecastId !== null ||
+          shopping.ProductionDemandId !== null ||
           shopping.MaterialId !== component.MaterialId
         )
           throw new BadRequestException(
@@ -784,7 +789,7 @@ export class ProductionFindingService {
     tx: Prisma.TransactionClient,
     finding: {
       Id: string;
-      ForecastId: string | null;
+      ProductionDemandId: string | null;
       ReleaseId: string | null;
     },
     type: string,
@@ -792,10 +797,10 @@ export class ProductionFindingService {
     correlationId: string,
     processId: string,
   ) {
-    if (!finding.ForecastId) return Promise.resolve(null);
+    if (!finding.ProductionDemandId) return Promise.resolve(null);
     return tx.productionTraceEvent.create({
       data: {
-        ForecastId: finding.ForecastId,
+        ProductionDemandId: finding.ProductionDemandId,
         ReleaseId: finding.ReleaseId,
         Type: type,
         SourceType: 'ProductionFinding',

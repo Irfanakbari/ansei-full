@@ -62,11 +62,11 @@ export const ModelName = {
   SkillMatrix: 'SkillMatrix',
   InventoryLedger: 'InventoryLedger',
   StockOpname: 'StockOpname',
+  RecordNumberCounter: 'RecordNumberCounter',
   StockOpnameDetail: 'StockOpnameDetail',
   StockOpnameAttachment: 'StockOpnameAttachment',
   Incoming: 'Incoming',
   IncomingMaterial: 'IncomingMaterial',
-  MaterialNG: 'MaterialNG',
   Forecast: 'Forecast',
   ProductionRelease: 'ProductionRelease',
   ProductionReleaseAttachment: 'ProductionReleaseAttachment',
@@ -104,9 +104,16 @@ export const ModelName = {
   BomRevisionEvent: 'BomRevisionEvent',
   ProductionBomSnapshot: 'ProductionBomSnapshot',
   ProductionBomSnapshotLine: 'ProductionBomSnapshotLine',
-  MaterialNgCase: 'MaterialNgCase',
   BusinessCommand: 'BusinessCommand',
-  ProductionTraceEvent: 'ProductionTraceEvent'
+  ProductionFinding: 'ProductionFinding',
+  ProductionFindingComponent: 'ProductionFindingComponent',
+  ProductionFindingAllocation: 'ProductionFindingAllocation',
+  ProductionFindingEvent: 'ProductionFindingEvent',
+  ProductionTraceEvent: 'ProductionTraceEvent',
+  ForecastNonPo: 'ForecastNonPo',
+  ProductionDemand: 'ProductionDemand',
+  ForecastNonPoImport: 'ForecastNonPoImport',
+  ProductionOrder: 'ProductionOrder'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -242,7 +249,8 @@ export const ManPowerScalarFieldEnum = {
   UpdatedAt: 'UpdatedAt',
   UpdatedBy: 'UpdatedBy',
   Status: 'Status',
-  Line: 'Line'
+  Line: 'Line',
+  EmployeeType: 'EmployeeType'
 } as const
 
 export type ManPowerScalarFieldEnum = (typeof ManPowerScalarFieldEnum)[keyof typeof ManPowerScalarFieldEnum]
@@ -280,7 +288,7 @@ export type InventoryLedgerScalarFieldEnum = (typeof InventoryLedgerScalarFieldE
 
 export const StockOpnameScalarFieldEnum = {
   Id: 'Id',
-  OpnameNumber: 'OpnameNumber',
+  RecordNumber: 'RecordNumber',
   Category: 'Category',
   Status: 'Status',
   Tolerance: 'Tolerance',
@@ -293,6 +301,18 @@ export const StockOpnameScalarFieldEnum = {
 } as const
 
 export type StockOpnameScalarFieldEnum = (typeof StockOpnameScalarFieldEnum)[keyof typeof StockOpnameScalarFieldEnum]
+
+
+export const RecordNumberCounterScalarFieldEnum = {
+  Id: 'Id',
+  Prefix: 'Prefix',
+  BusinessDate: 'BusinessDate',
+  LastSequence: 'LastSequence',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt'
+} as const
+
+export type RecordNumberCounterScalarFieldEnum = (typeof RecordNumberCounterScalarFieldEnum)[keyof typeof RecordNumberCounterScalarFieldEnum]
 
 
 export const StockOpnameDetailScalarFieldEnum = {
@@ -358,21 +378,6 @@ export const IncomingMaterialScalarFieldEnum = {
 export type IncomingMaterialScalarFieldEnum = (typeof IncomingMaterialScalarFieldEnum)[keyof typeof IncomingMaterialScalarFieldEnum]
 
 
-export const MaterialNGScalarFieldEnum = {
-  CaseId: 'CaseId',
-  SnapshotLineId: 'SnapshotLineId',
-  ReplacementRequestedQty: 'ReplacementRequestedQty',
-  Id: 'Id',
-  MaterialId: 'MaterialId',
-  Qty: 'Qty',
-  CreatedAt: 'CreatedAt',
-  CreatedBy: 'CreatedBy',
-  Description: 'Description'
-} as const
-
-export type MaterialNGScalarFieldEnum = (typeof MaterialNGScalarFieldEnum)[keyof typeof MaterialNGScalarFieldEnum]
-
-
 export const ForecastScalarFieldEnum = {
   Id: 'Id',
   PoId: 'PoId',
@@ -406,7 +411,8 @@ export const ProductionReleaseScalarFieldEnum = {
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
   UpdatedAt: 'UpdatedAt',
-  IsNoAttachment: 'IsNoAttachment'
+  IsNoAttachment: 'IsNoAttachment',
+  SourceType: 'SourceType'
 } as const
 
 export type ProductionReleaseScalarFieldEnum = (typeof ProductionReleaseScalarFieldEnum)[keyof typeof ProductionReleaseScalarFieldEnum]
@@ -430,17 +436,17 @@ export type ProductionReleaseAttachmentScalarFieldEnum = (typeof ProductionRelea
 
 
 export const ShoppingScalarFieldEnum = {
+  LegacyPoId: 'LegacyPoId',
   Purpose: 'Purpose',
   Destination: 'Destination',
   SnapshotLineId: 'SnapshotLineId',
-  MaterialNgId: 'MaterialNgId',
   CommandId: 'CommandId',
   Id: 'Id',
   Description: 'Description',
   Type: 'Type',
   CreatedAt: 'CreatedAt',
   UpdatedAt: 'UpdatedAt',
-  ForecastId: 'ForecastId',
+  ProductionDemandId: 'ProductionDemandId',
   CreatedBy: 'CreatedBy',
   QtyPick: 'QtyPick',
   MaterialId: 'MaterialId'
@@ -450,7 +456,8 @@ export type ShoppingScalarFieldEnum = (typeof ShoppingScalarFieldEnum)[keyof typ
 
 
 export const ShoppingCompletionScalarFieldEnum = {
-  ForecastId: 'ForecastId',
+  LegacyPoId: 'LegacyPoId',
+  ProductionDemandId: 'ProductionDemandId',
   ShoppingId: 'ShoppingId',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy'
@@ -485,6 +492,7 @@ export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[key
 
 
 export const ProductionReportScalarFieldEnum = {
+  LegacyPoId: 'LegacyPoId',
   Id: 'Id',
   Date: 'Date',
   Time: 'Time',
@@ -517,18 +525,19 @@ export const ProductionReportScalarFieldEnum = {
   Qty: 'Qty',
   ManPowerUid: 'ManPowerUid',
   FinishGoodId: 'FinishGoodId',
-  ForecastId: 'ForecastId'
+  ProductionDemandId: 'ProductionDemandId'
 } as const
 
 export type ProductionReportScalarFieldEnum = (typeof ProductionReportScalarFieldEnum)[keyof typeof ProductionReportScalarFieldEnum]
 
 
 export const LabelDataScalarFieldEnum = {
+  LegacyPoId: 'LegacyPoId',
   RequiresAssembly: 'RequiresAssembly',
   Id: 'Id',
   LabelNumber: 'LabelNumber',
   FinishGoodId: 'FinishGoodId',
-  ForecastId: 'ForecastId',
+  ProductionDemandId: 'ProductionDemandId',
   Scanned: 'Scanned',
   QtyThisBox: 'QtyThisBox',
   ProductionReleaseId: 'ProductionReleaseId',
@@ -575,8 +584,9 @@ export type PokayokeScanHistoryScalarFieldEnum = (typeof PokayokeScanHistoryScal
 
 
 export const DeliveryHistoryScalarFieldEnum = {
+  LegacyPoId: 'LegacyPoId',
   Id: 'Id',
-  ForecastId: 'ForecastId',
+  ProductionDemandId: 'ProductionDemandId',
   Qty: 'Qty',
   PalletNumber: 'PalletNumber',
   CreatedAt: 'CreatedAt',
@@ -958,8 +968,9 @@ export type BomRevisionEventScalarFieldEnum = (typeof BomRevisionEventScalarFiel
 
 
 export const ProductionBomSnapshotScalarFieldEnum = {
+  LegacyPoId: 'LegacyPoId',
   Id: 'Id',
-  ForecastId: 'ForecastId',
+  ProductionDemandId: 'ProductionDemandId',
   ReleaseId: 'ReleaseId',
   RevisionId: 'RevisionId',
   Version: 'Version',
@@ -988,28 +999,6 @@ export const ProductionBomSnapshotLineScalarFieldEnum = {
 export type ProductionBomSnapshotLineScalarFieldEnum = (typeof ProductionBomSnapshotLineScalarFieldEnum)[keyof typeof ProductionBomSnapshotLineScalarFieldEnum]
 
 
-export const MaterialNgCaseScalarFieldEnum = {
-  Id: 'Id',
-  CaseNumber: 'CaseNumber',
-  ForecastId: 'ForecastId',
-  ReleaseId: 'ReleaseId',
-  SnapshotId: 'SnapshotId',
-  Stage: 'Stage',
-  Reason: 'Reason',
-  Status: 'Status',
-  CreatedBy: 'CreatedBy',
-  CreatedAt: 'CreatedAt',
-  ClosedBy: 'ClosedBy',
-  ClosedAt: 'ClosedAt',
-  CloseReason: 'CloseReason',
-  LabelId: 'LabelId',
-  AssemblySessionId: 'AssemblySessionId',
-  ProductionReportId: 'ProductionReportId'
-} as const
-
-export type MaterialNgCaseScalarFieldEnum = (typeof MaterialNgCaseScalarFieldEnum)[keyof typeof MaterialNgCaseScalarFieldEnum]
-
-
 export const BusinessCommandScalarFieldEnum = {
   Id: 'Id',
   Scope: 'Scope',
@@ -1023,9 +1012,76 @@ export const BusinessCommandScalarFieldEnum = {
 export type BusinessCommandScalarFieldEnum = (typeof BusinessCommandScalarFieldEnum)[keyof typeof BusinessCommandScalarFieldEnum]
 
 
-export const ProductionTraceEventScalarFieldEnum = {
+export const ProductionFindingScalarFieldEnum = {
+  LegacyPoId: 'LegacyPoId',
   Id: 'Id',
-  ForecastId: 'ForecastId',
+  RecordNumber: 'RecordNumber',
+  Category: 'Category',
+  Status: 'Status',
+  Location: 'Location',
+  MaterialId: 'MaterialId',
+  Qty: 'Qty',
+  Reason: 'Reason',
+  Reporter: 'Reporter',
+  SubmittedAt: 'SubmittedAt',
+  ProductionDemandId: 'ProductionDemandId',
+  ReleaseId: 'ReleaseId',
+  SnapshotId: 'SnapshotId',
+  LabelId: 'LabelId',
+  ReviewedBy: 'ReviewedBy',
+  ReviewedAt: 'ReviewedAt',
+  ReviewNote: 'ReviewNote',
+  CompletedBy: 'CompletedBy',
+  CompletedAt: 'CompletedAt',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt',
+  DeletedAt: 'DeletedAt',
+  DeletedBy: 'DeletedBy'
+} as const
+
+export type ProductionFindingScalarFieldEnum = (typeof ProductionFindingScalarFieldEnum)[keyof typeof ProductionFindingScalarFieldEnum]
+
+
+export const ProductionFindingComponentScalarFieldEnum = {
+  Id: 'Id',
+  FindingId: 'FindingId',
+  SnapshotLineId: 'SnapshotLineId',
+  MaterialId: 'MaterialId',
+  Qty: 'Qty'
+} as const
+
+export type ProductionFindingComponentScalarFieldEnum = (typeof ProductionFindingComponentScalarFieldEnum)[keyof typeof ProductionFindingComponentScalarFieldEnum]
+
+
+export const ProductionFindingAllocationScalarFieldEnum = {
+  Id: 'Id',
+  FindingId: 'FindingId',
+  ComponentId: 'ComponentId',
+  ShoppingId: 'ShoppingId',
+  Qty: 'Qty',
+  CreatedBy: 'CreatedBy',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type ProductionFindingAllocationScalarFieldEnum = (typeof ProductionFindingAllocationScalarFieldEnum)[keyof typeof ProductionFindingAllocationScalarFieldEnum]
+
+
+export const ProductionFindingEventScalarFieldEnum = {
+  Id: 'Id',
+  FindingId: 'FindingId',
+  Type: 'Type',
+  Actor: 'Actor',
+  Metadata: 'Metadata',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type ProductionFindingEventScalarFieldEnum = (typeof ProductionFindingEventScalarFieldEnum)[keyof typeof ProductionFindingEventScalarFieldEnum]
+
+
+export const ProductionTraceEventScalarFieldEnum = {
+  LegacyPoId: 'LegacyPoId',
+  Id: 'Id',
+  ProductionDemandId: 'ProductionDemandId',
   ReleaseId: 'ReleaseId',
   Type: 'Type',
   SourceType: 'SourceType',
@@ -1038,6 +1094,72 @@ export const ProductionTraceEventScalarFieldEnum = {
 } as const
 
 export type ProductionTraceEventScalarFieldEnum = (typeof ProductionTraceEventScalarFieldEnum)[keyof typeof ProductionTraceEventScalarFieldEnum]
+
+
+export const ForecastNonPoScalarFieldEnum = {
+  Id: 'Id',
+  ReferenceNumber: 'ReferenceNumber',
+  PartNumber: 'PartNumber',
+  DeliveryDate: 'DeliveryDate',
+  ReceivingArea: 'ReceivingArea',
+  DeliveryPeriod: 'DeliveryPeriod',
+  Qty: 'Qty',
+  PoNumber: 'PoNumber',
+  Notes: 'Notes',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
+} as const
+
+export type ForecastNonPoScalarFieldEnum = (typeof ForecastNonPoScalarFieldEnum)[keyof typeof ForecastNonPoScalarFieldEnum]
+
+
+export const ProductionDemandScalarFieldEnum = {
+  Id: 'Id',
+  SourceType: 'SourceType',
+  ForecastPoId: 'ForecastPoId',
+  ForecastNonPoId: 'ForecastNonPoId',
+  ProductionReleaseId: 'ProductionReleaseId'
+} as const
+
+export type ProductionDemandScalarFieldEnum = (typeof ProductionDemandScalarFieldEnum)[keyof typeof ProductionDemandScalarFieldEnum]
+
+
+export const ForecastNonPoImportScalarFieldEnum = {
+  Id: 'Id',
+  FileHash: 'FileHash',
+  RequestId: 'RequestId',
+  SourceIds: 'SourceIds',
+  PayloadHash: 'PayloadHash',
+  CreatedCount: 'CreatedCount',
+  CreatedAt: 'CreatedAt',
+  CreatedBy: 'CreatedBy'
+} as const
+
+export type ForecastNonPoImportScalarFieldEnum = (typeof ForecastNonPoImportScalarFieldEnum)[keyof typeof ForecastNonPoImportScalarFieldEnum]
+
+
+export const ProductionOrderScalarFieldEnum = {
+  SourceType: 'SourceType',
+  Notes: 'Notes',
+  Id: 'Id',
+  PoId: 'PoId',
+  Date: 'Date',
+  VendorCode: 'VendorCode',
+  VendorName: 'VendorName',
+  ReceivingArea: 'ReceivingArea',
+  DeliveryDate: 'DeliveryDate',
+  DeliveryPeriod: 'DeliveryPeriod',
+  Classification: 'Classification',
+  PoNumber: 'PoNumber',
+  Item: 'Item',
+  Qty: 'Qty',
+  FinishGoodId: 'FinishGoodId',
+  ProductionReleaseId: 'ProductionReleaseId'
+} as const
+
+export type ProductionOrderScalarFieldEnum = (typeof ProductionOrderScalarFieldEnum)[keyof typeof ProductionOrderScalarFieldEnum]
 
 
 export const SortOrder = {

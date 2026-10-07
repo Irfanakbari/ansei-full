@@ -1,473 +1,511 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-07-16 - Updated 2026-06-16*/
 "use client";
-import {formatProductionDuration} from "./productionDuration";
+import { formatProductionDuration } from "./productionDuration";
 
 import ReleaseBomPanel from "@/components/traceability/ReleaseBomPanel";
 import FinishGoodLinkedModal from "@/components/production/FinishGoodLinkedModal";
 import GoldenArrowAction from "@/components/GoldenArrowAction";
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import {
-    Modal,
-    Descriptions,
-    Tag,
-    Space,
-    Table,
-    Progress,
-    Typography,
-    Button,
-    Popconfirm,
-    App,
-    Col,
-    Row,
+  Modal,
+  Descriptions,
+  Tag,
+  Space,
+  Table,
+  Progress,
+  Typography,
+  Button,
+  Popconfirm,
+  App,
+  Col,
+  Row,
 } from "antd";
 import {
-    EyeOutlined,
-    PaperClipOutlined,
-    DeleteOutlined,
-    DownloadOutlined,
+  EyeOutlined,
+  PaperClipOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
-import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 import {
-    ProductionAttachment,
-    ProductionReleaseEntity,
-    downloadAttachment,
-    fetchAttachments,
-    deleteAttachment,
+  ProductionAttachment,
+  ProductionReleaseEntity,
+  downloadAttachment,
+  fetchAttachments,
+  deleteAttachment,
 } from "@/store/features/production/productionRelease/productionReleaseSlice";
 
-const {Title, Text} = Typography;
+const { Title, Text } = Typography;
 
 interface Props {
-    visible: boolean;
-    onClose: () => void;
-    data: ProductionReleaseEntity;
-    footer?: React.ReactNode;
-    busy?: boolean;
+  visible: boolean;
+  onClose: () => void;
+  data: ProductionReleaseEntity;
+  footer?: React.ReactNode;
+  busy?: boolean;
 }
 
 const formatDT = (val: string | null | undefined) => {
-    if (!val) return "-";
-    return new Date(val).toLocaleString("id-ID", {
-        timeZone: "Asia/Jakarta",
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+  if (!val) return "-";
+  return new Date(val).toLocaleString("id-ID", {
+    timeZone: "Asia/Jakarta",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
 const STATUS_COLORS: Record<string, string> = {
-    PENDING: "warning",
-    IN_PROGRESS: "processing",
-    COMPLETED: "success",
-    CANCELLED: "error",
+  PENDING: "warning",
+  IN_PROGRESS: "processing",
+  COMPLETED: "success",
+  CANCELLED: "error",
 };
 
 const DetailProductionReleaseModal: React.FC<Props> = ({
-                                                           visible,
-                                                           onClose,
-                                                           data,
-                                                           footer,
-                                                           busy = false,
-                                                       }) => {
-    const dispatch = useDispatch<AppDispatch>();
-    const {message, modal} = App.useApp();
-    const {attachments, attachmentLoading} = useSelector(
-        (state: RootState) => state.productionRelease,
-    );
-    const [linkedFinishGood, setLinkedFinishGood] = React.useState<string | null>(null);
+  visible,
+  onClose,
+  data,
+  footer,
+  busy = false,
+}) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { message, modal } = App.useApp();
+  const { attachments, attachmentLoading } = useSelector(
+    (state: RootState) => state.productionRelease,
+  );
+  const [linkedFinishGood, setLinkedFinishGood] = React.useState<string | null>(
+    null,
+  );
 
-    useEffect(() => {
-        if (visible && data.Id) {
-            dispatch(fetchAttachments(data.Id));
+  useEffect(() => {
+    if (visible && data.Id) {
+      dispatch(fetchAttachments(data.Id));
+    }
+  }, [visible, data.Id, dispatch]);
+
+  const handleDeleteAttachment = (attachmentId: number, fileName: string) => {
+    modal.confirm({
+      title: "Delete Attachment?",
+      icon: <DeleteOutlined />,
+      content: `Delete attachment "${fileName}"?`,
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      centered: true,
+      onOk: async () => {
+        try {
+          const result = await dispatch(
+            deleteAttachment({ productionReleaseId: data.Id, attachmentId }),
+          );
+
+          if (deleteAttachment.rejected.match(result)) {
+            throw new Error(
+              (result.payload as string) || "Failed to delete attachment",
+            );
+          }
+          message.success("Attachment deleted successfully");
+          dispatch(fetchAttachments(data.Id));
+        } catch (error: unknown) {
+          const err = error as Error;
+          message.error(err?.message || "Failed to delete attachment");
         }
-    }, [visible, data.Id, dispatch]);
+      },
+    });
+  };
 
-    const handleDeleteAttachment = (attachmentId: number, fileName: string) => {
-        modal.confirm({
-            title: "Delete Attachment?",
-            icon: <DeleteOutlined/>,
-            content: `Delete attachment "${fileName}"?`,
-            okText: "Delete",
-            okType: "danger",
-            cancelText: "Cancel",
-            centered: true,
-            onOk: async () => {
-                try {
-                    const result = await dispatch(
-                        deleteAttachment({productionReleaseId: data.Id, attachmentId}),
-                    );
-
-                    if (deleteAttachment.rejected.match(result)) {
-                        throw new Error(
-                            (result.payload as string) || "Failed to delete attachment",
-                        );
-                    }
-                    message.success("Attachment deleted successfully");
-                    dispatch(fetchAttachments(data.Id));
-                } catch (error: unknown) {
-                    const err = error as Error;
-                    message.error(err?.message || "Failed to delete attachment");
-                }
-            },
-        });
-    };
-
-    const forecastColumns = [
-        {
-            title: "PO Number",
-            dataIndex: "PoId",
-            key: "PoId",
-            render: (val: string) => <code style={{fontSize: 10}}>{val}</code>,
-        },
-        {
-            title: "Part Number",
-            key: "PartNumber",
-            render: (_: any, record: any) => (
-                <Space size={4}>
-                    <GoldenArrowAction tooltip="View Finish Good details"
-                                       ariaLabel={`View Finish Good ${record.PartData?.PartNumber || ""}`}
-                                       onClick={() => setLinkedFinishGood(record.PartData?.PartNumber ?? null)}/>
-                    <span>{record.PartData?.PartNumber || "-"}</span>
-                </Space>
-            ),
-        },
-        {
-            title: "Part Name",
-            key: "PartName",
-            ellipsis: true,
-            render: (_: any, record: any) => record.PartData?.PartName || "-",
-        },
-        // {
-        //     title: 'Qty',
-        //     dataIndex: 'Qty',
-        //     key: 'Qty',
-        //     width: 60,
-        //     align: 'right' as const,
-        // },
-        {
-            title: "Picked Material",
-            key: "Picked",
-            align: "right" as const,
-            render: (_: any, record: any) => {
-                const totalPicked =
-                    record.Shopping?.reduce(
-                        (sum: number, s: any) => sum + s.QtyPick,
-                        0,
-                    ) || 0;
-                return (
-                    <Text type={totalPicked > 0 ? "success" : "warning"}>
-                        {totalPicked} Pcs
-                    </Text>
-                );
-            },
-        },
-        {
-            title: "Delivery Period",
-            dataIndex: "DeliveryPeriod",
-            key: "DeliveryPeriod",
-            align: "right" as const,
-        },
-        {
-            title: "Delivery Date",
-            dataIndex: "DeliveryDate",
-            key: "DeliveryDate",
-            render: (val: string) =>
-                val ? new Date(val).toLocaleDateString("id-ID") : "-",
-        },
-    ];
-
-    const attachmentColumns = [
-        {
-            title: "File Name",
-            dataIndex: "FileName",
-            key: "FileName",
-            ellipsis: true,
-            render: (val: string) => (
-                <Space>
-                    <PaperClipOutlined/>
-                    <span style={{fontSize: 11}}>{val}</span>
-                </Space>
-            ),
-        },
-        {
-            title: "Size",
-            dataIndex: "FileSize",
-            key: "FileSize",
-            align: "right" as const,
-            render: (val: any) => {
-                const size = Number(val) || 0;
-                if (size < 1024) return `${size} B`;
-                if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
-                return `${(size / (1024 * 1024)).toFixed(1)} MB`;
-            },
-        },
-        {
-            title: "Action",
-            key: "action",
-            align: "center" as const,
-            render: (_: any, record: ProductionAttachment) => (
-                <Space size="small">
-                    <Button
-                        type="text"
-                        size="small"
-                        icon={<DownloadOutlined/>}
-                        onClick={() =>
-                            void dispatch(
-                                downloadAttachment({
-                                    productionReleaseId: data.Id,
-                                    attachment: record,
-                                }),
-                            )
-                        }
-                        title="Download"
-                    />
-                    <Popconfirm
-                        title="Delete Attachment?"
-                        description={`Delete "${record.FileName}"?`}
-                        onConfirm={() => handleDeleteAttachment(record.Id, record.FileName)}
-                        okText="Delete"
-                        okType="danger"
-                        cancelText="Cancel"
-                    >
-                        <Button
-                            type="text"
-                            size="small"
-                            danger
-                            icon={<DeleteOutlined/>}
-                            title="Delete"
-                        />
-                    </Popconfirm>
-                </Space>
-            ),
-        },
-    ];
-
-    return (
-        <Modal
-            title={
-                <Space>
-                    <EyeOutlined/>
-                    <span>Detail Production Release - {data.ReleaseNumber}</span>
-                </Space>
+  const forecastColumns = [
+    {
+      title: "Order Reference",
+      dataIndex: "PoId",
+      key: "PoId",
+      render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
+    },
+    {
+      title: "Part Number",
+      key: "PartNumber",
+      render: (_: any, record: any) => (
+        <Space size={4}>
+          <GoldenArrowAction
+            tooltip="View Finish Good details"
+            ariaLabel={`View Finish Good ${record.PartData?.PartNumber || ""}`}
+            onClick={() =>
+              setLinkedFinishGood(record.PartData?.PartNumber ?? null)
             }
-            open={visible}
-            onCancel={onClose}
-            footer={footer}
-            centered={true}
-            width="min(1700px, calc(100vw - 32px))"
-            destroyOnHidden
-            mask={{closable: !busy}}
-            closable={!busy}
-            zIndex={1050}
-            styles={{body: {maxHeight: "calc(100vh - 160px)", overflowY: "auto"}}}
-        >
-            <Row gutter={[24, 16]}>
-                <Col xs={24} xl={11} style={{minWidth: 0}}>
-            <Descriptions
-                bordered
-                size="small"
-                column={2}
-                style={{marginBottom: 16}}
-            >
-                <Descriptions.Item label="Release Number">
-                    <code style={{fontSize: 11}}>{data.ReleaseNumber}</code>
-                </Descriptions.Item>
-                <Descriptions.Item label="Status">
-                    <Tag color={STATUS_COLORS[data.Status] || "default"}>
-                        {data.Status}
-                    </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label="Plan Date">
-                    {formatDT(data.PlanDate)}
-                </Descriptions.Item>
-                <Descriptions.Item label="Created At">
-                    {formatDT(data.CreatedAt)}
-                </Descriptions.Item>
-                <Descriptions.Item label="Target Qty">
-                    <strong>{data.TotalTargetQty || 0}</strong>
-                </Descriptions.Item>
-                <Descriptions.Item label="Good Qty">
-                    <Text type="success">
-                        <strong>{data.TotalGoodQty || 0}</strong>
-                    </Text>
-                </Descriptions.Item>
-                <Descriptions.Item label="NG Qty">
-                    <Text type="danger">
-                        <strong>{data.TotalNgQty || 0}</strong>
-                    </Text>
-                </Descriptions.Item>
-                <Descriptions.Item label="Forecasts Count">
-                    {data._count?.Forecasts || data.Forecasts?.length || 0}
-                </Descriptions.Item>
-                <Descriptions.Item label="Total Production Time" span={2}>
-                    {formatProductionDuration(data.TotalProductionMinutes)}
-                </Descriptions.Item>
-                <Descriptions.Item label="Created By" span={2}>
-                    {data.CreatedByName || "-"}
-                </Descriptions.Item>
-                <Descriptions.Item label="Notes" span={2}>
-                    {data.Notes || "-"}
-                </Descriptions.Item>
-            </Descriptions>
+          />
+          <span>{record.PartData?.PartNumber || "-"}</span>
+        </Space>
+      ),
+    },
+    {
+      title: "Part Name",
+      key: "PartName",
+      ellipsis: true,
+      render: (_: any, record: any) => record.PartData?.PartName || "-",
+    },
+    // {
+    //     title: 'Qty',
+    //     dataIndex: 'Qty',
+    //     key: 'Qty',
+    //     width: 60,
+    //     align: 'right' as const,
+    // },
+    {
+      title: "Picked Material",
+      key: "Picked",
+      align: "right" as const,
+      render: (_: any, record: any) => {
+        const totalPicked =
+          record.Shopping?.reduce(
+            (sum: number, s: any) => sum + s.QtyPick,
+            0,
+          ) || 0;
+        return (
+          <Text type={totalPicked > 0 ? "success" : "warning"}>
+            {totalPicked} Pcs
+          </Text>
+        );
+      },
+    },
+    {
+      title: "Delivery Period",
+      dataIndex: "DeliveryPeriod",
+      key: "DeliveryPeriod",
+      align: "right" as const,
+    },
+    {
+      title: "Delivery Date",
+      dataIndex: "DeliveryDate",
+      key: "DeliveryDate",
+      render: (val: string) =>
+        val ? new Date(val).toLocaleDateString("id-ID") : "-",
+    },
+  ];
 
-            {/* Progress Section */}
-            {(data.progressShopping ||
-                data.progressDelivery ||
-                data.progressPokayoke ||
-                data.progressAssembly?.required) && (
-                <div style={{marginBottom: 16}}>
-                    <Title level={5} style={{marginBottom: 8}}>
-                        Progress
-                    </Title>
-                    <div
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                            gap: 16,
-                        }}
-                    >
-                        {data.progressShopping && (
-                            <div
-                                key="progress-shopping"
-                                style={{background: "#f5f5f5", padding: 12, borderRadius: 8}}
-                            >
-                                <Text strong>Shopping Progress</Text>
-                                <Progress
-                                    percent={data.progressShopping.percentage}
-                                    status={
-                                        data.progressShopping.percentage === 100
-                                            ? "success"
-                                            : "active"
-                                    }
-                                    style={{marginTop: 8}}
-                                />
-                                <div style={{marginTop: 8, fontSize: 11}}>
-                                    <div>
-                                        Picked: <strong>{data.progressShopping.totalPicked}</strong>{" "}
-                                        / Target:{" "}
-                                        <strong>{data.progressShopping.totalTarget}</strong>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        {data.progressAssembly?.required && (
-                            <div
-                                key="progress-assembly"
-                                style={{background: "#f5f5f5", padding: 12, borderRadius: 8}}
-                            >
-                                <Text strong>Assembly Progress</Text>
-                                <Progress
-                                    percent={data.progressAssembly.percentage}
-                                    status={data.progressAssembly.percentage === 100 ? "success" : "active"}
-                                    style={{marginTop: 8}}
-                                />
-                                <div style={{marginTop: 8, fontSize: 11}}>
-                                    <div>
-                                        Completed: <strong>{data.progressAssembly.completed}</strong> /
-                                        Total: <strong>{data.progressAssembly.total}</strong>
-                                    </div>
-                                    <div>Pending: {data.progressAssembly.pending}</div>
-                                </div>
-                            </div>
-                        )}
-                        {data.progressPokayoke && (
-                            <div
-                                key="progress-pokayoke"
-                                style={{background: "#f5f5f5", padding: 12, borderRadius: 8}}
-                            >
-                                <Text strong>Pokayoke Progress</Text>
-                                <Progress
-                                    percent={data.progressPokayoke.percentage}
-                                    status={
-                                        data.progressPokayoke.percentage === 100
-                                            ? "success"
-                                            : "active"
-                                    }
-                                    style={{marginTop: 8}}
-                                />
-                                <div style={{marginTop: 8, fontSize: 11}}>
-                                    <div>
-                                        Scanned: <strong>{data.progressPokayoke.scanned}</strong> /
-                                        Total: <strong>{data.progressPokayoke.total}</strong>
-                                    </div>
-                                    <div>Pending: {data.progressPokayoke.pending}</div>
-                                </div>
-                            </div>
-                        )}
-                        {data.progressDelivery && (
-                            <div
-                                key="progress-delivery"
-                                style={{background: "#f5f5f5", padding: 12, borderRadius: 8}}
-                            >
-                                <Text strong>Delivery Progress</Text>
-                                <Progress
-                                    percent={data.progressDelivery.percentage}
-                                    status={
-                                        data.progressDelivery.percentage === 100
-                                            ? "success"
-                                            : "active"
-                                    }
-                                    style={{marginTop: 8}}
-                                />
-                                <div style={{marginTop: 8, fontSize: 11}}>
-                                    <div>
-                                        Scanned: <strong>{data.progressDelivery.scanned}</strong> /
-                                        Total: <strong>{data.progressDelivery.total}</strong>
-                                    </div>
-                                    <div>Pending: {data.progressDelivery.pending}</div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
+  const attachmentColumns = [
+    {
+      title: "File Name",
+      dataIndex: "FileName",
+      key: "FileName",
+      ellipsis: true,
+      render: (val: string) => (
+        <Space>
+          <PaperClipOutlined />
+          <span style={{ fontSize: 11 }}>{val}</span>
+        </Space>
+      ),
+    },
+    {
+      title: "Size",
+      dataIndex: "FileSize",
+      key: "FileSize",
+      align: "right" as const,
+      render: (val: any) => {
+        const size = Number(val) || 0;
+        if (size < 1024) return `${size} B`;
+        if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+        return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      align: "center" as const,
+      render: (_: any, record: ProductionAttachment) => (
+        <Space size="small">
+          <Button
+            type="text"
+            size="small"
+            icon={<DownloadOutlined />}
+            onClick={() =>
+              void dispatch(
+                downloadAttachment({
+                  productionReleaseId: data.Id,
+                  attachment: record,
+                }),
+              )
+            }
+            title="Download"
+          />
+          <Popconfirm
+            title="Delete Attachment?"
+            description={`Delete "${record.FileName}"?`}
+            onConfirm={() => handleDeleteAttachment(record.Id, record.FileName)}
+            okText="Delete"
+            okType="danger"
+            cancelText="Cancel"
+          >
+            <Button
+              type="text"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              title="Delete"
+            />
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
-            <div style={{overflow: "hidden"}}>
-                <Table
-                    title={() => (
-                        <strong key="forecasts-title">
-                            Forecasts ({data.Forecasts?.length || 0})
-                        </strong>
-                    )}
-                    columns={forecastColumns}
-                    dataSource={data.Forecasts || []}
-                    size="small"
-                    rowKey={(record) => record.PoId}
-                    pagination={false}
-                    scroll={{x: "max-content", y: 250}}
-                    className="small-table"
-                    style={{fontSize: "11px"}}
-                />
-            </div>
-                </Col>
-                <Col xs={24} xl={13} style={{minWidth: 0}}>
-                    <ReleaseBomPanel
-                        releaseId={data.Id}
-                        attachmentsCount={attachments.length}
-                        attachments={(
-                            <Table
-                                columns={attachmentColumns}
-                                dataSource={attachments}
-                                size="small"
-                                rowKey={(record) => String(record.Id)}
-                                pagination={false}
-                                loading={attachmentLoading}
-                                scroll={{x: "max-content", y: 250}}
-                                className="small-table"
-                                style={{fontSize: "11px"}}
-                                locale={{emptyText: "No attachments yet"}}
-                            />
-                        )}
+  return (
+    <Modal
+      title={
+        <Space>
+          <EyeOutlined />
+          <span>Detail Production Release - {data.ReleaseNumber}</span>
+        </Space>
+      }
+      open={visible}
+      onCancel={onClose}
+      footer={footer}
+      centered={true}
+      width="min(1700px, calc(100vw - 32px))"
+      destroyOnHidden
+      mask={{ closable: !busy }}
+      closable={!busy}
+      zIndex={1050}
+      styles={{ body: { maxHeight: "calc(100vh - 160px)", overflowY: "auto" } }}
+    >
+      <Row gutter={[24, 16]}>
+        <Col xs={24} xl={11} style={{ minWidth: 0 }}>
+          <Descriptions
+            bordered
+            size="small"
+            column={2}
+            style={{ marginBottom: 16 }}
+          >
+            <Descriptions.Item label="Release Number">
+              <code style={{ fontSize: 11 }}>{data.ReleaseNumber}</code>
+            </Descriptions.Item>
+            <Descriptions.Item label="Source Type">
+              {data.SourceType === "NON_PO"
+                ? "Forecast (Non PO)"
+                : "Forecast (PO)"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Status">
+              <Tag color={STATUS_COLORS[data.Status] || "default"}>
+                {data.Status}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Plan Date">
+              {formatDT(data.PlanDate)}
+            </Descriptions.Item>
+            <Descriptions.Item label="Created At">
+              {formatDT(data.CreatedAt)}
+            </Descriptions.Item>
+            <Descriptions.Item label="Target Qty">
+              <strong>{data.TotalTargetQty || 0}</strong>
+            </Descriptions.Item>
+            <Descriptions.Item label="Good Qty">
+              <Text type="success">
+                <strong>{data.TotalGoodQty || 0}</strong>
+              </Text>
+            </Descriptions.Item>
+            <Descriptions.Item label="NG Qty">
+              <Text type="danger">
+                <strong>{data.TotalNgQty || 0}</strong>
+              </Text>
+            </Descriptions.Item>
+            <Descriptions.Item label="Forecasts Count">
+              {data._count?.Forecasts || data.Forecasts?.length || 0}
+            </Descriptions.Item>
+            <Descriptions.Item label="Total Production Time">
+              {formatProductionDuration(data.TotalProductionMinutes)}
+            </Descriptions.Item>
+            <Descriptions.Item label="Created By" span={2}>
+              {data.CreatedByName || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Notes" span={2}>
+              {data.Notes || "-"}
+            </Descriptions.Item>
+          </Descriptions>
+
+          {/* Progress Section */}
+          {(data.progressShopping ||
+            data.progressDelivery ||
+            data.progressPokayoke ||
+            data.progressAssembly?.required) && (
+            <div style={{ marginBottom: 16 }}>
+              <Title level={5} style={{ marginBottom: 8 }}>
+                Progress
+              </Title>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                  gap: 16,
+                }}
+              >
+                {data.progressShopping && (
+                  <div
+                    key="progress-shopping"
+                    style={{
+                      background: "#f5f5f5",
+                      padding: 12,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <Text strong>Shopping Progress</Text>
+                    <Progress
+                      percent={data.progressShopping.percentage}
+                      status={
+                        data.progressShopping.percentage === 100
+                          ? "success"
+                          : "active"
+                      }
+                      style={{ marginTop: 8 }}
                     />
-                </Col>
-            </Row>
-            <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood}
-                                    onClose={() => setLinkedFinishGood(null)}/>
-        </Modal>
-    );
+                    <div style={{ marginTop: 8, fontSize: 11 }}>
+                      <div>
+                        Picked:{" "}
+                        <strong>{data.progressShopping.totalPicked}</strong> /
+                        Target:{" "}
+                        <strong>{data.progressShopping.totalTarget}</strong>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {data.progressAssembly?.required && (
+                  <div
+                    key="progress-assembly"
+                    style={{
+                      background: "#f5f5f5",
+                      padding: 12,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <Text strong>Assembly Progress</Text>
+                    <Progress
+                      percent={data.progressAssembly.percentage}
+                      status={
+                        data.progressAssembly.percentage === 100
+                          ? "success"
+                          : "active"
+                      }
+                      style={{ marginTop: 8 }}
+                    />
+                    <div style={{ marginTop: 8, fontSize: 11 }}>
+                      <div>
+                        Completed:{" "}
+                        <strong>{data.progressAssembly.completed}</strong> /
+                        Total: <strong>{data.progressAssembly.total}</strong>
+                      </div>
+                      <div>Pending: {data.progressAssembly.pending}</div>
+                    </div>
+                  </div>
+                )}
+                {data.progressPokayoke && (
+                  <div
+                    key="progress-pokayoke"
+                    style={{
+                      background: "#f5f5f5",
+                      padding: 12,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <Text strong>Pokayoke Progress</Text>
+                    <Progress
+                      percent={data.progressPokayoke.percentage}
+                      status={
+                        data.progressPokayoke.percentage === 100
+                          ? "success"
+                          : "active"
+                      }
+                      style={{ marginTop: 8 }}
+                    />
+                    <div style={{ marginTop: 8, fontSize: 11 }}>
+                      <div>
+                        Scanned:{" "}
+                        <strong>{data.progressPokayoke.scanned}</strong> /
+                        Total: <strong>{data.progressPokayoke.total}</strong>
+                      </div>
+                      <div>Pending: {data.progressPokayoke.pending}</div>
+                    </div>
+                  </div>
+                )}
+                {data.progressDelivery && (
+                  <div
+                    key="progress-delivery"
+                    style={{
+                      background: "#f5f5f5",
+                      padding: 12,
+                      borderRadius: 8,
+                    }}
+                  >
+                    <Text strong>Delivery Progress</Text>
+                    <Progress
+                      percent={data.progressDelivery.percentage}
+                      status={
+                        data.progressDelivery.percentage === 100
+                          ? "success"
+                          : "active"
+                      }
+                      style={{ marginTop: 8 }}
+                    />
+                    <div style={{ marginTop: 8, fontSize: 11 }}>
+                      <div>
+                        Scanned:{" "}
+                        <strong>{data.progressDelivery.scanned}</strong> /
+                        Total: <strong>{data.progressDelivery.total}</strong>
+                      </div>
+                      <div>Pending: {data.progressDelivery.pending}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div style={{ overflow: "hidden" }}>
+            <Table
+              title={() => (
+                <strong key="forecasts-title">
+                  Forecasts ({data.Forecasts?.length || 0})
+                </strong>
+              )}
+              columns={forecastColumns}
+              dataSource={data.Forecasts || []}
+              size="small"
+              rowKey={(record) => record.PoId}
+              pagination={false}
+              scroll={{ x: "max-content", y: 250 }}
+              className="small-table"
+              style={{ fontSize: "11px" }}
+            />
+          </div>
+        </Col>
+        <Col xs={24} xl={13} style={{ minWidth: 0 }}>
+          <ReleaseBomPanel
+            releaseId={data.Id}
+            attachmentsCount={attachments.length}
+            attachments={
+              <Table
+                columns={attachmentColumns}
+                dataSource={attachments}
+                size="small"
+                rowKey={(record) => String(record.Id)}
+                pagination={false}
+                loading={attachmentLoading}
+                scroll={{ x: "max-content", y: 250 }}
+                className="small-table"
+                style={{ fontSize: "11px" }}
+                locale={{ emptyText: "No attachments yet" }}
+              />
+            }
+          />
+        </Col>
+      </Row>
+      <FinishGoodLinkedModal
+        open={linkedFinishGood !== null}
+        partNumber={linkedFinishGood}
+        onClose={() => setLinkedFinishGood(null)}
+      />
+    </Modal>
+  );
 };
 
 export default DetailProductionReleaseModal;

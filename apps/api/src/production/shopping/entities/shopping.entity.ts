@@ -70,7 +70,7 @@ export class ShoppingEntity {
   UpdatedAt: Date;
 
   @ApiProperty({ description: 'ID forecast terkait', example: 'PO-001' })
-  ForecastId: string;
+  ProductionDemandId: string;
 
   @ApiProperty({ description: 'User pembuat', example: 'operator1' })
   CreatedBy: string;

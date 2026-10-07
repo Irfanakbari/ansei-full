@@ -48,7 +48,7 @@ import {
 import CreditInformationModal from "./_components/CreditInformationModal";
 import "../batik.css";
 
-const APP_VERSION = "5.7.3";
+const APP_VERSION = "6.6.11";
 const APP_YEAR = "2026";
 
 const LATEST_RELEASE_SUMMARY = [
@@ -230,7 +230,14 @@ const baseMenuItems: MenuItem[] = [
   ]),
   getItem("Production", "production", <ShopOutlined />, [
     getItem(
-      <Link href="/apps/production/forecast">Forecast</Link>,
+      <Link href="/apps/production/forecast-non-po">Forecast (Non PO)</Link>,
+      "prod-forecast-non-po",
+      undefined,
+      undefined,
+      [...PERMISSIONS.forecast],
+    ),
+    getItem(
+      <Link href="/apps/production/forecast">Forecast (PO)</Link>,
       "prod-forecast",
       undefined,
       undefined,
@@ -511,6 +518,8 @@ const getMenuKeyFromPath = (path: string): string => {
   if (path.startsWith("/apps/warehouse/mrp")) return "wh-mrp";
   if (path.startsWith("/apps/warehouse/inventory-counting"))
     return "wh-inventory-counting";
+  if (path.startsWith("/apps/production/forecast-non-po"))
+    return "prod-forecast-non-po";
   if (path.startsWith("/apps/production/forecast")) return "prod-forecast";
   if (path.startsWith("/apps/production/assembly")) return "prod-assembly";
   if (path.startsWith("/apps/production/material-ng"))
@@ -632,7 +641,9 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     setCommitHistoryLoading(true);
     setCommitHistoryError(null);
     try {
-      const response = await fetch(withBasePath("/data/project-commit-history.json"));
+      const response = await fetch(
+        withBasePath("/data/project-commit-history.json"),
+      );
       if (!response.ok) {
         throw new Error("Unable to load update history.");
       }

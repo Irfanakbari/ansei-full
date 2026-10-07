@@ -75,11 +75,11 @@ describe('AssemblyService', () => {
     log.startProcess.mockResolvedValue({ ProcessId: 'audit' });
     tx.assemblySession.findUniqueOrThrow.mockResolvedValue({
       ...session,
-      LabelData: { ForecastId: 'PO', ProductionReleaseId: 'REL' },
+      LabelData: { ProductionDemandId: 'PO', ProductionReleaseId: 'REL' },
     });
     tx.manPower.findUnique.mockResolvedValue(operator);
     tx.labelData.findUnique.mockResolvedValue(label);
-    ready.mockResolvedValue({ label, forecast: {} } as Awaited<
+    ready.mockResolvedValue({ label, productionOrder: {} } as Awaited<
       ReturnType<typeof flow.assertLabelReady>
     >);
     tx.assemblySession.create.mockResolvedValue(session);
@@ -127,6 +127,16 @@ describe('AssemblyService', () => {
     await expect(service.createOptions({})).rejects.toThrow(
       'Database unavailable',
     );
+  });
+  it('lists display labels with the same readiness checks without listing manpower', async () => {
+    tx.labelData.findMany.mockResolvedValue([label, { ...label, Id: 2 }]);
+    ready.mockRejectedValueOnce(new BadRequestException('Shopping incomplete'));
+    await expect(service.readyLabels({ labelNumber: 'BOX' })).resolves.toEqual([
+      { ...label, Id: 2 },
+    ]);
+    expect(ready).toHaveBeenCalledWith(prisma, 2, false, true);
+    expect(tx.manPower.findMany).not.toHaveBeenCalled();
+    expect(tx.assemblySession.create).not.toHaveBeenCalled();
   });
   it('completes internally using the manpower stored on the session', async () => {
     tx.assemblySession.findUnique

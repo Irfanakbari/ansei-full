@@ -40,8 +40,8 @@ export async function assertLabelReady(
       'Label is missing, delivered, or has not passed POKAYOKE. Refresh and scan again.',
     );
   }
-  const forecast = await tx.forecast.findUnique({
-    where: { PoId: label.ForecastId },
+  const forecast = await tx.productionOrder.findUnique({
+    where: { PoId: label.ProductionDemandId },
     include: { ProductionRelease: true },
   });
   if (
@@ -57,7 +57,7 @@ export async function assertLabelReady(
   }
   const boms = await snapshotBomEntries(tx, forecast.PoId);
   const picks = await tx.shopping.findMany({
-    where: { ForecastId: forecast.PoId, Purpose: 'STANDARD' },
+    where: { ProductionDemandId: forecast.PoId, Purpose: 'STANDARD' },
     select: { Id: true, MaterialId: true, QtyPick: true },
   });
   const requirements = boms.map((bom) => ({
@@ -130,7 +130,7 @@ export function buildProductionLabels(
       return {
         LabelNumber: `${forecast.PoId}${String(index + 1).padStart(3, '0')}${String(qty).padStart(5, '0')}`,
         FinishGoodId: forecast.FinishGoodId,
-        ForecastId: forecast.PoId,
+        ProductionDemandId: forecast.PoId,
         Scanned: false,
         QtyThisBox: qty,
         ProductionReleaseId: releaseId,

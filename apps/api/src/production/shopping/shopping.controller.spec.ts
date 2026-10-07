@@ -30,7 +30,7 @@ describe('ShoppingController', () => {
     Type: 'REGULER',
     CreatedAt: new Date(),
     UpdatedAt: new Date(),
-    ForecastId: 'PO-001',
+    ProductionDemandId: 'PO-001',
     CreatedBy: 'admin',
     QtyPick: 10,
     MaterialId: 'MAT-001',

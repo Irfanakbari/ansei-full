@@ -1,3 +1,4 @@
+import forecastNonPoReducer from "./features/production/forecastNonPo/forecastNonPoSlice";
 import assemblyReducer from "./features/production/assembly/assemblySlice";
 import phaseOneReducer from "./features/traceability/traceabilitySlice";
 import { configureStore } from "@reduxjs/toolkit";
@@ -51,6 +52,7 @@ import productionDashboardReducer from "./features/dashboard/productionDashboard
 
 export const store = configureStore({
   reducer: {
+    forecastNonPo: forecastNonPoReducer,
     phaseOne: phaseOneReducer,
     assembly: assemblyReducer,
     auth: authReducer,

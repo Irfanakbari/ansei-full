@@ -25,21 +25,24 @@ export type AggregateShoppingCompletion = {
 }
 
 export type ShoppingCompletionMinAggregateOutputType = {
-  ForecastId: string | null
+  LegacyPoId: string | null
+  ProductionDemandId: string | null
   ShoppingId: string | null
   CreatedAt: Date | null
   CreatedBy: string | null
 }
 
 export type ShoppingCompletionMaxAggregateOutputType = {
-  ForecastId: string | null
+  LegacyPoId: string | null
+  ProductionDemandId: string | null
   ShoppingId: string | null
   CreatedAt: Date | null
   CreatedBy: string | null
 }
 
 export type ShoppingCompletionCountAggregateOutputType = {
-  ForecastId: number
+  LegacyPoId: number
+  ProductionDemandId: number
   ShoppingId: number
   CreatedAt: number
   CreatedBy: number
@@ -48,21 +51,24 @@ export type ShoppingCompletionCountAggregateOutputType = {
 
 
 export type ShoppingCompletionMinAggregateInputType = {
-  ForecastId?: true
+  LegacyPoId?: true
+  ProductionDemandId?: true
   ShoppingId?: true
   CreatedAt?: true
   CreatedBy?: true
 }
 
 export type ShoppingCompletionMaxAggregateInputType = {
-  ForecastId?: true
+  LegacyPoId?: true
+  ProductionDemandId?: true
   ShoppingId?: true
   CreatedAt?: true
   CreatedBy?: true
 }
 
 export type ShoppingCompletionCountAggregateInputType = {
-  ForecastId?: true
+  LegacyPoId?: true
+  ProductionDemandId?: true
   ShoppingId?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -142,7 +148,8 @@ export type ShoppingCompletionGroupByArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 export type ShoppingCompletionGroupByOutputType = {
-  ForecastId: string
+  LegacyPoId: string | null
+  ProductionDemandId: string
   ShoppingId: string
   CreatedAt: Date
   CreatedBy: string
@@ -170,34 +177,44 @@ export type ShoppingCompletionWhereInput = {
   AND?: Prisma.ShoppingCompletionWhereInput | Prisma.ShoppingCompletionWhereInput[]
   OR?: Prisma.ShoppingCompletionWhereInput[]
   NOT?: Prisma.ShoppingCompletionWhereInput | Prisma.ShoppingCompletionWhereInput[]
-  ForecastId?: Prisma.StringFilter<"ShoppingCompletion"> | string
+  LegacyPoId?: Prisma.StringNullableFilter<"ShoppingCompletion"> | string | null
+  ProductionDemandId?: Prisma.StringFilter<"ShoppingCompletion"> | string
   ShoppingId?: Prisma.StringFilter<"ShoppingCompletion"> | string
   CreatedAt?: Prisma.DateTimeFilter<"ShoppingCompletion"> | Date | string
   CreatedBy?: Prisma.StringFilter<"ShoppingCompletion"> | string
-  Forecast?: Prisma.XOR<Prisma.ForecastScalarRelationFilter, Prisma.ForecastWhereInput>
+  LegacyForecast?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandScalarRelationFilter, Prisma.ProductionDemandWhereInput>
+  Forecast?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
 }
 
 export type ShoppingCompletionOrderByWithRelationInput = {
-  ForecastId?: Prisma.SortOrder
+  LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ShoppingId?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
-  Forecast?: Prisma.ForecastOrderByWithRelationInput
+  LegacyForecast?: Prisma.ForecastOrderByWithRelationInput
+  Demand?: Prisma.ProductionDemandOrderByWithRelationInput
+  Forecast?: Prisma.ProductionOrderOrderByWithRelationInput
 }
 
 export type ShoppingCompletionWhereUniqueInput = Prisma.AtLeast<{
-  ForecastId?: string
+  LegacyPoId?: string
+  ProductionDemandId?: string
   ShoppingId?: string
   AND?: Prisma.ShoppingCompletionWhereInput | Prisma.ShoppingCompletionWhereInput[]
   OR?: Prisma.ShoppingCompletionWhereInput[]
   NOT?: Prisma.ShoppingCompletionWhereInput | Prisma.ShoppingCompletionWhereInput[]
   CreatedAt?: Prisma.DateTimeFilter<"ShoppingCompletion"> | Date | string
   CreatedBy?: Prisma.StringFilter<"ShoppingCompletion"> | string
-  Forecast?: Prisma.XOR<Prisma.ForecastScalarRelationFilter, Prisma.ForecastWhereInput>
-}, "ForecastId" | "ShoppingId">
+  LegacyForecast?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandScalarRelationFilter, Prisma.ProductionDemandWhereInput>
+  Forecast?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
+}, "ProductionDemandId" | "LegacyPoId" | "ShoppingId">
 
 export type ShoppingCompletionOrderByWithAggregationInput = {
-  ForecastId?: Prisma.SortOrder
+  LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ShoppingId?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -210,7 +227,8 @@ export type ShoppingCompletionScalarWhereWithAggregatesInput = {
   AND?: Prisma.ShoppingCompletionScalarWhereWithAggregatesInput | Prisma.ShoppingCompletionScalarWhereWithAggregatesInput[]
   OR?: Prisma.ShoppingCompletionScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ShoppingCompletionScalarWhereWithAggregatesInput | Prisma.ShoppingCompletionScalarWhereWithAggregatesInput[]
-  ForecastId?: Prisma.StringWithAggregatesFilter<"ShoppingCompletion"> | string
+  LegacyPoId?: Prisma.StringNullableWithAggregatesFilter<"ShoppingCompletion"> | string | null
+  ProductionDemandId?: Prisma.StringWithAggregatesFilter<"ShoppingCompletion"> | string
   ShoppingId?: Prisma.StringWithAggregatesFilter<"ShoppingCompletion"> | string
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"ShoppingCompletion"> | Date | string
   CreatedBy?: Prisma.StringWithAggregatesFilter<"ShoppingCompletion"> | string
@@ -220,11 +238,14 @@ export type ShoppingCompletionCreateInput = {
   ShoppingId: string
   CreatedAt?: Date | string
   CreatedBy: string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutShoppingCompletionInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutShoppingCompletionInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutShoppingCompletionInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutShoppingCompletionInput
 }
 
 export type ShoppingCompletionUncheckedCreateInput = {
-  ForecastId: string
+  LegacyPoId?: string | null
+  ProductionDemandId: string
   ShoppingId: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -234,18 +255,22 @@ export type ShoppingCompletionUpdateInput = {
   ShoppingId?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutShoppingCompletionNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutShoppingCompletionNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutShoppingCompletionNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutShoppingCompletionNestedInput
 }
 
 export type ShoppingCompletionUncheckedUpdateInput = {
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ShoppingId?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ShoppingCompletionCreateManyInput = {
-  ForecastId: string
+  LegacyPoId?: string | null
+  ProductionDemandId: string
   ShoppingId: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -258,7 +283,8 @@ export type ShoppingCompletionUpdateManyMutationInput = {
 }
 
 export type ShoppingCompletionUncheckedUpdateManyInput = {
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ShoppingId?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -270,36 +296,183 @@ export type ShoppingCompletionNullableScalarRelationFilter = {
 }
 
 export type ShoppingCompletionCountOrderByAggregateInput = {
-  ForecastId?: Prisma.SortOrder
+  LegacyPoId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ShoppingId?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
 }
 
 export type ShoppingCompletionMaxOrderByAggregateInput = {
-  ForecastId?: Prisma.SortOrder
+  LegacyPoId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ShoppingId?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
 }
 
 export type ShoppingCompletionMinOrderByAggregateInput = {
-  ForecastId?: Prisma.SortOrder
+  LegacyPoId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ShoppingId?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
 }
 
-export type ShoppingCompletionCreateNestedOneWithoutForecastInput = {
-  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutForecastInput, Prisma.ShoppingCompletionUncheckedCreateWithoutForecastInput>
-  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutForecastInput
+export type ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutLegacyForecastInput, Prisma.ShoppingCompletionUncheckedCreateWithoutLegacyForecastInput>
+  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutLegacyForecastInput
   connect?: Prisma.ShoppingCompletionWhereUniqueInput
 }
 
-export type ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput = {
-  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutForecastInput, Prisma.ShoppingCompletionUncheckedCreateWithoutForecastInput>
-  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutForecastInput
+export type ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutLegacyForecastInput, Prisma.ShoppingCompletionUncheckedCreateWithoutLegacyForecastInput>
+  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutLegacyForecastInput
   connect?: Prisma.ShoppingCompletionWhereUniqueInput
+}
+
+export type ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutLegacyForecastInput, Prisma.ShoppingCompletionUncheckedCreateWithoutLegacyForecastInput>
+  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutLegacyForecastInput
+  upsert?: Prisma.ShoppingCompletionUpsertWithoutLegacyForecastInput
+  disconnect?: Prisma.ShoppingCompletionWhereInput | boolean
+  delete?: Prisma.ShoppingCompletionWhereInput | boolean
+  connect?: Prisma.ShoppingCompletionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ShoppingCompletionUpdateToOneWithWhereWithoutLegacyForecastInput, Prisma.ShoppingCompletionUpdateWithoutLegacyForecastInput>, Prisma.ShoppingCompletionUncheckedUpdateWithoutLegacyForecastInput>
+}
+
+export type ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutLegacyForecastInput, Prisma.ShoppingCompletionUncheckedCreateWithoutLegacyForecastInput>
+  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutLegacyForecastInput
+  upsert?: Prisma.ShoppingCompletionUpsertWithoutLegacyForecastInput
+  disconnect?: Prisma.ShoppingCompletionWhereInput | boolean
+  delete?: Prisma.ShoppingCompletionWhereInput | boolean
+  connect?: Prisma.ShoppingCompletionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ShoppingCompletionUpdateToOneWithWhereWithoutLegacyForecastInput, Prisma.ShoppingCompletionUpdateWithoutLegacyForecastInput>, Prisma.ShoppingCompletionUncheckedUpdateWithoutLegacyForecastInput>
+}
+
+export type ShoppingCompletionCreateNestedOneWithoutDemandInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutDemandInput, Prisma.ShoppingCompletionUncheckedCreateWithoutDemandInput>
+  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutDemandInput
+  connect?: Prisma.ShoppingCompletionWhereUniqueInput
+}
+
+export type ShoppingCompletionUncheckedCreateNestedOneWithoutDemandInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutDemandInput, Prisma.ShoppingCompletionUncheckedCreateWithoutDemandInput>
+  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutDemandInput
+  connect?: Prisma.ShoppingCompletionWhereUniqueInput
+}
+
+export type ShoppingCompletionUpdateOneWithoutDemandNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutDemandInput, Prisma.ShoppingCompletionUncheckedCreateWithoutDemandInput>
+  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutDemandInput
+  upsert?: Prisma.ShoppingCompletionUpsertWithoutDemandInput
+  disconnect?: Prisma.ShoppingCompletionWhereInput | boolean
+  delete?: Prisma.ShoppingCompletionWhereInput | boolean
+  connect?: Prisma.ShoppingCompletionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ShoppingCompletionUpdateToOneWithWhereWithoutDemandInput, Prisma.ShoppingCompletionUpdateWithoutDemandInput>, Prisma.ShoppingCompletionUncheckedUpdateWithoutDemandInput>
+}
+
+export type ShoppingCompletionUncheckedUpdateOneWithoutDemandNestedInput = {
+  create?: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutDemandInput, Prisma.ShoppingCompletionUncheckedCreateWithoutDemandInput>
+  connectOrCreate?: Prisma.ShoppingCompletionCreateOrConnectWithoutDemandInput
+  upsert?: Prisma.ShoppingCompletionUpsertWithoutDemandInput
+  disconnect?: Prisma.ShoppingCompletionWhereInput | boolean
+  delete?: Prisma.ShoppingCompletionWhereInput | boolean
+  connect?: Prisma.ShoppingCompletionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ShoppingCompletionUpdateToOneWithWhereWithoutDemandInput, Prisma.ShoppingCompletionUpdateWithoutDemandInput>, Prisma.ShoppingCompletionUncheckedUpdateWithoutDemandInput>
+}
+
+export type ShoppingCompletionCreateWithoutLegacyForecastInput = {
+  ShoppingId: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutShoppingCompletionInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutShoppingCompletionInput
+}
+
+export type ShoppingCompletionUncheckedCreateWithoutLegacyForecastInput = {
+  ProductionDemandId: string
+  ShoppingId: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+}
+
+export type ShoppingCompletionCreateOrConnectWithoutLegacyForecastInput = {
+  where: Prisma.ShoppingCompletionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutLegacyForecastInput, Prisma.ShoppingCompletionUncheckedCreateWithoutLegacyForecastInput>
+}
+
+export type ShoppingCompletionUpsertWithoutLegacyForecastInput = {
+  update: Prisma.XOR<Prisma.ShoppingCompletionUpdateWithoutLegacyForecastInput, Prisma.ShoppingCompletionUncheckedUpdateWithoutLegacyForecastInput>
+  create: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutLegacyForecastInput, Prisma.ShoppingCompletionUncheckedCreateWithoutLegacyForecastInput>
+  where?: Prisma.ShoppingCompletionWhereInput
+}
+
+export type ShoppingCompletionUpdateToOneWithWhereWithoutLegacyForecastInput = {
+  where?: Prisma.ShoppingCompletionWhereInput
+  data: Prisma.XOR<Prisma.ShoppingCompletionUpdateWithoutLegacyForecastInput, Prisma.ShoppingCompletionUncheckedUpdateWithoutLegacyForecastInput>
+}
+
+export type ShoppingCompletionUpdateWithoutLegacyForecastInput = {
+  ShoppingId?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutShoppingCompletionNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutShoppingCompletionNestedInput
+}
+
+export type ShoppingCompletionUncheckedUpdateWithoutLegacyForecastInput = {
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
+  ShoppingId?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type ShoppingCompletionCreateWithoutDemandInput = {
+  ShoppingId: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutShoppingCompletionInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutShoppingCompletionInput
+}
+
+export type ShoppingCompletionUncheckedCreateWithoutDemandInput = {
+  LegacyPoId?: string | null
+  ShoppingId: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+}
+
+export type ShoppingCompletionCreateOrConnectWithoutDemandInput = {
+  where: Prisma.ShoppingCompletionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutDemandInput, Prisma.ShoppingCompletionUncheckedCreateWithoutDemandInput>
+}
+
+export type ShoppingCompletionUpsertWithoutDemandInput = {
+  update: Prisma.XOR<Prisma.ShoppingCompletionUpdateWithoutDemandInput, Prisma.ShoppingCompletionUncheckedUpdateWithoutDemandInput>
+  create: Prisma.XOR<Prisma.ShoppingCompletionCreateWithoutDemandInput, Prisma.ShoppingCompletionUncheckedCreateWithoutDemandInput>
+  where?: Prisma.ShoppingCompletionWhereInput
+}
+
+export type ShoppingCompletionUpdateToOneWithWhereWithoutDemandInput = {
+  where?: Prisma.ShoppingCompletionWhereInput
+  data: Prisma.XOR<Prisma.ShoppingCompletionUpdateWithoutDemandInput, Prisma.ShoppingCompletionUncheckedUpdateWithoutDemandInput>
+}
+
+export type ShoppingCompletionUpdateWithoutDemandInput = {
+  ShoppingId?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutShoppingCompletionNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutShoppingCompletionNestedInput
+}
+
+export type ShoppingCompletionUncheckedUpdateWithoutDemandInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ShoppingId?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ShoppingCompletionUpdateOneWithoutForecastNestedInput = {
@@ -326,9 +499,12 @@ export type ShoppingCompletionCreateWithoutForecastInput = {
   ShoppingId: string
   CreatedAt?: Date | string
   CreatedBy: string
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutShoppingCompletionInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutShoppingCompletionInput
 }
 
 export type ShoppingCompletionUncheckedCreateWithoutForecastInput = {
+  LegacyPoId?: string | null
   ShoppingId: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -354,9 +530,12 @@ export type ShoppingCompletionUpdateWithoutForecastInput = {
   ShoppingId?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutShoppingCompletionNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutShoppingCompletionNestedInput
 }
 
 export type ShoppingCompletionUncheckedUpdateWithoutForecastInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ShoppingId?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -365,54 +544,73 @@ export type ShoppingCompletionUncheckedUpdateWithoutForecastInput = {
 
 
 export type ShoppingCompletionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  ForecastId?: boolean
+  LegacyPoId?: boolean
+  ProductionDemandId?: boolean
   ShoppingId?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ShoppingCompletion$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shoppingCompletion"]>
 
 export type ShoppingCompletionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  ForecastId?: boolean
+  LegacyPoId?: boolean
+  ProductionDemandId?: boolean
   ShoppingId?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ShoppingCompletion$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shoppingCompletion"]>
 
 export type ShoppingCompletionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  ForecastId?: boolean
+  LegacyPoId?: boolean
+  ProductionDemandId?: boolean
   ShoppingId?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ShoppingCompletion$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shoppingCompletion"]>
 
 export type ShoppingCompletionSelectScalar = {
-  ForecastId?: boolean
+  LegacyPoId?: boolean
+  ProductionDemandId?: boolean
   ShoppingId?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
 }
 
-export type ShoppingCompletionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ForecastId" | "ShoppingId" | "CreatedAt" | "CreatedBy", ExtArgs["result"]["shoppingCompletion"]>
+export type ShoppingCompletionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"LegacyPoId" | "ProductionDemandId" | "ShoppingId" | "CreatedAt" | "CreatedBy", ExtArgs["result"]["shoppingCompletion"]>
 export type ShoppingCompletionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ShoppingCompletion$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }
 export type ShoppingCompletionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ShoppingCompletion$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }
 export type ShoppingCompletionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ShoppingCompletion$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
 }
 
 export type $ShoppingCompletionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ShoppingCompletion"
   objects: {
-    Forecast: Prisma.$ForecastPayload<ExtArgs>
+    LegacyForecast: Prisma.$ForecastPayload<ExtArgs> | null
+    Demand: Prisma.$ProductionDemandPayload<ExtArgs>
+    Forecast: Prisma.$ProductionOrderPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    ForecastId: string
+    LegacyPoId: string | null
+    ProductionDemandId: string
     ShoppingId: string
     CreatedAt: Date
     CreatedBy: string
@@ -499,8 +697,8 @@ export interface ShoppingCompletionDelegate<ExtArgs extends runtime.Types.Extens
    * // Get first 10 ShoppingCompletions
    * const shoppingCompletions = await prisma.shoppingCompletion.findMany({ take: 10 })
    * 
-   * // Only select the `ForecastId`
-   * const shoppingCompletionWithForecastIdOnly = await prisma.shoppingCompletion.findMany({ select: { ForecastId: true } })
+   * // Only select the `LegacyPoId`
+   * const shoppingCompletionWithLegacyPoIdOnly = await prisma.shoppingCompletion.findMany({ select: { LegacyPoId: true } })
    * 
    */
   findMany<T extends ShoppingCompletionFindManyArgs>(args?: Prisma.SelectSubset<T, ShoppingCompletionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShoppingCompletionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -544,9 +742,9 @@ export interface ShoppingCompletionDelegate<ExtArgs extends runtime.Types.Extens
    *   ]
    * })
    * 
-   * // Create many ShoppingCompletions and only return the `ForecastId`
-   * const shoppingCompletionWithForecastIdOnly = await prisma.shoppingCompletion.createManyAndReturn({
-   *   select: { ForecastId: true },
+   * // Create many ShoppingCompletions and only return the `LegacyPoId`
+   * const shoppingCompletionWithLegacyPoIdOnly = await prisma.shoppingCompletion.createManyAndReturn({
+   *   select: { LegacyPoId: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -635,9 +833,9 @@ export interface ShoppingCompletionDelegate<ExtArgs extends runtime.Types.Extens
    *   ]
    * })
    * 
-   * // Update zero or more ShoppingCompletions and only return the `ForecastId`
-   * const shoppingCompletionWithForecastIdOnly = await prisma.shoppingCompletion.updateManyAndReturn({
-   *   select: { ForecastId: true },
+   * // Update zero or more ShoppingCompletions and only return the `LegacyPoId`
+   * const shoppingCompletionWithLegacyPoIdOnly = await prisma.shoppingCompletion.updateManyAndReturn({
+   *   select: { LegacyPoId: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -810,7 +1008,9 @@ readonly fields: ShoppingCompletionFieldRefs;
  */
 export interface Prisma__ShoppingCompletionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Forecast<T extends Prisma.ForecastDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ForecastDefaultArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  LegacyForecast<T extends Prisma.ShoppingCompletion$LegacyForecastArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShoppingCompletion$LegacyForecastArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Demand<T extends Prisma.ProductionDemandDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionDemandDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionDemandClient<runtime.Types.Result.GetResult<Prisma.$ProductionDemandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Forecast<T extends Prisma.ProductionOrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionOrderDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionOrderClient<runtime.Types.Result.GetResult<Prisma.$ProductionOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -840,7 +1040,8 @@ export interface Prisma__ShoppingCompletionClient<T, Null = never, ExtArgs exten
  * Fields of the ShoppingCompletion model
  */
 export interface ShoppingCompletionFieldRefs {
-  readonly ForecastId: Prisma.FieldRef<"ShoppingCompletion", 'String'>
+  readonly LegacyPoId: Prisma.FieldRef<"ShoppingCompletion", 'String'>
+  readonly ProductionDemandId: Prisma.FieldRef<"ShoppingCompletion", 'String'>
   readonly ShoppingId: Prisma.FieldRef<"ShoppingCompletion", 'String'>
   readonly CreatedAt: Prisma.FieldRef<"ShoppingCompletion", 'DateTime'>
   readonly CreatedBy: Prisma.FieldRef<"ShoppingCompletion", 'String'>
@@ -1242,6 +1443,25 @@ export type ShoppingCompletionDeleteManyArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many ShoppingCompletions to delete.
    */
   limit?: number
+}
+
+/**
+ * ShoppingCompletion.LegacyForecast
+ */
+export type ShoppingCompletion$LegacyForecastArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Forecast
+   */
+  select?: Prisma.ForecastSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Forecast
+   */
+  omit?: Prisma.ForecastOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ForecastInclude<ExtArgs> | null
+  where?: Prisma.ForecastWhereInput
 }
 
 /**

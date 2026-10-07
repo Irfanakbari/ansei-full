@@ -14,7 +14,7 @@ describe('PreDeliveryService', () => {
       findUnique: jest.fn(),
       count: jest.fn(),
     },
-    forecast: {
+    productionOrder: {
       findMany: jest.fn(),
     },
     shopping: {
@@ -36,7 +36,7 @@ describe('PreDeliveryService', () => {
         {} as Awaited<ReturnType<typeof flow.assertLabelReady>>,
       );
     mockPrismaService.shopping.findMany.mockResolvedValue([
-      { ForecastId: 'PO-001' },
+      { ProductionDemandId: 'PO-001' },
     ]);
     // Set default mock implementations
     mockShoppingService.checkRequirement.mockResolvedValue({
@@ -71,11 +71,11 @@ describe('PreDeliveryService', () => {
     });
     it('should return paginated label data', async () => {
       // Set up mocks for productionReleaseId filter
-      mockPrismaService.forecast.findMany.mockResolvedValue([
+      mockPrismaService.productionOrder.findMany.mockResolvedValue([
         { PoId: 'PO-001' },
       ]);
       mockPrismaService.shopping.findMany.mockResolvedValue([
-        { ForecastId: 'PO-001' },
+        { ProductionDemandId: 'PO-001' },
       ]);
       mockShoppingService.checkRequirement.mockResolvedValue({
         summary: { overallPercentage: 100 },
@@ -87,7 +87,7 @@ describe('PreDeliveryService', () => {
           Id: 1,
           LabelNumber: 'LBL001',
           Scanned: false,
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           FinishGoodId: 'FG-001',
           QtyThisBox: 100,
           PartData: { PartNumber: 'FG-001', PartName: 'Finish Good A' },
@@ -98,7 +98,7 @@ describe('PreDeliveryService', () => {
           Id: 2,
           LabelNumber: 'LBL002',
           Scanned: true,
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           FinishGoodId: 'FG-001',
           QtyThisBox: 50,
           PartData: { PartNumber: 'FG-001', PartName: 'Finish Good A' },
@@ -123,11 +123,11 @@ describe('PreDeliveryService', () => {
 
     it('should filter by forecastId', async () => {
       // Set up mocks for productionReleaseId filter
-      mockPrismaService.forecast.findMany.mockResolvedValue([
+      mockPrismaService.productionOrder.findMany.mockResolvedValue([
         { PoId: 'PO-001' },
       ]);
       mockPrismaService.shopping.findMany.mockResolvedValue([
-        { ForecastId: 'PO-001' },
+        { ProductionDemandId: 'PO-001' },
       ]);
       mockShoppingService.checkRequirement.mockResolvedValue({
         summary: { overallPercentage: 100 },
@@ -144,18 +144,18 @@ describe('PreDeliveryService', () => {
 
       expect(mockPrismaService.labelData.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ ForecastId: 'PO-001' }),
+          where: expect.objectContaining({ ProductionDemandId: 'PO-001' }),
         }),
       );
     });
 
     it('should filter by scanned status', async () => {
       // Set up mocks for productionReleaseId filter
-      mockPrismaService.forecast.findMany.mockResolvedValue([
+      mockPrismaService.productionOrder.findMany.mockResolvedValue([
         { PoId: 'PO-001' },
       ]);
       mockPrismaService.shopping.findMany.mockResolvedValue([
-        { ForecastId: 'PO-001' },
+        { ProductionDemandId: 'PO-001' },
       ]);
       mockShoppingService.checkRequirement.mockResolvedValue({
         summary: { overallPercentage: 100 },
@@ -175,7 +175,7 @@ describe('PreDeliveryService', () => {
     });
 
     it('should return empty when no productionReleaseId found', async () => {
-      mockPrismaService.forecast.findMany.mockResolvedValue([]);
+      mockPrismaService.productionOrder.findMany.mockResolvedValue([]);
 
       const result = await service.findAll({
         productionReleaseId: 'invalid-id',
@@ -207,7 +207,7 @@ describe('PreDeliveryService', () => {
     });
 
     it('filters by active production release when activeReleaseOnly is true', async () => {
-      mockPrismaService.forecast.findMany.mockResolvedValue([
+      mockPrismaService.productionOrder.findMany.mockResolvedValue([
         { PoId: 'PO-001' },
       ]);
       mockPrismaService.labelData.findMany.mockResolvedValue([]);
@@ -215,7 +215,7 @@ describe('PreDeliveryService', () => {
 
       await service.findAll({ activeReleaseOnly: true });
 
-      expect(mockPrismaService.forecast.findMany).toHaveBeenCalledWith({
+      expect(mockPrismaService.productionOrder.findMany).toHaveBeenCalledWith({
         where: { ProductionRelease: { Status: 'RELEASED' } },
         select: { PoId: true },
       });

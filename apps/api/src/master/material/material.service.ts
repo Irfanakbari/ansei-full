@@ -595,7 +595,7 @@ export class MaterialService {
         );
 
         // Check if any Forecast for these FinishGoods has active ProductionRelease (DRAFT/RELEASED)
-        const activeForecasts = await this.prisma.forecast.findMany({
+        const activeForecasts = await this.prisma.productionOrder.findMany({
           where: {
             FinishGoodId: { in: finishGoodPartNumbers },
             ProductionReleaseId: { not: null },

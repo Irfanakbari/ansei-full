@@ -4,7 +4,16 @@
 import Link from "next/link";
 import { usePhasePermission } from "@/components/traceability/usePhasePermission";
 import React, { useEffect, useRef, useState } from "react";
-import { Table, Card, Breadcrumb, Input, Button, Segmented, Space, Tag } from "antd";
+import {
+  Table,
+  Card,
+  Breadcrumb,
+  Input,
+  Button,
+  Segmented,
+  Space,
+  Tag,
+} from "antd";
 import type { InputRef } from "antd";
 import {
   ReloadOutlined,
@@ -146,7 +155,7 @@ export default function DeliveryPage() {
       render: (val: string | null) => val || "-",
     },
     {
-      title: "PO Number",
+      title: "Order Reference",
       dataIndex: "forecastId",
       key: "forecastId",
       ...getColumnSearchProps("forecastId"),
@@ -212,7 +221,9 @@ export default function DeliveryPage() {
           icon={<PlusOutlined />}
           onClick={handleOpenCreateModal}
         />
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+        <div
+          style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}
+        >
           <Segmented
             size="small"
             value={filters.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}

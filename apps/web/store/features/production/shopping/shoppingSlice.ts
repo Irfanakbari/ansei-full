@@ -38,7 +38,7 @@ export interface ForecastData {
 export interface ShoppingEntity {
   Purpose: string;
   Id: string;
-  ForecastId: string;
+  ProductionDemandId: string;
   MaterialId: string;
   QtyPick: number;
   Type: string;

@@ -84,6 +84,8 @@ describe('ForecastService', () => {
       parseDateYYYYMMDD: jest.fn(),
     };
 
+    prismaService.productionOrder = prismaService.forecast;
+
     logService = {
       startProcess: jest.fn().mockResolvedValue(mockLogProcess),
       addLog: jest.fn().mockResolvedValue({}),
@@ -213,11 +215,11 @@ describe('ForecastService', () => {
     it('should create a forecast', async () => {
       const createDto = {
         poId: 'PO-NEW',
-        date: new Date().toISOString(),
+        date: '2026-10-07',
         vendorCode: 'V001',
         vendorName: 'Vendor A',
         receivingArea: 'Area 1',
-        deliveryDate: new Date().toISOString(),
+        deliveryDate: '2026-10-08',
         deliveryPeriod: 5,
         classification: 'A',
         poNumber: 'PO123',
@@ -233,7 +235,12 @@ describe('ForecastService', () => {
 
       const result = await service.create(createDto, 'admin');
 
-      expect(prismaService.forecast.create).toHaveBeenCalled();
+      expect(prismaService.forecast.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          Date: new Date('2026-10-07'),
+          DeliveryDate: new Date('2026-10-08'),
+        }),
+      });
     });
 
     it.each([0, -1, 1.5])(
@@ -345,13 +352,22 @@ describe('ForecastService', () => {
     it('allows a clean RELEASED forecast and replaces labels and target atomically', async () => {
       await service.update('1', { qty: 12 }, 'admin');
       expect(prismaService.labelData.deleteMany).toHaveBeenCalledWith({
-        where: { ForecastId: 'PO-001' },
+        where: { ProductionDemandId: 'PO-001' },
       });
       expect(prismaService.labelData.createMany).toHaveBeenCalledWith({
         data: [
-          expect.objectContaining({ QtyThisBox: 5, ForecastId: 'PO-001' }),
-          expect.objectContaining({ QtyThisBox: 5, ForecastId: 'PO-001' }),
-          expect.objectContaining({ QtyThisBox: 2, ForecastId: 'PO-001' }),
+          expect.objectContaining({
+            QtyThisBox: 5,
+            ProductionDemandId: 'PO-001',
+          }),
+          expect.objectContaining({
+            QtyThisBox: 5,
+            ProductionDemandId: 'PO-001',
+          }),
+          expect.objectContaining({
+            QtyThisBox: 2,
+            ProductionDemandId: 'PO-001',
+          }),
         ],
       });
       expect(prismaService.productionRelease.update).toHaveBeenCalledWith({
@@ -398,7 +414,7 @@ describe('ForecastService', () => {
         data: expect.arrayContaining([
           expect.objectContaining({
             LabelNumber: 'PO-NEW00100005',
-            ForecastId: 'PO-NEW',
+            ProductionDemandId: 'PO-NEW',
             FinishGoodId: 'FG-NEW',
           }),
         ]),
@@ -448,7 +464,7 @@ describe('ForecastService', () => {
           },
         ],
       },
-      { ...clean, ShoppingCompletion: { ForecastId: 'PO-001' } },
+      { ...clean, ShoppingCompletion: { ProductionDemandId: 'PO-001' } },
     ])(
       'blocks edits and deletes after any operational activity, including failed scans',
       async (activity) => {

@@ -11,7 +11,7 @@ import type { Prisma } from '../../generated/prisma/client';
 describe('production flow prerequisites', () => {
   const label = {
     Id: 1,
-    ForecastId: 'PO-1',
+    ProductionDemandId: 'PO-1',
     ProductionReleaseId: 'REL-1',
     FinishGoodId: 'FG-1',
     Scanned: true,
@@ -27,7 +27,7 @@ describe('production flow prerequisites', () => {
   const mocks = {
     assemblySession: { findFirst: jest.fn() },
     labelData: { findUnique: jest.fn() },
-    forecast: { findUnique: jest.fn() },
+    productionOrder: { findUnique: jest.fn() },
     snapshotRequirements: { findMany: jest.fn() },
     shopping: { findMany: jest.fn() },
     deliveryHistory: { findUnique: jest.fn() },
@@ -37,7 +37,7 @@ describe('production flow prerequisites', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     mocks.labelData.findUnique.mockResolvedValue(label);
-    mocks.forecast.findUnique.mockResolvedValue(forecast);
+    mocks.productionOrder.findUnique.mockResolvedValue(forecast);
     mocks.snapshotRequirements.findMany.mockResolvedValue([
       { Qty: 1, MaterialData: { PartNumber: 'MAT-1' } },
     ]);
@@ -123,7 +123,7 @@ describe('production flow prerequisites', () => {
   it.each(['DRAFT', 'COMPLETED', 'CANCELLED'])(
     'rejects a %s release during the write transaction',
     async (status) => {
-      mocks.forecast.findUnique.mockResolvedValue({
+      mocks.productionOrder.findUnique.mockResolvedValue({
         ...forecast,
         ProductionRelease: { Status: status },
       });

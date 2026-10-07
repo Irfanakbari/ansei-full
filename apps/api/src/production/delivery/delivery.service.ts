@@ -121,6 +121,8 @@ export class DeliveryService {
           POData: {
             select: {
               PoId: true,
+              SourceType: true,
+              PoNumber: true,
               Qty: true,
             },
           },
@@ -168,11 +170,11 @@ export class DeliveryService {
         location: 'delivery.service.ts:82',
       });
 
-      // ========== POKAYOKE 3: Validate ForecastId exists ==========
-      if (!labelData.ForecastId) {
+      // ========== POKAYOKE 3: Validate ProductionDemandId exists ==========
+      if (!labelData.ProductionDemandId) {
         await this.logService.addLog({
           processId: logProcess.ProcessId,
-          message: `POKAYOKE 3 FAILED: No ForecastId associated with LabelData ${labelData.Id}`,
+          message: `POKAYOKE 3 FAILED: No ProductionDemandId associated with LabelData ${labelData.Id}`,
           type: 'ERROR',
           location: 'delivery.service.ts:92',
         });
@@ -182,20 +184,20 @@ export class DeliveryService {
         );
       }
 
-      const forecast = await this.prisma.forecast.findUnique({
-        where: { PoId: labelData.ForecastId },
+      const forecast = await this.prisma.productionOrder.findUnique({
+        where: { PoId: labelData.ProductionDemandId },
       });
 
       if (!forecast) {
         await this.logService.addLog({
           processId: logProcess.ProcessId,
-          message: `POKAYOKE 3 FAILED: Forecast ${labelData.ForecastId} not found`,
+          message: `POKAYOKE 3 FAILED: Forecast ${labelData.ProductionDemandId} not found`,
           type: 'ERROR',
           location: 'delivery.service.ts:106',
         });
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
         throw new BadRequestException(
-          `POKAYOKE 3: Forecast/PO ${labelData.ForecastId} not found in system`,
+          `POKAYOKE 3: Forecast/PO ${labelData.ProductionDemandId} not found in system`,
         );
       }
 
@@ -219,7 +221,7 @@ export class DeliveryService {
 
       // Get all shopping for this forecast
       const shoppings = await this.prisma.shopping.findMany({
-        where: { ForecastId: forecast.PoId, Purpose: 'STANDARD' },
+        where: { ProductionDemandId: forecast.PoId, Purpose: 'STANDARD' },
         select: { MaterialId: true, QtyPick: true },
       });
 
@@ -342,7 +344,11 @@ export class DeliveryService {
           message: `Label ${labelData.LabelNumber} has already been delivered`,
           data: {
             id: existingDelivery.Id,
-            forecastId: existingDelivery.ForecastId,
+            forecastId: existingDelivery.ProductionDemandId,
+            demandId: existingDelivery.ProductionDemandId,
+            referenceNumber: existingDelivery.ProductionDemandId,
+            sourceType: labelData.POData?.SourceType,
+            poNumber: labelData.POData?.PoNumber || null,
             qty: existingDelivery.Qty,
             deliveredAt: existingDelivery.CreatedAt,
             deliveredBy: existingDelivery.CreatedBy,
@@ -390,7 +396,7 @@ export class DeliveryService {
             return { delivery: concurrentDelivery, isDuplicate: true };
           }
           const delivered = await tx.deliveryHistory.aggregate({
-            where: { ForecastId: currentForecast.PoId },
+            where: { ProductionDemandId: currentForecast.PoId },
             _sum: { Qty: true },
           });
           if (
@@ -420,7 +426,7 @@ export class DeliveryService {
           // Note: LabelDataId references LabelData.LabelNumber (String), not LabelData.Id (Int)
           const delivery = await tx.deliveryHistory.create({
             data: {
-              ForecastId: labelData.ForecastId,
+              ProductionDemandId: labelData.ProductionDemandId,
               Qty: labelData.QtyThisBox,
               PalletNumber: dto.palletNumber?.trim() || null,
               CreatedBy: createdBy,
@@ -482,7 +488,7 @@ export class DeliveryService {
               QtyOut: labelData.QtyThisBox,
               BalanceAfter: balanceAfter,
               CreatedBy: createdBy,
-              Notes: `Delivery for PO: ${labelData.ForecastId}, Label: ${labelData.LabelNumber}`,
+              Notes: `Delivery for PO: ${labelData.ProductionDemandId}, Label: ${labelData.LabelNumber}`,
             },
           });
 
@@ -510,7 +516,7 @@ export class DeliveryService {
 
           await tx.productionTraceEvent.create({
             data: {
-              ForecastId: labelData.ForecastId,
+              ProductionDemandId: labelData.ProductionDemandId,
               ReleaseId: labelData.ProductionReleaseId,
               Type: 'DELIVERED',
               SourceType: 'DeliveryHistory',
@@ -531,7 +537,11 @@ export class DeliveryService {
           message: `Label ${labelData.LabelNumber} has already been delivered`,
           data: {
             id: result.delivery.Id,
-            forecastId: result.delivery.ForecastId,
+            forecastId: result.delivery.ProductionDemandId,
+            demandId: result.delivery.ProductionDemandId,
+            referenceNumber: result.delivery.ProductionDemandId,
+            sourceType: labelData.POData?.SourceType,
+            poNumber: labelData.POData?.PoNumber || null,
             qty: result.delivery.Qty,
             palletNumber: result.delivery.PalletNumber ?? null,
             deliveredAt: result.delivery.CreatedAt,
@@ -545,7 +555,11 @@ export class DeliveryService {
         message: `Delivery successful for LabelNumber ${labelData.LabelNumber}`,
         data: {
           id: result.delivery.Id,
-          forecastId: result.delivery.ForecastId,
+          forecastId: result.delivery.ProductionDemandId,
+          demandId: result.delivery.ProductionDemandId,
+          referenceNumber: result.delivery.ProductionDemandId,
+          sourceType: labelData.POData?.SourceType,
+          poNumber: labelData.POData?.PoNumber || null,
           qty: result.delivery.Qty,
           palletNumber: result.delivery.PalletNumber ?? null,
           createdAt: result.delivery.CreatedAt,
@@ -582,7 +596,7 @@ export class DeliveryService {
       );
     }
 
-    const earlierForecasts = await tx.forecast.findMany({
+    const earlierForecasts = await tx.productionOrder.findMany({
       where: {
         ProductionReleaseId: forecast.ProductionReleaseId,
         DeliveryPeriod: { lt: forecast.DeliveryPeriod },
@@ -599,7 +613,7 @@ export class DeliveryService {
           },
         },
         DeliveryHistory: {
-          select: { ForecastId: true, LabelDataId: true, Qty: true },
+          select: { ProductionDemandId: true, LabelDataId: true, Qty: true },
         },
       },
     });
@@ -621,7 +635,7 @@ export class DeliveryService {
     const where: Prisma.DeliveryHistoryWhereInput = {};
 
     if (query?.forecastId) {
-      where.ForecastId = query.forecastId;
+      where.ProductionDemandId = query.forecastId;
     }
 
     if (query?.createdBy) {
@@ -658,7 +672,7 @@ export class DeliveryService {
     return {
       data: data.map((item) => ({
         id: item.Id,
-        forecastId: item.ForecastId,
+        forecastId: item.ProductionDemandId,
         qty: item.Qty,
         palletNumber: item.PalletNumber ?? null,
         createdAt: item.CreatedAt,

@@ -28,7 +28,7 @@ const sessionInclude = {
       LabelNumber: true,
       FinishGoodId: true,
       QtyThisBox: true,
-      ForecastId: true,
+      ProductionDemandId: true,
       ProductionReleaseId: true,
       ProductionRelease: { select: { ReleaseNumber: true } },
       PartData: { select: { PartName: true } },
@@ -74,6 +74,19 @@ export class AssemblyService {
   }
 
   async createOptions(query: AssemblyQueryDto) {
+    const labels = await this.readyLabels(query);
+    const manpower = await this.prisma.manPower.findMany({
+      where: {
+        Status: true,
+        AssemblySessions: { none: { Status: 'IN_PROGRESS' } },
+      },
+      select: { Nik: true, Name: true },
+      orderBy: { Name: 'asc' },
+    });
+    return { labels, manpower };
+  }
+
+  async readyLabels(query: Pick<AssemblyQueryDto, 'labelNumber'>) {
     const candidates = await this.prisma.labelData.findMany({
       where: {
         RequiresAssembly: true,
@@ -106,15 +119,7 @@ export class AssemblyService {
         if (!(error instanceof BadRequestException)) throw error;
       }
     }
-    const manpower = await this.prisma.manPower.findMany({
-      where: {
-        Status: true,
-        AssemblySessions: { none: { Status: 'IN_PROGRESS' } },
-      },
-      select: { Nik: true, Name: true },
-      orderBy: { Name: 'asc' },
-    });
-    return { labels, manpower };
+    return labels;
   }
 
   async progress(query: AssemblyQueryDto) {
@@ -253,7 +258,7 @@ export class AssemblyService {
         )
           await tx.productionTraceEvent.create({
             data: {
-              ForecastId: session.LabelData.ForecastId,
+              ProductionDemandId: session.LabelData.ProductionDemandId,
               ReleaseId: session.LabelData.ProductionReleaseId,
               Type: type,
               SourceType: 'AssemblySession',

@@ -13,7 +13,7 @@ export class TraceabilityService {
       contains: q.search?.trim() ?? '',
       mode: 'insensitive' as const,
     };
-    const where: Prisma.ForecastWhereInput = {
+    const where: Prisma.ProductionOrderWhereInput = {
       OR: [
         { PoId: contains },
         { PoNumber: contains },
@@ -32,7 +32,7 @@ export class TraceabilityService {
       ],
     };
     const [data, totalItems] = await Promise.all([
-      this.prisma.forecast.findMany({
+      this.prisma.productionOrder.findMany({
         where,
         select: {
           PoId: true,
@@ -48,7 +48,7 @@ export class TraceabilityService {
         take: q.limit,
         skip: (q.page - 1) * q.limit,
       }),
-      this.prisma.forecast.count({ where }),
+      this.prisma.productionOrder.count({ where }),
     ]);
     return {
       data,
@@ -61,7 +61,7 @@ export class TraceabilityService {
     };
   }
   async get(poId: string) {
-    const forecast = await this.prisma.forecast.findUnique({
+    const forecast = await this.prisma.productionOrder.findUnique({
       where: { PoId: poId },
       include: {
         PartData: { select: { PartName: true } },
@@ -72,12 +72,12 @@ export class TraceabilityService {
     const [snapshot, shopping, findings, labels, reports] = await Promise.all([
       latestSnapshot(this.prisma, poId),
       this.prisma.shopping.findMany({
-        where: { ForecastId: poId },
+        where: { ProductionDemandId: poId },
         orderBy: { CreatedAt: 'asc' },
       }),
       this.prisma.productionFinding.findMany({
         where: {
-          ForecastId: poId,
+          ProductionDemandId: poId,
           Category: 'FINISH_GOOD',
           DeletedAt: null,
         },
@@ -90,7 +90,7 @@ export class TraceabilityService {
           Reason: true,
           Reporter: true,
           SubmittedAt: true,
-          ForecastId: true,
+          ProductionDemandId: true,
           ReleaseId: true,
           SnapshotId: true,
           LabelId: true,
@@ -132,7 +132,7 @@ export class TraceabilityService {
         orderBy: [{ SubmittedAt: 'desc' }, { Id: 'desc' }],
       }),
       this.prisma.labelData.findMany({
-        where: { ForecastId: poId },
+        where: { ProductionDemandId: poId },
         include: {
           AssemblySessions: true,
           PokayokeHistory: true,
@@ -141,7 +141,7 @@ export class TraceabilityService {
         orderBy: { Id: 'asc' },
       }),
       this.prisma.productionReport.findMany({
-        where: { ForecastId: poId },
+        where: { ProductionDemandId: poId },
         select: {
           Id: true,
           CreatedAt: true,
@@ -189,7 +189,7 @@ export class TraceabilityService {
     };
   }
   async events(poId: string, q: TraceQueryDto) {
-    const where = { ForecastId: poId };
+    const where = { ProductionDemandId: poId };
     const [data, totalItems] = await Promise.all([
       this.prisma.productionTraceEvent.findMany({
         where,
@@ -242,7 +242,7 @@ export class TraceabilityService {
               where: { Id: { in: snapshotIds } },
               select: {
                 Id: true,
-                ForecastId: true,
+                ProductionDemandId: true,
                 Version: true,
                 Revision: { select: { Revision: true } },
               },
@@ -277,7 +277,7 @@ export class TraceabilityService {
         (snapshot) =>
           [
             snapshot.Id,
-            `${snapshot.ForecastId} / BOM revision ${snapshot.Revision.Revision} / snapshot ${snapshot.Version}`,
+            `${snapshot.ProductionDemandId} / BOM revision ${snapshot.Revision.Revision} / snapshot ${snapshot.Version}`,
           ] as const,
       ),
     );
@@ -308,7 +308,7 @@ export class TraceabilityService {
     return this.prisma.productionBomSnapshot.findMany({
       where: { ReleaseId: releaseId },
       include: { Lines: true, Revision: true },
-      orderBy: [{ ForecastId: 'asc' }, { Version: 'desc' }],
+      orderBy: [{ ProductionDemandId: 'asc' }, { Version: 'desc' }],
     });
   }
 }

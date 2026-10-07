@@ -70,7 +70,7 @@ export const productionDashboardSelect = {
       },
       DeliveryHistory: {
         select: {
-          ForecastId: true,
+          ProductionDemandId: true,
           LabelDataId: true,
           Qty: true,
           CreatedAt: true,

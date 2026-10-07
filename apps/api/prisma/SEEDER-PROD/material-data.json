@@ -1,223 +1,223 @@
 [
   {
-    "PartNumber": "BIF-B0350",
+    "PartNumber": "B1F-B0350",
     "PartName": "RUBBER, WATER PROOF RR",
     "Supplier": "ARMSTRONG",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIF-C9890",
+    "PartNumber": "A1F-C9890",
     "PartName": "RUBBER, WATER PROOF Fr",
     "Supplier": "ARMSTRONG",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIF-B0850",
+    "PartNumber": "B1F-B0850",
     "PartName": "RUBBER, WATER PROOF Rr",
     "Supplier": "ARMSTRONG",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIF-B0840",
+    "PartNumber": "B1F-B0840",
     "PartName": "RUBBER, WATER PROOF Rr add",
     "Supplier": "ARMSTRONG",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIF-D0540",
+    "PartNumber": "A1F-D0540",
     "PartName": "PAD (Small Pad (22x6x3mm))",
     "Supplier": "ARMSTRONG",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIF-D0530",
+    "PartNumber": "A1F-D0530",
     "PartName": "INSULATOR Fr OD15,ID6,L60",
     "Supplier": "ARMSTRONG",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIF-B0860",
+    "PartNumber": "B1F-B0860",
     "PartName": "INSULATOR Rr OD15,ID6,L70",
     "Supplier": "ARMSTRONG",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIF-B0850EX",
+    "PartNumber": "B1F-B0850EX",
     "PartName": "RUBBER, WATER PROOF Rr",
     "Supplier": "ARMSTRONG",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIF-B0840EX",
+    "PartNumber": "B1F-B0840EX",
     "PartName": "RUBBER, WATER PROOF Rr add",
     "Supplier": "ARMSTRONG",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIK-A4050",
+    "PartNumber": "B1K-A4050",
     "PartName": "CABLE F/DR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIK-A4060",
+    "PartNumber": "B1K-A4060",
     "PartName": "CABLE F/DR I/S LOCK",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIK-A9080",
+    "PartNumber": "B1K-A9080",
     "PartName": "CABLE R/DR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIK-A9090",
+    "PartNumber": "B1K-A9090",
     "PartName": "CABLE R/DR I/S LOCK",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIA-C2090",
+    "PartNumber": "A1A-C2090",
     "PartName": "CABLE F/DR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIA-C2100",
+    "PartNumber": "A1A-C2100",
     "PartName": "CABLE F/DR I/S LOCK",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIA-A8490",
+    "PartNumber": "B1A-A8490",
     "PartName": "CABLE R/DR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIA-A8500",
+    "PartNumber": "B1A-A8500",
     "PartName": "CABLE R/DR I/S LOCK",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIK-D0410",
+    "PartNumber": "A1K-D0410",
     "PartName": "CABLE-FR DOOR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIK-B0820",
+    "PartNumber": "B1K-B0820",
     "PartName": "CABLE-RR DOOR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIK-DI150",
+    "PartNumber": "A1K-D1150",
     "PartName": "CABLE ASSY F/DR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIK-BI010",
+    "PartNumber": "B1K-B1010",
     "PartName": "CABLE ASSY R/DR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIK-D2150",
+    "PartNumber": "A1K-D2150",
     "PartName": "CABLE F/DR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": "EVENT-LOKAL",
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIK-BI350",
+    "PartNumber": "B1K-B1350",
     "PartName": "CABLE ASSY R/DR I/S HDLE",
     "Supplier": "HI-LEX",
     "Remark": "EVENT-LOKAL",
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIB-DI290-XA",
+    "PartNumber": "A1B-D1290-XA",
     "PartName": "ROD ASSY INDICATOR, LH (Fr)",
     "Supplier": "PLASSES",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIB-DI300-XA",
+    "PartNumber": "A1B-D1300-XA",
     "PartName": "ROD ASSY INDICATOR, RH (Fr)",
     "Supplier": "PLASSES",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIB-BI130-XA",
+    "PartNumber": "B1B-B1130-XA",
     "PartName": "ROD ASSY INDICATOR, LH (Rr)",
     "Supplier": "PLASSES",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIB-BI140-XA",
+    "PartNumber": "B1B-B1140-XA",
     "PartName": "ROD ASSY INDICATOR, RH (Rr)",
     "Supplier": "PLASSES",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "DIJ-A3010",
+    "PartNumber": "D1J-A3010",
     "PartName": "ROD, OPEN",
     "Supplier": "NKP",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIJ-C4390",
+    "PartNumber": "A1J-C4390",
     "PartName": "ROD, F/DR O/S HDLE LH",
     "Supplier": "NKP",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "AIJ-C4400",
+    "PartNumber": "A1J-C4400",
     "PartName": "ROD, F/DR O/S HDLE RH",
     "Supplier": "NKP",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIJ-A9010",
+    "PartNumber": "B1J-A9010",
     "PartName": "ROD, R/DR O/S HDLE LH",
     "Supplier": "NKP",
     "Remark": null,
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "BIJ-A9020",
+    "PartNumber": "B1J-A9020",
     "PartName": "ROD, R/DR O/S HDLE RH",
     "Supplier": "NKP",
     "Remark": null,
@@ -231,7 +231,7 @@
     "MaterialSource": "LOKAL"
   },
   {
-    "PartNumber": "DIA-AI590IN",
+    "PartNumber": "D1A-A1590IN",
     "PartName": "ACTUATOR ASSY T/GATE OPEN",
     "Supplier": "ANSEI NAGOYA",
     "Remark": null,
@@ -252,56 +252,56 @@
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A911AIN",
+    "PartNumber": "Y1A-A911AIN",
     "PartName": "LOCK & RC ASSY-F/DR LH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A912AIN",
+    "PartNumber": "Y1A-A912AIN",
     "PartName": "LOCK & RC ASSY-F/DR RH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A913AIN",
+    "PartNumber": "Y1A-A913AIN",
     "PartName": "LOCK & RC ASSY-F/DR LH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A914AIN",
+    "PartNumber": "Y1A-A914AIN",
     "PartName": "LOCK & RC ASSY-F/DR RH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A915AIN",
+    "PartNumber": "Y1A-A915AIN",
     "PartName": "LOCK & RC ASSY-R/DR LH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A916AIN",
+    "PartNumber": "Y1A-A916AIN",
     "PartName": "LOCK & RC ASSY-R/DR RH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIC-DI890IN",
+    "PartNumber": "A1C-D1890IN",
     "PartName": "LEVER A, INDICATOR LH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIC-DI900IN",
+    "PartNumber": "A1C-D1900IN",
     "PartName": "LEVER A, INDICATOR RH",
     "Supplier": "NAGOYA",
     "Remark": null,
@@ -322,84 +322,84 @@
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A963AIN",
+    "PartNumber": "Y1A-A963AIN",
     "PartName": "LOCK & RC ASSY-F/DR LH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A964AIN",
+    "PartNumber": "Y1A-A964AIN",
     "PartName": "LOCK & RC ASSY-F/DR RH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A965AIN",
+    "PartNumber": "Y1A-A965AIN",
     "PartName": "LOCK & RC ASSY-F/DR LH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A966AIN",
+    "PartNumber": "Y1A-A966AIN",
     "PartName": "LOCK & RC ASSY-F/DR RH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A967AIN",
+    "PartNumber": "Y1A-A967AIN",
     "PartName": "LOCK & RC ASSY-R/DR LH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "YIA-A968AIN",
+    "PartNumber": "Y1A-A968AIN",
     "PartName": "LOCK & RC ASSY-R/DR RH",
     "Supplier": "NAGOYA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-D2350IN",
+    "PartNumber": "A1A-D2350IN",
     "PartName": "LOCK & RC ASSY-FR DOOR, LH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI-5P45",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-D201AIN",
+    "PartNumber": "A1A-D201AIN",
     "PartName": "LOCK & RC ASSY-FR DOOR, LH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI-5P45",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-D2360IN",
+    "PartNumber": "A1A-D2360IN",
     "PartName": "LOCK & RC ASSY-FR DOOR, RH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI-5P45",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-D202AIN",
+    "PartNumber": "A1A-D202AIN",
     "PartName": "LOCK & RC ASSY-FR DOOR, RH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI-5P45",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIA-BI31AIN",
+    "PartNumber": "B1A-B131AIN",
     "PartName": "LOCK & RC ASSY-RR DOOR, LH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI-5P45",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIA-BI32AIN",
+    "PartNumber": "B1A-B132AIN",
     "PartName": "LOCK & RC ASSY-RR DOOR, RH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI-5P45",
@@ -413,56 +413,56 @@
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIC-C7140IN",
+    "PartNumber": "A1C-C7140IN",
     "PartName": "CLIP RH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI-5P45",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "DI0-A2940",
+    "PartNumber": "D10-A2940",
     "PartName": "LATCH, T/GATE",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-C5290",
+    "PartNumber": "A1A-C5290",
     "PartName": "LATCH ASSY F/DR LH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-C5300",
+    "PartNumber": "A1A-C5300",
     "PartName": "LATCH ASSY F/DR RH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-C4370",
+    "PartNumber": "A1A-C4370",
     "PartName": "LATCH ASSY F/DR LH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-C4380",
+    "PartNumber": "A1A-C4380",
     "PartName": "LATCH ASSY F/DR RH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIA-A9170",
+    "PartNumber": "B1A-A9170",
     "PartName": "LATCH ASSY R/DR LH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIA-A9180",
+    "PartNumber": "B1A-A9180",
     "PartName": "LATCH ASSY R/DR RH",
     "Supplier": "SAA",
     "Remark": null,
@@ -476,49 +476,49 @@
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-C4440",
+    "PartNumber": "A1A-C4440",
     "PartName": "LATCH SUB ASSY FR DR RH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIA-A8450",
+    "PartNumber": "B1A-A8450",
     "PartName": "LATCH, RR DR LH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIA-A8460",
+    "PartNumber": "B1A-A8460",
     "PartName": "LATCH, RR DR RH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIJ-C2030",
+    "PartNumber": "A1J-C2030",
     "PartName": "ROD F/DR O/S HANDLE LH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIJ-C2040",
+    "PartNumber": "A1J-C2040",
     "PartName": "ROD F/DR O/S HANDLE RH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIJ-A8470",
+    "PartNumber": "B1J-A8470",
     "PartName": "ROD R/DR O/S HANDLE LH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIJ-A8480",
+    "PartNumber": "B1J-A8480",
     "PartName": "ROD R/DR O/S HANDLE RH",
     "Supplier": "SAA",
     "Remark": null,
@@ -546,28 +546,28 @@
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "DIA-A3050",
+    "PartNumber": "D1A-A3050",
     "PartName": "T/G LATCH BODY",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIA-C8510",
+    "PartNumber": "A1A-C8510",
     "PartName": "LATCH ASSY F/DR LH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIA-A9930",
+    "PartNumber": "B1A-A9930",
     "PartName": "LATCH ASSY R/DR LH",
     "Supplier": "SAA",
     "Remark": null,
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIA-A9940",
+    "PartNumber": "B1A-A9940",
     "PartName": "LATCH ASSY R/DR RH",
     "Supplier": "SAA",
     "Remark": null,
@@ -672,63 +672,63 @@
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIJ-D0140",
+    "PartNumber": "A1J-D0140",
     "PartName": "ROD,F/DR OUTSIDE HANDLE RH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI SPP",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIJ-D0130",
+    "PartNumber": "A1J-D0130",
     "PartName": "ROD,F/DR OUTSIDE HANDLE LH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI SPP",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIJ-B0660",
+    "PartNumber": "B1J-B0660",
     "PartName": "ROD,R/DR OUTSIDE HANDLE RH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI SPP",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIJ-B0650",
+    "PartNumber": "B1J-B0650",
     "PartName": "ROD,R/DR OUTSIDE HANDLE LH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI SPP",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIJ-DI180",
+    "PartNumber": "A1J-D1180",
     "PartName": "ROD,FR DOOR OUTSIDE HANDLE,RH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI SPP",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIJ-BI040",
+    "PartNumber": "B1J-B1040",
     "PartName": "ROD,RR DOOR OUTSIDE HANDLE,RH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI SPP",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIJ-DI170",
+    "PartNumber": "A1J-D1170",
     "PartName": "ROD,FR DOOR OUTSIDE HANDLE,LH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI SPP",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "BIJ-BI030",
+    "PartNumber": "B1J-B1030",
     "PartName": "ROD,RR DOOR OUTSIDE HANDLE,LH",
     "Supplier": "NAGOYA",
     "Remark": "ANSEI SPP",
     "MaterialSource": "OVERSEAS"
   },
   {
-    "PartNumber": "AIF-C7150",
+    "PartNumber": "A1F-C7150",
     "PartName": "PAD",
     "Supplier": "ARMSTRONG",
     "Remark": null,

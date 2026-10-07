@@ -35,7 +35,7 @@ describe('ShoppingService', () => {
       labelData: {
         findMany: jest.fn().mockResolvedValue([{ RequiresAssembly: false }]),
       },
-      forecast: { findUnique: jest.fn(), findUniqueOrThrow: jest.fn() },
+      productionOrder: { findUnique: jest.fn(), findUniqueOrThrow: jest.fn() },
       productionRelease: { findUnique: jest.fn() },
       snapshotRequirements: { findMany: jest.fn() },
       finishGood: { findUnique: jest.fn(), update: jest.fn() },
@@ -159,7 +159,7 @@ describe('ShoppingService', () => {
         },
       ];
 
-      prismaService.forecast.findUnique.mockResolvedValue(mockForecast);
+      prismaService.productionOrder.findUnique.mockResolvedValue(mockForecast);
       prismaService.productionRelease.findUnique.mockResolvedValue(
         mockProductionRelease,
       );
@@ -171,7 +171,7 @@ describe('ShoppingService', () => {
     });
 
     it('should throw NotFoundException when forecast not found', async () => {
-      prismaService.forecast.findUnique.mockResolvedValue(null);
+      prismaService.productionOrder.findUnique.mockResolvedValue(null);
       await expect(service.getForecastPickingStatus('INVALID')).rejects.toThrow(
         NotFoundException,
       );
@@ -197,7 +197,7 @@ describe('ShoppingService', () => {
 
     it('emits forecast, finish good, box quantity, and qtyPerbox', async () => {
       const boxQTY = { PartNumber: 'FG-001', Qty: 6 };
-      prismaService.forecast.findUnique.mockResolvedValue(forecast);
+      prismaService.productionOrder.findUnique.mockResolvedValue(forecast);
       prismaService.finishGood.findUnique.mockResolvedValue(finishGood);
       prismaService.boxQTY.findUnique.mockResolvedValue(boxQTY);
 
@@ -225,7 +225,7 @@ describe('ShoppingService', () => {
     });
 
     it('falls back qtyPerbox to forecast quantity without BoxQTY', async () => {
-      prismaService.forecast.findUnique.mockResolvedValue(forecast);
+      prismaService.productionOrder.findUnique.mockResolvedValue(forecast);
       prismaService.finishGood.findUnique.mockResolvedValue(finishGood);
       prismaService.boxQTY.findUnique.mockResolvedValue(null);
 
@@ -237,7 +237,7 @@ describe('ShoppingService', () => {
     });
 
     it('audit-logs an emit failure without rejecting', async () => {
-      prismaService.forecast.findUnique.mockResolvedValue(forecast);
+      prismaService.productionOrder.findUnique.mockResolvedValue(forecast);
       prismaService.finishGood.findUnique.mockResolvedValue(finishGood);
       prismaService.boxQTY.findUnique.mockResolvedValue(null);
       printerService.printPartTagAnsei.mockRejectedValue(
@@ -256,7 +256,7 @@ describe('ShoppingService', () => {
     });
 
     it('does not reject when failure auditing also fails', async () => {
-      prismaService.forecast.findUnique.mockRejectedValue(
+      prismaService.productionOrder.findUnique.mockRejectedValue(
         new Error('database'),
       );
       logService.addLog.mockRejectedValue(new Error('audit'));
@@ -269,7 +269,7 @@ describe('ShoppingService', () => {
   });
 
   describe('create ADDITIONAL shopping', () => {
-    it('sets ForecastId to null and allows free picking without foreign key error', async () => {
+    it('sets ProductionDemandId to null and allows free picking without foreign key error', async () => {
       const mockMaterial = {
         Id: 1,
         PartNumber: 'MAT-001',
@@ -280,7 +280,7 @@ describe('ShoppingService', () => {
 
       const mockCreatedShopping = {
         Id: 'SHP-20260916-0001',
-        ForecastId: null,
+        ProductionDemandId: null,
         MaterialId: 'MAT-001',
         QtyPick: 2,
         Type: 'ADDITIONAL',
@@ -317,11 +317,11 @@ describe('ShoppingService', () => {
       );
 
       expect(result).toBeDefined();
-      expect(result.ForecastId).toBeNull();
+      expect(result.ProductionDemandId).toBeNull();
       expect(prismaService.shopping.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            ForecastId: null,
+            ProductionDemandId: null,
             MaterialId: 'MAT-001',
             QtyPick: 2,
             Type: 'ADDITIONAL',
@@ -373,7 +373,7 @@ describe('ShoppingService', () => {
     };
 
     beforeEach(() => {
-      prismaService.forecast.findUnique.mockResolvedValue({
+      prismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
         Qty: 1,
         FinishGoodId: 'FG-001',
@@ -387,7 +387,7 @@ describe('ShoppingService', () => {
       prismaService.material.update = jest.fn().mockResolvedValue({});
       prismaService.shopping.create.mockResolvedValue({
         Id: 'SHP-001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
       });
       prismaService.snapshotRequirements.findMany.mockResolvedValue([
         {
@@ -406,7 +406,7 @@ describe('ShoppingService', () => {
         PartName: 'Finish Good A',
       });
       prismaService.finishGood.update.mockResolvedValue({});
-      prismaService.forecast.findUniqueOrThrow.mockResolvedValue({
+      prismaService.productionOrder.findUniqueOrThrow.mockResolvedValue({
         PoId: 'PO-001',
         Qty: 1,
         VendorCode: 'VENDOR-001',
@@ -463,7 +463,7 @@ describe('ShoppingService', () => {
     ])(
       'rejects a forecast amendment or close before the shopping transaction begins',
       async (forecast) => {
-        prismaService.forecast.findUnique.mockResolvedValue(forecast);
+        prismaService.productionOrder.findUnique.mockResolvedValue(forecast);
         await expect(
           service['executeShoppingTransaction'](dto, 'test', 'PR123', {
             finishGoodId: 'FG-001',

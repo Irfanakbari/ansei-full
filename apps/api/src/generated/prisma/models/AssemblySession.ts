@@ -296,7 +296,6 @@ export type AssemblySessionWhereInput = {
   CreatedBy?: Prisma.StringFilter<"AssemblySession"> | string
   CompletedBy?: Prisma.StringNullableFilter<"AssemblySession"> | string | null
   Channel?: Prisma.StringFilter<"AssemblySession"> | string
-  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
   LabelData?: Prisma.XOR<Prisma.LabelDataScalarRelationFilter, Prisma.LabelDataWhereInput>
   ManPower?: Prisma.XOR<Prisma.ManPowerScalarRelationFilter, Prisma.ManPowerWhereInput>
 }
@@ -317,7 +316,6 @@ export type AssemblySessionOrderByWithRelationInput = {
   CreatedBy?: Prisma.SortOrder
   CompletedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   Channel?: Prisma.SortOrder
-  MaterialNgCases?: Prisma.MaterialNgCaseOrderByRelationAggregateInput
   LabelData?: Prisma.LabelDataOrderByWithRelationInput
   ManPower?: Prisma.ManPowerOrderByWithRelationInput
 }
@@ -341,7 +339,6 @@ export type AssemblySessionWhereUniqueInput = Prisma.AtLeast<{
   CreatedBy?: Prisma.StringFilter<"AssemblySession"> | string
   CompletedBy?: Prisma.StringNullableFilter<"AssemblySession"> | string | null
   Channel?: Prisma.StringFilter<"AssemblySession"> | string
-  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
   LabelData?: Prisma.XOR<Prisma.LabelDataScalarRelationFilter, Prisma.LabelDataWhereInput>
   ManPower?: Prisma.XOR<Prisma.ManPowerScalarRelationFilter, Prisma.ManPowerWhereInput>
 }, "Id" | "StartRequestId" | "CompleteRequestId">
@@ -404,7 +401,6 @@ export type AssemblySessionCreateInput = {
   CreatedBy: string
   CompletedBy?: string | null
   Channel: string
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutAssemblySessionInput
   LabelData: Prisma.LabelDataCreateNestedOneWithoutAssemblySessionsInput
   ManPower: Prisma.ManPowerCreateNestedOneWithoutAssemblySessionsInput
 }
@@ -425,7 +421,6 @@ export type AssemblySessionUncheckedCreateInput = {
   CreatedBy: string
   CompletedBy?: string | null
   Channel: string
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutAssemblySessionInput
 }
 
 export type AssemblySessionUpdateInput = {
@@ -442,7 +437,6 @@ export type AssemblySessionUpdateInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Channel?: Prisma.StringFieldUpdateOperationsInput | string
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutAssemblySessionNestedInput
   LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutAssemblySessionsNestedInput
   ManPower?: Prisma.ManPowerUpdateOneRequiredWithoutAssemblySessionsNestedInput
 }
@@ -463,7 +457,6 @@ export type AssemblySessionUncheckedUpdateInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Channel?: Prisma.StringFieldUpdateOperationsInput | string
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutAssemblySessionNestedInput
 }
 
 export type AssemblySessionCreateManyInput = {
@@ -590,11 +583,6 @@ export type AssemblySessionSumOrderByAggregateInput = {
   LabelDataId?: Prisma.SortOrder
 }
 
-export type AssemblySessionNullableScalarRelationFilter = {
-  is?: Prisma.AssemblySessionWhereInput | null
-  isNot?: Prisma.AssemblySessionWhereInput | null
-}
-
 export type AssemblySessionCreateNestedManyWithoutManPowerInput = {
   create?: Prisma.XOR<Prisma.AssemblySessionCreateWithoutManPowerInput, Prisma.AssemblySessionUncheckedCreateWithoutManPowerInput> | Prisma.AssemblySessionCreateWithoutManPowerInput[] | Prisma.AssemblySessionUncheckedCreateWithoutManPowerInput[]
   connectOrCreate?: Prisma.AssemblySessionCreateOrConnectWithoutManPowerInput | Prisma.AssemblySessionCreateOrConnectWithoutManPowerInput[]
@@ -683,22 +671,6 @@ export type EnumAssemblyStatusFieldUpdateOperationsInput = {
   set?: $Enums.AssemblyStatus
 }
 
-export type AssemblySessionCreateNestedOneWithoutMaterialNgCasesInput = {
-  create?: Prisma.XOR<Prisma.AssemblySessionCreateWithoutMaterialNgCasesInput, Prisma.AssemblySessionUncheckedCreateWithoutMaterialNgCasesInput>
-  connectOrCreate?: Prisma.AssemblySessionCreateOrConnectWithoutMaterialNgCasesInput
-  connect?: Prisma.AssemblySessionWhereUniqueInput
-}
-
-export type AssemblySessionUpdateOneWithoutMaterialNgCasesNestedInput = {
-  create?: Prisma.XOR<Prisma.AssemblySessionCreateWithoutMaterialNgCasesInput, Prisma.AssemblySessionUncheckedCreateWithoutMaterialNgCasesInput>
-  connectOrCreate?: Prisma.AssemblySessionCreateOrConnectWithoutMaterialNgCasesInput
-  upsert?: Prisma.AssemblySessionUpsertWithoutMaterialNgCasesInput
-  disconnect?: Prisma.AssemblySessionWhereInput | boolean
-  delete?: Prisma.AssemblySessionWhereInput | boolean
-  connect?: Prisma.AssemblySessionWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AssemblySessionUpdateToOneWithWhereWithoutMaterialNgCasesInput, Prisma.AssemblySessionUpdateWithoutMaterialNgCasesInput>, Prisma.AssemblySessionUncheckedUpdateWithoutMaterialNgCasesInput>
-}
-
 export type AssemblySessionCreateWithoutManPowerInput = {
   Id?: string
   ManPowerName: string
@@ -713,7 +685,6 @@ export type AssemblySessionCreateWithoutManPowerInput = {
   CreatedBy: string
   CompletedBy?: string | null
   Channel: string
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutAssemblySessionInput
   LabelData: Prisma.LabelDataCreateNestedOneWithoutAssemblySessionsInput
 }
 
@@ -732,7 +703,6 @@ export type AssemblySessionUncheckedCreateWithoutManPowerInput = {
   CreatedBy: string
   CompletedBy?: string | null
   Channel: string
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutAssemblySessionInput
 }
 
 export type AssemblySessionCreateOrConnectWithoutManPowerInput = {
@@ -796,7 +766,6 @@ export type AssemblySessionCreateWithoutLabelDataInput = {
   CreatedBy: string
   CompletedBy?: string | null
   Channel: string
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutAssemblySessionInput
   ManPower: Prisma.ManPowerCreateNestedOneWithoutAssemblySessionsInput
 }
 
@@ -815,7 +784,6 @@ export type AssemblySessionUncheckedCreateWithoutLabelDataInput = {
   CreatedBy: string
   CompletedBy?: string | null
   Channel: string
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutAssemblySessionInput
 }
 
 export type AssemblySessionCreateOrConnectWithoutLabelDataInput = {
@@ -842,94 +810,6 @@ export type AssemblySessionUpdateWithWhereUniqueWithoutLabelDataInput = {
 export type AssemblySessionUpdateManyWithWhereWithoutLabelDataInput = {
   where: Prisma.AssemblySessionScalarWhereInput
   data: Prisma.XOR<Prisma.AssemblySessionUpdateManyMutationInput, Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataInput>
-}
-
-export type AssemblySessionCreateWithoutMaterialNgCasesInput = {
-  Id?: string
-  ManPowerName: string
-  Status?: $Enums.AssemblyStatus
-  StartedAt?: Date | string
-  EndedAt?: Date | string | null
-  CancelledAt?: Date | string | null
-  CancelledBy?: string | null
-  CancelReason?: string | null
-  StartRequestId: string
-  CompleteRequestId?: string | null
-  CreatedBy: string
-  CompletedBy?: string | null
-  Channel: string
-  LabelData: Prisma.LabelDataCreateNestedOneWithoutAssemblySessionsInput
-  ManPower: Prisma.ManPowerCreateNestedOneWithoutAssemblySessionsInput
-}
-
-export type AssemblySessionUncheckedCreateWithoutMaterialNgCasesInput = {
-  Id?: string
-  LabelDataId: number
-  ManPowerUid: string
-  ManPowerName: string
-  Status?: $Enums.AssemblyStatus
-  StartedAt?: Date | string
-  EndedAt?: Date | string | null
-  CancelledAt?: Date | string | null
-  CancelledBy?: string | null
-  CancelReason?: string | null
-  StartRequestId: string
-  CompleteRequestId?: string | null
-  CreatedBy: string
-  CompletedBy?: string | null
-  Channel: string
-}
-
-export type AssemblySessionCreateOrConnectWithoutMaterialNgCasesInput = {
-  where: Prisma.AssemblySessionWhereUniqueInput
-  create: Prisma.XOR<Prisma.AssemblySessionCreateWithoutMaterialNgCasesInput, Prisma.AssemblySessionUncheckedCreateWithoutMaterialNgCasesInput>
-}
-
-export type AssemblySessionUpsertWithoutMaterialNgCasesInput = {
-  update: Prisma.XOR<Prisma.AssemblySessionUpdateWithoutMaterialNgCasesInput, Prisma.AssemblySessionUncheckedUpdateWithoutMaterialNgCasesInput>
-  create: Prisma.XOR<Prisma.AssemblySessionCreateWithoutMaterialNgCasesInput, Prisma.AssemblySessionUncheckedCreateWithoutMaterialNgCasesInput>
-  where?: Prisma.AssemblySessionWhereInput
-}
-
-export type AssemblySessionUpdateToOneWithWhereWithoutMaterialNgCasesInput = {
-  where?: Prisma.AssemblySessionWhereInput
-  data: Prisma.XOR<Prisma.AssemblySessionUpdateWithoutMaterialNgCasesInput, Prisma.AssemblySessionUncheckedUpdateWithoutMaterialNgCasesInput>
-}
-
-export type AssemblySessionUpdateWithoutMaterialNgCasesInput = {
-  Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
-  Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
-  StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  CancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  CancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  StartRequestId?: Prisma.StringFieldUpdateOperationsInput | string
-  CompleteRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
-  CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Channel?: Prisma.StringFieldUpdateOperationsInput | string
-  LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutAssemblySessionsNestedInput
-  ManPower?: Prisma.ManPowerUpdateOneRequiredWithoutAssemblySessionsNestedInput
-}
-
-export type AssemblySessionUncheckedUpdateWithoutMaterialNgCasesInput = {
-  Id?: Prisma.StringFieldUpdateOperationsInput | string
-  LabelDataId?: Prisma.IntFieldUpdateOperationsInput | number
-  ManPowerUid?: Prisma.StringFieldUpdateOperationsInput | string
-  ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
-  Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
-  StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  CancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  CancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  StartRequestId?: Prisma.StringFieldUpdateOperationsInput | string
-  CompleteRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
-  CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Channel?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type AssemblySessionCreateManyManPowerInput = {
@@ -963,7 +843,6 @@ export type AssemblySessionUpdateWithoutManPowerInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Channel?: Prisma.StringFieldUpdateOperationsInput | string
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutAssemblySessionNestedInput
   LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutAssemblySessionsNestedInput
 }
 
@@ -982,7 +861,6 @@ export type AssemblySessionUncheckedUpdateWithoutManPowerInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Channel?: Prisma.StringFieldUpdateOperationsInput | string
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutAssemblySessionNestedInput
 }
 
 export type AssemblySessionUncheckedUpdateManyWithoutManPowerInput = {
@@ -1033,7 +911,6 @@ export type AssemblySessionUpdateWithoutLabelDataInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Channel?: Prisma.StringFieldUpdateOperationsInput | string
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutAssemblySessionNestedInput
   ManPower?: Prisma.ManPowerUpdateOneRequiredWithoutAssemblySessionsNestedInput
 }
 
@@ -1052,7 +929,6 @@ export type AssemblySessionUncheckedUpdateWithoutLabelDataInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Channel?: Prisma.StringFieldUpdateOperationsInput | string
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutAssemblySessionNestedInput
 }
 
 export type AssemblySessionUncheckedUpdateManyWithoutLabelDataInput = {
@@ -1073,35 +949,6 @@ export type AssemblySessionUncheckedUpdateManyWithoutLabelDataInput = {
 }
 
 
-/**
- * Count Type AssemblySessionCountOutputType
- */
-
-export type AssemblySessionCountOutputType = {
-  MaterialNgCases: number
-}
-
-export type AssemblySessionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  MaterialNgCases?: boolean | AssemblySessionCountOutputTypeCountMaterialNgCasesArgs
-}
-
-/**
- * AssemblySessionCountOutputType without action
- */
-export type AssemblySessionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the AssemblySessionCountOutputType
-   */
-  select?: Prisma.AssemblySessionCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * AssemblySessionCountOutputType without action
- */
-export type AssemblySessionCountOutputTypeCountMaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MaterialNgCaseWhereInput
-}
-
 
 export type AssemblySessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
@@ -1119,10 +966,8 @@ export type AssemblySessionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   CreatedBy?: boolean
   CompletedBy?: boolean
   Channel?: boolean
-  MaterialNgCases?: boolean | Prisma.AssemblySession$MaterialNgCasesArgs<ExtArgs>
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
   ManPower?: boolean | Prisma.ManPowerDefaultArgs<ExtArgs>
-  _count?: boolean | Prisma.AssemblySessionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assemblySession"]>
 
 export type AssemblySessionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1185,10 +1030,8 @@ export type AssemblySessionSelectScalar = {
 
 export type AssemblySessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "LabelDataId" | "ManPowerUid" | "ManPowerName" | "Status" | "StartedAt" | "EndedAt" | "CancelledAt" | "CancelledBy" | "CancelReason" | "StartRequestId" | "CompleteRequestId" | "CreatedBy" | "CompletedBy" | "Channel", ExtArgs["result"]["assemblySession"]>
 export type AssemblySessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  MaterialNgCases?: boolean | Prisma.AssemblySession$MaterialNgCasesArgs<ExtArgs>
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
   ManPower?: boolean | Prisma.ManPowerDefaultArgs<ExtArgs>
-  _count?: boolean | Prisma.AssemblySessionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AssemblySessionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
@@ -1202,7 +1045,6 @@ export type AssemblySessionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Ty
 export type $AssemblySessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AssemblySession"
   objects: {
-    MaterialNgCases: Prisma.$MaterialNgCasePayload<ExtArgs>[]
     LabelData: Prisma.$LabelDataPayload<ExtArgs>
     ManPower: Prisma.$ManPowerPayload<ExtArgs>
   }
@@ -1616,7 +1458,6 @@ readonly fields: AssemblySessionFieldRefs;
  */
 export interface Prisma__AssemblySessionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  MaterialNgCases<T extends Prisma.AssemblySession$MaterialNgCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssemblySession$MaterialNgCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNgCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LabelData<T extends Prisma.LabelDataDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelDataDefaultArgs<ExtArgs>>): Prisma.Prisma__LabelDataClient<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ManPower<T extends Prisma.ManPowerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ManPowerDefaultArgs<ExtArgs>>): Prisma.Prisma__ManPowerClient<runtime.Types.Result.GetResult<Prisma.$ManPowerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
@@ -2061,30 +1902,6 @@ export type AssemblySessionDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many AssemblySessions to delete.
    */
   limit?: number
-}
-
-/**
- * AssemblySession.MaterialNgCases
- */
-export type AssemblySession$MaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the MaterialNgCase
-   */
-  select?: Prisma.MaterialNgCaseSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the MaterialNgCase
-   */
-  omit?: Prisma.MaterialNgCaseOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.MaterialNgCaseInclude<ExtArgs> | null
-  where?: Prisma.MaterialNgCaseWhereInput
-  orderBy?: Prisma.MaterialNgCaseOrderByWithRelationInput | Prisma.MaterialNgCaseOrderByWithRelationInput[]
-  cursor?: Prisma.MaterialNgCaseWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.MaterialNgCaseScalarFieldEnum | Prisma.MaterialNgCaseScalarFieldEnum[]
 }
 
 /**

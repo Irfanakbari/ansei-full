@@ -21,7 +21,7 @@ import {
 } from './dto';
 import type {
   LogProcessModel,
-  ForecastModel,
+  ProductionOrderModel,
   ProductionReleaseModel,
 } from '../../generated/prisma/models';
 import {
@@ -62,7 +62,7 @@ export class ProductionReportService {
     }
 
     if (query.forecastId) {
-      where.ForecastId = query.forecastId;
+      where.ProductionDemandId = query.forecastId;
     }
 
     if (query.recordType) {
@@ -143,7 +143,7 @@ export class ProductionReportService {
         qty: item.Qty,
         manPowerUid: item.ManPowerUid,
         finishGoodId: item.FinishGoodId,
-        forecastId: item.ForecastId,
+        forecastId: item.ProductionDemandId,
         manPowerData: item.ManPowerData,
         fgData: item.FGData,
         forecastData: item.ForecastData,
@@ -281,7 +281,7 @@ export class ProductionReportService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Creating production report with data: Date=${dto.date}, RecordType=${dto.recordType}, ForecastId=${createData.ForecastId ?? '-'}`,
+        message: `Creating production report with data: Date=${dto.date}, RecordType=${dto.recordType}, ProductionDemandId=${createData.ProductionDemandId ?? '-'}`,
         type: 'INFO',
         location: 'production-report.service.ts:145',
       });
@@ -332,13 +332,13 @@ export class ProductionReportService {
           },
         });
 
-        if (report.ForecastId) {
-          const forecast = await tx.forecast.findUniqueOrThrow({
-            where: { PoId: report.ForecastId },
+        if (report.ProductionDemandId) {
+          const forecast = await tx.productionOrder.findUniqueOrThrow({
+            where: { PoId: report.ProductionDemandId },
           });
           await tx.productionTraceEvent.create({
             data: {
-              ForecastId: report.ForecastId,
+              ProductionDemandId: report.ProductionDemandId,
               ReleaseId: forecast.ProductionReleaseId,
               Type: 'PRODUCTION_REPORT_CREATED',
               SourceType: 'ProductionReport',
@@ -809,7 +809,7 @@ export class ProductionReportService {
     finishGoodId: string,
     processId: string,
   ): Promise<void> {
-    const forecast = await this.prisma.forecast.findUnique({
+    const forecast = await this.prisma.productionOrder.findUnique({
       where: { PoId: forecastPoId },
       include: {
         ProductionRelease: true,
@@ -971,7 +971,7 @@ export class ProductionReportService {
       Qty: dto.qty,
       ManPowerUid: dto.manPowerUid,
       FinishGoodId: dto.finishGoodId,
-      ForecastId: forecastPoId || null,
+      ProductionDemandId: forecastPoId || null,
     };
   }
 
@@ -1006,7 +1006,7 @@ export class ProductionReportService {
     if (dto.poNumber !== undefined) data.PoNumber = dto.poNumber;
     if (dto.recordType !== undefined) data.RecordType = dto.recordType;
     if (dto.qty !== undefined) data.Qty = dto.qty;
-    if (dto.forecastId !== undefined) data.ForecastId = dto.forecastId;
+    if (dto.forecastId !== undefined) data.ProductionDemandId = dto.forecastId;
 
     return data;
   }
@@ -1068,7 +1068,7 @@ export class ProductionReportService {
         recordType: item.RecordType,
         finishGoodId: item.FinishGoodId,
         partName: item.FGData?.PartName ?? '-',
-        forecastId: item.ForecastId,
+        forecastId: item.ProductionDemandId,
         poNumber: item.PoNumber,
         vendorName: item.ForecastData?.VendorName ?? null,
         validatedAt: item.ValidatedAt,
@@ -1082,14 +1082,14 @@ export class ProductionReportService {
   }
 
   async getActiveForecasts(finishGoodId?: string) {
-    const where: Prisma.ForecastWhereInput = {
+    const where: Prisma.ProductionOrderWhereInput = {
       ProductionRelease: {
         Status: ProductionStatus.RELEASED,
       },
       ...(finishGoodId ? { FinishGoodId: finishGoodId } : {}),
     };
 
-    const candidates = await this.prisma.forecast.findMany({
+    const candidates = await this.prisma.productionOrder.findMany({
       where,
       include: {
         ProductionRelease: {

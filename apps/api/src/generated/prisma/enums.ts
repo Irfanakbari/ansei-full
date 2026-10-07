@@ -12,6 +12,7 @@
 export const LocationType = {
   WAREHOUSE: 'WAREHOUSE',
   RACK: 'RACK',
+  ASSY: 'ASSY',
   FINISH_GOOD_AREA: 'FINISH_GOOD_AREA'
 } as const
 
@@ -86,7 +87,9 @@ export type NotificationType = (typeof NotificationType)[keyof typeof Notificati
 export const OutboxEventType = {
   PRINT_PART_TAG_ANSEI: 'PRINT_PART_TAG_ANSEI',
   DELIVERY_NOTE_EMAIL: 'DELIVERY_NOTE_EMAIL',
-  PALLET_CONNECTOR_HISTORY: 'PALLET_CONNECTOR_HISTORY'
+  PALLET_CONNECTOR_HISTORY: 'PALLET_CONNECTOR_HISTORY',
+  INVENTORY_COUNTING_PACKAGE: 'INVENTORY_COUNTING_PACKAGE',
+  INVENTORY_COUNTING_PACKAGE_EMAIL: 'INVENTORY_COUNTING_PACKAGE_EMAIL'
 } as const
 
 export type OutboxEventType = (typeof OutboxEventType)[keyof typeof OutboxEventType]
@@ -239,7 +242,6 @@ export type BomRevisionStatus = (typeof BomRevisionStatus)[keyof typeof BomRevis
 
 export const ShoppingPurpose = {
   STANDARD: 'STANDARD',
-  NG_REPLACEMENT: 'NG_REPLACEMENT',
   NON_PRODUCTION: 'NON_PRODUCTION',
   LEGACY_UNCLASSIFIED: 'LEGACY_UNCLASSIFIED'
 } as const
@@ -247,11 +249,27 @@ export const ShoppingPurpose = {
 export type ShoppingPurpose = (typeof ShoppingPurpose)[keyof typeof ShoppingPurpose]
 
 
-export const MaterialNgCaseStatus = {
-  OPEN: 'OPEN',
-  FULFILLED: 'FULFILLED',
-  CLOSED: 'CLOSED',
-  CANCELLED: 'CANCELLED'
+export const ProductionFindingCategory = {
+  MATERIAL: 'MATERIAL',
+  FINISH_GOOD: 'FINISH_GOOD'
 } as const
 
-export type MaterialNgCaseStatus = (typeof MaterialNgCaseStatus)[keyof typeof MaterialNgCaseStatus]
+export type ProductionFindingCategory = (typeof ProductionFindingCategory)[keyof typeof ProductionFindingCategory]
+
+
+export const ProductionFindingStatus = {
+  PENDING: 'PENDING',
+  WAITING_PART_CHANGE: 'WAITING_PART_CHANGE',
+  COMPLETED: 'COMPLETED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type ProductionFindingStatus = (typeof ProductionFindingStatus)[keyof typeof ProductionFindingStatus]
+
+
+export const DemandSource = {
+  PO: 'PO',
+  NON_PO: 'NON_PO'
+} as const
+
+export type DemandSource = (typeof DemandSource)[keyof typeof DemandSource]

@@ -21,7 +21,7 @@ describe('PreDeliveryController', () => {
   const mockLabel = {
     Id: 1,
     LabelNumber: 'LBL001',
-    ForecastId: 'PO-001',
+    ProductionDemandId: 'PO-001',
     FinishGoodId: 'FG-001',
     Scanned: false,
     QtyThisBox: 100,

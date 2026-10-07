@@ -372,6 +372,13 @@ export type EnumProductionStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumProductionStatusFilter<$PrismaModel> | $Enums.ProductionStatus
 }
 
+export type EnumDemandSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.DemandSource | Prisma.EnumDemandSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.DemandSource[] | Prisma.ListEnumDemandSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DemandSource[] | Prisma.ListEnumDemandSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDemandSourceFilter<$PrismaModel> | $Enums.DemandSource
+}
+
 export type EnumProductionStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ProductionStatus | Prisma.EnumProductionStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ProductionStatus[] | Prisma.ListEnumProductionStatusFieldRefInput<$PrismaModel>
@@ -380,6 +387,16 @@ export type EnumProductionStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumProductionStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumProductionStatusFilter<$PrismaModel>
+}
+
+export type EnumDemandSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DemandSource | Prisma.EnumDemandSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.DemandSource[] | Prisma.ListEnumDemandSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DemandSource[] | Prisma.ListEnumDemandSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDemandSourceWithAggregatesFilter<$PrismaModel> | $Enums.DemandSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDemandSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDemandSourceFilter<$PrismaModel>
 }
 
 export type EnumShoppingPurposeFilter<$PrismaModel = never> = {
@@ -813,21 +830,55 @@ export type EnumBomRevisionStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumBomRevisionStatusFilter<$PrismaModel>
 }
 
-export type EnumMaterialNgCaseStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.MaterialNgCaseStatus | Prisma.EnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.MaterialNgCaseStatus[] | Prisma.ListEnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.MaterialNgCaseStatus[] | Prisma.ListEnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumMaterialNgCaseStatusFilter<$PrismaModel> | $Enums.MaterialNgCaseStatus
+export type EnumProductionFindingCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductionFindingCategory | Prisma.EnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductionFindingCategory[] | Prisma.ListEnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductionFindingCategory[] | Prisma.ListEnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductionFindingCategoryFilter<$PrismaModel> | $Enums.ProductionFindingCategory
 }
 
-export type EnumMaterialNgCaseStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.MaterialNgCaseStatus | Prisma.EnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.MaterialNgCaseStatus[] | Prisma.ListEnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.MaterialNgCaseStatus[] | Prisma.ListEnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumMaterialNgCaseStatusWithAggregatesFilter<$PrismaModel> | $Enums.MaterialNgCaseStatus
+export type EnumProductionFindingStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductionFindingStatus | Prisma.EnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductionFindingStatus[] | Prisma.ListEnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductionFindingStatus[] | Prisma.ListEnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductionFindingStatusFilter<$PrismaModel> | $Enums.ProductionFindingStatus
+}
+
+export type EnumLocationTypeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.LocationType | Prisma.EnumLocationTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LocationType[] | Prisma.ListEnumLocationTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.LocationType[] | Prisma.ListEnumLocationTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumLocationTypeNullableFilter<$PrismaModel> | $Enums.LocationType | null
+}
+
+export type EnumProductionFindingCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductionFindingCategory | Prisma.EnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductionFindingCategory[] | Prisma.ListEnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductionFindingCategory[] | Prisma.ListEnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductionFindingCategoryWithAggregatesFilter<$PrismaModel> | $Enums.ProductionFindingCategory
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumMaterialNgCaseStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumMaterialNgCaseStatusFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductionFindingCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductionFindingCategoryFilter<$PrismaModel>
+}
+
+export type EnumProductionFindingStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductionFindingStatus | Prisma.EnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductionFindingStatus[] | Prisma.ListEnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductionFindingStatus[] | Prisma.ListEnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductionFindingStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductionFindingStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductionFindingStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductionFindingStatusFilter<$PrismaModel>
+}
+
+export type EnumLocationTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LocationType | Prisma.EnumLocationTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LocationType[] | Prisma.ListEnumLocationTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.LocationType[] | Prisma.ListEnumLocationTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumLocationTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.LocationType | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLocationTypeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLocationTypeNullableFilter<$PrismaModel>
 }
 
 export type NestedIntFilter<$PrismaModel = never> = {
@@ -1163,6 +1214,13 @@ export type NestedEnumProductionStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumProductionStatusFilter<$PrismaModel> | $Enums.ProductionStatus
 }
 
+export type NestedEnumDemandSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.DemandSource | Prisma.EnumDemandSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.DemandSource[] | Prisma.ListEnumDemandSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DemandSource[] | Prisma.ListEnumDemandSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDemandSourceFilter<$PrismaModel> | $Enums.DemandSource
+}
+
 export type NestedEnumProductionStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ProductionStatus | Prisma.EnumProductionStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ProductionStatus[] | Prisma.ListEnumProductionStatusFieldRefInput<$PrismaModel>
@@ -1171,6 +1229,16 @@ export type NestedEnumProductionStatusWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumProductionStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumProductionStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumDemandSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DemandSource | Prisma.EnumDemandSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.DemandSource[] | Prisma.ListEnumDemandSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DemandSource[] | Prisma.ListEnumDemandSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDemandSourceWithAggregatesFilter<$PrismaModel> | $Enums.DemandSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDemandSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDemandSourceFilter<$PrismaModel>
 }
 
 export type NestedEnumShoppingPurposeFilter<$PrismaModel = never> = {
@@ -1577,21 +1645,55 @@ export type NestedEnumBomRevisionStatusWithAggregatesFilter<$PrismaModel = never
   _max?: Prisma.NestedEnumBomRevisionStatusFilter<$PrismaModel>
 }
 
-export type NestedEnumMaterialNgCaseStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.MaterialNgCaseStatus | Prisma.EnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.MaterialNgCaseStatus[] | Prisma.ListEnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.MaterialNgCaseStatus[] | Prisma.ListEnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumMaterialNgCaseStatusFilter<$PrismaModel> | $Enums.MaterialNgCaseStatus
+export type NestedEnumProductionFindingCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductionFindingCategory | Prisma.EnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductionFindingCategory[] | Prisma.ListEnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductionFindingCategory[] | Prisma.ListEnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductionFindingCategoryFilter<$PrismaModel> | $Enums.ProductionFindingCategory
 }
 
-export type NestedEnumMaterialNgCaseStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.MaterialNgCaseStatus | Prisma.EnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.MaterialNgCaseStatus[] | Prisma.ListEnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.MaterialNgCaseStatus[] | Prisma.ListEnumMaterialNgCaseStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumMaterialNgCaseStatusWithAggregatesFilter<$PrismaModel> | $Enums.MaterialNgCaseStatus
+export type NestedEnumProductionFindingStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductionFindingStatus | Prisma.EnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductionFindingStatus[] | Prisma.ListEnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductionFindingStatus[] | Prisma.ListEnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductionFindingStatusFilter<$PrismaModel> | $Enums.ProductionFindingStatus
+}
+
+export type NestedEnumLocationTypeNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.LocationType | Prisma.EnumLocationTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LocationType[] | Prisma.ListEnumLocationTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.LocationType[] | Prisma.ListEnumLocationTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumLocationTypeNullableFilter<$PrismaModel> | $Enums.LocationType | null
+}
+
+export type NestedEnumProductionFindingCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductionFindingCategory | Prisma.EnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductionFindingCategory[] | Prisma.ListEnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductionFindingCategory[] | Prisma.ListEnumProductionFindingCategoryFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductionFindingCategoryWithAggregatesFilter<$PrismaModel> | $Enums.ProductionFindingCategory
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumMaterialNgCaseStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumMaterialNgCaseStatusFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductionFindingCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductionFindingCategoryFilter<$PrismaModel>
+}
+
+export type NestedEnumProductionFindingStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProductionFindingStatus | Prisma.EnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProductionFindingStatus[] | Prisma.ListEnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProductionFindingStatus[] | Prisma.ListEnumProductionFindingStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProductionFindingStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductionFindingStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProductionFindingStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProductionFindingStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumLocationTypeNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.LocationType | Prisma.EnumLocationTypeFieldRefInput<$PrismaModel> | null
+  in?: $Enums.LocationType[] | Prisma.ListEnumLocationTypeFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.LocationType[] | Prisma.ListEnumLocationTypeFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumLocationTypeNullableWithAggregatesFilter<$PrismaModel> | $Enums.LocationType | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumLocationTypeNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumLocationTypeNullableFilter<$PrismaModel>
 }
 
 

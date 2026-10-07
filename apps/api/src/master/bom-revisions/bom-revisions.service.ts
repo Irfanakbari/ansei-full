@@ -37,7 +37,7 @@ const detail = {
   Snapshots: {
     select: {
       Id: true,
-      ForecastId: true,
+      ProductionDemandId: true,
       ReleaseId: true,
       Version: true,
       CreatedAt: true,

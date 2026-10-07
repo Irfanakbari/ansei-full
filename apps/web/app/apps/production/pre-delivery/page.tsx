@@ -2,367 +2,417 @@
 "use client";
 
 import Link from "next/link";
-import {usePhasePermission} from "@/components/traceability/usePhasePermission";
-import React, {useEffect, useRef} from "react";
+import { usePhasePermission } from "@/components/traceability/usePhasePermission";
+import React, { useEffect, useRef } from "react";
 import {
-    Table,
-    Card,
-    Breadcrumb,
-    Input,
-    Button,
-    Select,
-    Segmented,
-    Tag,
-    Tooltip,
-    Space,
-    Modal,
-    Descriptions,
+  Table,
+  Card,
+  Breadcrumb,
+  Input,
+  Button,
+  Select,
+  Segmented,
+  Tag,
+  Tooltip,
+  Space,
+  Modal,
+  Descriptions,
 } from "antd";
-import type {InputRef} from "antd";
-import {ReloadOutlined, SearchOutlined, EyeOutlined} from "@ant-design/icons";
+import type { InputRef } from "antd";
+import { ReloadOutlined, SearchOutlined, EyeOutlined } from "@ant-design/icons";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import ButtonToolbar from "@/components/ButtonToolbar";
-import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "@/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
 import {
-    PreDeliveryEntity,
-    fetchPreDelivery,
-    setFilters,
+  PreDeliveryEntity,
+  fetchPreDelivery,
+  setFilters,
 } from "@/store/features/production/preDelivery/preDeliverySlice";
 import {
-    fetchProductionRelease,
-    ProductionReleaseEntity,
+  fetchProductionRelease,
+  ProductionReleaseEntity,
 } from "@/store/features/production/productionRelease/productionReleaseSlice";
 import FinishGoodLinkedModal from "@/components/production/FinishGoodLinkedModal";
 import GoldenArrowAction from "@/components/GoldenArrowAction";
 
 const formatDate = (val: string | null | undefined) => {
-    if (!val) return "-";
-    return new Date(val).toLocaleDateString("id-ID");
+  if (!val) return "-";
+  return new Date(val).toLocaleDateString("id-ID");
 };
 
 export default function PreDeliveryPage() {
-    const {can} = usePhasePermission();
-    const dispatch = useDispatch<AppDispatch>();
-    const {data, loading, pagination, filters} = useSelector(
-        (state: RootState) => state.preDelivery,
-    );
-    const {data: productionReleases} = useSelector(
-        (state: RootState) => state.productionRelease,
-    );
-    const searchInput = useRef<InputRef>(null);
-    const [detail, setDetail] = React.useState<PreDeliveryEntity | null>(null);
-    const [linkedFinishGood, setLinkedFinishGood] = React.useState<string | null>(null);
+  const { can } = usePhasePermission();
+  const dispatch = useDispatch<AppDispatch>();
+  const { data, loading, pagination, filters } = useSelector(
+    (state: RootState) => state.preDelivery,
+  );
+  const { data: productionReleases } = useSelector(
+    (state: RootState) => state.productionRelease,
+  );
+  const searchInput = useRef<InputRef>(null);
+  const [detail, setDetail] = React.useState<PreDeliveryEntity | null>(null);
+  const [linkedFinishGood, setLinkedFinishGood] = React.useState<string | null>(
+    null,
+  );
 
-    useEffect(() => {
-        dispatch(fetchPreDelivery(filters));
-    }, [dispatch, filters]);
+  useEffect(() => {
+    dispatch(fetchPreDelivery(filters));
+  }, [dispatch, filters]);
 
-    useEffect(() => {
-        dispatch(fetchProductionRelease());
-    }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchProductionRelease());
+  }, [dispatch]);
 
-    const handleTableChange = (pag: any) => {
-        dispatch(setFilters({page: pag.current, limit: pag.pageSize}));
-    };
+  const handleTableChange = (pag: any) => {
+    dispatch(setFilters({ page: pag.current, limit: pag.pageSize }));
+  };
 
-    // Column search filter
-    const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({
-                             setSelectedKeys,
-                             selectedKeys,
-                             confirm,
-                             clearFilters,
-                         }: any) => (
-            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
-                <Input
-                    ref={searchInput as any}
-                    placeholder={`Search ${dataIndex}`}
-                    value={selectedKeys[0]}
-                    onChange={(e) =>
-                        setSelectedKeys(e.target.value ? [e.target.value] : [])
-                    }
-                    onPressEnter={() => confirm()}
-                    style={{marginBottom: 8, display: "block"}}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => confirm()}
-                        icon={<SearchOutlined/>}
-                        size="small"
-                        style={{width: 80}}
-                    >
-                        Search
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            if (clearFilters) clearFilters();
-                            confirm();
-                        }}
-                        size="small"
-                        style={{width: 80}}
-                    >
-                        Reset
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>
-        ),
-        onFilter: (value: any, record: any) => {
-            return record[dataIndex]
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase());
-        },
-    });
+  // Column search filter
+  const getColumnSearchProps = (dataIndex: string) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }: any) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput as any}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => confirm()}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => confirm()}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 80 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => {
+              if (clearFilters) clearFilters();
+              confirm();
+            }}
+            size="small"
+            style={{ width: 80 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value: any, record: any) => {
+      return record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes((value as string).toLowerCase());
+    },
+  });
 
-    // Scanned filter dropdown
-    const getScannedFilterProps = () => ({
-        filterDropdown: ({
-                             setSelectedKeys,
-                             selectedKeys,
-                             confirm,
-                             clearFilters,
-                         }: any) => (
-            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
-                <Select
-                    placeholder="Select status"
-                    value={selectedKeys[0]}
-                    onChange={(val) => setSelectedKeys(val ? [val] : [])}
-                    style={{width: "100%", marginBottom: 8}}
-                    allowClear
-                    options={[
-                        {value: "scanned", label: "Scanned"},
-                        {value: "unscanned", label: "Unscanned"},
-                    ]}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => confirm()}
-                        size="small"
-                        style={{width: 60}}
-                    >
-                        OK
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            if (clearFilters) clearFilters();
-                            confirm();
-                        }}
-                        size="small"
-                        style={{width: 60}}
-                    >
-                        Reset
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>
-        ),
-        onFilter: (value: any, record: any) => {
-            if (value === "scanned") return record.scanned === true;
-            if (value === "unscanned") return record.scanned === false;
-            return true;
-        },
-    });
+  // Scanned filter dropdown
+  const getScannedFilterProps = () => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }: any) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Select
+          placeholder="Select status"
+          value={selectedKeys[0]}
+          onChange={(val) => setSelectedKeys(val ? [val] : [])}
+          style={{ width: "100%", marginBottom: 8 }}
+          allowClear
+          options={[
+            { value: "scanned", label: "Scanned" },
+            { value: "unscanned", label: "Unscanned" },
+          ]}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => confirm()}
+            size="small"
+            style={{ width: 60 }}
+          >
+            OK
+          </Button>
+          <Button
+            onClick={() => {
+              if (clearFilters) clearFilters();
+              confirm();
+            }}
+            size="small"
+            style={{ width: 60 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value: any, record: any) => {
+      if (value === "scanned") return record.scanned === true;
+      if (value === "unscanned") return record.scanned === false;
+      return true;
+    },
+  });
 
-    // Production Release filter dropdown
-    const getProductionReleaseFilterProps = () => ({
-        filterDropdown: ({
-                             setSelectedKeys,
-                             selectedKeys,
-                             confirm,
-                             clearFilters,
-                         }: any) => (
-            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
-                <Select
-                    placeholder="Select PR Number"
-                    value={selectedKeys[0]}
-                    onChange={(val) => setSelectedKeys(val ? [val] : [])}
-                    style={{width: "100%", marginBottom: 8}}
-                    allowClear
-                    showSearch={{optionFilterProp: "label"}}
-                    options={productionReleases.map((release: ProductionReleaseEntity) => ({
-                        value: release.ReleaseNumber,
-                        label: release.ReleaseNumber,
-                    }))}
-                />
-                <Space>
-                    <Button
-                        type="primary"
-                        onClick={() => confirm()}
-                        size="small"
-                        style={{width: 60}}
-                    >
-                        OK
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            if (clearFilters) clearFilters();
-                            confirm();
-                        }}
-                        size="small"
-                        style={{width: 60}}
-                    >
-                        Reset
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{color: filtered ? "#1677ff" : undefined}}/>
-        ),
-        onFilter: (value: any, record: any) => {
-            return record.productionReleaseNumber
-                ?.toString()
-                .toLowerCase()
-                .includes((value as string).toLowerCase());
-        },
-    });
+  // Production Release filter dropdown
+  const getProductionReleaseFilterProps = () => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }: any) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Select
+          placeholder="Select PR Number"
+          value={selectedKeys[0]}
+          onChange={(val) => setSelectedKeys(val ? [val] : [])}
+          style={{ width: "100%", marginBottom: 8 }}
+          allowClear
+          showSearch={{ optionFilterProp: "label" }}
+          options={productionReleases.map(
+            (release: ProductionReleaseEntity) => ({
+              value: release.ReleaseNumber,
+              label: release.ReleaseNumber,
+            }),
+          )}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => confirm()}
+            size="small"
+            style={{ width: 60 }}
+          >
+            OK
+          </Button>
+          <Button
+            onClick={() => {
+              if (clearFilters) clearFilters();
+              confirm();
+            }}
+            size="small"
+            style={{ width: 60 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    onFilter: (value: any, record: any) => {
+      return record.productionReleaseNumber
+        ?.toString()
+        .toLowerCase()
+        .includes((value as string).toLowerCase());
+    },
+  });
 
-    const columns = [
-        {
-            title: "Release Number",
-            dataIndex: "productionReleaseNumber",
-            key: "productionReleaseNumber",
-            ...getProductionReleaseFilterProps(),
-            render: (val: string) => <code style={{fontSize: 10}}>{val}</code>,
-        },
-        {
-            title: "Label Number",
-            dataIndex: "labelNumber",
-            key: "labelNumber",
-            ...getColumnSearchProps("labelNumber"),
-            render: (val: string) => (
-                <Tooltip title={val}>
-                    <code style={{fontSize: 11}}>{val}</code>
-                </Tooltip>
-            ),
-        },
-        {
-            title: "Finish Good",
-            key: "finishGood",
-            ...getColumnSearchProps("finishGoodId"),
-            render: (_: any, record: PreDeliveryEntity) => (
-                <Space size={4}>
-                    <GoldenArrowAction tooltip="View Finish Good details"
-                                       ariaLabel={`View Finish Good ${record.finishGoodId}`}
-                                       onClick={() => setLinkedFinishGood(record.finishGoodId)}/>
-                    <Tooltip title={`${record.finishGoodId} - ${record.finishGoodName}`}><code
-                        style={{fontSize: 10}}>{record.finishGoodId}</code></Tooltip>
-                </Space>
-            ),
-        },
-        {
-            title: "PO Number",
-            dataIndex: "forecastId",
-            key: "forecastId",
-            ...getColumnSearchProps("forecastId"),
-            render: (val: string) => <code style={{fontSize: 10}}>{val}</code>,
-        },
-        {
-            title: "Scanned",
-            dataIndex: "scanned",
-            key: "scanned",
-            align: "center" as const,
-            ...getScannedFilterProps(),
-            render: (val: boolean) => (
-                <Tag color={val ? "success" : "warning"}>{val ? "Yes" : "No"}</Tag>
-            ),
-        },
-        {
-            title: "Action",
-            key: "action",
-            render: (_: unknown, record: PreDeliveryEntity) => <Button type="link" size="small" icon={<EyeOutlined/>}
-                                                                       onClick={() => setDetail(record)}>Detail</Button>,
-        },
-    ];
+  const columns = [
+    {
+      title: "Release Number",
+      dataIndex: "productionReleaseNumber",
+      key: "productionReleaseNumber",
+      ...getProductionReleaseFilterProps(),
+      render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
+    },
+    {
+      title: "Label Number",
+      dataIndex: "labelNumber",
+      key: "labelNumber",
+      ...getColumnSearchProps("labelNumber"),
+      render: (val: string) => (
+        <Tooltip title={val}>
+          <code style={{ fontSize: 11 }}>{val}</code>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Finish Good",
+      key: "finishGood",
+      ...getColumnSearchProps("finishGoodId"),
+      render: (_: any, record: PreDeliveryEntity) => (
+        <Space size={4}>
+          <GoldenArrowAction
+            tooltip="View Finish Good details"
+            ariaLabel={`View Finish Good ${record.finishGoodId}`}
+            onClick={() => setLinkedFinishGood(record.finishGoodId)}
+          />
+          <Tooltip title={`${record.finishGoodId} - ${record.finishGoodName}`}>
+            <code style={{ fontSize: 10 }}>{record.finishGoodId}</code>
+          </Tooltip>
+        </Space>
+      ),
+    },
+    {
+      title: "Order Reference",
+      dataIndex: "forecastId",
+      key: "forecastId",
+      ...getColumnSearchProps("forecastId"),
+      render: (val: string) => <code style={{ fontSize: 10 }}>{val}</code>,
+    },
+    {
+      title: "Scanned",
+      dataIndex: "scanned",
+      key: "scanned",
+      align: "center" as const,
+      ...getScannedFilterProps(),
+      render: (val: boolean) => (
+        <Tag color={val ? "success" : "warning"}>{val ? "Yes" : "No"}</Tag>
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_: unknown, record: PreDeliveryEntity) => (
+        <Button
+          type="link"
+          size="small"
+          icon={<EyeOutlined />}
+          onClick={() => setDetail(record)}
+        >
+          Detail
+        </Button>
+      ),
+    },
+  ];
 
-    return (
-        <Card variant="borderless" styles={{body: {padding: 0}}}>
-            <Breadcrumb
-                style={{marginBottom: 16}}
-                items={[
-                    {title: "Home"},
-                    {title: "Production"},
-                    {title: "Process"},
-                    {title: "Pre Delivery"},
-                ]}
-            />
+  return (
+    <Card variant="borderless" styles={{ body: { padding: 0 } }}>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: "Home" },
+          { title: "Production" },
+          { title: "Process" },
+          { title: "Pre Delivery" },
+        ]}
+      />
 
-            <ToolbarWrapper>
-                <ButtonToolbar
-                    title="Refresh"
-                    icon={<ReloadOutlined/>}
-                    onClick={() => dispatch(fetchPreDelivery(filters))}
-                />
-                <div style={{marginLeft: "auto", display: "flex", alignItems: "center"}}>
-                    <Segmented
-                        size="small"
-                        value={filters.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}
-                        onChange={(val) =>
-                            dispatch(
-                                setFilters({
-                                    page: 1,
-                                    activeReleaseOnly: val === "ACTIVE",
-                                }),
-                            )
-                        }
-                        options={[
-                            {label: "Active Release", value: "ACTIVE"},
-                            {label: "All History", value: "ALL"},
-                        ]}
-                    />
-                </div>
-            </ToolbarWrapper>
+      <ToolbarWrapper>
+        <ButtonToolbar
+          title="Refresh"
+          icon={<ReloadOutlined />}
+          onClick={() => dispatch(fetchPreDelivery(filters))}
+        />
+        <div
+          style={{ marginLeft: "auto", display: "flex", alignItems: "center" }}
+        >
+          <Segmented
+            size="small"
+            value={filters.activeReleaseOnly !== false ? "ACTIVE" : "ALL"}
+            onChange={(val) =>
+              dispatch(
+                setFilters({
+                  page: 1,
+                  activeReleaseOnly: val === "ACTIVE",
+                }),
+              )
+            }
+            options={[
+              { label: "Active Release", value: "ACTIVE" },
+              { label: "All History", value: "ALL" },
+            ]}
+          />
+        </div>
+      </ToolbarWrapper>
 
-            <Table
-                columns={columns}
-                dataSource={data}
-                size="small"
-                loading={loading}
-                onChange={handleTableChange}
-                pagination={{
-                    size: "small",
-                    current: pagination.page,
-                    pageSize: pagination.limit,
-                    total: pagination.total,
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    pageSizeOptions: ["20", "50", "100"],
-                    showTotal: (total: number, range: number[]) =>
-                        `${range[0]}-${range[1]} of ${total}`,
-                }}
-                rowKey="id"
-                scroll={{x: "max-content", y: "calc(100vh - 380px)"}}
-                className="small-table"
-            />
-            <Modal title={`Pre Delivery Detail · ${detail?.labelNumber ?? ""}`} open={Boolean(detail)}
-                   onCancel={() => setDetail(null)} footer={null} centered width={720} destroyOnHidden>
-                {detail && <Descriptions bordered size="small" column={{xs: 1, sm: 2}}>
-                    <Descriptions.Item label="Release Number">{detail.productionReleaseNumber}</Descriptions.Item>
-                    <Descriptions.Item label="PO Number">{detail.forecastId}</Descriptions.Item>
-                    <Descriptions.Item label="Label Number"><code>{detail.labelNumber}</code></Descriptions.Item>
-                    <Descriptions.Item
-                        label="Finish Good">{detail.finishGoodId} - {detail.finishGoodName}</Descriptions.Item>
-                    <Descriptions.Item label="Vendor">{detail.vendorName}</Descriptions.Item>
-                    <Descriptions.Item label="Delivery Date">{formatDate(detail.deliveryDate)}</Descriptions.Item>
-                    <Descriptions.Item label="Qty/Box">{detail.qtyThisBox}</Descriptions.Item>
-                    <Descriptions.Item label="Poka-Yoke"><Tag
-                        color={detail.scanned ? "success" : "warning"}>{detail.scanned ? "Passed" : "Pending"}</Tag></Descriptions.Item>
-                    {can("IPCS.TRACEABILITY_READ") &&
-                        <Descriptions.Item label="Traceability" span={{xs: 1, sm: 2}}><Link
-                            href={`/apps/traceability?poId=${encodeURIComponent(detail.forecastId)}&label=${encodeURIComponent(detail.labelNumber)}`}>View
-                            Traceability</Link></Descriptions.Item>}
-                </Descriptions>}
-            </Modal>
-            <FinishGoodLinkedModal open={linkedFinishGood !== null} partNumber={linkedFinishGood}
-                                   onClose={() => setLinkedFinishGood(null)}/>
-        </Card>
-    );
+      <Table
+        columns={columns}
+        dataSource={data}
+        size="small"
+        loading={loading}
+        onChange={handleTableChange}
+        pagination={{
+          size: "small",
+          current: pagination.page,
+          pageSize: pagination.limit,
+          total: pagination.total,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          pageSizeOptions: ["20", "50", "100"],
+          showTotal: (total: number, range: number[]) =>
+            `${range[0]}-${range[1]} of ${total}`,
+        }}
+        rowKey="id"
+        scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+        className="small-table"
+      />
+      <Modal
+        title={`Pre Delivery Detail · ${detail?.labelNumber ?? ""}`}
+        open={Boolean(detail)}
+        onCancel={() => setDetail(null)}
+        footer={null}
+        centered
+        width={720}
+        destroyOnHidden
+      >
+        {detail && (
+          <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
+            <Descriptions.Item label="Release Number">
+              {detail.productionReleaseNumber}
+            </Descriptions.Item>
+            <Descriptions.Item label="Order Reference">
+              {detail.forecastId}
+            </Descriptions.Item>
+            <Descriptions.Item label="Label Number">
+              <code>{detail.labelNumber}</code>
+            </Descriptions.Item>
+            <Descriptions.Item label="Finish Good">
+              {detail.finishGoodId} - {detail.finishGoodName}
+            </Descriptions.Item>
+            <Descriptions.Item label="Vendor">
+              {detail.vendorName}
+            </Descriptions.Item>
+            <Descriptions.Item label="Delivery Date">
+              {formatDate(detail.deliveryDate)}
+            </Descriptions.Item>
+            <Descriptions.Item label="Qty/Box">
+              {detail.qtyThisBox}
+            </Descriptions.Item>
+            <Descriptions.Item label="Poka-Yoke">
+              <Tag color={detail.scanned ? "success" : "warning"}>
+                {detail.scanned ? "Passed" : "Pending"}
+              </Tag>
+            </Descriptions.Item>
+            {can("IPCS.TRACEABILITY_READ") && (
+              <Descriptions.Item label="Traceability" span={{ xs: 1, sm: 2 }}>
+                <Link
+                  href={`/apps/traceability?poId=${encodeURIComponent(detail.forecastId)}&label=${encodeURIComponent(detail.labelNumber)}`}
+                >
+                  View Traceability
+                </Link>
+              </Descriptions.Item>
+            )}
+          </Descriptions>
+        )}
+      </Modal>
+      <FinishGoodLinkedModal
+        open={linkedFinishGood !== null}
+        partNumber={linkedFinishGood}
+        onClose={() => setLinkedFinishGood(null)}
+      />
+    </Card>
+  );
 }

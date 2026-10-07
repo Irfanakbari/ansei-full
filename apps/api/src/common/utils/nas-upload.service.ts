@@ -537,8 +537,13 @@ export class NasUploadService {
         pathname = publicUrl;
       } else {
         const url = new URL(publicUrl);
+        const legacyOrigin =
+          url.protocol === config.baseUrl.protocol &&
+          url.hostname === config.baseUrl.hostname &&
+          url.port === '' &&
+          url.pathname.startsWith(`/${config.share}/${config.subfolder}/`);
         if (
-          url.origin !== config.baseUrl.origin ||
+          (url.origin !== config.baseUrl.origin && !legacyOrigin) ||
           url.username ||
           url.password ||
           url.search ||

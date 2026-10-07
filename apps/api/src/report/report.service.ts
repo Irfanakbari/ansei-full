@@ -868,7 +868,7 @@ export class ReportService {
         worksheet,
         [
           index + 1,
-          d.ForecastId,
+          d.ProductionDemandId,
           d.LabelData?.LabelNumber || d.LabelDataId,
           d.LabelData?.FinishGoodId || '-',
           d.PoData?.PartData?.PartName || '-',
@@ -1021,7 +1021,7 @@ export class ReportService {
         [
           index + 1,
           s.Id,
-          s.ForecastData?.PoId || s.ForecastId || '-',
+          s.ForecastData?.PoId || s.ProductionDemandId || '-',
           s.MaterialData?.PartNumber || s.MaterialId,
           s.MaterialData?.PartName || '-',
           s.Type,

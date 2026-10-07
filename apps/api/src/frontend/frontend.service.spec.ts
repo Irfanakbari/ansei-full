@@ -12,7 +12,7 @@ describe('FrontendService', () => {
     };
     manPower: { findMany: jest.Mock; count: jest.Mock };
     productionRelease: { findFirst: jest.Mock; findMany: jest.Mock };
-    forecast: { findMany: jest.Mock; findUnique: jest.Mock };
+    productionOrder: { findMany: jest.Mock; findUnique: jest.Mock };
     incoming: { findMany: jest.Mock; count: jest.Mock };
     stockOpname: { findMany: jest.Mock };
     labelData: { findMany: jest.Mock };
@@ -38,7 +38,7 @@ describe('FrontendService', () => {
       },
       manPower: { findMany: jest.fn(), count: jest.fn() },
       productionRelease: { findFirst: jest.fn(), findMany: jest.fn() },
-      forecast: { findMany: jest.fn(), findUnique: jest.fn() },
+      productionOrder: { findMany: jest.fn(), findUnique: jest.fn() },
       incoming: { findMany: jest.fn(), count: jest.fn() },
       stockOpname: { findMany: jest.fn() },
       labelData: { findMany: jest.fn() },
@@ -67,7 +67,7 @@ describe('FrontendService', () => {
 
   describe('getNotifications', () => {
     beforeEach(() => {
-      prisma.forecast.findMany.mockResolvedValue([]);
+      prisma.productionOrder.findMany.mockResolvedValue([]);
       prisma.incoming.findMany.mockResolvedValue([]);
       prisma.stockOpname.findMany.mockResolvedValue([]);
       prisma.labelData.findMany.mockResolvedValue([]);
@@ -141,26 +141,26 @@ describe('FrontendService', () => {
         {
           Id: 1,
           LabelNumber: 'LBL-001',
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           ProductionReleaseId: 'release-1',
           ProductionRelease: { Id: 'release-1', ReleaseNumber: 'PR-001' },
         },
         {
           Id: 2,
           LabelNumber: 'LBL-002',
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           ProductionReleaseId: 'release-1',
           ProductionRelease: { Id: 'release-1', ReleaseNumber: 'PR-001' },
         },
         {
           Id: 3,
           LabelNumber: 'LBL-003',
-          ForecastId: 'PO-002',
+          ProductionDemandId: 'PO-002',
           ProductionReleaseId: 'release-1',
           ProductionRelease: { Id: 'release-1', ReleaseNumber: 'PR-001' },
         },
       ]);
-      prisma.forecast.findUnique.mockImplementation(({ where }) =>
+      prisma.productionOrder.findUnique.mockImplementation(({ where }) =>
         Promise.resolve({
           PoId: where.PoId,
           FinishGoodId: 'FG-001',
@@ -177,7 +177,7 @@ describe('FrontendService', () => {
 
       const result = await service.getNotifications();
 
-      expect(prisma.forecast.findUnique).toHaveBeenCalledTimes(2);
+      expect(prisma.productionOrder.findUnique).toHaveBeenCalledTimes(2);
       expect(prisma.billOfMaterials.findMany).toHaveBeenCalledTimes(2);
       expect(prisma.shopping.findMany).toHaveBeenCalledTimes(2);
       expect(result.totalLabelDataNotScanned).toBe(3);
@@ -194,7 +194,7 @@ describe('FrontendService', () => {
       prisma.material.findMany.mockResolvedValue([]);
       prisma.inventoryLedger.groupBy.mockResolvedValue([]);
       prisma.stockOpname.findMany.mockResolvedValue([]);
-      prisma.forecast.findMany.mockResolvedValue([]);
+      prisma.productionOrder.findMany.mockResolvedValue([]);
       prisma.incoming.findMany.mockResolvedValue([]);
       prisma.incoming.count.mockResolvedValue(0);
       prisma.productionRelease.findMany.mockResolvedValue([]);
@@ -216,7 +216,7 @@ describe('FrontendService', () => {
       expect(result.meta.periodEndExclusive).toEqual(
         new Date('2026-01-31T17:00:00.000Z'),
       );
-      expect(prisma.forecast.findMany).toHaveBeenCalledWith(
+      expect(prisma.productionOrder.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
             DeliveryDate: {
@@ -243,7 +243,7 @@ describe('FrontendService', () => {
       prisma.inventoryLedger.groupBy.mockResolvedValue([
         { MaterialId: 'MAT-1', _sum: { QtyIn: 4, QtyOut: 7 } },
       ]);
-      prisma.forecast.findMany.mockResolvedValue([
+      prisma.productionOrder.findMany.mockResolvedValue([
         {
           PoId: 'PO-1',
           Qty: 10,
@@ -270,7 +270,7 @@ describe('FrontendService', () => {
         },
       ]);
       prisma.deliveryHistory.groupBy.mockResolvedValue([
-        { ForecastId: 'PO-1', _sum: { Qty: 15 } },
+        { ProductionDemandId: 'PO-1', _sum: { Qty: 15 } },
       ]);
 
       const result = await service.getDashboard({ month: 1, year: 2026 });
@@ -309,7 +309,7 @@ describe('FrontendService', () => {
         },
       ]);
       prisma.shoppingCompletion.findMany.mockResolvedValue([
-        { ForecastId: 'PO-1' },
+        { ProductionDemandId: 'PO-1' },
       ]);
 
       const result = await service.getDashboard({ month: 1, year: 2026 });
@@ -318,8 +318,8 @@ describe('FrontendService', () => {
       expect(result.releasePipeline[0].assemblyPct).toBeNull();
       expect(prisma.shoppingCompletion.findMany).toHaveBeenCalledTimes(1);
       expect(prisma.shoppingCompletion.findMany).toHaveBeenCalledWith({
-        where: { ForecastId: { in: ['PO-1', 'PO-2'] } },
-        select: { ForecastId: true },
+        where: { ProductionDemandId: { in: ['PO-1', 'PO-2'] } },
+        select: { ProductionDemandId: true },
       });
     });
 
@@ -428,6 +428,7 @@ describe('FrontendService', () => {
         Id: 'release-1',
         ReleaseNumber: 'PR-001',
         Forecasts: [{ Qty: 10 }, { Qty: 15 }],
+        LabelDatas: [{ QtyThisBox: 4 }, { QtyThisBox: 6 }],
       });
 
       await expect(service.getDisplayTarget('FG-001')).resolves.toEqual({
@@ -435,6 +436,7 @@ describe('FrontendService', () => {
         partName: 'Part 1',
         alias: 'P1',
         targetQty: 25,
+        actualQty: 10,
         productionReleaseId: 'release-1',
         releaseNumber: 'PR-001',
       });
@@ -447,8 +449,30 @@ describe('FrontendService', () => {
             where: { FinishGoodId: 'FG-001' },
             select: { Qty: true },
           },
+          LabelDatas: {
+            where: {
+              FinishGoodId: 'FG-001',
+              AssemblySessions: { some: { Status: 'COMPLETED' } },
+            },
+            select: { QtyThisBox: true },
+          },
         },
         orderBy: { PlanDate: 'desc' },
+      });
+    });
+
+    it('returns zero actual while the active release has no completed boxes', async () => {
+      prisma.finishGood.findUnique.mockResolvedValue(null);
+      prisma.productionRelease.findFirst.mockResolvedValue({
+        Id: 'release-1',
+        ReleaseNumber: 'PR-001',
+        Forecasts: [{ Qty: 25 }],
+        LabelDatas: [],
+      });
+
+      await expect(service.getDisplayTarget('FG-001')).resolves.toMatchObject({
+        targetQty: 25,
+        actualQty: 0,
       });
     });
 
@@ -465,6 +489,7 @@ describe('FrontendService', () => {
         partName: 'Part 1',
         alias: null,
         targetQty: 0,
+        actualQty: 0,
         productionReleaseId: null,
         releaseNumber: null,
       });

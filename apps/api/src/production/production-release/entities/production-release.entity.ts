@@ -171,7 +171,7 @@ export class ProductionReleaseDetailEntity extends ProductionReleaseEntity {
     Id: number;
     LabelNumber: string;
     FinishGoodId: string;
-    ForecastId: string;
+    ProductionDemandId: string;
     Scanned: boolean;
     QtyThisBox: number;
   }>;
@@ -269,7 +269,7 @@ export class LabelDataEntity {
   FinishGoodId: string;
 
   @ApiProperty({ example: 'PO-2026-001' })
-  ForecastId: string;
+  ProductionDemandId: string;
 
   @ApiProperty({ example: false })
   Scanned: boolean;

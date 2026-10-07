@@ -302,7 +302,7 @@ describe('ReportService', () => {
       const mockDeliveries = [
         {
           Id: 1,
-          ForecastId: 'PO-2026-001',
+          ProductionDemandId: 'PO-2026-001',
           Qty: 10,
           CreatedAt: new Date(),
           CreatedBy: 'John',
@@ -360,7 +360,7 @@ describe('ReportService', () => {
       const mockShoppings = [
         {
           Id: 'SHP-001',
-          ForecastId: 'PO-2026-001',
+          ProductionDemandId: 'PO-2026-001',
           Type: 'REGULER',
           QtyPick: 50,
           Description: 'Test',

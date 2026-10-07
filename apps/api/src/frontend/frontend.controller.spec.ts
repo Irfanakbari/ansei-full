@@ -49,6 +49,7 @@ describe('FrontendController', () => {
       partName: 'Part 1',
       alias: 'P1',
       targetQty: 25,
+      actualQty: 10,
       productionReleaseId: 'release-1',
       releaseNumber: 'PR-001',
     };

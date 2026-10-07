@@ -13,6 +13,18 @@ export class PokayokeScanEntity {
   @ApiProperty({ description: 'Forecast/PO ID', example: 'PO-001' })
   poId: string;
 
+  @ApiPropertyOptional({ description: 'Canonical production demand identity' })
+  demandId?: string;
+
+  @ApiPropertyOptional({ description: 'Stable PO or NPO order reference' })
+  referenceNumber?: string;
+
+  @ApiPropertyOptional({ enum: ['PO', 'NON_PO'] })
+  sourceType?: 'PO' | 'NON_PO';
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  poNumber?: string | null;
+
   @ApiProperty({ description: 'FinishGood PartNumber', example: 'FG-001' })
   partNumber: string;
 

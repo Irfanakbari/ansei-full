@@ -21,7 +21,7 @@ describe('DeliveryController', () => {
 
   const mockDelivery = {
     Id: 1,
-    ForecastId: 'PO-001',
+    ProductionDemandId: 'PO-001',
     Qty: 100,
     CreatedAt: new Date(),
     CreatedBy: 'testuser',

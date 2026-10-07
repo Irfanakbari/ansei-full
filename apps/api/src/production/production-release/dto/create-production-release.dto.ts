@@ -1,3 +1,8 @@
+import {
+  IsIn as IsDemandSource,
+  ValidateIf as SelectionOptional,
+  IsOptional as OptionalDemand,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
@@ -9,6 +14,15 @@ import {
 } from 'class-validator';
 
 export class CreateProductionReleaseDto {
+  @OptionalDemand()
+  @IsArray()
+  @IsString({ each: true })
+  demandIds?: string[];
+
+  @OptionalDemand()
+  @IsDemandSource(['PO', 'NON_PO'])
+  sourceType?: 'PO' | 'NON_PO';
+
   /** Nomor release produksi */
   @ApiPropertyOptional({
     description:
@@ -37,6 +51,9 @@ export class CreateProductionReleaseDto {
   notes?: string;
 
   /** Daftar forecast ID yang akan di-release */
+  @SelectionOptional(
+    (dto: { demandIds?: string[] }) => dto.demandIds === undefined,
+  )
   @ApiProperty({
     description: 'Daftar forecast IDs',
     example: ['forecast-id-1', 'forecast-id-2'],

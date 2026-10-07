@@ -7,6 +7,18 @@ export class DeliveryEntity {
   @ApiProperty({ description: 'Forecast/PO ID' })
   forecastId: string;
 
+  @ApiPropertyOptional({ description: 'Canonical production demand identity' })
+  demandId?: string;
+
+  @ApiPropertyOptional({ description: 'Stable PO or NPO order reference' })
+  referenceNumber?: string;
+
+  @ApiPropertyOptional({ enum: ['PO', 'NON_PO'] })
+  sourceType?: 'PO' | 'NON_PO';
+
+  @ApiPropertyOptional({ type: String, nullable: true })
+  poNumber?: string | null;
+
   @ApiProperty({
     description: 'Quantity delivered (taken from LabelData.QtyThisBox)',
   })

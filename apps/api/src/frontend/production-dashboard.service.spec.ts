@@ -37,7 +37,7 @@ function order(poId: string, period = 1, shipped = 0): Order {
       AssemblySessions: [],
     })),
     DeliveryHistory: Array.from({ length: shipped }, (_, n) => ({
-      ForecastId: poId,
+      ProductionDemandId: poId,
       LabelDataId: `${poId}-${n + 1}`,
       Qty: 10,
       CreatedAt: now,

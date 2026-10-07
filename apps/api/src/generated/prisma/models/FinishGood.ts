@@ -301,6 +301,8 @@ export type FinishGoodWhereInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsListRelationFilter
   BoxQTY?: Prisma.XOR<Prisma.BoxQTYNullableScalarRelationFilter, Prisma.BoxQTYWhereInput> | null
   Forecast?: Prisma.ForecastListRelationFilter
+  NonPoForecasts?: Prisma.ForecastNonPoListRelationFilter
+  ProductionOrders?: Prisma.ProductionOrderListRelationFilter
   LabelData?: Prisma.LabelDataListRelationFilter
   LineStatus?: Prisma.LineStatusListRelationFilter
   ProductionReport?: Prisma.ProductionReportListRelationFilter
@@ -328,6 +330,8 @@ export type FinishGoodOrderByWithRelationInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsOrderByRelationAggregateInput
   BoxQTY?: Prisma.BoxQTYOrderByWithRelationInput
   Forecast?: Prisma.ForecastOrderByRelationAggregateInput
+  NonPoForecasts?: Prisma.ForecastNonPoOrderByRelationAggregateInput
+  ProductionOrders?: Prisma.ProductionOrderOrderByRelationAggregateInput
   LabelData?: Prisma.LabelDataOrderByRelationAggregateInput
   LineStatus?: Prisma.LineStatusOrderByRelationAggregateInput
   ProductionReport?: Prisma.ProductionReportOrderByRelationAggregateInput
@@ -358,6 +362,8 @@ export type FinishGoodWhereUniqueInput = Prisma.AtLeast<{
   BillOfMaterials?: Prisma.BillOfMaterialsListRelationFilter
   BoxQTY?: Prisma.XOR<Prisma.BoxQTYNullableScalarRelationFilter, Prisma.BoxQTYWhereInput> | null
   Forecast?: Prisma.ForecastListRelationFilter
+  NonPoForecasts?: Prisma.ForecastNonPoListRelationFilter
+  ProductionOrders?: Prisma.ProductionOrderListRelationFilter
   LabelData?: Prisma.LabelDataListRelationFilter
   LineStatus?: Prisma.LineStatusListRelationFilter
   ProductionReport?: Prisma.ProductionReportListRelationFilter
@@ -425,6 +431,8 @@ export type FinishGoodCreateInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
@@ -451,6 +459,8 @@ export type FinishGoodUncheckedCreateInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
@@ -476,6 +486,8 @@ export type FinishGoodUpdateInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
@@ -502,6 +514,8 @@ export type FinishGoodUncheckedUpdateInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
@@ -801,6 +815,20 @@ export type FinishGoodUncheckedUpdateOneWithoutActiveBomRevisionNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinishGoodUpdateToOneWithWhereWithoutActiveBomRevisionInput, Prisma.FinishGoodUpdateWithoutActiveBomRevisionInput>, Prisma.FinishGoodUncheckedUpdateWithoutActiveBomRevisionInput>
 }
 
+export type FinishGoodCreateNestedOneWithoutNonPoForecastsInput = {
+  create?: Prisma.XOR<Prisma.FinishGoodCreateWithoutNonPoForecastsInput, Prisma.FinishGoodUncheckedCreateWithoutNonPoForecastsInput>
+  connectOrCreate?: Prisma.FinishGoodCreateOrConnectWithoutNonPoForecastsInput
+  connect?: Prisma.FinishGoodWhereUniqueInput
+}
+
+export type FinishGoodUpdateOneRequiredWithoutNonPoForecastsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinishGoodCreateWithoutNonPoForecastsInput, Prisma.FinishGoodUncheckedCreateWithoutNonPoForecastsInput>
+  connectOrCreate?: Prisma.FinishGoodCreateOrConnectWithoutNonPoForecastsInput
+  upsert?: Prisma.FinishGoodUpsertWithoutNonPoForecastsInput
+  connect?: Prisma.FinishGoodWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinishGoodUpdateToOneWithWhereWithoutNonPoForecastsInput, Prisma.FinishGoodUpdateWithoutNonPoForecastsInput>, Prisma.FinishGoodUncheckedUpdateWithoutNonPoForecastsInput>
+}
+
 export type FinishGoodCreateWithoutBoxQTYInput = {
   PartNumber: string
   PartName: string
@@ -818,6 +846,8 @@ export type FinishGoodCreateWithoutBoxQTYInput = {
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
@@ -843,6 +873,8 @@ export type FinishGoodUncheckedCreateWithoutBoxQTYInput = {
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
@@ -883,6 +915,8 @@ export type FinishGoodUpdateWithoutBoxQTYInput = {
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
@@ -908,6 +942,8 @@ export type FinishGoodUncheckedUpdateWithoutBoxQTYInput = {
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
@@ -932,6 +968,8 @@ export type FinishGoodCreateWithoutBillOfMaterialsInput = {
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
@@ -957,6 +995,8 @@ export type FinishGoodUncheckedCreateWithoutBillOfMaterialsInput = {
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
@@ -997,6 +1037,8 @@ export type FinishGoodUpdateWithoutBillOfMaterialsInput = {
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
@@ -1022,6 +1064,8 @@ export type FinishGoodUncheckedUpdateWithoutBillOfMaterialsInput = {
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1047,6 +1091,8 @@ export type FinishGoodCreateWithoutInventoryLedgerInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
@@ -1072,6 +1118,8 @@ export type FinishGoodUncheckedCreateWithoutInventoryLedgerInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
@@ -1112,6 +1160,8 @@ export type FinishGoodUpdateWithoutInventoryLedgerInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
@@ -1137,6 +1187,8 @@ export type FinishGoodUncheckedUpdateWithoutInventoryLedgerInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1161,6 +1213,8 @@ export type FinishGoodCreateWithoutStockOpnameDetailInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
@@ -1186,6 +1240,8 @@ export type FinishGoodUncheckedCreateWithoutStockOpnameDetailInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
@@ -1226,6 +1282,8 @@ export type FinishGoodUpdateWithoutStockOpnameDetailInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
@@ -1251,6 +1309,8 @@ export type FinishGoodUncheckedUpdateWithoutStockOpnameDetailInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1274,6 +1334,8 @@ export type FinishGoodCreateWithoutForecastInput = {
   BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
@@ -1299,6 +1361,8 @@ export type FinishGoodUncheckedCreateWithoutForecastInput = {
   BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
@@ -1339,6 +1403,8 @@ export type FinishGoodUpdateWithoutForecastInput = {
   BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
@@ -1364,6 +1430,8 @@ export type FinishGoodUncheckedUpdateWithoutForecastInput = {
   BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1389,6 +1457,8 @@ export type FinishGoodCreateWithoutProductionReportInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutFGDataInput
@@ -1414,6 +1484,8 @@ export type FinishGoodUncheckedCreateWithoutProductionReportInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutFGDataInput
@@ -1454,6 +1526,8 @@ export type FinishGoodUpdateWithoutProductionReportInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutFGDataNestedInput
@@ -1479,6 +1553,8 @@ export type FinishGoodUncheckedUpdateWithoutProductionReportInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1503,6 +1579,8 @@ export type FinishGoodCreateWithoutLabelDataInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutFGDataInput
@@ -1528,6 +1606,8 @@ export type FinishGoodUncheckedCreateWithoutLabelDataInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutFGDataInput
@@ -1568,6 +1648,8 @@ export type FinishGoodUpdateWithoutLabelDataInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutFGDataNestedInput
@@ -1593,6 +1675,8 @@ export type FinishGoodUncheckedUpdateWithoutLabelDataInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1617,6 +1701,8 @@ export type FinishGoodCreateWithoutLineStatusInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutFGDataInput
@@ -1642,6 +1728,8 @@ export type FinishGoodUncheckedCreateWithoutLineStatusInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutFGDataInput
@@ -1682,6 +1770,8 @@ export type FinishGoodUpdateWithoutLineStatusInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutFGDataNestedInput
@@ -1707,6 +1797,8 @@ export type FinishGoodUncheckedUpdateWithoutLineStatusInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1730,6 +1822,8 @@ export type FinishGoodCreateWithoutBomRevisionsInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
@@ -1755,6 +1849,8 @@ export type FinishGoodUncheckedCreateWithoutBomRevisionsInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
@@ -1784,6 +1880,8 @@ export type FinishGoodCreateWithoutActiveBomRevisionInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
@@ -1809,6 +1907,8 @@ export type FinishGoodUncheckedCreateWithoutActiveBomRevisionInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
   BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
   Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
   LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
   LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
@@ -1849,6 +1949,8 @@ export type FinishGoodUpdateWithoutBomRevisionsInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
@@ -1874,6 +1976,8 @@ export type FinishGoodUncheckedUpdateWithoutBomRevisionsInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1909,6 +2013,8 @@ export type FinishGoodUpdateWithoutActiveBomRevisionInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
@@ -1934,6 +2040,260 @@ export type FinishGoodUncheckedUpdateWithoutActiveBomRevisionInput = {
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
   BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
   Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
+  LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutFGDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutFGDataNestedInput
+}
+
+export type FinishGoodCreateWithoutNonPoForecastsInput = {
+  PartNumber: string
+  PartName: string
+  IsPassthrough?: boolean
+  Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  Price?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Qty?: number
+  ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
+  BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
+  BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
+  BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
+  Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderCreateNestedManyWithoutPartDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
+  LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
+  InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutFGDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutFGDataInput
+}
+
+export type FinishGoodUncheckedCreateWithoutNonPoForecastsInput = {
+  ActiveBomRevisionId?: string | null
+  Id?: number
+  PartNumber: string
+  PartName: string
+  IsPassthrough?: boolean
+  Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  Price?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Qty?: number
+  BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
+  BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
+  Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutPartDataInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
+  LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutFGDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutFGDataInput
+}
+
+export type FinishGoodCreateOrConnectWithoutNonPoForecastsInput = {
+  where: Prisma.FinishGoodWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinishGoodCreateWithoutNonPoForecastsInput, Prisma.FinishGoodUncheckedCreateWithoutNonPoForecastsInput>
+}
+
+export type FinishGoodUpsertWithoutNonPoForecastsInput = {
+  update: Prisma.XOR<Prisma.FinishGoodUpdateWithoutNonPoForecastsInput, Prisma.FinishGoodUncheckedUpdateWithoutNonPoForecastsInput>
+  create: Prisma.XOR<Prisma.FinishGoodCreateWithoutNonPoForecastsInput, Prisma.FinishGoodUncheckedCreateWithoutNonPoForecastsInput>
+  where?: Prisma.FinishGoodWhereInput
+}
+
+export type FinishGoodUpdateToOneWithWhereWithoutNonPoForecastsInput = {
+  where?: Prisma.FinishGoodWhereInput
+  data: Prisma.XOR<Prisma.FinishGoodUpdateWithoutNonPoForecastsInput, Prisma.FinishGoodUncheckedUpdateWithoutNonPoForecastsInput>
+}
+
+export type FinishGoodUpdateWithoutNonPoForecastsInput = {
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
+  BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
+  BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
+  Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUpdateManyWithoutPartDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
+  LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutFGDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutFGDataNestedInput
+}
+
+export type FinishGoodUncheckedUpdateWithoutNonPoForecastsInput = {
+  ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
+  BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
+  Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  ProductionOrders?: Prisma.ProductionOrderUncheckedUpdateManyWithoutPartDataNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
+  LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutFGDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutFGDataNestedInput
+}
+
+export type FinishGoodUpdateOneRequiredWithoutProductionOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.FinishGoodCreateWithoutProductionOrdersInput, Prisma.FinishGoodUncheckedCreateWithoutProductionOrdersInput>
+  connectOrCreate?: Prisma.FinishGoodCreateOrConnectWithoutProductionOrdersInput
+  upsert?: Prisma.FinishGoodUpsertWithoutProductionOrdersInput
+  connect?: Prisma.FinishGoodWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinishGoodUpdateToOneWithWhereWithoutProductionOrdersInput, Prisma.FinishGoodUpdateWithoutProductionOrdersInput>, Prisma.FinishGoodUncheckedUpdateWithoutProductionOrdersInput>
+}
+
+export type FinishGoodCreateWithoutProductionOrdersInput = {
+  PartNumber: string
+  PartName: string
+  IsPassthrough?: boolean
+  Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  Price?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Qty?: number
+  ActiveBomRevision?: Prisma.BomRevisionCreateNestedOneWithoutActiveForInput
+  BomRevisions?: Prisma.BomRevisionCreateNestedManyWithoutFinishGoodInput
+  BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutFGDataInput
+  BoxQTY?: Prisma.BoxQTYCreateNestedOneWithoutPartDataInput
+  Forecast?: Prisma.ForecastCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoCreateNestedManyWithoutPartDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPartDataInput
+  LineStatus?: Prisma.LineStatusCreateNestedManyWithoutCurrentProductionInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutFGDataInput
+  InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutFGDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutFGDataInput
+}
+
+export type FinishGoodUncheckedCreateWithoutProductionOrdersInput = {
+  ActiveBomRevisionId?: string | null
+  Id?: number
+  PartNumber: string
+  PartName: string
+  IsPassthrough?: boolean
+  Alias?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  Price?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Qty?: number
+  BomRevisions?: Prisma.BomRevisionUncheckedCreateNestedManyWithoutFinishGoodInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutFGDataInput
+  BoxQTY?: Prisma.BoxQTYUncheckedCreateNestedOneWithoutPartDataInput
+  Forecast?: Prisma.ForecastUncheckedCreateNestedManyWithoutPartDataInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedCreateNestedManyWithoutPartDataInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPartDataInput
+  LineStatus?: Prisma.LineStatusUncheckedCreateNestedManyWithoutCurrentProductionInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutFGDataInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutFGDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutFGDataInput
+}
+
+export type FinishGoodCreateOrConnectWithoutProductionOrdersInput = {
+  where: Prisma.FinishGoodWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinishGoodCreateWithoutProductionOrdersInput, Prisma.FinishGoodUncheckedCreateWithoutProductionOrdersInput>
+}
+
+export type FinishGoodUpsertWithoutProductionOrdersInput = {
+  update: Prisma.XOR<Prisma.FinishGoodUpdateWithoutProductionOrdersInput, Prisma.FinishGoodUncheckedUpdateWithoutProductionOrdersInput>
+  create: Prisma.XOR<Prisma.FinishGoodCreateWithoutProductionOrdersInput, Prisma.FinishGoodUncheckedCreateWithoutProductionOrdersInput>
+  where?: Prisma.FinishGoodWhereInput
+}
+
+export type FinishGoodUpdateToOneWithWhereWithoutProductionOrdersInput = {
+  where?: Prisma.FinishGoodWhereInput
+  data: Prisma.XOR<Prisma.FinishGoodUpdateWithoutProductionOrdersInput, Prisma.FinishGoodUncheckedUpdateWithoutProductionOrdersInput>
+}
+
+export type FinishGoodUpdateWithoutProductionOrdersInput = {
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  ActiveBomRevision?: Prisma.BomRevisionUpdateOneWithoutActiveForNestedInput
+  BomRevisions?: Prisma.BomRevisionUpdateManyWithoutFinishGoodNestedInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutFGDataNestedInput
+  BoxQTY?: Prisma.BoxQTYUpdateOneWithoutPartDataNestedInput
+  Forecast?: Prisma.ForecastUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUpdateManyWithoutPartDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutPartDataNestedInput
+  LineStatus?: Prisma.LineStatusUpdateManyWithoutCurrentProductionNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutFGDataNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutFGDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutFGDataNestedInput
+}
+
+export type FinishGoodUncheckedUpdateWithoutProductionOrdersInput = {
+  ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Price?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  BomRevisions?: Prisma.BomRevisionUncheckedUpdateManyWithoutFinishGoodNestedInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutFGDataNestedInput
+  BoxQTY?: Prisma.BoxQTYUncheckedUpdateOneWithoutPartDataNestedInput
+  Forecast?: Prisma.ForecastUncheckedUpdateManyWithoutPartDataNestedInput
+  NonPoForecasts?: Prisma.ForecastNonPoUncheckedUpdateManyWithoutPartDataNestedInput
   LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPartDataNestedInput
   LineStatus?: Prisma.LineStatusUncheckedUpdateManyWithoutCurrentProductionNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutFGDataNestedInput
@@ -1950,6 +2310,8 @@ export type FinishGoodCountOutputType = {
   BomRevisions: number
   BillOfMaterials: number
   Forecast: number
+  NonPoForecasts: number
+  ProductionOrders: number
   LabelData: number
   LineStatus: number
   ProductionReport: number
@@ -1961,6 +2323,8 @@ export type FinishGoodCountOutputTypeSelect<ExtArgs extends runtime.Types.Extens
   BomRevisions?: boolean | FinishGoodCountOutputTypeCountBomRevisionsArgs
   BillOfMaterials?: boolean | FinishGoodCountOutputTypeCountBillOfMaterialsArgs
   Forecast?: boolean | FinishGoodCountOutputTypeCountForecastArgs
+  NonPoForecasts?: boolean | FinishGoodCountOutputTypeCountNonPoForecastsArgs
+  ProductionOrders?: boolean | FinishGoodCountOutputTypeCountProductionOrdersArgs
   LabelData?: boolean | FinishGoodCountOutputTypeCountLabelDataArgs
   LineStatus?: boolean | FinishGoodCountOutputTypeCountLineStatusArgs
   ProductionReport?: boolean | FinishGoodCountOutputTypeCountProductionReportArgs
@@ -1997,6 +2361,20 @@ export type FinishGoodCountOutputTypeCountBillOfMaterialsArgs<ExtArgs extends ru
  */
 export type FinishGoodCountOutputTypeCountForecastArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ForecastWhereInput
+}
+
+/**
+ * FinishGoodCountOutputType without action
+ */
+export type FinishGoodCountOutputTypeCountNonPoForecastsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ForecastNonPoWhereInput
+}
+
+/**
+ * FinishGoodCountOutputType without action
+ */
+export type FinishGoodCountOutputTypeCountProductionOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionOrderWhereInput
 }
 
 /**
@@ -2055,6 +2433,8 @@ export type FinishGoodSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   BillOfMaterials?: boolean | Prisma.FinishGood$BillOfMaterialsArgs<ExtArgs>
   BoxQTY?: boolean | Prisma.FinishGood$BoxQTYArgs<ExtArgs>
   Forecast?: boolean | Prisma.FinishGood$ForecastArgs<ExtArgs>
+  NonPoForecasts?: boolean | Prisma.FinishGood$NonPoForecastsArgs<ExtArgs>
+  ProductionOrders?: boolean | Prisma.FinishGood$ProductionOrdersArgs<ExtArgs>
   LabelData?: boolean | Prisma.FinishGood$LabelDataArgs<ExtArgs>
   LineStatus?: boolean | Prisma.FinishGood$LineStatusArgs<ExtArgs>
   ProductionReport?: boolean | Prisma.FinishGood$ProductionReportArgs<ExtArgs>
@@ -2123,6 +2503,8 @@ export type FinishGoodInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   BillOfMaterials?: boolean | Prisma.FinishGood$BillOfMaterialsArgs<ExtArgs>
   BoxQTY?: boolean | Prisma.FinishGood$BoxQTYArgs<ExtArgs>
   Forecast?: boolean | Prisma.FinishGood$ForecastArgs<ExtArgs>
+  NonPoForecasts?: boolean | Prisma.FinishGood$NonPoForecastsArgs<ExtArgs>
+  ProductionOrders?: boolean | Prisma.FinishGood$ProductionOrdersArgs<ExtArgs>
   LabelData?: boolean | Prisma.FinishGood$LabelDataArgs<ExtArgs>
   LineStatus?: boolean | Prisma.FinishGood$LineStatusArgs<ExtArgs>
   ProductionReport?: boolean | Prisma.FinishGood$ProductionReportArgs<ExtArgs>
@@ -2145,6 +2527,8 @@ export type $FinishGoodPayload<ExtArgs extends runtime.Types.Extensions.Internal
     BillOfMaterials: Prisma.$BillOfMaterialsPayload<ExtArgs>[]
     BoxQTY: Prisma.$BoxQTYPayload<ExtArgs> | null
     Forecast: Prisma.$ForecastPayload<ExtArgs>[]
+    NonPoForecasts: Prisma.$ForecastNonPoPayload<ExtArgs>[]
+    ProductionOrders: Prisma.$ProductionOrderPayload<ExtArgs>[]
     LabelData: Prisma.$LabelDataPayload<ExtArgs>[]
     LineStatus: Prisma.$LineStatusPayload<ExtArgs>[]
     ProductionReport: Prisma.$ProductionReportPayload<ExtArgs>[]
@@ -2565,6 +2949,8 @@ export interface Prisma__FinishGoodClient<T, Null = never, ExtArgs extends runti
   BillOfMaterials<T extends Prisma.FinishGood$BillOfMaterialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGood$BillOfMaterialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BillOfMaterialsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   BoxQTY<T extends Prisma.FinishGood$BoxQTYArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGood$BoxQTYArgs<ExtArgs>>): Prisma.Prisma__BoxQTYClient<runtime.Types.Result.GetResult<Prisma.$BoxQTYPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Forecast<T extends Prisma.FinishGood$ForecastArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGood$ForecastArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  NonPoForecasts<T extends Prisma.FinishGood$NonPoForecastsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGood$NonPoForecastsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ForecastNonPoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ProductionOrders<T extends Prisma.FinishGood$ProductionOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGood$ProductionOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LabelData<T extends Prisma.FinishGood$LabelDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGood$LabelDataArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LineStatus<T extends Prisma.FinishGood$LineStatusArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGood$LineStatusArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LineStatusPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProductionReport<T extends Prisma.FinishGood$ProductionReportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGood$ProductionReportArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3121,6 +3507,54 @@ export type FinishGood$ForecastArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.ForecastScalarFieldEnum | Prisma.ForecastScalarFieldEnum[]
+}
+
+/**
+ * FinishGood.NonPoForecasts
+ */
+export type FinishGood$NonPoForecastsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ForecastNonPo
+   */
+  select?: Prisma.ForecastNonPoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ForecastNonPo
+   */
+  omit?: Prisma.ForecastNonPoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ForecastNonPoInclude<ExtArgs> | null
+  where?: Prisma.ForecastNonPoWhereInput
+  orderBy?: Prisma.ForecastNonPoOrderByWithRelationInput | Prisma.ForecastNonPoOrderByWithRelationInput[]
+  cursor?: Prisma.ForecastNonPoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ForecastNonPoScalarFieldEnum | Prisma.ForecastNonPoScalarFieldEnum[]
+}
+
+/**
+ * FinishGood.ProductionOrders
+ */
+export type FinishGood$ProductionOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionOrder
+   */
+  select?: Prisma.ProductionOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionOrder
+   */
+  omit?: Prisma.ProductionOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionOrderInclude<ExtArgs> | null
+  where?: Prisma.ProductionOrderWhereInput
+  orderBy?: Prisma.ProductionOrderOrderByWithRelationInput | Prisma.ProductionOrderOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionOrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionOrderScalarFieldEnum | Prisma.ProductionOrderScalarFieldEnum[]
 }
 
 /**

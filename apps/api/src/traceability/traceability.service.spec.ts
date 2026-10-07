@@ -14,7 +14,7 @@ describe('TraceabilityService events', () => {
   const events = [
     {
       Id: 'event-1',
-      ForecastId: 'PO-1',
+      ProductionDemandId: 'PO-1',
       ReleaseId: 'release-id',
       Type: 'ASSEMBLY_COMPLETE',
       SourceType: 'AssemblySession',
@@ -27,7 +27,7 @@ describe('TraceabilityService events', () => {
     },
     {
       Id: 'event-2',
-      ForecastId: 'PO-1',
+      ProductionDemandId: 'PO-1',
       ReleaseId: 'release-id',
       Type: 'RELEASE_STATUS_CHANGED',
       SourceType: 'ProductionRelease',
@@ -40,7 +40,7 @@ describe('TraceabilityService events', () => {
     },
     {
       Id: 'event-3',
-      ForecastId: 'PO-1',
+      ProductionDemandId: 'PO-1',
       ReleaseId: 'release-id',
       Type: 'BOM_SNAPSHOT',
       SourceType: 'ProductionBomSnapshot',
@@ -53,7 +53,7 @@ describe('TraceabilityService events', () => {
     },
     {
       Id: 'event-4',
-      ForecastId: 'PO-1',
+      ProductionDemandId: 'PO-1',
       ReleaseId: 'release-id',
       Type: 'SHOPPING_ISSUED',
       SourceType: 'Shopping',
@@ -66,7 +66,7 @@ describe('TraceabilityService events', () => {
     },
     {
       Id: 'event-5',
-      ForecastId: 'PO-1',
+      ProductionDemandId: 'PO-1',
       ReleaseId: 'release-id',
       Type: 'PRODUCTION_FINDING_SUBMITTED',
       SourceType: 'ProductionFinding',
@@ -103,7 +103,7 @@ describe('TraceabilityService events', () => {
       findMany: jest.fn().mockResolvedValue([
         {
           Id: 'snapshot-id',
-          ForecastId: 'PO-1',
+          ProductionDemandId: 'PO-1',
           Version: 2,
           Revision: { Revision: 3 },
         },
@@ -160,7 +160,7 @@ describe('TraceabilityService detail', () => {
       Reason: 'Damaged part',
       Reporter: 'Operator',
       SubmittedAt: new Date(),
-      ForecastId: 'PO-1',
+      ProductionDemandId: 'PO-1',
       ReleaseId: 'release-id',
       SnapshotId: 'snapshot-id',
       LabelId: 1,
@@ -194,7 +194,7 @@ describe('TraceabilityService detail', () => {
       ],
     };
     const prisma = {
-      forecast: {
+      productionOrder: {
         findUnique: jest.fn().mockResolvedValue({ PoId: 'PO-1' }),
       },
       productionBomSnapshot: { findFirst: jest.fn().mockResolvedValue(null) },
@@ -211,7 +211,7 @@ describe('TraceabilityService detail', () => {
     expect(prisma.productionFinding.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: {
-          ForecastId: 'PO-1',
+          ProductionDemandId: 'PO-1',
           Category: 'FINISH_GOOD',
           DeletedAt: null,
         },

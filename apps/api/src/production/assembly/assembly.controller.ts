@@ -23,6 +23,7 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
 import {
   AssemblySessionEntity,
+  AssemblyLabelEntity,
   AssemblyCreateOptionsEntity,
   AssemblyOperatorEntity,
   AssemblyProgressEntity,
@@ -112,6 +113,15 @@ export class AssemblyController {
 @Throttle({ default: { limit: 120, ttl: 60000 } })
 export class DisplayAssemblyController {
   constructor(private readonly service: AssemblyService) {}
+  @Get('ready-labels')
+  @Public()
+  @ApiOperation({
+    summary: 'Up to 100 ready assembly labels; search by labelNumber',
+  })
+  @ApiOkResponse({ type: AssemblyLabelEntity, isArray: true })
+  readyLabels(@Query() query: AssemblyQueryDto) {
+    return this.service.readyLabels(query);
+  }
   @ApiOkResponse({ type: AssemblyOperatorEntity })
   @Get('operator')
   @Public()

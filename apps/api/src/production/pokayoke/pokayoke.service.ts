@@ -68,7 +68,7 @@ export class PokayokeService {
         labels.push({
           id: candidate.Id,
           labelNumber: candidate.LabelNumber,
-          forecastId: candidate.ForecastId,
+          forecastId: candidate.ProductionDemandId,
           finishGoodId: candidate.FinishGoodId,
           finishGoodName: candidate.PartData.PartName,
           qtyThisBox: candidate.QtyThisBox,
@@ -152,11 +152,11 @@ export class PokayokeService {
         );
       }
 
-      // STEP 3: POKAYOKE - Validate Forecast from LabelData.ForecastId
-      if (!labelData.ForecastId) {
+      // STEP 3: POKAYOKE - Validate Forecast from LabelData.ProductionDemandId
+      if (!labelData.ProductionDemandId) {
         await this.logService.addLog({
           processId: logProcess.ProcessId,
-          message: `POKAYOKE FAILED: No ForecastId found for LabelNumber ${dto.labelNumber}`,
+          message: `POKAYOKE FAILED: No ProductionDemandId found for LabelNumber ${dto.labelNumber}`,
           type: 'ERROR',
           location: 'pokayoke.service.ts:80',
         });
@@ -166,20 +166,20 @@ export class PokayokeService {
         );
       }
 
-      const forecast = await this.prisma.forecast.findUnique({
-        where: { PoId: labelData.ForecastId },
+      const forecast = await this.prisma.productionOrder.findUnique({
+        where: { PoId: labelData.ProductionDemandId },
       });
 
       if (!forecast) {
         await this.logService.addLog({
           processId: logProcess.ProcessId,
-          message: `POKAYOKE FAILED: Forecast ${labelData.ForecastId} not found`,
+          message: `POKAYOKE FAILED: Forecast ${labelData.ProductionDemandId} not found`,
           type: 'ERROR',
           location: 'pokayoke.service.ts:94',
         });
         await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
         throw new BadRequestException(
-          `POKAYOKE: Forecast/PO ${labelData.ForecastId} not found in system`,
+          `POKAYOKE: Forecast/PO ${labelData.ProductionDemandId} not found in system`,
         );
       }
 
@@ -193,17 +193,17 @@ export class PokayokeService {
       // STEP 4: POKAYOKE - Check shopping completion (BOM materials must be 100% picked)
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `POKAYOKE: Checking shopping completion for Forecast ${labelData.ForecastId}`,
+        message: `POKAYOKE: Checking shopping completion for Forecast ${labelData.ProductionDemandId}`,
         type: 'INFO',
         location: 'pokayoke.service.ts:110',
       });
 
       const requirements = await this.shoppingService.checkRequirement(
-        labelData.ForecastId,
+        labelData.ProductionDemandId,
       );
 
       if (!isShoppingComplete(requirements)) {
-        const msg = `POKAYOKE FAILED: Shopping belum selesai untuk Forecast ${labelData.ForecastId}. Progress: ${requirements.summary.overallPercentage}% (${requirements.summary.totalQtyPicked}/${requirements.summary.totalQtyNeeded}). Selesaikan shopping terlebih dahulu.`;
+        const msg = `POKAYOKE FAILED: Shopping belum selesai untuk Forecast ${labelData.ProductionDemandId}. Progress: ${requirements.summary.overallPercentage}% (${requirements.summary.totalQtyPicked}/${requirements.summary.totalQtyNeeded}). Selesaikan shopping terlebih dahulu.`;
         await this.logService.addLog({
           processId: logProcess.ProcessId,
           message: msg,
@@ -296,7 +296,7 @@ export class PokayokeService {
         const history = await tx.pokayokeScanHistory.create({
           data: {
             LabelNumber: dto.labelNumber,
-            PoId: labelData.ForecastId,
+            PoId: labelData.ProductionDemandId,
             PartNumber: finishGood.PartNumber,
             PartName: finishGood.PartName,
             Status: statusValue,
@@ -333,7 +333,7 @@ export class PokayokeService {
 
         await tx.productionTraceEvent.create({
           data: {
-            ForecastId: labelData.ForecastId,
+            ProductionDemandId: labelData.ProductionDemandId,
             ReleaseId: labelData.ProductionReleaseId,
             Type: 'POKAYOKE_' + statusValue,
             SourceType: 'PokayokeScanHistory',
@@ -383,6 +383,10 @@ export class PokayokeService {
           id: scanResult.Id,
           labelNumber: scanResult.LabelNumber,
           poId: scanResult.PoId,
+          demandId: forecast.PoId,
+          referenceNumber: forecast.PoId,
+          sourceType: forecast.SourceType,
+          poNumber: forecast.PoNumber || null,
           partNumber: scanResult.PartNumber,
           partName: scanResult.PartName,
           status: scanResult.Status,

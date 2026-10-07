@@ -90,7 +90,7 @@ describe('MrpService', () => {
       finishGood: {
         findMany: jest.fn(),
       },
-      forecast: {
+      productionOrder: {
         findMany: jest.fn(),
       },
     };
@@ -127,7 +127,9 @@ describe('MrpService', () => {
       );
       prismaService.billOfMaterials.findMany.mockResolvedValue(mockBomData);
       prismaService.finishGood.findMany.mockResolvedValue(mockFinishGoods);
-      prismaService.forecast.findMany.mockResolvedValue(mockForecastData);
+      prismaService.productionOrder.findMany.mockResolvedValue(
+        mockForecastData,
+      );
 
       // Execute
       const result = await service.calculate();
@@ -148,7 +150,7 @@ describe('MrpService', () => {
       );
       prismaService.billOfMaterials.findMany.mockResolvedValue([] as never);
       prismaService.finishGood.findMany.mockResolvedValue([] as never);
-      prismaService.forecast.findMany.mockResolvedValue([] as never);
+      prismaService.productionOrder.findMany.mockResolvedValue([] as never);
 
       const result = await service.calculate();
 
@@ -168,7 +170,7 @@ describe('MrpService', () => {
       );
       prismaService.billOfMaterials.findMany.mockResolvedValue([] as never);
       prismaService.finishGood.findMany.mockResolvedValue([] as never);
-      prismaService.forecast.findMany.mockResolvedValue([] as never);
+      prismaService.productionOrder.findMany.mockResolvedValue([] as never);
 
       const result = await service.calculate();
 
@@ -186,7 +188,7 @@ describe('MrpService', () => {
       prismaService.incomingMaterial.groupBy.mockResolvedValue([] as never);
       prismaService.billOfMaterials.findMany.mockResolvedValue([] as never);
       prismaService.finishGood.findMany.mockResolvedValue([] as never);
-      prismaService.forecast.findMany.mockResolvedValue([] as never);
+      prismaService.productionOrder.findMany.mockResolvedValue([] as never);
 
       const result = await service.calculate();
 
@@ -207,7 +209,7 @@ describe('MrpService', () => {
       prismaService.incomingMaterial.groupBy.mockResolvedValue([] as never);
       prismaService.billOfMaterials.findMany.mockResolvedValue([] as never);
       prismaService.finishGood.findMany.mockResolvedValue([] as never);
-      prismaService.forecast.findMany.mockResolvedValue([] as never);
+      prismaService.productionOrder.findMany.mockResolvedValue([] as never);
 
       const result = await service.calculate();
 
@@ -225,7 +227,7 @@ describe('MrpService', () => {
       prismaService.incomingMaterial.groupBy.mockResolvedValue([] as never);
       prismaService.billOfMaterials.findMany.mockResolvedValue([] as never);
       prismaService.finishGood.findMany.mockResolvedValue([] as never);
-      prismaService.forecast.findMany.mockResolvedValue([] as never);
+      prismaService.productionOrder.findMany.mockResolvedValue([] as never);
 
       await service.calculate();
 
@@ -263,7 +265,7 @@ describe('MrpService', () => {
       prismaService.incomingMaterial.groupBy.mockResolvedValue([] as never);
       prismaService.billOfMaterials.findMany.mockResolvedValue([] as never);
       prismaService.finishGood.findMany.mockResolvedValue([] as never);
-      prismaService.forecast.findMany.mockResolvedValue([] as never);
+      prismaService.productionOrder.findMany.mockResolvedValue([] as never);
 
       const result = await service.calculate();
 
@@ -281,7 +283,7 @@ describe('MrpService', () => {
       prismaService.incomingMaterial.groupBy.mockResolvedValue([] as never);
       prismaService.billOfMaterials.findMany.mockResolvedValue([] as never);
       prismaService.finishGood.findMany.mockResolvedValue([] as never);
-      prismaService.forecast.findMany.mockResolvedValue([] as never);
+      prismaService.productionOrder.findMany.mockResolvedValue([] as never);
 
       const result = await service.calculate();
 
@@ -331,7 +333,9 @@ describe('MrpService', () => {
         bomForHighDemand,
       );
       prismaService.finishGood.findMany.mockResolvedValue(mockFinishGoods);
-      prismaService.forecast.findMany.mockResolvedValue(forecastForHighDemand);
+      prismaService.productionOrder.findMany.mockResolvedValue(
+        forecastForHighDemand,
+      );
 
       const result = await service.calculate();
 
@@ -353,7 +357,7 @@ describe('MrpService', () => {
       prismaService.incomingMaterial.groupBy.mockResolvedValue([]);
       prismaService.billOfMaterials.findMany.mockResolvedValue([]);
       prismaService.finishGood.findMany.mockResolvedValue([]);
-      prismaService.forecast.findMany.mockResolvedValue([]);
+      prismaService.productionOrder.findMany.mockResolvedValue([]);
 
       const result = await service.calculate();
 
@@ -370,7 +374,9 @@ describe('MrpService', () => {
       prismaService.incomingMaterial.groupBy.mockResolvedValue([] as never);
       prismaService.billOfMaterials.findMany.mockResolvedValue(mockBomData);
       prismaService.finishGood.findMany.mockResolvedValue(mockFinishGoods);
-      prismaService.forecast.findMany.mockResolvedValue(mockForecastData);
+      prismaService.productionOrder.findMany.mockResolvedValue(
+        mockForecastData,
+      );
 
       const result = await service.calculate();
 

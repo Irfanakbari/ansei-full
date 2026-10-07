@@ -67,9 +67,9 @@ export default function ReleaseBomPanel({
       void (async () => {
         try {
           const [d, e] = await Promise.all([
-            dispatch(fetchTrace(snapshot.ForecastId)).unwrap(),
+            dispatch(fetchTrace(snapshot.ProductionDemandId)).unwrap(),
             dispatch(
-              fetchTraceEvents({ poId: snapshot.ForecastId, page: 1 }),
+              fetchTraceEvents({ poId: snapshot.ProductionDemandId, page: 1 }),
             ).unwrap(),
           ]);
           if (live) {
@@ -95,7 +95,7 @@ export default function ReleaseBomPanel({
           onChange={setSelected}
           options={snapshots.map((s) => ({
             value: s.Id,
-            label: `${s.ForecastId} — BOM ${s.Revision.Revision} / snapshot ${s.Version}`,
+            label: `${s.ProductionDemandId} — BOM ${s.Revision.Revision} / snapshot ${s.Version}`,
           }))}
         />
         <Tabs

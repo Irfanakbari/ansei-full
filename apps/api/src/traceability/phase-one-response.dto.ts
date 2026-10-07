@@ -66,7 +66,7 @@ export class SnapshotLineResponseDto {
 }
 export class SnapshotResponseDto {
   @ApiProperty() Id: string;
-  @ApiProperty() ForecastId: string;
+  @ApiProperty() ProductionDemandId: string;
   @ApiProperty() ReleaseId: string;
   @ApiProperty() RevisionId: string;
   @ApiProperty() Version: number;
@@ -97,7 +97,7 @@ export class TraceSearchResponseDto {
 }
 export class TraceEventResponseDto {
   @ApiProperty() Id: string;
-  @ApiProperty() ForecastId: string;
+  @ApiProperty() ProductionDemandId: string;
   @ApiProperty({ nullable: true, type: String }) ReleaseId: string | null;
   @ApiProperty() Type: string;
   @ApiProperty() SourceType: string;
@@ -161,7 +161,7 @@ export class ProductionFindingTraceResponseDto {
   @ApiProperty() Reason: string;
   @ApiProperty() Reporter: string;
   @ApiProperty({ format: 'date-time' }) SubmittedAt: string;
-  @ApiProperty() ForecastId: string;
+  @ApiProperty() ProductionDemandId: string;
   @ApiProperty({ nullable: true, type: String }) ReleaseId: string | null;
   @ApiProperty({ nullable: true, type: String }) SnapshotId: string | null;
   @ApiProperty({ nullable: true, type: Number }) LabelId: number | null;

@@ -85,9 +85,8 @@ const CreateShoppingModal: React.FC<Props> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [progressCount, setProgressCount] = useState({ current: 0, total: 0 });
 
-  const { options: materials, optionsLoading: materialOptionsLoading } = useSelector(
-    (state: RootState) => state.material,
-  );
+  const { options: materials, optionsLoading: materialOptionsLoading } =
+    useSelector((state: RootState) => state.material);
   const { data: productionReleases, loading: prLoading } = useSelector(
     (state: RootState) => state.productionRelease,
   );
@@ -454,7 +453,7 @@ const CreateShoppingModal: React.FC<Props> = ({
           rules={[{ required: true, message: "Please select type" }]}
         >
           <Radio.Group onChange={handleTypeChange}>
-            <Radio value="REGULER">REGULER</Radio>
+            <Radio value="REGULER">Production (PO / Non PO)</Radio>
             <Radio value="ADDITIONAL">Non-production</Radio>
           </Radio.Group>
         </Form.Item>

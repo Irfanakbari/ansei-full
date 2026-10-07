@@ -19,15 +19,15 @@
  * const data = await get<Material[]>('/master/material');
  */
 
-import type { ApiVersion } from '@/lib/config';
-import { withBasePath, withoutBasePath } from '@/lib/base-path';
-import { commandIdentity } from './commandIdentity';
+import type { ApiVersion } from "@/lib/config";
+import { withBasePath, withoutBasePath } from "@/lib/base-path";
+import { commandIdentity } from "./commandIdentity";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type QueryParamValue = string | number | boolean | undefined | null;
 export type QueryParams = Record<string, QueryParamValue | QueryParamValue[]>;
-export type { ApiVersion } from '@/lib/config';
+export type { ApiVersion } from "@/lib/config";
 
 export interface RequestOptions {
   /** API version to use for this request. Defaults to v1. */
@@ -37,7 +37,7 @@ export interface RequestOptions {
   /** Custom headers (Authorization is auto-added) */
   headers?: Record<string, string>;
   /** Response type: 'json' (default) or 'blob' for file downloads */
-  responseType?: 'json' | 'blob';
+  responseType?: "json" | "blob";
   /** Request timeout in milliseconds (default: 50000) */
   timeout?: number;
   /** Custom abort signal */
@@ -62,13 +62,15 @@ export interface PaginationMeta extends Record<string, unknown> {
   totalPages: number;
 }
 
-export interface PaginatedApiSuccessEnvelope<T> extends ApiSuccessEnvelope<T[]> {
+export interface PaginatedApiSuccessEnvelope<T> extends ApiSuccessEnvelope<
+  T[]
+> {
   meta: PaginationMeta;
 }
 
 export function getApiErrorMessage(
   error: unknown,
-  fallback = 'Unexpected error'
+  fallback = "Unexpected error",
 ): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
@@ -81,56 +83,55 @@ export class ApiError extends Error {
     message: string,
     public status: number,
     public data?: unknown,
-    public isAuthError: boolean = false
+    public isAuthError: boolean = false,
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
 // ─── Private Helpers ───────────────────────────────────────────────────────────
 
 let isLoggingOut = false;
-const AUTH_CHANNEL = 'ansei-auth';
+const AUTH_CHANNEL = "ansei-auth";
 
-function broadcastAuth(event: 'refresh-success' | 'logout'): void {
-  if (typeof BroadcastChannel === 'undefined') return;
+function broadcastAuth(event: "refresh-success" | "logout"): void {
+  if (typeof BroadcastChannel === "undefined") return;
   const channel = new BroadcastChannel(AUTH_CHANNEL);
   channel.postMessage(event);
   channel.close();
 }
 
-if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
+if (typeof window !== "undefined" && typeof BroadcastChannel !== "undefined") {
   const channel = new BroadcastChannel(AUTH_CHANNEL);
   channel.onmessage = ({ data }: MessageEvent<unknown>) => {
-    if (data === 'logout' && !isLoggingOut) void handleUnauthorized(false);
+    if (data === "logout" && !isLoggingOut) void handleUnauthorized(false);
   };
 }
 
 async function handleUnauthorized(notify = true): Promise<void> {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   if (isLoggingOut) return;
   isLoggingOut = true;
 
   try {
     const [{ store }, { clearAuth }] = await Promise.all([
-      import('@/store'),
-      import('@/store/features/auth/authSlice'),
+      import("@/store"),
+      import("@/store/features/auth/authSlice"),
     ]);
     store.dispatch(clearAuth());
 
-    await fetch(withBasePath('/auth/logout'), {
-      method: 'POST',
-      credentials: 'include',
+    await fetch(withBasePath("/auth/logout"), {
+      method: "POST",
+      credentials: "include",
       keepalive: true,
     });
-  } catch {
-  }
+  } catch {}
 
-  if (notify) broadcastAuth('logout');
+  if (notify) broadcastAuth("logout");
 
-  window.location.href = withBasePath('/?sessionExpired=true');
+  window.location.href = withBasePath("/?sessionExpired=true");
 }
 
 /**
@@ -139,26 +140,26 @@ async function handleUnauthorized(notify = true): Promise<void> {
 function buildUrl(
   path: string,
   params?: QueryParams,
-  apiVersion: ApiVersion = 'v1'
+  apiVersion: ApiVersion = "v1",
 ): string {
   const appendParams = (url: URL) => {
     if (!params) return;
     Object.entries(params).forEach(([key, value]) => {
       const values = Array.isArray(value) ? value : [value];
       values.forEach((item) => {
-        if (item !== undefined && item !== null && item !== '') {
+        if (item !== undefined && item !== null && item !== "") {
           url.searchParams.append(key, String(item));
         }
       });
     });
   };
 
-  if (path.startsWith('http://') || path.startsWith('https://')) {
-    throw new ApiError('Absolute API URLs are not allowed', 400);
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    throw new ApiError("Absolute API URLs are not allowed", 400);
   }
 
   // Route browser requests through the same-origin authenticated proxy
-  const cleanPath = withoutBasePath(path.startsWith('/') ? path : `/${path}`);
+  const cleanPath = withoutBasePath(path.startsWith("/") ? path : `/${path}`);
   const fullUrl = withBasePath(`/api/proxy/${apiVersion}${cleanPath}`);
 
   if (!params || Object.keys(params).length === 0) {
@@ -177,42 +178,58 @@ function buildUrl(
 async function request<T>(
   method: string,
   path: string,
-  options: RequestOptions & { body?: unknown; isFormData?: boolean } = {}
+  options: RequestOptions & { body?: unknown; isFormData?: boolean } = {},
 ): Promise<T> {
   const {
-    apiVersion = 'v1',
+    apiVersion = "v1",
     params,
     headers = {},
-    responseType = 'json',
+    responseType = "json",
     timeout = 50000,
     signal,
     body,
   } = options;
 
   const url = buildUrl(path, params, apiVersion);
-  const bodyCommand = method === 'POST' && (
-    path === '/production/shopping'
-
-  ) && typeof body === 'object' && body !== null && !Array.isArray(body);
-  const commandPayload = bodyCommand ? { ...body as Record<string, unknown>, requestId: undefined } : body;
-  const protectedCommand = method !== 'GET' && (
-    bodyCommand || /^\/production\/forecast\/[^/]+\/print-tag$/.test(path) || path.startsWith('/master/bom-revisions') || path === '/production/production-report' || /^\/warehouse\/incoming\/[^/]+\/receive$/.test(path)
-  );
-  const command = protectedCommand ? await commandIdentity(method, url, commandPayload) : undefined;
-  const outgoingBody = bodyCommand && command ? { ...commandPayload as Record<string, unknown>, requestId: command.id } : body;
+  const bodyCommand =
+    method === "POST" &&
+    path === "/production/shopping" &&
+    typeof body === "object" &&
+    body !== null &&
+    !Array.isArray(body);
+  const commandPayload = bodyCommand
+    ? { ...(body as Record<string, unknown>), requestId: undefined }
+    : body;
+  const protectedCommand =
+    method !== "GET" &&
+    (bodyCommand ||
+      /^\/production\/forecast(?:-non-po)?\/[^/]+\/print-tag$/.test(path) ||
+      path.startsWith("/master/bom-revisions") ||
+      path === "/production/production-report" ||
+      /^\/warehouse\/incoming\/[^/]+\/receive$/.test(path));
+  const command = protectedCommand
+    ? await commandIdentity(method, url, commandPayload)
+    : undefined;
+  const outgoingBody =
+    bodyCommand && command
+      ? {
+          ...(commandPayload as Record<string, unknown>),
+          requestId: command.id,
+        }
+      : body;
 
   const requestHeaders: Record<string, string> = {
     ...headers,
-    ...(command ? { 'Idempotency-Key': command.id } : {}),
+    ...(command ? { "Idempotency-Key": command.id } : {}),
   };
   delete requestHeaders.Authorization;
   delete requestHeaders.authorization;
 
   // Don't set Content-Type for FormData - browser will set it with boundary
   if (options.isFormData) {
-    delete requestHeaders['Content-Type'];
-  } else if (body && !requestHeaders['Content-Type']) {
-    requestHeaders['Content-Type'] = 'application/json';
+    delete requestHeaders["Content-Type"];
+  } else if (body && !requestHeaders["Content-Type"]) {
+    requestHeaders["Content-Type"] = "application/json";
   }
 
   const controller = new AbortController();
@@ -223,9 +240,11 @@ async function request<T>(
     const response = await fetch(url, {
       method,
       headers: requestHeaders,
-      credentials: 'include',
+      credentials: "include",
       body: outgoingBody
-        ? (options.isFormData ? (outgoingBody as FormData) : JSON.stringify(outgoingBody))
+        ? options.isFormData
+          ? (outgoingBody as FormData)
+          : JSON.stringify(outgoingBody)
         : undefined,
       signal: finalSignal,
     });
@@ -236,19 +255,19 @@ async function request<T>(
     if (response.status === 401) {
       await handleUnauthorized();
       throw new ApiError(
-        'Session expired. Please login again.',
+        "Session expired. Please login again.",
         401,
         undefined,
-        true
+        true,
       );
     }
 
     // Handle 403 Forbidden
     if (response.status === 403) {
       throw new ApiError(
-        'Access denied. Your account does not have permission to perform this action.',
+        "Access denied. Your account does not have permission to perform this action.",
         403,
-        undefined
+        undefined,
       );
     }
 
@@ -258,13 +277,13 @@ async function request<T>(
     }
 
     // Handle blob responses (file downloads)
-    if (responseType === 'blob') {
+    if (responseType === "blob") {
       if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Unknown error');
+        const errorText = await response.text().catch(() => "Unknown error");
         throw new ApiError(
           `Download failed: ${response.status} - ${errorText}`,
           response.status,
-          { message: errorText }
+          { message: errorText },
         );
       }
       return response.blob() as Promise<T>;
@@ -277,7 +296,7 @@ async function request<T>(
       throw new ApiError(
         data?.message || `Request failed with status ${response.status}`,
         response.status,
-        data
+        data,
       );
     }
 
@@ -290,8 +309,8 @@ async function request<T>(
       throw error;
     }
 
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new ApiError('Request timeout', 408);
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new ApiError("Request timeout", 408);
     }
 
     throw error;
@@ -305,9 +324,9 @@ async function request<T>(
  */
 export async function get<T>(
   path: string,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
 ): Promise<T> {
-  return request<T>('GET', path, options);
+  return request<T>("GET", path, options);
 }
 
 /**
@@ -316,25 +335,33 @@ export async function get<T>(
 export async function post<T, B = unknown>(
   path: string,
   body: B,
-  options: Omit<RequestOptions, 'body'> = {}
+  options: Omit<RequestOptions, "body"> = {},
 ): Promise<T> {
-  return request<T>('POST', path, { ...options, body, isFormData: false });
+  return request<T>("POST", path, { ...options, body, isFormData: false });
 }
 
-export async function postBff<T, B = unknown>(path: string, body: B): Promise<T> {
+export async function postBff<T, B = unknown>(
+  path: string,
+  body: B,
+): Promise<T> {
   const cleanPath = withoutBasePath(path);
-  if (!cleanPath.startsWith('/api/') || cleanPath.startsWith('/api/proxy/')) {
-    throw new ApiError('Invalid BFF path', 400);
+  if (!cleanPath.startsWith("/api/") || cleanPath.startsWith("/api/proxy/")) {
+    throw new ApiError("Invalid BFF path", 400);
   }
   const bffPath = withBasePath(cleanPath);
   const response = await fetch(bffPath, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    credentials: 'include',
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    credentials: "include",
     body: JSON.stringify(body),
   });
   const data = await response.json().catch(() => null);
-  if (!response.ok) throw new ApiError(data?.message || 'Request failed', response.status, data);
+  if (!response.ok)
+    throw new ApiError(
+      data?.message || "Request failed",
+      response.status,
+      data,
+    );
   return data as T;
 }
 
@@ -344,9 +371,13 @@ export async function postBff<T, B = unknown>(path: string, body: B): Promise<T>
 export async function postFormData<T>(
   path: string,
   formData: FormData,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
 ): Promise<T> {
-  return request<T>('POST', path, { ...options, body: formData, isFormData: true });
+  return request<T>("POST", path, {
+    ...options,
+    body: formData,
+    isFormData: true,
+  });
 }
 
 /**
@@ -355,9 +386,14 @@ export async function postFormData<T>(
 export async function postBlob(
   path: string,
   body: unknown,
-  options: Omit<RequestOptions, 'body'> = {}
+  options: Omit<RequestOptions, "body"> = {},
 ): Promise<Blob> {
-  return request<Blob>('POST', path, { ...options, body, responseType: 'blob', isFormData: false });
+  return request<Blob>("POST", path, {
+    ...options,
+    body,
+    responseType: "blob",
+    isFormData: false,
+  });
 }
 
 /**
@@ -366,9 +402,9 @@ export async function postBlob(
 export async function put<T, B = unknown>(
   path: string,
   body: B,
-  options: Omit<RequestOptions, 'body'> = {}
+  options: Omit<RequestOptions, "body"> = {},
 ): Promise<T> {
-  return request<T>('PUT', path, { ...options, body, isFormData: false });
+  return request<T>("PUT", path, { ...options, body, isFormData: false });
 }
 
 /**
@@ -377,9 +413,13 @@ export async function put<T, B = unknown>(
 export async function putFormData<T>(
   path: string,
   formData: FormData,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
 ): Promise<T> {
-  return request<T>('PUT', path, { ...options, body: formData, isFormData: true });
+  return request<T>("PUT", path, {
+    ...options,
+    body: formData,
+    isFormData: true,
+  });
 }
 
 /**
@@ -388,9 +428,9 @@ export async function putFormData<T>(
 export async function patch<T, B = unknown>(
   path: string,
   body: B,
-  options: Omit<RequestOptions, 'body'> = {}
+  options: Omit<RequestOptions, "body"> = {},
 ): Promise<T> {
-  return request<T>('PATCH', path, { ...options, body, isFormData: false });
+  return request<T>("PATCH", path, { ...options, body, isFormData: false });
 }
 
 /**
@@ -399,9 +439,13 @@ export async function patch<T, B = unknown>(
 export async function patchFormData<T>(
   path: string,
   formData: FormData,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
 ): Promise<T> {
-  return request<T>('PATCH', path, { ...options, body: formData, isFormData: true });
+  return request<T>("PATCH", path, {
+    ...options,
+    body: formData,
+    isFormData: true,
+  });
 }
 
 /**
@@ -409,9 +453,9 @@ export async function patchFormData<T>(
  */
 export async function del<T>(
   path: string,
-  options: RequestOptions & { body?: unknown } = {}
+  options: RequestOptions & { body?: unknown } = {},
 ): Promise<T> {
-  return request<T>('DELETE', path, options);
+  return request<T>("DELETE", path, options);
 }
 
 // ─── File Download Utilities ───────────────────────────────────────────────────
@@ -421,9 +465,9 @@ export async function del<T>(
  */
 export async function downloadBlob(
   path: string,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
 ): Promise<Blob> {
-  return get<Blob>(path, { ...options, responseType: 'blob' });
+  return get<Blob>(path, { ...options, responseType: "blob" });
 }
 
 /**
@@ -432,16 +476,16 @@ export async function downloadBlob(
 export async function downloadFile(
   path: string,
   filename: string,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
 ): Promise<void> {
   const blob = await downloadBlob(path, options);
 
   if (!blob || blob.size === 0) {
-    throw new Error('Download failed: Empty file received');
+    throw new Error("Download failed: Empty file received");
   }
 
   const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   try {
     link.href = url;
     link.download = sanitizeDownloadFilename(filename);
@@ -455,11 +499,19 @@ export async function downloadFile(
 
 function sanitizeDownloadFilename(value: string): string {
   const decoded = (() => {
-    try { return decodeURIComponent(value); } catch { return value; }
+    try {
+      return decodeURIComponent(value);
+    } catch {
+      return value;
+    }
   })();
-  const basename = decoded.split(/[\\/]/).pop() ?? '';
-  const sanitized = basename.replace(/[\u0000-\u001f\u007f<>:"|?*]/g, '_').replace(/^\.+/, '').trim().slice(0, 180);
-  return sanitized || 'download';
+  const basename = decoded.split(/[\\/]/).pop() ?? "";
+  const sanitized = basename
+    .replace(/[\u0000-\u001f\u007f<>:"|?*]/g, "_")
+    .replace(/^\.+/, "")
+    .trim()
+    .slice(0, 180);
+  return sanitized || "download";
 }
 
 /**
@@ -467,7 +519,7 @@ function sanitizeDownloadFilename(value: string): string {
  */
 export async function downloadWithAutoFilename(
   path: string,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
 ): Promise<string | null> {
   const url = buildUrl(path, options.params, options.apiVersion);
 
@@ -478,31 +530,33 @@ export async function downloadWithAutoFilename(
   delete headers.authorization;
 
   const response = await fetch(url, {
-    method: 'GET',
+    method: "GET",
     headers,
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (response.status === 401) {
     await handleUnauthorized();
-    throw new ApiError('Session expired', 401, undefined, true);
+    throw new ApiError("Session expired", 401, undefined, true);
   }
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new ApiError(
-      errorData?.message || 'Download failed',
+      errorData?.message || "Download failed",
       response.status,
-      errorData
+      errorData,
     );
   }
 
   const blob = await response.blob();
 
-  let filename = 'download';
-  const contentDisposition = response.headers.get('Content-Disposition');
+  let filename = "download";
+  const contentDisposition = response.headers.get("Content-Disposition");
   if (contentDisposition) {
-    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=(?:(\\?['"])(.*?)\1|([^;\n]*))/i);
+    const filenameMatch = contentDisposition.match(
+      /filename[^;=\n]*=(?:(\\?['"])(.*?)\1|([^;\n]*))/i,
+    );
     if (filenameMatch?.[2]) {
       filename = filenameMatch[2];
     } else if (filenameMatch?.[3]) {
@@ -512,7 +566,7 @@ export async function downloadWithAutoFilename(
 
   filename = sanitizeDownloadFilename(filename);
   const downloadUrl = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   try {
     link.href = downloadUrl;
     link.download = filename;

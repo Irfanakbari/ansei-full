@@ -370,8 +370,9 @@ export type MaterialWhereInput = {
   SupplierData?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
   BillOfMaterials?: Prisma.BillOfMaterialsListRelationFilter
   IncomingMaterial?: Prisma.IncomingMaterialListRelationFilter
-  MaterialNG?: Prisma.MaterialNGListRelationFilter
   Shopping?: Prisma.ShoppingListRelationFilter
+  ProductionFindings?: Prisma.ProductionFindingListRelationFilter
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentListRelationFilter
   InventoryLedger?: Prisma.InventoryLedgerListRelationFilter
   StockOpnameDetail?: Prisma.StockOpnameDetailListRelationFilter
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailListRelationFilter
@@ -404,8 +405,9 @@ export type MaterialOrderByWithRelationInput = {
   SupplierData?: Prisma.SupplierOrderByWithRelationInput
   BillOfMaterials?: Prisma.BillOfMaterialsOrderByRelationAggregateInput
   IncomingMaterial?: Prisma.IncomingMaterialOrderByRelationAggregateInput
-  MaterialNG?: Prisma.MaterialNGOrderByRelationAggregateInput
   Shopping?: Prisma.ShoppingOrderByRelationAggregateInput
+  ProductionFindings?: Prisma.ProductionFindingOrderByRelationAggregateInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentOrderByRelationAggregateInput
   InventoryLedger?: Prisma.InventoryLedgerOrderByRelationAggregateInput
   StockOpnameDetail?: Prisma.StockOpnameDetailOrderByRelationAggregateInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailOrderByRelationAggregateInput
@@ -441,8 +443,9 @@ export type MaterialWhereUniqueInput = Prisma.AtLeast<{
   SupplierData?: Prisma.XOR<Prisma.SupplierNullableScalarRelationFilter, Prisma.SupplierWhereInput> | null
   BillOfMaterials?: Prisma.BillOfMaterialsListRelationFilter
   IncomingMaterial?: Prisma.IncomingMaterialListRelationFilter
-  MaterialNG?: Prisma.MaterialNGListRelationFilter
   Shopping?: Prisma.ShoppingListRelationFilter
+  ProductionFindings?: Prisma.ProductionFindingListRelationFilter
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentListRelationFilter
   InventoryLedger?: Prisma.InventoryLedgerListRelationFilter
   StockOpnameDetail?: Prisma.StockOpnameDetailListRelationFilter
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailListRelationFilter
@@ -526,8 +529,9 @@ export type MaterialCreateInput = {
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
@@ -558,8 +562,9 @@ export type MaterialUncheckedCreateInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
@@ -589,8 +594,9 @@ export type MaterialUpdateInput = {
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
@@ -621,8 +627,9 @@ export type MaterialUncheckedUpdateInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
@@ -975,20 +982,6 @@ export type MaterialUpdateOneWithoutIncomingMaterialNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MaterialUpdateToOneWithWhereWithoutIncomingMaterialInput, Prisma.MaterialUpdateWithoutIncomingMaterialInput>, Prisma.MaterialUncheckedUpdateWithoutIncomingMaterialInput>
 }
 
-export type MaterialCreateNestedOneWithoutMaterialNGInput = {
-  create?: Prisma.XOR<Prisma.MaterialCreateWithoutMaterialNGInput, Prisma.MaterialUncheckedCreateWithoutMaterialNGInput>
-  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutMaterialNGInput
-  connect?: Prisma.MaterialWhereUniqueInput
-}
-
-export type MaterialUpdateOneRequiredWithoutMaterialNGNestedInput = {
-  create?: Prisma.XOR<Prisma.MaterialCreateWithoutMaterialNGInput, Prisma.MaterialUncheckedCreateWithoutMaterialNGInput>
-  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutMaterialNGInput
-  upsert?: Prisma.MaterialUpsertWithoutMaterialNGInput
-  connect?: Prisma.MaterialWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.MaterialUpdateToOneWithWhereWithoutMaterialNGInput, Prisma.MaterialUpdateWithoutMaterialNGInput>, Prisma.MaterialUncheckedUpdateWithoutMaterialNGInput>
-}
-
 export type MaterialCreateNestedOneWithoutShoppingInput = {
   create?: Prisma.XOR<Prisma.MaterialCreateWithoutShoppingInput, Prisma.MaterialUncheckedCreateWithoutShoppingInput>
   connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutShoppingInput
@@ -1045,6 +1038,36 @@ export type MaterialUpdateOneRequiredWithoutBomSnapshotLinesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MaterialUpdateToOneWithWhereWithoutBomSnapshotLinesInput, Prisma.MaterialUpdateWithoutBomSnapshotLinesInput>, Prisma.MaterialUncheckedUpdateWithoutBomSnapshotLinesInput>
 }
 
+export type MaterialCreateNestedOneWithoutProductionFindingsInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutProductionFindingsInput, Prisma.MaterialUncheckedCreateWithoutProductionFindingsInput>
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutProductionFindingsInput
+  connect?: Prisma.MaterialWhereUniqueInput
+}
+
+export type MaterialUpdateOneWithoutProductionFindingsNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutProductionFindingsInput, Prisma.MaterialUncheckedCreateWithoutProductionFindingsInput>
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutProductionFindingsInput
+  upsert?: Prisma.MaterialUpsertWithoutProductionFindingsInput
+  disconnect?: Prisma.MaterialWhereInput | boolean
+  delete?: Prisma.MaterialWhereInput | boolean
+  connect?: Prisma.MaterialWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MaterialUpdateToOneWithWhereWithoutProductionFindingsInput, Prisma.MaterialUpdateWithoutProductionFindingsInput>, Prisma.MaterialUncheckedUpdateWithoutProductionFindingsInput>
+}
+
+export type MaterialCreateNestedOneWithoutProductionFindingComponentsInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutProductionFindingComponentsInput, Prisma.MaterialUncheckedCreateWithoutProductionFindingComponentsInput>
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutProductionFindingComponentsInput
+  connect?: Prisma.MaterialWhereUniqueInput
+}
+
+export type MaterialUpdateOneRequiredWithoutProductionFindingComponentsNestedInput = {
+  create?: Prisma.XOR<Prisma.MaterialCreateWithoutProductionFindingComponentsInput, Prisma.MaterialUncheckedCreateWithoutProductionFindingComponentsInput>
+  connectOrCreate?: Prisma.MaterialCreateOrConnectWithoutProductionFindingComponentsInput
+  upsert?: Prisma.MaterialUpsertWithoutProductionFindingComponentsInput
+  connect?: Prisma.MaterialWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MaterialUpdateToOneWithWhereWithoutProductionFindingComponentsInput, Prisma.MaterialUpdateWithoutProductionFindingComponentsInput>, Prisma.MaterialUncheckedUpdateWithoutProductionFindingComponentsInput>
+}
+
 export type MaterialCreateWithoutSatuanDataInput = {
   PartNumber: string
   PartName: string
@@ -1068,8 +1091,9 @@ export type MaterialCreateWithoutSatuanDataInput = {
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
@@ -1099,8 +1123,9 @@ export type MaterialUncheckedCreateWithoutSatuanDataInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
@@ -1181,8 +1206,9 @@ export type MaterialCreateWithoutSupplierDataInput = {
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
@@ -1212,8 +1238,9 @@ export type MaterialUncheckedCreateWithoutSupplierDataInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
@@ -1268,8 +1295,9 @@ export type MaterialCreateWithoutBillOfMaterialsInput = {
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
@@ -1299,8 +1327,9 @@ export type MaterialUncheckedCreateWithoutBillOfMaterialsInput = {
   BomRevisionLines?: Prisma.BomRevisionLineUncheckedCreateNestedManyWithoutMaterialInput
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
@@ -1345,8 +1374,9 @@ export type MaterialUpdateWithoutBillOfMaterialsInput = {
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
@@ -1376,8 +1406,9 @@ export type MaterialUncheckedUpdateWithoutBillOfMaterialsInput = {
   BomRevisionLines?: Prisma.BomRevisionLineUncheckedUpdateManyWithoutMaterialNestedInput
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
@@ -1407,8 +1438,9 @@ export type MaterialCreateWithoutInventoryLedgerInput = {
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
 }
@@ -1438,8 +1470,9 @@ export type MaterialUncheckedCreateWithoutInventoryLedgerInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
 }
@@ -1484,8 +1517,9 @@ export type MaterialUpdateWithoutInventoryLedgerInput = {
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
 }
@@ -1515,8 +1549,9 @@ export type MaterialUncheckedUpdateWithoutInventoryLedgerInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
 }
@@ -1545,8 +1580,9 @@ export type MaterialCreateWithoutStockOpnameDetailInput = {
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
 }
@@ -1576,8 +1612,9 @@ export type MaterialUncheckedCreateWithoutStockOpnameDetailInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
 }
@@ -1622,8 +1659,9 @@ export type MaterialUpdateWithoutStockOpnameDetailInput = {
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
 }
@@ -1653,8 +1691,9 @@ export type MaterialUncheckedUpdateWithoutStockOpnameDetailInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
 }
@@ -1682,8 +1721,9 @@ export type MaterialCreateWithoutIncomingMaterialInput = {
   SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
@@ -1713,8 +1753,9 @@ export type MaterialUncheckedCreateWithoutIncomingMaterialInput = {
   BomRevisionLines?: Prisma.BomRevisionLineUncheckedCreateNestedManyWithoutMaterialInput
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
@@ -1759,8 +1800,9 @@ export type MaterialUpdateWithoutIncomingMaterialInput = {
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
@@ -1790,146 +1832,9 @@ export type MaterialUncheckedUpdateWithoutIncomingMaterialInput = {
   BomRevisionLines?: Prisma.BomRevisionLineUncheckedUpdateManyWithoutMaterialNestedInput
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
-  InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
-  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
-}
-
-export type MaterialCreateWithoutMaterialNGInput = {
-  PartNumber: string
-  PartName: string
-  CreatedAt?: Date | string
-  CreatedBy: string
-  UpdatedAt?: Date | string
-  UpdatedBy: string
-  Supplier?: string | null
-  RackLocation?: string | null
-  IsActive?: boolean
-  DiscontinueDate?: Date | string | null
-  MaterialSource?: $Enums.MaterialSource | null
-  Remark?: string | null
-  QtyRack?: number
-  QtyWarehouse?: number
-  MinimumStock?: number
-  MaximumStock?: number
-  QtyPerBox?: number
-  BomRevisionLines?: Prisma.BomRevisionLineCreateNestedManyWithoutMaterialInput
-  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutMaterialInput
-  SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
-  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
-  BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
-  IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
-  InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
-  StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
-  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
-}
-
-export type MaterialUncheckedCreateWithoutMaterialNGInput = {
-  Id?: number
-  PartNumber: string
-  PartName: string
-  CreatedAt?: Date | string
-  CreatedBy: string
-  UpdatedAt?: Date | string
-  UpdatedBy: string
-  Supplier?: string | null
-  SupplierId?: number | null
-  SatuanId?: number | null
-  RackLocation?: string | null
-  IsActive?: boolean
-  DiscontinueDate?: Date | string | null
-  MaterialSource?: $Enums.MaterialSource | null
-  Remark?: string | null
-  QtyRack?: number
-  QtyWarehouse?: number
-  MinimumStock?: number
-  MaximumStock?: number
-  QtyPerBox?: number
-  BomRevisionLines?: Prisma.BomRevisionLineUncheckedCreateNestedManyWithoutMaterialInput
-  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
-  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
-  IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
-  InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
-  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
-}
-
-export type MaterialCreateOrConnectWithoutMaterialNGInput = {
-  where: Prisma.MaterialWhereUniqueInput
-  create: Prisma.XOR<Prisma.MaterialCreateWithoutMaterialNGInput, Prisma.MaterialUncheckedCreateWithoutMaterialNGInput>
-}
-
-export type MaterialUpsertWithoutMaterialNGInput = {
-  update: Prisma.XOR<Prisma.MaterialUpdateWithoutMaterialNGInput, Prisma.MaterialUncheckedUpdateWithoutMaterialNGInput>
-  create: Prisma.XOR<Prisma.MaterialCreateWithoutMaterialNGInput, Prisma.MaterialUncheckedCreateWithoutMaterialNGInput>
-  where?: Prisma.MaterialWhereInput
-}
-
-export type MaterialUpdateToOneWithWhereWithoutMaterialNGInput = {
-  where?: Prisma.MaterialWhereInput
-  data: Prisma.XOR<Prisma.MaterialUpdateWithoutMaterialNGInput, Prisma.MaterialUncheckedUpdateWithoutMaterialNGInput>
-}
-
-export type MaterialUpdateWithoutMaterialNGInput = {
-  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  PartName?: Prisma.StringFieldUpdateOperationsInput | string
-  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
-  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
-  Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
-  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
-  QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
-  MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
-  MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
-  QtyPerBox?: Prisma.IntFieldUpdateOperationsInput | number
-  BomRevisionLines?: Prisma.BomRevisionLineUpdateManyWithoutMaterialNestedInput
-  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutMaterialNestedInput
-  SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
-  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
-  BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
-  IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
-  InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
-  StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
-  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
-}
-
-export type MaterialUncheckedUpdateWithoutMaterialNGInput = {
-  Id?: Prisma.IntFieldUpdateOperationsInput | number
-  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  PartName?: Prisma.StringFieldUpdateOperationsInput | string
-  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
-  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
-  Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
-  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
-  QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
-  MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
-  MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
-  QtyPerBox?: Prisma.IntFieldUpdateOperationsInput | number
-  BomRevisionLines?: Prisma.BomRevisionLineUncheckedUpdateManyWithoutMaterialNestedInput
-  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
-  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
-  IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
@@ -1959,7 +1864,8 @@ export type MaterialCreateWithoutShoppingInput = {
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
@@ -1990,7 +1896,8 @@ export type MaterialUncheckedCreateWithoutShoppingInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
@@ -2036,7 +1943,8 @@ export type MaterialUpdateWithoutShoppingInput = {
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
@@ -2067,7 +1975,8 @@ export type MaterialUncheckedUpdateWithoutShoppingInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
@@ -2097,8 +2006,9 @@ export type MaterialCreateWithoutMaterialDeliveryNoteDetailsInput = {
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
 }
@@ -2128,8 +2038,9 @@ export type MaterialUncheckedCreateWithoutMaterialDeliveryNoteDetailsInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
 }
@@ -2174,8 +2085,9 @@ export type MaterialUpdateWithoutMaterialDeliveryNoteDetailsInput = {
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
 }
@@ -2205,8 +2117,9 @@ export type MaterialUncheckedUpdateWithoutMaterialDeliveryNoteDetailsInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
 }
@@ -2234,8 +2147,9 @@ export type MaterialCreateWithoutBomRevisionLinesInput = {
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
@@ -2265,8 +2179,9 @@ export type MaterialUncheckedCreateWithoutBomRevisionLinesInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
@@ -2311,8 +2226,9 @@ export type MaterialUpdateWithoutBomRevisionLinesInput = {
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
@@ -2342,8 +2258,9 @@ export type MaterialUncheckedUpdateWithoutBomRevisionLinesInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
@@ -2372,8 +2289,9 @@ export type MaterialCreateWithoutBomSnapshotLinesInput = {
   SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
@@ -2403,8 +2321,9 @@ export type MaterialUncheckedCreateWithoutBomSnapshotLinesInput = {
   BomRevisionLines?: Prisma.BomRevisionLineUncheckedCreateNestedManyWithoutMaterialInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutMaterialDataInput
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
@@ -2449,8 +2368,9 @@ export type MaterialUpdateWithoutBomSnapshotLinesInput = {
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
@@ -2480,8 +2400,293 @@ export type MaterialUncheckedUpdateWithoutBomSnapshotLinesInput = {
   BomRevisionLines?: Prisma.BomRevisionLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
+}
+
+export type MaterialCreateWithoutProductionFindingsInput = {
+  PartNumber: string
+  PartName: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Supplier?: string | null
+  RackLocation?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
+  QtyRack?: number
+  QtyWarehouse?: number
+  MinimumStock?: number
+  MaximumStock?: number
+  QtyPerBox?: number
+  BomRevisionLines?: Prisma.BomRevisionLineCreateNestedManyWithoutMaterialInput
+  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutMaterialInput
+  SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
+  BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
+  IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutMaterialInput
+  InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
+}
+
+export type MaterialUncheckedCreateWithoutProductionFindingsInput = {
+  Id?: number
+  PartNumber: string
+  PartName: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Supplier?: string | null
+  SupplierId?: number | null
+  SatuanId?: number | null
+  RackLocation?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
+  QtyRack?: number
+  QtyWarehouse?: number
+  MinimumStock?: number
+  MaximumStock?: number
+  QtyPerBox?: number
+  BomRevisionLines?: Prisma.BomRevisionLineUncheckedCreateNestedManyWithoutMaterialInput
+  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
+  IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutMaterialInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
+}
+
+export type MaterialCreateOrConnectWithoutProductionFindingsInput = {
+  where: Prisma.MaterialWhereUniqueInput
+  create: Prisma.XOR<Prisma.MaterialCreateWithoutProductionFindingsInput, Prisma.MaterialUncheckedCreateWithoutProductionFindingsInput>
+}
+
+export type MaterialUpsertWithoutProductionFindingsInput = {
+  update: Prisma.XOR<Prisma.MaterialUpdateWithoutProductionFindingsInput, Prisma.MaterialUncheckedUpdateWithoutProductionFindingsInput>
+  create: Prisma.XOR<Prisma.MaterialCreateWithoutProductionFindingsInput, Prisma.MaterialUncheckedCreateWithoutProductionFindingsInput>
+  where?: Prisma.MaterialWhereInput
+}
+
+export type MaterialUpdateToOneWithWhereWithoutProductionFindingsInput = {
+  where?: Prisma.MaterialWhereInput
+  data: Prisma.XOR<Prisma.MaterialUpdateWithoutProductionFindingsInput, Prisma.MaterialUncheckedUpdateWithoutProductionFindingsInput>
+}
+
+export type MaterialUpdateWithoutProductionFindingsInput = {
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
+  MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyPerBox?: Prisma.IntFieldUpdateOperationsInput | number
+  BomRevisionLines?: Prisma.BomRevisionLineUpdateManyWithoutMaterialNestedInput
+  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutMaterialNestedInput
+  SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
+  IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
+}
+
+export type MaterialUncheckedUpdateWithoutProductionFindingsInput = {
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
+  MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyPerBox?: Prisma.IntFieldUpdateOperationsInput | number
+  BomRevisionLines?: Prisma.BomRevisionLineUncheckedUpdateManyWithoutMaterialNestedInput
+  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
+  IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
+}
+
+export type MaterialCreateWithoutProductionFindingComponentsInput = {
+  PartNumber: string
+  PartName: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Supplier?: string | null
+  RackLocation?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
+  QtyRack?: number
+  QtyWarehouse?: number
+  MinimumStock?: number
+  MaximumStock?: number
+  QtyPerBox?: number
+  BomRevisionLines?: Prisma.BomRevisionLineCreateNestedManyWithoutMaterialInput
+  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutMaterialInput
+  SatuanData?: Prisma.SatuanCreateNestedOneWithoutMaterialInput
+  SupplierData?: Prisma.SupplierCreateNestedOneWithoutMaterialInput
+  BillOfMaterials?: Prisma.BillOfMaterialsCreateNestedManyWithoutMaterialDataInput
+  IncomingMaterial?: Prisma.IncomingMaterialCreateNestedManyWithoutMaterialDataInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutMaterialInput
+  InventoryLedger?: Prisma.InventoryLedgerCreateNestedManyWithoutMaterialDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailCreateNestedManyWithoutMaterialDataInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailCreateNestedManyWithoutMaterialDataInput
+}
+
+export type MaterialUncheckedCreateWithoutProductionFindingComponentsInput = {
+  Id?: number
+  PartNumber: string
+  PartName: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Supplier?: string | null
+  SupplierId?: number | null
+  SatuanId?: number | null
+  RackLocation?: string | null
+  IsActive?: boolean
+  DiscontinueDate?: Date | string | null
+  MaterialSource?: $Enums.MaterialSource | null
+  Remark?: string | null
+  QtyRack?: number
+  QtyWarehouse?: number
+  MinimumStock?: number
+  MaximumStock?: number
+  QtyPerBox?: number
+  BomRevisionLines?: Prisma.BomRevisionLineUncheckedCreateNestedManyWithoutMaterialInput
+  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutMaterialInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedCreateNestedManyWithoutMaterialDataInput
+  IncomingMaterial?: Prisma.IncomingMaterialUncheckedCreateNestedManyWithoutMaterialDataInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutMaterialDataInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutMaterialInput
+  InventoryLedger?: Prisma.InventoryLedgerUncheckedCreateNestedManyWithoutMaterialDataInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedCreateNestedManyWithoutMaterialDataInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedCreateNestedManyWithoutMaterialDataInput
+}
+
+export type MaterialCreateOrConnectWithoutProductionFindingComponentsInput = {
+  where: Prisma.MaterialWhereUniqueInput
+  create: Prisma.XOR<Prisma.MaterialCreateWithoutProductionFindingComponentsInput, Prisma.MaterialUncheckedCreateWithoutProductionFindingComponentsInput>
+}
+
+export type MaterialUpsertWithoutProductionFindingComponentsInput = {
+  update: Prisma.XOR<Prisma.MaterialUpdateWithoutProductionFindingComponentsInput, Prisma.MaterialUncheckedUpdateWithoutProductionFindingComponentsInput>
+  create: Prisma.XOR<Prisma.MaterialCreateWithoutProductionFindingComponentsInput, Prisma.MaterialUncheckedCreateWithoutProductionFindingComponentsInput>
+  where?: Prisma.MaterialWhereInput
+}
+
+export type MaterialUpdateToOneWithWhereWithoutProductionFindingComponentsInput = {
+  where?: Prisma.MaterialWhereInput
+  data: Prisma.XOR<Prisma.MaterialUpdateWithoutProductionFindingComponentsInput, Prisma.MaterialUncheckedUpdateWithoutProductionFindingComponentsInput>
+}
+
+export type MaterialUpdateWithoutProductionFindingComponentsInput = {
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
+  MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyPerBox?: Prisma.IntFieldUpdateOperationsInput | number
+  BomRevisionLines?: Prisma.BomRevisionLineUpdateManyWithoutMaterialNestedInput
+  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutMaterialNestedInput
+  SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
+  SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
+  IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
+  StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
+  MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
+}
+
+export type MaterialUncheckedUpdateWithoutProductionFindingComponentsInput = {
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Supplier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  SupplierId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  SatuanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  RackLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  DiscontinueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  MaterialSource?: Prisma.NullableEnumMaterialSourceFieldUpdateOperationsInput | $Enums.MaterialSource | null
+  Remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  QtyRack?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyWarehouse?: Prisma.IntFieldUpdateOperationsInput | number
+  MinimumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  MaximumStock?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyPerBox?: Prisma.IntFieldUpdateOperationsInput | number
+  BomRevisionLines?: Prisma.BomRevisionLineUncheckedUpdateManyWithoutMaterialNestedInput
+  BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
+  BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
+  IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
@@ -2532,8 +2737,9 @@ export type MaterialUpdateWithoutSatuanDataInput = {
   SupplierData?: Prisma.SupplierUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
@@ -2563,8 +2769,9 @@ export type MaterialUncheckedUpdateWithoutSatuanDataInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
@@ -2637,8 +2844,9 @@ export type MaterialUpdateWithoutSupplierDataInput = {
   SatuanData?: Prisma.SatuanUpdateOneWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUpdateManyWithoutMaterialDataNestedInput
@@ -2668,8 +2876,9 @@ export type MaterialUncheckedUpdateWithoutSupplierDataInput = {
   BomSnapshotLines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInput
   BillOfMaterials?: Prisma.BillOfMaterialsUncheckedUpdateManyWithoutMaterialDataNestedInput
   IncomingMaterial?: Prisma.IncomingMaterialUncheckedUpdateManyWithoutMaterialDataNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutMaterialDataNestedInput
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutMaterialDataNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutMaterialNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutMaterialNestedInput
   InventoryLedger?: Prisma.InventoryLedgerUncheckedUpdateManyWithoutMaterialDataNestedInput
   StockOpnameDetail?: Prisma.StockOpnameDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailUncheckedUpdateManyWithoutMaterialDataNestedInput
@@ -2707,8 +2916,9 @@ export type MaterialCountOutputType = {
   BomSnapshotLines: number
   BillOfMaterials: number
   IncomingMaterial: number
-  MaterialNG: number
   Shopping: number
+  ProductionFindings: number
+  ProductionFindingComponents: number
   InventoryLedger: number
   StockOpnameDetail: number
   MaterialDeliveryNoteDetails: number
@@ -2719,8 +2929,9 @@ export type MaterialCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   BomSnapshotLines?: boolean | MaterialCountOutputTypeCountBomSnapshotLinesArgs
   BillOfMaterials?: boolean | MaterialCountOutputTypeCountBillOfMaterialsArgs
   IncomingMaterial?: boolean | MaterialCountOutputTypeCountIncomingMaterialArgs
-  MaterialNG?: boolean | MaterialCountOutputTypeCountMaterialNGArgs
   Shopping?: boolean | MaterialCountOutputTypeCountShoppingArgs
+  ProductionFindings?: boolean | MaterialCountOutputTypeCountProductionFindingsArgs
+  ProductionFindingComponents?: boolean | MaterialCountOutputTypeCountProductionFindingComponentsArgs
   InventoryLedger?: boolean | MaterialCountOutputTypeCountInventoryLedgerArgs
   StockOpnameDetail?: boolean | MaterialCountOutputTypeCountStockOpnameDetailArgs
   MaterialDeliveryNoteDetails?: boolean | MaterialCountOutputTypeCountMaterialDeliveryNoteDetailsArgs
@@ -2767,15 +2978,22 @@ export type MaterialCountOutputTypeCountIncomingMaterialArgs<ExtArgs extends run
 /**
  * MaterialCountOutputType without action
  */
-export type MaterialCountOutputTypeCountMaterialNGArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MaterialNGWhereInput
+export type MaterialCountOutputTypeCountShoppingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ShoppingWhereInput
 }
 
 /**
  * MaterialCountOutputType without action
  */
-export type MaterialCountOutputTypeCountShoppingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ShoppingWhereInput
+export type MaterialCountOutputTypeCountProductionFindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionFindingWhereInput
+}
+
+/**
+ * MaterialCountOutputType without action
+ */
+export type MaterialCountOutputTypeCountProductionFindingComponentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionFindingComponentWhereInput
 }
 
 /**
@@ -2827,8 +3045,9 @@ export type MaterialSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   SupplierData?: boolean | Prisma.Material$SupplierDataArgs<ExtArgs>
   BillOfMaterials?: boolean | Prisma.Material$BillOfMaterialsArgs<ExtArgs>
   IncomingMaterial?: boolean | Prisma.Material$IncomingMaterialArgs<ExtArgs>
-  MaterialNG?: boolean | Prisma.Material$MaterialNGArgs<ExtArgs>
   Shopping?: boolean | Prisma.Material$ShoppingArgs<ExtArgs>
+  ProductionFindings?: boolean | Prisma.Material$ProductionFindingsArgs<ExtArgs>
+  ProductionFindingComponents?: boolean | Prisma.Material$ProductionFindingComponentsArgs<ExtArgs>
   InventoryLedger?: boolean | Prisma.Material$InventoryLedgerArgs<ExtArgs>
   StockOpnameDetail?: boolean | Prisma.Material$StockOpnameDetailArgs<ExtArgs>
   MaterialDeliveryNoteDetails?: boolean | Prisma.Material$MaterialDeliveryNoteDetailsArgs<ExtArgs>
@@ -2916,8 +3135,9 @@ export type MaterialInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   SupplierData?: boolean | Prisma.Material$SupplierDataArgs<ExtArgs>
   BillOfMaterials?: boolean | Prisma.Material$BillOfMaterialsArgs<ExtArgs>
   IncomingMaterial?: boolean | Prisma.Material$IncomingMaterialArgs<ExtArgs>
-  MaterialNG?: boolean | Prisma.Material$MaterialNGArgs<ExtArgs>
   Shopping?: boolean | Prisma.Material$ShoppingArgs<ExtArgs>
+  ProductionFindings?: boolean | Prisma.Material$ProductionFindingsArgs<ExtArgs>
+  ProductionFindingComponents?: boolean | Prisma.Material$ProductionFindingComponentsArgs<ExtArgs>
   InventoryLedger?: boolean | Prisma.Material$InventoryLedgerArgs<ExtArgs>
   StockOpnameDetail?: boolean | Prisma.Material$StockOpnameDetailArgs<ExtArgs>
   MaterialDeliveryNoteDetails?: boolean | Prisma.Material$MaterialDeliveryNoteDetailsArgs<ExtArgs>
@@ -2941,8 +3161,9 @@ export type $MaterialPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     SupplierData: Prisma.$SupplierPayload<ExtArgs> | null
     BillOfMaterials: Prisma.$BillOfMaterialsPayload<ExtArgs>[]
     IncomingMaterial: Prisma.$IncomingMaterialPayload<ExtArgs>[]
-    MaterialNG: Prisma.$MaterialNGPayload<ExtArgs>[]
     Shopping: Prisma.$ShoppingPayload<ExtArgs>[]
+    ProductionFindings: Prisma.$ProductionFindingPayload<ExtArgs>[]
+    ProductionFindingComponents: Prisma.$ProductionFindingComponentPayload<ExtArgs>[]
     InventoryLedger: Prisma.$InventoryLedgerPayload<ExtArgs>[]
     StockOpnameDetail: Prisma.$StockOpnameDetailPayload<ExtArgs>[]
     MaterialDeliveryNoteDetails: Prisma.$MaterialDeliveryNoteDetailPayload<ExtArgs>[]
@@ -3368,8 +3589,9 @@ export interface Prisma__MaterialClient<T, Null = never, ExtArgs extends runtime
   SupplierData<T extends Prisma.Material$SupplierDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$SupplierDataArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   BillOfMaterials<T extends Prisma.Material$BillOfMaterialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$BillOfMaterialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BillOfMaterialsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   IncomingMaterial<T extends Prisma.Material$IncomingMaterialArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$IncomingMaterialArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncomingMaterialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  MaterialNG<T extends Prisma.Material$MaterialNGArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$MaterialNGArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNGPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Shopping<T extends Prisma.Material$ShoppingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$ShoppingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShoppingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ProductionFindings<T extends Prisma.Material$ProductionFindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$ProductionFindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionFindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ProductionFindingComponents<T extends Prisma.Material$ProductionFindingComponentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$ProductionFindingComponentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionFindingComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   InventoryLedger<T extends Prisma.Material$InventoryLedgerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$InventoryLedgerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryLedgerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   StockOpnameDetail<T extends Prisma.Material$StockOpnameDetailArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$StockOpnameDetailArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockOpnameDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   MaterialDeliveryNoteDetails<T extends Prisma.Material$MaterialDeliveryNoteDetailsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Material$MaterialDeliveryNoteDetailsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialDeliveryNoteDetailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3957,30 +4179,6 @@ export type Material$IncomingMaterialArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
- * Material.MaterialNG
- */
-export type Material$MaterialNGArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the MaterialNG
-   */
-  select?: Prisma.MaterialNGSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the MaterialNG
-   */
-  omit?: Prisma.MaterialNGOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.MaterialNGInclude<ExtArgs> | null
-  where?: Prisma.MaterialNGWhereInput
-  orderBy?: Prisma.MaterialNGOrderByWithRelationInput | Prisma.MaterialNGOrderByWithRelationInput[]
-  cursor?: Prisma.MaterialNGWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.MaterialNGScalarFieldEnum | Prisma.MaterialNGScalarFieldEnum[]
-}
-
-/**
  * Material.Shopping
  */
 export type Material$ShoppingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4002,6 +4200,54 @@ export type Material$ShoppingArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.ShoppingScalarFieldEnum | Prisma.ShoppingScalarFieldEnum[]
+}
+
+/**
+ * Material.ProductionFindings
+ */
+export type Material$ProductionFindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionFinding
+   */
+  select?: Prisma.ProductionFindingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionFinding
+   */
+  omit?: Prisma.ProductionFindingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionFindingInclude<ExtArgs> | null
+  where?: Prisma.ProductionFindingWhereInput
+  orderBy?: Prisma.ProductionFindingOrderByWithRelationInput | Prisma.ProductionFindingOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionFindingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionFindingScalarFieldEnum | Prisma.ProductionFindingScalarFieldEnum[]
+}
+
+/**
+ * Material.ProductionFindingComponents
+ */
+export type Material$ProductionFindingComponentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionFindingComponent
+   */
+  select?: Prisma.ProductionFindingComponentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionFindingComponent
+   */
+  omit?: Prisma.ProductionFindingComponentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionFindingComponentInclude<ExtArgs> | null
+  where?: Prisma.ProductionFindingComponentWhereInput
+  orderBy?: Prisma.ProductionFindingComponentOrderByWithRelationInput | Prisma.ProductionFindingComponentOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionFindingComponentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionFindingComponentScalarFieldEnum | Prisma.ProductionFindingComponentScalarFieldEnum[]
 }
 
 /**

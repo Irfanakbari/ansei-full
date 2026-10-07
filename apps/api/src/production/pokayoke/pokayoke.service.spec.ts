@@ -25,7 +25,7 @@ describe('PokayokeService', () => {
       update: jest.fn(),
       updateMany: jest.fn(),
     },
-    forecast: {
+    productionOrder: {
       findUnique: jest.fn(),
     },
     finishGood: {
@@ -98,7 +98,7 @@ describe('PokayokeService', () => {
         {
           Id: 1,
           LabelNumber: 'LBL-ASSY',
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           FinishGoodId: 'FG-001',
           ProductionReleaseId: 'REL-1',
           QtyThisBox: 20,
@@ -110,7 +110,7 @@ describe('PokayokeService', () => {
         {
           Id: 2,
           LabelNumber: 'LBL-DIRECT',
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           FinishGoodId: 'FG-001',
           ProductionReleaseId: 'REL-1',
           QtyThisBox: 20,
@@ -124,7 +124,7 @@ describe('PokayokeService', () => {
       mockPrismaService.labelData.findUnique
         .mockResolvedValueOnce(candidates[0])
         .mockResolvedValueOnce(candidates[1]);
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
         Qty: 20,
         FinishGoodId: 'FG-001',
@@ -161,7 +161,7 @@ describe('PokayokeService', () => {
         const candidate = {
           Id: 1,
           LabelNumber: 'LBL-ASSY',
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           FinishGoodId: 'FG-001',
           ProductionReleaseId: 'REL-1',
           QtyThisBox: 20,
@@ -172,7 +172,7 @@ describe('PokayokeService', () => {
         };
         mockPrismaService.labelData.findMany.mockResolvedValue([candidate]);
         mockPrismaService.labelData.findUnique.mockResolvedValue(candidate);
-        mockPrismaService.forecast.findUnique.mockResolvedValue({
+        mockPrismaService.productionOrder.findUnique.mockResolvedValue({
           PoId: 'PO-001',
           Qty: 20,
           FinishGoodId: 'FG-001',
@@ -196,13 +196,13 @@ describe('PokayokeService', () => {
       mockPrismaService.labelData.findUnique.mockResolvedValue({
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         FinishGoodId: 'FG-001',
         ProductionReleaseId: 'REL-1',
         QtyThisBox: 20,
         Scanned: false,
       });
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
       });
       mockPrismaService.finishGood.findUnique.mockResolvedValue({
@@ -271,14 +271,14 @@ describe('PokayokeService', () => {
         mockPrismaService.labelData.findUnique.mockResolvedValue({
           Id: 1,
           LabelNumber: 'LBL001',
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           FinishGoodId: 'FG-001',
           ProductionReleaseId: 'release-1',
           QtyThisBox: 20,
           Scanned: false,
           RequiresAssembly: true,
         });
-        mockPrismaService.forecast.findUnique.mockResolvedValue({
+        mockPrismaService.productionOrder.findUnique.mockResolvedValue({
           PoId: 'PO-001',
           Qty: 20,
           FinishGoodId: 'FG-001',
@@ -303,16 +303,18 @@ describe('PokayokeService', () => {
       const mockLabelData = {
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'NPO-001',
         FinishGoodId: 'FG-001',
         ProductionReleaseId: 'release-1',
         QtyThisBox: 20,
         Scanned: false,
         PartData: { PartNumber: 'FG-001', PartName: 'Finish Good A' },
-        POData: { PoId: 'PO-001', VendorName: 'Vendor A' },
+        POData: { PoId: 'NPO-001', VendorName: 'Vendor A' },
       };
       const mockForecast = {
-        PoId: 'PO-001',
+        PoId: 'NPO-001',
+        SourceType: 'NON_PO',
+        PoNumber: '',
         Qty: 20,
         FinishGoodId: 'FG-001',
         ProductionReleaseId: 'release-1',
@@ -331,7 +333,9 @@ describe('PokayokeService', () => {
       };
 
       mockPrismaService.labelData.findUnique.mockResolvedValue(mockLabelData);
-      mockPrismaService.forecast.findUnique.mockResolvedValue(mockForecast);
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue(
+        mockForecast,
+      );
       mockPrismaService.finishGood.findUnique.mockResolvedValue(mockFinishGood);
       mockPrismaService.pokayokeScanHistory.create.mockResolvedValue(
         mockScanResult,
@@ -342,6 +346,12 @@ describe('PokayokeService', () => {
 
       expect(result.success).toBe(true);
       expect(result.data.labelNumber).toBe('LBL001');
+      expect(result.data).toMatchObject({
+        demandId: 'NPO-001',
+        referenceNumber: 'NPO-001',
+        sourceType: 'NON_PO',
+        poNumber: null,
+      });
       expect(mockPrismaService.labelData.updateMany).toHaveBeenCalledWith({
         where: { Id: 1, Scanned: false },
         data: { Scanned: true },
@@ -361,14 +371,14 @@ describe('PokayokeService', () => {
       const label = {
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         FinishGoodId: 'FG-001',
         ProductionReleaseId: 'release-1',
         QtyThisBox: 20,
         Scanned: false,
       };
       mockPrismaService.labelData.findUnique.mockResolvedValue(label);
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
         Qty: 20,
         FinishGoodId: 'FG-001',
@@ -398,13 +408,13 @@ describe('PokayokeService', () => {
       mockPrismaService.labelData.findUnique.mockResolvedValue({
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         FinishGoodId: 'FG-001',
         ProductionReleaseId: 'release-1',
         QtyThisBox: 20,
         Scanned: false,
       });
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
         Qty: 20,
         FinishGoodId: 'FG-001',
@@ -430,11 +440,11 @@ describe('PokayokeService', () => {
       mockPrismaService.labelData.findUnique.mockResolvedValue({
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         FinishGoodId: 'FG-001',
         Scanned: false,
       });
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
         Qty: 20,
         FinishGoodId: 'FG-001',
@@ -463,10 +473,10 @@ describe('PokayokeService', () => {
       mockPrismaService.labelData.findUnique.mockResolvedValue({
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         Scanned: false,
       });
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
       });
       mockShoppingService.checkRequirement.mockResolvedValue({
@@ -490,13 +500,13 @@ describe('PokayokeService', () => {
       mockPrismaService.labelData.findUnique.mockResolvedValue({
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         FinishGoodId: 'FG-001',
         ProductionReleaseId: 'release-1',
         QtyThisBox: 20,
         Scanned: false,
       });
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
         Qty: 20,
         FinishGoodId: 'FG-001',

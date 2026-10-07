@@ -76,5 +76,5 @@ export class ForecastEntity {
  */
 export class ForecastOperatorEntity extends ForecastEntity {
   @ApiProperty({ description: 'Data shopping terkait', type: [Object] })
-  Shopping: { ForecastId: string }[];
+  Shopping: { ProductionDemandId: string }[];
 }

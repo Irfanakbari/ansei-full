@@ -1,3 +1,4 @@
+import { forecastCandidateWhere } from './forecast-candidates';
 import {
   auditedTransaction,
   auditedWrite,
@@ -45,6 +46,29 @@ export class ProductionReleaseService {
     private readonly logService: LogProcessService,
     private readonly nasUploadService: NasUploadService,
   ) {}
+
+  private selectionIds(
+    dto: { forecastIds?: string[]; demandIds?: string[] },
+    required: true,
+  ): string[];
+  private selectionIds(
+    dto: { forecastIds?: string[]; demandIds?: string[] },
+    required: false,
+  ): string[] | undefined;
+  private selectionIds(
+    dto: { forecastIds?: string[]; demandIds?: string[] },
+    required: boolean,
+  ) {
+    if (dto.forecastIds !== undefined && dto.demandIds !== undefined)
+      throw new BadRequestException(
+        'Send demandIds or legacy forecastIds, not both.',
+      );
+    const ids = dto.demandIds ?? dto.forecastIds;
+    if (ids === undefined && !required) return undefined;
+    if (!ids?.length || ids.some((id) => !id.trim()))
+      throw new BadRequestException('Select at least one production order.');
+    return [...new Set(ids)];
+  }
 
   private isUniqueConstraintError(
     error: unknown,
@@ -455,7 +479,7 @@ export class ProductionReleaseService {
             Id: true,
             LabelNumber: true,
             FinishGoodId: true,
-            ForecastId: true,
+            ProductionDemandId: true,
             Scanned: true,
             QtyThisBox: true,
           },
@@ -492,7 +516,7 @@ export class ProductionReleaseService {
   ) {
     const release = await this.prisma.productionRelease.findUnique({
       where: { Id: id },
-      select: { Status: true },
+      select: { Status: true, SourceType: true },
     });
     if (!release)
       throw new NotFoundException(`ProductionRelease with id ${id} not found`);
@@ -503,30 +527,18 @@ export class ProductionReleaseService {
       throw new ConflictException(
         'Forecasts can only be managed for a DRAFT or RELEASED production release.',
       );
-    const where: Prisma.ForecastWhereInput = {
-      ProductionReleaseId: query.mode === 'untag' ? id : null,
-      ...(query.search
-        ? {
-            OR: [
-              { PoId: { contains: query.search, mode: 'insensitive' } },
-              {
-                FinishGoodId: {
-                  contains: query.search,
-                  mode: 'insensitive',
-                },
-              },
-              { VendorName: { contains: query.search, mode: 'insensitive' } },
-            ],
-          }
-        : {}),
-    };
+    const where = forecastCandidateWhere(
+      { ...query, sourceType: release.SourceType },
+      query.mode === 'untag' ? id : null,
+    );
     const [totalItems, data] = await Promise.all([
-      this.prisma.forecast.count({ where }),
-      this.prisma.forecast.findMany({
+      this.prisma.productionOrder.count({ where }),
+      this.prisma.productionOrder.findMany({
         where,
         select: {
           Id: true,
           PoId: true,
+          SourceType: true,
           Qty: true,
           FinishGoodId: true,
           ProductionReleaseId: true,
@@ -548,6 +560,63 @@ export class ProductionReleaseService {
         totalItems,
         totalPages: Math.ceil(totalItems / query.limit),
       },
+    };
+  }
+
+  async getCreateCandidates(
+    query: ProductionReleaseForecastCandidatesQueryDto,
+  ) {
+    const where = forecastCandidateWhere(query, null);
+    const [totalItems, data] = await Promise.all([
+      this.prisma.productionOrder.count({ where }),
+      this.prisma.productionOrder.findMany({
+        where,
+        select: {
+          PoId: true,
+          SourceType: true,
+          Qty: true,
+          FinishGoodId: true,
+          DeliveryDate: true,
+          DeliveryPeriod: true,
+          ProductionReleaseId: true,
+          PartData: { select: { PartNumber: true, PartName: true } },
+        },
+        orderBy: [{ DeliveryDate: 'asc' }, { Id: 'desc' }],
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / query.limit),
+      },
+    };
+  }
+
+  async getCandidateIds(
+    query: ProductionReleaseForecastCandidatesQueryDto,
+    id?: string,
+  ) {
+    const release = id ? await this.requireManageable(this.prisma, id) : null;
+    const rows = await this.prisma.productionOrder.findMany({
+      where: forecastCandidateWhere(
+        { ...query, sourceType: release?.SourceType ?? query.sourceType },
+        id && query.mode === 'untag' ? id : null,
+      ),
+      select: { PoId: true },
+      orderBy: { PoId: 'asc' },
+    });
+    return {
+      demandIds: rows.map((row) => row.PoId),
+      forecastIds:
+        (release?.SourceType ?? query.sourceType ?? 'PO') === 'PO'
+          ? rows.map((row) => row.PoId)
+          : [],
+      total: rows.length,
     };
   }
 
@@ -586,10 +655,12 @@ export class ProductionReleaseService {
     tx: Prisma.TransactionClient,
     forecastIds: string[],
   ) {
-    const forecasts = await tx.forecast.findMany({
+    const forecasts = await tx.productionOrder.findMany({
       where: { PoId: { in: forecastIds } },
       select: {
         PoId: true,
+        SourceType: true,
+        ShoppingCompletion: { select: { ProductionDemandId: true } },
         Qty: true,
         FinishGoodId: true,
         ProductionReleaseId: true,
@@ -605,6 +676,7 @@ export class ProductionReleaseService {
             Shopping: true,
             ProductionReport: true,
             DeliveryHistory: true,
+            ProductionFindings: true,
           },
         },
         LabelData: {
@@ -622,8 +694,8 @@ export class ProductionReleaseService {
     const found = new Set(forecasts.map((forecast) => forecast.PoId));
     const missing = forecastIds.filter((poId) => !found.has(poId));
     if (missing.length)
-      throw new NotFoundException(
-        `Forecast(s) not found: ${missing.join(', ')}`,
+      throw new ConflictException(
+        `Selected orders are no longer available: ${missing.join(', ')}. Refresh and try again.`,
       );
     return forecasts;
   }
@@ -635,9 +707,11 @@ export class ProductionReleaseService {
   ) {
     const blocked = forecasts.filter(
       (forecast) =>
+        !!forecast.ShoppingCompletion ||
         forecast._count.Shopping > 0 ||
         forecast._count.ProductionReport > 0 ||
         forecast._count.DeliveryHistory > 0 ||
+        forecast._count.ProductionFindings > 0 ||
         forecast.LabelData.some(
           (label) =>
             label.Scanned ||
@@ -693,7 +767,7 @@ export class ProductionReleaseService {
           await lockProductionFlow(tx);
           const release = await this.requireReleased(tx, id);
           const forecastIds = (
-            await tx.forecast.findMany({
+            await tx.productionOrder.findMany({
               where: { ProductionReleaseId: id },
               select: { PoId: true },
             })
@@ -701,7 +775,7 @@ export class ProductionReleaseService {
           const forecasts = await this.getAmendmentForecasts(tx, forecastIds);
           this.assertNoOperationalActivity(forecasts);
           await tx.labelData.deleteMany({ where: { ProductionReleaseId: id } });
-          await tx.forecast.updateMany({
+          await tx.productionDemand.updateMany({
             where: { ProductionReleaseId: id },
             data: { ProductionReleaseId: null },
           });
@@ -744,6 +818,7 @@ export class ProductionReleaseService {
     dto: AmendProductionReleaseForecastsDto,
     actor: string,
   ) {
+    dto = { ...dto, forecastIds: this.selectionIds(dto, true) };
     const log = await this.logService.startProcess({
       functionId: 'PROD_RELEASE_005',
       functionName: 'ProductionReleaseService.TagForecasts',
@@ -766,13 +841,20 @@ export class ProductionReleaseService {
             throw new ConflictException(
               `Forecast(s) are already linked: ${linked.map((item) => item.PoId).join(', ')}`,
             );
+          if (
+            forecasts.some((f) => f.SourceType !== release.SourceType) ||
+            (release.SourceType === 'NON_PO' && dto.demandIds === undefined)
+          )
+            throw new ConflictException(
+              'Order source must match the release; Non PO requires demandIds.',
+            );
           this.assertNoOperationalActivity(forecasts);
           const labels =
             release.Status === ProductionStatus.RELEASED
               ? this.buildLabels(id, forecasts)
               : [];
-          const result = await tx.forecast.updateMany({
-            where: { PoId: { in: dto.forecastIds }, ProductionReleaseId: null },
+          const result = await tx.productionDemand.updateMany({
+            where: { Id: { in: dto.forecastIds }, ProductionReleaseId: null },
             data: { ProductionReleaseId: id },
           });
           if (result.count !== forecasts.length)
@@ -789,7 +871,7 @@ export class ProductionReleaseService {
                 'Not all labels could be generated. Refresh and try again.',
               );
           }
-          const aggregate = await tx.forecast.aggregate({
+          const aggregate = await tx.productionOrder.aggregate({
             where: { ProductionReleaseId: id },
             _sum: { Qty: true },
           });
@@ -819,6 +901,7 @@ export class ProductionReleaseService {
     dto: AmendProductionReleaseForecastsDto,
     actor: string,
   ) {
+    dto = { ...dto, forecastIds: this.selectionIds(dto, true) };
     const log = await this.logService.startProcess({
       functionId: 'PROD_RELEASE_006',
       functionName: 'ProductionReleaseService.UntagForecasts',
@@ -841,8 +924,15 @@ export class ProductionReleaseService {
             throw new ConflictException(
               `Forecast(s) are not linked to this release: ${invalid.map((item) => item.PoId).join(', ')}`,
             );
+          if (
+            forecasts.some((f) => f.SourceType !== release.SourceType) ||
+            (release.SourceType === 'NON_PO' && dto.demandIds === undefined)
+          )
+            throw new ConflictException(
+              'Order source must match the release; Non PO requires demandIds.',
+            );
           this.assertNoOperationalActivity(forecasts);
-          const linkedCount = await tx.forecast.count({
+          const linkedCount = await tx.productionOrder.count({
             where: { ProductionReleaseId: id },
           });
           if (linkedCount === forecasts.length)
@@ -853,19 +943,19 @@ export class ProductionReleaseService {
             await tx.labelData.deleteMany({
               where: {
                 ProductionReleaseId: id,
-                ForecastId: { in: dto.forecastIds },
+                ProductionDemandId: { in: dto.forecastIds },
               },
             });
           }
-          const result = await tx.forecast.updateMany({
-            where: { PoId: { in: dto.forecastIds }, ProductionReleaseId: id },
+          const result = await tx.productionDemand.updateMany({
+            where: { Id: { in: dto.forecastIds }, ProductionReleaseId: id },
             data: { ProductionReleaseId: null },
           });
           if (result.count !== forecasts.length)
             throw new ConflictException(
               'Forecast assignment changed. Refresh and try again.',
             );
-          const aggregate = await tx.forecast.aggregate({
+          const aggregate = await tx.productionOrder.aggregate({
             where: { ProductionReleaseId: id },
             _sum: { Qty: true },
           });
@@ -891,6 +981,9 @@ export class ProductionReleaseService {
   }
 
   async create(dto: CreateProductionReleaseDto, createdBy: string) {
+    if (dto.sourceType === 'NON_PO' && dto.forecastIds !== undefined)
+      throw new BadRequestException('Non PO requires demandIds.');
+    dto = { ...dto, forecastIds: this.selectionIds(dto, true) };
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -947,8 +1040,11 @@ export class ProductionReleaseService {
             manualReleaseNumber ??
             (await this.generateReleaseNumber(tx, new Date(dto.planDate)));
 
-          const forecasts = await tx.forecast.findMany({
-            where: { PoId: { in: forecastIds }, ProductionReleaseId: null },
+          const forecasts = await tx.productionOrder.findMany({
+            where: {
+              ...forecastCandidateWhere({ sourceType: dto.sourceType }, null),
+              PoId: { in: forecastIds },
+            },
             select: { PoId: true, Qty: true },
           });
           if (forecasts.length !== forecastIds.length) {
@@ -958,6 +1054,7 @@ export class ProductionReleaseService {
           }
           const created = await tx.productionRelease.create({
             data: {
+              SourceType: dto.sourceType ?? 'PO',
               ReleaseNumber: releaseNumber,
               PlanDate: new Date(dto.planDate),
               Notes: dto.notes,
@@ -970,9 +1067,9 @@ export class ProductionReleaseService {
               ),
             },
           });
-          const assignment = await tx.forecast.updateMany({
+          const assignment = await tx.productionDemand.updateMany({
             where: {
-              PoId: { in: forecastIds },
+              Id: { in: forecastIds },
               ProductionReleaseId: null,
             },
             data: { ProductionReleaseId: created.Id },
@@ -1027,6 +1124,7 @@ export class ProductionReleaseService {
   }
 
   async update(id: string, dto: UpdateProductionReleaseDto, updatedBy: string) {
+    dto = { ...dto, forecastIds: this.selectionIds(dto, false) };
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -1120,13 +1218,20 @@ export class ProductionReleaseService {
             }
           }
 
+          if (
+            existing.SourceType === 'NON_PO' &&
+            dto.forecastIds !== undefined &&
+            dto.demandIds === undefined
+          )
+            throw new BadRequestException('Non PO requires demandIds.');
           if (dto.forecastIds !== undefined) {
             const forecastIds = [...new Set(dto.forecastIds)];
             if (forecastIds.length === 0) {
               throw new BadRequestException('forecastIds cannot be empty');
             }
-            const forecasts = await tx.forecast.findMany({
+            const forecasts = await tx.productionOrder.findMany({
               where: {
+                SourceType: existing.SourceType,
                 PoId: { in: forecastIds },
                 OR: [
                   { ProductionReleaseId: null },
@@ -1140,13 +1245,13 @@ export class ProductionReleaseService {
                 'One or more forecasts do not exist or are assigned to another release. Refresh and try again.',
               );
             }
-            await tx.forecast.updateMany({
+            await tx.productionDemand.updateMany({
               where: { ProductionReleaseId: id },
               data: { ProductionReleaseId: null },
             });
-            const linked = await tx.forecast.updateMany({
+            const linked = await tx.productionDemand.updateMany({
               where: {
-                PoId: { in: forecastIds },
+                Id: { in: forecastIds },
                 ProductionReleaseId: null,
               },
               data: { ProductionReleaseId: id },
@@ -1158,10 +1263,11 @@ export class ProductionReleaseService {
             }
           }
 
-          const linkedForecasts = await tx.forecast.findMany({
+          const linkedForecasts = await tx.productionOrder.findMany({
             where: { ProductionReleaseId: id },
             select: {
               PoId: true,
+              SourceType: true,
               Qty: true,
               FinishGoodId: true,
               PartData: {
@@ -1216,8 +1322,10 @@ export class ProductionReleaseService {
                   Shopping: 0,
                   ProductionReport: 0,
                   DeliveryHistory: 0,
+                  ProductionFindings: 0,
                 },
                 LabelData: [],
+                ShoppingCompletion: null,
               })),
             );
             const createdLabels = await tx.labelData.createMany({
@@ -1235,7 +1343,7 @@ export class ProductionReleaseService {
             existing.Status !== ProductionStatus.COMPLETED
           ) {
             const [forecasts, attachmentCount] = await Promise.all([
-              tx.forecast.findMany({
+              tx.productionOrder.findMany({
                 where: { ProductionReleaseId: id },
                 select: {
                   PoId: true,
@@ -1326,13 +1434,13 @@ export class ProductionReleaseService {
           )
             await snapshotRelease(tx, id, updatedBy, logProcess!.ProcessId);
           if (dto.status && dto.status !== existing.Status) {
-            const linkedOrders = await tx.forecast.findMany({
+            const linkedOrders = await tx.productionOrder.findMany({
               where: { ProductionReleaseId: id },
               select: { PoId: true },
             });
             await tx.productionTraceEvent.createMany({
               data: linkedOrders.map((order) => ({
-                ForecastId: order.PoId,
+                ProductionDemandId: order.PoId,
                 ReleaseId: id,
                 Type: 'RELEASE_STATUS_CHANGED',
                 SourceType: 'ProductionRelease',
@@ -1384,7 +1492,7 @@ export class ProductionReleaseService {
   }
 
   private async validateBoxQtyForRelease(releaseId: string): Promise<void> {
-    const forecasts = await this.prisma.forecast.findMany({
+    const forecasts = await this.prisma.productionOrder.findMany({
       where: { ProductionReleaseId: releaseId },
       select: {
         PoId: true,
@@ -1426,10 +1534,11 @@ export class ProductionReleaseService {
    * Generate LabelData for all forecasts linked to this release
    */
   private async generateLabelsForRelease(releaseId: string, processId: string) {
-    const forecasts = await this.prisma.forecast.findMany({
+    const forecasts = await this.prisma.productionOrder.findMany({
       where: { ProductionReleaseId: releaseId },
       select: {
         PoId: true,
+        SourceType: true,
         Qty: true,
         FinishGoodId: true,
         PartData: { select: { IsPassthrough: true } },
@@ -1446,7 +1555,7 @@ export class ProductionReleaseService {
     const labelDataToCreate: {
       LabelNumber: string;
       FinishGoodId: string;
-      ForecastId: string;
+      ProductionDemandId: string;
       Scanned: boolean;
       QtyThisBox: number;
       ProductionReleaseId: string;
@@ -1492,7 +1601,7 @@ export class ProductionReleaseService {
         labelDataToCreate.push({
           LabelNumber: labelNumber,
           FinishGoodId: forecast.FinishGoodId,
-          ForecastId: forecast.PoId,
+          ProductionDemandId: forecast.PoId,
           Scanned: false,
           QtyThisBox: qtyInBox,
           ProductionReleaseId: releaseId,
@@ -1592,7 +1701,7 @@ export class ProductionReleaseService {
             type: 'INFO',
             location: 'production-release.service.ts:433',
           });
-          await tx.forecast.updateMany({
+          await tx.productionDemand.updateMany({
             where: { ProductionReleaseId: id },
             data: { ProductionReleaseId: null },
           });
@@ -2063,7 +2172,7 @@ export class ProductionReleaseService {
     }
 
     // Get forecasts for this production release
-    const forecastsData = await this.prisma.forecast.findMany({
+    const forecastsData = await this.prisma.productionOrder.findMany({
       where: {
         ProductionReleaseId: releaseId,
       },

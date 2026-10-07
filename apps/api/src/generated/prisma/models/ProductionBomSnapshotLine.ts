@@ -251,7 +251,7 @@ export type ProductionBomSnapshotLineWhereInput = {
   Snapshot?: Prisma.XOR<Prisma.ProductionBomSnapshotScalarRelationFilter, Prisma.ProductionBomSnapshotWhereInput>
   Material?: Prisma.XOR<Prisma.MaterialScalarRelationFilter, Prisma.MaterialWhereInput>
   Shopping?: Prisma.ShoppingListRelationFilter
-  MaterialNG?: Prisma.MaterialNGListRelationFilter
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentListRelationFilter
 }
 
 export type ProductionBomSnapshotLineOrderByWithRelationInput = {
@@ -266,7 +266,7 @@ export type ProductionBomSnapshotLineOrderByWithRelationInput = {
   Snapshot?: Prisma.ProductionBomSnapshotOrderByWithRelationInput
   Material?: Prisma.MaterialOrderByWithRelationInput
   Shopping?: Prisma.ShoppingOrderByRelationAggregateInput
-  MaterialNG?: Prisma.MaterialNGOrderByRelationAggregateInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentOrderByRelationAggregateInput
 }
 
 export type ProductionBomSnapshotLineWhereUniqueInput = Prisma.AtLeast<{
@@ -285,7 +285,7 @@ export type ProductionBomSnapshotLineWhereUniqueInput = Prisma.AtLeast<{
   Snapshot?: Prisma.XOR<Prisma.ProductionBomSnapshotScalarRelationFilter, Prisma.ProductionBomSnapshotWhereInput>
   Material?: Prisma.XOR<Prisma.MaterialScalarRelationFilter, Prisma.MaterialWhereInput>
   Shopping?: Prisma.ShoppingListRelationFilter
-  MaterialNG?: Prisma.MaterialNGListRelationFilter
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentListRelationFilter
 }, "Id" | "SnapshotId_MaterialId">
 
 export type ProductionBomSnapshotLineOrderByWithAggregationInput = {
@@ -328,7 +328,7 @@ export type ProductionBomSnapshotLineCreateInput = {
   Snapshot: Prisma.ProductionBomSnapshotCreateNestedOneWithoutLinesInput
   Material: Prisma.MaterialCreateNestedOneWithoutBomSnapshotLinesInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutSnapshotLineInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutSnapshotLineInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutSnapshotLineInput
 }
 
 export type ProductionBomSnapshotLineUncheckedCreateInput = {
@@ -341,7 +341,7 @@ export type ProductionBomSnapshotLineUncheckedCreateInput = {
   PartName: string
   UnitName?: string | null
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutSnapshotLineInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutSnapshotLineInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutSnapshotLineInput
 }
 
 export type ProductionBomSnapshotLineUpdateInput = {
@@ -354,7 +354,7 @@ export type ProductionBomSnapshotLineUpdateInput = {
   Snapshot?: Prisma.ProductionBomSnapshotUpdateOneRequiredWithoutLinesNestedInput
   Material?: Prisma.MaterialUpdateOneRequiredWithoutBomSnapshotLinesNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutSnapshotLineNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutSnapshotLineNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutSnapshotLineNestedInput
 }
 
 export type ProductionBomSnapshotLineUncheckedUpdateInput = {
@@ -367,7 +367,7 @@ export type ProductionBomSnapshotLineUncheckedUpdateInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutSnapshotLineNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutSnapshotLineNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutSnapshotLineNestedInput
 }
 
 export type ProductionBomSnapshotLineCreateManyInput = {
@@ -508,22 +508,6 @@ export type ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialNestedInp
   deleteMany?: Prisma.ProductionBomSnapshotLineScalarWhereInput | Prisma.ProductionBomSnapshotLineScalarWhereInput[]
 }
 
-export type ProductionBomSnapshotLineCreateNestedOneWithoutMaterialNGInput = {
-  create?: Prisma.XOR<Prisma.ProductionBomSnapshotLineCreateWithoutMaterialNGInput, Prisma.ProductionBomSnapshotLineUncheckedCreateWithoutMaterialNGInput>
-  connectOrCreate?: Prisma.ProductionBomSnapshotLineCreateOrConnectWithoutMaterialNGInput
-  connect?: Prisma.ProductionBomSnapshotLineWhereUniqueInput
-}
-
-export type ProductionBomSnapshotLineUpdateOneWithoutMaterialNGNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductionBomSnapshotLineCreateWithoutMaterialNGInput, Prisma.ProductionBomSnapshotLineUncheckedCreateWithoutMaterialNGInput>
-  connectOrCreate?: Prisma.ProductionBomSnapshotLineCreateOrConnectWithoutMaterialNGInput
-  upsert?: Prisma.ProductionBomSnapshotLineUpsertWithoutMaterialNGInput
-  disconnect?: Prisma.ProductionBomSnapshotLineWhereInput | boolean
-  delete?: Prisma.ProductionBomSnapshotLineWhereInput | boolean
-  connect?: Prisma.ProductionBomSnapshotLineWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionBomSnapshotLineUpdateToOneWithWhereWithoutMaterialNGInput, Prisma.ProductionBomSnapshotLineUpdateWithoutMaterialNGInput>, Prisma.ProductionBomSnapshotLineUncheckedUpdateWithoutMaterialNGInput>
-}
-
 export type ProductionBomSnapshotLineCreateNestedOneWithoutShoppingInput = {
   create?: Prisma.XOR<Prisma.ProductionBomSnapshotLineCreateWithoutShoppingInput, Prisma.ProductionBomSnapshotLineUncheckedCreateWithoutShoppingInput>
   connectOrCreate?: Prisma.ProductionBomSnapshotLineCreateOrConnectWithoutShoppingInput
@@ -582,6 +566,22 @@ export type ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInp
   deleteMany?: Prisma.ProductionBomSnapshotLineScalarWhereInput | Prisma.ProductionBomSnapshotLineScalarWhereInput[]
 }
 
+export type ProductionBomSnapshotLineCreateNestedOneWithoutProductionFindingComponentsInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotLineCreateWithoutProductionFindingComponentsInput, Prisma.ProductionBomSnapshotLineUncheckedCreateWithoutProductionFindingComponentsInput>
+  connectOrCreate?: Prisma.ProductionBomSnapshotLineCreateOrConnectWithoutProductionFindingComponentsInput
+  connect?: Prisma.ProductionBomSnapshotLineWhereUniqueInput
+}
+
+export type ProductionBomSnapshotLineUpdateOneWithoutProductionFindingComponentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotLineCreateWithoutProductionFindingComponentsInput, Prisma.ProductionBomSnapshotLineUncheckedCreateWithoutProductionFindingComponentsInput>
+  connectOrCreate?: Prisma.ProductionBomSnapshotLineCreateOrConnectWithoutProductionFindingComponentsInput
+  upsert?: Prisma.ProductionBomSnapshotLineUpsertWithoutProductionFindingComponentsInput
+  disconnect?: Prisma.ProductionBomSnapshotLineWhereInput | boolean
+  delete?: Prisma.ProductionBomSnapshotLineWhereInput | boolean
+  connect?: Prisma.ProductionBomSnapshotLineWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionBomSnapshotLineUpdateToOneWithWhereWithoutProductionFindingComponentsInput, Prisma.ProductionBomSnapshotLineUpdateWithoutProductionFindingComponentsInput>, Prisma.ProductionBomSnapshotLineUncheckedUpdateWithoutProductionFindingComponentsInput>
+}
+
 export type ProductionBomSnapshotLineCreateWithoutMaterialInput = {
   Id?: string
   QtyPerUnit: number
@@ -591,7 +591,7 @@ export type ProductionBomSnapshotLineCreateWithoutMaterialInput = {
   UnitName?: string | null
   Snapshot: Prisma.ProductionBomSnapshotCreateNestedOneWithoutLinesInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutSnapshotLineInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutSnapshotLineInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutSnapshotLineInput
 }
 
 export type ProductionBomSnapshotLineUncheckedCreateWithoutMaterialInput = {
@@ -603,7 +603,7 @@ export type ProductionBomSnapshotLineUncheckedCreateWithoutMaterialInput = {
   PartName: string
   UnitName?: string | null
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutSnapshotLineInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutSnapshotLineInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutSnapshotLineInput
 }
 
 export type ProductionBomSnapshotLineCreateOrConnectWithoutMaterialInput = {
@@ -646,70 +646,6 @@ export type ProductionBomSnapshotLineScalarWhereInput = {
   UnitName?: Prisma.StringNullableFilter<"ProductionBomSnapshotLine"> | string | null
 }
 
-export type ProductionBomSnapshotLineCreateWithoutMaterialNGInput = {
-  Id?: string
-  QtyPerUnit: number
-  RequiredQty: number
-  PartNumber: string
-  PartName: string
-  UnitName?: string | null
-  Snapshot: Prisma.ProductionBomSnapshotCreateNestedOneWithoutLinesInput
-  Material: Prisma.MaterialCreateNestedOneWithoutBomSnapshotLinesInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutSnapshotLineInput
-}
-
-export type ProductionBomSnapshotLineUncheckedCreateWithoutMaterialNGInput = {
-  Id?: string
-  SnapshotId: string
-  MaterialId: number
-  QtyPerUnit: number
-  RequiredQty: number
-  PartNumber: string
-  PartName: string
-  UnitName?: string | null
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutSnapshotLineInput
-}
-
-export type ProductionBomSnapshotLineCreateOrConnectWithoutMaterialNGInput = {
-  where: Prisma.ProductionBomSnapshotLineWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductionBomSnapshotLineCreateWithoutMaterialNGInput, Prisma.ProductionBomSnapshotLineUncheckedCreateWithoutMaterialNGInput>
-}
-
-export type ProductionBomSnapshotLineUpsertWithoutMaterialNGInput = {
-  update: Prisma.XOR<Prisma.ProductionBomSnapshotLineUpdateWithoutMaterialNGInput, Prisma.ProductionBomSnapshotLineUncheckedUpdateWithoutMaterialNGInput>
-  create: Prisma.XOR<Prisma.ProductionBomSnapshotLineCreateWithoutMaterialNGInput, Prisma.ProductionBomSnapshotLineUncheckedCreateWithoutMaterialNGInput>
-  where?: Prisma.ProductionBomSnapshotLineWhereInput
-}
-
-export type ProductionBomSnapshotLineUpdateToOneWithWhereWithoutMaterialNGInput = {
-  where?: Prisma.ProductionBomSnapshotLineWhereInput
-  data: Prisma.XOR<Prisma.ProductionBomSnapshotLineUpdateWithoutMaterialNGInput, Prisma.ProductionBomSnapshotLineUncheckedUpdateWithoutMaterialNGInput>
-}
-
-export type ProductionBomSnapshotLineUpdateWithoutMaterialNGInput = {
-  Id?: Prisma.StringFieldUpdateOperationsInput | string
-  QtyPerUnit?: Prisma.IntFieldUpdateOperationsInput | number
-  RequiredQty?: Prisma.IntFieldUpdateOperationsInput | number
-  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  PartName?: Prisma.StringFieldUpdateOperationsInput | string
-  UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Snapshot?: Prisma.ProductionBomSnapshotUpdateOneRequiredWithoutLinesNestedInput
-  Material?: Prisma.MaterialUpdateOneRequiredWithoutBomSnapshotLinesNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutSnapshotLineNestedInput
-}
-
-export type ProductionBomSnapshotLineUncheckedUpdateWithoutMaterialNGInput = {
-  Id?: Prisma.StringFieldUpdateOperationsInput | string
-  SnapshotId?: Prisma.StringFieldUpdateOperationsInput | string
-  MaterialId?: Prisma.IntFieldUpdateOperationsInput | number
-  QtyPerUnit?: Prisma.IntFieldUpdateOperationsInput | number
-  RequiredQty?: Prisma.IntFieldUpdateOperationsInput | number
-  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  PartName?: Prisma.StringFieldUpdateOperationsInput | string
-  UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutSnapshotLineNestedInput
-}
-
 export type ProductionBomSnapshotLineCreateWithoutShoppingInput = {
   Id?: string
   QtyPerUnit: number
@@ -719,7 +655,7 @@ export type ProductionBomSnapshotLineCreateWithoutShoppingInput = {
   UnitName?: string | null
   Snapshot: Prisma.ProductionBomSnapshotCreateNestedOneWithoutLinesInput
   Material: Prisma.MaterialCreateNestedOneWithoutBomSnapshotLinesInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutSnapshotLineInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutSnapshotLineInput
 }
 
 export type ProductionBomSnapshotLineUncheckedCreateWithoutShoppingInput = {
@@ -731,7 +667,7 @@ export type ProductionBomSnapshotLineUncheckedCreateWithoutShoppingInput = {
   PartNumber: string
   PartName: string
   UnitName?: string | null
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutSnapshotLineInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutSnapshotLineInput
 }
 
 export type ProductionBomSnapshotLineCreateOrConnectWithoutShoppingInput = {
@@ -759,7 +695,7 @@ export type ProductionBomSnapshotLineUpdateWithoutShoppingInput = {
   UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Snapshot?: Prisma.ProductionBomSnapshotUpdateOneRequiredWithoutLinesNestedInput
   Material?: Prisma.MaterialUpdateOneRequiredWithoutBomSnapshotLinesNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutSnapshotLineNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutSnapshotLineNestedInput
 }
 
 export type ProductionBomSnapshotLineUncheckedUpdateWithoutShoppingInput = {
@@ -771,7 +707,7 @@ export type ProductionBomSnapshotLineUncheckedUpdateWithoutShoppingInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutSnapshotLineNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutSnapshotLineNestedInput
 }
 
 export type ProductionBomSnapshotLineCreateWithoutSnapshotInput = {
@@ -783,7 +719,7 @@ export type ProductionBomSnapshotLineCreateWithoutSnapshotInput = {
   UnitName?: string | null
   Material: Prisma.MaterialCreateNestedOneWithoutBomSnapshotLinesInput
   Shopping?: Prisma.ShoppingCreateNestedManyWithoutSnapshotLineInput
-  MaterialNG?: Prisma.MaterialNGCreateNestedManyWithoutSnapshotLineInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentCreateNestedManyWithoutSnapshotLineInput
 }
 
 export type ProductionBomSnapshotLineUncheckedCreateWithoutSnapshotInput = {
@@ -795,7 +731,7 @@ export type ProductionBomSnapshotLineUncheckedCreateWithoutSnapshotInput = {
   PartName: string
   UnitName?: string | null
   Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutSnapshotLineInput
-  MaterialNG?: Prisma.MaterialNGUncheckedCreateNestedManyWithoutSnapshotLineInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedCreateNestedManyWithoutSnapshotLineInput
 }
 
 export type ProductionBomSnapshotLineCreateOrConnectWithoutSnapshotInput = {
@@ -824,6 +760,70 @@ export type ProductionBomSnapshotLineUpdateManyWithWhereWithoutSnapshotInput = {
   data: Prisma.XOR<Prisma.ProductionBomSnapshotLineUpdateManyMutationInput, Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotInput>
 }
 
+export type ProductionBomSnapshotLineCreateWithoutProductionFindingComponentsInput = {
+  Id?: string
+  QtyPerUnit: number
+  RequiredQty: number
+  PartNumber: string
+  PartName: string
+  UnitName?: string | null
+  Snapshot: Prisma.ProductionBomSnapshotCreateNestedOneWithoutLinesInput
+  Material: Prisma.MaterialCreateNestedOneWithoutBomSnapshotLinesInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutSnapshotLineInput
+}
+
+export type ProductionBomSnapshotLineUncheckedCreateWithoutProductionFindingComponentsInput = {
+  Id?: string
+  SnapshotId: string
+  MaterialId: number
+  QtyPerUnit: number
+  RequiredQty: number
+  PartNumber: string
+  PartName: string
+  UnitName?: string | null
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutSnapshotLineInput
+}
+
+export type ProductionBomSnapshotLineCreateOrConnectWithoutProductionFindingComponentsInput = {
+  where: Prisma.ProductionBomSnapshotLineWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotLineCreateWithoutProductionFindingComponentsInput, Prisma.ProductionBomSnapshotLineUncheckedCreateWithoutProductionFindingComponentsInput>
+}
+
+export type ProductionBomSnapshotLineUpsertWithoutProductionFindingComponentsInput = {
+  update: Prisma.XOR<Prisma.ProductionBomSnapshotLineUpdateWithoutProductionFindingComponentsInput, Prisma.ProductionBomSnapshotLineUncheckedUpdateWithoutProductionFindingComponentsInput>
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotLineCreateWithoutProductionFindingComponentsInput, Prisma.ProductionBomSnapshotLineUncheckedCreateWithoutProductionFindingComponentsInput>
+  where?: Prisma.ProductionBomSnapshotLineWhereInput
+}
+
+export type ProductionBomSnapshotLineUpdateToOneWithWhereWithoutProductionFindingComponentsInput = {
+  where?: Prisma.ProductionBomSnapshotLineWhereInput
+  data: Prisma.XOR<Prisma.ProductionBomSnapshotLineUpdateWithoutProductionFindingComponentsInput, Prisma.ProductionBomSnapshotLineUncheckedUpdateWithoutProductionFindingComponentsInput>
+}
+
+export type ProductionBomSnapshotLineUpdateWithoutProductionFindingComponentsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  QtyPerUnit?: Prisma.IntFieldUpdateOperationsInput | number
+  RequiredQty?: Prisma.IntFieldUpdateOperationsInput | number
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Snapshot?: Prisma.ProductionBomSnapshotUpdateOneRequiredWithoutLinesNestedInput
+  Material?: Prisma.MaterialUpdateOneRequiredWithoutBomSnapshotLinesNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutSnapshotLineNestedInput
+}
+
+export type ProductionBomSnapshotLineUncheckedUpdateWithoutProductionFindingComponentsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  SnapshotId?: Prisma.StringFieldUpdateOperationsInput | string
+  MaterialId?: Prisma.IntFieldUpdateOperationsInput | number
+  QtyPerUnit?: Prisma.IntFieldUpdateOperationsInput | number
+  RequiredQty?: Prisma.IntFieldUpdateOperationsInput | number
+  PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartName?: Prisma.StringFieldUpdateOperationsInput | string
+  UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutSnapshotLineNestedInput
+}
+
 export type ProductionBomSnapshotLineCreateManyMaterialInput = {
   Id?: string
   SnapshotId: string
@@ -843,7 +843,7 @@ export type ProductionBomSnapshotLineUpdateWithoutMaterialInput = {
   UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Snapshot?: Prisma.ProductionBomSnapshotUpdateOneRequiredWithoutLinesNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutSnapshotLineNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutSnapshotLineNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutSnapshotLineNestedInput
 }
 
 export type ProductionBomSnapshotLineUncheckedUpdateWithoutMaterialInput = {
@@ -855,7 +855,7 @@ export type ProductionBomSnapshotLineUncheckedUpdateWithoutMaterialInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutSnapshotLineNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutSnapshotLineNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutSnapshotLineNestedInput
 }
 
 export type ProductionBomSnapshotLineUncheckedUpdateManyWithoutMaterialInput = {
@@ -887,7 +887,7 @@ export type ProductionBomSnapshotLineUpdateWithoutSnapshotInput = {
   UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Material?: Prisma.MaterialUpdateOneRequiredWithoutBomSnapshotLinesNestedInput
   Shopping?: Prisma.ShoppingUpdateManyWithoutSnapshotLineNestedInput
-  MaterialNG?: Prisma.MaterialNGUpdateManyWithoutSnapshotLineNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUpdateManyWithoutSnapshotLineNestedInput
 }
 
 export type ProductionBomSnapshotLineUncheckedUpdateWithoutSnapshotInput = {
@@ -899,7 +899,7 @@ export type ProductionBomSnapshotLineUncheckedUpdateWithoutSnapshotInput = {
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   UnitName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutSnapshotLineNestedInput
-  MaterialNG?: Prisma.MaterialNGUncheckedUpdateManyWithoutSnapshotLineNestedInput
+  ProductionFindingComponents?: Prisma.ProductionFindingComponentUncheckedUpdateManyWithoutSnapshotLineNestedInput
 }
 
 export type ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotInput = {
@@ -919,12 +919,12 @@ export type ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotInput = {
 
 export type ProductionBomSnapshotLineCountOutputType = {
   Shopping: number
-  MaterialNG: number
+  ProductionFindingComponents: number
 }
 
 export type ProductionBomSnapshotLineCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Shopping?: boolean | ProductionBomSnapshotLineCountOutputTypeCountShoppingArgs
-  MaterialNG?: boolean | ProductionBomSnapshotLineCountOutputTypeCountMaterialNGArgs
+  ProductionFindingComponents?: boolean | ProductionBomSnapshotLineCountOutputTypeCountProductionFindingComponentsArgs
 }
 
 /**
@@ -947,8 +947,8 @@ export type ProductionBomSnapshotLineCountOutputTypeCountShoppingArgs<ExtArgs ex
 /**
  * ProductionBomSnapshotLineCountOutputType without action
  */
-export type ProductionBomSnapshotLineCountOutputTypeCountMaterialNGArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MaterialNGWhereInput
+export type ProductionBomSnapshotLineCountOutputTypeCountProductionFindingComponentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionFindingComponentWhereInput
 }
 
 
@@ -964,7 +964,7 @@ export type ProductionBomSnapshotLineSelect<ExtArgs extends runtime.Types.Extens
   Snapshot?: boolean | Prisma.ProductionBomSnapshotDefaultArgs<ExtArgs>
   Material?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
   Shopping?: boolean | Prisma.ProductionBomSnapshotLine$ShoppingArgs<ExtArgs>
-  MaterialNG?: boolean | Prisma.ProductionBomSnapshotLine$MaterialNGArgs<ExtArgs>
+  ProductionFindingComponents?: boolean | Prisma.ProductionBomSnapshotLine$ProductionFindingComponentsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionBomSnapshotLineCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionBomSnapshotLine"]>
 
@@ -1010,7 +1010,7 @@ export type ProductionBomSnapshotLineInclude<ExtArgs extends runtime.Types.Exten
   Snapshot?: boolean | Prisma.ProductionBomSnapshotDefaultArgs<ExtArgs>
   Material?: boolean | Prisma.MaterialDefaultArgs<ExtArgs>
   Shopping?: boolean | Prisma.ProductionBomSnapshotLine$ShoppingArgs<ExtArgs>
-  MaterialNG?: boolean | Prisma.ProductionBomSnapshotLine$MaterialNGArgs<ExtArgs>
+  ProductionFindingComponents?: boolean | Prisma.ProductionBomSnapshotLine$ProductionFindingComponentsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionBomSnapshotLineCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductionBomSnapshotLineIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1028,7 +1028,7 @@ export type $ProductionBomSnapshotLinePayload<ExtArgs extends runtime.Types.Exte
     Snapshot: Prisma.$ProductionBomSnapshotPayload<ExtArgs>
     Material: Prisma.$MaterialPayload<ExtArgs>
     Shopping: Prisma.$ShoppingPayload<ExtArgs>[]
-    MaterialNG: Prisma.$MaterialNGPayload<ExtArgs>[]
+    ProductionFindingComponents: Prisma.$ProductionFindingComponentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: string
@@ -1436,7 +1436,7 @@ export interface Prisma__ProductionBomSnapshotLineClient<T, Null = never, ExtArg
   Snapshot<T extends Prisma.ProductionBomSnapshotDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshotDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionBomSnapshotClient<runtime.Types.Result.GetResult<Prisma.$ProductionBomSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Material<T extends Prisma.MaterialDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MaterialDefaultArgs<ExtArgs>>): Prisma.Prisma__MaterialClient<runtime.Types.Result.GetResult<Prisma.$MaterialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Shopping<T extends Prisma.ProductionBomSnapshotLine$ShoppingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshotLine$ShoppingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShoppingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  MaterialNG<T extends Prisma.ProductionBomSnapshotLine$MaterialNGArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshotLine$MaterialNGArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNGPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ProductionFindingComponents<T extends Prisma.ProductionBomSnapshotLine$ProductionFindingComponentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshotLine$ProductionFindingComponentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionFindingComponentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1899,27 +1899,27 @@ export type ProductionBomSnapshotLine$ShoppingArgs<ExtArgs extends runtime.Types
 }
 
 /**
- * ProductionBomSnapshotLine.MaterialNG
+ * ProductionBomSnapshotLine.ProductionFindingComponents
  */
-export type ProductionBomSnapshotLine$MaterialNGArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ProductionBomSnapshotLine$ProductionFindingComponentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the MaterialNG
+   * Select specific fields to fetch from the ProductionFindingComponent
    */
-  select?: Prisma.MaterialNGSelect<ExtArgs> | null
+  select?: Prisma.ProductionFindingComponentSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the MaterialNG
+   * Omit specific fields from the ProductionFindingComponent
    */
-  omit?: Prisma.MaterialNGOmit<ExtArgs> | null
+  omit?: Prisma.ProductionFindingComponentOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.MaterialNGInclude<ExtArgs> | null
-  where?: Prisma.MaterialNGWhereInput
-  orderBy?: Prisma.MaterialNGOrderByWithRelationInput | Prisma.MaterialNGOrderByWithRelationInput[]
-  cursor?: Prisma.MaterialNGWhereUniqueInput
+  include?: Prisma.ProductionFindingComponentInclude<ExtArgs> | null
+  where?: Prisma.ProductionFindingComponentWhereInput
+  orderBy?: Prisma.ProductionFindingComponentOrderByWithRelationInput | Prisma.ProductionFindingComponentOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionFindingComponentWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.MaterialNGScalarFieldEnum | Prisma.MaterialNGScalarFieldEnum[]
+  distinct?: Prisma.ProductionFindingComponentScalarFieldEnum | Prisma.ProductionFindingComponentScalarFieldEnum[]
 }
 
 /**

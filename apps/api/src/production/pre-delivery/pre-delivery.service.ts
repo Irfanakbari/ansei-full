@@ -34,14 +34,14 @@ export class PreDeliveryService {
    */
   private async getAllForecastIdsWithShopping(): Promise<string[]> {
     const shoppings = await this.prisma.shopping.findMany({
-      where: { ForecastId: { not: null }, Purpose: 'STANDARD' },
-      select: { ForecastId: true },
+      where: { ProductionDemandId: { not: null }, Purpose: 'STANDARD' },
+      select: { ProductionDemandId: true },
     });
 
     const uniqueForecastIds = [
       ...new Set(
         shoppings
-          .map((s) => s.ForecastId)
+          .map((s) => s.ProductionDemandId)
           .filter((id): id is string => id !== null),
       ),
     ];
@@ -59,7 +59,7 @@ export class PreDeliveryService {
 
     if (query.productionReleaseId) {
       // Get all PoId from the ProductionRelease's Forecasts
-      const forecasts = await this.prisma.forecast.findMany({
+      const forecasts = await this.prisma.productionOrder.findMany({
         where: { ProductionReleaseId: query.productionReleaseId },
         select: { PoId: true },
       });
@@ -76,7 +76,7 @@ export class PreDeliveryService {
         };
       }
     } else if (query.activeReleaseOnly) {
-      const forecasts = await this.prisma.forecast.findMany({
+      const forecasts = await this.prisma.productionOrder.findMany({
         where: { ProductionRelease: { Status: 'RELEASED' } },
         select: { PoId: true },
       });
@@ -135,7 +135,7 @@ export class PreDeliveryService {
     };
 
     // Apply filtered forecastIds (only with complete shopping)
-    where.ForecastId = { in: shoppingCompleteForecastIds };
+    where.ProductionDemandId = { in: shoppingCompleteForecastIds };
 
     if (query.forecastId) {
       // Also filter by specific forecastId if provided (must also have complete shopping)
@@ -153,7 +153,7 @@ export class PreDeliveryService {
       }
       if (!shoppingCompleteForecastIds.includes(query.forecastId))
         return { data: [], total: 0, page, limit, totalPages: 0 };
-      where.ForecastId = query.forecastId;
+      where.ProductionDemandId = query.forecastId;
     }
 
     // Apply FinishGoodId filter
@@ -223,9 +223,9 @@ export class PreDeliveryService {
         labelNumber: item.LabelNumber,
         finishGoodId: item.FinishGoodId,
         finishGoodName: item.PartData?.PartName ?? null,
-        forecastId: item.ForecastId,
+        forecastId: item.ProductionDemandId,
         bomSnapshotId: item.POData?.BomSnapshots?.[0]?.Id ?? null,
-        traceabilityUrl: `/apps/traceability?poId=${encodeURIComponent(item.ForecastId)}&label=${encodeURIComponent(item.LabelNumber)}`,
+        traceabilityUrl: `/apps/traceability?poId=${encodeURIComponent(item.ProductionDemandId)}&label=${encodeURIComponent(item.LabelNumber)}`,
         vendorName: item.POData?.VendorName ?? null,
         scanned: item.Scanned,
         qtyThisBox: item.QtyThisBox,
@@ -252,14 +252,14 @@ export class PreDeliveryService {
 
     // Get all unique forecast IDs that have shopping records (filter out null)
     const forecastsWithShopping = await this.prisma.shopping.findMany({
-      where: { ForecastId: { in: forecastIds, not: null } },
-      select: { ForecastId: true },
+      where: { ProductionDemandId: { in: forecastIds, not: null } },
+      select: { ProductionDemandId: true },
     });
 
     const uniqueForecastIdsWithShopping = [
       ...new Set(
         forecastsWithShopping
-          .map((s) => s.ForecastId)
+          .map((s) => s.ProductionDemandId)
           .filter((id): id is string => id !== null),
       ),
     ];
@@ -316,7 +316,7 @@ export class PreDeliveryService {
       labelNumber: result.LabelNumber,
       finishGoodId: result.FinishGoodId,
       finishGoodName: result.PartData?.PartName ?? null,
-      forecastId: result.ForecastId,
+      forecastId: result.ProductionDemandId,
       vendorName: result.POData?.VendorName ?? null,
       scanned: result.Scanned,
       qtyThisBox: result.QtyThisBox,
@@ -333,7 +333,7 @@ export class PreDeliveryService {
     let forecastIds: string[] | undefined;
 
     if (productionReleaseId) {
-      const forecasts = await this.prisma.forecast.findMany({
+      const forecasts = await this.prisma.productionOrder.findMany({
         where: { ProductionReleaseId: productionReleaseId },
         select: { PoId: true },
       });
@@ -353,7 +353,7 @@ export class PreDeliveryService {
     const completeIds = await this.filterShoppingCompleteForecastIds(
       forecastIds ?? (await this.getAllForecastIdsWithShopping()),
     );
-    where.ForecastId = { in: completeIds };
+    where.ProductionDemandId = { in: completeIds };
 
     const [total, scanned, notScanned] = await Promise.all([
       this.prisma.labelData.count({ where }),

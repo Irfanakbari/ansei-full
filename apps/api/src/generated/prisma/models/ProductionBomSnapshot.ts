@@ -37,8 +37,9 @@ export type ProductionBomSnapshotSumAggregateOutputType = {
 }
 
 export type ProductionBomSnapshotMinAggregateOutputType = {
+  LegacyPoId: string | null
   Id: string | null
-  ForecastId: string | null
+  ProductionDemandId: string | null
   ReleaseId: string | null
   RevisionId: string | null
   Version: number | null
@@ -51,8 +52,9 @@ export type ProductionBomSnapshotMinAggregateOutputType = {
 }
 
 export type ProductionBomSnapshotMaxAggregateOutputType = {
+  LegacyPoId: string | null
   Id: string | null
-  ForecastId: string | null
+  ProductionDemandId: string | null
   ReleaseId: string | null
   RevisionId: string | null
   Version: number | null
@@ -65,8 +67,9 @@ export type ProductionBomSnapshotMaxAggregateOutputType = {
 }
 
 export type ProductionBomSnapshotCountAggregateOutputType = {
+  LegacyPoId: number
   Id: number
-  ForecastId: number
+  ProductionDemandId: number
   ReleaseId: number
   RevisionId: number
   Version: number
@@ -91,8 +94,9 @@ export type ProductionBomSnapshotSumAggregateInputType = {
 }
 
 export type ProductionBomSnapshotMinAggregateInputType = {
+  LegacyPoId?: true
   Id?: true
-  ForecastId?: true
+  ProductionDemandId?: true
   ReleaseId?: true
   RevisionId?: true
   Version?: true
@@ -105,8 +109,9 @@ export type ProductionBomSnapshotMinAggregateInputType = {
 }
 
 export type ProductionBomSnapshotMaxAggregateInputType = {
+  LegacyPoId?: true
   Id?: true
-  ForecastId?: true
+  ProductionDemandId?: true
   ReleaseId?: true
   RevisionId?: true
   Version?: true
@@ -119,8 +124,9 @@ export type ProductionBomSnapshotMaxAggregateInputType = {
 }
 
 export type ProductionBomSnapshotCountAggregateInputType = {
+  LegacyPoId?: true
   Id?: true
-  ForecastId?: true
+  ProductionDemandId?: true
   ReleaseId?: true
   RevisionId?: true
   Version?: true
@@ -220,8 +226,9 @@ export type ProductionBomSnapshotGroupByArgs<ExtArgs extends runtime.Types.Exten
 }
 
 export type ProductionBomSnapshotGroupByOutputType = {
+  LegacyPoId: string | null
   Id: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string
   RevisionId: string
   Version: number
@@ -257,8 +264,9 @@ export type ProductionBomSnapshotWhereInput = {
   AND?: Prisma.ProductionBomSnapshotWhereInput | Prisma.ProductionBomSnapshotWhereInput[]
   OR?: Prisma.ProductionBomSnapshotWhereInput[]
   NOT?: Prisma.ProductionBomSnapshotWhereInput | Prisma.ProductionBomSnapshotWhereInput[]
+  LegacyPoId?: Prisma.StringNullableFilter<"ProductionBomSnapshot"> | string | null
   Id?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
-  ForecastId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
+  ProductionDemandId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   ReleaseId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   RevisionId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   Version?: Prisma.IntFilter<"ProductionBomSnapshot"> | number
@@ -268,18 +276,21 @@ export type ProductionBomSnapshotWhereInput = {
   FinishGoodPartName?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   CreatedBy?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   CreatedAt?: Prisma.DateTimeFilter<"ProductionBomSnapshot"> | Date | string
-  Forecast?: Prisma.XOR<Prisma.ForecastScalarRelationFilter, Prisma.ForecastWhereInput>
+  LegacyForecast?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandScalarRelationFilter, Prisma.ProductionDemandWhereInput>
+  Forecast?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
   Release?: Prisma.XOR<Prisma.ProductionReleaseScalarRelationFilter, Prisma.ProductionReleaseWhereInput>
   Revision?: Prisma.XOR<Prisma.BomRevisionScalarRelationFilter, Prisma.BomRevisionWhereInput>
   Previous?: Prisma.XOR<Prisma.ProductionBomSnapshotNullableScalarRelationFilter, Prisma.ProductionBomSnapshotWhereInput> | null
   Next?: Prisma.XOR<Prisma.ProductionBomSnapshotNullableScalarRelationFilter, Prisma.ProductionBomSnapshotWhereInput> | null
   Lines?: Prisma.ProductionBomSnapshotLineListRelationFilter
-  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
+  ProductionFindings?: Prisma.ProductionFindingListRelationFilter
 }
 
 export type ProductionBomSnapshotOrderByWithRelationInput = {
+  LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrder
   RevisionId?: Prisma.SortOrder
   Version?: Prisma.SortOrder
@@ -289,23 +300,26 @@ export type ProductionBomSnapshotOrderByWithRelationInput = {
   FinishGoodPartName?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
-  Forecast?: Prisma.ForecastOrderByWithRelationInput
+  LegacyForecast?: Prisma.ForecastOrderByWithRelationInput
+  Demand?: Prisma.ProductionDemandOrderByWithRelationInput
+  Forecast?: Prisma.ProductionOrderOrderByWithRelationInput
   Release?: Prisma.ProductionReleaseOrderByWithRelationInput
   Revision?: Prisma.BomRevisionOrderByWithRelationInput
   Previous?: Prisma.ProductionBomSnapshotOrderByWithRelationInput
   Next?: Prisma.ProductionBomSnapshotOrderByWithRelationInput
   Lines?: Prisma.ProductionBomSnapshotLineOrderByRelationAggregateInput
-  MaterialNgCases?: Prisma.MaterialNgCaseOrderByRelationAggregateInput
+  ProductionFindings?: Prisma.ProductionFindingOrderByRelationAggregateInput
 }
 
 export type ProductionBomSnapshotWhereUniqueInput = Prisma.AtLeast<{
   Id?: string
   PreviousId?: string
-  ForecastId_ReleaseId_Version?: Prisma.ProductionBomSnapshotForecastIdReleaseIdVersionCompoundUniqueInput
+  ProductionDemandId_ReleaseId_Version?: Prisma.ProductionBomSnapshotProductionDemandIdReleaseIdVersionCompoundUniqueInput
   AND?: Prisma.ProductionBomSnapshotWhereInput | Prisma.ProductionBomSnapshotWhereInput[]
   OR?: Prisma.ProductionBomSnapshotWhereInput[]
   NOT?: Prisma.ProductionBomSnapshotWhereInput | Prisma.ProductionBomSnapshotWhereInput[]
-  ForecastId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
+  LegacyPoId?: Prisma.StringNullableFilter<"ProductionBomSnapshot"> | string | null
+  ProductionDemandId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   ReleaseId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   RevisionId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   Version?: Prisma.IntFilter<"ProductionBomSnapshot"> | number
@@ -314,18 +328,21 @@ export type ProductionBomSnapshotWhereUniqueInput = Prisma.AtLeast<{
   FinishGoodPartName?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   CreatedBy?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   CreatedAt?: Prisma.DateTimeFilter<"ProductionBomSnapshot"> | Date | string
-  Forecast?: Prisma.XOR<Prisma.ForecastScalarRelationFilter, Prisma.ForecastWhereInput>
+  LegacyForecast?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandScalarRelationFilter, Prisma.ProductionDemandWhereInput>
+  Forecast?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
   Release?: Prisma.XOR<Prisma.ProductionReleaseScalarRelationFilter, Prisma.ProductionReleaseWhereInput>
   Revision?: Prisma.XOR<Prisma.BomRevisionScalarRelationFilter, Prisma.BomRevisionWhereInput>
   Previous?: Prisma.XOR<Prisma.ProductionBomSnapshotNullableScalarRelationFilter, Prisma.ProductionBomSnapshotWhereInput> | null
   Next?: Prisma.XOR<Prisma.ProductionBomSnapshotNullableScalarRelationFilter, Prisma.ProductionBomSnapshotWhereInput> | null
   Lines?: Prisma.ProductionBomSnapshotLineListRelationFilter
-  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
-}, "Id" | "PreviousId" | "ForecastId_ReleaseId_Version">
+  ProductionFindings?: Prisma.ProductionFindingListRelationFilter
+}, "Id" | "PreviousId" | "ProductionDemandId_ReleaseId_Version">
 
 export type ProductionBomSnapshotOrderByWithAggregationInput = {
+  LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrder
   RevisionId?: Prisma.SortOrder
   Version?: Prisma.SortOrder
@@ -346,8 +363,9 @@ export type ProductionBomSnapshotScalarWhereWithAggregatesInput = {
   AND?: Prisma.ProductionBomSnapshotScalarWhereWithAggregatesInput | Prisma.ProductionBomSnapshotScalarWhereWithAggregatesInput[]
   OR?: Prisma.ProductionBomSnapshotScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ProductionBomSnapshotScalarWhereWithAggregatesInput | Prisma.ProductionBomSnapshotScalarWhereWithAggregatesInput[]
+  LegacyPoId?: Prisma.StringNullableWithAggregatesFilter<"ProductionBomSnapshot"> | string | null
   Id?: Prisma.StringWithAggregatesFilter<"ProductionBomSnapshot"> | string
-  ForecastId?: Prisma.StringWithAggregatesFilter<"ProductionBomSnapshot"> | string
+  ProductionDemandId?: Prisma.StringWithAggregatesFilter<"ProductionBomSnapshot"> | string
   ReleaseId?: Prisma.StringWithAggregatesFilter<"ProductionBomSnapshot"> | string
   RevisionId?: Prisma.StringWithAggregatesFilter<"ProductionBomSnapshot"> | string
   Version?: Prisma.IntWithAggregatesFilter<"ProductionBomSnapshot"> | number
@@ -367,18 +385,21 @@ export type ProductionBomSnapshotCreateInput = {
   FinishGoodPartName: string
   CreatedBy: string
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutBomSnapshotsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutBomSnapshotsInput
   Release: Prisma.ProductionReleaseCreateNestedOneWithoutBomSnapshotsInput
   Revision: Prisma.BomRevisionCreateNestedOneWithoutSnapshotsInput
   Previous?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutNextInput
   Next?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotUncheckedCreateInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string
   RevisionId: string
   Version: number
@@ -390,7 +411,7 @@ export type ProductionBomSnapshotUncheckedCreateInput = {
   CreatedAt?: Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotUpdateInput = {
@@ -401,18 +422,21 @@ export type ProductionBomSnapshotUpdateInput = {
   FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutBomSnapshotsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Revision?: Prisma.BomRevisionUpdateOneRequiredWithoutSnapshotsNestedInput
   Previous?: Prisma.ProductionBomSnapshotUpdateOneWithoutNextNestedInput
   Next?: Prisma.ProductionBomSnapshotUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotUncheckedUpdateInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -424,12 +448,13 @@ export type ProductionBomSnapshotUncheckedUpdateInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotCreateManyInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string
   RevisionId: string
   Version: number
@@ -452,8 +477,9 @@ export type ProductionBomSnapshotUpdateManyMutationInput = {
 }
 
 export type ProductionBomSnapshotUncheckedUpdateManyInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -480,15 +506,16 @@ export type ProductionBomSnapshotNullableScalarRelationFilter = {
   isNot?: Prisma.ProductionBomSnapshotWhereInput | null
 }
 
-export type ProductionBomSnapshotForecastIdReleaseIdVersionCompoundUniqueInput = {
-  ForecastId: string
+export type ProductionBomSnapshotProductionDemandIdReleaseIdVersionCompoundUniqueInput = {
+  ProductionDemandId: string
   ReleaseId: string
   Version: number
 }
 
 export type ProductionBomSnapshotCountOrderByAggregateInput = {
+  LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrder
   RevisionId?: Prisma.SortOrder
   Version?: Prisma.SortOrder
@@ -506,8 +533,9 @@ export type ProductionBomSnapshotAvgOrderByAggregateInput = {
 }
 
 export type ProductionBomSnapshotMaxOrderByAggregateInput = {
+  LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrder
   RevisionId?: Prisma.SortOrder
   Version?: Prisma.SortOrder
@@ -520,8 +548,9 @@ export type ProductionBomSnapshotMaxOrderByAggregateInput = {
 }
 
 export type ProductionBomSnapshotMinOrderByAggregateInput = {
+  LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrder
   RevisionId?: Prisma.SortOrder
   Version?: Prisma.SortOrder
@@ -543,45 +572,45 @@ export type ProductionBomSnapshotScalarRelationFilter = {
   isNot?: Prisma.ProductionBomSnapshotWhereInput
 }
 
-export type ProductionBomSnapshotCreateNestedManyWithoutForecastInput = {
-  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput[]
-  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput[]
-  createMany?: Prisma.ProductionBomSnapshotCreateManyForecastInputEnvelope
+export type ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutLegacyForecastInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyLegacyForecastInputEnvelope
   connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
 }
 
-export type ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput = {
-  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput[]
-  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput[]
-  createMany?: Prisma.ProductionBomSnapshotCreateManyForecastInputEnvelope
+export type ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutLegacyForecastInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyLegacyForecastInputEnvelope
   connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
 }
 
-export type ProductionBomSnapshotUpdateManyWithoutForecastNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput[]
-  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput[]
-  upsert?: Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput | Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput[]
-  createMany?: Prisma.ProductionBomSnapshotCreateManyForecastInputEnvelope
+export type ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutLegacyForecastInput[]
+  upsert?: Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutLegacyForecastInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyLegacyForecastInputEnvelope
   set?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
   disconnect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
   delete?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
   connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
-  update?: Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput | Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput[]
-  updateMany?: Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput | Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput[]
+  update?: Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutLegacyForecastInput[]
+  updateMany?: Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutLegacyForecastInput[]
   deleteMany?: Prisma.ProductionBomSnapshotScalarWhereInput | Prisma.ProductionBomSnapshotScalarWhereInput[]
 }
 
-export type ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput[]
-  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput[]
-  upsert?: Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput | Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput[]
-  createMany?: Prisma.ProductionBomSnapshotCreateManyForecastInputEnvelope
+export type ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutLegacyForecastInput[]
+  upsert?: Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutLegacyForecastInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyLegacyForecastInputEnvelope
   set?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
   disconnect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
   delete?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
   connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
-  update?: Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput | Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput[]
-  updateMany?: Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput | Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput[]
+  update?: Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutLegacyForecastInput[]
+  updateMany?: Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutLegacyForecastInput | Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutLegacyForecastInput[]
   deleteMany?: Prisma.ProductionBomSnapshotScalarWhereInput | Prisma.ProductionBomSnapshotScalarWhereInput[]
 }
 
@@ -731,21 +760,65 @@ export type ProductionBomSnapshotUpdateOneRequiredWithoutLinesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionBomSnapshotUpdateToOneWithWhereWithoutLinesInput, Prisma.ProductionBomSnapshotUpdateWithoutLinesInput>, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutLinesInput>
 }
 
-export type ProductionBomSnapshotCreateNestedOneWithoutMaterialNgCasesInput = {
-  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutMaterialNgCasesInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutMaterialNgCasesInput>
-  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutMaterialNgCasesInput
+export type ProductionBomSnapshotCreateNestedOneWithoutProductionFindingsInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutProductionFindingsInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutProductionFindingsInput>
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutProductionFindingsInput
   connect?: Prisma.ProductionBomSnapshotWhereUniqueInput
 }
 
-export type ProductionBomSnapshotUpdateOneRequiredWithoutMaterialNgCasesNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutMaterialNgCasesInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutMaterialNgCasesInput>
-  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutMaterialNgCasesInput
-  upsert?: Prisma.ProductionBomSnapshotUpsertWithoutMaterialNgCasesInput
+export type ProductionBomSnapshotUpdateOneWithoutProductionFindingsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutProductionFindingsInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutProductionFindingsInput>
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutProductionFindingsInput
+  upsert?: Prisma.ProductionBomSnapshotUpsertWithoutProductionFindingsInput
+  disconnect?: Prisma.ProductionBomSnapshotWhereInput | boolean
+  delete?: Prisma.ProductionBomSnapshotWhereInput | boolean
   connect?: Prisma.ProductionBomSnapshotWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionBomSnapshotUpdateToOneWithWhereWithoutMaterialNgCasesInput, Prisma.ProductionBomSnapshotUpdateWithoutMaterialNgCasesInput>, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutMaterialNgCasesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionBomSnapshotUpdateToOneWithWhereWithoutProductionFindingsInput, Prisma.ProductionBomSnapshotUpdateWithoutProductionFindingsInput>, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutProductionFindingsInput>
 }
 
-export type ProductionBomSnapshotCreateWithoutForecastInput = {
+export type ProductionBomSnapshotCreateNestedManyWithoutDemandInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutDemandInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput> | Prisma.ProductionBomSnapshotCreateWithoutDemandInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutDemandInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutDemandInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyDemandInputEnvelope
+  connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+}
+
+export type ProductionBomSnapshotUncheckedCreateNestedManyWithoutDemandInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutDemandInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput> | Prisma.ProductionBomSnapshotCreateWithoutDemandInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutDemandInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutDemandInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyDemandInputEnvelope
+  connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+}
+
+export type ProductionBomSnapshotUpdateManyWithoutDemandNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutDemandInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput> | Prisma.ProductionBomSnapshotCreateWithoutDemandInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutDemandInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutDemandInput[]
+  upsert?: Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutDemandInput | Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutDemandInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyDemandInputEnvelope
+  set?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  disconnect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  delete?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  update?: Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutDemandInput | Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutDemandInput[]
+  updateMany?: Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutDemandInput | Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutDemandInput[]
+  deleteMany?: Prisma.ProductionBomSnapshotScalarWhereInput | Prisma.ProductionBomSnapshotScalarWhereInput[]
+}
+
+export type ProductionBomSnapshotUncheckedUpdateManyWithoutDemandNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutDemandInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput> | Prisma.ProductionBomSnapshotCreateWithoutDemandInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutDemandInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutDemandInput[]
+  upsert?: Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutDemandInput | Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutDemandInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyDemandInputEnvelope
+  set?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  disconnect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  delete?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  update?: Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutDemandInput | Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutDemandInput[]
+  updateMany?: Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutDemandInput | Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutDemandInput[]
+  deleteMany?: Prisma.ProductionBomSnapshotScalarWhereInput | Prisma.ProductionBomSnapshotScalarWhereInput[]
+}
+
+export type ProductionBomSnapshotCreateWithoutLegacyForecastInput = {
   Id?: string
   Version: number
   TargetQty: number
@@ -753,16 +826,19 @@ export type ProductionBomSnapshotCreateWithoutForecastInput = {
   FinishGoodPartName: string
   CreatedBy: string
   CreatedAt?: Date | string
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutBomSnapshotsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutBomSnapshotsInput
   Release: Prisma.ProductionReleaseCreateNestedOneWithoutBomSnapshotsInput
   Revision: Prisma.BomRevisionCreateNestedOneWithoutSnapshotsInput
   Previous?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutNextInput
   Next?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutSnapshotInput
 }
 
-export type ProductionBomSnapshotUncheckedCreateWithoutForecastInput = {
+export type ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput = {
   Id?: string
+  ProductionDemandId: string
   ReleaseId: string
   RevisionId: string
   Version: number
@@ -774,41 +850,42 @@ export type ProductionBomSnapshotUncheckedCreateWithoutForecastInput = {
   CreatedAt?: Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutSnapshotInput
 }
 
-export type ProductionBomSnapshotCreateOrConnectWithoutForecastInput = {
+export type ProductionBomSnapshotCreateOrConnectWithoutLegacyForecastInput = {
   where: Prisma.ProductionBomSnapshotWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput>
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput>
 }
 
-export type ProductionBomSnapshotCreateManyForecastInputEnvelope = {
-  data: Prisma.ProductionBomSnapshotCreateManyForecastInput | Prisma.ProductionBomSnapshotCreateManyForecastInput[]
+export type ProductionBomSnapshotCreateManyLegacyForecastInputEnvelope = {
+  data: Prisma.ProductionBomSnapshotCreateManyLegacyForecastInput | Prisma.ProductionBomSnapshotCreateManyLegacyForecastInput[]
   skipDuplicates?: boolean
 }
 
-export type ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput = {
+export type ProductionBomSnapshotUpsertWithWhereUniqueWithoutLegacyForecastInput = {
   where: Prisma.ProductionBomSnapshotWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutForecastInput>
-  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput>
+  update: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutLegacyForecastInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutLegacyForecastInput>
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutLegacyForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutLegacyForecastInput>
 }
 
-export type ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput = {
+export type ProductionBomSnapshotUpdateWithWhereUniqueWithoutLegacyForecastInput = {
   where: Prisma.ProductionBomSnapshotWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutForecastInput>
+  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutLegacyForecastInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutLegacyForecastInput>
 }
 
-export type ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput = {
+export type ProductionBomSnapshotUpdateManyWithWhereWithoutLegacyForecastInput = {
   where: Prisma.ProductionBomSnapshotScalarWhereInput
-  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateManyMutationInput, Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastInput>
+  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateManyMutationInput, Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastInput>
 }
 
 export type ProductionBomSnapshotScalarWhereInput = {
   AND?: Prisma.ProductionBomSnapshotScalarWhereInput | Prisma.ProductionBomSnapshotScalarWhereInput[]
   OR?: Prisma.ProductionBomSnapshotScalarWhereInput[]
   NOT?: Prisma.ProductionBomSnapshotScalarWhereInput | Prisma.ProductionBomSnapshotScalarWhereInput[]
+  LegacyPoId?: Prisma.StringNullableFilter<"ProductionBomSnapshot"> | string | null
   Id?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
-  ForecastId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
+  ProductionDemandId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   ReleaseId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   RevisionId?: Prisma.StringFilter<"ProductionBomSnapshot"> | string
   Version?: Prisma.IntFilter<"ProductionBomSnapshot"> | number
@@ -828,17 +905,20 @@ export type ProductionBomSnapshotCreateWithoutReleaseInput = {
   FinishGoodPartName: string
   CreatedBy: string
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutBomSnapshotsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutBomSnapshotsInput
   Revision: Prisma.BomRevisionCreateNestedOneWithoutSnapshotsInput
   Previous?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutNextInput
   Next?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotUncheckedCreateWithoutReleaseInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   RevisionId: string
   Version: number
   PreviousId?: string | null
@@ -849,7 +929,7 @@ export type ProductionBomSnapshotUncheckedCreateWithoutReleaseInput = {
   CreatedAt?: Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotCreateOrConnectWithoutReleaseInput = {
@@ -886,17 +966,20 @@ export type ProductionBomSnapshotCreateWithoutRevisionInput = {
   FinishGoodPartName: string
   CreatedBy: string
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutBomSnapshotsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutBomSnapshotsInput
   Release: Prisma.ProductionReleaseCreateNestedOneWithoutBomSnapshotsInput
   Previous?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutNextInput
   Next?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotUncheckedCreateWithoutRevisionInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string
   Version: number
   PreviousId?: string | null
@@ -907,7 +990,7 @@ export type ProductionBomSnapshotUncheckedCreateWithoutRevisionInput = {
   CreatedAt?: Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotCreateOrConnectWithoutRevisionInput = {
@@ -944,17 +1027,20 @@ export type ProductionBomSnapshotCreateWithoutNextInput = {
   FinishGoodPartName: string
   CreatedBy: string
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutBomSnapshotsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutBomSnapshotsInput
   Release: Prisma.ProductionReleaseCreateNestedOneWithoutBomSnapshotsInput
   Revision: Prisma.BomRevisionCreateNestedOneWithoutSnapshotsInput
   Previous?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutNextInput
   Lines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotUncheckedCreateWithoutNextInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string
   RevisionId: string
   Version: number
@@ -965,7 +1051,7 @@ export type ProductionBomSnapshotUncheckedCreateWithoutNextInput = {
   CreatedBy: string
   CreatedAt?: Date | string
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotCreateOrConnectWithoutNextInput = {
@@ -981,17 +1067,20 @@ export type ProductionBomSnapshotCreateWithoutPreviousInput = {
   FinishGoodPartName: string
   CreatedBy: string
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutBomSnapshotsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutBomSnapshotsInput
   Release: Prisma.ProductionReleaseCreateNestedOneWithoutBomSnapshotsInput
   Revision: Prisma.BomRevisionCreateNestedOneWithoutSnapshotsInput
   Next?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotUncheckedCreateWithoutPreviousInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string
   RevisionId: string
   Version: number
@@ -1002,7 +1091,7 @@ export type ProductionBomSnapshotUncheckedCreateWithoutPreviousInput = {
   CreatedAt?: Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedCreateNestedOneWithoutPreviousInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutSnapshotInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotCreateOrConnectWithoutPreviousInput = {
@@ -1029,17 +1118,20 @@ export type ProductionBomSnapshotUpdateWithoutNextInput = {
   FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutBomSnapshotsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Revision?: Prisma.BomRevisionUpdateOneRequiredWithoutSnapshotsNestedInput
   Previous?: Prisma.ProductionBomSnapshotUpdateOneWithoutNextNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotUncheckedUpdateWithoutNextInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1050,7 +1142,7 @@ export type ProductionBomSnapshotUncheckedUpdateWithoutNextInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotUpsertWithoutPreviousInput = {
@@ -1072,17 +1164,20 @@ export type ProductionBomSnapshotUpdateWithoutPreviousInput = {
   FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutBomSnapshotsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Revision?: Prisma.BomRevisionUpdateOneRequiredWithoutSnapshotsNestedInput
   Next?: Prisma.ProductionBomSnapshotUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotUncheckedUpdateWithoutPreviousInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1093,7 +1188,7 @@ export type ProductionBomSnapshotUncheckedUpdateWithoutPreviousInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotCreateWithoutLinesInput = {
@@ -1104,17 +1199,20 @@ export type ProductionBomSnapshotCreateWithoutLinesInput = {
   FinishGoodPartName: string
   CreatedBy: string
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutBomSnapshotsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutBomSnapshotsInput
   Release: Prisma.ProductionReleaseCreateNestedOneWithoutBomSnapshotsInput
   Revision: Prisma.BomRevisionCreateNestedOneWithoutSnapshotsInput
   Previous?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutNextInput
   Next?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutPreviousInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotUncheckedCreateWithoutLinesInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string
   RevisionId: string
   Version: number
@@ -1125,7 +1223,7 @@ export type ProductionBomSnapshotUncheckedCreateWithoutLinesInput = {
   CreatedBy: string
   CreatedAt?: Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedCreateNestedOneWithoutPreviousInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutSnapshotInput
 }
 
 export type ProductionBomSnapshotCreateOrConnectWithoutLinesInput = {
@@ -1152,17 +1250,20 @@ export type ProductionBomSnapshotUpdateWithoutLinesInput = {
   FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutBomSnapshotsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Revision?: Prisma.BomRevisionUpdateOneRequiredWithoutSnapshotsNestedInput
   Previous?: Prisma.ProductionBomSnapshotUpdateOneWithoutNextNestedInput
   Next?: Prisma.ProductionBomSnapshotUpdateOneWithoutPreviousNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotUncheckedUpdateWithoutLinesInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1173,10 +1274,10 @@ export type ProductionBomSnapshotUncheckedUpdateWithoutLinesInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedUpdateOneWithoutPreviousNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutSnapshotNestedInput
 }
 
-export type ProductionBomSnapshotCreateWithoutMaterialNgCasesInput = {
+export type ProductionBomSnapshotCreateWithoutProductionFindingsInput = {
   Id?: string
   Version: number
   TargetQty: number
@@ -1184,7 +1285,9 @@ export type ProductionBomSnapshotCreateWithoutMaterialNgCasesInput = {
   FinishGoodPartName: string
   CreatedBy: string
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutBomSnapshotsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutBomSnapshotsInput
   Release: Prisma.ProductionReleaseCreateNestedOneWithoutBomSnapshotsInput
   Revision: Prisma.BomRevisionCreateNestedOneWithoutSnapshotsInput
   Previous?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutNextInput
@@ -1192,9 +1295,10 @@ export type ProductionBomSnapshotCreateWithoutMaterialNgCasesInput = {
   Lines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutSnapshotInput
 }
 
-export type ProductionBomSnapshotUncheckedCreateWithoutMaterialNgCasesInput = {
+export type ProductionBomSnapshotUncheckedCreateWithoutProductionFindingsInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string
   RevisionId: string
   Version: number
@@ -1208,23 +1312,23 @@ export type ProductionBomSnapshotUncheckedCreateWithoutMaterialNgCasesInput = {
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutSnapshotInput
 }
 
-export type ProductionBomSnapshotCreateOrConnectWithoutMaterialNgCasesInput = {
+export type ProductionBomSnapshotCreateOrConnectWithoutProductionFindingsInput = {
   where: Prisma.ProductionBomSnapshotWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutMaterialNgCasesInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutMaterialNgCasesInput>
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutProductionFindingsInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutProductionFindingsInput>
 }
 
-export type ProductionBomSnapshotUpsertWithoutMaterialNgCasesInput = {
-  update: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutMaterialNgCasesInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutMaterialNgCasesInput>
-  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutMaterialNgCasesInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutMaterialNgCasesInput>
+export type ProductionBomSnapshotUpsertWithoutProductionFindingsInput = {
+  update: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutProductionFindingsInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutProductionFindingsInput>
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutProductionFindingsInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutProductionFindingsInput>
   where?: Prisma.ProductionBomSnapshotWhereInput
 }
 
-export type ProductionBomSnapshotUpdateToOneWithWhereWithoutMaterialNgCasesInput = {
+export type ProductionBomSnapshotUpdateToOneWithWhereWithoutProductionFindingsInput = {
   where?: Prisma.ProductionBomSnapshotWhereInput
-  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutMaterialNgCasesInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutMaterialNgCasesInput>
+  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutProductionFindingsInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutProductionFindingsInput>
 }
 
-export type ProductionBomSnapshotUpdateWithoutMaterialNgCasesInput = {
+export type ProductionBomSnapshotUpdateWithoutProductionFindingsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
   TargetQty?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1232,7 +1336,9 @@ export type ProductionBomSnapshotUpdateWithoutMaterialNgCasesInput = {
   FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutBomSnapshotsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Revision?: Prisma.BomRevisionUpdateOneRequiredWithoutSnapshotsNestedInput
   Previous?: Prisma.ProductionBomSnapshotUpdateOneWithoutNextNestedInput
@@ -1240,9 +1346,10 @@ export type ProductionBomSnapshotUpdateWithoutMaterialNgCasesInput = {
   Lines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutSnapshotNestedInput
 }
 
-export type ProductionBomSnapshotUncheckedUpdateWithoutMaterialNgCasesInput = {
+export type ProductionBomSnapshotUncheckedUpdateWithoutProductionFindingsInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1256,8 +1363,70 @@ export type ProductionBomSnapshotUncheckedUpdateWithoutMaterialNgCasesInput = {
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInput
 }
 
-export type ProductionBomSnapshotCreateManyForecastInput = {
+export type ProductionBomSnapshotCreateWithoutDemandInput = {
   Id?: string
+  Version: number
+  TargetQty: number
+  FinishGoodPartNumber: string
+  FinishGoodPartName: string
+  CreatedBy: string
+  CreatedAt?: Date | string
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutBomSnapshotsInput
+  Release: Prisma.ProductionReleaseCreateNestedOneWithoutBomSnapshotsInput
+  Revision: Prisma.BomRevisionCreateNestedOneWithoutSnapshotsInput
+  Previous?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutNextInput
+  Next?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutPreviousInput
+  Lines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutSnapshotInput
+}
+
+export type ProductionBomSnapshotUncheckedCreateWithoutDemandInput = {
+  LegacyPoId?: string | null
+  Id?: string
+  ReleaseId: string
+  RevisionId: string
+  Version: number
+  PreviousId?: string | null
+  TargetQty: number
+  FinishGoodPartNumber: string
+  FinishGoodPartName: string
+  CreatedBy: string
+  CreatedAt?: Date | string
+  Next?: Prisma.ProductionBomSnapshotUncheckedCreateNestedOneWithoutPreviousInput
+  Lines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutSnapshotInput
+}
+
+export type ProductionBomSnapshotCreateOrConnectWithoutDemandInput = {
+  where: Prisma.ProductionBomSnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutDemandInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput>
+}
+
+export type ProductionBomSnapshotCreateManyDemandInputEnvelope = {
+  data: Prisma.ProductionBomSnapshotCreateManyDemandInput | Prisma.ProductionBomSnapshotCreateManyDemandInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductionBomSnapshotUpsertWithWhereUniqueWithoutDemandInput = {
+  where: Prisma.ProductionBomSnapshotWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutDemandInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutDemandInput>
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutDemandInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutDemandInput>
+}
+
+export type ProductionBomSnapshotUpdateWithWhereUniqueWithoutDemandInput = {
+  where: Prisma.ProductionBomSnapshotWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutDemandInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutDemandInput>
+}
+
+export type ProductionBomSnapshotUpdateManyWithWhereWithoutDemandInput = {
+  where: Prisma.ProductionBomSnapshotScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateManyMutationInput, Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutDemandInput>
+}
+
+export type ProductionBomSnapshotCreateManyLegacyForecastInput = {
+  Id?: string
+  ProductionDemandId: string
   ReleaseId: string
   RevisionId: string
   Version: number
@@ -1269,7 +1438,7 @@ export type ProductionBomSnapshotCreateManyForecastInput = {
   CreatedAt?: Date | string
 }
 
-export type ProductionBomSnapshotUpdateWithoutForecastInput = {
+export type ProductionBomSnapshotUpdateWithoutLegacyForecastInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
   TargetQty?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1277,16 +1446,19 @@ export type ProductionBomSnapshotUpdateWithoutForecastInput = {
   FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Revision?: Prisma.BomRevisionUpdateOneRequiredWithoutSnapshotsNestedInput
   Previous?: Prisma.ProductionBomSnapshotUpdateOneWithoutNextNestedInput
   Next?: Prisma.ProductionBomSnapshotUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutSnapshotNestedInput
 }
 
-export type ProductionBomSnapshotUncheckedUpdateWithoutForecastInput = {
+export type ProductionBomSnapshotUncheckedUpdateWithoutLegacyForecastInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1298,11 +1470,12 @@ export type ProductionBomSnapshotUncheckedUpdateWithoutForecastInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutSnapshotNestedInput
 }
 
-export type ProductionBomSnapshotUncheckedUpdateManyWithoutForecastInput = {
+export type ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1315,8 +1488,9 @@ export type ProductionBomSnapshotUncheckedUpdateManyWithoutForecastInput = {
 }
 
 export type ProductionBomSnapshotCreateManyReleaseInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   RevisionId: string
   Version: number
   PreviousId?: string | null
@@ -1335,17 +1509,20 @@ export type ProductionBomSnapshotUpdateWithoutReleaseInput = {
   FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutBomSnapshotsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Revision?: Prisma.BomRevisionUpdateOneRequiredWithoutSnapshotsNestedInput
   Previous?: Prisma.ProductionBomSnapshotUpdateOneWithoutNextNestedInput
   Next?: Prisma.ProductionBomSnapshotUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotUncheckedUpdateWithoutReleaseInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
   PreviousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1356,12 +1533,13 @@ export type ProductionBomSnapshotUncheckedUpdateWithoutReleaseInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
   PreviousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1372,9 +1550,38 @@ export type ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type ProductionBomSnapshotUpdateManyWithoutForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput[]
+  upsert?: Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput | Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyForecastInputEnvelope
+  set?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  disconnect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  delete?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  update?: Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput | Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput[]
+  updateMany?: Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput | Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput[]
+  deleteMany?: Prisma.ProductionBomSnapshotScalarWhereInput | Prisma.ProductionBomSnapshotScalarWhereInput[]
+}
+
+export type ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput> | Prisma.ProductionBomSnapshotCreateWithoutForecastInput[] | Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput[]
+  connectOrCreate?: Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput | Prisma.ProductionBomSnapshotCreateOrConnectWithoutForecastInput[]
+  upsert?: Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput | Prisma.ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput[]
+  createMany?: Prisma.ProductionBomSnapshotCreateManyForecastInputEnvelope
+  set?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  disconnect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  delete?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  connect?: Prisma.ProductionBomSnapshotWhereUniqueInput | Prisma.ProductionBomSnapshotWhereUniqueInput[]
+  update?: Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput | Prisma.ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput[]
+  updateMany?: Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput | Prisma.ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput[]
+  deleteMany?: Prisma.ProductionBomSnapshotScalarWhereInput | Prisma.ProductionBomSnapshotScalarWhereInput[]
+}
+
 export type ProductionBomSnapshotCreateManyRevisionInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string
   Version: number
   PreviousId?: string | null
@@ -1393,17 +1600,20 @@ export type ProductionBomSnapshotUpdateWithoutRevisionInput = {
   FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutBomSnapshotsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput
   Previous?: Prisma.ProductionBomSnapshotUpdateOneWithoutNextNestedInput
   Next?: Prisma.ProductionBomSnapshotUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotUncheckedUpdateWithoutRevisionInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
   PreviousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1414,13 +1624,201 @@ export type ProductionBomSnapshotUncheckedUpdateWithoutRevisionInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   Next?: Prisma.ProductionBomSnapshotUncheckedUpdateOneWithoutPreviousNestedInput
   Lines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutSnapshotNestedInput
 }
 
 export type ProductionBomSnapshotUncheckedUpdateManyWithoutRevisionInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
+  Version?: Prisma.IntFieldUpdateOperationsInput | number
+  PreviousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  FinishGoodPartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductionBomSnapshotCreateManyDemandInput = {
+  LegacyPoId?: string | null
+  Id?: string
+  ReleaseId: string
+  RevisionId: string
+  Version: number
+  PreviousId?: string | null
+  TargetQty: number
+  FinishGoodPartNumber: string
+  FinishGoodPartName: string
+  CreatedBy: string
+  CreatedAt?: Date | string
+}
+
+export type ProductionBomSnapshotUpdateWithoutDemandInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Version?: Prisma.IntFieldUpdateOperationsInput | number
+  TargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  FinishGoodPartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutBomSnapshotsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Release?: Prisma.ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Revision?: Prisma.BomRevisionUpdateOneRequiredWithoutSnapshotsNestedInput
+  Previous?: Prisma.ProductionBomSnapshotUpdateOneWithoutNextNestedInput
+  Next?: Prisma.ProductionBomSnapshotUpdateOneWithoutPreviousNestedInput
+  Lines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutSnapshotNestedInput
+}
+
+export type ProductionBomSnapshotUncheckedUpdateWithoutDemandInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
+  RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
+  Version?: Prisma.IntFieldUpdateOperationsInput | number
+  PreviousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  FinishGoodPartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Next?: Prisma.ProductionBomSnapshotUncheckedUpdateOneWithoutPreviousNestedInput
+  Lines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutSnapshotNestedInput
+}
+
+export type ProductionBomSnapshotUncheckedUpdateManyWithoutDemandInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
+  RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
+  Version?: Prisma.IntFieldUpdateOperationsInput | number
+  PreviousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  FinishGoodPartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductionBomSnapshotCreateWithoutForecastInput = {
+  Id?: string
+  Version: number
+  TargetQty: number
+  FinishGoodPartNumber: string
+  FinishGoodPartName: string
+  CreatedBy: string
+  CreatedAt?: Date | string
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutBomSnapshotsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutBomSnapshotsInput
+  Release: Prisma.ProductionReleaseCreateNestedOneWithoutBomSnapshotsInput
+  Revision: Prisma.BomRevisionCreateNestedOneWithoutSnapshotsInput
+  Previous?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutNextInput
+  Next?: Prisma.ProductionBomSnapshotCreateNestedOneWithoutPreviousInput
+  Lines?: Prisma.ProductionBomSnapshotLineCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutSnapshotInput
+}
+
+export type ProductionBomSnapshotUncheckedCreateWithoutForecastInput = {
+  LegacyPoId?: string | null
+  Id?: string
+  ReleaseId: string
+  RevisionId: string
+  Version: number
+  PreviousId?: string | null
+  TargetQty: number
+  FinishGoodPartNumber: string
+  FinishGoodPartName: string
+  CreatedBy: string
+  CreatedAt?: Date | string
+  Next?: Prisma.ProductionBomSnapshotUncheckedCreateNestedOneWithoutPreviousInput
+  Lines?: Prisma.ProductionBomSnapshotLineUncheckedCreateNestedManyWithoutSnapshotInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutSnapshotInput
+}
+
+export type ProductionBomSnapshotCreateOrConnectWithoutForecastInput = {
+  where: Prisma.ProductionBomSnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput>
+}
+
+export type ProductionBomSnapshotUpsertWithWhereUniqueWithoutForecastInput = {
+  where: Prisma.ProductionBomSnapshotWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutForecastInput>
+  create: Prisma.XOR<Prisma.ProductionBomSnapshotCreateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedCreateWithoutForecastInput>
+}
+
+export type ProductionBomSnapshotCreateManyForecastInputEnvelope = {
+  data: Prisma.ProductionBomSnapshotCreateManyForecastInput | Prisma.ProductionBomSnapshotCreateManyForecastInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductionBomSnapshotUpdateWithWhereUniqueWithoutForecastInput = {
+  where: Prisma.ProductionBomSnapshotWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateWithoutForecastInput, Prisma.ProductionBomSnapshotUncheckedUpdateWithoutForecastInput>
+}
+
+export type ProductionBomSnapshotUpdateManyWithWhereWithoutForecastInput = {
+  where: Prisma.ProductionBomSnapshotScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductionBomSnapshotUpdateManyMutationInput, Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastInput>
+}
+
+export type ProductionBomSnapshotUpdateWithoutForecastInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Version?: Prisma.IntFieldUpdateOperationsInput | number
+  TargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  FinishGoodPartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutBomSnapshotsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Release?: Prisma.ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput
+  Revision?: Prisma.BomRevisionUpdateOneRequiredWithoutSnapshotsNestedInput
+  Previous?: Prisma.ProductionBomSnapshotUpdateOneWithoutNextNestedInput
+  Next?: Prisma.ProductionBomSnapshotUpdateOneWithoutPreviousNestedInput
+  Lines?: Prisma.ProductionBomSnapshotLineUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutSnapshotNestedInput
+}
+
+export type ProductionBomSnapshotUncheckedUpdateWithoutForecastInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
+  RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
+  Version?: Prisma.IntFieldUpdateOperationsInput | number
+  PreviousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  FinishGoodPartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  FinishGoodPartName?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Next?: Prisma.ProductionBomSnapshotUncheckedUpdateOneWithoutPreviousNestedInput
+  Lines?: Prisma.ProductionBomSnapshotLineUncheckedUpdateManyWithoutSnapshotNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutSnapshotNestedInput
+}
+
+export type ProductionBomSnapshotCreateManyForecastInput = {
+  LegacyPoId?: string | null
+  Id?: string
+  ReleaseId: string
+  RevisionId: string
+  Version: number
+  PreviousId?: string | null
+  TargetQty: number
+  FinishGoodPartNumber: string
+  FinishGoodPartName: string
+  CreatedBy: string
+  CreatedAt?: Date | string
+}
+
+export type ProductionBomSnapshotUncheckedUpdateManyWithoutForecastInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseId?: Prisma.StringFieldUpdateOperationsInput | string
+  RevisionId?: Prisma.StringFieldUpdateOperationsInput | string
   Version?: Prisma.IntFieldUpdateOperationsInput | number
   PreviousId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   TargetQty?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1437,12 +1835,12 @@ export type ProductionBomSnapshotUncheckedUpdateManyWithoutRevisionInput = {
 
 export type ProductionBomSnapshotCountOutputType = {
   Lines: number
-  MaterialNgCases: number
+  ProductionFindings: number
 }
 
 export type ProductionBomSnapshotCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Lines?: boolean | ProductionBomSnapshotCountOutputTypeCountLinesArgs
-  MaterialNgCases?: boolean | ProductionBomSnapshotCountOutputTypeCountMaterialNgCasesArgs
+  ProductionFindings?: boolean | ProductionBomSnapshotCountOutputTypeCountProductionFindingsArgs
 }
 
 /**
@@ -1465,14 +1863,15 @@ export type ProductionBomSnapshotCountOutputTypeCountLinesArgs<ExtArgs extends r
 /**
  * ProductionBomSnapshotCountOutputType without action
  */
-export type ProductionBomSnapshotCountOutputTypeCountMaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MaterialNgCaseWhereInput
+export type ProductionBomSnapshotCountOutputTypeCountProductionFindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionFindingWhereInput
 }
 
 
 export type ProductionBomSnapshotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   ReleaseId?: boolean
   RevisionId?: boolean
   Version?: boolean
@@ -1482,19 +1881,22 @@ export type ProductionBomSnapshotSelect<ExtArgs extends runtime.Types.Extensions
   FinishGoodPartName?: boolean
   CreatedBy?: boolean
   CreatedAt?: boolean
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionBomSnapshot$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionReleaseDefaultArgs<ExtArgs>
   Revision?: boolean | Prisma.BomRevisionDefaultArgs<ExtArgs>
   Previous?: boolean | Prisma.ProductionBomSnapshot$PreviousArgs<ExtArgs>
   Next?: boolean | Prisma.ProductionBomSnapshot$NextArgs<ExtArgs>
   Lines?: boolean | Prisma.ProductionBomSnapshot$LinesArgs<ExtArgs>
-  MaterialNgCases?: boolean | Prisma.ProductionBomSnapshot$MaterialNgCasesArgs<ExtArgs>
+  ProductionFindings?: boolean | Prisma.ProductionBomSnapshot$ProductionFindingsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionBomSnapshotCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionBomSnapshot"]>
 
 export type ProductionBomSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   ReleaseId?: boolean
   RevisionId?: boolean
   Version?: boolean
@@ -1504,15 +1906,18 @@ export type ProductionBomSnapshotSelectCreateManyAndReturn<ExtArgs extends runti
   FinishGoodPartName?: boolean
   CreatedBy?: boolean
   CreatedAt?: boolean
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionBomSnapshot$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionReleaseDefaultArgs<ExtArgs>
   Revision?: boolean | Prisma.BomRevisionDefaultArgs<ExtArgs>
   Previous?: boolean | Prisma.ProductionBomSnapshot$PreviousArgs<ExtArgs>
 }, ExtArgs["result"]["productionBomSnapshot"]>
 
 export type ProductionBomSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   ReleaseId?: boolean
   RevisionId?: boolean
   Version?: boolean
@@ -1522,15 +1927,18 @@ export type ProductionBomSnapshotSelectUpdateManyAndReturn<ExtArgs extends runti
   FinishGoodPartName?: boolean
   CreatedBy?: boolean
   CreatedAt?: boolean
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionBomSnapshot$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionReleaseDefaultArgs<ExtArgs>
   Revision?: boolean | Prisma.BomRevisionDefaultArgs<ExtArgs>
   Previous?: boolean | Prisma.ProductionBomSnapshot$PreviousArgs<ExtArgs>
 }, ExtArgs["result"]["productionBomSnapshot"]>
 
 export type ProductionBomSnapshotSelectScalar = {
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   ReleaseId?: boolean
   RevisionId?: boolean
   Version?: boolean
@@ -1542,25 +1950,31 @@ export type ProductionBomSnapshotSelectScalar = {
   CreatedAt?: boolean
 }
 
-export type ProductionBomSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "ForecastId" | "ReleaseId" | "RevisionId" | "Version" | "PreviousId" | "TargetQty" | "FinishGoodPartNumber" | "FinishGoodPartName" | "CreatedBy" | "CreatedAt", ExtArgs["result"]["productionBomSnapshot"]>
+export type ProductionBomSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"LegacyPoId" | "Id" | "ProductionDemandId" | "ReleaseId" | "RevisionId" | "Version" | "PreviousId" | "TargetQty" | "FinishGoodPartNumber" | "FinishGoodPartName" | "CreatedBy" | "CreatedAt", ExtArgs["result"]["productionBomSnapshot"]>
 export type ProductionBomSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionBomSnapshot$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionReleaseDefaultArgs<ExtArgs>
   Revision?: boolean | Prisma.BomRevisionDefaultArgs<ExtArgs>
   Previous?: boolean | Prisma.ProductionBomSnapshot$PreviousArgs<ExtArgs>
   Next?: boolean | Prisma.ProductionBomSnapshot$NextArgs<ExtArgs>
   Lines?: boolean | Prisma.ProductionBomSnapshot$LinesArgs<ExtArgs>
-  MaterialNgCases?: boolean | Prisma.ProductionBomSnapshot$MaterialNgCasesArgs<ExtArgs>
+  ProductionFindings?: boolean | Prisma.ProductionBomSnapshot$ProductionFindingsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionBomSnapshotCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductionBomSnapshotIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionBomSnapshot$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionReleaseDefaultArgs<ExtArgs>
   Revision?: boolean | Prisma.BomRevisionDefaultArgs<ExtArgs>
   Previous?: boolean | Prisma.ProductionBomSnapshot$PreviousArgs<ExtArgs>
 }
 export type ProductionBomSnapshotIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionBomSnapshot$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionReleaseDefaultArgs<ExtArgs>
   Revision?: boolean | Prisma.BomRevisionDefaultArgs<ExtArgs>
   Previous?: boolean | Prisma.ProductionBomSnapshot$PreviousArgs<ExtArgs>
@@ -1569,17 +1983,20 @@ export type ProductionBomSnapshotIncludeUpdateManyAndReturn<ExtArgs extends runt
 export type $ProductionBomSnapshotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductionBomSnapshot"
   objects: {
-    Forecast: Prisma.$ForecastPayload<ExtArgs>
+    LegacyForecast: Prisma.$ForecastPayload<ExtArgs> | null
+    Demand: Prisma.$ProductionDemandPayload<ExtArgs>
+    Forecast: Prisma.$ProductionOrderPayload<ExtArgs>
     Release: Prisma.$ProductionReleasePayload<ExtArgs>
     Revision: Prisma.$BomRevisionPayload<ExtArgs>
     Previous: Prisma.$ProductionBomSnapshotPayload<ExtArgs> | null
     Next: Prisma.$ProductionBomSnapshotPayload<ExtArgs> | null
     Lines: Prisma.$ProductionBomSnapshotLinePayload<ExtArgs>[]
-    MaterialNgCases: Prisma.$MaterialNgCasePayload<ExtArgs>[]
+    ProductionFindings: Prisma.$ProductionFindingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    LegacyPoId: string | null
     Id: string
-    ForecastId: string
+    ProductionDemandId: string
     ReleaseId: string
     RevisionId: string
     Version: number
@@ -1672,8 +2089,8 @@ export interface ProductionBomSnapshotDelegate<ExtArgs extends runtime.Types.Ext
    * // Get first 10 ProductionBomSnapshots
    * const productionBomSnapshots = await prisma.productionBomSnapshot.findMany({ take: 10 })
    * 
-   * // Only select the `Id`
-   * const productionBomSnapshotWithIdOnly = await prisma.productionBomSnapshot.findMany({ select: { Id: true } })
+   * // Only select the `LegacyPoId`
+   * const productionBomSnapshotWithLegacyPoIdOnly = await prisma.productionBomSnapshot.findMany({ select: { LegacyPoId: true } })
    * 
    */
   findMany<T extends ProductionBomSnapshotFindManyArgs>(args?: Prisma.SelectSubset<T, ProductionBomSnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionBomSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -1717,9 +2134,9 @@ export interface ProductionBomSnapshotDelegate<ExtArgs extends runtime.Types.Ext
    *   ]
    * })
    * 
-   * // Create many ProductionBomSnapshots and only return the `Id`
-   * const productionBomSnapshotWithIdOnly = await prisma.productionBomSnapshot.createManyAndReturn({
-   *   select: { Id: true },
+   * // Create many ProductionBomSnapshots and only return the `LegacyPoId`
+   * const productionBomSnapshotWithLegacyPoIdOnly = await prisma.productionBomSnapshot.createManyAndReturn({
+   *   select: { LegacyPoId: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -1808,9 +2225,9 @@ export interface ProductionBomSnapshotDelegate<ExtArgs extends runtime.Types.Ext
    *   ]
    * })
    * 
-   * // Update zero or more ProductionBomSnapshots and only return the `Id`
-   * const productionBomSnapshotWithIdOnly = await prisma.productionBomSnapshot.updateManyAndReturn({
-   *   select: { Id: true },
+   * // Update zero or more ProductionBomSnapshots and only return the `LegacyPoId`
+   * const productionBomSnapshotWithLegacyPoIdOnly = await prisma.productionBomSnapshot.updateManyAndReturn({
+   *   select: { LegacyPoId: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1983,13 +2400,15 @@ readonly fields: ProductionBomSnapshotFieldRefs;
  */
 export interface Prisma__ProductionBomSnapshotClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Forecast<T extends Prisma.ForecastDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ForecastDefaultArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  LegacyForecast<T extends Prisma.ProductionBomSnapshot$LegacyForecastArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshot$LegacyForecastArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Demand<T extends Prisma.ProductionDemandDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionDemandDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionDemandClient<runtime.Types.Result.GetResult<Prisma.$ProductionDemandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Forecast<T extends Prisma.ProductionOrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionOrderDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionOrderClient<runtime.Types.Result.GetResult<Prisma.$ProductionOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Release<T extends Prisma.ProductionReleaseDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionReleaseDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionReleaseClient<runtime.Types.Result.GetResult<Prisma.$ProductionReleasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Revision<T extends Prisma.BomRevisionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BomRevisionDefaultArgs<ExtArgs>>): Prisma.Prisma__BomRevisionClient<runtime.Types.Result.GetResult<Prisma.$BomRevisionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Previous<T extends Prisma.ProductionBomSnapshot$PreviousArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshot$PreviousArgs<ExtArgs>>): Prisma.Prisma__ProductionBomSnapshotClient<runtime.Types.Result.GetResult<Prisma.$ProductionBomSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Next<T extends Prisma.ProductionBomSnapshot$NextArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshot$NextArgs<ExtArgs>>): Prisma.Prisma__ProductionBomSnapshotClient<runtime.Types.Result.GetResult<Prisma.$ProductionBomSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Lines<T extends Prisma.ProductionBomSnapshot$LinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshot$LinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionBomSnapshotLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  MaterialNgCases<T extends Prisma.ProductionBomSnapshot$MaterialNgCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshot$MaterialNgCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNgCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ProductionFindings<T extends Prisma.ProductionBomSnapshot$ProductionFindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionBomSnapshot$ProductionFindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionFindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2019,8 +2438,9 @@ export interface Prisma__ProductionBomSnapshotClient<T, Null = never, ExtArgs ex
  * Fields of the ProductionBomSnapshot model
  */
 export interface ProductionBomSnapshotFieldRefs {
+  readonly LegacyPoId: Prisma.FieldRef<"ProductionBomSnapshot", 'String'>
   readonly Id: Prisma.FieldRef<"ProductionBomSnapshot", 'String'>
-  readonly ForecastId: Prisma.FieldRef<"ProductionBomSnapshot", 'String'>
+  readonly ProductionDemandId: Prisma.FieldRef<"ProductionBomSnapshot", 'String'>
   readonly ReleaseId: Prisma.FieldRef<"ProductionBomSnapshot", 'String'>
   readonly RevisionId: Prisma.FieldRef<"ProductionBomSnapshot", 'String'>
   readonly Version: Prisma.FieldRef<"ProductionBomSnapshot", 'Int'>
@@ -2431,6 +2851,25 @@ export type ProductionBomSnapshotDeleteManyArgs<ExtArgs extends runtime.Types.Ex
 }
 
 /**
+ * ProductionBomSnapshot.LegacyForecast
+ */
+export type ProductionBomSnapshot$LegacyForecastArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Forecast
+   */
+  select?: Prisma.ForecastSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Forecast
+   */
+  omit?: Prisma.ForecastOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ForecastInclude<ExtArgs> | null
+  where?: Prisma.ForecastWhereInput
+}
+
+/**
  * ProductionBomSnapshot.Previous
  */
 export type ProductionBomSnapshot$PreviousArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2493,27 +2932,27 @@ export type ProductionBomSnapshot$LinesArgs<ExtArgs extends runtime.Types.Extens
 }
 
 /**
- * ProductionBomSnapshot.MaterialNgCases
+ * ProductionBomSnapshot.ProductionFindings
  */
-export type ProductionBomSnapshot$MaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ProductionBomSnapshot$ProductionFindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the MaterialNgCase
+   * Select specific fields to fetch from the ProductionFinding
    */
-  select?: Prisma.MaterialNgCaseSelect<ExtArgs> | null
+  select?: Prisma.ProductionFindingSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the MaterialNgCase
+   * Omit specific fields from the ProductionFinding
    */
-  omit?: Prisma.MaterialNgCaseOmit<ExtArgs> | null
+  omit?: Prisma.ProductionFindingOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.MaterialNgCaseInclude<ExtArgs> | null
-  where?: Prisma.MaterialNgCaseWhereInput
-  orderBy?: Prisma.MaterialNgCaseOrderByWithRelationInput | Prisma.MaterialNgCaseOrderByWithRelationInput[]
-  cursor?: Prisma.MaterialNgCaseWhereUniqueInput
+  include?: Prisma.ProductionFindingInclude<ExtArgs> | null
+  where?: Prisma.ProductionFindingWhereInput
+  orderBy?: Prisma.ProductionFindingOrderByWithRelationInput | Prisma.ProductionFindingOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionFindingWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.MaterialNgCaseScalarFieldEnum | Prisma.MaterialNgCaseScalarFieldEnum[]
+  distinct?: Prisma.ProductionFindingScalarFieldEnum | Prisma.ProductionFindingScalarFieldEnum[]
 }
 
 /**

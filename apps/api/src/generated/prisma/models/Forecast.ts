@@ -300,8 +300,9 @@ export type ForecastWhereInput = {
   Qty?: Prisma.IntFilter<"Forecast"> | number
   FinishGoodId?: Prisma.StringFilter<"Forecast"> | string
   ProductionReleaseId?: Prisma.StringNullableFilter<"Forecast"> | string | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandNullableScalarRelationFilter, Prisma.ProductionDemandWhereInput> | null
   BomSnapshots?: Prisma.ProductionBomSnapshotListRelationFilter
-  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
+  ProductionFindings?: Prisma.ProductionFindingListRelationFilter
   TraceEvents?: Prisma.ProductionTraceEventListRelationFilter
   DeliveryHistory?: Prisma.DeliveryHistoryListRelationFilter
   PartData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
@@ -327,8 +328,9 @@ export type ForecastOrderByWithRelationInput = {
   Qty?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
   ProductionReleaseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  Demand?: Prisma.ProductionDemandOrderByWithRelationInput
   BomSnapshots?: Prisma.ProductionBomSnapshotOrderByRelationAggregateInput
-  MaterialNgCases?: Prisma.MaterialNgCaseOrderByRelationAggregateInput
+  ProductionFindings?: Prisma.ProductionFindingOrderByRelationAggregateInput
   TraceEvents?: Prisma.ProductionTraceEventOrderByRelationAggregateInput
   DeliveryHistory?: Prisma.DeliveryHistoryOrderByRelationAggregateInput
   PartData?: Prisma.FinishGoodOrderByWithRelationInput
@@ -357,8 +359,9 @@ export type ForecastWhereUniqueInput = Prisma.AtLeast<{
   Qty?: Prisma.IntFilter<"Forecast"> | number
   FinishGoodId?: Prisma.StringFilter<"Forecast"> | string
   ProductionReleaseId?: Prisma.StringNullableFilter<"Forecast"> | string | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandNullableScalarRelationFilter, Prisma.ProductionDemandWhereInput> | null
   BomSnapshots?: Prisma.ProductionBomSnapshotListRelationFilter
-  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
+  ProductionFindings?: Prisma.ProductionFindingListRelationFilter
   TraceEvents?: Prisma.ProductionTraceEventListRelationFilter
   DeliveryHistory?: Prisma.DeliveryHistoryListRelationFilter
   PartData?: Prisma.XOR<Prisma.FinishGoodScalarRelationFilter, Prisma.FinishGoodWhereInput>
@@ -423,16 +426,17 @@ export type ForecastCreateInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUncheckedCreateInput = {
@@ -450,14 +454,15 @@ export type ForecastUncheckedCreateInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUpdateInput = {
@@ -472,16 +477,17 @@ export type ForecastUpdateInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateInput = {
@@ -499,14 +505,15 @@ export type ForecastUncheckedUpdateInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastCreateManyInput = {
@@ -637,11 +644,6 @@ export type ForecastNullableScalarRelationFilter = {
   isNot?: Prisma.ForecastWhereInput | null
 }
 
-export type ForecastScalarRelationFilter = {
-  is?: Prisma.ForecastWhereInput
-  isNot?: Prisma.ForecastWhereInput
-}
-
 export type ForecastCreateNestedManyWithoutPartDataInput = {
   create?: Prisma.XOR<Prisma.ForecastCreateWithoutPartDataInput, Prisma.ForecastUncheckedCreateWithoutPartDataInput> | Prisma.ForecastCreateWithoutPartDataInput[] | Prisma.ForecastUncheckedCreateWithoutPartDataInput[]
   connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutPartDataInput | Prisma.ForecastCreateOrConnectWithoutPartDataInput[]
@@ -748,10 +750,12 @@ export type ForecastCreateNestedOneWithoutShoppingCompletionInput = {
   connect?: Prisma.ForecastWhereUniqueInput
 }
 
-export type ForecastUpdateOneRequiredWithoutShoppingCompletionNestedInput = {
+export type ForecastUpdateOneWithoutShoppingCompletionNestedInput = {
   create?: Prisma.XOR<Prisma.ForecastCreateWithoutShoppingCompletionInput, Prisma.ForecastUncheckedCreateWithoutShoppingCompletionInput>
   connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutShoppingCompletionInput
   upsert?: Prisma.ForecastUpsertWithoutShoppingCompletionInput
+  disconnect?: Prisma.ForecastWhereInput | boolean
+  delete?: Prisma.ForecastWhereInput | boolean
   connect?: Prisma.ForecastWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ForecastUpdateToOneWithWhereWithoutShoppingCompletionInput, Prisma.ForecastUpdateWithoutShoppingCompletionInput>, Prisma.ForecastUncheckedUpdateWithoutShoppingCompletionInput>
 }
@@ -778,10 +782,12 @@ export type ForecastCreateNestedOneWithoutLabelDataInput = {
   connect?: Prisma.ForecastWhereUniqueInput
 }
 
-export type ForecastUpdateOneRequiredWithoutLabelDataNestedInput = {
+export type ForecastUpdateOneWithoutLabelDataNestedInput = {
   create?: Prisma.XOR<Prisma.ForecastCreateWithoutLabelDataInput, Prisma.ForecastUncheckedCreateWithoutLabelDataInput>
   connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutLabelDataInput
   upsert?: Prisma.ForecastUpsertWithoutLabelDataInput
+  disconnect?: Prisma.ForecastWhereInput | boolean
+  delete?: Prisma.ForecastWhereInput | boolean
   connect?: Prisma.ForecastWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ForecastUpdateToOneWithWhereWithoutLabelDataInput, Prisma.ForecastUpdateWithoutLabelDataInput>, Prisma.ForecastUncheckedUpdateWithoutLabelDataInput>
 }
@@ -792,10 +798,12 @@ export type ForecastCreateNestedOneWithoutDeliveryHistoryInput = {
   connect?: Prisma.ForecastWhereUniqueInput
 }
 
-export type ForecastUpdateOneRequiredWithoutDeliveryHistoryNestedInput = {
+export type ForecastUpdateOneWithoutDeliveryHistoryNestedInput = {
   create?: Prisma.XOR<Prisma.ForecastCreateWithoutDeliveryHistoryInput, Prisma.ForecastUncheckedCreateWithoutDeliveryHistoryInput>
   connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutDeliveryHistoryInput
   upsert?: Prisma.ForecastUpsertWithoutDeliveryHistoryInput
+  disconnect?: Prisma.ForecastWhereInput | boolean
+  delete?: Prisma.ForecastWhereInput | boolean
   connect?: Prisma.ForecastWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ForecastUpdateToOneWithWhereWithoutDeliveryHistoryInput, Prisma.ForecastUpdateWithoutDeliveryHistoryInput>, Prisma.ForecastUncheckedUpdateWithoutDeliveryHistoryInput>
 }
@@ -806,26 +814,30 @@ export type ForecastCreateNestedOneWithoutBomSnapshotsInput = {
   connect?: Prisma.ForecastWhereUniqueInput
 }
 
-export type ForecastUpdateOneRequiredWithoutBomSnapshotsNestedInput = {
+export type ForecastUpdateOneWithoutBomSnapshotsNestedInput = {
   create?: Prisma.XOR<Prisma.ForecastCreateWithoutBomSnapshotsInput, Prisma.ForecastUncheckedCreateWithoutBomSnapshotsInput>
   connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutBomSnapshotsInput
   upsert?: Prisma.ForecastUpsertWithoutBomSnapshotsInput
+  disconnect?: Prisma.ForecastWhereInput | boolean
+  delete?: Prisma.ForecastWhereInput | boolean
   connect?: Prisma.ForecastWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ForecastUpdateToOneWithWhereWithoutBomSnapshotsInput, Prisma.ForecastUpdateWithoutBomSnapshotsInput>, Prisma.ForecastUncheckedUpdateWithoutBomSnapshotsInput>
 }
 
-export type ForecastCreateNestedOneWithoutMaterialNgCasesInput = {
-  create?: Prisma.XOR<Prisma.ForecastCreateWithoutMaterialNgCasesInput, Prisma.ForecastUncheckedCreateWithoutMaterialNgCasesInput>
-  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutMaterialNgCasesInput
+export type ForecastCreateNestedOneWithoutProductionFindingsInput = {
+  create?: Prisma.XOR<Prisma.ForecastCreateWithoutProductionFindingsInput, Prisma.ForecastUncheckedCreateWithoutProductionFindingsInput>
+  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutProductionFindingsInput
   connect?: Prisma.ForecastWhereUniqueInput
 }
 
-export type ForecastUpdateOneRequiredWithoutMaterialNgCasesNestedInput = {
-  create?: Prisma.XOR<Prisma.ForecastCreateWithoutMaterialNgCasesInput, Prisma.ForecastUncheckedCreateWithoutMaterialNgCasesInput>
-  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutMaterialNgCasesInput
-  upsert?: Prisma.ForecastUpsertWithoutMaterialNgCasesInput
+export type ForecastUpdateOneWithoutProductionFindingsNestedInput = {
+  create?: Prisma.XOR<Prisma.ForecastCreateWithoutProductionFindingsInput, Prisma.ForecastUncheckedCreateWithoutProductionFindingsInput>
+  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutProductionFindingsInput
+  upsert?: Prisma.ForecastUpsertWithoutProductionFindingsInput
+  disconnect?: Prisma.ForecastWhereInput | boolean
+  delete?: Prisma.ForecastWhereInput | boolean
   connect?: Prisma.ForecastWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ForecastUpdateToOneWithWhereWithoutMaterialNgCasesInput, Prisma.ForecastUpdateWithoutMaterialNgCasesInput>, Prisma.ForecastUncheckedUpdateWithoutMaterialNgCasesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ForecastUpdateToOneWithWhereWithoutProductionFindingsInput, Prisma.ForecastUpdateWithoutProductionFindingsInput>, Prisma.ForecastUncheckedUpdateWithoutProductionFindingsInput>
 }
 
 export type ForecastCreateNestedOneWithoutTraceEventsInput = {
@@ -834,12 +846,30 @@ export type ForecastCreateNestedOneWithoutTraceEventsInput = {
   connect?: Prisma.ForecastWhereUniqueInput
 }
 
-export type ForecastUpdateOneRequiredWithoutTraceEventsNestedInput = {
+export type ForecastUpdateOneWithoutTraceEventsNestedInput = {
   create?: Prisma.XOR<Prisma.ForecastCreateWithoutTraceEventsInput, Prisma.ForecastUncheckedCreateWithoutTraceEventsInput>
   connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutTraceEventsInput
   upsert?: Prisma.ForecastUpsertWithoutTraceEventsInput
+  disconnect?: Prisma.ForecastWhereInput | boolean
+  delete?: Prisma.ForecastWhereInput | boolean
   connect?: Prisma.ForecastWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ForecastUpdateToOneWithWhereWithoutTraceEventsInput, Prisma.ForecastUpdateWithoutTraceEventsInput>, Prisma.ForecastUncheckedUpdateWithoutTraceEventsInput>
+}
+
+export type ForecastCreateNestedOneWithoutDemandInput = {
+  create?: Prisma.XOR<Prisma.ForecastCreateWithoutDemandInput, Prisma.ForecastUncheckedCreateWithoutDemandInput>
+  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutDemandInput
+  connect?: Prisma.ForecastWhereUniqueInput
+}
+
+export type ForecastUpdateOneWithoutDemandNestedInput = {
+  create?: Prisma.XOR<Prisma.ForecastCreateWithoutDemandInput, Prisma.ForecastUncheckedCreateWithoutDemandInput>
+  connectOrCreate?: Prisma.ForecastCreateOrConnectWithoutDemandInput
+  upsert?: Prisma.ForecastUpsertWithoutDemandInput
+  disconnect?: Prisma.ForecastWhereInput | boolean
+  delete?: Prisma.ForecastWhereInput | boolean
+  connect?: Prisma.ForecastWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ForecastUpdateToOneWithWhereWithoutDemandInput, Prisma.ForecastUpdateWithoutDemandInput>, Prisma.ForecastUncheckedUpdateWithoutDemandInput>
 }
 
 export type ForecastCreateWithoutPartDataInput = {
@@ -854,15 +884,16 @@ export type ForecastCreateWithoutPartDataInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUncheckedCreateWithoutPartDataInput = {
@@ -879,14 +910,15 @@ export type ForecastUncheckedCreateWithoutPartDataInput = {
   Item: number
   Qty: number
   ProductionReleaseId?: string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastCreateOrConnectWithoutPartDataInput = {
@@ -947,15 +979,16 @@ export type ForecastCreateWithoutProductionReleaseInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUncheckedCreateWithoutProductionReleaseInput = {
@@ -972,14 +1005,15 @@ export type ForecastUncheckedCreateWithoutProductionReleaseInput = {
   Item: number
   Qty: number
   FinishGoodId: string
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastCreateOrConnectWithoutProductionReleaseInput = {
@@ -1020,15 +1054,16 @@ export type ForecastCreateWithoutShoppingInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUncheckedCreateWithoutShoppingInput = {
@@ -1046,13 +1081,14 @@ export type ForecastUncheckedCreateWithoutShoppingInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastCreateOrConnectWithoutShoppingInput = {
@@ -1083,15 +1119,16 @@ export type ForecastUpdateWithoutShoppingInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutShoppingInput = {
@@ -1109,13 +1146,14 @@ export type ForecastUncheckedUpdateWithoutShoppingInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastCreateWithoutShoppingCompletionInput = {
@@ -1130,15 +1168,16 @@ export type ForecastCreateWithoutShoppingCompletionInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUncheckedCreateWithoutShoppingCompletionInput = {
@@ -1156,13 +1195,14 @@ export type ForecastUncheckedCreateWithoutShoppingCompletionInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastCreateOrConnectWithoutShoppingCompletionInput = {
@@ -1193,15 +1233,16 @@ export type ForecastUpdateWithoutShoppingCompletionInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutShoppingCompletionInput = {
@@ -1219,13 +1260,14 @@ export type ForecastUncheckedUpdateWithoutShoppingCompletionInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastCreateWithoutProductionReportInput = {
@@ -1240,15 +1282,16 @@ export type ForecastCreateWithoutProductionReportInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
 }
 
 export type ForecastUncheckedCreateWithoutProductionReportInput = {
@@ -1266,13 +1309,14 @@ export type ForecastUncheckedCreateWithoutProductionReportInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
 }
 
 export type ForecastCreateOrConnectWithoutProductionReportInput = {
@@ -1303,15 +1347,16 @@ export type ForecastUpdateWithoutProductionReportInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutProductionReportInput = {
@@ -1329,13 +1374,14 @@ export type ForecastUncheckedUpdateWithoutProductionReportInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
 }
 
 export type ForecastCreateWithoutLabelDataInput = {
@@ -1350,15 +1396,16 @@ export type ForecastCreateWithoutLabelDataInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUncheckedCreateWithoutLabelDataInput = {
@@ -1376,13 +1423,14 @@ export type ForecastUncheckedCreateWithoutLabelDataInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastCreateOrConnectWithoutLabelDataInput = {
@@ -1413,15 +1461,16 @@ export type ForecastUpdateWithoutLabelDataInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutLabelDataInput = {
@@ -1439,13 +1488,14 @@ export type ForecastUncheckedUpdateWithoutLabelDataInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastCreateWithoutDeliveryHistoryInput = {
@@ -1460,15 +1510,16 @@ export type ForecastCreateWithoutDeliveryHistoryInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUncheckedCreateWithoutDeliveryHistoryInput = {
@@ -1486,13 +1537,14 @@ export type ForecastUncheckedCreateWithoutDeliveryHistoryInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastCreateOrConnectWithoutDeliveryHistoryInput = {
@@ -1523,15 +1575,16 @@ export type ForecastUpdateWithoutDeliveryHistoryInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutDeliveryHistoryInput = {
@@ -1549,13 +1602,14 @@ export type ForecastUncheckedUpdateWithoutDeliveryHistoryInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastCreateWithoutBomSnapshotsInput = {
@@ -1570,15 +1624,16 @@ export type ForecastCreateWithoutBomSnapshotsInput = {
   PoNumber: string
   Item: number
   Qty: number
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUncheckedCreateWithoutBomSnapshotsInput = {
@@ -1596,13 +1651,14 @@ export type ForecastUncheckedCreateWithoutBomSnapshotsInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastCreateOrConnectWithoutBomSnapshotsInput = {
@@ -1633,15 +1689,16 @@ export type ForecastUpdateWithoutBomSnapshotsInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutBomSnapshotsInput = {
@@ -1659,16 +1716,17 @@ export type ForecastUncheckedUpdateWithoutBomSnapshotsInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
-export type ForecastCreateWithoutMaterialNgCasesInput = {
+export type ForecastCreateWithoutProductionFindingsInput = {
   PoId: string
   Date: Date | string
   VendorCode: string
@@ -1680,18 +1738,19 @@ export type ForecastCreateWithoutMaterialNgCasesInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
-export type ForecastUncheckedCreateWithoutMaterialNgCasesInput = {
+export type ForecastUncheckedCreateWithoutProductionFindingsInput = {
   Id?: number
   PoId: string
   Date: Date | string
@@ -1706,32 +1765,33 @@ export type ForecastUncheckedCreateWithoutMaterialNgCasesInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
-export type ForecastCreateOrConnectWithoutMaterialNgCasesInput = {
+export type ForecastCreateOrConnectWithoutProductionFindingsInput = {
   where: Prisma.ForecastWhereUniqueInput
-  create: Prisma.XOR<Prisma.ForecastCreateWithoutMaterialNgCasesInput, Prisma.ForecastUncheckedCreateWithoutMaterialNgCasesInput>
+  create: Prisma.XOR<Prisma.ForecastCreateWithoutProductionFindingsInput, Prisma.ForecastUncheckedCreateWithoutProductionFindingsInput>
 }
 
-export type ForecastUpsertWithoutMaterialNgCasesInput = {
-  update: Prisma.XOR<Prisma.ForecastUpdateWithoutMaterialNgCasesInput, Prisma.ForecastUncheckedUpdateWithoutMaterialNgCasesInput>
-  create: Prisma.XOR<Prisma.ForecastCreateWithoutMaterialNgCasesInput, Prisma.ForecastUncheckedCreateWithoutMaterialNgCasesInput>
+export type ForecastUpsertWithoutProductionFindingsInput = {
+  update: Prisma.XOR<Prisma.ForecastUpdateWithoutProductionFindingsInput, Prisma.ForecastUncheckedUpdateWithoutProductionFindingsInput>
+  create: Prisma.XOR<Prisma.ForecastCreateWithoutProductionFindingsInput, Prisma.ForecastUncheckedCreateWithoutProductionFindingsInput>
   where?: Prisma.ForecastWhereInput
 }
 
-export type ForecastUpdateToOneWithWhereWithoutMaterialNgCasesInput = {
+export type ForecastUpdateToOneWithWhereWithoutProductionFindingsInput = {
   where?: Prisma.ForecastWhereInput
-  data: Prisma.XOR<Prisma.ForecastUpdateWithoutMaterialNgCasesInput, Prisma.ForecastUncheckedUpdateWithoutMaterialNgCasesInput>
+  data: Prisma.XOR<Prisma.ForecastUpdateWithoutProductionFindingsInput, Prisma.ForecastUncheckedUpdateWithoutProductionFindingsInput>
 }
 
-export type ForecastUpdateWithoutMaterialNgCasesInput = {
+export type ForecastUpdateWithoutProductionFindingsInput = {
   PoId?: Prisma.StringFieldUpdateOperationsInput | string
   Date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   VendorCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1743,18 +1803,19 @@ export type ForecastUpdateWithoutMaterialNgCasesInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
-export type ForecastUncheckedUpdateWithoutMaterialNgCasesInput = {
+export type ForecastUncheckedUpdateWithoutProductionFindingsInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PoId?: Prisma.StringFieldUpdateOperationsInput | string
   Date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1769,13 +1830,14 @@ export type ForecastUncheckedUpdateWithoutMaterialNgCasesInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastCreateWithoutTraceEventsInput = {
@@ -1790,15 +1852,16 @@ export type ForecastCreateWithoutTraceEventsInput = {
   PoNumber: string
   Item: number
   Qty: number
-  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutPoDataInput
+  Demand?: Prisma.ProductionDemandCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
   PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
-  LabelData?: Prisma.LabelDataCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutForecastInput
-  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutForecastsInput
-  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutForecastDataInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastUncheckedCreateWithoutTraceEventsInput = {
@@ -1816,13 +1879,14 @@ export type ForecastUncheckedCreateWithoutTraceEventsInput = {
   Qty: number
   FinishGoodId: string
   ProductionReleaseId?: string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutForecastInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutForecastInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput
-  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutPODataInput
-  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutForecastDataInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutForecastInput
-  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutForecastDataInput
+  Demand?: Prisma.ProductionDemandUncheckedCreateNestedOneWithoutForecastInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
 }
 
 export type ForecastCreateOrConnectWithoutTraceEventsInput = {
@@ -1853,15 +1917,16 @@ export type ForecastUpdateWithoutTraceEventsInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutTraceEventsInput = {
@@ -1879,13 +1944,128 @@ export type ForecastUncheckedUpdateWithoutTraceEventsInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
+}
+
+export type ForecastCreateWithoutDemandInput = {
+  PoId: string
+  Date: Date | string
+  VendorCode: string
+  VendorName: string
+  ReceivingArea: string
+  DeliveryDate: Date | string
+  DeliveryPeriod: number
+  Classification: string
+  PoNumber: string
+  Item: number
+  Qty: number
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput
+  PartData: Prisma.FinishGoodCreateNestedOneWithoutForecastInput
+  LabelData?: Prisma.LabelDataCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionCreateNestedOneWithoutLegacyForecastInput
+  ProductionRelease?: Prisma.ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutLegacyForecastInput
+}
+
+export type ForecastUncheckedCreateWithoutDemandInput = {
+  Id?: number
+  PoId: string
+  Date: Date | string
+  VendorCode: string
+  VendorName: string
+  ReceivingArea: string
+  DeliveryDate: Date | string
+  DeliveryPeriod: number
+  Classification: string
+  PoNumber: string
+  Item: number
+  Qty: number
+  FinishGoodId: string
+  ProductionReleaseId?: string | null
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput
+  LabelData?: Prisma.LabelDataUncheckedCreateNestedManyWithoutLegacyForecastInput
+  Shopping?: Prisma.ShoppingUncheckedCreateNestedManyWithoutLegacyForecastInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedCreateNestedOneWithoutLegacyForecastInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutLegacyForecastInput
+}
+
+export type ForecastCreateOrConnectWithoutDemandInput = {
+  where: Prisma.ForecastWhereUniqueInput
+  create: Prisma.XOR<Prisma.ForecastCreateWithoutDemandInput, Prisma.ForecastUncheckedCreateWithoutDemandInput>
+}
+
+export type ForecastUpsertWithoutDemandInput = {
+  update: Prisma.XOR<Prisma.ForecastUpdateWithoutDemandInput, Prisma.ForecastUncheckedUpdateWithoutDemandInput>
+  create: Prisma.XOR<Prisma.ForecastCreateWithoutDemandInput, Prisma.ForecastUncheckedCreateWithoutDemandInput>
+  where?: Prisma.ForecastWhereInput
+}
+
+export type ForecastUpdateToOneWithWhereWithoutDemandInput = {
+  where?: Prisma.ForecastWhereInput
+  data: Prisma.XOR<Prisma.ForecastUpdateWithoutDemandInput, Prisma.ForecastUncheckedUpdateWithoutDemandInput>
+}
+
+export type ForecastUpdateWithoutDemandInput = {
+  PoId?: Prisma.StringFieldUpdateOperationsInput | string
+  Date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  VendorCode?: Prisma.StringFieldUpdateOperationsInput | string
+  VendorName?: Prisma.StringFieldUpdateOperationsInput | string
+  ReceivingArea?: Prisma.StringFieldUpdateOperationsInput | string
+  DeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  DeliveryPeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  Classification?: Prisma.StringFieldUpdateOperationsInput | string
+  PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  Item?: Prisma.IntFieldUpdateOperationsInput | number
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
+  PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
+}
+
+export type ForecastUncheckedUpdateWithoutDemandInput = {
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  PoId?: Prisma.StringFieldUpdateOperationsInput | string
+  Date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  VendorCode?: Prisma.StringFieldUpdateOperationsInput | string
+  VendorName?: Prisma.StringFieldUpdateOperationsInput | string
+  ReceivingArea?: Prisma.StringFieldUpdateOperationsInput | string
+  DeliveryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  DeliveryPeriod?: Prisma.IntFieldUpdateOperationsInput | number
+  Classification?: Prisma.StringFieldUpdateOperationsInput | string
+  PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  Item?: Prisma.IntFieldUpdateOperationsInput | number
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastCreateManyPartDataInput = {
@@ -1916,15 +2096,16 @@ export type ForecastUpdateWithoutPartDataInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutForecastsNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionRelease?: Prisma.ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutPartDataInput = {
@@ -1941,14 +2122,15 @@ export type ForecastUncheckedUpdateWithoutPartDataInput = {
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   ProductionReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateManyWithoutPartDataInput = {
@@ -1995,15 +2177,16 @@ export type ForecastUpdateWithoutProductionReleaseInput = {
   PoNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
-  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutPoDataNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput
   PartData?: Prisma.FinishGoodUpdateOneRequiredWithoutForecastNestedInput
-  LabelData?: Prisma.LabelDataUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutForecastDataNestedInput
+  LabelData?: Prisma.LabelDataUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateWithoutProductionReleaseInput = {
@@ -2020,14 +2203,15 @@ export type ForecastUncheckedUpdateWithoutProductionReleaseInput = {
   Item?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
-  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutForecastNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutForecastNestedInput
-  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput
-  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput
-  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutPODataNestedInput
-  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutForecastDataNestedInput
-  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutForecastNestedInput
-  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutForecastDataNestedInput
+  Demand?: Prisma.ProductionDemandUncheckedUpdateOneWithoutForecastNestedInput
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  DeliveryHistory?: Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  LabelData?: Prisma.LabelDataUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  Shopping?: Prisma.ShoppingUncheckedUpdateManyWithoutLegacyForecastNestedInput
+  ShoppingCompletion?: Prisma.ShoppingCompletionUncheckedUpdateOneWithoutLegacyForecastNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutLegacyForecastNestedInput
 }
 
 export type ForecastUncheckedUpdateManyWithoutProductionReleaseInput = {
@@ -2053,7 +2237,7 @@ export type ForecastUncheckedUpdateManyWithoutProductionReleaseInput = {
 
 export type ForecastCountOutputType = {
   BomSnapshots: number
-  MaterialNgCases: number
+  ProductionFindings: number
   TraceEvents: number
   DeliveryHistory: number
   LabelData: number
@@ -2063,7 +2247,7 @@ export type ForecastCountOutputType = {
 
 export type ForecastCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   BomSnapshots?: boolean | ForecastCountOutputTypeCountBomSnapshotsArgs
-  MaterialNgCases?: boolean | ForecastCountOutputTypeCountMaterialNgCasesArgs
+  ProductionFindings?: boolean | ForecastCountOutputTypeCountProductionFindingsArgs
   TraceEvents?: boolean | ForecastCountOutputTypeCountTraceEventsArgs
   DeliveryHistory?: boolean | ForecastCountOutputTypeCountDeliveryHistoryArgs
   LabelData?: boolean | ForecastCountOutputTypeCountLabelDataArgs
@@ -2091,8 +2275,8 @@ export type ForecastCountOutputTypeCountBomSnapshotsArgs<ExtArgs extends runtime
 /**
  * ForecastCountOutputType without action
  */
-export type ForecastCountOutputTypeCountMaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MaterialNgCaseWhereInput
+export type ForecastCountOutputTypeCountProductionFindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionFindingWhereInput
 }
 
 /**
@@ -2146,8 +2330,9 @@ export type ForecastSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   Qty?: boolean
   FinishGoodId?: boolean
   ProductionReleaseId?: boolean
+  Demand?: boolean | Prisma.Forecast$DemandArgs<ExtArgs>
   BomSnapshots?: boolean | Prisma.Forecast$BomSnapshotsArgs<ExtArgs>
-  MaterialNgCases?: boolean | Prisma.Forecast$MaterialNgCasesArgs<ExtArgs>
+  ProductionFindings?: boolean | Prisma.Forecast$ProductionFindingsArgs<ExtArgs>
   TraceEvents?: boolean | Prisma.Forecast$TraceEventsArgs<ExtArgs>
   DeliveryHistory?: boolean | Prisma.Forecast$DeliveryHistoryArgs<ExtArgs>
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
@@ -2216,8 +2401,9 @@ export type ForecastSelectScalar = {
 
 export type ForecastOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PoId" | "Date" | "VendorCode" | "VendorName" | "ReceivingArea" | "DeliveryDate" | "DeliveryPeriod" | "Classification" | "PoNumber" | "Item" | "Qty" | "FinishGoodId" | "ProductionReleaseId", ExtArgs["result"]["forecast"]>
 export type ForecastInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  Demand?: boolean | Prisma.Forecast$DemandArgs<ExtArgs>
   BomSnapshots?: boolean | Prisma.Forecast$BomSnapshotsArgs<ExtArgs>
-  MaterialNgCases?: boolean | Prisma.Forecast$MaterialNgCasesArgs<ExtArgs>
+  ProductionFindings?: boolean | Prisma.Forecast$ProductionFindingsArgs<ExtArgs>
   TraceEvents?: boolean | Prisma.Forecast$TraceEventsArgs<ExtArgs>
   DeliveryHistory?: boolean | Prisma.Forecast$DeliveryHistoryArgs<ExtArgs>
   PartData?: boolean | Prisma.FinishGoodDefaultArgs<ExtArgs>
@@ -2240,8 +2426,9 @@ export type ForecastIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $ForecastPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Forecast"
   objects: {
+    Demand: Prisma.$ProductionDemandPayload<ExtArgs> | null
     BomSnapshots: Prisma.$ProductionBomSnapshotPayload<ExtArgs>[]
-    MaterialNgCases: Prisma.$MaterialNgCasePayload<ExtArgs>[]
+    ProductionFindings: Prisma.$ProductionFindingPayload<ExtArgs>[]
     TraceEvents: Prisma.$ProductionTraceEventPayload<ExtArgs>[]
     DeliveryHistory: Prisma.$DeliveryHistoryPayload<ExtArgs>[]
     PartData: Prisma.$FinishGoodPayload<ExtArgs>
@@ -2660,8 +2847,9 @@ readonly fields: ForecastFieldRefs;
  */
 export interface Prisma__ForecastClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  Demand<T extends Prisma.Forecast$DemandArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$DemandArgs<ExtArgs>>): Prisma.Prisma__ProductionDemandClient<runtime.Types.Result.GetResult<Prisma.$ProductionDemandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   BomSnapshots<T extends Prisma.Forecast$BomSnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$BomSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionBomSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  MaterialNgCases<T extends Prisma.Forecast$MaterialNgCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$MaterialNgCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNgCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ProductionFindings<T extends Prisma.Forecast$ProductionFindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$ProductionFindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionFindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   TraceEvents<T extends Prisma.Forecast$TraceEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$TraceEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionTraceEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   DeliveryHistory<T extends Prisma.Forecast$DeliveryHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Forecast$DeliveryHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DeliveryHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   PartData<T extends Prisma.FinishGoodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinishGoodDefaultArgs<ExtArgs>>): Prisma.Prisma__FinishGoodClient<runtime.Types.Result.GetResult<Prisma.$FinishGoodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
@@ -3114,6 +3302,25 @@ export type ForecastDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * Forecast.Demand
+ */
+export type Forecast$DemandArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionDemand
+   */
+  select?: Prisma.ProductionDemandSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionDemand
+   */
+  omit?: Prisma.ProductionDemandOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionDemandInclude<ExtArgs> | null
+  where?: Prisma.ProductionDemandWhereInput
+}
+
+/**
  * Forecast.BomSnapshots
  */
 export type Forecast$BomSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3138,27 +3345,27 @@ export type Forecast$BomSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * Forecast.MaterialNgCases
+ * Forecast.ProductionFindings
  */
-export type Forecast$MaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Forecast$ProductionFindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the MaterialNgCase
+   * Select specific fields to fetch from the ProductionFinding
    */
-  select?: Prisma.MaterialNgCaseSelect<ExtArgs> | null
+  select?: Prisma.ProductionFindingSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the MaterialNgCase
+   * Omit specific fields from the ProductionFinding
    */
-  omit?: Prisma.MaterialNgCaseOmit<ExtArgs> | null
+  omit?: Prisma.ProductionFindingOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.MaterialNgCaseInclude<ExtArgs> | null
-  where?: Prisma.MaterialNgCaseWhereInput
-  orderBy?: Prisma.MaterialNgCaseOrderByWithRelationInput | Prisma.MaterialNgCaseOrderByWithRelationInput[]
-  cursor?: Prisma.MaterialNgCaseWhereUniqueInput
+  include?: Prisma.ProductionFindingInclude<ExtArgs> | null
+  where?: Prisma.ProductionFindingWhereInput
+  orderBy?: Prisma.ProductionFindingOrderByWithRelationInput | Prisma.ProductionFindingOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionFindingWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.MaterialNgCaseScalarFieldEnum | Prisma.MaterialNgCaseScalarFieldEnum[]
+  distinct?: Prisma.ProductionFindingScalarFieldEnum | Prisma.ProductionFindingScalarFieldEnum[]
 }
 
 /**

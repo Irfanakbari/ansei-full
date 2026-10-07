@@ -54,6 +54,7 @@ export type ProductionReleaseMinAggregateOutputType = {
   CreatedBy: string | null
   UpdatedAt: Date | null
   IsNoAttachment: boolean | null
+  SourceType: $Enums.DemandSource | null
 }
 
 export type ProductionReleaseMaxAggregateOutputType = {
@@ -70,6 +71,7 @@ export type ProductionReleaseMaxAggregateOutputType = {
   CreatedBy: string | null
   UpdatedAt: Date | null
   IsNoAttachment: boolean | null
+  SourceType: $Enums.DemandSource | null
 }
 
 export type ProductionReleaseCountAggregateOutputType = {
@@ -86,6 +88,7 @@ export type ProductionReleaseCountAggregateOutputType = {
   CreatedBy: number
   UpdatedAt: number
   IsNoAttachment: number
+  SourceType: number
   _all: number
 }
 
@@ -118,6 +121,7 @@ export type ProductionReleaseMinAggregateInputType = {
   CreatedBy?: true
   UpdatedAt?: true
   IsNoAttachment?: true
+  SourceType?: true
 }
 
 export type ProductionReleaseMaxAggregateInputType = {
@@ -134,6 +138,7 @@ export type ProductionReleaseMaxAggregateInputType = {
   CreatedBy?: true
   UpdatedAt?: true
   IsNoAttachment?: true
+  SourceType?: true
 }
 
 export type ProductionReleaseCountAggregateInputType = {
@@ -150,6 +155,7 @@ export type ProductionReleaseCountAggregateInputType = {
   CreatedBy?: true
   UpdatedAt?: true
   IsNoAttachment?: true
+  SourceType?: true
   _all?: true
 }
 
@@ -253,6 +259,7 @@ export type ProductionReleaseGroupByOutputType = {
   CreatedBy: string
   UpdatedAt: Date
   IsNoAttachment: boolean
+  SourceType: $Enums.DemandSource
   _count: ProductionReleaseCountAggregateOutputType | null
   _avg: ProductionReleaseAvgAggregateOutputType | null
   _sum: ProductionReleaseSumAggregateOutputType | null
@@ -292,10 +299,13 @@ export type ProductionReleaseWhereInput = {
   CreatedBy?: Prisma.StringFilter<"ProductionRelease"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"ProductionRelease"> | Date | string
   IsNoAttachment?: Prisma.BoolFilter<"ProductionRelease"> | boolean
+  SourceType?: Prisma.EnumDemandSourceFilter<"ProductionRelease"> | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotListRelationFilter
-  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
+  ProductionFindings?: Prisma.ProductionFindingListRelationFilter
   TraceEvents?: Prisma.ProductionTraceEventListRelationFilter
-  Forecasts?: Prisma.ForecastListRelationFilter
+  Demands?: Prisma.ProductionDemandListRelationFilter
+  LegacyForecasts?: Prisma.ForecastListRelationFilter
+  Forecasts?: Prisma.ProductionOrderListRelationFilter
   LabelDatas?: Prisma.LabelDataListRelationFilter
   Attachments?: Prisma.ProductionReleaseAttachmentListRelationFilter
 }
@@ -314,10 +324,13 @@ export type ProductionReleaseOrderByWithRelationInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   IsNoAttachment?: Prisma.SortOrder
+  SourceType?: Prisma.SortOrder
   BomSnapshots?: Prisma.ProductionBomSnapshotOrderByRelationAggregateInput
-  MaterialNgCases?: Prisma.MaterialNgCaseOrderByRelationAggregateInput
+  ProductionFindings?: Prisma.ProductionFindingOrderByRelationAggregateInput
   TraceEvents?: Prisma.ProductionTraceEventOrderByRelationAggregateInput
-  Forecasts?: Prisma.ForecastOrderByRelationAggregateInput
+  Demands?: Prisma.ProductionDemandOrderByRelationAggregateInput
+  LegacyForecasts?: Prisma.ForecastOrderByRelationAggregateInput
+  Forecasts?: Prisma.ProductionOrderOrderByRelationAggregateInput
   LabelDatas?: Prisma.LabelDataOrderByRelationAggregateInput
   Attachments?: Prisma.ProductionReleaseAttachmentOrderByRelationAggregateInput
 }
@@ -339,10 +352,13 @@ export type ProductionReleaseWhereUniqueInput = Prisma.AtLeast<{
   CreatedBy?: Prisma.StringFilter<"ProductionRelease"> | string
   UpdatedAt?: Prisma.DateTimeFilter<"ProductionRelease"> | Date | string
   IsNoAttachment?: Prisma.BoolFilter<"ProductionRelease"> | boolean
+  SourceType?: Prisma.EnumDemandSourceFilter<"ProductionRelease"> | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotListRelationFilter
-  MaterialNgCases?: Prisma.MaterialNgCaseListRelationFilter
+  ProductionFindings?: Prisma.ProductionFindingListRelationFilter
   TraceEvents?: Prisma.ProductionTraceEventListRelationFilter
-  Forecasts?: Prisma.ForecastListRelationFilter
+  Demands?: Prisma.ProductionDemandListRelationFilter
+  LegacyForecasts?: Prisma.ForecastListRelationFilter
+  Forecasts?: Prisma.ProductionOrderListRelationFilter
   LabelDatas?: Prisma.LabelDataListRelationFilter
   Attachments?: Prisma.ProductionReleaseAttachmentListRelationFilter
 }, "Id" | "ReleaseNumber">
@@ -361,6 +377,7 @@ export type ProductionReleaseOrderByWithAggregationInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   IsNoAttachment?: Prisma.SortOrder
+  SourceType?: Prisma.SortOrder
   _count?: Prisma.ProductionReleaseCountOrderByAggregateInput
   _avg?: Prisma.ProductionReleaseAvgOrderByAggregateInput
   _max?: Prisma.ProductionReleaseMaxOrderByAggregateInput
@@ -385,6 +402,7 @@ export type ProductionReleaseScalarWhereWithAggregatesInput = {
   CreatedBy?: Prisma.StringWithAggregatesFilter<"ProductionRelease"> | string
   UpdatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProductionRelease"> | Date | string
   IsNoAttachment?: Prisma.BoolWithAggregatesFilter<"ProductionRelease"> | boolean
+  SourceType?: Prisma.EnumDemandSourceWithAggregatesFilter<"ProductionRelease"> | $Enums.DemandSource
 }
 
 export type ProductionReleaseCreateInput = {
@@ -401,10 +419,13 @@ export type ProductionReleaseCreateInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
 }
@@ -423,10 +444,13 @@ export type ProductionReleaseUncheckedCreateInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
@@ -445,10 +469,13 @@ export type ProductionReleaseUpdateInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
 }
@@ -467,10 +494,13 @@ export type ProductionReleaseUncheckedUpdateInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
@@ -489,6 +519,7 @@ export type ProductionReleaseCreateManyInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
 }
 
 export type ProductionReleaseUpdateManyMutationInput = {
@@ -505,6 +536,7 @@ export type ProductionReleaseUpdateManyMutationInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
 }
 
 export type ProductionReleaseUncheckedUpdateManyInput = {
@@ -521,6 +553,7 @@ export type ProductionReleaseUncheckedUpdateManyInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
 }
 
 export type ProductionReleaseNullableScalarRelationFilter = {
@@ -542,6 +575,7 @@ export type ProductionReleaseCountOrderByAggregateInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   IsNoAttachment?: Prisma.SortOrder
+  SourceType?: Prisma.SortOrder
 }
 
 export type ProductionReleaseAvgOrderByAggregateInput = {
@@ -565,6 +599,7 @@ export type ProductionReleaseMaxOrderByAggregateInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   IsNoAttachment?: Prisma.SortOrder
+  SourceType?: Prisma.SortOrder
 }
 
 export type ProductionReleaseMinOrderByAggregateInput = {
@@ -581,6 +616,7 @@ export type ProductionReleaseMinOrderByAggregateInput = {
   CreatedBy?: Prisma.SortOrder
   UpdatedAt?: Prisma.SortOrder
   IsNoAttachment?: Prisma.SortOrder
+  SourceType?: Prisma.SortOrder
 }
 
 export type ProductionReleaseSumOrderByAggregateInput = {
@@ -595,24 +631,28 @@ export type ProductionReleaseScalarRelationFilter = {
   isNot?: Prisma.ProductionReleaseWhereInput
 }
 
-export type ProductionReleaseCreateNestedOneWithoutForecastsInput = {
-  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutForecastsInput>
-  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutForecastsInput
+export type ProductionReleaseCreateNestedOneWithoutLegacyForecastsInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutLegacyForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutLegacyForecastsInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutLegacyForecastsInput
   connect?: Prisma.ProductionReleaseWhereUniqueInput
 }
 
-export type ProductionReleaseUpdateOneWithoutForecastsNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutForecastsInput>
-  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutForecastsInput
-  upsert?: Prisma.ProductionReleaseUpsertWithoutForecastsInput
+export type ProductionReleaseUpdateOneWithoutLegacyForecastsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutLegacyForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutLegacyForecastsInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutLegacyForecastsInput
+  upsert?: Prisma.ProductionReleaseUpsertWithoutLegacyForecastsInput
   disconnect?: Prisma.ProductionReleaseWhereInput | boolean
   delete?: Prisma.ProductionReleaseWhereInput | boolean
   connect?: Prisma.ProductionReleaseWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutForecastsInput, Prisma.ProductionReleaseUpdateWithoutForecastsInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutForecastsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutLegacyForecastsInput, Prisma.ProductionReleaseUpdateWithoutLegacyForecastsInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutLegacyForecastsInput>
 }
 
 export type EnumProductionStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProductionStatus
+}
+
+export type EnumDemandSourceFieldUpdateOperationsInput = {
+  set?: $Enums.DemandSource
 }
 
 export type ProductionReleaseCreateNestedOneWithoutAttachmentsInput = {
@@ -661,18 +701,20 @@ export type ProductionReleaseUpdateOneRequiredWithoutBomSnapshotsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutBomSnapshotsInput, Prisma.ProductionReleaseUpdateWithoutBomSnapshotsInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutBomSnapshotsInput>
 }
 
-export type ProductionReleaseCreateNestedOneWithoutMaterialNgCasesInput = {
-  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutMaterialNgCasesInput, Prisma.ProductionReleaseUncheckedCreateWithoutMaterialNgCasesInput>
-  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutMaterialNgCasesInput
+export type ProductionReleaseCreateNestedOneWithoutProductionFindingsInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutProductionFindingsInput, Prisma.ProductionReleaseUncheckedCreateWithoutProductionFindingsInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutProductionFindingsInput
   connect?: Prisma.ProductionReleaseWhereUniqueInput
 }
 
-export type ProductionReleaseUpdateOneRequiredWithoutMaterialNgCasesNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutMaterialNgCasesInput, Prisma.ProductionReleaseUncheckedCreateWithoutMaterialNgCasesInput>
-  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutMaterialNgCasesInput
-  upsert?: Prisma.ProductionReleaseUpsertWithoutMaterialNgCasesInput
+export type ProductionReleaseUpdateOneWithoutProductionFindingsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutProductionFindingsInput, Prisma.ProductionReleaseUncheckedCreateWithoutProductionFindingsInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutProductionFindingsInput
+  upsert?: Prisma.ProductionReleaseUpsertWithoutProductionFindingsInput
+  disconnect?: Prisma.ProductionReleaseWhereInput | boolean
+  delete?: Prisma.ProductionReleaseWhereInput | boolean
   connect?: Prisma.ProductionReleaseWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutMaterialNgCasesInput, Prisma.ProductionReleaseUpdateWithoutMaterialNgCasesInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutMaterialNgCasesInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutProductionFindingsInput, Prisma.ProductionReleaseUpdateWithoutProductionFindingsInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutProductionFindingsInput>
 }
 
 export type ProductionReleaseCreateNestedOneWithoutTraceEventsInput = {
@@ -691,7 +733,23 @@ export type ProductionReleaseUpdateOneWithoutTraceEventsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutTraceEventsInput, Prisma.ProductionReleaseUpdateWithoutTraceEventsInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutTraceEventsInput>
 }
 
-export type ProductionReleaseCreateWithoutForecastsInput = {
+export type ProductionReleaseCreateNestedOneWithoutDemandsInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutDemandsInput, Prisma.ProductionReleaseUncheckedCreateWithoutDemandsInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutDemandsInput
+  connect?: Prisma.ProductionReleaseWhereUniqueInput
+}
+
+export type ProductionReleaseUpdateOneWithoutDemandsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutDemandsInput, Prisma.ProductionReleaseUncheckedCreateWithoutDemandsInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutDemandsInput
+  upsert?: Prisma.ProductionReleaseUpsertWithoutDemandsInput
+  disconnect?: Prisma.ProductionReleaseWhereInput | boolean
+  delete?: Prisma.ProductionReleaseWhereInput | boolean
+  connect?: Prisma.ProductionReleaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutDemandsInput, Prisma.ProductionReleaseUpdateWithoutDemandsInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutDemandsInput>
+}
+
+export type ProductionReleaseCreateWithoutLegacyForecastsInput = {
   Id?: string
   ReleaseNumber: string
   PlanDate: Date | string
@@ -705,14 +763,17 @@ export type ProductionReleaseCreateWithoutForecastsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutReleaseInput
+  Demands?: Prisma.ProductionDemandCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
 }
 
-export type ProductionReleaseUncheckedCreateWithoutForecastsInput = {
+export type ProductionReleaseUncheckedCreateWithoutLegacyForecastsInput = {
   Id?: string
   ReleaseNumber: string
   PlanDate: Date | string
@@ -726,30 +787,33 @@ export type ProductionReleaseUncheckedCreateWithoutForecastsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutReleaseInput
+  Demands?: Prisma.ProductionDemandUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
-export type ProductionReleaseCreateOrConnectWithoutForecastsInput = {
+export type ProductionReleaseCreateOrConnectWithoutLegacyForecastsInput = {
   where: Prisma.ProductionReleaseWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutForecastsInput>
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutLegacyForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutLegacyForecastsInput>
 }
 
-export type ProductionReleaseUpsertWithoutForecastsInput = {
-  update: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutForecastsInput>
-  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutForecastsInput>
+export type ProductionReleaseUpsertWithoutLegacyForecastsInput = {
+  update: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutLegacyForecastsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutLegacyForecastsInput>
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutLegacyForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutLegacyForecastsInput>
   where?: Prisma.ProductionReleaseWhereInput
 }
 
-export type ProductionReleaseUpdateToOneWithWhereWithoutForecastsInput = {
+export type ProductionReleaseUpdateToOneWithWhereWithoutLegacyForecastsInput = {
   where?: Prisma.ProductionReleaseWhereInput
-  data: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutForecastsInput>
+  data: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutLegacyForecastsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutLegacyForecastsInput>
 }
 
-export type ProductionReleaseUpdateWithoutForecastsInput = {
+export type ProductionReleaseUpdateWithoutLegacyForecastsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -763,14 +827,17 @@ export type ProductionReleaseUpdateWithoutForecastsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
 }
 
-export type ProductionReleaseUncheckedUpdateWithoutForecastsInput = {
+export type ProductionReleaseUncheckedUpdateWithoutLegacyForecastsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -784,9 +851,12 @@ export type ProductionReleaseUncheckedUpdateWithoutForecastsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
@@ -805,10 +875,13 @@ export type ProductionReleaseCreateWithoutAttachmentsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
 }
 
@@ -826,10 +899,13 @@ export type ProductionReleaseUncheckedCreateWithoutAttachmentsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
@@ -863,10 +939,13 @@ export type ProductionReleaseUpdateWithoutAttachmentsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
 }
 
@@ -884,10 +963,13 @@ export type ProductionReleaseUncheckedUpdateWithoutAttachmentsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
@@ -905,10 +987,13 @@ export type ProductionReleaseCreateWithoutLabelDatasInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
 }
 
@@ -926,10 +1011,13 @@ export type ProductionReleaseUncheckedCreateWithoutLabelDatasInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
@@ -963,10 +1051,13 @@ export type ProductionReleaseUpdateWithoutLabelDatasInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
 }
 
@@ -984,10 +1075,13 @@ export type ProductionReleaseUncheckedUpdateWithoutLabelDatasInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
@@ -1005,9 +1099,12 @@ export type ProductionReleaseCreateWithoutBomSnapshotsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutReleaseInput
+  SourceType?: $Enums.DemandSource
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
 }
@@ -1026,9 +1123,12 @@ export type ProductionReleaseUncheckedCreateWithoutBomSnapshotsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutReleaseInput
+  SourceType?: $Enums.DemandSource
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
@@ -1063,9 +1163,12 @@ export type ProductionReleaseUpdateWithoutBomSnapshotsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutReleaseNestedInput
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
 }
@@ -1084,14 +1187,17 @@ export type ProductionReleaseUncheckedUpdateWithoutBomSnapshotsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutReleaseNestedInput
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
-export type ProductionReleaseCreateWithoutMaterialNgCasesInput = {
+export type ProductionReleaseCreateWithoutProductionFindingsInput = {
   Id?: string
   ReleaseNumber: string
   PlanDate: Date | string
@@ -1105,14 +1211,17 @@ export type ProductionReleaseCreateWithoutMaterialNgCasesInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
 }
 
-export type ProductionReleaseUncheckedCreateWithoutMaterialNgCasesInput = {
+export type ProductionReleaseUncheckedCreateWithoutProductionFindingsInput = {
   Id?: string
   ReleaseNumber: string
   PlanDate: Date | string
@@ -1126,30 +1235,33 @@ export type ProductionReleaseUncheckedCreateWithoutMaterialNgCasesInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutReleaseInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Demands?: Prisma.ProductionDemandUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
-export type ProductionReleaseCreateOrConnectWithoutMaterialNgCasesInput = {
+export type ProductionReleaseCreateOrConnectWithoutProductionFindingsInput = {
   where: Prisma.ProductionReleaseWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutMaterialNgCasesInput, Prisma.ProductionReleaseUncheckedCreateWithoutMaterialNgCasesInput>
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutProductionFindingsInput, Prisma.ProductionReleaseUncheckedCreateWithoutProductionFindingsInput>
 }
 
-export type ProductionReleaseUpsertWithoutMaterialNgCasesInput = {
-  update: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutMaterialNgCasesInput, Prisma.ProductionReleaseUncheckedUpdateWithoutMaterialNgCasesInput>
-  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutMaterialNgCasesInput, Prisma.ProductionReleaseUncheckedCreateWithoutMaterialNgCasesInput>
+export type ProductionReleaseUpsertWithoutProductionFindingsInput = {
+  update: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutProductionFindingsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutProductionFindingsInput>
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutProductionFindingsInput, Prisma.ProductionReleaseUncheckedCreateWithoutProductionFindingsInput>
   where?: Prisma.ProductionReleaseWhereInput
 }
 
-export type ProductionReleaseUpdateToOneWithWhereWithoutMaterialNgCasesInput = {
+export type ProductionReleaseUpdateToOneWithWhereWithoutProductionFindingsInput = {
   where?: Prisma.ProductionReleaseWhereInput
-  data: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutMaterialNgCasesInput, Prisma.ProductionReleaseUncheckedUpdateWithoutMaterialNgCasesInput>
+  data: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutProductionFindingsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutProductionFindingsInput>
 }
 
-export type ProductionReleaseUpdateWithoutMaterialNgCasesInput = {
+export type ProductionReleaseUpdateWithoutProductionFindingsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1163,14 +1275,17 @@ export type ProductionReleaseUpdateWithoutMaterialNgCasesInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
 }
 
-export type ProductionReleaseUncheckedUpdateWithoutMaterialNgCasesInput = {
+export type ProductionReleaseUncheckedUpdateWithoutProductionFindingsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
   PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1184,9 +1299,12 @@ export type ProductionReleaseUncheckedUpdateWithoutMaterialNgCasesInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseNestedInput
   TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
@@ -1205,9 +1323,12 @@ export type ProductionReleaseCreateWithoutTraceEventsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutReleaseInput
+  Demands?: Prisma.ProductionDemandCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
 }
@@ -1226,9 +1347,12 @@ export type ProductionReleaseUncheckedCreateWithoutTraceEventsInput = {
   CreatedBy: string
   UpdatedAt?: Date | string
   IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutReleaseInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedCreateNestedManyWithoutReleaseInput
-  Forecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutReleaseInput
+  Demands?: Prisma.ProductionDemandUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
@@ -1263,9 +1387,12 @@ export type ProductionReleaseUpdateWithoutTraceEventsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
 }
@@ -1284,9 +1411,246 @@ export type ProductionReleaseUncheckedUpdateWithoutTraceEventsInput = {
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
   UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
   BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseNestedInput
-  MaterialNgCases?: Prisma.MaterialNgCaseUncheckedUpdateManyWithoutReleaseNestedInput
-  Forecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+}
+
+export type ProductionReleaseCreateWithoutDemandsInput = {
+  Id?: string
+  ReleaseNumber: string
+  PlanDate: Date | string
+  Status?: $Enums.ProductionStatus
+  Notes?: string | null
+  TotalTargetQty?: number
+  TotalGoodQty?: number
+  TotalNgQty?: number
+  TotalProductionMinutes?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutReleaseInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutReleaseInput
+  LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
+  LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+}
+
+export type ProductionReleaseUncheckedCreateWithoutDemandsInput = {
+  Id?: string
+  ReleaseNumber: string
+  PlanDate: Date | string
+  Status?: $Enums.ProductionStatus
+  Notes?: string | null
+  TotalTargetQty?: number
+  TotalGoodQty?: number
+  TotalNgQty?: number
+  TotalProductionMinutes?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutReleaseInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutReleaseInput
+  LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+}
+
+export type ProductionReleaseCreateOrConnectWithoutDemandsInput = {
+  where: Prisma.ProductionReleaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutDemandsInput, Prisma.ProductionReleaseUncheckedCreateWithoutDemandsInput>
+}
+
+export type ProductionReleaseUpsertWithoutDemandsInput = {
+  update: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutDemandsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutDemandsInput>
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutDemandsInput, Prisma.ProductionReleaseUncheckedCreateWithoutDemandsInput>
+  where?: Prisma.ProductionReleaseWhereInput
+}
+
+export type ProductionReleaseUpdateToOneWithWhereWithoutDemandsInput = {
+  where?: Prisma.ProductionReleaseWhereInput
+  data: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutDemandsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutDemandsInput>
+}
+
+export type ProductionReleaseUpdateWithoutDemandsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Status?: Prisma.EnumProductionStatusFieldUpdateOperationsInput | $Enums.ProductionStatus
+  Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutReleaseNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
+  LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+}
+
+export type ProductionReleaseUncheckedUpdateWithoutDemandsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Status?: Prisma.EnumProductionStatusFieldUpdateOperationsInput | $Enums.ProductionStatus
+  Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutReleaseNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+}
+
+export type ProductionReleaseUpdateOneWithoutForecastsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutForecastsInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutForecastsInput
+  upsert?: Prisma.ProductionReleaseUpsertWithoutForecastsInput
+  disconnect?: Prisma.ProductionReleaseWhereInput | boolean
+  delete?: Prisma.ProductionReleaseWhereInput | boolean
+  connect?: Prisma.ProductionReleaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutForecastsInput, Prisma.ProductionReleaseUpdateWithoutForecastsInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutForecastsInput>
+}
+
+export type ProductionReleaseCreateWithoutForecastsInput = {
+  Id?: string
+  ReleaseNumber: string
+  PlanDate: Date | string
+  Status?: $Enums.ProductionStatus
+  Notes?: string | null
+  TotalTargetQty?: number
+  TotalGoodQty?: number
+  TotalNgQty?: number
+  TotalProductionMinutes?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutReleaseInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutReleaseInput
+  Demands?: Prisma.ProductionDemandCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+}
+
+export type ProductionReleaseUncheckedCreateWithoutForecastsInput = {
+  Id?: string
+  ReleaseNumber: string
+  PlanDate: Date | string
+  Status?: $Enums.ProductionStatus
+  Notes?: string | null
+  TotalTargetQty?: number
+  TotalGoodQty?: number
+  TotalNgQty?: number
+  TotalProductionMinutes?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutReleaseInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutReleaseInput
+  Demands?: Prisma.ProductionDemandUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+}
+
+export type ProductionReleaseCreateOrConnectWithoutForecastsInput = {
+  where: Prisma.ProductionReleaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutForecastsInput>
+}
+
+export type ProductionReleaseUpsertWithoutForecastsInput = {
+  update: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutForecastsInput>
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedCreateWithoutForecastsInput>
+  where?: Prisma.ProductionReleaseWhereInput
+}
+
+export type ProductionReleaseUpdateToOneWithWhereWithoutForecastsInput = {
+  where?: Prisma.ProductionReleaseWhereInput
+  data: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutForecastsInput, Prisma.ProductionReleaseUncheckedUpdateWithoutForecastsInput>
+}
+
+export type ProductionReleaseUpdateWithoutForecastsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Status?: Prisma.EnumProductionStatusFieldUpdateOperationsInput | $Enums.ProductionStatus
+  Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutReleaseNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+}
+
+export type ProductionReleaseUncheckedUpdateWithoutForecastsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Status?: Prisma.EnumProductionStatusFieldUpdateOperationsInput | $Enums.ProductionStatus
+  Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutReleaseNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
@@ -1298,8 +1662,10 @@ export type ProductionReleaseUncheckedUpdateWithoutTraceEventsInput = {
 
 export type ProductionReleaseCountOutputType = {
   BomSnapshots: number
-  MaterialNgCases: number
+  ProductionFindings: number
   TraceEvents: number
+  Demands: number
+  LegacyForecasts: number
   Forecasts: number
   LabelDatas: number
   Attachments: number
@@ -1307,8 +1673,10 @@ export type ProductionReleaseCountOutputType = {
 
 export type ProductionReleaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   BomSnapshots?: boolean | ProductionReleaseCountOutputTypeCountBomSnapshotsArgs
-  MaterialNgCases?: boolean | ProductionReleaseCountOutputTypeCountMaterialNgCasesArgs
+  ProductionFindings?: boolean | ProductionReleaseCountOutputTypeCountProductionFindingsArgs
   TraceEvents?: boolean | ProductionReleaseCountOutputTypeCountTraceEventsArgs
+  Demands?: boolean | ProductionReleaseCountOutputTypeCountDemandsArgs
+  LegacyForecasts?: boolean | ProductionReleaseCountOutputTypeCountLegacyForecastsArgs
   Forecasts?: boolean | ProductionReleaseCountOutputTypeCountForecastsArgs
   LabelDatas?: boolean | ProductionReleaseCountOutputTypeCountLabelDatasArgs
   Attachments?: boolean | ProductionReleaseCountOutputTypeCountAttachmentsArgs
@@ -1334,8 +1702,8 @@ export type ProductionReleaseCountOutputTypeCountBomSnapshotsArgs<ExtArgs extend
 /**
  * ProductionReleaseCountOutputType without action
  */
-export type ProductionReleaseCountOutputTypeCountMaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.MaterialNgCaseWhereInput
+export type ProductionReleaseCountOutputTypeCountProductionFindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionFindingWhereInput
 }
 
 /**
@@ -1348,8 +1716,22 @@ export type ProductionReleaseCountOutputTypeCountTraceEventsArgs<ExtArgs extends
 /**
  * ProductionReleaseCountOutputType without action
  */
-export type ProductionReleaseCountOutputTypeCountForecastsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ProductionReleaseCountOutputTypeCountDemandsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionDemandWhereInput
+}
+
+/**
+ * ProductionReleaseCountOutputType without action
+ */
+export type ProductionReleaseCountOutputTypeCountLegacyForecastsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ForecastWhereInput
+}
+
+/**
+ * ProductionReleaseCountOutputType without action
+ */
+export type ProductionReleaseCountOutputTypeCountForecastsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionOrderWhereInput
 }
 
 /**
@@ -1381,9 +1763,12 @@ export type ProductionReleaseSelect<ExtArgs extends runtime.Types.Extensions.Int
   CreatedBy?: boolean
   UpdatedAt?: boolean
   IsNoAttachment?: boolean
+  SourceType?: boolean
   BomSnapshots?: boolean | Prisma.ProductionRelease$BomSnapshotsArgs<ExtArgs>
-  MaterialNgCases?: boolean | Prisma.ProductionRelease$MaterialNgCasesArgs<ExtArgs>
+  ProductionFindings?: boolean | Prisma.ProductionRelease$ProductionFindingsArgs<ExtArgs>
   TraceEvents?: boolean | Prisma.ProductionRelease$TraceEventsArgs<ExtArgs>
+  Demands?: boolean | Prisma.ProductionRelease$DemandsArgs<ExtArgs>
+  LegacyForecasts?: boolean | Prisma.ProductionRelease$LegacyForecastsArgs<ExtArgs>
   Forecasts?: boolean | Prisma.ProductionRelease$ForecastsArgs<ExtArgs>
   LabelDatas?: boolean | Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>
   Attachments?: boolean | Prisma.ProductionRelease$AttachmentsArgs<ExtArgs>
@@ -1404,6 +1789,7 @@ export type ProductionReleaseSelectCreateManyAndReturn<ExtArgs extends runtime.T
   CreatedBy?: boolean
   UpdatedAt?: boolean
   IsNoAttachment?: boolean
+  SourceType?: boolean
 }, ExtArgs["result"]["productionRelease"]>
 
 export type ProductionReleaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1420,6 +1806,7 @@ export type ProductionReleaseSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   CreatedBy?: boolean
   UpdatedAt?: boolean
   IsNoAttachment?: boolean
+  SourceType?: boolean
 }, ExtArgs["result"]["productionRelease"]>
 
 export type ProductionReleaseSelectScalar = {
@@ -1436,13 +1823,16 @@ export type ProductionReleaseSelectScalar = {
   CreatedBy?: boolean
   UpdatedAt?: boolean
   IsNoAttachment?: boolean
+  SourceType?: boolean
 }
 
-export type ProductionReleaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "ReleaseNumber" | "PlanDate" | "Status" | "Notes" | "TotalTargetQty" | "TotalGoodQty" | "TotalNgQty" | "TotalProductionMinutes" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "IsNoAttachment", ExtArgs["result"]["productionRelease"]>
+export type ProductionReleaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "ReleaseNumber" | "PlanDate" | "Status" | "Notes" | "TotalTargetQty" | "TotalGoodQty" | "TotalNgQty" | "TotalProductionMinutes" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "IsNoAttachment" | "SourceType", ExtArgs["result"]["productionRelease"]>
 export type ProductionReleaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   BomSnapshots?: boolean | Prisma.ProductionRelease$BomSnapshotsArgs<ExtArgs>
-  MaterialNgCases?: boolean | Prisma.ProductionRelease$MaterialNgCasesArgs<ExtArgs>
+  ProductionFindings?: boolean | Prisma.ProductionRelease$ProductionFindingsArgs<ExtArgs>
   TraceEvents?: boolean | Prisma.ProductionRelease$TraceEventsArgs<ExtArgs>
+  Demands?: boolean | Prisma.ProductionRelease$DemandsArgs<ExtArgs>
+  LegacyForecasts?: boolean | Prisma.ProductionRelease$LegacyForecastsArgs<ExtArgs>
   Forecasts?: boolean | Prisma.ProductionRelease$ForecastsArgs<ExtArgs>
   LabelDatas?: boolean | Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>
   Attachments?: boolean | Prisma.ProductionRelease$AttachmentsArgs<ExtArgs>
@@ -1455,9 +1845,11 @@ export type $ProductionReleasePayload<ExtArgs extends runtime.Types.Extensions.I
   name: "ProductionRelease"
   objects: {
     BomSnapshots: Prisma.$ProductionBomSnapshotPayload<ExtArgs>[]
-    MaterialNgCases: Prisma.$MaterialNgCasePayload<ExtArgs>[]
+    ProductionFindings: Prisma.$ProductionFindingPayload<ExtArgs>[]
     TraceEvents: Prisma.$ProductionTraceEventPayload<ExtArgs>[]
-    Forecasts: Prisma.$ForecastPayload<ExtArgs>[]
+    Demands: Prisma.$ProductionDemandPayload<ExtArgs>[]
+    LegacyForecasts: Prisma.$ForecastPayload<ExtArgs>[]
+    Forecasts: Prisma.$ProductionOrderPayload<ExtArgs>[]
     LabelDatas: Prisma.$LabelDataPayload<ExtArgs>[]
     Attachments: Prisma.$ProductionReleaseAttachmentPayload<ExtArgs>[]
   }
@@ -1475,6 +1867,7 @@ export type $ProductionReleasePayload<ExtArgs extends runtime.Types.Extensions.I
     CreatedBy: string
     UpdatedAt: Date
     IsNoAttachment: boolean
+    SourceType: $Enums.DemandSource
   }, ExtArgs["result"]["productionRelease"]>
   composites: {}
 }
@@ -1870,9 +2263,11 @@ readonly fields: ProductionReleaseFieldRefs;
 export interface Prisma__ProductionReleaseClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   BomSnapshots<T extends Prisma.ProductionRelease$BomSnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$BomSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionBomSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  MaterialNgCases<T extends Prisma.ProductionRelease$MaterialNgCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$MaterialNgCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MaterialNgCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ProductionFindings<T extends Prisma.ProductionRelease$ProductionFindingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$ProductionFindingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionFindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   TraceEvents<T extends Prisma.ProductionRelease$TraceEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$TraceEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionTraceEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  Forecasts<T extends Prisma.ProductionRelease$ForecastsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$ForecastsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Demands<T extends Prisma.ProductionRelease$DemandsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$DemandsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionDemandPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  LegacyForecasts<T extends Prisma.ProductionRelease$LegacyForecastsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$LegacyForecastsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Forecasts<T extends Prisma.ProductionRelease$ForecastsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$ForecastsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LabelDatas<T extends Prisma.ProductionRelease$LabelDatasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Attachments<T extends Prisma.ProductionRelease$AttachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$AttachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionReleaseAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1917,6 +2312,7 @@ export interface ProductionReleaseFieldRefs {
   readonly CreatedBy: Prisma.FieldRef<"ProductionRelease", 'String'>
   readonly UpdatedAt: Prisma.FieldRef<"ProductionRelease", 'DateTime'>
   readonly IsNoAttachment: Prisma.FieldRef<"ProductionRelease", 'Boolean'>
+  readonly SourceType: Prisma.FieldRef<"ProductionRelease", 'DemandSource'>
 }
     
 
@@ -2334,27 +2730,27 @@ export type ProductionRelease$BomSnapshotsArgs<ExtArgs extends runtime.Types.Ext
 }
 
 /**
- * ProductionRelease.MaterialNgCases
+ * ProductionRelease.ProductionFindings
  */
-export type ProductionRelease$MaterialNgCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ProductionRelease$ProductionFindingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the MaterialNgCase
+   * Select specific fields to fetch from the ProductionFinding
    */
-  select?: Prisma.MaterialNgCaseSelect<ExtArgs> | null
+  select?: Prisma.ProductionFindingSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the MaterialNgCase
+   * Omit specific fields from the ProductionFinding
    */
-  omit?: Prisma.MaterialNgCaseOmit<ExtArgs> | null
+  omit?: Prisma.ProductionFindingOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.MaterialNgCaseInclude<ExtArgs> | null
-  where?: Prisma.MaterialNgCaseWhereInput
-  orderBy?: Prisma.MaterialNgCaseOrderByWithRelationInput | Prisma.MaterialNgCaseOrderByWithRelationInput[]
-  cursor?: Prisma.MaterialNgCaseWhereUniqueInput
+  include?: Prisma.ProductionFindingInclude<ExtArgs> | null
+  where?: Prisma.ProductionFindingWhereInput
+  orderBy?: Prisma.ProductionFindingOrderByWithRelationInput | Prisma.ProductionFindingOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionFindingWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.MaterialNgCaseScalarFieldEnum | Prisma.MaterialNgCaseScalarFieldEnum[]
+  distinct?: Prisma.ProductionFindingScalarFieldEnum | Prisma.ProductionFindingScalarFieldEnum[]
 }
 
 /**
@@ -2382,9 +2778,33 @@ export type ProductionRelease$TraceEventsArgs<ExtArgs extends runtime.Types.Exte
 }
 
 /**
- * ProductionRelease.Forecasts
+ * ProductionRelease.Demands
  */
-export type ProductionRelease$ForecastsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type ProductionRelease$DemandsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionDemand
+   */
+  select?: Prisma.ProductionDemandSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionDemand
+   */
+  omit?: Prisma.ProductionDemandOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionDemandInclude<ExtArgs> | null
+  where?: Prisma.ProductionDemandWhereInput
+  orderBy?: Prisma.ProductionDemandOrderByWithRelationInput | Prisma.ProductionDemandOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionDemandWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionDemandScalarFieldEnum | Prisma.ProductionDemandScalarFieldEnum[]
+}
+
+/**
+ * ProductionRelease.LegacyForecasts
+ */
+export type ProductionRelease$LegacyForecastsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Forecast
    */
@@ -2403,6 +2823,30 @@ export type ProductionRelease$ForecastsArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.ForecastScalarFieldEnum | Prisma.ForecastScalarFieldEnum[]
+}
+
+/**
+ * ProductionRelease.Forecasts
+ */
+export type ProductionRelease$ForecastsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionOrder
+   */
+  select?: Prisma.ProductionOrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionOrder
+   */
+  omit?: Prisma.ProductionOrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionOrderInclude<ExtArgs> | null
+  where?: Prisma.ProductionOrderWhereInput
+  orderBy?: Prisma.ProductionOrderOrderByWithRelationInput | Prisma.ProductionOrderOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionOrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionOrderScalarFieldEnum | Prisma.ProductionOrderScalarFieldEnum[]
 }
 
 /**

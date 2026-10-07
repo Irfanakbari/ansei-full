@@ -25,8 +25,9 @@ export type AggregateProductionTraceEvent = {
 }
 
 export type ProductionTraceEventMinAggregateOutputType = {
+  LegacyPoId: string | null
   Id: string | null
-  ForecastId: string | null
+  ProductionDemandId: string | null
   ReleaseId: string | null
   Type: string | null
   SourceType: string | null
@@ -38,8 +39,9 @@ export type ProductionTraceEventMinAggregateOutputType = {
 }
 
 export type ProductionTraceEventMaxAggregateOutputType = {
+  LegacyPoId: string | null
   Id: string | null
-  ForecastId: string | null
+  ProductionDemandId: string | null
   ReleaseId: string | null
   Type: string | null
   SourceType: string | null
@@ -51,8 +53,9 @@ export type ProductionTraceEventMaxAggregateOutputType = {
 }
 
 export type ProductionTraceEventCountAggregateOutputType = {
+  LegacyPoId: number
   Id: number
-  ForecastId: number
+  ProductionDemandId: number
   ReleaseId: number
   Type: number
   SourceType: number
@@ -67,8 +70,9 @@ export type ProductionTraceEventCountAggregateOutputType = {
 
 
 export type ProductionTraceEventMinAggregateInputType = {
+  LegacyPoId?: true
   Id?: true
-  ForecastId?: true
+  ProductionDemandId?: true
   ReleaseId?: true
   Type?: true
   SourceType?: true
@@ -80,8 +84,9 @@ export type ProductionTraceEventMinAggregateInputType = {
 }
 
 export type ProductionTraceEventMaxAggregateInputType = {
+  LegacyPoId?: true
   Id?: true
-  ForecastId?: true
+  ProductionDemandId?: true
   ReleaseId?: true
   Type?: true
   SourceType?: true
@@ -93,8 +98,9 @@ export type ProductionTraceEventMaxAggregateInputType = {
 }
 
 export type ProductionTraceEventCountAggregateInputType = {
+  LegacyPoId?: true
   Id?: true
-  ForecastId?: true
+  ProductionDemandId?: true
   ReleaseId?: true
   Type?: true
   SourceType?: true
@@ -180,8 +186,9 @@ export type ProductionTraceEventGroupByArgs<ExtArgs extends runtime.Types.Extens
 }
 
 export type ProductionTraceEventGroupByOutputType = {
+  LegacyPoId: string | null
   Id: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId: string | null
   Type: string
   SourceType: string
@@ -215,8 +222,9 @@ export type ProductionTraceEventWhereInput = {
   AND?: Prisma.ProductionTraceEventWhereInput | Prisma.ProductionTraceEventWhereInput[]
   OR?: Prisma.ProductionTraceEventWhereInput[]
   NOT?: Prisma.ProductionTraceEventWhereInput | Prisma.ProductionTraceEventWhereInput[]
+  LegacyPoId?: Prisma.StringNullableFilter<"ProductionTraceEvent"> | string | null
   Id?: Prisma.StringFilter<"ProductionTraceEvent"> | string
-  ForecastId?: Prisma.StringFilter<"ProductionTraceEvent"> | string
+  ProductionDemandId?: Prisma.StringFilter<"ProductionTraceEvent"> | string
   ReleaseId?: Prisma.StringNullableFilter<"ProductionTraceEvent"> | string | null
   Type?: Prisma.StringFilter<"ProductionTraceEvent"> | string
   SourceType?: Prisma.StringFilter<"ProductionTraceEvent"> | string
@@ -226,14 +234,17 @@ export type ProductionTraceEventWhereInput = {
   ProcessId?: Prisma.StringNullableFilter<"ProductionTraceEvent"> | string | null
   Metadata?: Prisma.JsonNullableFilter<"ProductionTraceEvent">
   CreatedAt?: Prisma.DateTimeFilter<"ProductionTraceEvent"> | Date | string
-  Forecast?: Prisma.XOR<Prisma.ForecastScalarRelationFilter, Prisma.ForecastWhereInput>
+  LegacyForecast?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandScalarRelationFilter, Prisma.ProductionDemandWhereInput>
+  Forecast?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
   Release?: Prisma.XOR<Prisma.ProductionReleaseNullableScalarRelationFilter, Prisma.ProductionReleaseWhereInput> | null
   Process?: Prisma.XOR<Prisma.LogProcessNullableScalarRelationFilter, Prisma.LogProcessWhereInput> | null
 }
 
 export type ProductionTraceEventOrderByWithRelationInput = {
+  LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   Type?: Prisma.SortOrder
   SourceType?: Prisma.SortOrder
@@ -243,7 +254,9 @@ export type ProductionTraceEventOrderByWithRelationInput = {
   ProcessId?: Prisma.SortOrderInput | Prisma.SortOrder
   Metadata?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
-  Forecast?: Prisma.ForecastOrderByWithRelationInput
+  LegacyForecast?: Prisma.ForecastOrderByWithRelationInput
+  Demand?: Prisma.ProductionDemandOrderByWithRelationInput
+  Forecast?: Prisma.ProductionOrderOrderByWithRelationInput
   Release?: Prisma.ProductionReleaseOrderByWithRelationInput
   Process?: Prisma.LogProcessOrderByWithRelationInput
 }
@@ -253,7 +266,8 @@ export type ProductionTraceEventWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ProductionTraceEventWhereInput | Prisma.ProductionTraceEventWhereInput[]
   OR?: Prisma.ProductionTraceEventWhereInput[]
   NOT?: Prisma.ProductionTraceEventWhereInput | Prisma.ProductionTraceEventWhereInput[]
-  ForecastId?: Prisma.StringFilter<"ProductionTraceEvent"> | string
+  LegacyPoId?: Prisma.StringNullableFilter<"ProductionTraceEvent"> | string | null
+  ProductionDemandId?: Prisma.StringFilter<"ProductionTraceEvent"> | string
   ReleaseId?: Prisma.StringNullableFilter<"ProductionTraceEvent"> | string | null
   Type?: Prisma.StringFilter<"ProductionTraceEvent"> | string
   SourceType?: Prisma.StringFilter<"ProductionTraceEvent"> | string
@@ -263,14 +277,17 @@ export type ProductionTraceEventWhereUniqueInput = Prisma.AtLeast<{
   ProcessId?: Prisma.StringNullableFilter<"ProductionTraceEvent"> | string | null
   Metadata?: Prisma.JsonNullableFilter<"ProductionTraceEvent">
   CreatedAt?: Prisma.DateTimeFilter<"ProductionTraceEvent"> | Date | string
-  Forecast?: Prisma.XOR<Prisma.ForecastScalarRelationFilter, Prisma.ForecastWhereInput>
+  LegacyForecast?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandScalarRelationFilter, Prisma.ProductionDemandWhereInput>
+  Forecast?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
   Release?: Prisma.XOR<Prisma.ProductionReleaseNullableScalarRelationFilter, Prisma.ProductionReleaseWhereInput> | null
   Process?: Prisma.XOR<Prisma.LogProcessNullableScalarRelationFilter, Prisma.LogProcessWhereInput> | null
 }, "Id">
 
 export type ProductionTraceEventOrderByWithAggregationInput = {
+  LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   Type?: Prisma.SortOrder
   SourceType?: Prisma.SortOrder
@@ -289,8 +306,9 @@ export type ProductionTraceEventScalarWhereWithAggregatesInput = {
   AND?: Prisma.ProductionTraceEventScalarWhereWithAggregatesInput | Prisma.ProductionTraceEventScalarWhereWithAggregatesInput[]
   OR?: Prisma.ProductionTraceEventScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ProductionTraceEventScalarWhereWithAggregatesInput | Prisma.ProductionTraceEventScalarWhereWithAggregatesInput[]
+  LegacyPoId?: Prisma.StringNullableWithAggregatesFilter<"ProductionTraceEvent"> | string | null
   Id?: Prisma.StringWithAggregatesFilter<"ProductionTraceEvent"> | string
-  ForecastId?: Prisma.StringWithAggregatesFilter<"ProductionTraceEvent"> | string
+  ProductionDemandId?: Prisma.StringWithAggregatesFilter<"ProductionTraceEvent"> | string
   ReleaseId?: Prisma.StringNullableWithAggregatesFilter<"ProductionTraceEvent"> | string | null
   Type?: Prisma.StringWithAggregatesFilter<"ProductionTraceEvent"> | string
   SourceType?: Prisma.StringWithAggregatesFilter<"ProductionTraceEvent"> | string
@@ -311,14 +329,17 @@ export type ProductionTraceEventCreateInput = {
   CorrelationId: string
   Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutTraceEventsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutTraceEventsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutTraceEventsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutTraceEventsInput
   Release?: Prisma.ProductionReleaseCreateNestedOneWithoutTraceEventsInput
   Process?: Prisma.LogProcessCreateNestedOneWithoutTraceEventsInput
 }
 
 export type ProductionTraceEventUncheckedCreateInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId?: string | null
   Type: string
   SourceType: string
@@ -339,14 +360,17 @@ export type ProductionTraceEventUpdateInput = {
   CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
   Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutTraceEventsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutTraceEventsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutTraceEventsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutTraceEventsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneWithoutTraceEventsNestedInput
   Process?: Prisma.LogProcessUpdateOneWithoutTraceEventsNestedInput
 }
 
 export type ProductionTraceEventUncheckedUpdateInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.StringFieldUpdateOperationsInput | string
   SourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -359,8 +383,9 @@ export type ProductionTraceEventUncheckedUpdateInput = {
 }
 
 export type ProductionTraceEventCreateManyInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId?: string | null
   Type: string
   SourceType: string
@@ -384,8 +409,9 @@ export type ProductionTraceEventUpdateManyMutationInput = {
 }
 
 export type ProductionTraceEventUncheckedUpdateManyInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.StringFieldUpdateOperationsInput | string
   SourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -408,8 +434,9 @@ export type ProductionTraceEventOrderByRelationAggregateInput = {
 }
 
 export type ProductionTraceEventCountOrderByAggregateInput = {
+  LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrder
   Type?: Prisma.SortOrder
   SourceType?: Prisma.SortOrder
@@ -422,8 +449,9 @@ export type ProductionTraceEventCountOrderByAggregateInput = {
 }
 
 export type ProductionTraceEventMaxOrderByAggregateInput = {
+  LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrder
   Type?: Prisma.SortOrder
   SourceType?: Prisma.SortOrder
@@ -435,8 +463,9 @@ export type ProductionTraceEventMaxOrderByAggregateInput = {
 }
 
 export type ProductionTraceEventMinOrderByAggregateInput = {
+  LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   ReleaseId?: Prisma.SortOrder
   Type?: Prisma.SortOrder
   SourceType?: Prisma.SortOrder
@@ -447,45 +476,45 @@ export type ProductionTraceEventMinOrderByAggregateInput = {
   CreatedAt?: Prisma.SortOrder
 }
 
-export type ProductionTraceEventCreateNestedManyWithoutForecastInput = {
-  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput> | Prisma.ProductionTraceEventCreateWithoutForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput[]
-  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput[]
-  createMany?: Prisma.ProductionTraceEventCreateManyForecastInputEnvelope
+export type ProductionTraceEventCreateNestedManyWithoutLegacyForecastInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput> | Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutLegacyForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutLegacyForecastInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyLegacyForecastInputEnvelope
   connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
 }
 
-export type ProductionTraceEventUncheckedCreateNestedManyWithoutForecastInput = {
-  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput> | Prisma.ProductionTraceEventCreateWithoutForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput[]
-  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput[]
-  createMany?: Prisma.ProductionTraceEventCreateManyForecastInputEnvelope
+export type ProductionTraceEventUncheckedCreateNestedManyWithoutLegacyForecastInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput> | Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutLegacyForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutLegacyForecastInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyLegacyForecastInputEnvelope
   connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
 }
 
-export type ProductionTraceEventUpdateManyWithoutForecastNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput> | Prisma.ProductionTraceEventCreateWithoutForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput[]
-  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput[]
-  upsert?: Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput | Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput[]
-  createMany?: Prisma.ProductionTraceEventCreateManyForecastInputEnvelope
+export type ProductionTraceEventUpdateManyWithoutLegacyForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput> | Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutLegacyForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutLegacyForecastInput[]
+  upsert?: Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutLegacyForecastInput | Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutLegacyForecastInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyLegacyForecastInputEnvelope
   set?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
   disconnect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
   delete?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
   connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
-  update?: Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput | Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput[]
-  updateMany?: Prisma.ProductionTraceEventUpdateManyWithWhereWithoutForecastInput | Prisma.ProductionTraceEventUpdateManyWithWhereWithoutForecastInput[]
+  update?: Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutLegacyForecastInput | Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutLegacyForecastInput[]
+  updateMany?: Prisma.ProductionTraceEventUpdateManyWithWhereWithoutLegacyForecastInput | Prisma.ProductionTraceEventUpdateManyWithWhereWithoutLegacyForecastInput[]
   deleteMany?: Prisma.ProductionTraceEventScalarWhereInput | Prisma.ProductionTraceEventScalarWhereInput[]
 }
 
-export type ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput = {
-  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput> | Prisma.ProductionTraceEventCreateWithoutForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput[]
-  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput[]
-  upsert?: Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput | Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput[]
-  createMany?: Prisma.ProductionTraceEventCreateManyForecastInputEnvelope
+export type ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput> | Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutLegacyForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutLegacyForecastInput[]
+  upsert?: Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutLegacyForecastInput | Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutLegacyForecastInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyLegacyForecastInputEnvelope
   set?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
   disconnect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
   delete?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
   connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
-  update?: Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput | Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput[]
-  updateMany?: Prisma.ProductionTraceEventUpdateManyWithWhereWithoutForecastInput | Prisma.ProductionTraceEventUpdateManyWithWhereWithoutForecastInput[]
+  update?: Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutLegacyForecastInput | Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutLegacyForecastInput[]
+  updateMany?: Prisma.ProductionTraceEventUpdateManyWithWhereWithoutLegacyForecastInput | Prisma.ProductionTraceEventUpdateManyWithWhereWithoutLegacyForecastInput[]
   deleteMany?: Prisma.ProductionTraceEventScalarWhereInput | Prisma.ProductionTraceEventScalarWhereInput[]
 }
 
@@ -573,7 +602,49 @@ export type ProductionTraceEventUncheckedUpdateManyWithoutProcessNestedInput = {
   deleteMany?: Prisma.ProductionTraceEventScalarWhereInput | Prisma.ProductionTraceEventScalarWhereInput[]
 }
 
-export type ProductionTraceEventCreateWithoutForecastInput = {
+export type ProductionTraceEventCreateNestedManyWithoutDemandInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutDemandInput, Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput> | Prisma.ProductionTraceEventCreateWithoutDemandInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutDemandInput | Prisma.ProductionTraceEventCreateOrConnectWithoutDemandInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyDemandInputEnvelope
+  connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+}
+
+export type ProductionTraceEventUncheckedCreateNestedManyWithoutDemandInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutDemandInput, Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput> | Prisma.ProductionTraceEventCreateWithoutDemandInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutDemandInput | Prisma.ProductionTraceEventCreateOrConnectWithoutDemandInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyDemandInputEnvelope
+  connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+}
+
+export type ProductionTraceEventUpdateManyWithoutDemandNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutDemandInput, Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput> | Prisma.ProductionTraceEventCreateWithoutDemandInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutDemandInput | Prisma.ProductionTraceEventCreateOrConnectWithoutDemandInput[]
+  upsert?: Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutDemandInput | Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutDemandInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyDemandInputEnvelope
+  set?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  disconnect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  delete?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  update?: Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutDemandInput | Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutDemandInput[]
+  updateMany?: Prisma.ProductionTraceEventUpdateManyWithWhereWithoutDemandInput | Prisma.ProductionTraceEventUpdateManyWithWhereWithoutDemandInput[]
+  deleteMany?: Prisma.ProductionTraceEventScalarWhereInput | Prisma.ProductionTraceEventScalarWhereInput[]
+}
+
+export type ProductionTraceEventUncheckedUpdateManyWithoutDemandNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutDemandInput, Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput> | Prisma.ProductionTraceEventCreateWithoutDemandInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutDemandInput | Prisma.ProductionTraceEventCreateOrConnectWithoutDemandInput[]
+  upsert?: Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutDemandInput | Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutDemandInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyDemandInputEnvelope
+  set?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  disconnect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  delete?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  update?: Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutDemandInput | Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutDemandInput[]
+  updateMany?: Prisma.ProductionTraceEventUpdateManyWithWhereWithoutDemandInput | Prisma.ProductionTraceEventUpdateManyWithWhereWithoutDemandInput[]
+  deleteMany?: Prisma.ProductionTraceEventScalarWhereInput | Prisma.ProductionTraceEventScalarWhereInput[]
+}
+
+export type ProductionTraceEventCreateWithoutLegacyForecastInput = {
   Id?: string
   Type: string
   SourceType: string
@@ -582,12 +653,15 @@ export type ProductionTraceEventCreateWithoutForecastInput = {
   CorrelationId: string
   Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   CreatedAt?: Date | string
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutTraceEventsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutTraceEventsInput
   Release?: Prisma.ProductionReleaseCreateNestedOneWithoutTraceEventsInput
   Process?: Prisma.LogProcessCreateNestedOneWithoutTraceEventsInput
 }
 
-export type ProductionTraceEventUncheckedCreateWithoutForecastInput = {
+export type ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput = {
   Id?: string
+  ProductionDemandId: string
   ReleaseId?: string | null
   Type: string
   SourceType: string
@@ -599,38 +673,39 @@ export type ProductionTraceEventUncheckedCreateWithoutForecastInput = {
   CreatedAt?: Date | string
 }
 
-export type ProductionTraceEventCreateOrConnectWithoutForecastInput = {
+export type ProductionTraceEventCreateOrConnectWithoutLegacyForecastInput = {
   where: Prisma.ProductionTraceEventWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput>
+  create: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput>
 }
 
-export type ProductionTraceEventCreateManyForecastInputEnvelope = {
-  data: Prisma.ProductionTraceEventCreateManyForecastInput | Prisma.ProductionTraceEventCreateManyForecastInput[]
+export type ProductionTraceEventCreateManyLegacyForecastInputEnvelope = {
+  data: Prisma.ProductionTraceEventCreateManyLegacyForecastInput | Prisma.ProductionTraceEventCreateManyLegacyForecastInput[]
   skipDuplicates?: boolean
 }
 
-export type ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput = {
+export type ProductionTraceEventUpsertWithWhereUniqueWithoutLegacyForecastInput = {
   where: Prisma.ProductionTraceEventWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProductionTraceEventUpdateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedUpdateWithoutForecastInput>
-  create: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput>
+  update: Prisma.XOR<Prisma.ProductionTraceEventUpdateWithoutLegacyForecastInput, Prisma.ProductionTraceEventUncheckedUpdateWithoutLegacyForecastInput>
+  create: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutLegacyForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutLegacyForecastInput>
 }
 
-export type ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput = {
+export type ProductionTraceEventUpdateWithWhereUniqueWithoutLegacyForecastInput = {
   where: Prisma.ProductionTraceEventWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProductionTraceEventUpdateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedUpdateWithoutForecastInput>
+  data: Prisma.XOR<Prisma.ProductionTraceEventUpdateWithoutLegacyForecastInput, Prisma.ProductionTraceEventUncheckedUpdateWithoutLegacyForecastInput>
 }
 
-export type ProductionTraceEventUpdateManyWithWhereWithoutForecastInput = {
+export type ProductionTraceEventUpdateManyWithWhereWithoutLegacyForecastInput = {
   where: Prisma.ProductionTraceEventScalarWhereInput
-  data: Prisma.XOR<Prisma.ProductionTraceEventUpdateManyMutationInput, Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastInput>
+  data: Prisma.XOR<Prisma.ProductionTraceEventUpdateManyMutationInput, Prisma.ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastInput>
 }
 
 export type ProductionTraceEventScalarWhereInput = {
   AND?: Prisma.ProductionTraceEventScalarWhereInput | Prisma.ProductionTraceEventScalarWhereInput[]
   OR?: Prisma.ProductionTraceEventScalarWhereInput[]
   NOT?: Prisma.ProductionTraceEventScalarWhereInput | Prisma.ProductionTraceEventScalarWhereInput[]
+  LegacyPoId?: Prisma.StringNullableFilter<"ProductionTraceEvent"> | string | null
   Id?: Prisma.StringFilter<"ProductionTraceEvent"> | string
-  ForecastId?: Prisma.StringFilter<"ProductionTraceEvent"> | string
+  ProductionDemandId?: Prisma.StringFilter<"ProductionTraceEvent"> | string
   ReleaseId?: Prisma.StringNullableFilter<"ProductionTraceEvent"> | string | null
   Type?: Prisma.StringFilter<"ProductionTraceEvent"> | string
   SourceType?: Prisma.StringFilter<"ProductionTraceEvent"> | string
@@ -651,13 +726,16 @@ export type ProductionTraceEventCreateWithoutReleaseInput = {
   CorrelationId: string
   Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutTraceEventsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutTraceEventsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutTraceEventsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutTraceEventsInput
   Process?: Prisma.LogProcessCreateNestedOneWithoutTraceEventsInput
 }
 
 export type ProductionTraceEventUncheckedCreateWithoutReleaseInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   Type: string
   SourceType: string
   SourceId: string
@@ -703,13 +781,16 @@ export type ProductionTraceEventCreateWithoutProcessInput = {
   CorrelationId: string
   Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   CreatedAt?: Date | string
-  Forecast: Prisma.ForecastCreateNestedOneWithoutTraceEventsInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutTraceEventsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutTraceEventsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutTraceEventsInput
   Release?: Prisma.ProductionReleaseCreateNestedOneWithoutTraceEventsInput
 }
 
 export type ProductionTraceEventUncheckedCreateWithoutProcessInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId?: string | null
   Type: string
   SourceType: string
@@ -746,7 +827,23 @@ export type ProductionTraceEventUpdateManyWithWhereWithoutProcessInput = {
   data: Prisma.XOR<Prisma.ProductionTraceEventUpdateManyMutationInput, Prisma.ProductionTraceEventUncheckedUpdateManyWithoutProcessInput>
 }
 
-export type ProductionTraceEventCreateManyForecastInput = {
+export type ProductionTraceEventCreateWithoutDemandInput = {
+  Id?: string
+  Type: string
+  SourceType: string
+  SourceId: string
+  Actor: string
+  CorrelationId: string
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Date | string
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutTraceEventsInput
+  Forecast: Prisma.ProductionOrderCreateNestedOneWithoutTraceEventsInput
+  Release?: Prisma.ProductionReleaseCreateNestedOneWithoutTraceEventsInput
+  Process?: Prisma.LogProcessCreateNestedOneWithoutTraceEventsInput
+}
+
+export type ProductionTraceEventUncheckedCreateWithoutDemandInput = {
+  LegacyPoId?: string | null
   Id?: string
   ReleaseId?: string | null
   Type: string
@@ -759,7 +856,47 @@ export type ProductionTraceEventCreateManyForecastInput = {
   CreatedAt?: Date | string
 }
 
-export type ProductionTraceEventUpdateWithoutForecastInput = {
+export type ProductionTraceEventCreateOrConnectWithoutDemandInput = {
+  where: Prisma.ProductionTraceEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutDemandInput, Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput>
+}
+
+export type ProductionTraceEventCreateManyDemandInputEnvelope = {
+  data: Prisma.ProductionTraceEventCreateManyDemandInput | Prisma.ProductionTraceEventCreateManyDemandInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductionTraceEventUpsertWithWhereUniqueWithoutDemandInput = {
+  where: Prisma.ProductionTraceEventWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductionTraceEventUpdateWithoutDemandInput, Prisma.ProductionTraceEventUncheckedUpdateWithoutDemandInput>
+  create: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutDemandInput, Prisma.ProductionTraceEventUncheckedCreateWithoutDemandInput>
+}
+
+export type ProductionTraceEventUpdateWithWhereUniqueWithoutDemandInput = {
+  where: Prisma.ProductionTraceEventWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductionTraceEventUpdateWithoutDemandInput, Prisma.ProductionTraceEventUncheckedUpdateWithoutDemandInput>
+}
+
+export type ProductionTraceEventUpdateManyWithWhereWithoutDemandInput = {
+  where: Prisma.ProductionTraceEventScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductionTraceEventUpdateManyMutationInput, Prisma.ProductionTraceEventUncheckedUpdateManyWithoutDemandInput>
+}
+
+export type ProductionTraceEventCreateManyLegacyForecastInput = {
+  Id?: string
+  ProductionDemandId: string
+  ReleaseId?: string | null
+  Type: string
+  SourceType: string
+  SourceId: string
+  Actor: string
+  CorrelationId: string
+  ProcessId?: string | null
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Date | string
+}
+
+export type ProductionTraceEventUpdateWithoutLegacyForecastInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   Type?: Prisma.StringFieldUpdateOperationsInput | string
   SourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -768,12 +905,15 @@ export type ProductionTraceEventUpdateWithoutForecastInput = {
   CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
   Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutTraceEventsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutTraceEventsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneWithoutTraceEventsNestedInput
   Process?: Prisma.LogProcessUpdateOneWithoutTraceEventsNestedInput
 }
 
-export type ProductionTraceEventUncheckedUpdateWithoutForecastInput = {
+export type ProductionTraceEventUncheckedUpdateWithoutLegacyForecastInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.StringFieldUpdateOperationsInput | string
   SourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -785,8 +925,9 @@ export type ProductionTraceEventUncheckedUpdateWithoutForecastInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ProductionTraceEventUncheckedUpdateManyWithoutForecastInput = {
+export type ProductionTraceEventUncheckedUpdateManyWithoutLegacyForecastInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.StringFieldUpdateOperationsInput | string
   SourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -799,8 +940,9 @@ export type ProductionTraceEventUncheckedUpdateManyWithoutForecastInput = {
 }
 
 export type ProductionTraceEventCreateManyReleaseInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   Type: string
   SourceType: string
   SourceId: string
@@ -820,13 +962,16 @@ export type ProductionTraceEventUpdateWithoutReleaseInput = {
   CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
   Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutTraceEventsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutTraceEventsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutTraceEventsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutTraceEventsNestedInput
   Process?: Prisma.LogProcessUpdateOneWithoutTraceEventsNestedInput
 }
 
 export type ProductionTraceEventUncheckedUpdateWithoutReleaseInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   Type?: Prisma.StringFieldUpdateOperationsInput | string
   SourceType?: Prisma.StringFieldUpdateOperationsInput | string
   SourceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -838,8 +983,9 @@ export type ProductionTraceEventUncheckedUpdateWithoutReleaseInput = {
 }
 
 export type ProductionTraceEventUncheckedUpdateManyWithoutReleaseInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   Type?: Prisma.StringFieldUpdateOperationsInput | string
   SourceType?: Prisma.StringFieldUpdateOperationsInput | string
   SourceId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -850,9 +996,38 @@ export type ProductionTraceEventUncheckedUpdateManyWithoutReleaseInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type ProductionTraceEventUpdateManyWithoutForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput> | Prisma.ProductionTraceEventCreateWithoutForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput[]
+  upsert?: Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput | Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyForecastInputEnvelope
+  set?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  disconnect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  delete?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  update?: Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput | Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput[]
+  updateMany?: Prisma.ProductionTraceEventUpdateManyWithWhereWithoutForecastInput | Prisma.ProductionTraceEventUpdateManyWithWhereWithoutForecastInput[]
+  deleteMany?: Prisma.ProductionTraceEventScalarWhereInput | Prisma.ProductionTraceEventScalarWhereInput[]
+}
+
+export type ProductionTraceEventUncheckedUpdateManyWithoutForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput> | Prisma.ProductionTraceEventCreateWithoutForecastInput[] | Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput[]
+  connectOrCreate?: Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput | Prisma.ProductionTraceEventCreateOrConnectWithoutForecastInput[]
+  upsert?: Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput | Prisma.ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput[]
+  createMany?: Prisma.ProductionTraceEventCreateManyForecastInputEnvelope
+  set?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  disconnect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  delete?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  connect?: Prisma.ProductionTraceEventWhereUniqueInput | Prisma.ProductionTraceEventWhereUniqueInput[]
+  update?: Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput | Prisma.ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput[]
+  updateMany?: Prisma.ProductionTraceEventUpdateManyWithWhereWithoutForecastInput | Prisma.ProductionTraceEventUpdateManyWithWhereWithoutForecastInput[]
+  deleteMany?: Prisma.ProductionTraceEventScalarWhereInput | Prisma.ProductionTraceEventScalarWhereInput[]
+}
+
 export type ProductionTraceEventCreateManyProcessInput = {
+  LegacyPoId?: string | null
   Id?: string
-  ForecastId: string
+  ProductionDemandId: string
   ReleaseId?: string | null
   Type: string
   SourceType: string
@@ -872,13 +1047,16 @@ export type ProductionTraceEventUpdateWithoutProcessInput = {
   CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
   Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Forecast?: Prisma.ForecastUpdateOneRequiredWithoutTraceEventsNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutTraceEventsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutTraceEventsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutTraceEventsNestedInput
   Release?: Prisma.ProductionReleaseUpdateOneWithoutTraceEventsNestedInput
 }
 
 export type ProductionTraceEventUncheckedUpdateWithoutProcessInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.StringFieldUpdateOperationsInput | string
   SourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -890,8 +1068,9 @@ export type ProductionTraceEventUncheckedUpdateWithoutProcessInput = {
 }
 
 export type ProductionTraceEventUncheckedUpdateManyWithoutProcessInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Type?: Prisma.StringFieldUpdateOperationsInput | string
   SourceType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -902,11 +1081,181 @@ export type ProductionTraceEventUncheckedUpdateManyWithoutProcessInput = {
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type ProductionTraceEventCreateManyDemandInput = {
+  LegacyPoId?: string | null
+  Id?: string
+  ReleaseId?: string | null
+  Type: string
+  SourceType: string
+  SourceId: string
+  Actor: string
+  CorrelationId: string
+  ProcessId?: string | null
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Date | string
+}
+
+export type ProductionTraceEventUpdateWithoutDemandInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Type?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  Actor?: Prisma.StringFieldUpdateOperationsInput | string
+  CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutTraceEventsNestedInput
+  Forecast?: Prisma.ProductionOrderUpdateOneRequiredWithoutTraceEventsNestedInput
+  Release?: Prisma.ProductionReleaseUpdateOneWithoutTraceEventsNestedInput
+  Process?: Prisma.LogProcessUpdateOneWithoutTraceEventsNestedInput
+}
+
+export type ProductionTraceEventUncheckedUpdateWithoutDemandInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  Actor?: Prisma.StringFieldUpdateOperationsInput | string
+  CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductionTraceEventUncheckedUpdateManyWithoutDemandInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  Actor?: Prisma.StringFieldUpdateOperationsInput | string
+  CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductionTraceEventCreateWithoutForecastInput = {
+  Id?: string
+  Type: string
+  SourceType: string
+  SourceId: string
+  Actor: string
+  CorrelationId: string
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Date | string
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutTraceEventsInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutTraceEventsInput
+  Release?: Prisma.ProductionReleaseCreateNestedOneWithoutTraceEventsInput
+  Process?: Prisma.LogProcessCreateNestedOneWithoutTraceEventsInput
+}
+
+export type ProductionTraceEventUncheckedCreateWithoutForecastInput = {
+  LegacyPoId?: string | null
+  Id?: string
+  ReleaseId?: string | null
+  Type: string
+  SourceType: string
+  SourceId: string
+  Actor: string
+  CorrelationId: string
+  ProcessId?: string | null
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Date | string
+}
+
+export type ProductionTraceEventCreateOrConnectWithoutForecastInput = {
+  where: Prisma.ProductionTraceEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput>
+}
+
+export type ProductionTraceEventUpsertWithWhereUniqueWithoutForecastInput = {
+  where: Prisma.ProductionTraceEventWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductionTraceEventUpdateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedUpdateWithoutForecastInput>
+  create: Prisma.XOR<Prisma.ProductionTraceEventCreateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedCreateWithoutForecastInput>
+}
+
+export type ProductionTraceEventCreateManyForecastInputEnvelope = {
+  data: Prisma.ProductionTraceEventCreateManyForecastInput | Prisma.ProductionTraceEventCreateManyForecastInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductionTraceEventUpdateWithWhereUniqueWithoutForecastInput = {
+  where: Prisma.ProductionTraceEventWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductionTraceEventUpdateWithoutForecastInput, Prisma.ProductionTraceEventUncheckedUpdateWithoutForecastInput>
+}
+
+export type ProductionTraceEventUpdateManyWithWhereWithoutForecastInput = {
+  where: Prisma.ProductionTraceEventScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductionTraceEventUpdateManyMutationInput, Prisma.ProductionTraceEventUncheckedUpdateManyWithoutForecastInput>
+}
+
+export type ProductionTraceEventUpdateWithoutForecastInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  Type?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  Actor?: Prisma.StringFieldUpdateOperationsInput | string
+  CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutTraceEventsNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutTraceEventsNestedInput
+  Release?: Prisma.ProductionReleaseUpdateOneWithoutTraceEventsNestedInput
+  Process?: Prisma.LogProcessUpdateOneWithoutTraceEventsNestedInput
+}
+
+export type ProductionTraceEventUncheckedUpdateWithoutForecastInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  Actor?: Prisma.StringFieldUpdateOperationsInput | string
+  CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductionTraceEventCreateManyForecastInput = {
+  LegacyPoId?: string | null
+  Id?: string
+  ReleaseId?: string | null
+  Type: string
+  SourceType: string
+  SourceId: string
+  Actor: string
+  CorrelationId: string
+  ProcessId?: string | null
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Date | string
+}
+
+export type ProductionTraceEventUncheckedUpdateManyWithoutForecastInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Type?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  SourceId?: Prisma.StringFieldUpdateOperationsInput | string
+  Actor?: Prisma.StringFieldUpdateOperationsInput | string
+  CorrelationId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProcessId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type ProductionTraceEventSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   ReleaseId?: boolean
   Type?: boolean
   SourceType?: boolean
@@ -916,14 +1265,17 @@ export type ProductionTraceEventSelect<ExtArgs extends runtime.Types.Extensions.
   ProcessId?: boolean
   Metadata?: boolean
   CreatedAt?: boolean
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionTraceEvent$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionTraceEvent$ReleaseArgs<ExtArgs>
   Process?: boolean | Prisma.ProductionTraceEvent$ProcessArgs<ExtArgs>
 }, ExtArgs["result"]["productionTraceEvent"]>
 
 export type ProductionTraceEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   ReleaseId?: boolean
   Type?: boolean
   SourceType?: boolean
@@ -933,14 +1285,17 @@ export type ProductionTraceEventSelectCreateManyAndReturn<ExtArgs extends runtim
   ProcessId?: boolean
   Metadata?: boolean
   CreatedAt?: boolean
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionTraceEvent$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionTraceEvent$ReleaseArgs<ExtArgs>
   Process?: boolean | Prisma.ProductionTraceEvent$ProcessArgs<ExtArgs>
 }, ExtArgs["result"]["productionTraceEvent"]>
 
 export type ProductionTraceEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   ReleaseId?: boolean
   Type?: boolean
   SourceType?: boolean
@@ -950,14 +1305,17 @@ export type ProductionTraceEventSelectUpdateManyAndReturn<ExtArgs extends runtim
   ProcessId?: boolean
   Metadata?: boolean
   CreatedAt?: boolean
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionTraceEvent$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionTraceEvent$ReleaseArgs<ExtArgs>
   Process?: boolean | Prisma.ProductionTraceEvent$ProcessArgs<ExtArgs>
 }, ExtArgs["result"]["productionTraceEvent"]>
 
 export type ProductionTraceEventSelectScalar = {
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   ReleaseId?: boolean
   Type?: boolean
   SourceType?: boolean
@@ -969,19 +1327,25 @@ export type ProductionTraceEventSelectScalar = {
   CreatedAt?: boolean
 }
 
-export type ProductionTraceEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "ForecastId" | "ReleaseId" | "Type" | "SourceType" | "SourceId" | "Actor" | "CorrelationId" | "ProcessId" | "Metadata" | "CreatedAt", ExtArgs["result"]["productionTraceEvent"]>
+export type ProductionTraceEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"LegacyPoId" | "Id" | "ProductionDemandId" | "ReleaseId" | "Type" | "SourceType" | "SourceId" | "Actor" | "CorrelationId" | "ProcessId" | "Metadata" | "CreatedAt", ExtArgs["result"]["productionTraceEvent"]>
 export type ProductionTraceEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionTraceEvent$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionTraceEvent$ReleaseArgs<ExtArgs>
   Process?: boolean | Prisma.ProductionTraceEvent$ProcessArgs<ExtArgs>
 }
 export type ProductionTraceEventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionTraceEvent$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionTraceEvent$ReleaseArgs<ExtArgs>
   Process?: boolean | Prisma.ProductionTraceEvent$ProcessArgs<ExtArgs>
 }
 export type ProductionTraceEventIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Forecast?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.ProductionTraceEvent$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  Forecast?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   Release?: boolean | Prisma.ProductionTraceEvent$ReleaseArgs<ExtArgs>
   Process?: boolean | Prisma.ProductionTraceEvent$ProcessArgs<ExtArgs>
 }
@@ -989,13 +1353,16 @@ export type ProductionTraceEventIncludeUpdateManyAndReturn<ExtArgs extends runti
 export type $ProductionTraceEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductionTraceEvent"
   objects: {
-    Forecast: Prisma.$ForecastPayload<ExtArgs>
+    LegacyForecast: Prisma.$ForecastPayload<ExtArgs> | null
+    Demand: Prisma.$ProductionDemandPayload<ExtArgs>
+    Forecast: Prisma.$ProductionOrderPayload<ExtArgs>
     Release: Prisma.$ProductionReleasePayload<ExtArgs> | null
     Process: Prisma.$LogProcessPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    LegacyPoId: string | null
     Id: string
-    ForecastId: string
+    ProductionDemandId: string
     ReleaseId: string | null
     Type: string
     SourceType: string
@@ -1088,8 +1455,8 @@ export interface ProductionTraceEventDelegate<ExtArgs extends runtime.Types.Exte
    * // Get first 10 ProductionTraceEvents
    * const productionTraceEvents = await prisma.productionTraceEvent.findMany({ take: 10 })
    * 
-   * // Only select the `Id`
-   * const productionTraceEventWithIdOnly = await prisma.productionTraceEvent.findMany({ select: { Id: true } })
+   * // Only select the `LegacyPoId`
+   * const productionTraceEventWithLegacyPoIdOnly = await prisma.productionTraceEvent.findMany({ select: { LegacyPoId: true } })
    * 
    */
   findMany<T extends ProductionTraceEventFindManyArgs>(args?: Prisma.SelectSubset<T, ProductionTraceEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionTraceEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -1133,9 +1500,9 @@ export interface ProductionTraceEventDelegate<ExtArgs extends runtime.Types.Exte
    *   ]
    * })
    * 
-   * // Create many ProductionTraceEvents and only return the `Id`
-   * const productionTraceEventWithIdOnly = await prisma.productionTraceEvent.createManyAndReturn({
-   *   select: { Id: true },
+   * // Create many ProductionTraceEvents and only return the `LegacyPoId`
+   * const productionTraceEventWithLegacyPoIdOnly = await prisma.productionTraceEvent.createManyAndReturn({
+   *   select: { LegacyPoId: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -1224,9 +1591,9 @@ export interface ProductionTraceEventDelegate<ExtArgs extends runtime.Types.Exte
    *   ]
    * })
    * 
-   * // Update zero or more ProductionTraceEvents and only return the `Id`
-   * const productionTraceEventWithIdOnly = await prisma.productionTraceEvent.updateManyAndReturn({
-   *   select: { Id: true },
+   * // Update zero or more ProductionTraceEvents and only return the `LegacyPoId`
+   * const productionTraceEventWithLegacyPoIdOnly = await prisma.productionTraceEvent.updateManyAndReturn({
+   *   select: { LegacyPoId: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1399,7 +1766,9 @@ readonly fields: ProductionTraceEventFieldRefs;
  */
 export interface Prisma__ProductionTraceEventClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Forecast<T extends Prisma.ForecastDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ForecastDefaultArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  LegacyForecast<T extends Prisma.ProductionTraceEvent$LegacyForecastArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionTraceEvent$LegacyForecastArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Demand<T extends Prisma.ProductionDemandDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionDemandDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionDemandClient<runtime.Types.Result.GetResult<Prisma.$ProductionDemandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  Forecast<T extends Prisma.ProductionOrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionOrderDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionOrderClient<runtime.Types.Result.GetResult<Prisma.$ProductionOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   Release<T extends Prisma.ProductionTraceEvent$ReleaseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionTraceEvent$ReleaseArgs<ExtArgs>>): Prisma.Prisma__ProductionReleaseClient<runtime.Types.Result.GetResult<Prisma.$ProductionReleasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   Process<T extends Prisma.ProductionTraceEvent$ProcessArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionTraceEvent$ProcessArgs<ExtArgs>>): Prisma.Prisma__LogProcessClient<runtime.Types.Result.GetResult<Prisma.$LogProcessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1431,8 +1800,9 @@ export interface Prisma__ProductionTraceEventClient<T, Null = never, ExtArgs ext
  * Fields of the ProductionTraceEvent model
  */
 export interface ProductionTraceEventFieldRefs {
+  readonly LegacyPoId: Prisma.FieldRef<"ProductionTraceEvent", 'String'>
   readonly Id: Prisma.FieldRef<"ProductionTraceEvent", 'String'>
-  readonly ForecastId: Prisma.FieldRef<"ProductionTraceEvent", 'String'>
+  readonly ProductionDemandId: Prisma.FieldRef<"ProductionTraceEvent", 'String'>
   readonly ReleaseId: Prisma.FieldRef<"ProductionTraceEvent", 'String'>
   readonly Type: Prisma.FieldRef<"ProductionTraceEvent", 'String'>
   readonly SourceType: Prisma.FieldRef<"ProductionTraceEvent", 'String'>
@@ -1840,6 +2210,25 @@ export type ProductionTraceEventDeleteManyArgs<ExtArgs extends runtime.Types.Ext
    * Limit how many ProductionTraceEvents to delete.
    */
   limit?: number
+}
+
+/**
+ * ProductionTraceEvent.LegacyForecast
+ */
+export type ProductionTraceEvent$LegacyForecastArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Forecast
+   */
+  select?: Prisma.ForecastSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Forecast
+   */
+  omit?: Prisma.ForecastOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ForecastInclude<ExtArgs> | null
+  where?: Prisma.ForecastWhereInput
 }
 
 /**

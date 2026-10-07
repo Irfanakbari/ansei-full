@@ -66,6 +66,12 @@ export class ForecastController {
     return this.forecastService.findForOperator();
   }
 
+  @Get('orders')
+  @Permission('IPCS.FORECAST_READ')
+  findOrders(@Query() query: ForecastQueryDto) {
+    return this.forecastService.findOrders(query);
+  }
+
   @ApiOperation({ summary: 'Get forecast by numeric ID or PoId' })
   @ApiResponse({
     status: 200,

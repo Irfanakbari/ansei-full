@@ -348,7 +348,7 @@ export class MrpService {
     const endDate = dates[dates.length - 1]; // H+1 (latest)
 
     // Get forecasts in date range
-    const forecasts = await this.prisma.forecast.findMany({
+    const forecasts = await this.prisma.productionOrder.findMany({
       where: {
         DeliveryDate: {
           gte: startDate,
@@ -423,7 +423,7 @@ export class MrpService {
 
   /**
    * Get total picked quantity for all valid forecasts in the date range
-   * Returns Map of ForecastId -> Map of Material PartNumber -> QtyPick
+   * Returns Map of ProductionDemandId -> Map of Material PartNumber -> QtyPick
    */
   private async getPickedMaterials(
     forecastData: ForecastDataMap,
@@ -440,9 +440,9 @@ export class MrpService {
     }
 
     const shoppings = await this.prisma.shopping.groupBy({
-      by: ['ForecastId', 'MaterialId'],
+      by: ['ProductionDemandId', 'MaterialId'],
       where: {
-        ForecastId: { in: Array.from(allForecastIds) },
+        ProductionDemandId: { in: Array.from(allForecastIds) },
         Purpose: 'STANDARD',
       },
       _sum: {
@@ -452,13 +452,15 @@ export class MrpService {
 
     const result = new Map<string, Map<string, number>>();
     for (const shop of shoppings) {
-      if (!shop.ForecastId) continue;
+      if (!shop.ProductionDemandId) continue;
 
-      if (!result.has(shop.ForecastId)) {
-        result.set(shop.ForecastId, new Map());
+      if (!result.has(shop.ProductionDemandId)) {
+        result.set(shop.ProductionDemandId, new Map());
       }
 
-      result.get(shop.ForecastId)!.set(shop.MaterialId, shop._sum.QtyPick || 0);
+      result
+        .get(shop.ProductionDemandId)!
+        .set(shop.MaterialId, shop._sum.QtyPick || 0);
     }
 
     return result;

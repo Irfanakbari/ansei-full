@@ -432,12 +432,12 @@ databaseSuite('Phase 2 PostgreSQL command and audit invariants', () => {
         JSON.parse(JSON.stringify(second)),
       );
       expect(
-        await db.productionReport.count({ where: { ForecastId: po } }),
+        await db.productionReport.count({ where: { ProductionDemandId: po } }),
       ).toBe(1);
       expect(
         await db.productionTraceEvent.count({
           where: {
-            ForecastId: po,
+            ProductionDemandId: po,
             Type: 'PRODUCTION_REPORT_CREATED',
             Actor: 'verified-station',
           },

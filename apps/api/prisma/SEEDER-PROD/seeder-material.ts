@@ -23,6 +23,7 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 const SEED_ACTOR = 'SYSTEM_PROD';
+const INITIAL_STOCK_PER_LOCATION = 1000;
 
 async function main() {
   console.log('🚀 Starting database seed for Master Material (PROD)...');
@@ -58,23 +59,25 @@ async function main() {
       where: { PartNumber: item.PartNumber },
     });
 
-    if (existing) {
-      // Upsert: update data yang ada
-      await prisma.material.update({
-        where: { PartNumber: item.PartNumber },
-        data: {
-          PartName: item.PartName,
-          Supplier: item.Supplier,
-          SupplierId: supplierId,
-          Remark: item.Remark,
-          MaterialSource: item.MaterialSource as MaterialSource,
-          UpdatedBy: SEED_ACTOR,
-        },
-      });
-      updatedCount++;
-    } else {
-      // Upsert: create data baru
-      await prisma.material.create({
+    await prisma.$transaction(async (tx) => {
+      if (existing) {
+        updatedCount++;
+        await tx.material.update({
+          where: { PartNumber: item.PartNumber },
+          data: {
+            PartName: item.PartName,
+            Supplier: item.Supplier,
+            SupplierId: supplierId,
+            Remark: item.Remark,
+            MaterialSource: item.MaterialSource as MaterialSource,
+            UpdatedBy: SEED_ACTOR,
+          },
+        });
+        return;
+      }
+
+      createdCount++;
+      const material = await tx.material.create({
         data: {
           PartNumber: item.PartNumber,
           PartName: item.PartName,
@@ -83,14 +86,46 @@ async function main() {
           Remark: item.Remark,
           MaterialSource: item.MaterialSource as MaterialSource,
           SatuanId: defaultUom?.Id || null,
-          QtyRack: 0,
-          QtyWarehouse: 0,
+          QtyRack: INITIAL_STOCK_PER_LOCATION,
+          QtyWarehouse: INITIAL_STOCK_PER_LOCATION,
           CreatedBy: SEED_ACTOR,
           UpdatedBy: SEED_ACTOR,
         },
       });
-      createdCount++;
-    }
+
+      await tx.inventoryLedger.createMany({
+        data: [
+          {
+            Id: crypto.randomUUID(),
+            ItemCategory: 'MATERIAL',
+            MaterialId: material.PartNumber,
+            Location: 'WAREHOUSE',
+            TransactionType: 'ADJUSTMENT_MANUAL',
+            ReferenceDoc: `SEED-INITIAL-WAREHOUSE-${material.PartNumber}`,
+            BalanceBefore: 0,
+            QtyIn: INITIAL_STOCK_PER_LOCATION,
+            QtyOut: 0,
+            BalanceAfter: INITIAL_STOCK_PER_LOCATION,
+            CreatedBy: SEED_ACTOR,
+            Notes: 'Initial production seed stock',
+          },
+          {
+            Id: crypto.randomUUID(),
+            ItemCategory: 'MATERIAL',
+            MaterialId: material.PartNumber,
+            Location: 'RACK',
+            TransactionType: 'ADJUSTMENT_MANUAL',
+            ReferenceDoc: `SEED-INITIAL-RACK-${material.PartNumber}`,
+            BalanceBefore: 0,
+            QtyIn: INITIAL_STOCK_PER_LOCATION,
+            QtyOut: 0,
+            BalanceAfter: INITIAL_STOCK_PER_LOCATION,
+            CreatedBy: SEED_ACTOR,
+            Notes: 'Initial production seed stock',
+          },
+        ],
+      });
+    });
   }
 
   console.log(

@@ -1,3 +1,5 @@
+import { ProductionDemandInterceptor } from './common/interceptors/production-demand.interceptor';
+import { ForecastNonPoModule } from './production/forecast-non-po/forecast-non-po.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { BomRevisionsModule } from './master/bom-revisions/bom-revisions.module';
 import { ProductionFindingModule } from './production/production-findings/production-finding.module';
@@ -99,6 +101,7 @@ import { HealthModule } from './health/health.module';
     ManPowerModule,
     SettingsModule,
     ForecastModule,
+    ForecastNonPoModule,
     ProductionReleaseModule,
     ProductionReportModule,
     AssemblyModule,
@@ -118,6 +121,7 @@ import { HealthModule } from './health/health.module';
   ],
   controllers: [AppController],
   providers: [
+    { provide: APP_INTERCEPTOR, useClass: ProductionDemandInterceptor },
     AppService,
     {
       provide: APP_GUARD,

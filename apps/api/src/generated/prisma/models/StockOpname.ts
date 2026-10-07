@@ -36,7 +36,7 @@ export type StockOpnameSumAggregateOutputType = {
 
 export type StockOpnameMinAggregateOutputType = {
   Id: string | null
-  OpnameNumber: string | null
+  RecordNumber: string | null
   Category: $Enums.ItemCategory | null
   Status: $Enums.OpnameStatus | null
   Tolerance: number | null
@@ -50,7 +50,7 @@ export type StockOpnameMinAggregateOutputType = {
 
 export type StockOpnameMaxAggregateOutputType = {
   Id: string | null
-  OpnameNumber: string | null
+  RecordNumber: string | null
   Category: $Enums.ItemCategory | null
   Status: $Enums.OpnameStatus | null
   Tolerance: number | null
@@ -64,7 +64,7 @@ export type StockOpnameMaxAggregateOutputType = {
 
 export type StockOpnameCountAggregateOutputType = {
   Id: number
-  OpnameNumber: number
+  RecordNumber: number
   Category: number
   Status: number
   Tolerance: number
@@ -88,7 +88,7 @@ export type StockOpnameSumAggregateInputType = {
 
 export type StockOpnameMinAggregateInputType = {
   Id?: true
-  OpnameNumber?: true
+  RecordNumber?: true
   Category?: true
   Status?: true
   Tolerance?: true
@@ -102,7 +102,7 @@ export type StockOpnameMinAggregateInputType = {
 
 export type StockOpnameMaxAggregateInputType = {
   Id?: true
-  OpnameNumber?: true
+  RecordNumber?: true
   Category?: true
   Status?: true
   Tolerance?: true
@@ -116,7 +116,7 @@ export type StockOpnameMaxAggregateInputType = {
 
 export type StockOpnameCountAggregateInputType = {
   Id?: true
-  OpnameNumber?: true
+  RecordNumber?: true
   Category?: true
   Status?: true
   Tolerance?: true
@@ -217,7 +217,7 @@ export type StockOpnameGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 
 export type StockOpnameGroupByOutputType = {
   Id: string
-  OpnameNumber: string
+  RecordNumber: string
   Category: $Enums.ItemCategory
   Status: $Enums.OpnameStatus
   Tolerance: number | null
@@ -254,7 +254,7 @@ export type StockOpnameWhereInput = {
   OR?: Prisma.StockOpnameWhereInput[]
   NOT?: Prisma.StockOpnameWhereInput | Prisma.StockOpnameWhereInput[]
   Id?: Prisma.StringFilter<"StockOpname"> | string
-  OpnameNumber?: Prisma.StringFilter<"StockOpname"> | string
+  RecordNumber?: Prisma.StringFilter<"StockOpname"> | string
   Category?: Prisma.EnumItemCategoryFilter<"StockOpname"> | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFilter<"StockOpname"> | $Enums.OpnameStatus
   Tolerance?: Prisma.FloatNullableFilter<"StockOpname"> | number | null
@@ -270,7 +270,7 @@ export type StockOpnameWhereInput = {
 
 export type StockOpnameOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
-  OpnameNumber?: Prisma.SortOrder
+  RecordNumber?: Prisma.SortOrder
   Category?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Tolerance?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -286,7 +286,7 @@ export type StockOpnameOrderByWithRelationInput = {
 
 export type StockOpnameWhereUniqueInput = Prisma.AtLeast<{
   Id?: string
-  OpnameNumber?: string
+  RecordNumber?: string
   AND?: Prisma.StockOpnameWhereInput | Prisma.StockOpnameWhereInput[]
   OR?: Prisma.StockOpnameWhereInput[]
   NOT?: Prisma.StockOpnameWhereInput | Prisma.StockOpnameWhereInput[]
@@ -301,11 +301,11 @@ export type StockOpnameWhereUniqueInput = Prisma.AtLeast<{
   Notes?: Prisma.StringNullableFilter<"StockOpname"> | string | null
   Details?: Prisma.StockOpnameDetailListRelationFilter
   Attachments?: Prisma.StockOpnameAttachmentListRelationFilter
-}, "Id" | "OpnameNumber">
+}, "Id" | "RecordNumber">
 
 export type StockOpnameOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
-  OpnameNumber?: Prisma.SortOrder
+  RecordNumber?: Prisma.SortOrder
   Category?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Tolerance?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -327,7 +327,7 @@ export type StockOpnameScalarWhereWithAggregatesInput = {
   OR?: Prisma.StockOpnameScalarWhereWithAggregatesInput[]
   NOT?: Prisma.StockOpnameScalarWhereWithAggregatesInput | Prisma.StockOpnameScalarWhereWithAggregatesInput[]
   Id?: Prisma.StringWithAggregatesFilter<"StockOpname"> | string
-  OpnameNumber?: Prisma.StringWithAggregatesFilter<"StockOpname"> | string
+  RecordNumber?: Prisma.StringWithAggregatesFilter<"StockOpname"> | string
   Category?: Prisma.EnumItemCategoryWithAggregatesFilter<"StockOpname"> | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusWithAggregatesFilter<"StockOpname"> | $Enums.OpnameStatus
   Tolerance?: Prisma.FloatNullableWithAggregatesFilter<"StockOpname"> | number | null
@@ -341,7 +341,7 @@ export type StockOpnameScalarWhereWithAggregatesInput = {
 
 export type StockOpnameCreateInput = {
   Id?: string
-  OpnameNumber: string
+  RecordNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
   Tolerance?: number | null
@@ -357,7 +357,7 @@ export type StockOpnameCreateInput = {
 
 export type StockOpnameUncheckedCreateInput = {
   Id?: string
-  OpnameNumber: string
+  RecordNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
   Tolerance?: number | null
@@ -373,7 +373,7 @@ export type StockOpnameUncheckedCreateInput = {
 
 export type StockOpnameUpdateInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
   Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -389,7 +389,7 @@ export type StockOpnameUpdateInput = {
 
 export type StockOpnameUncheckedUpdateInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
   Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -405,7 +405,7 @@ export type StockOpnameUncheckedUpdateInput = {
 
 export type StockOpnameCreateManyInput = {
   Id?: string
-  OpnameNumber: string
+  RecordNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
   Tolerance?: number | null
@@ -419,7 +419,7 @@ export type StockOpnameCreateManyInput = {
 
 export type StockOpnameUpdateManyMutationInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
   Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -433,7 +433,7 @@ export type StockOpnameUpdateManyMutationInput = {
 
 export type StockOpnameUncheckedUpdateManyInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
   Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -447,7 +447,7 @@ export type StockOpnameUncheckedUpdateManyInput = {
 
 export type StockOpnameCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
-  OpnameNumber?: Prisma.SortOrder
+  RecordNumber?: Prisma.SortOrder
   Category?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Tolerance?: Prisma.SortOrder
@@ -465,7 +465,7 @@ export type StockOpnameAvgOrderByAggregateInput = {
 
 export type StockOpnameMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
-  OpnameNumber?: Prisma.SortOrder
+  RecordNumber?: Prisma.SortOrder
   Category?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Tolerance?: Prisma.SortOrder
@@ -479,7 +479,7 @@ export type StockOpnameMaxOrderByAggregateInput = {
 
 export type StockOpnameMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
-  OpnameNumber?: Prisma.SortOrder
+  RecordNumber?: Prisma.SortOrder
   Category?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   Tolerance?: Prisma.SortOrder
@@ -534,7 +534,7 @@ export type StockOpnameUpdateOneRequiredWithoutAttachmentsNestedInput = {
 
 export type StockOpnameCreateWithoutDetailsInput = {
   Id?: string
-  OpnameNumber: string
+  RecordNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
   Tolerance?: number | null
@@ -549,7 +549,7 @@ export type StockOpnameCreateWithoutDetailsInput = {
 
 export type StockOpnameUncheckedCreateWithoutDetailsInput = {
   Id?: string
-  OpnameNumber: string
+  RecordNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
   Tolerance?: number | null
@@ -580,7 +580,7 @@ export type StockOpnameUpdateToOneWithWhereWithoutDetailsInput = {
 
 export type StockOpnameUpdateWithoutDetailsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
   Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -595,7 +595,7 @@ export type StockOpnameUpdateWithoutDetailsInput = {
 
 export type StockOpnameUncheckedUpdateWithoutDetailsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
   Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -610,7 +610,7 @@ export type StockOpnameUncheckedUpdateWithoutDetailsInput = {
 
 export type StockOpnameCreateWithoutAttachmentsInput = {
   Id?: string
-  OpnameNumber: string
+  RecordNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
   Tolerance?: number | null
@@ -625,7 +625,7 @@ export type StockOpnameCreateWithoutAttachmentsInput = {
 
 export type StockOpnameUncheckedCreateWithoutAttachmentsInput = {
   Id?: string
-  OpnameNumber: string
+  RecordNumber: string
   Category: $Enums.ItemCategory
   Status?: $Enums.OpnameStatus
   Tolerance?: number | null
@@ -656,7 +656,7 @@ export type StockOpnameUpdateToOneWithWhereWithoutAttachmentsInput = {
 
 export type StockOpnameUpdateWithoutAttachmentsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
   Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -671,7 +671,7 @@ export type StockOpnameUpdateWithoutAttachmentsInput = {
 
 export type StockOpnameUncheckedUpdateWithoutAttachmentsInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
-  OpnameNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumItemCategoryFieldUpdateOperationsInput | $Enums.ItemCategory
   Status?: Prisma.EnumOpnameStatusFieldUpdateOperationsInput | $Enums.OpnameStatus
   Tolerance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -726,7 +726,7 @@ export type StockOpnameCountOutputTypeCountAttachmentsArgs<ExtArgs extends runti
 
 export type StockOpnameSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
-  OpnameNumber?: boolean
+  RecordNumber?: boolean
   Category?: boolean
   Status?: boolean
   Tolerance?: boolean
@@ -743,7 +743,7 @@ export type StockOpnameSelect<ExtArgs extends runtime.Types.Extensions.InternalA
 
 export type StockOpnameSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
-  OpnameNumber?: boolean
+  RecordNumber?: boolean
   Category?: boolean
   Status?: boolean
   Tolerance?: boolean
@@ -757,7 +757,7 @@ export type StockOpnameSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type StockOpnameSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
-  OpnameNumber?: boolean
+  RecordNumber?: boolean
   Category?: boolean
   Status?: boolean
   Tolerance?: boolean
@@ -771,7 +771,7 @@ export type StockOpnameSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type StockOpnameSelectScalar = {
   Id?: boolean
-  OpnameNumber?: boolean
+  RecordNumber?: boolean
   Category?: boolean
   Status?: boolean
   Tolerance?: boolean
@@ -783,7 +783,7 @@ export type StockOpnameSelectScalar = {
   Notes?: boolean
 }
 
-export type StockOpnameOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "OpnameNumber" | "Category" | "Status" | "Tolerance" | "CreatedAt" | "CreatedBy" | "StartedAt" | "CompletedAt" | "CompletedBy" | "Notes", ExtArgs["result"]["stockOpname"]>
+export type StockOpnameOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "RecordNumber" | "Category" | "Status" | "Tolerance" | "CreatedAt" | "CreatedBy" | "StartedAt" | "CompletedAt" | "CompletedBy" | "Notes", ExtArgs["result"]["stockOpname"]>
 export type StockOpnameInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   Details?: boolean | Prisma.StockOpname$DetailsArgs<ExtArgs>
   Attachments?: boolean | Prisma.StockOpname$AttachmentsArgs<ExtArgs>
@@ -800,7 +800,7 @@ export type $StockOpnamePayload<ExtArgs extends runtime.Types.Extensions.Interna
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: string
-    OpnameNumber: string
+    RecordNumber: string
     Category: $Enums.ItemCategory
     Status: $Enums.OpnameStatus
     Tolerance: number | null
@@ -1236,7 +1236,7 @@ export interface Prisma__StockOpnameClient<T, Null = never, ExtArgs extends runt
  */
 export interface StockOpnameFieldRefs {
   readonly Id: Prisma.FieldRef<"StockOpname", 'String'>
-  readonly OpnameNumber: Prisma.FieldRef<"StockOpname", 'String'>
+  readonly RecordNumber: Prisma.FieldRef<"StockOpname", 'String'>
   readonly Category: Prisma.FieldRef<"StockOpname", 'ItemCategory'>
   readonly Status: Prisma.FieldRef<"StockOpname", 'OpnameStatus'>
   readonly Tolerance: Prisma.FieldRef<"StockOpname", 'Float'>

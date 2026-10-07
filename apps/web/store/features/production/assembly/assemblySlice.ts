@@ -21,7 +21,7 @@ export interface AssemblySession {
     LabelNumber: string;
     FinishGoodId: string;
     QtyThisBox: number;
-    ForecastId: string;
+    ProductionDemandId: string;
     ProductionReleaseId: string | null;
     ProductionRelease: { ReleaseNumber: string } | null;
     PartData: { PartName: string };
@@ -79,6 +79,19 @@ export const fetchOperatorAssembly = createAsyncThunk<
     return rejectWithValue(
       getApiErrorMessage(error, "Cannot refresh assembly. Check connection."),
     );
+  }
+});
+export const fetchDisplayReadyLabels = createAsyncThunk<
+  AssemblySession["LabelData"][],
+  string,
+  { rejectValue: string }
+>("assembly/displayReadyLabels", async (search, { rejectWithValue }) => {
+  try {
+    return await displayRequest<AssemblySession["LabelData"][]>(
+      `ready-labels?labelNumber=${encodeURIComponent(search.trim())}`,
+    );
+  } catch (error) {
+    return rejectWithValue(getApiErrorMessage(error));
   }
 });
 export const startAssembly = createAsyncThunk<

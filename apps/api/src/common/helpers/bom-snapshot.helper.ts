@@ -12,7 +12,7 @@ export async function latestSnapshot(
 ) {
   return tx.productionBomSnapshot.findFirst({
     where: {
-      ForecastId: forecastId,
+      ProductionDemandId: forecastId,
       ...(releaseId ? { ReleaseId: releaseId } : {}),
     },
     orderBy: [{ CreatedAt: 'desc' }, { Version: 'desc' }],
@@ -22,7 +22,7 @@ export async function latestSnapshot(
 
 /** Business requirements always resolve from the released order, never a mutable master. */
 export async function orderBom(tx: Client, forecastId: string) {
-  const forecast = await tx.forecast.findUniqueOrThrow({
+  const forecast = await tx.productionOrder.findUniqueOrThrow({
     where: { PoId: forecastId },
   });
   const snapshot = await latestSnapshot(
@@ -44,7 +44,7 @@ export async function snapshotRelease(
   actor: string,
   processId?: string,
 ) {
-  const forecasts = await tx.forecast.findMany({
+  const forecasts = await tx.productionOrder.findMany({
     where: { ProductionReleaseId: releaseId },
     include: { PartData: true },
   });
@@ -57,11 +57,11 @@ export async function snapshotRelease(
       continue;
     if (previous) {
       const activity = await tx.shopping.count({
-        where: { ForecastId: forecast.PoId },
+        where: { ProductionDemandId: forecast.PoId },
       });
       const labels = await tx.labelData.count({
         where: {
-          ForecastId: forecast.PoId,
+          ProductionDemandId: forecast.PoId,
           OR: [{ Scanned: true }, { AssemblySessions: { some: {} } }],
         },
       });
@@ -101,7 +101,7 @@ export async function snapshotRelease(
     }
     const snapshot = await tx.productionBomSnapshot.create({
       data: {
-        ForecastId: forecast.PoId,
+        ProductionDemandId: forecast.PoId,
         ReleaseId: releaseId,
         RevisionId: revisionId,
         Version: (previous?.Version ?? 0) + 1,
@@ -124,7 +124,7 @@ export async function snapshotRelease(
     });
     await tx.productionTraceEvent.create({
       data: {
-        ForecastId: forecast.PoId,
+        ProductionDemandId: forecast.PoId,
         ReleaseId: releaseId,
         Type: 'BOM_SNAPSHOT',
         SourceType: 'ProductionBomSnapshot',

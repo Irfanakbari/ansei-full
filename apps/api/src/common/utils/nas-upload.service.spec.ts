@@ -275,6 +275,57 @@ describe('NasUploadService', () => {
     ]);
   });
 
+  it('resolves a legacy share URL after the public URL moves to port 8080', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.NAS_HOST = '192.168.1.15';
+    process.env.NAS_PORT = '5000';
+    process.env.NAS_PROTOCOL = 'http';
+    process.env.NAS_SMB_SHARE = 'AssetStorage';
+    process.env.NAS_SMB_SUBFOLDER = 'Ansei_Asset';
+    process.env.NAS_BASE_URL = 'http://192.168.1.15:8080/Ansei_Asset/';
+    process.env.NAS_ALLOW_HTTP_PRIVATE_NETWORK = 'true';
+    const fetchMock = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(loginResponse())
+      .mockResolvedValueOnce(successResponse())
+      .mockResolvedValueOnce(successResponse());
+
+    await expect(
+      new NasUploadService().fileExists(
+        'http://192.168.1.15/AssetStorage/Ansei_Asset/manpower/file.jpg',
+      ),
+    ).resolves.toBe(true);
+    const requestUrl = new URL(fetchMock.mock.calls[1][0] as string);
+    expect(JSON.parse(requestUrl.searchParams.get('path') as string)).toEqual([
+      '/AssetStorage/Ansei_Asset/manpower/file.jpg',
+    ]);
+  });
+
+  it('returns the configured port 8080 URL for a new upload', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.NAS_HOST = '192.168.1.15';
+    process.env.NAS_PORT = '5000';
+    process.env.NAS_PROTOCOL = 'http';
+    process.env.NAS_SMB_SHARE = 'AssetStorage';
+    process.env.NAS_SMB_SUBFOLDER = 'Ansei_Asset';
+    process.env.NAS_BASE_URL = 'http://192.168.1.15:8080/Ansei_Asset/';
+    process.env.NAS_ALLOW_HTTP_PRIVATE_NETWORK = 'true';
+    jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(loginResponse())
+      .mockResolvedValueOnce(successResponse())
+      .mockResolvedValueOnce(successResponse())
+      .mockResolvedValueOnce(successResponse());
+
+    await expect(
+      new NasUploadService().uploadFile({
+        fileName: 'file.jpg',
+        fileBuffer: Buffer.from([0xff, 0xd8, 0xff]),
+        subFolder: 'manpower',
+      }),
+    ).resolves.toBe('http://192.168.1.15:8080/Ansei_Asset/manpower/file.jpg');
+  });
+
   it.each([
     { fileName: '../file.pdf' },
     { fileName: 'folder/file.pdf' },

@@ -4,10 +4,10 @@ import { AssemblyStatus } from '../../../generated/prisma/enums';
 class AssemblyPartEntity {
   @ApiProperty() PartName: string;
 }
-class AssemblyLabelEntity {
+export class AssemblyLabelEntity {
   @ApiProperty() LabelNumber: string;
   @ApiProperty() FinishGoodId: string;
-  @ApiProperty() ForecastId: string;
+  @ApiProperty() ProductionDemandId: string;
   @ApiProperty({ nullable: true }) ProductionReleaseId: string | null;
   @ApiProperty() QtyThisBox: number;
   @ApiProperty({ type: AssemblyPartEntity }) PartData: AssemblyPartEntity;

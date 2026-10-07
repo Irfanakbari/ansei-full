@@ -3,7 +3,11 @@ export interface DeliveryProgressSource {
   PoId: string;
   Qty: number;
   LabelData: { LabelNumber: string; QtyThisBox: number }[];
-  DeliveryHistory: { ForecastId: string; LabelDataId: string; Qty: number }[];
+  DeliveryHistory: {
+    ProductionDemandId: string;
+    LabelDataId: string;
+    Qty: number;
+  }[];
 }
 
 /** Shared by delivery admission and the public production monitor. */
@@ -13,7 +17,7 @@ export function getDeliveryProgress(order: DeliveryProgressSource) {
   );
   const matched = order.DeliveryHistory.filter(
     (delivery) =>
-      delivery.ForecastId === order.PoId &&
+      delivery.ProductionDemandId === order.PoId &&
       labels.get(delivery.LabelDataId)?.QtyThisBox === delivery.Qty,
   );
   const labelQty = order.LabelData.reduce(

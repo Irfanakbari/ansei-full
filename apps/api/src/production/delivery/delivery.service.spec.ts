@@ -26,14 +26,14 @@ describe('DeliveryService', () => {
       findUnique: jest.fn().mockResolvedValue({
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         FinishGoodId: 'FG-001',
         ProductionReleaseId: 'release-1',
         Scanned: true,
         QtyThisBox: 100,
       }),
     },
-    forecast: {
+    productionOrder: {
       findUnique: jest.fn().mockResolvedValue({
         PoId: 'PO-001',
         FinishGoodId: 'FG-001',
@@ -70,7 +70,7 @@ describe('DeliveryService', () => {
 
   const mockPrismaService = {
     labelData: { findUnique: jest.fn() },
-    forecast: { findUnique: jest.fn() },
+    productionOrder: { findUnique: jest.fn() },
     finishGood: { findUnique: jest.fn() },
     productionRelease: { findUnique: jest.fn() },
     snapshotRequirements: { findMany: jest.fn() },
@@ -133,7 +133,7 @@ describe('DeliveryService', () => {
       DeliveryHistory: labelQuantities
         .slice(0, deliveredLabels)
         .map((qty, index) => ({
-          ForecastId: poId,
+          ProductionDemandId: poId,
           LabelDataId: `${poId}-LBL-${index + 1}`,
           Qty: qty,
         })),
@@ -143,12 +143,12 @@ describe('DeliveryService', () => {
       mockPrismaService.labelData.findUnique.mockResolvedValue({
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         FinishGoodId: 'FG-001',
         QtyThisBox: 100,
         Scanned: true,
       });
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
         FinishGoodId: 'FG-001',
         Qty: 100,
@@ -164,7 +164,7 @@ describe('DeliveryService', () => {
       mockPrismaService.shopping.findMany.mockResolvedValue([]);
       mockPrismaService.deliveryHistory.findFirst.mockResolvedValue(null);
       const tx = createMockTx();
-      tx.forecast.findUnique.mockResolvedValue({
+      tx.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-001',
         FinishGoodId: 'FG-001',
         Qty: 100,
@@ -175,7 +175,7 @@ describe('DeliveryService', () => {
       tx.deliveryHistory.findUnique.mockResolvedValue(null);
       tx.deliveryHistory.create.mockResolvedValue({
         Id: 1,
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         Qty: 100,
         LabelDataId: 'LBL001',
       });
@@ -200,15 +200,15 @@ describe('DeliveryService', () => {
       const mockLabelData = {
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'NPO-001',
         FinishGoodId: 'FG-001',
         QtyThisBox: 100,
         Scanned: true,
         PartData: { PartNumber: 'FG-001', PartName: 'Finish Good A' },
-        POData: { PoId: 'PO-001', VendorName: 'Vendor A' },
+        POData: { PoId: 'NPO-001', SourceType: 'NON_PO', PoNumber: '' },
       };
       const mockForecast = {
-        PoId: 'PO-001',
+        PoId: 'NPO-001',
         FinishGoodId: 'FG-001',
         Qty: 10,
         ProductionReleaseId: 'release-1',
@@ -219,10 +219,12 @@ describe('DeliveryService', () => {
         Status: 'RELEASED',
       };
       const mockFinishGood = { PartNumber: 'FG-001', Qty: 150 };
-      const mockDelivery = { Id: 1, ForecastId: 'PO-001', Qty: 100 };
+      const mockDelivery = { Id: 1, ProductionDemandId: 'NPO-001', Qty: 100 };
 
       mockPrismaService.labelData.findUnique.mockResolvedValue(mockLabelData);
-      mockPrismaService.forecast.findUnique.mockResolvedValue(mockForecast);
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue(
+        mockForecast,
+      );
       mockPrismaService.productionRelease.findUnique.mockResolvedValue(
         mockProductionRelease,
       );
@@ -245,6 +247,13 @@ describe('DeliveryService', () => {
       const result = await service.create(dto, 'admin');
 
       expect(result.success).toBe(true);
+      expect(result.data).toMatchObject({
+        forecastId: 'NPO-001',
+        demandId: 'NPO-001',
+        referenceNumber: 'NPO-001',
+        sourceType: 'NON_PO',
+        poNumber: null,
+      });
       expect(mockPrismaService.labelData.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({ where: { LabelNumber: 'LBL001' } }),
       );
@@ -258,7 +267,7 @@ describe('DeliveryService', () => {
       const mockLabelData = {
         Id: 1,
         LabelNumber: 'LBL001',
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         FinishGoodId: 'FG-001',
         QtyThisBox: 100,
         Scanned: true,
@@ -278,7 +287,7 @@ describe('DeliveryService', () => {
       const mockFinishGood = { PartNumber: 'FG-001', Qty: 500 };
       const mockDeliveryWithPallet = {
         Id: 1,
-        ForecastId: 'PO-001',
+        ProductionDemandId: 'PO-001',
         Qty: 100,
         PalletNumber: 'PP2PANS001',
         CreatedAt: new Date(),
@@ -287,7 +296,9 @@ describe('DeliveryService', () => {
       };
 
       mockPrismaService.labelData.findUnique.mockResolvedValue(mockLabelData);
-      mockPrismaService.forecast.findUnique.mockResolvedValue(mockForecast);
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue(
+        mockForecast,
+      );
       mockPrismaService.productionRelease.findUnique.mockResolvedValue(
         mockProductionRelease,
       );
@@ -350,7 +361,7 @@ describe('DeliveryService', () => {
       'blocks period $period when an earlier period is incomplete',
       async ({ period, earlier, blockedPeriod }) => {
         const tx = setupReadyDelivery(period);
-        tx.forecast.findMany.mockResolvedValue(earlier);
+        tx.productionOrder.findMany.mockResolvedValue(earlier);
 
         const error = await service
           .create({ labelNumber: 'LBL001' }, 'admin')
@@ -370,7 +381,7 @@ describe('DeliveryService', () => {
 
     it('allows delivery when every label in all earlier periods is complete, including gaps', async () => {
       const tx = setupReadyDelivery(6);
-      tx.forecast.findMany.mockResolvedValue([
+      tx.productionOrder.findMany.mockResolvedValue([
         priorForecast(1, 'PO-A', [50, 50], 2),
         priorForecast(1, 'PO-B', [100], 1),
         priorForecast(2, 'PO-C', [100], 1),
@@ -380,7 +391,7 @@ describe('DeliveryService', () => {
       await expect(
         service.create({ labelNumber: 'LBL001' }, 'admin'),
       ).resolves.toMatchObject({ success: true });
-      expect(tx.forecast.findMany).toHaveBeenCalledWith(
+      expect(tx.productionOrder.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
             ProductionReleaseId: 'release-1',
@@ -393,14 +404,14 @@ describe('DeliveryService', () => {
 
     it('does not wait for another PO in the same period or another release', async () => {
       const tx = setupReadyDelivery(2);
-      tx.forecast.findMany.mockResolvedValue([
+      tx.productionOrder.findMany.mockResolvedValue([
         priorForecast(1, 'PO-A', [100], 1),
       ]);
 
       await expect(
         service.create({ labelNumber: 'LBL001' }, 'admin'),
       ).resolves.toMatchObject({ success: true });
-      expect(tx.forecast.findMany).toHaveBeenCalledWith(
+      expect(tx.productionOrder.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
             ProductionReleaseId: 'release-1',
@@ -416,7 +427,7 @@ describe('DeliveryService', () => {
         LBL001: {
           Id: 1,
           LabelNumber: 'LBL001',
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           FinishGoodId: 'FG-001',
           ProductionReleaseId: 'release-1',
           QtyThisBox: 100,
@@ -425,7 +436,7 @@ describe('DeliveryService', () => {
         LBL002: {
           Id: 2,
           LabelNumber: 'LBL002',
-          ForecastId: 'PO-002',
+          ProductionDemandId: 'PO-002',
           FinishGoodId: 'FG-001',
           ProductionReleaseId: 'release-1',
           QtyThisBox: 100,
@@ -454,7 +465,7 @@ describe('DeliveryService', () => {
         ({ where }: { where: { LabelNumber: keyof typeof labels } }) =>
           labels[where.LabelNumber],
       );
-      mockPrismaService.forecast.findUnique.mockImplementation(
+      mockPrismaService.productionOrder.findUnique.mockImplementation(
         ({ where }: { where: { PoId: keyof typeof forecasts } }) =>
           forecasts[where.PoId],
       );
@@ -462,12 +473,12 @@ describe('DeliveryService', () => {
         ({ where }: { where: { Id: number } }) =>
           where.Id === 1 ? labels.LBL001 : labels.LBL002,
       );
-      tx.forecast.findUnique.mockImplementation(
+      tx.productionOrder.findUnique.mockImplementation(
         ({ where }: { where: { PoId: keyof typeof forecasts } }) =>
           forecasts[where.PoId],
       );
       let periodTwoCommitted = false;
-      tx.forecast.findMany.mockImplementation(
+      tx.productionOrder.findMany.mockImplementation(
         ({ where }: { where: { DeliveryPeriod: { lt: number } } }) => [
           priorForecast(1, 'PO-A', [100], 1),
           ...(where.DeliveryPeriod.lt > 2
@@ -488,13 +499,17 @@ describe('DeliveryService', () => {
         async ({
           data,
         }: {
-          data: { ForecastId: string; LabelDataId: string; Qty: number };
+          data: {
+            ProductionDemandId: string;
+            LabelDataId: string;
+            Qty: number;
+          };
         }) => {
-          if (data.ForecastId === 'PO-001') {
+          if (data.ProductionDemandId === 'PO-001') {
             enterFirstDelivery();
             await firstDeliveryGate;
           }
-          return { Id: data.ForecastId === 'PO-001' ? 1 : 2, ...data };
+          return { Id: data.ProductionDemandId === 'PO-001' ? 1 : 2, ...data };
         },
       );
 
@@ -502,7 +517,7 @@ describe('DeliveryService', () => {
       mockPrismaService.$transaction.mockImplementation(
         (
           callback: (client: typeof tx) => Promise<{
-            delivery: { ForecastId: string };
+            delivery: { ProductionDemandId: string };
           }>,
         ) => {
           const previous = transactionTail;
@@ -514,7 +529,7 @@ describe('DeliveryService', () => {
             await previous;
             try {
               const result = await callback(tx);
-              if (result.delivery.ForecastId === 'PO-001')
+              if (result.delivery.ProductionDemandId === 'PO-001')
                 periodTwoCommitted = true;
               return result;
             } finally {
@@ -532,7 +547,7 @@ describe('DeliveryService', () => {
       const results = await Promise.all([periodTwo, periodFour]);
       expect(results.map((result) => result.success)).toEqual([true, true]);
       expect(
-        tx.forecast.findMany.mock.calls.map(
+        tx.productionOrder.findMany.mock.calls.map(
           ([arg]) => arg.where.DeliveryPeriod.lt,
         ),
       ).toEqual([2, 4]);
@@ -550,13 +565,13 @@ describe('DeliveryService', () => {
         earlier: {
           ...priorForecast(1, 'PO-A', [100], 1),
           DeliveryHistory: [
-            { ForecastId: 'PO-A', LabelDataId: 'PO-A-LBL-1', Qty: 99 },
+            { ProductionDemandId: 'PO-A', LabelDataId: 'PO-A-LBL-1', Qty: 99 },
           ],
         },
       },
     ])('blocks $name before any delivery side effect', async ({ earlier }) => {
       const tx = setupReadyDelivery(2);
-      tx.forecast.findMany.mockResolvedValue([earlier]);
+      tx.productionOrder.findMany.mockResolvedValue([earlier]);
 
       await expect(
         service.create({ labelNumber: 'LBL001' }, 'admin'),
@@ -587,12 +602,12 @@ describe('DeliveryService', () => {
         mockPrismaService.labelData.findUnique.mockResolvedValue({
           Id: 1,
           LabelNumber: 'LBL001',
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           FinishGoodId: 'FG-001',
           QtyThisBox: 100,
           Scanned: true,
         });
-        mockPrismaService.forecast.findUnique.mockResolvedValue({
+        mockPrismaService.productionOrder.findUnique.mockResolvedValue({
           PoId: 'PO-001',
           FinishGoodId: 'FG-001',
           Qty: 100,
@@ -610,7 +625,7 @@ describe('DeliveryService', () => {
           tx.labelData.findUnique.mockResolvedValue({
             Id: 1,
             LabelNumber: 'LBL001',
-            ForecastId: 'PO-001',
+            ProductionDemandId: 'PO-001',
             FinishGoodId: 'FG-001',
             ProductionReleaseId: 'release-1',
             Scanned: true,
@@ -618,7 +633,7 @@ describe('DeliveryService', () => {
             RequiresAssembly: true,
           });
         if (scenario === 'closed')
-          tx.forecast.findUnique.mockResolvedValue({
+          tx.productionOrder.findUnique.mockResolvedValue({
             PoId: 'PO-001',
             FinishGoodId: 'FG-001',
             Qty: 100,
@@ -662,7 +677,7 @@ describe('DeliveryService', () => {
       const mockDeliveries = [
         {
           Id: 1,
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           Qty: 100,
           LabelDataId: 'LBL-001',
           LabelData: {
@@ -672,7 +687,7 @@ describe('DeliveryService', () => {
         },
         {
           Id: 2,
-          ForecastId: 'PO-002',
+          ProductionDemandId: 'PO-002',
           Qty: 50,
           LabelDataId: 'LBL-002',
           LabelData: {
@@ -705,7 +720,7 @@ describe('DeliveryService', () => {
 
       expect(mockPrismaService.deliveryHistory.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ ForecastId: 'PO-001' }),
+          where: expect.objectContaining({ ProductionDemandId: 'PO-001' }),
         }),
       );
     });

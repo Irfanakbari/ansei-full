@@ -180,7 +180,7 @@ describe('ProductionFindingService', () => {
         LabelNumber: 'FG-001',
         QtyThisBox: 20,
         FinishGoodId: 'FG-PART-1',
-        ForecastId: 'forecast-1',
+        ProductionDemandId: 'forecast-1',
         ProductionReleaseId: 'release-1',
         PartData: { PartName: 'Finish Good One' },
         ProductionRelease: { Status: 'RELEASED' },
@@ -220,7 +220,7 @@ describe('ProductionFindingService', () => {
       );
       expect(prisma.productionBomSnapshot.findFirst).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { ForecastId: 'forecast-1', ReleaseId: 'release-1' },
+          where: { ProductionDemandId: 'forecast-1', ReleaseId: 'release-1' },
           orderBy: { Version: 'desc' },
         }),
       );
@@ -246,7 +246,7 @@ describe('ProductionFindingService', () => {
         LabelNumber: 'FG-001',
         QtyThisBox: 20,
         FinishGoodId: 'FG-PART-1',
-        ForecastId: 'forecast-1',
+        ProductionDemandId: 'forecast-1',
         ProductionReleaseId: 'release-1',
         PartData: { PartName: 'Finish Good One' },
         ProductionRelease: { Status: 'RELEASED' },
@@ -280,7 +280,7 @@ describe('ProductionFindingService', () => {
       MaterialId: 'MAT-1',
       Location: 'ASSY',
       Qty: 1,
-      ForecastId: null,
+      ProductionDemandId: null,
       ReleaseId: null,
     };
     const { tx, prisma, logs } = createHarness(finding);
@@ -319,7 +319,7 @@ describe('ProductionFindingService', () => {
       MaterialId: 'MAT-1',
       Location: 'RACK',
       Qty: 1,
-      ForecastId: null,
+      ProductionDemandId: null,
       ReleaseId: null,
     };
     const { tx, prisma, logs } = createHarness(finding);
@@ -365,7 +365,7 @@ describe('ProductionFindingService', () => {
       Category: 'MATERIAL',
       Location: 'ASSY',
       Status: 'WAITING_PART_CHANGE',
-      ForecastId: null,
+      ProductionDemandId: null,
       ReleaseId: null,
       Components: [
         {
@@ -381,7 +381,7 @@ describe('ProductionFindingService', () => {
       Id: 'shopping-1',
       Type: 'ADDITIONAL',
       Purpose: 'NON_PRODUCTION',
-      ForecastId: null,
+      ProductionDemandId: null,
       MaterialId: 'MAT-1',
       QtyPick: 2,
     });
@@ -420,7 +420,7 @@ describe('ProductionFindingService', () => {
       Id: 'finding-1',
       Category: 'FINISH_GOOD',
       Status: 'WAITING_PART_CHANGE',
-      ForecastId: 'PO-1',
+      ProductionDemandId: 'PO-1',
       ReleaseId: 'release-1',
       ReviewNote: null,
       Components: [
@@ -457,7 +457,7 @@ describe('ProductionFindingService', () => {
       Id: 'finding-1',
       Category: 'FINISH_GOOD',
       Status: 'WAITING_PART_CHANGE',
-      ForecastId: 'PO-1',
+      ProductionDemandId: 'PO-1',
       ReleaseId: 'release-1',
       ReviewNote: null,
       Components: [{ Qty: 3, Allocations: [{ Qty: 2 }] }],

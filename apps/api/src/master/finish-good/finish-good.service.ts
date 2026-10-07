@@ -448,7 +448,7 @@ export class FinishGoodService {
       }
 
       // POKAYOKE: Check if FG is in active Forecast with ProductionRelease (DRAFT/RELEASED)
-      const activeForecasts = await this.prisma.forecast.findMany({
+      const activeForecasts = await this.prisma.productionOrder.findMany({
         where: {
           FinishGoodId: existing.PartNumber,
           ProductionReleaseId: { not: null },

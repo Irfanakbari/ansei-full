@@ -30,7 +30,7 @@ export class FrontendService {
    */
   private async isShoppingComplete(forecastId: string): Promise<boolean> {
     // Get Forecast with its FinishGood
-    const forecast = await this.prisma.forecast.findUnique({
+    const forecast = await this.prisma.productionOrder.findUnique({
       where: { PoId: forecastId },
       include: {
         PartData: {
@@ -61,7 +61,7 @@ export class FrontendService {
 
     // Get all shopping records for this forecast
     const shoppings = await this.prisma.shopping.findMany({
-      where: { ForecastId: forecastId },
+      where: { ProductionDemandId: forecastId },
       select: {
         MaterialId: true,
         QtyPick: true,
@@ -293,36 +293,37 @@ export class FrontendService {
   }
 
   async getNotifications(): Promise<NotificationResponseEntity> {
-    const forecastsWithoutAttachmentQuery = this.prisma.forecast.findMany({
-      where: {
-        ProductionReleaseId: { not: null },
-        ProductionRelease: {
-          Status: ProductionStatus.RELEASED,
-          IsNoAttachment: false,
-          Attachments: { none: {} },
-        },
-      },
-      select: {
-        PoId: true,
-        PoNumber: true,
-        Qty: true,
-        DeliveryDate: true,
-        ProductionReleaseId: true,
-        ProductionRelease: {
-          select: {
-            Id: true,
-            ReleaseNumber: true,
-            Status: true,
+    const forecastsWithoutAttachmentQuery =
+      this.prisma.productionOrder.findMany({
+        where: {
+          ProductionReleaseId: { not: null },
+          ProductionRelease: {
+            Status: ProductionStatus.RELEASED,
+            IsNoAttachment: false,
+            Attachments: { none: {} },
           },
         },
-        PartData: {
-          select: {
-            PartNumber: true,
-            PartName: true,
+        select: {
+          PoId: true,
+          PoNumber: true,
+          Qty: true,
+          DeliveryDate: true,
+          ProductionReleaseId: true,
+          ProductionRelease: {
+            select: {
+              Id: true,
+              ReleaseNumber: true,
+              Status: true,
+            },
+          },
+          PartData: {
+            select: {
+              PartNumber: true,
+              PartName: true,
+            },
           },
         },
-      },
-    });
+      });
 
     const incomingNotClosedQuery = this.prisma.incoming.findMany({
       where: {
@@ -370,7 +371,7 @@ export class FrontendService {
       select: {
         Id: true,
         LabelNumber: true,
-        ForecastId: true,
+        ProductionDemandId: true,
         ProductionReleaseId: true,
         ProductionRelease: {
           select: {
@@ -450,7 +451,9 @@ export class FrontendService {
     );
 
     const forecastIds = [
-      ...new Set(allLabelDataNotScanned.map((label) => label.ForecastId)),
+      ...new Set(
+        allLabelDataNotScanned.map((label) => label.ProductionDemandId),
+      ),
     ];
     const shoppingCompletion = new Map(
       await Promise.all(
@@ -461,7 +464,7 @@ export class FrontendService {
       ),
     );
     const labelDataNotScanned = allLabelDataNotScanned.filter((label) =>
-      shoppingCompletion.get(label.ForecastId),
+      shoppingCompletion.get(label.ProductionDemandId),
     );
     const assemblyInProgress = assemblySessions.map((session) => ({
       id: session.Id,
@@ -607,7 +610,7 @@ export class FrontendService {
         },
         orderBy: { StartedAt: 'desc' },
       }),
-      this.prisma.forecast.findMany({
+      this.prisma.productionOrder.findMany({
         where: { DeliveryDate: range },
         select: {
           PoId: true,
@@ -695,7 +698,7 @@ export class FrontendService {
       }),
       this.prisma.deliveryHistory.findMany({
         where: { CreatedAt: range },
-        select: { ForecastId: true, Qty: true, CreatedAt: true },
+        select: { ProductionDemandId: true, Qty: true, CreatedAt: true },
       }),
     ]);
     const forecastIds = [
@@ -708,22 +711,25 @@ export class FrontendService {
     ];
     const lifetimeDeliveries = forecastIds.length
       ? await this.prisma.deliveryHistory.groupBy({
-          by: ['ForecastId'],
-          where: { ForecastId: { in: forecastIds } },
+          by: ['ProductionDemandId'],
+          where: { ProductionDemandId: { in: forecastIds } },
           _sum: { Qty: true },
         })
       : [];
     const shoppingCompletions = forecastIds.length
       ? await this.prisma.shoppingCompletion.findMany({
-          where: { ForecastId: { in: forecastIds } },
-          select: { ForecastId: true },
+          where: { ProductionDemandId: { in: forecastIds } },
+          select: { ProductionDemandId: true },
         })
       : [];
     const completedShoppingForecastIds = new Set(
-      shoppingCompletions.map((item) => item.ForecastId),
+      shoppingCompletions.map((item) => item.ProductionDemandId),
     );
     const deliveredByForecast = new Map(
-      lifetimeDeliveries.map((item) => [item.ForecastId, item._sum.Qty ?? 0]),
+      lifetimeDeliveries.map((item) => [
+        item.ProductionDemandId,
+        item._sum.Qty ?? 0,
+      ]),
     );
     const stockByPart = new Map(
       ledger.map((item) => [
@@ -1214,6 +1220,13 @@ export class FrontendService {
           where: { FinishGoodId: partNumber },
           select: { Qty: true },
         },
+        LabelDatas: {
+          where: {
+            FinishGoodId: partNumber,
+            AssemblySessions: { some: { Status: 'COMPLETED' } },
+          },
+          select: { QtyThisBox: true },
+        },
       },
       orderBy: { PlanDate: 'desc' },
     });
@@ -1222,6 +1235,11 @@ export class FrontendService {
       partNumber,
       partName: finishGood?.PartName ?? '',
       alias: finishGood?.Alias ?? null,
+      actualQty:
+        activeRelease?.LabelDatas.reduce(
+          (total, label) => total + label.QtyThisBox,
+          0,
+        ) ?? 0,
       targetQty:
         activeRelease?.Forecasts.reduce(
           (total, forecast) => total + forecast.Qty,

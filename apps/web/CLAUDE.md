@@ -37,6 +37,7 @@ API Next.js berfungsi sebagai proxy ke API utama sistem IPS, jadi logic utamanya
 - `store/provider.tsx` — Redux Provider wrapper used in layout
 
 **ATURAN PENTING:**
+
 - **WAJIB** gunakan Redux store untuk semua pemanggilan API
 - **DILARANG** melakukan fetch API langsung dari komponen atau page
 - Semua API call harus melalui thunk yang sudah ada di masing-masing domain slice
@@ -45,6 +46,7 @@ API Next.js berfungsi sebagai proxy ke API utama sistem IPS, jadi logic utamanya
 ### Pages (`app/apps/`)
 
 Pages under `/apps` are organized by feature domain:
+
 - `master-data/` — Master data management (satuan, supplier, material, finish good, BOM, dll)
 - `warehouse/` — Warehouse management (incoming, transfer, MRP, inventory counting)
 - `production/` — Production management (forecast, release, shopping, delivery)
@@ -67,6 +69,7 @@ Pages under `/apps` are organized by feature domain:
 ## Aturan Penulisan Kode
 
 ### Struktur Folder per Domain
+
 ```
 app/apps/<domain>/
 ├── _components/           # Komponen khusus domain ini saja
@@ -78,40 +81,38 @@ app/apps/<domain>/
 ```
 
 ### Redux Slice Pattern
+
 ```typescript
 // store/features/<domain>/<domain>Slice.ts
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchWithAuth } from '@/store/utils/fetchWithAuth';
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchWithAuth } from "@/store/utils/fetchWithAuth";
 
 export const fetchData = createAsyncThunk(
-  'domain/fetchData',
+  "domain/fetchData",
   async (params: any, { getState, rejectWithValue }) => {
     try {
-      const response = await fetchWithAuth('/api/endpoint', {
-        method: 'GET',
+      const response = await fetchWithAuth("/api/endpoint", {
+        method: "GET",
       });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 ```
 
 ### Menu Navigation
+
 Semua list menu ada di `app/apps/layout.tsx`. Pastikan jika ada permintaan page baru, menu dimasukkan di file tersebut.
 
 ## Modal Convention
 
 - Semua modal **WAJIB** menggunakan `centered={true}`
 - Contoh:
+
 ```tsx
-<Modal
-  centered={true}
-  open={visible}
-  onCancel={onClose}
-  title="Judul Modal"
->
+<Modal centered={true} open={visible} onCancel={onClose} title="Judul Modal">
   {/* content */}
 </Modal>
 ```
@@ -143,6 +144,17 @@ Semua list menu ada di `app/apps/layout.tsx`. Pastikan jika ada permintaan page 
 ## Versioning
 
 Setiap perubahan sesuaikan versioning di `app/page.tsx`:
+
 - **Patch** (1): Bug fix, perubahan kecil
 - **Minor** (2): Fitur baru yang backward compatible
 - **Major** (3): Breaking changes
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

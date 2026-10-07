@@ -11,7 +11,13 @@ import { PERMISSIONS_KEY } from '../../auth/decorators/permission.decorator';
 import { CancelAssemblyDto, StartAssemblyDto } from './dto/assembly.dto';
 describe('Assembly access and validation', () => {
   it('exposes only explicitly approved display operations without login', () => {
-    for (const name of ['start', 'complete', 'operator', 'inspect'] as const)
+    for (const name of [
+      'start',
+      'complete',
+      'operator',
+      'inspect',
+      'readyLabels',
+    ] as const)
       expect(
         Reflect.getMetadata(
           IS_PUBLIC_KEY,

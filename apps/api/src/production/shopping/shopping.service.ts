@@ -28,7 +28,7 @@ import { CreateShoppingDto } from './dto';
 import type {
   ShoppingModel,
   LogProcessModel,
-  ForecastModel,
+  ProductionOrderModel,
   BillOfMaterialsModel,
 } from '../../generated/prisma/models';
 import {
@@ -124,7 +124,9 @@ export class ShoppingService {
     if (query.search) {
       whereConditions.push({
         OR: [
-          { ForecastId: { contains: query.search, mode: 'insensitive' } },
+          {
+            ProductionDemandId: { contains: query.search, mode: 'insensitive' },
+          },
           { MaterialId: { contains: query.search, mode: 'insensitive' } },
         ],
       });
@@ -190,7 +192,7 @@ export class ShoppingService {
 
   async findByForecastId(forecastId: string) {
     return this.prisma.shopping.findMany({
-      where: { ForecastId: forecastId, Purpose: 'STANDARD' },
+      where: { ProductionDemandId: forecastId, Purpose: 'STANDARD' },
       include: {
         MaterialData: true,
         ForecastData: true,
@@ -455,7 +457,7 @@ export class ShoppingService {
     processId: string,
   ): Promise<boolean> {
     // Get Forecast Qty
-    const forecast = await this.prisma.forecast.findUnique({
+    const forecast = await this.prisma.productionOrder.findUnique({
       where: { PoId: forecastId },
       select: { Qty: true },
     });
@@ -500,7 +502,7 @@ export class ShoppingService {
       // Get total picked for this material in this forecast from database
       const shoppings = await this.prisma.shopping.findMany({
         where: {
-          ForecastId: forecastId,
+          ProductionDemandId: forecastId,
           Purpose: 'STANDARD',
           MaterialId: materialPartNumber,
         },
@@ -661,7 +663,7 @@ export class ShoppingService {
         await lockProductionFlow(tx);
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${dto.forecastId}))`;
 
-        const currentForecast = await tx.forecast.findUnique({
+        const currentForecast = await tx.productionOrder.findUnique({
           where: { PoId: dto.forecastId },
           include: { ProductionRelease: true },
         });
@@ -691,7 +693,7 @@ export class ShoppingService {
           ),
           tx.shopping.findMany({
             where: {
-              ForecastId: dto.forecastId,
+              ProductionDemandId: dto.forecastId,
               Purpose: 'STANDARD',
               MaterialId: dto.materialId,
             },
@@ -787,7 +789,7 @@ export class ShoppingService {
       const shopping = await tx.shopping.create({
         data: {
           Id: shoppingId,
-          ForecastId: validForecastId,
+          ProductionDemandId: validForecastId,
           MaterialId: dto.materialId,
           QtyPick: dto.qtyPick,
           Purpose: dto.purpose,
@@ -818,9 +820,9 @@ export class ShoppingService {
         ))
       ) {
         const markerCount = await tx.$executeRaw`
-          INSERT INTO "ShoppingCompletion" ("ForecastId", "ShoppingId", "CreatedBy")
+          INSERT INTO "ShoppingCompletion" ("ProductionDemandId", "ShoppingId", "CreatedBy")
           VALUES (${validForecastId}, ${shoppingId}, ${createdBy})
-          ON CONFLICT ("ForecastId") DO NOTHING
+          ON CONFLICT ("ProductionDemandId") DO NOTHING
         `;
 
         if (markerCount === 1) {
@@ -833,7 +835,7 @@ export class ShoppingService {
 
           if (fg) {
             const labels = await tx.labelData.findMany({
-              where: { ForecastId: validForecastId },
+              where: { ProductionDemandId: validForecastId },
               select: { RequiresAssembly: true },
             });
             if (
@@ -887,7 +889,7 @@ export class ShoppingService {
               });
             }
             const [forecast, boxQTY] = await Promise.all([
-              tx.forecast.findUniqueOrThrow({
+              tx.productionOrder.findUniqueOrThrow({
                 where: { PoId: validForecastId },
               }),
               tx.boxQTY.findUnique({
@@ -926,7 +928,7 @@ export class ShoppingService {
       if (dto.forecastId)
         await tx.productionTraceEvent.create({
           data: {
-            ForecastId: dto.forecastId,
+            ProductionDemandId: dto.forecastId,
             ReleaseId: snapshot?.ReleaseId,
             Type: 'STANDARD_ISSUED',
             SourceType: 'Shopping',
@@ -954,7 +956,7 @@ export class ShoppingService {
     if (bomEntries.length === 0) return false;
 
     const shoppings = await tx.shopping.findMany({
-      where: { ForecastId: forecastId, Purpose: 'STANDARD' },
+      where: { ProductionDemandId: forecastId, Purpose: 'STANDARD' },
       select: { MaterialId: true, QtyPick: true },
     });
     const picked = new Map<string, number>();
@@ -1108,9 +1110,9 @@ export class ShoppingService {
     forecastId: string,
     processId: string,
   ): Promise<
-    ForecastModel & { productionReleaseStatus: ProductionStatus | null }
+    ProductionOrderModel & { productionReleaseStatus: ProductionStatus | null }
   > {
-    const forecast = await this.prisma.forecast.findUnique({
+    const forecast = await this.prisma.productionOrder.findUnique({
       where: { PoId: forecastId },
     });
 
@@ -1150,7 +1152,7 @@ export class ShoppingService {
    * POKAYOKE: Validate Forecast is RELEASED
    */
   private async validateForecastReleased(
-    forecast: ForecastModel & {
+    forecast: ProductionOrderModel & {
       productionReleaseStatus: ProductionStatus | null;
     },
     processId: string,
@@ -1228,7 +1230,7 @@ export class ShoppingService {
   ): Promise<number> {
     const shoppings = await this.prisma.shopping.findMany({
       where: {
-        ForecastId: forecastId,
+        ProductionDemandId: forecastId,
         Purpose: 'STANDARD',
         MaterialId: materialId,
       },
@@ -1290,7 +1292,7 @@ export class ShoppingService {
     forecastId: string,
   ): Promise<CheckRequirementResponse> {
     // Get Forecast with ProductionRelease
-    const forecast = await this.prisma.forecast.findUnique({
+    const forecast = await this.prisma.productionOrder.findUnique({
       where: { PoId: forecastId },
       include: {
         PartData: {
@@ -1321,7 +1323,7 @@ export class ShoppingService {
 
     // Get all shopping records for this forecast
     const shoppings = await this.prisma.shopping.findMany({
-      where: { ForecastId: forecastId, Purpose: 'STANDARD' },
+      where: { ProductionDemandId: forecastId, Purpose: 'STANDARD' },
       select: {
         MaterialId: true,
         QtyPick: true,

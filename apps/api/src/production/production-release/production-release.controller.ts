@@ -42,6 +42,10 @@ import {
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
+import {
+  ForecastCandidatesEntity,
+  ForecastCandidateIdsEntity,
+} from './entities/forecast-candidates.entity';
 
 @ApiTags('Production Release')
 @Controller('production/production-release')
@@ -69,6 +73,38 @@ export class ProductionReleaseController {
     @CurrentUser() _user: ICurrentUser,
   ) {
     return this.productionReleaseService.findByReleaseNumber(releaseNumber);
+  }
+
+  @Get('order-candidates')
+  @Permission('IPCS.PRODUCTION_RELEASE_CREATE')
+  @ApiResponse({ status: 200, type: ForecastCandidatesEntity })
+  async getCreateCandidates(
+    @Query() query: ProductionReleaseForecastCandidatesQueryDto,
+  ) {
+    return this.productionReleaseService.getCreateCandidates(query);
+  }
+
+  @Get('order-candidate-ids')
+  @Permission('IPCS.PRODUCTION_RELEASE_CREATE')
+  @ApiResponse({ status: 200, type: ForecastCandidateIdsEntity })
+  async getCreateCandidateIds(
+    @Query() query: ProductionReleaseForecastCandidatesQueryDto,
+  ) {
+    return this.productionReleaseService.getCandidateIds(query);
+  }
+
+  @Get(':id/forecast-candidate-ids')
+  @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
+  @ApiResponse({ status: 200, type: ForecastCandidateIdsEntity })
+  @ApiResponse({
+    status: 409,
+    description: 'Release no longer accepts amendments',
+  })
+  async getCandidateIds(
+    @Param('id') id: string,
+    @Query() query: ProductionReleaseForecastCandidatesQueryDto,
+  ) {
+    return this.productionReleaseService.getCandidateIds(query, id);
   }
 
   @Get(':id')

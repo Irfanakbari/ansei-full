@@ -21,7 +21,7 @@ describe('ProductionReportService', () => {
       delete: jest.fn(),
       count: jest.fn(),
     },
-    forecast: {
+    productionOrder: {
       findUniqueOrThrow: jest
         .fn()
         .mockResolvedValue({ ProductionReleaseId: 'release' }),
@@ -243,7 +243,7 @@ describe('ProductionReportService', () => {
         mockFinishGood as any,
       );
       mockPrismaService.productionReport.findFirst.mockResolvedValue(null);
-      mockPrismaService.forecast.findUnique.mockResolvedValue(
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue(
         mockForecast as any,
       );
       mockPrismaService.pokayokeScanHistory.findFirst.mockResolvedValue({
@@ -258,17 +258,19 @@ describe('ProductionReportService', () => {
       mockPrismaService.productionReport.create.mockResolvedValue({
         Id: 10,
         ...createDto,
-        ForecastId: 'PO-2026-001',
+        ProductionDemandId: 'PO-2026-001',
       } as any);
       mockPrismaService.productionRelease.update.mockResolvedValue({} as any);
 
       const result = await service.create(createDto, 'OPERATOR');
 
       expect(result.Id).toBe(10);
-      expect(mockPrismaService.forecast.findUnique).toHaveBeenCalledWith({
-        where: { PoId: 'PO-2026-001' },
-        include: { ProductionRelease: true },
-      });
+      expect(mockPrismaService.productionOrder.findUnique).toHaveBeenCalledWith(
+        {
+          where: { PoId: 'PO-2026-001' },
+          include: { ProductionRelease: true },
+        },
+      );
       expect(
         mockPrismaService.pokayokeScanHistory.findFirst,
       ).toHaveBeenCalledWith({
@@ -302,7 +304,7 @@ describe('ProductionReportService', () => {
         PartNumber: 'FG-001',
       } as any);
       mockPrismaService.productionReport.findFirst.mockResolvedValue(null);
-      mockPrismaService.forecast.findUnique.mockResolvedValue(null);
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue(null);
 
       await expect(service.create(createDto, 'OPERATOR')).rejects.toThrow(
         BadRequestException,
@@ -326,7 +328,7 @@ describe('ProductionReportService', () => {
         PartNumber: 'FG-001',
       } as any);
       mockPrismaService.productionReport.findFirst.mockResolvedValue(null);
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-NO-SCAN',
         FinishGoodId: 'FG-001',
         ProductionRelease: { Status: 'RELEASED', ReleaseNumber: 'REL-01' },
@@ -355,7 +357,7 @@ describe('ProductionReportService', () => {
         PartNumber: 'FG-001',
       } as any);
       mockPrismaService.productionReport.findFirst.mockResolvedValue(null);
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-CLOSED',
         FinishGoodId: 'FG-001',
         ProductionRelease: { Status: 'COMPLETED', ReleaseNumber: 'REL-CLOSED' },
@@ -387,7 +389,7 @@ describe('ProductionReportService', () => {
         PartNumber: 'FG-001',
       } as any);
       mockPrismaService.productionReport.findFirst.mockResolvedValue(null);
-      mockPrismaService.forecast.findUnique.mockResolvedValue({
+      mockPrismaService.productionOrder.findUnique.mockResolvedValue({
         PoId: 'PO-MISMATCH',
         FinishGoodId: 'FG-999', // Different FG!
         ProductionRelease: { Status: 'RELEASED', ReleaseNumber: 'REL-01' },
@@ -422,7 +424,7 @@ describe('ProductionReportService', () => {
           NgQty: 2,
           RecordType: 'ONE',
           FinishGoodId: 'FG-001',
-          ForecastId: 'PO-001',
+          ProductionDemandId: 'PO-001',
           PoNumber: 'PO-001',
           CreatedAt: new Date(),
           FGData: { PartNumber: 'FG-001', PartName: 'Part 1' },
@@ -483,7 +485,7 @@ describe('ProductionReportService', () => {
         },
       ];
 
-      mockPrismaService.forecast.findMany.mockResolvedValue(
+      mockPrismaService.productionOrder.findMany.mockResolvedValue(
         mockCandidates as any,
       );
       // Only PO-1 has pokayoke scan!

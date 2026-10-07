@@ -1,3 +1,7 @@
+import {
+  ValidateIf as SelectionOptional,
+  IsOptional as OptionalDemand,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayNotEmpty,
@@ -9,6 +13,14 @@ import {
 } from 'class-validator';
 
 export class AmendProductionReleaseForecastsDto {
+  @OptionalDemand()
+  @IsArray()
+  @IsString({ each: true })
+  demandIds?: string[];
+
+  @SelectionOptional(
+    (dto: { demandIds?: string[] }) => dto.demandIds === undefined,
+  )
   @ApiProperty({ description: 'Forecast PO IDs', example: ['PO-001'] })
   @IsArray()
   @ArrayNotEmpty()

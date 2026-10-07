@@ -150,6 +150,77 @@ export class ForecastService {
     };
   }
 
+  async findOrders(query: ForecastQueryDto = { page: 1, limit: 50 }) {
+    const page = query?.page ?? 1;
+    const limit = query?.limit ?? 50;
+    const where: Prisma.ProductionOrderWhereInput = {};
+
+    if (query?.search) {
+      where.OR = [
+        { PoId: { contains: query.search, mode: 'insensitive' } },
+        { FinishGoodId: { contains: query.search, mode: 'insensitive' } },
+        { VendorName: { contains: query.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (query?.poNumber) {
+      where.PoId = { contains: query.poNumber, mode: 'insensitive' };
+    }
+
+    if (query?.partNumber) {
+      where.FinishGoodId = { contains: query.partNumber, mode: 'insensitive' };
+    }
+
+    if (query?.deliveryDate) {
+      where.DeliveryDate = {
+        gte: new Date(`${query.deliveryDate}T00:00:00.000Z`),
+        lte: new Date(`${query.deliveryDate}T23:59:59.999Z`),
+      };
+    } else if (query?.deliveryDateFrom || query?.deliveryDateTo) {
+      where.DeliveryDate = {
+        ...(query.deliveryDateFrom
+          ? { gte: new Date(`${query.deliveryDateFrom}T00:00:00.000Z`) }
+          : {}),
+        ...(query.deliveryDateTo
+          ? { lte: new Date(`${query.deliveryDateTo}T23:59:59.999Z`) }
+          : {}),
+      };
+    }
+
+    if (query?.status === 'OPEN') {
+      where.ProductionReleaseId = null;
+    }
+
+    const [totalItems, data] = await Promise.all([
+      this.prisma.productionOrder.count({ where }),
+      this.prisma.productionOrder.findMany({
+        where,
+        include: {
+          LabelData: { select: { Id: true }, take: 1 },
+          PartData: {
+            select: {
+              PartNumber: true,
+              PartName: true,
+            },
+          },
+          ProductionRelease: { select: { ReleaseNumber: true } },
+        },
+        orderBy: [{ DeliveryDate: 'asc' }, { Id: 'desc' }],
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+      },
+    };
+  }
+
   async findOne(id: string) {
     // Try by numeric ID first
     const numericId = parseInt(id, 10);
@@ -215,11 +286,11 @@ export class ForecastService {
         tx.forecast.create({
           data: {
             PoId: dto.poId,
-            Date: dto.date,
+            Date: new Date(dto.date),
             VendorCode: dto.vendorCode,
             VendorName: dto.vendorName,
             ReceivingArea: dto.receivingArea,
-            DeliveryDate: dto.deliveryDate,
+            DeliveryDate: new Date(dto.deliveryDate),
             DeliveryPeriod: dto.deliveryPeriod,
             Classification: dto.classification,
             PoNumber: dto.poNumber,
@@ -264,7 +335,7 @@ export class ForecastService {
         createdBy: requestedBy,
       });
 
-      const forecast = await this.prisma.forecast.findUnique({
+      const forecast = await this.prisma.productionOrder.findUnique({
         where: { PoId: id },
         include: {
           LabelData: { select: { Id: true }, take: 1 },
@@ -342,7 +413,7 @@ export class ForecastService {
   }
 
   async downloadTag(id: string): Promise<Buffer> {
-    const forecast = await this.prisma.forecast.findUnique({
+    const forecast = await this.prisma.productionOrder.findUnique({
       where: { PoId: id },
       include: {
         LabelData: { select: { Id: true }, take: 1 },
@@ -426,7 +497,7 @@ export class ForecastService {
             })
           : null;
         const previousLabel = await tx.labelData.findFirst({
-          where: { ForecastId: existing.PoId },
+          where: { ProductionDemandId: existing.PoId },
           select: { RequiresAssembly: true },
         });
         const labelsChanged =
@@ -436,7 +507,7 @@ export class ForecastService {
             dto.finishGoodId !== existing.FinishGoodId);
         if (labelsChanged) {
           await tx.labelData.deleteMany({
-            where: { ForecastId: existing.PoId },
+            where: { ProductionDemandId: existing.PoId },
           });
         }
 
@@ -450,7 +521,7 @@ export class ForecastService {
 
         const updateData: Prisma.ForecastUncheckedUpdateInput = {};
         if (dto.poId !== undefined) updateData.PoId = dto.poId;
-        if (dto.date !== undefined) updateData.Date = dto.date;
+        if (dto.date !== undefined) updateData.Date = new Date(dto.date);
         if (dto.vendorCode !== undefined)
           updateData.VendorCode = dto.vendorCode;
         if (dto.vendorName !== undefined)
@@ -458,7 +529,7 @@ export class ForecastService {
         if (dto.receivingArea !== undefined)
           updateData.ReceivingArea = dto.receivingArea;
         if (dto.deliveryDate !== undefined)
-          updateData.DeliveryDate = dto.deliveryDate;
+          updateData.DeliveryDate = new Date(dto.deliveryDate);
         if (dto.deliveryPeriod !== undefined)
           updateData.DeliveryPeriod = dto.deliveryPeriod;
         if (dto.classification !== undefined)
@@ -850,7 +921,7 @@ export class ForecastService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return this.prisma.forecast.findMany({
+    return this.prisma.productionOrder.findMany({
       select: {
         PoId: true,
         FinishGoodId: true,
@@ -878,7 +949,7 @@ export class ForecastService {
     today.setHours(0, 0, 0, 0);
     const twoWeeksLater = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
 
-    return this.prisma.forecast.findMany({
+    return this.prisma.productionOrder.findMany({
       include: {
         PartData: {
           select: {
@@ -888,7 +959,7 @@ export class ForecastService {
         },
         Shopping: {
           select: {
-            ForecastId: true,
+            ProductionDemandId: true,
           },
         },
         ProductionRelease: {

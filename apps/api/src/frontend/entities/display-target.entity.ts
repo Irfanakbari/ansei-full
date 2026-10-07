@@ -17,6 +17,13 @@ export class DisplayTargetEntity {
   })
   targetQty: number;
 
+  @ApiProperty({
+    description:
+      'Sum of box quantities with completed assembly for this finish good in the active production release; each box is counted once',
+    example: 80,
+  })
+  actualQty: number;
+
   @ApiPropertyOptional({ nullable: true, example: 'uuid' })
   productionReleaseId: string | null;
 

@@ -37,8 +37,9 @@ export type DeliveryHistorySumAggregateOutputType = {
 }
 
 export type DeliveryHistoryMinAggregateOutputType = {
+  LegacyPoId: string | null
   Id: number | null
-  ForecastId: string | null
+  ProductionDemandId: string | null
   Qty: number | null
   PalletNumber: string | null
   CreatedAt: Date | null
@@ -47,8 +48,9 @@ export type DeliveryHistoryMinAggregateOutputType = {
 }
 
 export type DeliveryHistoryMaxAggregateOutputType = {
+  LegacyPoId: string | null
   Id: number | null
-  ForecastId: string | null
+  ProductionDemandId: string | null
   Qty: number | null
   PalletNumber: string | null
   CreatedAt: Date | null
@@ -57,8 +59,9 @@ export type DeliveryHistoryMaxAggregateOutputType = {
 }
 
 export type DeliveryHistoryCountAggregateOutputType = {
+  LegacyPoId: number
   Id: number
-  ForecastId: number
+  ProductionDemandId: number
   Qty: number
   PalletNumber: number
   CreatedAt: number
@@ -79,8 +82,9 @@ export type DeliveryHistorySumAggregateInputType = {
 }
 
 export type DeliveryHistoryMinAggregateInputType = {
+  LegacyPoId?: true
   Id?: true
-  ForecastId?: true
+  ProductionDemandId?: true
   Qty?: true
   PalletNumber?: true
   CreatedAt?: true
@@ -89,8 +93,9 @@ export type DeliveryHistoryMinAggregateInputType = {
 }
 
 export type DeliveryHistoryMaxAggregateInputType = {
+  LegacyPoId?: true
   Id?: true
-  ForecastId?: true
+  ProductionDemandId?: true
   Qty?: true
   PalletNumber?: true
   CreatedAt?: true
@@ -99,8 +104,9 @@ export type DeliveryHistoryMaxAggregateInputType = {
 }
 
 export type DeliveryHistoryCountAggregateInputType = {
+  LegacyPoId?: true
   Id?: true
-  ForecastId?: true
+  ProductionDemandId?: true
   Qty?: true
   PalletNumber?: true
   CreatedAt?: true
@@ -196,8 +202,9 @@ export type DeliveryHistoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 export type DeliveryHistoryGroupByOutputType = {
+  LegacyPoId: string | null
   Id: number
-  ForecastId: string
+  ProductionDemandId: string
   Qty: number
   PalletNumber: string | null
   CreatedAt: Date
@@ -229,26 +236,32 @@ export type DeliveryHistoryWhereInput = {
   AND?: Prisma.DeliveryHistoryWhereInput | Prisma.DeliveryHistoryWhereInput[]
   OR?: Prisma.DeliveryHistoryWhereInput[]
   NOT?: Prisma.DeliveryHistoryWhereInput | Prisma.DeliveryHistoryWhereInput[]
+  LegacyPoId?: Prisma.StringNullableFilter<"DeliveryHistory"> | string | null
   Id?: Prisma.IntFilter<"DeliveryHistory"> | number
-  ForecastId?: Prisma.StringFilter<"DeliveryHistory"> | string
+  ProductionDemandId?: Prisma.StringFilter<"DeliveryHistory"> | string
   Qty?: Prisma.IntFilter<"DeliveryHistory"> | number
   PalletNumber?: Prisma.StringNullableFilter<"DeliveryHistory"> | string | null
   CreatedAt?: Prisma.DateTimeFilter<"DeliveryHistory"> | Date | string
   CreatedBy?: Prisma.StringFilter<"DeliveryHistory"> | string
   LabelDataId?: Prisma.StringFilter<"DeliveryHistory"> | string
-  PoData?: Prisma.XOR<Prisma.ForecastScalarRelationFilter, Prisma.ForecastWhereInput>
+  LegacyForecast?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandScalarRelationFilter, Prisma.ProductionDemandWhereInput>
+  PoData?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
   LabelData?: Prisma.XOR<Prisma.LabelDataScalarRelationFilter, Prisma.LabelDataWhereInput>
 }
 
 export type DeliveryHistoryOrderByWithRelationInput = {
+  LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   PalletNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
   LabelDataId?: Prisma.SortOrder
-  PoData?: Prisma.ForecastOrderByWithRelationInput
+  LegacyForecast?: Prisma.ForecastOrderByWithRelationInput
+  Demand?: Prisma.ProductionDemandOrderByWithRelationInput
+  PoData?: Prisma.ProductionOrderOrderByWithRelationInput
   LabelData?: Prisma.LabelDataOrderByWithRelationInput
 }
 
@@ -258,18 +271,22 @@ export type DeliveryHistoryWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.DeliveryHistoryWhereInput | Prisma.DeliveryHistoryWhereInput[]
   OR?: Prisma.DeliveryHistoryWhereInput[]
   NOT?: Prisma.DeliveryHistoryWhereInput | Prisma.DeliveryHistoryWhereInput[]
-  ForecastId?: Prisma.StringFilter<"DeliveryHistory"> | string
+  LegacyPoId?: Prisma.StringNullableFilter<"DeliveryHistory"> | string | null
+  ProductionDemandId?: Prisma.StringFilter<"DeliveryHistory"> | string
   Qty?: Prisma.IntFilter<"DeliveryHistory"> | number
   PalletNumber?: Prisma.StringNullableFilter<"DeliveryHistory"> | string | null
   CreatedAt?: Prisma.DateTimeFilter<"DeliveryHistory"> | Date | string
   CreatedBy?: Prisma.StringFilter<"DeliveryHistory"> | string
-  PoData?: Prisma.XOR<Prisma.ForecastScalarRelationFilter, Prisma.ForecastWhereInput>
+  LegacyForecast?: Prisma.XOR<Prisma.ForecastNullableScalarRelationFilter, Prisma.ForecastWhereInput> | null
+  Demand?: Prisma.XOR<Prisma.ProductionDemandScalarRelationFilter, Prisma.ProductionDemandWhereInput>
+  PoData?: Prisma.XOR<Prisma.ProductionOrderScalarRelationFilter, Prisma.ProductionOrderWhereInput>
   LabelData?: Prisma.XOR<Prisma.LabelDataScalarRelationFilter, Prisma.LabelDataWhereInput>
 }, "Id" | "LabelDataId">
 
 export type DeliveryHistoryOrderByWithAggregationInput = {
+  LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   PalletNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
@@ -286,8 +303,9 @@ export type DeliveryHistoryScalarWhereWithAggregatesInput = {
   AND?: Prisma.DeliveryHistoryScalarWhereWithAggregatesInput | Prisma.DeliveryHistoryScalarWhereWithAggregatesInput[]
   OR?: Prisma.DeliveryHistoryScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DeliveryHistoryScalarWhereWithAggregatesInput | Prisma.DeliveryHistoryScalarWhereWithAggregatesInput[]
+  LegacyPoId?: Prisma.StringNullableWithAggregatesFilter<"DeliveryHistory"> | string | null
   Id?: Prisma.IntWithAggregatesFilter<"DeliveryHistory"> | number
-  ForecastId?: Prisma.StringWithAggregatesFilter<"DeliveryHistory"> | string
+  ProductionDemandId?: Prisma.StringWithAggregatesFilter<"DeliveryHistory"> | string
   Qty?: Prisma.IntWithAggregatesFilter<"DeliveryHistory"> | number
   PalletNumber?: Prisma.StringNullableWithAggregatesFilter<"DeliveryHistory"> | string | null
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"DeliveryHistory"> | Date | string
@@ -300,13 +318,16 @@ export type DeliveryHistoryCreateInput = {
   PalletNumber?: string | null
   CreatedAt?: Date | string
   CreatedBy: string
-  PoData: Prisma.ForecastCreateNestedOneWithoutDeliveryHistoryInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutDeliveryHistoryInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutDeliveryHistoryInput
+  PoData: Prisma.ProductionOrderCreateNestedOneWithoutDeliveryHistoryInput
   LabelData: Prisma.LabelDataCreateNestedOneWithoutDeliveryHistoryInput
 }
 
 export type DeliveryHistoryUncheckedCreateInput = {
+  LegacyPoId?: string | null
   Id?: number
-  ForecastId: string
+  ProductionDemandId: string
   Qty: number
   PalletNumber?: string | null
   CreatedAt?: Date | string
@@ -319,13 +340,16 @@ export type DeliveryHistoryUpdateInput = {
   PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
-  PoData?: Prisma.ForecastUpdateOneRequiredWithoutDeliveryHistoryNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutDeliveryHistoryNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutDeliveryHistoryNestedInput
+  PoData?: Prisma.ProductionOrderUpdateOneRequiredWithoutDeliveryHistoryNestedInput
   LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutDeliveryHistoryNestedInput
 }
 
 export type DeliveryHistoryUncheckedUpdateInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -334,8 +358,9 @@ export type DeliveryHistoryUncheckedUpdateInput = {
 }
 
 export type DeliveryHistoryCreateManyInput = {
+  LegacyPoId?: string | null
   Id?: number
-  ForecastId: string
+  ProductionDemandId: string
   Qty: number
   PalletNumber?: string | null
   CreatedAt?: Date | string
@@ -351,8 +376,9 @@ export type DeliveryHistoryUpdateManyMutationInput = {
 }
 
 export type DeliveryHistoryUncheckedUpdateManyInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,8 +402,9 @@ export type DeliveryHistoryNullableScalarRelationFilter = {
 }
 
 export type DeliveryHistoryCountOrderByAggregateInput = {
+  LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   PalletNumber?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
@@ -391,8 +418,9 @@ export type DeliveryHistoryAvgOrderByAggregateInput = {
 }
 
 export type DeliveryHistoryMaxOrderByAggregateInput = {
+  LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   PalletNumber?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
@@ -401,8 +429,9 @@ export type DeliveryHistoryMaxOrderByAggregateInput = {
 }
 
 export type DeliveryHistoryMinOrderByAggregateInput = {
+  LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
-  ForecastId?: Prisma.SortOrder
+  ProductionDemandId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   PalletNumber?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
@@ -415,45 +444,45 @@ export type DeliveryHistorySumOrderByAggregateInput = {
   Qty?: Prisma.SortOrder
 }
 
-export type DeliveryHistoryCreateNestedManyWithoutPoDataInput = {
-  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput> | Prisma.DeliveryHistoryCreateWithoutPoDataInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput[]
-  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput | Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput[]
-  createMany?: Prisma.DeliveryHistoryCreateManyPoDataInputEnvelope
+export type DeliveryHistoryCreateNestedManyWithoutLegacyForecastInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput, Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput> | Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutLegacyForecastInput | Prisma.DeliveryHistoryCreateOrConnectWithoutLegacyForecastInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyLegacyForecastInputEnvelope
   connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
 }
 
-export type DeliveryHistoryUncheckedCreateNestedManyWithoutPoDataInput = {
-  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput> | Prisma.DeliveryHistoryCreateWithoutPoDataInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput[]
-  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput | Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput[]
-  createMany?: Prisma.DeliveryHistoryCreateManyPoDataInputEnvelope
+export type DeliveryHistoryUncheckedCreateNestedManyWithoutLegacyForecastInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput, Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput> | Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutLegacyForecastInput | Prisma.DeliveryHistoryCreateOrConnectWithoutLegacyForecastInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyLegacyForecastInputEnvelope
   connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
 }
 
-export type DeliveryHistoryUpdateManyWithoutPoDataNestedInput = {
-  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput> | Prisma.DeliveryHistoryCreateWithoutPoDataInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput[]
-  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput | Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput[]
-  upsert?: Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput | Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput[]
-  createMany?: Prisma.DeliveryHistoryCreateManyPoDataInputEnvelope
+export type DeliveryHistoryUpdateManyWithoutLegacyForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput, Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput> | Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutLegacyForecastInput | Prisma.DeliveryHistoryCreateOrConnectWithoutLegacyForecastInput[]
+  upsert?: Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutLegacyForecastInput | Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutLegacyForecastInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyLegacyForecastInputEnvelope
   set?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
   disconnect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
   delete?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
   connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
-  update?: Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput | Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput[]
-  updateMany?: Prisma.DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput | Prisma.DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput[]
+  update?: Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutLegacyForecastInput | Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutLegacyForecastInput[]
+  updateMany?: Prisma.DeliveryHistoryUpdateManyWithWhereWithoutLegacyForecastInput | Prisma.DeliveryHistoryUpdateManyWithWhereWithoutLegacyForecastInput[]
   deleteMany?: Prisma.DeliveryHistoryScalarWhereInput | Prisma.DeliveryHistoryScalarWhereInput[]
 }
 
-export type DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput = {
-  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput> | Prisma.DeliveryHistoryCreateWithoutPoDataInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput[]
-  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput | Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput[]
-  upsert?: Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput | Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput[]
-  createMany?: Prisma.DeliveryHistoryCreateManyPoDataInputEnvelope
+export type DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastNestedInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput, Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput> | Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutLegacyForecastInput | Prisma.DeliveryHistoryCreateOrConnectWithoutLegacyForecastInput[]
+  upsert?: Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutLegacyForecastInput | Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutLegacyForecastInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyLegacyForecastInputEnvelope
   set?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
   disconnect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
   delete?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
   connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
-  update?: Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput | Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput[]
-  updateMany?: Prisma.DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput | Prisma.DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput[]
+  update?: Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutLegacyForecastInput | Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutLegacyForecastInput[]
+  updateMany?: Prisma.DeliveryHistoryUpdateManyWithWhereWithoutLegacyForecastInput | Prisma.DeliveryHistoryUpdateManyWithWhereWithoutLegacyForecastInput[]
   deleteMany?: Prisma.DeliveryHistoryScalarWhereInput | Prisma.DeliveryHistoryScalarWhereInput[]
 }
 
@@ -489,16 +518,61 @@ export type DeliveryHistoryUncheckedUpdateOneWithoutLabelDataNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DeliveryHistoryUpdateToOneWithWhereWithoutLabelDataInput, Prisma.DeliveryHistoryUpdateWithoutLabelDataInput>, Prisma.DeliveryHistoryUncheckedUpdateWithoutLabelDataInput>
 }
 
-export type DeliveryHistoryCreateWithoutPoDataInput = {
+export type DeliveryHistoryCreateNestedManyWithoutDemandInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutDemandInput, Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput> | Prisma.DeliveryHistoryCreateWithoutDemandInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutDemandInput | Prisma.DeliveryHistoryCreateOrConnectWithoutDemandInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyDemandInputEnvelope
+  connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+}
+
+export type DeliveryHistoryUncheckedCreateNestedManyWithoutDemandInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutDemandInput, Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput> | Prisma.DeliveryHistoryCreateWithoutDemandInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutDemandInput | Prisma.DeliveryHistoryCreateOrConnectWithoutDemandInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyDemandInputEnvelope
+  connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+}
+
+export type DeliveryHistoryUpdateManyWithoutDemandNestedInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutDemandInput, Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput> | Prisma.DeliveryHistoryCreateWithoutDemandInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutDemandInput | Prisma.DeliveryHistoryCreateOrConnectWithoutDemandInput[]
+  upsert?: Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutDemandInput | Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutDemandInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyDemandInputEnvelope
+  set?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  disconnect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  delete?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  update?: Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutDemandInput | Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutDemandInput[]
+  updateMany?: Prisma.DeliveryHistoryUpdateManyWithWhereWithoutDemandInput | Prisma.DeliveryHistoryUpdateManyWithWhereWithoutDemandInput[]
+  deleteMany?: Prisma.DeliveryHistoryScalarWhereInput | Prisma.DeliveryHistoryScalarWhereInput[]
+}
+
+export type DeliveryHistoryUncheckedUpdateManyWithoutDemandNestedInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutDemandInput, Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput> | Prisma.DeliveryHistoryCreateWithoutDemandInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutDemandInput | Prisma.DeliveryHistoryCreateOrConnectWithoutDemandInput[]
+  upsert?: Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutDemandInput | Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutDemandInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyDemandInputEnvelope
+  set?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  disconnect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  delete?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  update?: Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutDemandInput | Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutDemandInput[]
+  updateMany?: Prisma.DeliveryHistoryUpdateManyWithWhereWithoutDemandInput | Prisma.DeliveryHistoryUpdateManyWithWhereWithoutDemandInput[]
+  deleteMany?: Prisma.DeliveryHistoryScalarWhereInput | Prisma.DeliveryHistoryScalarWhereInput[]
+}
+
+export type DeliveryHistoryCreateWithoutLegacyForecastInput = {
   Qty: number
   PalletNumber?: string | null
   CreatedAt?: Date | string
   CreatedBy: string
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutDeliveryHistoryInput
+  PoData: Prisma.ProductionOrderCreateNestedOneWithoutDeliveryHistoryInput
   LabelData: Prisma.LabelDataCreateNestedOneWithoutDeliveryHistoryInput
 }
 
-export type DeliveryHistoryUncheckedCreateWithoutPoDataInput = {
+export type DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput = {
   Id?: number
+  ProductionDemandId: string
   Qty: number
   PalletNumber?: string | null
   CreatedAt?: Date | string
@@ -506,38 +580,39 @@ export type DeliveryHistoryUncheckedCreateWithoutPoDataInput = {
   LabelDataId: string
 }
 
-export type DeliveryHistoryCreateOrConnectWithoutPoDataInput = {
+export type DeliveryHistoryCreateOrConnectWithoutLegacyForecastInput = {
   where: Prisma.DeliveryHistoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput>
+  create: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput, Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput>
 }
 
-export type DeliveryHistoryCreateManyPoDataInputEnvelope = {
-  data: Prisma.DeliveryHistoryCreateManyPoDataInput | Prisma.DeliveryHistoryCreateManyPoDataInput[]
+export type DeliveryHistoryCreateManyLegacyForecastInputEnvelope = {
+  data: Prisma.DeliveryHistoryCreateManyLegacyForecastInput | Prisma.DeliveryHistoryCreateManyLegacyForecastInput[]
   skipDuplicates?: boolean
 }
 
-export type DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput = {
+export type DeliveryHistoryUpsertWithWhereUniqueWithoutLegacyForecastInput = {
   where: Prisma.DeliveryHistoryWhereUniqueInput
-  update: Prisma.XOR<Prisma.DeliveryHistoryUpdateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedUpdateWithoutPoDataInput>
-  create: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput>
+  update: Prisma.XOR<Prisma.DeliveryHistoryUpdateWithoutLegacyForecastInput, Prisma.DeliveryHistoryUncheckedUpdateWithoutLegacyForecastInput>
+  create: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutLegacyForecastInput, Prisma.DeliveryHistoryUncheckedCreateWithoutLegacyForecastInput>
 }
 
-export type DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput = {
+export type DeliveryHistoryUpdateWithWhereUniqueWithoutLegacyForecastInput = {
   where: Prisma.DeliveryHistoryWhereUniqueInput
-  data: Prisma.XOR<Prisma.DeliveryHistoryUpdateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedUpdateWithoutPoDataInput>
+  data: Prisma.XOR<Prisma.DeliveryHistoryUpdateWithoutLegacyForecastInput, Prisma.DeliveryHistoryUncheckedUpdateWithoutLegacyForecastInput>
 }
 
-export type DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput = {
+export type DeliveryHistoryUpdateManyWithWhereWithoutLegacyForecastInput = {
   where: Prisma.DeliveryHistoryScalarWhereInput
-  data: Prisma.XOR<Prisma.DeliveryHistoryUpdateManyMutationInput, Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataInput>
+  data: Prisma.XOR<Prisma.DeliveryHistoryUpdateManyMutationInput, Prisma.DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastInput>
 }
 
 export type DeliveryHistoryScalarWhereInput = {
   AND?: Prisma.DeliveryHistoryScalarWhereInput | Prisma.DeliveryHistoryScalarWhereInput[]
   OR?: Prisma.DeliveryHistoryScalarWhereInput[]
   NOT?: Prisma.DeliveryHistoryScalarWhereInput | Prisma.DeliveryHistoryScalarWhereInput[]
+  LegacyPoId?: Prisma.StringNullableFilter<"DeliveryHistory"> | string | null
   Id?: Prisma.IntFilter<"DeliveryHistory"> | number
-  ForecastId?: Prisma.StringFilter<"DeliveryHistory"> | string
+  ProductionDemandId?: Prisma.StringFilter<"DeliveryHistory"> | string
   Qty?: Prisma.IntFilter<"DeliveryHistory"> | number
   PalletNumber?: Prisma.StringNullableFilter<"DeliveryHistory"> | string | null
   CreatedAt?: Prisma.DateTimeFilter<"DeliveryHistory"> | Date | string
@@ -550,12 +625,15 @@ export type DeliveryHistoryCreateWithoutLabelDataInput = {
   PalletNumber?: string | null
   CreatedAt?: Date | string
   CreatedBy: string
-  PoData: Prisma.ForecastCreateNestedOneWithoutDeliveryHistoryInput
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutDeliveryHistoryInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutDeliveryHistoryInput
+  PoData: Prisma.ProductionOrderCreateNestedOneWithoutDeliveryHistoryInput
 }
 
 export type DeliveryHistoryUncheckedCreateWithoutLabelDataInput = {
+  LegacyPoId?: string | null
   Id?: number
-  ForecastId: string
+  ProductionDemandId: string
   Qty: number
   PalletNumber?: string | null
   CreatedAt?: Date | string
@@ -583,19 +661,33 @@ export type DeliveryHistoryUpdateWithoutLabelDataInput = {
   PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
-  PoData?: Prisma.ForecastUpdateOneRequiredWithoutDeliveryHistoryNestedInput
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutDeliveryHistoryNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutDeliveryHistoryNestedInput
+  PoData?: Prisma.ProductionOrderUpdateOneRequiredWithoutDeliveryHistoryNestedInput
 }
 
 export type DeliveryHistoryUncheckedUpdateWithoutLabelDataInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
-  ForecastId?: Prisma.StringFieldUpdateOperationsInput | string
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
-export type DeliveryHistoryCreateManyPoDataInput = {
+export type DeliveryHistoryCreateWithoutDemandInput = {
+  Qty: number
+  PalletNumber?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutDeliveryHistoryInput
+  PoData: Prisma.ProductionOrderCreateNestedOneWithoutDeliveryHistoryInput
+  LabelData: Prisma.LabelDataCreateNestedOneWithoutDeliveryHistoryInput
+}
+
+export type DeliveryHistoryUncheckedCreateWithoutDemandInput = {
+  LegacyPoId?: string | null
   Id?: number
   Qty: number
   PalletNumber?: string | null
@@ -604,15 +696,122 @@ export type DeliveryHistoryCreateManyPoDataInput = {
   LabelDataId: string
 }
 
-export type DeliveryHistoryUpdateWithoutPoDataInput = {
+export type DeliveryHistoryCreateOrConnectWithoutDemandInput = {
+  where: Prisma.DeliveryHistoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutDemandInput, Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput>
+}
+
+export type DeliveryHistoryCreateManyDemandInputEnvelope = {
+  data: Prisma.DeliveryHistoryCreateManyDemandInput | Prisma.DeliveryHistoryCreateManyDemandInput[]
+  skipDuplicates?: boolean
+}
+
+export type DeliveryHistoryUpsertWithWhereUniqueWithoutDemandInput = {
+  where: Prisma.DeliveryHistoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.DeliveryHistoryUpdateWithoutDemandInput, Prisma.DeliveryHistoryUncheckedUpdateWithoutDemandInput>
+  create: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutDemandInput, Prisma.DeliveryHistoryUncheckedCreateWithoutDemandInput>
+}
+
+export type DeliveryHistoryUpdateWithWhereUniqueWithoutDemandInput = {
+  where: Prisma.DeliveryHistoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.DeliveryHistoryUpdateWithoutDemandInput, Prisma.DeliveryHistoryUncheckedUpdateWithoutDemandInput>
+}
+
+export type DeliveryHistoryUpdateManyWithWhereWithoutDemandInput = {
+  where: Prisma.DeliveryHistoryScalarWhereInput
+  data: Prisma.XOR<Prisma.DeliveryHistoryUpdateManyMutationInput, Prisma.DeliveryHistoryUncheckedUpdateManyWithoutDemandInput>
+}
+
+export type DeliveryHistoryCreateManyLegacyForecastInput = {
+  Id?: number
+  ProductionDemandId: string
+  Qty: number
+  PalletNumber?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  LabelDataId: string
+}
+
+export type DeliveryHistoryUpdateWithoutLegacyForecastInput = {
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutDeliveryHistoryNestedInput
+  PoData?: Prisma.ProductionOrderUpdateOneRequiredWithoutDeliveryHistoryNestedInput
   LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutDeliveryHistoryNestedInput
 }
 
-export type DeliveryHistoryUncheckedUpdateWithoutPoDataInput = {
+export type DeliveryHistoryUncheckedUpdateWithoutLegacyForecastInput = {
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  LabelDataId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type DeliveryHistoryUncheckedUpdateManyWithoutLegacyForecastInput = {
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  LabelDataId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type DeliveryHistoryUpdateManyWithoutPoDataNestedInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput> | Prisma.DeliveryHistoryCreateWithoutPoDataInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput | Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput[]
+  upsert?: Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput | Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyPoDataInputEnvelope
+  set?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  disconnect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  delete?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  update?: Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput | Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput[]
+  updateMany?: Prisma.DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput | Prisma.DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput[]
+  deleteMany?: Prisma.DeliveryHistoryScalarWhereInput | Prisma.DeliveryHistoryScalarWhereInput[]
+}
+
+export type DeliveryHistoryUncheckedUpdateManyWithoutPoDataNestedInput = {
+  create?: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput> | Prisma.DeliveryHistoryCreateWithoutPoDataInput[] | Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput[]
+  connectOrCreate?: Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput | Prisma.DeliveryHistoryCreateOrConnectWithoutPoDataInput[]
+  upsert?: Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput | Prisma.DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput[]
+  createMany?: Prisma.DeliveryHistoryCreateManyPoDataInputEnvelope
+  set?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  disconnect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  delete?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  connect?: Prisma.DeliveryHistoryWhereUniqueInput | Prisma.DeliveryHistoryWhereUniqueInput[]
+  update?: Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput | Prisma.DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput[]
+  updateMany?: Prisma.DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput | Prisma.DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput[]
+  deleteMany?: Prisma.DeliveryHistoryScalarWhereInput | Prisma.DeliveryHistoryScalarWhereInput[]
+}
+
+export type DeliveryHistoryCreateManyDemandInput = {
+  LegacyPoId?: string | null
+  Id?: number
+  Qty: number
+  PalletNumber?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  LabelDataId: string
+}
+
+export type DeliveryHistoryUpdateWithoutDemandInput = {
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutDeliveryHistoryNestedInput
+  PoData?: Prisma.ProductionOrderUpdateOneRequiredWithoutDeliveryHistoryNestedInput
+  LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutDeliveryHistoryNestedInput
+}
+
+export type DeliveryHistoryUncheckedUpdateWithoutDemandInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -621,7 +820,94 @@ export type DeliveryHistoryUncheckedUpdateWithoutPoDataInput = {
   LabelDataId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
+export type DeliveryHistoryUncheckedUpdateManyWithoutDemandInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  LabelDataId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type DeliveryHistoryCreateWithoutPoDataInput = {
+  Qty: number
+  PalletNumber?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  LegacyForecast?: Prisma.ForecastCreateNestedOneWithoutDeliveryHistoryInput
+  Demand: Prisma.ProductionDemandCreateNestedOneWithoutDeliveryHistoryInput
+  LabelData: Prisma.LabelDataCreateNestedOneWithoutDeliveryHistoryInput
+}
+
+export type DeliveryHistoryUncheckedCreateWithoutPoDataInput = {
+  LegacyPoId?: string | null
+  Id?: number
+  Qty: number
+  PalletNumber?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  LabelDataId: string
+}
+
+export type DeliveryHistoryCreateOrConnectWithoutPoDataInput = {
+  where: Prisma.DeliveryHistoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput>
+}
+
+export type DeliveryHistoryUpsertWithWhereUniqueWithoutPoDataInput = {
+  where: Prisma.DeliveryHistoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.DeliveryHistoryUpdateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedUpdateWithoutPoDataInput>
+  create: Prisma.XOR<Prisma.DeliveryHistoryCreateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedCreateWithoutPoDataInput>
+}
+
+export type DeliveryHistoryCreateManyPoDataInputEnvelope = {
+  data: Prisma.DeliveryHistoryCreateManyPoDataInput | Prisma.DeliveryHistoryCreateManyPoDataInput[]
+  skipDuplicates?: boolean
+}
+
+export type DeliveryHistoryUpdateWithWhereUniqueWithoutPoDataInput = {
+  where: Prisma.DeliveryHistoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.DeliveryHistoryUpdateWithoutPoDataInput, Prisma.DeliveryHistoryUncheckedUpdateWithoutPoDataInput>
+}
+
+export type DeliveryHistoryUpdateManyWithWhereWithoutPoDataInput = {
+  where: Prisma.DeliveryHistoryScalarWhereInput
+  data: Prisma.XOR<Prisma.DeliveryHistoryUpdateManyMutationInput, Prisma.DeliveryHistoryUncheckedUpdateManyWithoutPoDataInput>
+}
+
+export type DeliveryHistoryUpdateWithoutPoDataInput = {
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  LegacyForecast?: Prisma.ForecastUpdateOneWithoutDeliveryHistoryNestedInput
+  Demand?: Prisma.ProductionDemandUpdateOneRequiredWithoutDeliveryHistoryNestedInput
+  LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutDeliveryHistoryNestedInput
+}
+
+export type DeliveryHistoryUncheckedUpdateWithoutPoDataInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Id?: Prisma.IntFieldUpdateOperationsInput | number
+  Qty?: Prisma.IntFieldUpdateOperationsInput | number
+  PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  LabelDataId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type DeliveryHistoryCreateManyPoDataInput = {
+  LegacyPoId?: string | null
+  Id?: number
+  Qty: number
+  PalletNumber?: string | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  LabelDataId: string
+}
+
 export type DeliveryHistoryUncheckedUpdateManyWithoutPoDataInput = {
+  LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   Qty?: Prisma.IntFieldUpdateOperationsInput | number
   PalletNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -633,44 +919,54 @@ export type DeliveryHistoryUncheckedUpdateManyWithoutPoDataInput = {
 
 
 export type DeliveryHistorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   Qty?: boolean
   PalletNumber?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   LabelDataId?: boolean
-  PoData?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.DeliveryHistory$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  PoData?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["deliveryHistory"]>
 
 export type DeliveryHistorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   Qty?: boolean
   PalletNumber?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   LabelDataId?: boolean
-  PoData?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.DeliveryHistory$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  PoData?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["deliveryHistory"]>
 
 export type DeliveryHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   Qty?: boolean
   PalletNumber?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
   LabelDataId?: boolean
-  PoData?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.DeliveryHistory$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  PoData?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["deliveryHistory"]>
 
 export type DeliveryHistorySelectScalar = {
+  LegacyPoId?: boolean
   Id?: boolean
-  ForecastId?: boolean
+  ProductionDemandId?: boolean
   Qty?: boolean
   PalletNumber?: boolean
   CreatedAt?: boolean
@@ -678,29 +974,38 @@ export type DeliveryHistorySelectScalar = {
   LabelDataId?: boolean
 }
 
-export type DeliveryHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "ForecastId" | "Qty" | "PalletNumber" | "CreatedAt" | "CreatedBy" | "LabelDataId", ExtArgs["result"]["deliveryHistory"]>
+export type DeliveryHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"LegacyPoId" | "Id" | "ProductionDemandId" | "Qty" | "PalletNumber" | "CreatedAt" | "CreatedBy" | "LabelDataId", ExtArgs["result"]["deliveryHistory"]>
 export type DeliveryHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  PoData?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.DeliveryHistory$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  PoData?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
 }
 export type DeliveryHistoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  PoData?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.DeliveryHistory$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  PoData?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
 }
 export type DeliveryHistoryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  PoData?: boolean | Prisma.ForecastDefaultArgs<ExtArgs>
+  LegacyForecast?: boolean | Prisma.DeliveryHistory$LegacyForecastArgs<ExtArgs>
+  Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
+  PoData?: boolean | Prisma.ProductionOrderDefaultArgs<ExtArgs>
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
 }
 
 export type $DeliveryHistoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DeliveryHistory"
   objects: {
-    PoData: Prisma.$ForecastPayload<ExtArgs>
+    LegacyForecast: Prisma.$ForecastPayload<ExtArgs> | null
+    Demand: Prisma.$ProductionDemandPayload<ExtArgs>
+    PoData: Prisma.$ProductionOrderPayload<ExtArgs>
     LabelData: Prisma.$LabelDataPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    LegacyPoId: string | null
     Id: number
-    ForecastId: string
+    ProductionDemandId: string
     Qty: number
     PalletNumber: string | null
     CreatedAt: Date
@@ -789,8 +1094,8 @@ export interface DeliveryHistoryDelegate<ExtArgs extends runtime.Types.Extension
    * // Get first 10 DeliveryHistories
    * const deliveryHistories = await prisma.deliveryHistory.findMany({ take: 10 })
    * 
-   * // Only select the `Id`
-   * const deliveryHistoryWithIdOnly = await prisma.deliveryHistory.findMany({ select: { Id: true } })
+   * // Only select the `LegacyPoId`
+   * const deliveryHistoryWithLegacyPoIdOnly = await prisma.deliveryHistory.findMany({ select: { LegacyPoId: true } })
    * 
    */
   findMany<T extends DeliveryHistoryFindManyArgs>(args?: Prisma.SelectSubset<T, DeliveryHistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DeliveryHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -834,9 +1139,9 @@ export interface DeliveryHistoryDelegate<ExtArgs extends runtime.Types.Extension
    *   ]
    * })
    * 
-   * // Create many DeliveryHistories and only return the `Id`
-   * const deliveryHistoryWithIdOnly = await prisma.deliveryHistory.createManyAndReturn({
-   *   select: { Id: true },
+   * // Create many DeliveryHistories and only return the `LegacyPoId`
+   * const deliveryHistoryWithLegacyPoIdOnly = await prisma.deliveryHistory.createManyAndReturn({
+   *   select: { LegacyPoId: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -925,9 +1230,9 @@ export interface DeliveryHistoryDelegate<ExtArgs extends runtime.Types.Extension
    *   ]
    * })
    * 
-   * // Update zero or more DeliveryHistories and only return the `Id`
-   * const deliveryHistoryWithIdOnly = await prisma.deliveryHistory.updateManyAndReturn({
-   *   select: { Id: true },
+   * // Update zero or more DeliveryHistories and only return the `LegacyPoId`
+   * const deliveryHistoryWithLegacyPoIdOnly = await prisma.deliveryHistory.updateManyAndReturn({
+   *   select: { LegacyPoId: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1100,7 +1405,9 @@ readonly fields: DeliveryHistoryFieldRefs;
  */
 export interface Prisma__DeliveryHistoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  PoData<T extends Prisma.ForecastDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ForecastDefaultArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  LegacyForecast<T extends Prisma.DeliveryHistory$LegacyForecastArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DeliveryHistory$LegacyForecastArgs<ExtArgs>>): Prisma.Prisma__ForecastClient<runtime.Types.Result.GetResult<Prisma.$ForecastPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  Demand<T extends Prisma.ProductionDemandDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionDemandDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionDemandClient<runtime.Types.Result.GetResult<Prisma.$ProductionDemandPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  PoData<T extends Prisma.ProductionOrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionOrderDefaultArgs<ExtArgs>>): Prisma.Prisma__ProductionOrderClient<runtime.Types.Result.GetResult<Prisma.$ProductionOrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   LabelData<T extends Prisma.LabelDataDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelDataDefaultArgs<ExtArgs>>): Prisma.Prisma__LabelDataClient<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1131,8 +1438,9 @@ export interface Prisma__DeliveryHistoryClient<T, Null = never, ExtArgs extends 
  * Fields of the DeliveryHistory model
  */
 export interface DeliveryHistoryFieldRefs {
+  readonly LegacyPoId: Prisma.FieldRef<"DeliveryHistory", 'String'>
   readonly Id: Prisma.FieldRef<"DeliveryHistory", 'Int'>
-  readonly ForecastId: Prisma.FieldRef<"DeliveryHistory", 'String'>
+  readonly ProductionDemandId: Prisma.FieldRef<"DeliveryHistory", 'String'>
   readonly Qty: Prisma.FieldRef<"DeliveryHistory", 'Int'>
   readonly PalletNumber: Prisma.FieldRef<"DeliveryHistory", 'String'>
   readonly CreatedAt: Prisma.FieldRef<"DeliveryHistory", 'DateTime'>
@@ -1536,6 +1844,25 @@ export type DeliveryHistoryDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many DeliveryHistories to delete.
    */
   limit?: number
+}
+
+/**
+ * DeliveryHistory.LegacyForecast
+ */
+export type DeliveryHistory$LegacyForecastArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Forecast
+   */
+  select?: Prisma.ForecastSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Forecast
+   */
+  omit?: Prisma.ForecastOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ForecastInclude<ExtArgs> | null
+  where?: Prisma.ForecastWhereInput
 }
 
 /**

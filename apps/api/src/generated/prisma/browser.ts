@@ -73,6 +73,11 @@ export type InventoryLedger = Prisma.InventoryLedgerModel
  */
 export type StockOpname = Prisma.StockOpnameModel
 /**
+ * Model RecordNumberCounter
+ * 
+ */
+export type RecordNumberCounter = Prisma.RecordNumberCounterModel
+/**
  * Model StockOpnameDetail
  * 
  */
@@ -92,11 +97,6 @@ export type Incoming = Prisma.IncomingModel
  * 
  */
 export type IncomingMaterial = Prisma.IncomingMaterialModel
-/**
- * Model MaterialNG
- * 
- */
-export type MaterialNG = Prisma.MaterialNGModel
 /**
  * Model Forecast
  * 
@@ -283,17 +283,52 @@ export type ProductionBomSnapshot = Prisma.ProductionBomSnapshotModel
  */
 export type ProductionBomSnapshotLine = Prisma.ProductionBomSnapshotLineModel
 /**
- * Model MaterialNgCase
- * 
- */
-export type MaterialNgCase = Prisma.MaterialNgCaseModel
-/**
  * Model BusinessCommand
  * 
  */
 export type BusinessCommand = Prisma.BusinessCommandModel
 /**
+ * Model ProductionFinding
+ * 
+ */
+export type ProductionFinding = Prisma.ProductionFindingModel
+/**
+ * Model ProductionFindingComponent
+ * 
+ */
+export type ProductionFindingComponent = Prisma.ProductionFindingComponentModel
+/**
+ * Model ProductionFindingAllocation
+ * 
+ */
+export type ProductionFindingAllocation = Prisma.ProductionFindingAllocationModel
+/**
+ * Model ProductionFindingEvent
+ * 
+ */
+export type ProductionFindingEvent = Prisma.ProductionFindingEventModel
+/**
  * Model ProductionTraceEvent
  * 
  */
 export type ProductionTraceEvent = Prisma.ProductionTraceEventModel
+/**
+ * Model ForecastNonPo
+ * 
+ */
+export type ForecastNonPo = Prisma.ForecastNonPoModel
+/**
+ * Model ProductionDemand
+ * 
+ */
+export type ProductionDemand = Prisma.ProductionDemandModel
+/**
+ * Model ForecastNonPoImport
+ * 
+ */
+export type ForecastNonPoImport = Prisma.ForecastNonPoImportModel
+/**
+ * Model ProductionOrder
+ * 
+ */
+export type ProductionOrder = Prisma.ProductionOrderModel
