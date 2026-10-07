@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { DisplayConfigService } from './display-config.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -39,6 +39,7 @@ describe('DisplayConfigService', () => {
       count: jest.Mock;
       findMany: jest.Mock;
       findFirst: jest.Mock;
+      findUnique: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
       delete: jest.Mock;
@@ -62,6 +63,7 @@ describe('DisplayConfigService', () => {
         count: jest.fn(),
         findMany: jest.fn(),
         findFirst: jest.fn(),
+        findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
@@ -206,6 +208,29 @@ describe('DisplayConfigService', () => {
         data: expect.objectContaining({ FilePath: fileUrl }),
       });
       expect(result).toEqual(createdWithMedia);
+    });
+
+    it('does not create a config when media storage is unavailable', async () => {
+      const file = {
+        originalname: 'screen.png',
+        mimetype: 'image/png',
+        buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      } as Express.Multer.File;
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      logService.addLog.mockResolvedValue({});
+      logService.completeProcess.mockResolvedValue(undefined);
+      nasUploadService.uploadFile.mockRejectedValue(
+        new Error('NAS_PROTOCOL must be https in production'),
+      );
+
+      await expect(
+        service.create({ description: 'Display test' }, 'admin', file),
+      ).rejects.toThrow(ServiceUnavailableException);
+      expect(prismaService.displayConfig.create).not.toHaveBeenCalled();
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        mockLogProcess.ProcessId,
+        'FAILED',
+      );
     });
 
     it('should create with isOpen = true and close other open displays (mutex)', async () => {
@@ -363,6 +388,69 @@ describe('DisplayConfigService', () => {
       await service.update(1, updateDto, 'admin');
 
       expect(prismaService.displayConfig.findFirst).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('uploadMedia', () => {
+    const file = {
+      originalname: 'screen.png',
+      mimetype: 'image/png',
+      buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    } as Express.Multer.File;
+    const oldUrl = 'https://nas.example.com/display_media/old.png';
+    const newUrl = 'https://nas.example.com/display_media/new.png';
+
+    it('replaces media only after the new URL is saved', async () => {
+      prismaService.displayConfig.findUnique = jest.fn().mockResolvedValue({
+        ...mockDisplayConfig,
+        FilePath: oldUrl,
+      });
+      nasUploadService.uploadFile.mockResolvedValue(newUrl);
+      prismaService.displayConfig.update.mockResolvedValue({
+        ...mockDisplayConfig,
+        FilePath: newUrl,
+      });
+
+      const result = await service.uploadMedia(1, file, 'admin');
+
+      expect(result.FilePath).toBe(newUrl);
+      expect(nasUploadService.deleteFile).toHaveBeenCalledWith(oldUrl);
+      expect(
+        prismaService.displayConfig.update.mock.invocationCallOrder[0],
+      ).toBeLessThan(nasUploadService.deleteFile.mock.invocationCallOrder[0]);
+    });
+
+    it('keeps old media when NAS upload fails', async () => {
+      prismaService.displayConfig.findUnique = jest.fn().mockResolvedValue({
+        ...mockDisplayConfig,
+        FilePath: oldUrl,
+      });
+      nasUploadService.uploadFile.mockRejectedValue(
+        new Error('NAS_PROTOCOL must be https in production'),
+      );
+
+      await expect(service.uploadMedia(1, file, 'admin')).rejects.toThrow(
+        ServiceUnavailableException,
+      );
+      expect(prismaService.displayConfig.update).not.toHaveBeenCalled();
+      expect(nasUploadService.deleteFile).not.toHaveBeenCalled();
+    });
+
+    it('cleans up the new upload when saving its URL fails', async () => {
+      prismaService.displayConfig.findUnique = jest.fn().mockResolvedValue({
+        ...mockDisplayConfig,
+        FilePath: oldUrl,
+      });
+      nasUploadService.uploadFile.mockResolvedValue(newUrl);
+      prismaService.displayConfig.update.mockRejectedValue(
+        new Error('Database update failed'),
+      );
+
+      await expect(service.uploadMedia(1, file, 'admin')).rejects.toThrow(
+        'Database update failed',
+      );
+      expect(nasUploadService.deleteFile).toHaveBeenCalledTimes(1);
+      expect(nasUploadService.deleteFile).toHaveBeenCalledWith(newUrl);
     });
   });
 

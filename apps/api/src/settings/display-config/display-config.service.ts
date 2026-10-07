@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -15,6 +16,7 @@ import type { Prisma } from '../../generated/prisma/client';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 import { validateUploadContent } from '../../common/utils/upload-security.util';
 import { randomUUID } from 'node:crypto';
+import { auditedWrite } from '../../common/helpers/audited-transaction.helper';
 
 @Injectable()
 export class DisplayConfigService {
@@ -358,23 +360,37 @@ export class DisplayConfigService {
       throw new NotFoundException(`DisplayConfig with id ${id} not found`);
     }
 
-    if (existing.FilePath) {
-      try {
-        await this.nasUploadService.deleteFile(existing.FilePath);
-      } catch (error) {
-        // ignore delete error
-      }
-    }
-
     const fileUrl = await this.uploadMediaFile(
       file,
       `display_${id}_${Date.now()}`,
     );
 
-    return this.prisma.displayConfig.update({
-      where: { Id: id },
-      data: { FilePath: fileUrl, UpdatedBy: updatedBy } as never,
-    });
+    let result: DisplayConfigModel;
+    try {
+      result = await auditedWrite(this.prisma, (tx) =>
+        tx.displayConfig.update({
+          where: { Id: id },
+          data: { FilePath: fileUrl, UpdatedBy: updatedBy },
+        }),
+      );
+    } catch (error) {
+      try {
+        await this.nasUploadService.deleteFile(fileUrl);
+      } catch {
+        // Preserve the database error; NAS cleanup is best effort.
+      }
+      throw error;
+    }
+
+    if (existing.FilePath && existing.FilePath !== fileUrl) {
+      try {
+        await this.nasUploadService.deleteFile(existing.FilePath);
+      } catch {
+        // The database already points to the new media; cleanup is best effort.
+      }
+    }
+
+    return result;
   }
 
   private async uploadMediaFile(
@@ -392,11 +408,17 @@ export class DisplayConfigService {
     ]);
     const fileExt = fileKind === 'jpeg' ? 'jpg' : fileKind;
 
-    return this.nasUploadService.uploadFile({
-      fileName: `${fileNameStem}.${fileExt}`,
-      fileBuffer: file.buffer,
-      subFolder: 'display_media',
-    });
+    try {
+      return await this.nasUploadService.uploadFile({
+        fileName: `${fileNameStem}.${fileExt}`,
+        fileBuffer: file.buffer,
+        subFolder: 'display_media',
+      });
+    } catch (error) {
+      throw new ServiceUnavailableException('Media storage is unavailable', {
+        cause: error,
+      });
+    }
   }
 
   async deleteMedia(

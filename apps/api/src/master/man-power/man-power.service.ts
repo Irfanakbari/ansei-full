@@ -4,6 +4,7 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
@@ -20,6 +21,7 @@ import type {
 } from '../../common/interceptors/api-response.interface';
 import { SearchPaginationQueryDto } from '../../common/dto/search-pagination-query.dto';
 import { validateUploadContent } from '../../common/utils/upload-security.util';
+import { randomUUID } from 'node:crypto';
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -389,42 +391,29 @@ export class ManPowerService {
         throw new NotFoundException(`ManPower with uid ${uid} not found`);
       }
 
-      // Delete old picture from NAS if exists
-      if (existing.PicturePath) {
-        try {
-          await this.nasUploadService.deleteFile(existing.PicturePath);
-          await this.logService.addLog({
-            processId: logProcess.ProcessId,
-            message: `Old picture deleted from NAS for man power ${uid}`,
-            type: 'INFO',
-            location: 'man-power.service.ts:344',
-          });
-        } catch (nasError) {
-          await this.logService.addLog({
-            processId: logProcess.ProcessId,
-            message: `Warning: Could not delete old picture from NAS: ${nasError instanceof Error ? nasError.message : 'Unknown error'}`,
-            type: 'WARN',
-            location: 'man-power.service.ts:351',
-          });
-        }
-      }
-
-      // Generate filename: NIK_timestamp.extension
-      const newFileName = `${existing.Nik}_${Date.now()}.${fileExtension}`;
+      const newFileName = `${randomUUID()}.${fileExtension}`;
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Uploading picture to NAS as: ${newFileName}`,
+        message: `Uploading picture to NAS for man power ${uid}`,
         type: 'INFO',
         location: 'man-power.service.ts:362',
       });
 
       // Upload file to NAS
-      const fileUrl = await this.nasUploadService.uploadFile({
-        fileName: newFileName,
-        fileBuffer: file.buffer,
-        subFolder: 'manpower',
-      });
+      let fileUrl: string;
+      try {
+        fileUrl = await this.nasUploadService.uploadFile({
+          fileName: newFileName,
+          fileBuffer: file.buffer,
+          subFolder: 'manpower',
+        });
+      } catch (error) {
+        throw new ServiceUnavailableException(
+          'Picture storage is unavailable',
+          { cause: error },
+        );
+      }
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -434,15 +423,34 @@ export class ManPowerService {
       });
 
       // Update PicturePath in database
-      const result = await auditedWrite(this.prisma, (tx) =>
-        tx.manPower.update({
-          where: { Uid: uid },
-          data: {
-            PicturePath: fileUrl,
-            UpdatedBy: uploadedBy,
-          },
-        }),
-      );
+      let result: ManPowerModel;
+      try {
+        result = await auditedWrite(this.prisma, (tx) =>
+          tx.manPower.update({
+            where: { Uid: uid },
+            data: {
+              PicturePath: fileUrl,
+              UpdatedBy: uploadedBy,
+            },
+          }),
+        );
+      } catch (error) {
+        try {
+          await this.nasUploadService.deleteFile(fileUrl);
+        } catch {
+          // Preserve the database error; NAS cleanup is best effort.
+        }
+        throw error;
+      }
+
+      // The old picture remains available until the replacement is stored.
+      if (existing.PicturePath && existing.PicturePath !== fileUrl) {
+        try {
+          await this.nasUploadService.deleteFile(existing.PicturePath);
+        } catch {
+          // The database already points to the new picture; cleanup is best effort.
+        }
+      }
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,

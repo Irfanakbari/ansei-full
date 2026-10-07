@@ -10,6 +10,9 @@ const successResponse = () =>
   });
 
 describe('NasUploadService', () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+  const originalHttpOptIn = process.env.NAS_ALLOW_HTTP_PRIVATE_NETWORK;
+
   beforeEach(() => {
     process.env.NAS_HOST = 'nas.internal';
     process.env.NAS_PORT = '5001';
@@ -21,6 +24,85 @@ describe('NasUploadService', () => {
     process.env.NAS_BASE_URL = 'https://files.example.test/uploads/';
     jest.restoreAllMocks();
   });
+
+  afterEach(() => {
+    if (originalNodeEnv === undefined) {
+      delete process.env.NODE_ENV;
+    } else {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
+    if (originalHttpOptIn === undefined) {
+      delete process.env.NAS_ALLOW_HTTP_PRIVATE_NETWORK;
+    } else {
+      process.env.NAS_ALLOW_HTTP_PRIVATE_NETWORK = originalHttpOptIn;
+    }
+  });
+
+  it('requires explicit opt-in for HTTP to a private LAN NAS in production', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.NAS_HOST = '192.168.1.15';
+    process.env.NAS_PORT = '5000';
+    process.env.NAS_PROTOCOL = 'http';
+    process.env.NAS_BASE_URL = 'http://192.168.1.15/Ansei_Asset/';
+    delete process.env.NAS_ALLOW_HTTP_PRIVATE_NETWORK;
+    const fetchMock = jest.spyOn(global, 'fetch');
+
+    await expect(
+      new NasUploadService().uploadFile({
+        fileName: 'file.pdf',
+        fileBuffer: Buffer.from('%PDF-1.7'),
+      }),
+    ).rejects.toThrow('NAS in production requires HTTPS');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('allows opted-in HTTP only when both NAS addresses match on a private LAN', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.NAS_HOST = '192.168.1.15';
+    process.env.NAS_PORT = '5000';
+    process.env.NAS_PROTOCOL = 'http';
+    process.env.NAS_BASE_URL = 'http://192.168.1.15/Ansei_Asset/';
+    process.env.NAS_ALLOW_HTTP_PRIVATE_NETWORK = 'true';
+    const fetchMock = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(loginResponse())
+      .mockResolvedValueOnce(successResponse())
+      .mockResolvedValueOnce(successResponse())
+      .mockResolvedValueOnce(successResponse());
+
+    await expect(
+      new NasUploadService().uploadFile({
+        fileName: 'file.pdf',
+        fileBuffer: Buffer.from('%PDF-1.7'),
+      }),
+    ).resolves.toBe('http://192.168.1.15/Ansei_Asset/file.pdf');
+    expect(fetchMock.mock.calls[0][0]).toContain(
+      'http://192.168.1.15:5000/webapi/auth.cgi?',
+    );
+  });
+
+  it.each([
+    ['8.8.8.8', 'http://8.8.8.8/Ansei_Asset/'],
+    ['192.168.1.15', 'http://192.168.1.16/Ansei_Asset/'],
+  ])(
+    'rejects opted-in HTTP outside the same private host',
+    async (host, url) => {
+      process.env.NODE_ENV = 'production';
+      process.env.NAS_HOST = host;
+      process.env.NAS_PROTOCOL = 'http';
+      process.env.NAS_BASE_URL = url;
+      process.env.NAS_ALLOW_HTTP_PRIVATE_NETWORK = 'true';
+      const fetchMock = jest.spyOn(global, 'fetch');
+
+      await expect(
+        new NasUploadService().uploadFile({
+          fileName: 'file.pdf',
+          fileBuffer: Buffer.from('%PDF-1.7'),
+        }),
+      ).rejects.toThrow('NAS in production requires HTTPS');
+      expect(fetchMock).not.toHaveBeenCalled();
+    },
+  );
 
   it('logs out when an upload is aborted after login', async () => {
     const controller = new AbortController();

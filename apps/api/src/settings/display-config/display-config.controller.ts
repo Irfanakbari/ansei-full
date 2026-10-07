@@ -65,6 +65,7 @@ export class DisplayConfigController {
   @Post()
   @Permission('DISPLAY_CONFIG_CREATE')
   @ApiOperation({ summary: 'Create display config with optional media' })
+  @ApiResponse({ status: 503, description: 'Media storage is unavailable' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -131,6 +132,7 @@ export class DisplayConfigController {
   })
   @ApiConsumes('multipart/form-data')
   @ApiResponse({ status: 200, type: DisplayConfigEntity })
+  @ApiResponse({ status: 503, description: 'Media storage is unavailable' })
   @Post(':id/media')
   @Permission('DISPLAY_CONFIG_UPDATE')
   @UseInterceptors(

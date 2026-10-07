@@ -1,5 +1,16 @@
 // Irfan Akbari Vuteq Indonesia
 import { Injectable, Logger } from '@nestjs/common';
+import { isIP } from 'node:net';
+
+function isPrivateLanIPv4(host: string): boolean {
+  if (isIP(host) !== 4) return false;
+  const [first, second] = host.split('.').map(Number);
+  return (
+    first === 10 ||
+    (first === 172 && second >= 16 && second <= 31) ||
+    (first === 192 && second === 168)
+  );
+}
 
 export interface NasUploadFile {
   fileName: string;
@@ -87,22 +98,25 @@ export class NasUploadService {
     if (this.NAS_PROTOCOL !== 'http' && this.NAS_PROTOCOL !== 'https') {
       throw new Error('NAS_PROTOCOL must be http or https');
     }
-    if (
-      process.env.NODE_ENV === 'production' &&
-      this.NAS_PROTOCOL !== 'https'
-    ) {
-      throw new Error('NAS_PROTOCOL must be https in production');
-    }
-
     const baseUrl = new URL(this.NAS_BASE_URL as string);
     if (!['http:', 'https:'].includes(baseUrl.protocol)) {
       throw new Error('NAS_BASE_URL must use http or https');
     }
+
+    const privateHttpAllowed =
+      process.env.NAS_ALLOW_HTTP_PRIVATE_NETWORK === 'true' &&
+      this.NAS_PROTOCOL === 'http' &&
+      baseUrl.protocol === 'http:' &&
+      isPrivateLanIPv4(this.NAS_HOST as string) &&
+      baseUrl.hostname === this.NAS_HOST;
     if (
       process.env.NODE_ENV === 'production' &&
-      baseUrl.protocol !== 'https:'
+      (this.NAS_PROTOCOL !== 'https' || baseUrl.protocol !== 'https:') &&
+      !privateHttpAllowed
     ) {
-      throw new Error('NAS_BASE_URL must use https in production');
+      throw new Error(
+        'NAS in production requires HTTPS or explicit HTTP access to a matching private LAN IPv4 host',
+      );
     }
 
     return {

@@ -115,6 +115,7 @@ export class ManPowerController {
     description: 'File tidak valid atau melebihi 5MB',
   })
   @ApiResponse({ status: 404, description: 'Man power tidak ditemukan' })
+  @ApiResponse({ status: 503, description: 'Picture storage is unavailable' })
   @Post(':uid/picture')
   @Permission('IPCS.MASTER_UPDATE')
   @UseInterceptors(
