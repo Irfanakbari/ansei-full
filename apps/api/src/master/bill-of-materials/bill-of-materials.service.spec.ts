@@ -3,6 +3,7 @@ import { NotFoundException, ConflictException } from '@nestjs/common';
 import { BillOfMaterialsService } from './bill-of-materials.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
+import * as ExcelJS from 'exceljs';
 
 // Mock the PrismaService
 jest.mock('../../prisma/prisma.service');
@@ -156,6 +157,76 @@ describe('BillOfMaterialsService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe('exportExcel', () => {
+    it('exports a separate FG row and numbers every material from one per FG', async () => {
+      prismaService.billOfMaterials.findMany.mockResolvedValue([
+        mockBOM,
+        {
+          ...mockBOM,
+          MaterialData: { ...mockMaterial, PartNumber: 'MAT-002' },
+          Qty: 0.5,
+        },
+        {
+          ...mockBOM,
+          FinishGoodId: 2,
+          FGData: { ...mockFinishGood, Id: 2, PartNumber: 'FG-002' },
+        },
+      ]);
+
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await service.exportExcel({}));
+      const sheet = workbook.getWorksheet('Bill of Materials')!;
+      const values = (row: number) =>
+        Array.from(
+          { length: 8 },
+          (_, col) => sheet.getCell(row, col + 1).value,
+        );
+
+      expect(sheet.rowCount).toBe(6);
+      expect(values(2)).toEqual([1, '', 'FG-001', 'Product A', '', '', '', '']);
+      expect(values(3)).toEqual([
+        '',
+        1,
+        'FG-001',
+        'Product A',
+        'MAT-001',
+        'Baut M8',
+        10,
+        'Pcs',
+      ]);
+      expect(values(4)).toEqual([
+        '',
+        2,
+        'FG-001',
+        'Product A',
+        'MAT-002',
+        'Baut M8',
+        0.5,
+        'Pcs',
+      ]);
+      expect(values(5)).toEqual([1, '', 'FG-002', 'Product A', '', '', '', '']);
+      expect(values(6)).toEqual([
+        '',
+        1,
+        'FG-002',
+        'Product A',
+        'MAT-001',
+        'Baut M8',
+        10,
+        'Pcs',
+      ]);
+      expect(sheet.getCell('C2').font.bold).toBe(true);
+      expect(sheet.getCell('C3').font?.bold).not.toBe(true);
+    });
+
+    it('exports only column headers when no BOM matches', async () => {
+      prismaService.billOfMaterials.findMany.mockResolvedValue([]);
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await service.exportExcel({}));
+      expect(workbook.getWorksheet('Bill of Materials')!.rowCount).toBe(1);
+    });
   });
 
   describe('findAll', () => {

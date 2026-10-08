@@ -81,19 +81,35 @@ export class BillOfMaterialsService {
     headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
     let currentFgId: number | null = null;
-    let level2Counter = 2;
+    let level2Counter = 1;
 
     data.forEach((item) => {
       const isNewFg = currentFgId !== item.FinishGoodId;
 
       if (isNewFg) {
         currentFgId = item.FinishGoodId;
-        level2Counter = 2;
+        level2Counter = 1;
+        const parentRow = worksheet.addRow({
+          level1: 1,
+          level2: '',
+          parentFg: item.FGData?.PartNumber || '-',
+          fgName: item.FGData?.PartName || '-',
+          childMaterial: '',
+          materialName: '',
+          qty: '',
+          unit: '',
+        });
+        parentRow.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF1F5F9' },
+        };
+        parentRow.font = { bold: true };
       }
 
-      const row = worksheet.addRow({
-        level1: isNewFg ? 1 : '',
-        level2: isNewFg ? '' : level2Counter++,
+      worksheet.addRow({
+        level1: '',
+        level2: level2Counter++,
         parentFg: item.FGData?.PartNumber || '-',
         fgName: item.FGData?.PartName || '-',
         childMaterial: item.MaterialData?.PartNumber || '-',
@@ -101,15 +117,6 @@ export class BillOfMaterialsService {
         qty: item.Qty,
         unit: item.MaterialData?.SatuanData?.Name || '-',
       });
-
-      if (isNewFg) {
-        row.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFF1F5F9' },
-        };
-        row.font = { bold: true };
-      }
     });
 
     worksheet.eachRow((row, rowNumber) => {
