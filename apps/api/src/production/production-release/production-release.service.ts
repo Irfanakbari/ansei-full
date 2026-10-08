@@ -2391,6 +2391,32 @@ export class ProductionReleaseService {
       };
     });
 
-    return { Forecasts: forecasts };
+    // Rack locations are current master data, not frozen BOM snapshot data.
+    const materialPartNumbers = [
+      ...new Set(
+        forecasts.flatMap((forecast) =>
+          forecast.Shopping.map((item) => item.MaterialId),
+        ),
+      ),
+    ];
+    const materials = materialPartNumbers.length
+      ? await this.prisma.material.findMany({
+          where: { PartNumber: { in: materialPartNumbers } },
+          select: { PartNumber: true, RackLocation: true },
+        })
+      : [];
+    const rackLocations = new Map(
+      materials.map((material) => [material.PartNumber, material.RackLocation]),
+    );
+
+    return {
+      Forecasts: forecasts.map((forecast) => ({
+        ...forecast,
+        Shopping: forecast.Shopping.map((item) => ({
+          ...item,
+          RackLocation: rackLocations.get(item.MaterialId) ?? null,
+        })),
+      })),
+    };
   }
 }

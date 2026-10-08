@@ -299,6 +299,9 @@ export class ShoppingItemEntity {
   @ApiPropertyOptional({ example: 'Material A' })
   MaterialName?: string;
 
+  @ApiPropertyOptional({ example: 'A-01', nullable: true })
+  RackLocation?: string | null;
+
   @ApiProperty({ example: 120 })
   QtyPick: number;
 

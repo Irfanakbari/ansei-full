@@ -1,7 +1,7 @@
 // Snapshot transaction invariants are exercised against PostgreSQL in phase-one.database.spec.ts.
 jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
   snapshotRelease: jest.fn().mockResolvedValue(undefined),
-  latestSnapshot: () => Promise.resolve(null),
+  latestSnapshot: jest.fn().mockResolvedValue(null),
 }));
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductionReleaseService } from './production-release.service';
@@ -16,7 +16,10 @@ import {
 } from '@nestjs/common';
 import { ProductionStatus } from '../../generated/prisma/enums';
 import { Prisma } from '../../generated/prisma/client';
-import { snapshotRelease } from '../../common/helpers/bom-snapshot.helper';
+import {
+  latestSnapshot,
+  snapshotRelease,
+} from '../../common/helpers/bom-snapshot.helper';
 
 describe('ProductionReleaseService', () => {
   let service: ProductionReleaseService;
@@ -27,6 +30,7 @@ describe('ProductionReleaseService', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     prismaService = {
+      material: { findMany: jest.fn().mockResolvedValue([]) },
       productionTraceEvent: { createMany: jest.fn() },
       $executeRaw: jest.fn(),
       assemblySession: { count: jest.fn().mockResolvedValue(0) },
@@ -115,6 +119,82 @@ describe('ProductionReleaseService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('getForecastList rack location', () => {
+    it.each(['snapshot', 'draft', 'existing'])(
+      'includes current rack for %s items',
+      async (source) => {
+        prismaService.productionRelease.findUnique.mockResolvedValue({
+          Id: 'REL-1',
+          Status: source === 'draft' ? 'DRAFT' : 'RELEASED',
+        });
+        const material = { PartNumber: 'MAT-1', PartName: 'Material' };
+        prismaService.productionOrder.findMany.mockResolvedValue([
+          {
+            PoId: 'PO-1',
+            FinishGoodId: 'FG-1',
+            Qty: 2,
+            Shopping:
+              source === 'existing'
+                ? [
+                    {
+                      Id: 'SHP-1',
+                      MaterialId: 'MAT-1',
+                      QtyPick: 1,
+                      MaterialData: material,
+                    },
+                  ]
+                : [],
+          },
+        ]);
+        prismaService.finishGood.findMany.mockResolvedValue([
+          { Id: 1, PartNumber: 'FG-1' },
+        ]);
+        prismaService.billOfMaterials.findMany.mockResolvedValue([
+          {
+            FinishGoodId: 1,
+            MaterialId: 10,
+            Qty: 3,
+            MaterialData: material,
+          },
+        ]);
+        if (source === 'snapshot') {
+          jest.mocked(latestSnapshot).mockResolvedValueOnce({
+            Lines: [
+              {
+                MaterialId: 10,
+                PartNumber: 'MAT-1',
+                PartName: 'Material',
+                QtyPerUnit: 3,
+              },
+            ],
+          } as Awaited<ReturnType<typeof latestSnapshot>>);
+        }
+        prismaService.material.findMany.mockResolvedValue([
+          { PartNumber: 'MAT-1', RackLocation: 'A-01' },
+        ]);
+        const result = await service.getForecastList('REL-1');
+        expect(result.Forecasts[0].Shopping[0]).toEqual(
+          expect.objectContaining({
+            MaterialId: 'MAT-1',
+            RackLocation: 'A-01',
+          }),
+        );
+        expect(prismaService.material.findMany).toHaveBeenCalledWith({
+          where: { PartNumber: { in: ['MAT-1'] } },
+          select: { PartNumber: true, RackLocation: true },
+        });
+        prismaService.material.findMany.mockResolvedValue([
+          { PartNumber: 'MAT-1', RackLocation: null },
+        ]);
+        // The existing-shopping branch also supports materials without a rack.
+        if (source === 'existing') {
+          const withoutRack = await service.getForecastList('REL-1');
+          expect(withoutRack.Forecasts[0].Shopping[0].RackLocation).toBeNull();
+        }
+      },
+    );
   });
 
   describe('findAll', () => {
