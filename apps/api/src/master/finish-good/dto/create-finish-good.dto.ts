@@ -24,6 +24,15 @@ export class CreateFinishGoodDto {
   @IsNotEmpty()
   partNumber: string;
 
+  @ApiPropertyOptional({
+    description: 'Unique SAP part number',
+    type: String,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  partNumberSAP?: string | null;
+
   /** Nama part finish good */
   @ApiProperty({ description: 'Nama part', example: 'Cover Assembly A' })
   @IsString()

@@ -60,6 +60,7 @@ export default function MaterialPage() {
     }, [dispatch]);
 
     const searchInput = useRef<InputRef>(null);
+    const [searchColumn, setSearchColumn] = useState("PartNumber");
 
     const getColumnSearchProps = (dataIndex: string) => ({
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: any) => (
@@ -89,7 +90,12 @@ export default function MaterialPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
         ),
-        filteredValue: query.search ? [query.search] : null,
+        filteredValue: searchColumn === dataIndex && query.search ? [query.search] : null,
+        filterDropdownProps: {
+            onOpenChange: (open: boolean) => {
+                if (open) setSearchColumn(dataIndex);
+            }
+        },
     });
 
     const columns = [
@@ -106,6 +112,13 @@ export default function MaterialPage() {
                                    }}/>
                 <span>{value}</span>
             </Space>
+        },
+        {
+            title: 'Part Number SAP',
+            dataIndex: 'PartNumberSAP',
+            key: 'PartNumberSAP',
+            render: (value: string | null) => value || '-',
+            ...getColumnSearchProps('PartNumberSAP')
         },
         {
             title: 'Status',
@@ -295,9 +308,9 @@ export default function MaterialPage() {
                 size="small"
                 loading={loading}
                 onChange={(pageInfo, tableFilters) => dispatch(setMaterialQuery({
-                    page: tableFilters.PartNumber || tableFilters.PartName || tableFilters.SupplierId ? 1 : pageInfo.current,
+                    page: tableFilters.PartNumberSAP || tableFilters.PartNumber || tableFilters.PartName || tableFilters.SupplierId ? 1 : pageInfo.current,
                     limit: pageInfo.pageSize,
-                    search: String(tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? ''),
+                    search: String(tableFilters.PartNumberSAP?.[0] ?? tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? ''),
                     supplierId: tableFilters.SupplierId?.[0] ? Number(tableFilters.SupplierId[0]) : undefined
                 }))}
                 pagination={{

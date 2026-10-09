@@ -22,6 +22,7 @@ export interface MaterialOption {
 }
 
 export interface MaterialEntity extends MaterialOption {
+    PartNumberSAP: string | null;
     CreatedAt: string;
     CreatedBy: string;
     CreatedByName?: string;
@@ -141,6 +142,7 @@ export const createMaterial = createAsyncThunk(
     'material/create',
     async (materialData: {
         partNumber: string;
+        partNumberSAP?: string | null;
         partName: string;
         supplier?: string;
         satuanId?: number;
@@ -165,6 +167,7 @@ export const updateMaterial = createAsyncThunk(
         id: number;
         data: {
             partNumber?: string;
+            partNumberSAP?: string | null;
             partName?: string;
             supplier?: string;
             satuanId?: number;

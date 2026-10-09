@@ -181,6 +181,7 @@ model Material {
   BomSnapshotLines ProductionBomSnapshotLine[]
   Id               Int                         @id @default(autoincrement())
   PartNumber       String                      @unique
+  PartNumberSAP    String?                     @unique
   PartName         String
   CreatedAt        DateTime                    @default(now())
   CreatedBy        String
@@ -226,6 +227,7 @@ model FinishGood {
   BomRevisions        BomRevision[] @relation("RevisionFinishGood")
   Id                  Int           @id @default(autoincrement())
   PartNumber          String        @unique
+  PartNumberSAP       String?       @unique
   PartName            String
   IsPassthrough       Boolean       @default(false)
 

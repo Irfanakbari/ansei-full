@@ -19,6 +19,9 @@ export class MaterialEntity {
   @ApiProperty({ description: 'Part number', example: 'MAT-001' })
   PartNumber: string;
 
+  @ApiProperty({ description: 'SAP part number', type: String, nullable: true })
+  PartNumberSAP: string | null;
+
   @ApiProperty({ description: 'Nama part', example: 'Baut M10x30' })
   PartName: string;
 

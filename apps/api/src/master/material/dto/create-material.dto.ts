@@ -16,6 +16,15 @@ export class CreateMaterialDto {
   @IsNotEmpty()
   partNumber: string;
 
+  @ApiPropertyOptional({
+    description: 'Unique SAP part number',
+    type: String,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  partNumberSAP?: string | null;
+
   /** Nama part material */
   @ApiProperty({ description: 'Nama part', example: 'Baut M10x30' })
   @IsString()

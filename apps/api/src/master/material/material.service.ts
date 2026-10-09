@@ -51,6 +51,7 @@ export class MaterialService {
     if (query.search) {
       where.OR = [
         { PartNumber: { contains: query.search, mode: 'insensitive' } },
+        { PartNumberSAP: { contains: query.search, mode: 'insensitive' } },
         { PartName: { contains: query.search, mode: 'insensitive' } },
         { Supplier: { contains: query.search, mode: 'insensitive' } },
         { RackLocation: { contains: query.search, mode: 'insensitive' } },
@@ -153,6 +154,7 @@ export class MaterialService {
     if (query.search) {
       where.OR = [
         { PartNumber: { contains: query.search, mode: 'insensitive' } },
+        { PartNumberSAP: { contains: query.search, mode: 'insensitive' } },
         { PartName: { contains: query.search, mode: 'insensitive' } },
         { Supplier: { contains: query.search, mode: 'insensitive' } },
         { RackLocation: { contains: query.search, mode: 'insensitive' } },
@@ -237,6 +239,10 @@ export class MaterialService {
     dto: CreateMaterialDto,
     createdBy: string,
   ): Promise<MaterialModel> {
+    const partNumberSAP =
+      dto.partNumberSAP === undefined
+        ? undefined
+        : dto.partNumberSAP?.trim() || null;
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -264,10 +270,22 @@ export class MaterialService {
         );
       }
 
+      if (partNumberSAP) {
+        const sapConflict = await this.prisma.material.findUnique({
+          where: { PartNumberSAP: partNumberSAP },
+        });
+        if (sapConflict) {
+          throw new ConflictException(
+            'Material with this SAP part number already exists',
+          );
+        }
+      }
+
       const result = await auditedWrite(this.prisma, (tx) =>
         tx.material.create({
           data: {
             PartNumber: dto.partNumber,
+            PartNumberSAP: partNumberSAP,
             PartName: dto.partName,
             Supplier: dto.supplier,
             SupplierId: dto.supplierId,
@@ -328,6 +346,10 @@ export class MaterialService {
       );
     }
 
+    const partNumberSAP =
+      dto.partNumberSAP === undefined
+        ? undefined
+        : dto.partNumberSAP?.trim() || null;
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -371,16 +393,28 @@ export class MaterialService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Updating material id: ${id} with data: ${JSON.stringify(dto)}`,
+        message: `Updating material id: ${id} (master data updated)`,
         type: 'INFO',
         location: 'material.service.ts:112',
       });
+
+      if (partNumberSAP) {
+        const sapConflict = await this.prisma.material.findUnique({
+          where: { PartNumberSAP: partNumberSAP },
+        });
+        if (sapConflict && sapConflict.Id !== id) {
+          throw new ConflictException(
+            'Material with this SAP part number already exists',
+          );
+        }
+      }
 
       const result = await auditedWrite(this.prisma, (tx) =>
         tx.material.update({
           where: { Id: id },
           data: {
             PartNumber: dto.partNumber,
+            PartNumberSAP: partNumberSAP,
             PartName: dto.partName,
             Supplier: dto.supplier,
             SupplierId: dto.supplierId,

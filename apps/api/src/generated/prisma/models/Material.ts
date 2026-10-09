@@ -51,6 +51,7 @@ export type MaterialSumAggregateOutputType = {
 export type MaterialMinAggregateOutputType = {
   Id: number | null
   PartNumber: string | null
+  PartNumberSAP: string | null
   PartName: string | null
   CreatedAt: Date | null
   CreatedBy: string | null
@@ -74,6 +75,7 @@ export type MaterialMinAggregateOutputType = {
 export type MaterialMaxAggregateOutputType = {
   Id: number | null
   PartNumber: string | null
+  PartNumberSAP: string | null
   PartName: string | null
   CreatedAt: Date | null
   CreatedBy: string | null
@@ -97,6 +99,7 @@ export type MaterialMaxAggregateOutputType = {
 export type MaterialCountAggregateOutputType = {
   Id: number
   PartNumber: number
+  PartNumberSAP: number
   PartName: number
   CreatedAt: number
   CreatedBy: number
@@ -144,6 +147,7 @@ export type MaterialSumAggregateInputType = {
 export type MaterialMinAggregateInputType = {
   Id?: true
   PartNumber?: true
+  PartNumberSAP?: true
   PartName?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -167,6 +171,7 @@ export type MaterialMinAggregateInputType = {
 export type MaterialMaxAggregateInputType = {
   Id?: true
   PartNumber?: true
+  PartNumberSAP?: true
   PartName?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -190,6 +195,7 @@ export type MaterialMaxAggregateInputType = {
 export type MaterialCountAggregateInputType = {
   Id?: true
   PartNumber?: true
+  PartNumberSAP?: true
   PartName?: true
   CreatedAt?: true
   CreatedBy?: true
@@ -300,6 +306,7 @@ export type MaterialGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type MaterialGroupByOutputType = {
   Id: number
   PartNumber: string
+  PartNumberSAP: string | null
   PartName: string
   CreatedAt: Date
   CreatedBy: string
@@ -346,6 +353,7 @@ export type MaterialWhereInput = {
   NOT?: Prisma.MaterialWhereInput | Prisma.MaterialWhereInput[]
   Id?: Prisma.IntFilter<"Material"> | number
   PartNumber?: Prisma.StringFilter<"Material"> | string
+  PartNumberSAP?: Prisma.StringNullableFilter<"Material"> | string | null
   PartName?: Prisma.StringFilter<"Material"> | string
   CreatedAt?: Prisma.DateTimeFilter<"Material"> | Date | string
   CreatedBy?: Prisma.StringFilter<"Material"> | string
@@ -381,6 +389,7 @@ export type MaterialWhereInput = {
 export type MaterialOrderByWithRelationInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrderInput | Prisma.SortOrder
   PartName?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -416,6 +425,7 @@ export type MaterialOrderByWithRelationInput = {
 export type MaterialWhereUniqueInput = Prisma.AtLeast<{
   Id?: number
   PartNumber?: string
+  PartNumberSAP?: string
   AND?: Prisma.MaterialWhereInput | Prisma.MaterialWhereInput[]
   OR?: Prisma.MaterialWhereInput[]
   NOT?: Prisma.MaterialWhereInput | Prisma.MaterialWhereInput[]
@@ -449,11 +459,12 @@ export type MaterialWhereUniqueInput = Prisma.AtLeast<{
   InventoryLedger?: Prisma.InventoryLedgerListRelationFilter
   StockOpnameDetail?: Prisma.StockOpnameDetailListRelationFilter
   MaterialDeliveryNoteDetails?: Prisma.MaterialDeliveryNoteDetailListRelationFilter
-}, "Id" | "PartNumber">
+}, "Id" | "PartNumber" | "PartNumberSAP">
 
 export type MaterialOrderByWithAggregationInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrderInput | Prisma.SortOrder
   PartName?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -485,6 +496,7 @@ export type MaterialScalarWhereWithAggregatesInput = {
   NOT?: Prisma.MaterialScalarWhereWithAggregatesInput | Prisma.MaterialScalarWhereWithAggregatesInput[]
   Id?: Prisma.IntWithAggregatesFilter<"Material"> | number
   PartNumber?: Prisma.StringWithAggregatesFilter<"Material"> | string
+  PartNumberSAP?: Prisma.StringNullableWithAggregatesFilter<"Material"> | string | null
   PartName?: Prisma.StringWithAggregatesFilter<"Material"> | string
   CreatedAt?: Prisma.DateTimeWithAggregatesFilter<"Material"> | Date | string
   CreatedBy?: Prisma.StringWithAggregatesFilter<"Material"> | string
@@ -507,6 +519,7 @@ export type MaterialScalarWhereWithAggregatesInput = {
 
 export type MaterialCreateInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -540,6 +553,7 @@ export type MaterialCreateInput = {
 export type MaterialUncheckedCreateInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -572,6 +586,7 @@ export type MaterialUncheckedCreateInput = {
 
 export type MaterialUpdateInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -605,6 +620,7 @@ export type MaterialUpdateInput = {
 export type MaterialUncheckedUpdateInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -638,6 +654,7 @@ export type MaterialUncheckedUpdateInput = {
 export type MaterialCreateManyInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -660,6 +677,7 @@ export type MaterialCreateManyInput = {
 
 export type MaterialUpdateManyMutationInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -681,6 +699,7 @@ export type MaterialUpdateManyMutationInput = {
 export type MaterialUncheckedUpdateManyInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -714,6 +733,7 @@ export type MaterialOrderByRelationAggregateInput = {
 export type MaterialCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -748,6 +768,7 @@ export type MaterialAvgOrderByAggregateInput = {
 export type MaterialMaxOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -771,6 +792,7 @@ export type MaterialMaxOrderByAggregateInput = {
 export type MaterialMinOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
   CreatedAt?: Prisma.SortOrder
   CreatedBy?: Prisma.SortOrder
@@ -1070,6 +1092,7 @@ export type MaterialUpdateOneRequiredWithoutProductionFindingComponentsNestedInp
 
 export type MaterialCreateWithoutSatuanDataInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1102,6 +1125,7 @@ export type MaterialCreateWithoutSatuanDataInput = {
 export type MaterialUncheckedCreateWithoutSatuanDataInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1163,6 +1187,7 @@ export type MaterialScalarWhereInput = {
   NOT?: Prisma.MaterialScalarWhereInput | Prisma.MaterialScalarWhereInput[]
   Id?: Prisma.IntFilter<"Material"> | number
   PartNumber?: Prisma.StringFilter<"Material"> | string
+  PartNumberSAP?: Prisma.StringNullableFilter<"Material"> | string | null
   PartName?: Prisma.StringFilter<"Material"> | string
   CreatedAt?: Prisma.DateTimeFilter<"Material"> | Date | string
   CreatedBy?: Prisma.StringFilter<"Material"> | string
@@ -1185,6 +1210,7 @@ export type MaterialScalarWhereInput = {
 
 export type MaterialCreateWithoutSupplierDataInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1217,6 +1243,7 @@ export type MaterialCreateWithoutSupplierDataInput = {
 export type MaterialUncheckedCreateWithoutSupplierDataInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1274,6 +1301,7 @@ export type MaterialUpdateManyWithWhereWithoutSupplierDataInput = {
 
 export type MaterialCreateWithoutBillOfMaterialsInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1306,6 +1334,7 @@ export type MaterialCreateWithoutBillOfMaterialsInput = {
 export type MaterialUncheckedCreateWithoutBillOfMaterialsInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1353,6 +1382,7 @@ export type MaterialUpdateToOneWithWhereWithoutBillOfMaterialsInput = {
 
 export type MaterialUpdateWithoutBillOfMaterialsInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1385,6 +1415,7 @@ export type MaterialUpdateWithoutBillOfMaterialsInput = {
 export type MaterialUncheckedUpdateWithoutBillOfMaterialsInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1416,6 +1447,7 @@ export type MaterialUncheckedUpdateWithoutBillOfMaterialsInput = {
 
 export type MaterialCreateWithoutInventoryLedgerInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1448,6 +1480,7 @@ export type MaterialCreateWithoutInventoryLedgerInput = {
 export type MaterialUncheckedCreateWithoutInventoryLedgerInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1495,6 +1528,7 @@ export type MaterialUpdateToOneWithWhereWithoutInventoryLedgerInput = {
 
 export type MaterialUpdateWithoutInventoryLedgerInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1527,6 +1561,7 @@ export type MaterialUpdateWithoutInventoryLedgerInput = {
 export type MaterialUncheckedUpdateWithoutInventoryLedgerInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1558,6 +1593,7 @@ export type MaterialUncheckedUpdateWithoutInventoryLedgerInput = {
 
 export type MaterialCreateWithoutStockOpnameDetailInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1590,6 +1626,7 @@ export type MaterialCreateWithoutStockOpnameDetailInput = {
 export type MaterialUncheckedCreateWithoutStockOpnameDetailInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1637,6 +1674,7 @@ export type MaterialUpdateToOneWithWhereWithoutStockOpnameDetailInput = {
 
 export type MaterialUpdateWithoutStockOpnameDetailInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1669,6 +1707,7 @@ export type MaterialUpdateWithoutStockOpnameDetailInput = {
 export type MaterialUncheckedUpdateWithoutStockOpnameDetailInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1700,6 +1739,7 @@ export type MaterialUncheckedUpdateWithoutStockOpnameDetailInput = {
 
 export type MaterialCreateWithoutIncomingMaterialInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1732,6 +1772,7 @@ export type MaterialCreateWithoutIncomingMaterialInput = {
 export type MaterialUncheckedCreateWithoutIncomingMaterialInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1779,6 +1820,7 @@ export type MaterialUpdateToOneWithWhereWithoutIncomingMaterialInput = {
 
 export type MaterialUpdateWithoutIncomingMaterialInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1811,6 +1853,7 @@ export type MaterialUpdateWithoutIncomingMaterialInput = {
 export type MaterialUncheckedUpdateWithoutIncomingMaterialInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1842,6 +1885,7 @@ export type MaterialUncheckedUpdateWithoutIncomingMaterialInput = {
 
 export type MaterialCreateWithoutShoppingInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1874,6 +1918,7 @@ export type MaterialCreateWithoutShoppingInput = {
 export type MaterialUncheckedCreateWithoutShoppingInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -1921,6 +1966,7 @@ export type MaterialUpdateToOneWithWhereWithoutShoppingInput = {
 
 export type MaterialUpdateWithoutShoppingInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1953,6 +1999,7 @@ export type MaterialUpdateWithoutShoppingInput = {
 export type MaterialUncheckedUpdateWithoutShoppingInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1984,6 +2031,7 @@ export type MaterialUncheckedUpdateWithoutShoppingInput = {
 
 export type MaterialCreateWithoutMaterialDeliveryNoteDetailsInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2016,6 +2064,7 @@ export type MaterialCreateWithoutMaterialDeliveryNoteDetailsInput = {
 export type MaterialUncheckedCreateWithoutMaterialDeliveryNoteDetailsInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2063,6 +2112,7 @@ export type MaterialUpdateToOneWithWhereWithoutMaterialDeliveryNoteDetailsInput 
 
 export type MaterialUpdateWithoutMaterialDeliveryNoteDetailsInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2095,6 +2145,7 @@ export type MaterialUpdateWithoutMaterialDeliveryNoteDetailsInput = {
 export type MaterialUncheckedUpdateWithoutMaterialDeliveryNoteDetailsInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2126,6 +2177,7 @@ export type MaterialUncheckedUpdateWithoutMaterialDeliveryNoteDetailsInput = {
 
 export type MaterialCreateWithoutBomRevisionLinesInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2158,6 +2210,7 @@ export type MaterialCreateWithoutBomRevisionLinesInput = {
 export type MaterialUncheckedCreateWithoutBomRevisionLinesInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2205,6 +2258,7 @@ export type MaterialUpdateToOneWithWhereWithoutBomRevisionLinesInput = {
 
 export type MaterialUpdateWithoutBomRevisionLinesInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2237,6 +2291,7 @@ export type MaterialUpdateWithoutBomRevisionLinesInput = {
 export type MaterialUncheckedUpdateWithoutBomRevisionLinesInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2268,6 +2323,7 @@ export type MaterialUncheckedUpdateWithoutBomRevisionLinesInput = {
 
 export type MaterialCreateWithoutBomSnapshotLinesInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2300,6 +2356,7 @@ export type MaterialCreateWithoutBomSnapshotLinesInput = {
 export type MaterialUncheckedCreateWithoutBomSnapshotLinesInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2347,6 +2404,7 @@ export type MaterialUpdateToOneWithWhereWithoutBomSnapshotLinesInput = {
 
 export type MaterialUpdateWithoutBomSnapshotLinesInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2379,6 +2437,7 @@ export type MaterialUpdateWithoutBomSnapshotLinesInput = {
 export type MaterialUncheckedUpdateWithoutBomSnapshotLinesInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2410,6 +2469,7 @@ export type MaterialUncheckedUpdateWithoutBomSnapshotLinesInput = {
 
 export type MaterialCreateWithoutProductionFindingsInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2442,6 +2502,7 @@ export type MaterialCreateWithoutProductionFindingsInput = {
 export type MaterialUncheckedCreateWithoutProductionFindingsInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2489,6 +2550,7 @@ export type MaterialUpdateToOneWithWhereWithoutProductionFindingsInput = {
 
 export type MaterialUpdateWithoutProductionFindingsInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2521,6 +2583,7 @@ export type MaterialUpdateWithoutProductionFindingsInput = {
 export type MaterialUncheckedUpdateWithoutProductionFindingsInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2552,6 +2615,7 @@ export type MaterialUncheckedUpdateWithoutProductionFindingsInput = {
 
 export type MaterialCreateWithoutProductionFindingComponentsInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2584,6 +2648,7 @@ export type MaterialCreateWithoutProductionFindingComponentsInput = {
 export type MaterialUncheckedCreateWithoutProductionFindingComponentsInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2631,6 +2696,7 @@ export type MaterialUpdateToOneWithWhereWithoutProductionFindingComponentsInput 
 
 export type MaterialUpdateWithoutProductionFindingComponentsInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2663,6 +2729,7 @@ export type MaterialUpdateWithoutProductionFindingComponentsInput = {
 export type MaterialUncheckedUpdateWithoutProductionFindingComponentsInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2695,6 +2762,7 @@ export type MaterialUncheckedUpdateWithoutProductionFindingComponentsInput = {
 export type MaterialCreateManySatuanDataInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2716,6 +2784,7 @@ export type MaterialCreateManySatuanDataInput = {
 
 export type MaterialUpdateWithoutSatuanDataInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2748,6 +2817,7 @@ export type MaterialUpdateWithoutSatuanDataInput = {
 export type MaterialUncheckedUpdateWithoutSatuanDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2780,6 +2850,7 @@ export type MaterialUncheckedUpdateWithoutSatuanDataInput = {
 export type MaterialUncheckedUpdateManyWithoutSatuanDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2802,6 +2873,7 @@ export type MaterialUncheckedUpdateManyWithoutSatuanDataInput = {
 export type MaterialCreateManySupplierDataInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   CreatedAt?: Date | string
   CreatedBy: string
@@ -2823,6 +2895,7 @@ export type MaterialCreateManySupplierDataInput = {
 
 export type MaterialUpdateWithoutSupplierDataInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2855,6 +2928,7 @@ export type MaterialUpdateWithoutSupplierDataInput = {
 export type MaterialUncheckedUpdateWithoutSupplierDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2887,6 +2961,7 @@ export type MaterialUncheckedUpdateWithoutSupplierDataInput = {
 export type MaterialUncheckedUpdateManyWithoutSupplierDataInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3021,6 +3096,7 @@ export type MaterialCountOutputTypeCountMaterialDeliveryNoteDetailsArgs<ExtArgs 
 export type MaterialSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
   PartNumber?: boolean
+  PartNumberSAP?: boolean
   PartName?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -3057,6 +3133,7 @@ export type MaterialSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type MaterialSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
   PartNumber?: boolean
+  PartNumberSAP?: boolean
   PartName?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -3082,6 +3159,7 @@ export type MaterialSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type MaterialSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
   PartNumber?: boolean
+  PartNumberSAP?: boolean
   PartName?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -3107,6 +3185,7 @@ export type MaterialSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type MaterialSelectScalar = {
   Id?: boolean
   PartNumber?: boolean
+  PartNumberSAP?: boolean
   PartName?: boolean
   CreatedAt?: boolean
   CreatedBy?: boolean
@@ -3127,7 +3206,7 @@ export type MaterialSelectScalar = {
   QtyPerBox?: boolean
 }
 
-export type MaterialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "PartName" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Supplier" | "SupplierId" | "SatuanId" | "RackLocation" | "IsActive" | "DiscontinueDate" | "MaterialSource" | "Remark" | "QtyRack" | "QtyWarehouse" | "MinimumStock" | "MaximumStock" | "QtyPerBox", ExtArgs["result"]["material"]>
+export type MaterialOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "PartNumber" | "PartNumberSAP" | "PartName" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Supplier" | "SupplierId" | "SatuanId" | "RackLocation" | "IsActive" | "DiscontinueDate" | "MaterialSource" | "Remark" | "QtyRack" | "QtyWarehouse" | "MinimumStock" | "MaximumStock" | "QtyPerBox", ExtArgs["result"]["material"]>
 export type MaterialInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   BomRevisionLines?: boolean | Prisma.Material$BomRevisionLinesArgs<ExtArgs>
   BomSnapshotLines?: boolean | Prisma.Material$BomSnapshotLinesArgs<ExtArgs>
@@ -3171,6 +3250,7 @@ export type $MaterialPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: number
     PartNumber: string
+    PartNumberSAP: string | null
     PartName: string
     CreatedAt: Date
     CreatedBy: string
@@ -3626,6 +3706,7 @@ export interface Prisma__MaterialClient<T, Null = never, ExtArgs extends runtime
 export interface MaterialFieldRefs {
   readonly Id: Prisma.FieldRef<"Material", 'Int'>
   readonly PartNumber: Prisma.FieldRef<"Material", 'String'>
+  readonly PartNumberSAP: Prisma.FieldRef<"Material", 'String'>
   readonly PartName: Prisma.FieldRef<"Material", 'String'>
   readonly CreatedAt: Prisma.FieldRef<"Material", 'DateTime'>
   readonly CreatedBy: Prisma.FieldRef<"Material", 'String'>

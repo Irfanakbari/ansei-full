@@ -55,6 +55,7 @@ export default function FinishGoodPage() {
     }, [dispatch, query]);
 
     const searchInput = useRef<InputRef>(null);
+    const [searchColumn, setSearchColumn] = useState("PartNumber");
 
     const getColumnSearchProps = (dataIndex: string) => ({
         filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: FilterDropdownProps) => (
@@ -81,7 +82,12 @@ export default function FinishGoodPage() {
         filterIcon: (filtered: boolean) => (
             <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
         ),
-        filteredValue: query.search ? [query.search] : null,
+        filteredValue: searchColumn === dataIndex && query.search ? [query.search] : null,
+        filterDropdownProps: {
+            onOpenChange: (open: boolean) => {
+                if (open) setSearchColumn(dataIndex);
+            }
+        },
     });
 
     const columns: TableProps<FinishGoodEntity>['columns'] = [
@@ -99,6 +105,13 @@ export default function FinishGoodPage() {
                                    }}/>
                 <span>{value}</span>
             </Space>
+        },
+        {
+            title: 'Part Number SAP',
+            dataIndex: 'PartNumberSAP',
+            key: 'PartNumberSAP',
+            render: (value: string | null) => value || '-',
+            ...getColumnSearchProps('PartNumberSAP')
         },
         {
             title: 'Status',
@@ -243,9 +256,9 @@ export default function FinishGoodPage() {
                 size="small"
                 loading={loading}
                 onChange={(pageInfo, tableFilters) => dispatch(setFinishGoodQuery({
-                    page: tableFilters.PartNumber || tableFilters.PartName || tableFilters.Alias ? 1 : pageInfo.current,
+                    page: tableFilters.PartNumberSAP || tableFilters.PartNumber || tableFilters.PartName || tableFilters.Alias ? 1 : pageInfo.current,
                     limit: pageInfo.pageSize,
-                    search: String(tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? tableFilters.Alias?.[0] ?? '')
+                    search: String(tableFilters.PartNumberSAP?.[0] ?? tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? tableFilters.Alias?.[0] ?? '')
                 }))}
                 pagination={{
                     size: 'small',

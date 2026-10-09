@@ -14,7 +14,7 @@ interface Props {
 const CreateFinishGoodModal: React.FC<Props> = ({visible, onClose, onSuccess}) => {
     const {message} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const [form] = Form.useForm();
+    const [form] = Form.useForm<Parameters<typeof createFinishGood>[0]>();
     const [loading, setLoading] = useState(false);
 
     const handleOk = async () => {
@@ -24,6 +24,7 @@ const CreateFinishGoodModal: React.FC<Props> = ({visible, onClose, onSuccess}) =
 
             const payload = {
                 partNumber: values.partNumber,
+                partNumberSAP: values.partNumberSAP?.trim() || null,
                 partName: values.partName,
                 alias: values.alias,
                 price: values.price,
@@ -31,23 +32,14 @@ const CreateFinishGoodModal: React.FC<Props> = ({visible, onClose, onSuccess}) =
                 qty: values.qty || 0,
             };
 
-            const result = await dispatch(createFinishGood(payload));
-
-            if (createFinishGood.rejected.match(result)) {
-
-
-                throw new Error((result.payload as string) || 'Failed to create/update/delete');
-
-
-            }
+            await dispatch(createFinishGood(payload)).unwrap();
             message.success('Finish good created successfully');
             onSuccess?.();
             form.resetFields();
             onClose();
         } catch (error: unknown) {
-            const err = error as Error;
-            if (err?.message?.includes('validateFields')) return;
-            message.error(err?.message || String(error) || 'Failed to create finish good');
+            if (typeof error === "object" && error !== null && "errorFields" in error) return;
+            message.error((typeof error === "string" ? error : error instanceof Error ? error.message : undefined) || 'Failed to create finish good');
         } finally {
             setLoading(false);
         }
@@ -73,6 +65,9 @@ const CreateFinishGoodModal: React.FC<Props> = ({visible, onClose, onSuccess}) =
                 <Form.Item name="partNumber" label="Part Number"
                            rules={[{required: true, message: 'Please enter part number'}]}>
                     <Input placeholder="Enter part number"/>
+                </Form.Item>
+                <Form.Item name="partNumberSAP" label="Part Number SAP">
+                    <Input allowClear placeholder="Enter SAP part number (optional)"/>
                 </Form.Item>
                 <Form.Item name="partName" label="Part Name"
                            rules={[{required: true, message: 'Please enter part name'}]}>

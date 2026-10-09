@@ -9,7 +9,7 @@ import {AppDispatch} from "@/store";
 import {deleteFinishGood, FinishGoodEntity, updateFinishGood} from "@/store/features/master/finishGoodSlice";
 import {formatDateTime} from "@/lib/utils/dateTime";
 
-type FormValues = { partNumber: string; partName: string; alias?: string; price?: number; isPassthrough?: boolean };
+type FormValues = { partNumber: string; partNumberSAP?: string; partName: string; alias?: string; price?: number; isPassthrough?: boolean };
 type Props = { open: boolean; data: FinishGoodEntity | null; onClose: () => void; onChanged: () => void };
 
 export default function FinishGoodModal({open, data, onClose, onChanged}: Props) {
@@ -30,6 +30,7 @@ export default function FinishGoodModal({open, data, onClose, onChanged}: Props)
     useEffect(() => {
         if (open && editing && data) form.setFieldsValue({
             partNumber: data.PartNumber,
+            partNumberSAP: data.PartNumberSAP ?? "",
             partName: data.PartName,
             alias: data.Alias ?? undefined,
             price: data.Price ?? undefined,
@@ -54,7 +55,7 @@ export default function FinishGoodModal({open, data, onClose, onChanged}: Props)
             setSaving(true);
             await dispatch(updateFinishGood({
                 id: data.Id,
-                data: {...values, isPassthrough: values.isPassthrough ?? false}
+                data: {...values, partNumberSAP: values.partNumberSAP?.trim() || null, isPassthrough: values.isPassthrough ?? false}
             })).unwrap();
             message.success("Finish good updated successfully");
             form.resetFields();
@@ -96,7 +97,7 @@ export default function FinishGoodModal({open, data, onClose, onChanged}: Props)
     });
 
     return <Modal title={<Space>{editing ? <EditOutlined/> : <EyeOutlined/>}<span>{editing ? "Edit" : "Detail"} Finish Good - {data.PartNumber}</span></Space>}
-                  open={open} onCancel={close} centered width={550} destroyOnHidden
+                  open={open} onCancel={close} centered width={550} destroyOnHidden forceRender
                   mask={{closable: !saving && !deleting}}
                   closable={!saving && !deleting} footer={editing ? [<Button key="cancel" onClick={() => {
         form.resetFields();
@@ -114,7 +115,7 @@ export default function FinishGoodModal({open, data, onClose, onChanged}: Props)
                        rules={[{
                 required: true,
                 message: "Please enter part number"
-            }]}><Input/></Form.Item><Form.Item name="partName" label="Part Name" rules={[{
+            }]}><Input/></Form.Item><Form.Item name="partNumberSAP" label="Part Number SAP"><Input allowClear placeholder="Enter SAP part number (optional)"/></Form.Item><Form.Item name="partName" label="Part Name" rules={[{
                 required: true,
                 message: "Please enter part name"
             }]}><Input/></Form.Item><Form.Item name="isPassthrough" label="Passthrough (skip Assy)" valuePropName="checked"
@@ -128,7 +129,7 @@ export default function FinishGoodModal({open, data, onClose, onChanged}: Props)
                 extra="Qty tidak dapat diedit secara manual"><InputNumber value={data.Qty} disabled
                                                                           style={{width: "100%"}}/></Form.Item></Form> :
             <Descriptions bordered size="small" column={2}><Descriptions.Item
-                label="Part Number">{data.PartNumber}</Descriptions.Item><Descriptions.Item
+                label="Part Number">{data.PartNumber}</Descriptions.Item><Descriptions.Item label="Part Number SAP">{data.PartNumberSAP || "-"}</Descriptions.Item><Descriptions.Item
                 label="Part Name">{data.PartName}</Descriptions.Item><Descriptions.Item
                 label="Status">{data.IsActive ? <span style={{color: '#52c41a', fontWeight: 'bold'}}>Active</span> : <span style={{color: '#ff4d4f', fontWeight: 'bold'}}>Discontinued</span>}</Descriptions.Item><Descriptions.Item
                 label="Discontinue Date">{data.DiscontinueDate ? formatDateTime(data.DiscontinueDate) : "-"}</Descriptions.Item><Descriptions.Item

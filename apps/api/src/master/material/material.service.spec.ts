@@ -1,3 +1,4 @@
+import * as ExcelJS from 'exceljs';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   BadRequestException,
@@ -423,6 +424,135 @@ describe('MaterialService', () => {
           'admin',
         ),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+  describe('SAP part number', () => {
+    beforeEach(() => {
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      prismaService.material.create.mockResolvedValue(mockMaterial);
+      prismaService.material.update.mockResolvedValue(mockMaterial);
+    });
+
+    it.each([undefined, null, '', '   ', '  SAP-001  '])(
+      'normalizes create input %s',
+      async (value) => {
+        prismaService.material.findUnique.mockResolvedValue(null);
+        await service.create(
+          {
+            partNumber: mockMaterial.PartNumber,
+            partName: mockMaterial.PartName,
+            partNumberSAP: value,
+          },
+          'tester',
+        );
+        expect(prismaService.material.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              PartNumberSAP:
+                value === undefined ? undefined : value?.trim() || null,
+            }),
+          }),
+        );
+      },
+    );
+
+    it.each([undefined, null, '', '   ', '  SAP-002  '])(
+      'normalizes update input %s without erasing omitted values',
+      async (value) => {
+        prismaService.material.findUnique
+          .mockResolvedValueOnce({ ...mockMaterial, PartNumberSAP: 'OLD' })
+          .mockResolvedValue(null);
+        await service.update(
+          mockMaterial.Id,
+          { partNumberSAP: value },
+          'tester',
+        );
+        expect(prismaService.material.update).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              PartNumberSAP:
+                value === undefined ? undefined : value?.trim() || null,
+            }),
+          }),
+        );
+        expect(prismaService.inventoryLedger.create).not.toHaveBeenCalled();
+      },
+    );
+
+    it('allows SAP to equal PartNumber', async () => {
+      prismaService.material.findUnique.mockResolvedValue(null);
+      await service.create(
+        {
+          partNumber: mockMaterial.PartNumber,
+          partName: mockMaterial.PartName,
+          partNumberSAP: mockMaterial.PartNumber,
+        },
+        'tester',
+      );
+      expect(prismaService.material.create).toHaveBeenCalled();
+    });
+
+    it('allows keeping the same SAP value on the same record', async () => {
+      prismaService.material.findUnique.mockResolvedValue({
+        ...mockMaterial,
+        PartNumberSAP: 'SAP',
+      });
+      await service.update(mockMaterial.Id, { partNumberSAP: 'SAP' }, 'tester');
+      expect(prismaService.material.update).toHaveBeenCalled();
+    });
+
+    it('rejects a duplicate on create and records failure', async () => {
+      prismaService.material.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ ...mockMaterial, Id: 2 });
+      await expect(
+        service.create(
+          { partNumber: 'NEW', partName: 'New', partNumberSAP: 'SAP' },
+          'tester',
+        ),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(prismaService.material.create).not.toHaveBeenCalled();
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        mockLogProcess.ProcessId,
+        'FAILED',
+      );
+    });
+
+    it('rejects a duplicate on update', async () => {
+      prismaService.material.findUnique
+        .mockResolvedValueOnce(mockMaterial)
+        .mockResolvedValueOnce({ ...mockMaterial, Id: 2 });
+      await expect(
+        service.update(mockMaterial.Id, { partNumberSAP: 'SAP' }, 'tester'),
+      ).rejects.toBeInstanceOf(ConflictException);
+      expect(prismaService.material.update).not.toHaveBeenCalled();
+    });
+
+    it('searches SAP consistently but excludes it from Excel cells', async () => {
+      prismaService.material.count.mockResolvedValue(1);
+      prismaService.material.findMany.mockResolvedValue([
+        { ...mockMaterial, PartNumberSAP: 'SAP-ONLY-SECRET' },
+      ]);
+      await service.findAll({ page: 1, limit: 50, search: 'SAP-ONLY' });
+      const listWhere = prismaService.material.findMany.mock.calls[0][0].where;
+      expect(listWhere.OR).toContainEqual({
+        PartNumberSAP: { contains: 'SAP-ONLY', mode: 'insensitive' },
+      });
+      const buffer = await service.exportExcel({
+        page: 1,
+        limit: 50,
+        search: 'SAP-ONLY',
+      });
+      expect(prismaService.material.findMany.mock.calls[1][0].where).toEqual(
+        listWhere,
+      );
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(
+        buffer as unknown as Parameters<typeof workbook.xlsx.load>[0],
+      );
+      const cells = JSON.stringify(workbook.worksheets[0].getSheetValues());
+      expect(cells).not.toContain('SAP');
+      expect(cells).toContain(mockMaterial.PartNumber);
     });
   });
 });

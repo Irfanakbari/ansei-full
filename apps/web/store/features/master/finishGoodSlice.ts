@@ -11,6 +11,7 @@ import {
 } from '../../utils/apiService';
 
 export interface FinishGoodEntity {
+    PartNumberSAP: string | null;
     Id: number;
     PartNumber: string;
     PartName: string;
@@ -104,6 +105,7 @@ export const createFinishGood = createAsyncThunk(
     'finishGood/create',
     async (finishGoodData: {
         partNumber: string;
+        partNumberSAP?: string | null;
         partName: string;
         alias?: string;
         price?: number;
@@ -124,6 +126,7 @@ export const updateFinishGood = createAsyncThunk(
         id: number;
         data: {
             partNumber?: string;
+            partNumberSAP?: string | null;
             partName?: string;
             alias?: string;
             price?: number;

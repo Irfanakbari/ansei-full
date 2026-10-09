@@ -13,6 +13,7 @@ import {formatDateTime} from "@/lib/utils/dateTime";
 
 type FormValues = {
     partNumber: string;
+    partNumberSAP?: string;
     partName: string;
     supplier?: string;
     satuanId?: number;
@@ -47,6 +48,7 @@ export default function MaterialModal({open, data, onClose, onChanged}: Props) {
         if (!open || !editing || !data) return;
         form.setFieldsValue({
             partNumber: data.PartNumber,
+            partNumberSAP: data.PartNumberSAP ?? "",
             partName: data.PartName,
             supplier: data.Supplier ?? undefined,
             satuanId: data.SatuanId ?? undefined,
@@ -78,7 +80,7 @@ export default function MaterialModal({open, data, onClose, onChanged}: Props) {
             const values = await form.validateFields();
             saveInFlight.current = true;
             setSaving(true);
-            await dispatch(updateMaterial({id: data.Id, data: values})).unwrap();
+            await dispatch(updateMaterial({id: data.Id, data: {...values, partNumberSAP: values.partNumberSAP?.trim() || null}})).unwrap();
             message.success("Material updated successfully");
             form.resetFields();
             setEditing(false);
@@ -119,7 +121,7 @@ export default function MaterialModal({open, data, onClose, onChanged}: Props) {
     });
 
     return <Modal title={<Space>{editing ? <EditOutlined/> : <EyeOutlined/>}<span>{editing ? "Edit" : "Detail"} Material - {data.PartNumber}</span></Space>}
-                  open={open} onCancel={close} centered width={760} destroyOnHidden
+                  open={open} onCancel={close} centered width={760} destroyOnHidden forceRender
                   mask={{closable: !saving && !deleting}}
                   closable={!saving && !deleting} footer={editing ? [<Button key="cancel" onClick={() => {
         form.resetFields();
@@ -140,6 +142,9 @@ export default function MaterialModal({open, data, onClose, onChanged}: Props) {
                                rules={[{required: true, message: "Please enter part number"}]}>
                         <Input placeholder="Enter part number"/>
                     </Form.Item>
+                </Col>
+                <Col span={12}>
+                    <Form.Item name="partNumberSAP" label="Part Number SAP"><Input allowClear placeholder="Enter SAP part number (optional)"/></Form.Item>
                 </Col>
                 <Col span={12}>
                     <Form.Item name="partName" label="Part Name"
@@ -207,7 +212,7 @@ export default function MaterialModal({open, data, onClose, onChanged}: Props) {
                 </Col>
             </Row>
         </Form> : <Descriptions bordered size="small" column={2}>
-            <Descriptions.Item label="Part Number">{data.PartNumber}</Descriptions.Item><Descriptions.Item
+            <Descriptions.Item label="Part Number">{data.PartNumber}</Descriptions.Item><Descriptions.Item label="Part Number SAP">{data.PartNumberSAP || "-"}</Descriptions.Item><Descriptions.Item
             label="Part Name">{data.PartName}</Descriptions.Item><Descriptions.Item
             label="Status">{data.IsActive ? <span style={{color: '#52c41a', fontWeight: 'bold'}}>Active</span> : <span style={{color: '#ff4d4f', fontWeight: 'bold'}}>Discontinued</span>}</Descriptions.Item><Descriptions.Item
             label="Discontinue Date">{data.DiscontinueDate ? formatDateTime(data.DiscontinueDate) : "-"}</Descriptions.Item><Descriptions.Item

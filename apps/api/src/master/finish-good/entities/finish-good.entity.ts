@@ -13,6 +13,9 @@ export class FinishGoodEntity {
   @ApiProperty({ description: 'Part number', example: 'FG-001' })
   PartNumber: string;
 
+  @ApiProperty({ description: 'SAP part number', type: String, nullable: true })
+  PartNumberSAP: string | null;
+
   @ApiProperty({ description: 'Nama part', example: 'Cover Assembly A' })
   PartName: string;
 

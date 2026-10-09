@@ -44,6 +44,7 @@ export class FinishGoodService {
       ? {
           OR: [
             { PartNumber: { contains: query.search, mode: 'insensitive' } },
+            { PartNumberSAP: { contains: query.search, mode: 'insensitive' } },
             { PartName: { contains: query.search, mode: 'insensitive' } },
             { Alias: { contains: query.search, mode: 'insensitive' } },
           ],
@@ -130,6 +131,7 @@ export class FinishGoodService {
       ? {
           OR: [
             { PartNumber: { contains: query.search, mode: 'insensitive' } },
+            { PartNumberSAP: { contains: query.search, mode: 'insensitive' } },
             { PartName: { contains: query.search, mode: 'insensitive' } },
             { Alias: { contains: query.search, mode: 'insensitive' } },
           ],
@@ -185,6 +187,10 @@ export class FinishGoodService {
     dto: CreateFinishGoodDto,
     createdBy: string,
   ): Promise<FinishGoodModel> {
+    const partNumberSAP =
+      dto.partNumberSAP === undefined
+        ? undefined
+        : dto.partNumberSAP?.trim() || null;
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -212,10 +218,22 @@ export class FinishGoodService {
         );
       }
 
+      if (partNumberSAP) {
+        const sapConflict = await this.prisma.finishGood.findUnique({
+          where: { PartNumberSAP: partNumberSAP },
+        });
+        if (sapConflict) {
+          throw new ConflictException(
+            'FinishGood with this SAP part number already exists',
+          );
+        }
+      }
+
       const result = await auditedWrite(this.prisma, (tx) =>
         tx.finishGood.create({
           data: {
             PartNumber: dto.partNumber,
+            PartNumberSAP: partNumberSAP,
             PartName: dto.partName,
             Alias: dto.alias,
             Price: dto.price ?? 0,
@@ -264,6 +282,10 @@ export class FinishGoodService {
       );
     }
 
+    const partNumberSAP =
+      dto.partNumberSAP === undefined
+        ? undefined
+        : dto.partNumberSAP?.trim() || null;
     let logProcess: LogProcessModel | undefined;
 
     try {
@@ -306,16 +328,28 @@ export class FinishGoodService {
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
-        message: `Updating finish good id: ${id} with data: ${JSON.stringify(dto)}`,
+        message: `Updating finish good id: ${id} (master data updated)`,
         type: 'INFO',
         location: 'finish-good.service.ts:112',
       });
+
+      if (partNumberSAP) {
+        const sapConflict = await this.prisma.finishGood.findUnique({
+          where: { PartNumberSAP: partNumberSAP },
+        });
+        if (sapConflict && sapConflict.Id !== id) {
+          throw new ConflictException(
+            'FinishGood with this SAP part number already exists',
+          );
+        }
+      }
 
       const result = await auditedWrite(this.prisma, (tx) =>
         tx.finishGood.update({
           where: { Id: id },
           data: {
             PartNumber: dto.partNumber,
+            PartNumberSAP: partNumberSAP,
             PartName: dto.partName,
             Alias: dto.alias,
             Price: dto.price,

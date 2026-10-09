@@ -42,6 +42,7 @@ export type FinishGoodMinAggregateOutputType = {
   ActiveBomRevisionId: string | null
   Id: number | null
   PartNumber: string | null
+  PartNumberSAP: string | null
   PartName: string | null
   IsPassthrough: boolean | null
   Alias: string | null
@@ -59,6 +60,7 @@ export type FinishGoodMaxAggregateOutputType = {
   ActiveBomRevisionId: string | null
   Id: number | null
   PartNumber: string | null
+  PartNumberSAP: string | null
   PartName: string | null
   IsPassthrough: boolean | null
   Alias: string | null
@@ -76,6 +78,7 @@ export type FinishGoodCountAggregateOutputType = {
   ActiveBomRevisionId: number
   Id: number
   PartNumber: number
+  PartNumberSAP: number
   PartName: number
   IsPassthrough: number
   Alias: number
@@ -107,6 +110,7 @@ export type FinishGoodMinAggregateInputType = {
   ActiveBomRevisionId?: true
   Id?: true
   PartNumber?: true
+  PartNumberSAP?: true
   PartName?: true
   IsPassthrough?: true
   Alias?: true
@@ -124,6 +128,7 @@ export type FinishGoodMaxAggregateInputType = {
   ActiveBomRevisionId?: true
   Id?: true
   PartNumber?: true
+  PartNumberSAP?: true
   PartName?: true
   IsPassthrough?: true
   Alias?: true
@@ -141,6 +146,7 @@ export type FinishGoodCountAggregateInputType = {
   ActiveBomRevisionId?: true
   Id?: true
   PartNumber?: true
+  PartNumberSAP?: true
   PartName?: true
   IsPassthrough?: true
   Alias?: true
@@ -245,6 +251,7 @@ export type FinishGoodGroupByOutputType = {
   ActiveBomRevisionId: string | null
   Id: number
   PartNumber: string
+  PartNumberSAP: string | null
   PartName: string
   IsPassthrough: boolean
   Alias: string | null
@@ -285,6 +292,7 @@ export type FinishGoodWhereInput = {
   ActiveBomRevisionId?: Prisma.StringNullableFilter<"FinishGood"> | string | null
   Id?: Prisma.IntFilter<"FinishGood"> | number
   PartNumber?: Prisma.StringFilter<"FinishGood"> | string
+  PartNumberSAP?: Prisma.StringNullableFilter<"FinishGood"> | string | null
   PartName?: Prisma.StringFilter<"FinishGood"> | string
   IsPassthrough?: Prisma.BoolFilter<"FinishGood"> | boolean
   Alias?: Prisma.StringNullableFilter<"FinishGood"> | string | null
@@ -314,6 +322,7 @@ export type FinishGoodOrderByWithRelationInput = {
   ActiveBomRevisionId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrderInput | Prisma.SortOrder
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -343,6 +352,7 @@ export type FinishGoodWhereUniqueInput = Prisma.AtLeast<{
   ActiveBomRevisionId?: string
   Id?: number
   PartNumber?: string
+  PartNumberSAP?: string
   AND?: Prisma.FinishGoodWhereInput | Prisma.FinishGoodWhereInput[]
   OR?: Prisma.FinishGoodWhereInput[]
   NOT?: Prisma.FinishGoodWhereInput | Prisma.FinishGoodWhereInput[]
@@ -369,12 +379,13 @@ export type FinishGoodWhereUniqueInput = Prisma.AtLeast<{
   ProductionReport?: Prisma.ProductionReportListRelationFilter
   InventoryLedger?: Prisma.InventoryLedgerListRelationFilter
   StockOpnameDetail?: Prisma.StockOpnameDetailListRelationFilter
-}, "Id" | "ActiveBomRevisionId" | "PartNumber">
+}, "Id" | "ActiveBomRevisionId" | "PartNumber" | "PartNumberSAP">
 
 export type FinishGoodOrderByWithAggregationInput = {
   ActiveBomRevisionId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrderInput | Prisma.SortOrder
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -400,6 +411,7 @@ export type FinishGoodScalarWhereWithAggregatesInput = {
   ActiveBomRevisionId?: Prisma.StringNullableWithAggregatesFilter<"FinishGood"> | string | null
   Id?: Prisma.IntWithAggregatesFilter<"FinishGood"> | number
   PartNumber?: Prisma.StringWithAggregatesFilter<"FinishGood"> | string
+  PartNumberSAP?: Prisma.StringNullableWithAggregatesFilter<"FinishGood"> | string | null
   PartName?: Prisma.StringWithAggregatesFilter<"FinishGood"> | string
   IsPassthrough?: Prisma.BoolWithAggregatesFilter<"FinishGood"> | boolean
   Alias?: Prisma.StringNullableWithAggregatesFilter<"FinishGood"> | string | null
@@ -415,6 +427,7 @@ export type FinishGoodScalarWhereWithAggregatesInput = {
 
 export type FinishGoodCreateInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -444,6 +457,7 @@ export type FinishGoodUncheckedCreateInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -470,6 +484,7 @@ export type FinishGoodUncheckedCreateInput = {
 
 export type FinishGoodUpdateInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -499,6 +514,7 @@ export type FinishGoodUncheckedUpdateInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -527,6 +543,7 @@ export type FinishGoodCreateManyInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -542,6 +559,7 @@ export type FinishGoodCreateManyInput = {
 
 export type FinishGoodUpdateManyMutationInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -559,6 +577,7 @@ export type FinishGoodUncheckedUpdateManyInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -576,6 +595,7 @@ export type FinishGoodCountOrderByAggregateInput = {
   ActiveBomRevisionId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrder
@@ -599,6 +619,7 @@ export type FinishGoodMaxOrderByAggregateInput = {
   ActiveBomRevisionId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrder
@@ -616,6 +637,7 @@ export type FinishGoodMinOrderByAggregateInput = {
   ActiveBomRevisionId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   PartNumber?: Prisma.SortOrder
+  PartNumberSAP?: Prisma.SortOrder
   PartName?: Prisma.SortOrder
   IsPassthrough?: Prisma.SortOrder
   Alias?: Prisma.SortOrder
@@ -831,6 +853,7 @@ export type FinishGoodUpdateOneRequiredWithoutNonPoForecastsNestedInput = {
 
 export type FinishGoodCreateWithoutBoxQTYInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -859,6 +882,7 @@ export type FinishGoodUncheckedCreateWithoutBoxQTYInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -900,6 +924,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutBoxQTYInput = {
 
 export type FinishGoodUpdateWithoutBoxQTYInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -928,6 +953,7 @@ export type FinishGoodUncheckedUpdateWithoutBoxQTYInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -953,6 +979,7 @@ export type FinishGoodUncheckedUpdateWithoutBoxQTYInput = {
 
 export type FinishGoodCreateWithoutBillOfMaterialsInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -981,6 +1008,7 @@ export type FinishGoodUncheckedCreateWithoutBillOfMaterialsInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1022,6 +1050,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutBillOfMaterialsInput = {
 
 export type FinishGoodUpdateWithoutBillOfMaterialsInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1050,6 +1079,7 @@ export type FinishGoodUncheckedUpdateWithoutBillOfMaterialsInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1075,6 +1105,7 @@ export type FinishGoodUncheckedUpdateWithoutBillOfMaterialsInput = {
 
 export type FinishGoodCreateWithoutInventoryLedgerInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1103,6 +1134,7 @@ export type FinishGoodUncheckedCreateWithoutInventoryLedgerInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1144,6 +1176,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutInventoryLedgerInput = {
 
 export type FinishGoodUpdateWithoutInventoryLedgerInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1172,6 +1205,7 @@ export type FinishGoodUncheckedUpdateWithoutInventoryLedgerInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1197,6 +1231,7 @@ export type FinishGoodUncheckedUpdateWithoutInventoryLedgerInput = {
 
 export type FinishGoodCreateWithoutStockOpnameDetailInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1225,6 +1260,7 @@ export type FinishGoodUncheckedCreateWithoutStockOpnameDetailInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1266,6 +1302,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutStockOpnameDetailInput = {
 
 export type FinishGoodUpdateWithoutStockOpnameDetailInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1294,6 +1331,7 @@ export type FinishGoodUncheckedUpdateWithoutStockOpnameDetailInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1319,6 +1357,7 @@ export type FinishGoodUncheckedUpdateWithoutStockOpnameDetailInput = {
 
 export type FinishGoodCreateWithoutForecastInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1347,6 +1386,7 @@ export type FinishGoodUncheckedCreateWithoutForecastInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1388,6 +1428,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutForecastInput = {
 
 export type FinishGoodUpdateWithoutForecastInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1416,6 +1457,7 @@ export type FinishGoodUncheckedUpdateWithoutForecastInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1441,6 +1483,7 @@ export type FinishGoodUncheckedUpdateWithoutForecastInput = {
 
 export type FinishGoodCreateWithoutProductionReportInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1469,6 +1512,7 @@ export type FinishGoodUncheckedCreateWithoutProductionReportInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1510,6 +1554,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutProductionReportInput = {
 
 export type FinishGoodUpdateWithoutProductionReportInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1538,6 +1583,7 @@ export type FinishGoodUncheckedUpdateWithoutProductionReportInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1563,6 +1609,7 @@ export type FinishGoodUncheckedUpdateWithoutProductionReportInput = {
 
 export type FinishGoodCreateWithoutLabelDataInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1591,6 +1638,7 @@ export type FinishGoodUncheckedCreateWithoutLabelDataInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1632,6 +1680,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutLabelDataInput = {
 
 export type FinishGoodUpdateWithoutLabelDataInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1660,6 +1709,7 @@ export type FinishGoodUncheckedUpdateWithoutLabelDataInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1685,6 +1735,7 @@ export type FinishGoodUncheckedUpdateWithoutLabelDataInput = {
 
 export type FinishGoodCreateWithoutLineStatusInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1713,6 +1764,7 @@ export type FinishGoodUncheckedCreateWithoutLineStatusInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1754,6 +1806,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutLineStatusInput = {
 
 export type FinishGoodUpdateWithoutLineStatusInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1782,6 +1835,7 @@ export type FinishGoodUncheckedUpdateWithoutLineStatusInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1807,6 +1861,7 @@ export type FinishGoodUncheckedUpdateWithoutLineStatusInput = {
 
 export type FinishGoodCreateWithoutBomRevisionsInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1835,6 +1890,7 @@ export type FinishGoodUncheckedCreateWithoutBomRevisionsInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1865,6 +1921,7 @@ export type FinishGoodCreateOrConnectWithoutBomRevisionsInput = {
 
 export type FinishGoodCreateWithoutActiveBomRevisionInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1892,6 +1949,7 @@ export type FinishGoodCreateWithoutActiveBomRevisionInput = {
 export type FinishGoodUncheckedCreateWithoutActiveBomRevisionInput = {
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -1934,6 +1992,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutBomRevisionsInput = {
 
 export type FinishGoodUpdateWithoutBomRevisionsInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1962,6 +2021,7 @@ export type FinishGoodUncheckedUpdateWithoutBomRevisionsInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1998,6 +2058,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutActiveBomRevisionInput = {
 
 export type FinishGoodUpdateWithoutActiveBomRevisionInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2025,6 +2086,7 @@ export type FinishGoodUpdateWithoutActiveBomRevisionInput = {
 export type FinishGoodUncheckedUpdateWithoutActiveBomRevisionInput = {
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2051,6 +2113,7 @@ export type FinishGoodUncheckedUpdateWithoutActiveBomRevisionInput = {
 
 export type FinishGoodCreateWithoutNonPoForecastsInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -2079,6 +2142,7 @@ export type FinishGoodUncheckedCreateWithoutNonPoForecastsInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -2120,6 +2184,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutNonPoForecastsInput = {
 
 export type FinishGoodUpdateWithoutNonPoForecastsInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2148,6 +2213,7 @@ export type FinishGoodUncheckedUpdateWithoutNonPoForecastsInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2181,6 +2247,7 @@ export type FinishGoodUpdateOneRequiredWithoutProductionOrdersNestedInput = {
 
 export type FinishGoodCreateWithoutProductionOrdersInput = {
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -2209,6 +2276,7 @@ export type FinishGoodUncheckedCreateWithoutProductionOrdersInput = {
   ActiveBomRevisionId?: string | null
   Id?: number
   PartNumber: string
+  PartNumberSAP?: string | null
   PartName: string
   IsPassthrough?: boolean
   Alias?: string | null
@@ -2250,6 +2318,7 @@ export type FinishGoodUpdateToOneWithWhereWithoutProductionOrdersInput = {
 
 export type FinishGoodUpdateWithoutProductionOrdersInput = {
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2278,6 +2347,7 @@ export type FinishGoodUncheckedUpdateWithoutProductionOrdersInput = {
   ActiveBomRevisionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   PartNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PartNumberSAP?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   PartName?: Prisma.StringFieldUpdateOperationsInput | string
   IsPassthrough?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2417,6 +2487,7 @@ export type FinishGoodSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   ActiveBomRevisionId?: boolean
   Id?: boolean
   PartNumber?: boolean
+  PartNumberSAP?: boolean
   PartName?: boolean
   IsPassthrough?: boolean
   Alias?: boolean
@@ -2447,6 +2518,7 @@ export type FinishGoodSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   ActiveBomRevisionId?: boolean
   Id?: boolean
   PartNumber?: boolean
+  PartNumberSAP?: boolean
   PartName?: boolean
   IsPassthrough?: boolean
   Alias?: boolean
@@ -2465,6 +2537,7 @@ export type FinishGoodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   ActiveBomRevisionId?: boolean
   Id?: boolean
   PartNumber?: boolean
+  PartNumberSAP?: boolean
   PartName?: boolean
   IsPassthrough?: boolean
   Alias?: boolean
@@ -2483,6 +2556,7 @@ export type FinishGoodSelectScalar = {
   ActiveBomRevisionId?: boolean
   Id?: boolean
   PartNumber?: boolean
+  PartNumberSAP?: boolean
   PartName?: boolean
   IsPassthrough?: boolean
   Alias?: boolean
@@ -2496,7 +2570,7 @@ export type FinishGoodSelectScalar = {
   Qty?: boolean
 }
 
-export type FinishGoodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ActiveBomRevisionId" | "Id" | "PartNumber" | "PartName" | "IsPassthrough" | "Alias" | "IsActive" | "DiscontinueDate" | "Price" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Qty", ExtArgs["result"]["finishGood"]>
+export type FinishGoodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"ActiveBomRevisionId" | "Id" | "PartNumber" | "PartNumberSAP" | "PartName" | "IsPassthrough" | "Alias" | "IsActive" | "DiscontinueDate" | "Price" | "CreatedAt" | "CreatedBy" | "UpdatedAt" | "UpdatedBy" | "Qty", ExtArgs["result"]["finishGood"]>
 export type FinishGoodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ActiveBomRevision?: boolean | Prisma.FinishGood$ActiveBomRevisionArgs<ExtArgs>
   BomRevisions?: boolean | Prisma.FinishGood$BomRevisionsArgs<ExtArgs>
@@ -2539,6 +2613,7 @@ export type $FinishGoodPayload<ExtArgs extends runtime.Types.Extensions.Internal
     ActiveBomRevisionId: string | null
     Id: number
     PartNumber: string
+    PartNumberSAP: string | null
     PartName: string
     IsPassthrough: boolean
     Alias: string | null
@@ -2988,6 +3063,7 @@ export interface FinishGoodFieldRefs {
   readonly ActiveBomRevisionId: Prisma.FieldRef<"FinishGood", 'String'>
   readonly Id: Prisma.FieldRef<"FinishGood", 'Int'>
   readonly PartNumber: Prisma.FieldRef<"FinishGood", 'String'>
+  readonly PartNumberSAP: Prisma.FieldRef<"FinishGood", 'String'>
   readonly PartName: Prisma.FieldRef<"FinishGood", 'String'>
   readonly IsPassthrough: Prisma.FieldRef<"FinishGood", 'Boolean'>
   readonly Alias: Prisma.FieldRef<"FinishGood", 'String'>

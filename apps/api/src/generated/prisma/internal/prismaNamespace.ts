@@ -5185,6 +5185,7 @@ export type SupplierBarcodeFormatScalarFieldEnum = (typeof SupplierBarcodeFormat
 export const MaterialScalarFieldEnum = {
   Id: 'Id',
   PartNumber: 'PartNumber',
+  PartNumberSAP: 'PartNumberSAP',
   PartName: 'PartName',
   CreatedAt: 'CreatedAt',
   CreatedBy: 'CreatedBy',
@@ -5212,6 +5213,7 @@ export const FinishGoodScalarFieldEnum = {
   ActiveBomRevisionId: 'ActiveBomRevisionId',
   Id: 'Id',
   PartNumber: 'PartNumber',
+  PartNumberSAP: 'PartNumberSAP',
   PartName: 'PartName',
   IsPassthrough: 'IsPassthrough',
   Alias: 'Alias',

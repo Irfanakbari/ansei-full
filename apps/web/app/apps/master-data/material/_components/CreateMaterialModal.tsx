@@ -16,7 +16,7 @@ interface Props {
 const CreateMaterialModal: React.FC<Props> = ({visible, onClose, onSuccess}) => {
     const {message} = App.useApp();
     const dispatch = useDispatch<AppDispatch>();
-    const [form] = Form.useForm();
+    const [form] = Form.useForm<Parameters<typeof createMaterial>[0]>();
     const [loading, setLoading] = useState(false);
 
     const {data: satuan} = useSelector((state: RootState) => state.satuan);
@@ -36,6 +36,7 @@ const CreateMaterialModal: React.FC<Props> = ({visible, onClose, onSuccess}) => 
 
             const payload = {
                 partNumber: values.partNumber,
+                partNumberSAP: values.partNumberSAP?.trim() || null,
                 partName: values.partName,
                 supplier: values.supplier,
                 satuanId: values.satuanId,
@@ -47,23 +48,14 @@ const CreateMaterialModal: React.FC<Props> = ({visible, onClose, onSuccess}) => 
                 remark: values.remark,
             };
 
-            const result = await dispatch(createMaterial(payload));
-
-            if (createMaterial.rejected.match(result)) {
-
-
-                throw new Error((result.payload as string) || 'Failed to create/update/delete');
-
-
-            }
+            await dispatch(createMaterial(payload)).unwrap();
             message.success('Material created successfully');
             onSuccess?.();
             form.resetFields();
             onClose();
         } catch (error: unknown) {
-            const err = error as Error;
-            if (err?.message?.includes('validateFields')) return;
-            message.error(err?.message || String(error) || 'Failed to create material');
+            if (typeof error === "object" && error !== null && "errorFields" in error) return;
+            message.error((typeof error === "string" ? error : error instanceof Error ? error.message : undefined) || 'Failed to create material');
         } finally {
             setLoading(false);
         }
@@ -91,6 +83,11 @@ const CreateMaterialModal: React.FC<Props> = ({visible, onClose, onSuccess}) => 
                         <Form.Item name="partNumber" label="Part Number"
                                    rules={[{required: true, message: 'Please enter part number'}]}>
                             <Input placeholder="Enter part number"/>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item name="partNumberSAP" label="Part Number SAP">
+                            <Input allowClear placeholder="Enter SAP part number (optional)"/>
                         </Form.Item>
                     </Col>
                     <Col span={12}>
