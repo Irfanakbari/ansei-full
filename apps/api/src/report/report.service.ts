@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { createDeliveryMonthlyWorkbook } from './delivery-monthly.workbook';
 import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
 import { Workbook } from 'exceljs';
@@ -16,6 +17,92 @@ export class ReportService {
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
   ) {}
+
+  async generateDeliveryMonthlyReport(month: string): Promise<Buffer> {
+    if (!/^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(month)) {
+      throw new BadRequestException(
+        'month must be a valid month in YYYY-MM format',
+      );
+    }
+    const [year, monthNumber] = month.split('-').map(Number);
+    // Forecast dates are date-only UTC values in the existing import contract.
+    // Incoming timestamps are instants, grouped by the operational Jakarta day.
+    const start = new Date(Date.UTC(year, monthNumber - 1, 1));
+    const end = new Date(Date.UTC(year, monthNumber, 1));
+    const actualStart = new Date(start.getTime() - 7 * 60 * 60 * 1000);
+    const actualEnd = new Date(end.getTime() - 7 * 60 * 60 * 1000);
+    const orderSelect = {
+      PoId: true,
+      SourceType: true,
+      VendorCode: true,
+      VendorName: true,
+      ReceivingArea: true,
+      DeliveryDate: true,
+      DeliveryPeriod: true,
+      Classification: true,
+      PoNumber: true,
+      Item: true,
+      FinishGoodId: true,
+      Qty: true,
+      Notes: true,
+      PartData: { select: { PartName: true } },
+    } as const;
+    // A consistent read snapshot keeps all sheets aligned during active operations.
+    const [orders, orderDeliveries, receipts] = await this.prisma.$transaction(
+      [
+        this.prisma.productionOrder.findMany({
+          where: { DeliveryDate: { gte: start, lt: end } },
+          select: orderSelect,
+          orderBy: [
+            { DeliveryDate: 'asc' },
+            { PoNumber: 'asc' },
+            { Item: 'asc' },
+            { PoId: 'asc' },
+          ],
+        }),
+        this.prisma.deliveryHistory.findMany({
+          where: {
+            PoData: { DeliveryDate: { gte: start, lt: end } },
+          },
+          select: { ProductionDemandId: true, Qty: true, CreatedAt: true },
+        }),
+        this.prisma.incoming.findMany({
+          where: {
+            Closed: true,
+            ApprovedAt: { gte: actualStart, lt: actualEnd },
+          },
+          select: {
+            PoId: true,
+            ApprovedAt: true,
+            ReceivedBy: true,
+            SupplierData: { select: { Name: true } },
+            IncomingMaterial: {
+              select: {
+                Qty: true,
+                MaterialData: {
+                  select: { PartNumber: true, PartName: true },
+                },
+              },
+            },
+          },
+          orderBy: [{ ApprovedAt: 'asc' }, { PoId: 'asc' }],
+        }),
+      ],
+      { isolationLevel: 'RepeatableRead' },
+    );
+    return this.writeBuffer(
+      createDeliveryMonthlyWorkbook(
+        month,
+        orders,
+        orderDeliveries,
+        receipts.map((receipt) => ({
+          ...receipt,
+          ApprovedAt: receipt.ApprovedAt!,
+          SupplierName: receipt.SupplierData.Name,
+        })),
+      ),
+    );
+  }
 
   private parseDateDDMMYYYY(dateStr: string): Date {
     const day = dateStr.substring(0, 2);

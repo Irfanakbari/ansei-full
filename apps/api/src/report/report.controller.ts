@@ -17,6 +17,7 @@ import {
   ProductionReleaseReportQueryDto,
   PokayokeScanReportQueryDto,
   DeliveryHistoryReportQueryDto,
+  DeliveryMonthlyReportQueryDto,
   ProductionReportQueryDto,
   ShoppingHistoryReportQueryDto,
   InventoryLedgerReportQueryDto,
@@ -322,6 +323,39 @@ export class ReportController {
   }
 
   // ========== DELIVERY HISTORY REPORT ==========
+
+  @Get('delivery-monthly')
+  @Permission('IPCS.REPORT_READ')
+  @ApiOperation({
+    summary: 'Download Delivery Report (Monthly)',
+    description:
+      'Forecast, completed Delivered forecast quantities by DeliveryDate, and actual Received worksheets for one calendar month. Incoming dates use Asia/Jakarta.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Excel file download',
+    content: {
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+        schema: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  async generateDeliveryMonthlyReport(
+    @CurrentUser() _user: ICurrentUser,
+    @Res() res: Response,
+    @Query() query: DeliveryMonthlyReportQueryDto,
+  ) {
+    const buffer = await this.reportService.generateDeliveryMonthlyReport(
+      query.month,
+    );
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename=Delivery_Report_Monthly_${query.month}.xlsx`,
+      'Content-Length': buffer.length,
+    });
+    res.send(buffer);
+  }
 
   @Get('delivery-history')
   @Permission('IPCS.REPORT_READ')

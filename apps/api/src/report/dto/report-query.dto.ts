@@ -63,6 +63,19 @@ export class PokayokeScanReportQueryDto extends DateRangeQueryDto {}
  */
 export class DeliveryHistoryReportQueryDto extends DateRangeQueryDto {}
 
+/** A calendar month, independent of the existing date-range reports. */
+export class DeliveryMonthlyReportQueryDto {
+  @ApiProperty({
+    description: 'Report month in YYYY-MM format',
+    example: '2026-09',
+  })
+  @IsString()
+  @Matches(/^[1-9]\d{3}-(0[1-9]|1[0-2])$/, {
+    message: 'month must be a valid month in YYYY-MM format',
+  })
+  month: string;
+}
+
 /**
  * DTO for Production Report
  */
