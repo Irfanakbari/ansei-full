@@ -1,4 +1,16 @@
-import { auditedWrite } from '../../common/helpers/audited-transaction.helper';
+import { OutboxService } from '../../common/outbox/outbox.service';
+import {
+  materialSapValues,
+  parseSapMaterialPayload,
+} from '../../common/sap/sap-material-write.service';
+import {
+  SapItemSyncService,
+  type SapSync,
+} from '../../common/sap/sap-item-sync.service';
+import {
+  auditedWrite,
+  auditedTransaction,
+} from '../../common/helpers/audited-transaction.helper';
 import {
   Injectable,
   NotFoundException,
@@ -44,7 +56,68 @@ export class MaterialService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
+    private readonly sap: SapItemSyncService,
+    private readonly outbox: OutboxService,
   ) {}
+
+  private async decorateSap<T extends MaterialModel>(items: T[]) {
+    const enabled = this.sap.materialWritesEnabled();
+    const events =
+      enabled && items.length
+        ? await this.prisma.outboxEvent.findMany({
+            where: {
+              Type: 'SAP_MATERIAL_UPDATE',
+              ReferenceType: 'SAP_MATERIAL',
+              ReferenceId: { in: items.map((row) => String(row.Id)) },
+            },
+            distinct: ['ReferenceId'],
+            orderBy: [
+              { ReferenceId: 'asc' },
+              { CreatedAt: 'desc' },
+              { Id: 'desc' },
+            ],
+            select: {
+              ReferenceId: true,
+              Status: true,
+              LastErrorCode: true,
+              SucceededAt: true,
+              UpdatedAt: true,
+              Payload: true,
+            },
+          })
+        : [];
+    const byId = new Map(events.map((event) => [event.ReferenceId, event]));
+    return this.sap.decorate(items).map((row) => {
+      const event = byId.get(String(row.Id));
+      let current = false;
+      if (event) {
+        try {
+          current =
+            JSON.stringify(parseSapMaterialPayload(event.Payload)) ===
+            JSON.stringify(materialSapValues(row));
+        } catch {
+          /* Historical payload is not a current sync result. */
+        }
+      }
+      const status = !enabled
+        ? 'DISABLED'
+        : !current || !event
+          ? 'NOT_REQUESTED'
+          : event.Status === 'SUCCEEDED'
+            ? event.LastErrorCode === 'SAP_MATERIAL_SYNCED'
+              ? 'SYNCED'
+              : 'NOT_REQUESTED'
+            : event.Status === 'FAILED'
+              ? 'FAILED'
+              : 'PENDING';
+      return {
+        ...row,
+        SAPUpdateStatus: status,
+        SAPUpdateCheckedAt:
+          current && event ? event.UpdatedAt.toISOString() : null,
+      };
+    });
+  }
 
   async exportExcel(query: MaterialQueryDto): Promise<Buffer> {
     const where: Prisma.MaterialWhereInput = {};
@@ -149,7 +222,9 @@ export class MaterialService {
 
   async findAll(
     query: MaterialQueryDto,
-  ): Promise<ApiResult<MaterialModel[], PaginationMeta> | MaterialOption[]> {
+  ): Promise<
+    ApiResult<(MaterialModel & SapSync)[], PaginationMeta> | MaterialOption[]
+  > {
     const where: Prisma.MaterialWhereInput = {};
     if (query.search) {
       where.OR = [
@@ -191,7 +266,7 @@ export class MaterialService {
       }),
     ]);
     return {
-      data,
+      data: await this.decorateSap(data),
       meta: {
         page: query.page,
         limit: query.limit,
@@ -201,7 +276,7 @@ export class MaterialService {
     };
   }
 
-  async findOne(id: number): Promise<MaterialModel> {
+  async findOne(id: number): Promise<MaterialModel & SapSync> {
     const result = await this.prisma.material.findUnique({
       where: { Id: id },
       include: {
@@ -214,10 +289,10 @@ export class MaterialService {
       throw new NotFoundException(`Material with id ${id} not found`);
     }
 
-    return result;
+    return (await this.decorateSap([result]))[0];
   }
 
-  async findByPartNumber(partNumber: string): Promise<MaterialModel> {
+  async findByPartNumber(partNumber: string): Promise<MaterialModel & SapSync> {
     const result = await this.prisma.material.findUnique({
       where: { PartNumber: partNumber },
       include: {
@@ -232,7 +307,7 @@ export class MaterialService {
       );
     }
 
-    return result;
+    return (await this.decorateSap([result]))[0];
   }
 
   async create(
@@ -409,28 +484,75 @@ export class MaterialService {
         }
       }
 
-      const result = await auditedWrite(this.prisma, (tx) =>
-        tx.material.update({
-          where: { Id: id },
-          data: {
-            PartNumber: dto.partNumber,
-            PartNumberSAP: partNumberSAP,
-            PartName: dto.partName,
-            Supplier: dto.supplier,
-            SupplierId: dto.supplierId,
-            SatuanId: dto.satuanId,
-            RackLocation: dto.rackLocation,
-            MinimumStock: dto.minimumStock,
-            MaximumStock: dto.maximumStock,
-            QtyPerBox: dto.qtyPerBox,
-            MaterialSource: dto.materialSource,
-            Remark: dto.remark,
-            UpdatedBy: createdBy,
-          },
-          include: {
-            SatuanData: true,
-          },
-        }),
+      const result = await auditedTransaction(
+        this.prisma,
+        async (tx) => {
+          await tx.$queryRaw`SELECT "Id" FROM "Material" WHERE "Id" = ${id} FOR UPDATE`;
+          const before = await tx.material.findUnique({ where: { Id: id } });
+          if (!before) throw new NotFoundException('Material not found');
+          const updated = await tx.material.update({
+            where: { Id: id },
+            data: {
+              PartNumber: dto.partNumber,
+              PartNumberSAP: partNumberSAP,
+              PartName: dto.partName,
+              Supplier: dto.supplier,
+              SupplierId: dto.supplierId,
+              SatuanId: dto.satuanId,
+              RackLocation: dto.rackLocation,
+              MinimumStock: dto.minimumStock,
+              MaximumStock: dto.maximumStock,
+              QtyPerBox: dto.qtyPerBox,
+              MaterialSource: dto.materialSource,
+              Remark: dto.remark,
+              UpdatedBy: createdBy,
+            },
+            include: {
+              SatuanData: true,
+            },
+          });
+          const oldValues = materialSapValues(before);
+          const newValues = materialSapValues(updated);
+          if (
+            this.sap.materialWritesEnabled() &&
+            JSON.stringify(oldValues) !== JSON.stringify(newValues)
+          ) {
+            await this.outbox.create(tx, {
+              idempotencyKey: `SAP_MATERIAL:${id}:${crypto.randomUUID()}`,
+              type: 'SAP_MATERIAL_UPDATE',
+              payload: newValues,
+              actor: createdBy,
+              referenceType: 'SAP_MATERIAL',
+              referenceId: String(id),
+            });
+            const audit = await this.logService.startProcess({
+              functionId: 'MATERIAL_SAP',
+              functionName: 'Material.SapSyncRequested',
+              createdBy,
+              client: tx,
+            });
+            await tx.actionAuditEvent.create({
+              data: {
+                SourceType: 'Material',
+                SourceId: String(id),
+                Action: 'SAP_SYNC_REQUESTED',
+                Actor: createdBy,
+                ActorSource: 'AUTHENTICATED_COMMAND',
+                ProcessId: audit.ProcessId,
+                Before: { ...oldValues },
+                After: { ...newValues, ManageStockByWarehouse: 'tNO' },
+              },
+            });
+            await this.logService.completeProcess(
+              audit.ProcessId,
+              'SUCCESS',
+              'SAP material sync queued',
+              tx,
+            );
+          }
+          return updated;
+        },
+        { maxWait: 5000, timeout: 15000 },
       );
 
       await this.logService.addLog({

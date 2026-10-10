@@ -1,3 +1,4 @@
+import { SapModule } from '../sap/sap.module';
 import { OutboxController } from './outbox.controller';
 import { OutboxStateService } from './outbox-state.service';
 import { Module, forwardRef } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { LogProcessService } from '../log-process/log-process.service';
 
 @Module({
   imports: [
+    SapModule,
     BullModule.registerQueue({ name: OUTBOX_QUEUE }),
     forwardRef(() => MaterialDeliveryNoteModule),
     forwardRef(() => InventoryCountingModule),

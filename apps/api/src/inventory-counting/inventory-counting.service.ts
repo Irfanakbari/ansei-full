@@ -48,6 +48,11 @@ import { randomUUID } from 'node:crypto';
 import { OutboxService } from '../common/outbox/outbox.service';
 import { nextRecordNumber } from '../common/helpers/record-number.helper';
 import type { SendInventoryCountingPackageEmailDto } from './dto';
+import {
+  captureCountingStart,
+  captureCountingFinish,
+} from '../common/sap/sap-counting';
+import { decorateSapCountingDocuments } from '../common/sap/sap-document-summary';
 
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 const MAX_OCR_FILE_SIZE = 5 * 1024 * 1024;
@@ -219,22 +224,26 @@ export class InventoryCountingService {
     ]);
 
     return {
-      data: data.map((item) => ({
-        Id: item.Id,
-        RecordNumber: item.RecordNumber,
-        Category: item.Category,
-        Status: item.Status,
-        Tolerance: item.Tolerance,
-        CreatedAt: item.CreatedAt,
-        CreatedBy: item.CreatedBy,
-        StartedAt: item.StartedAt,
-        CompletedAt: item.CompletedAt,
-        CompletedBy: item.CompletedBy,
-        Notes: item.Notes,
-        Details: item.Details,
-        TotalItems: item.Details.length,
-        CompletedItems: item.Details.filter((d) => d.ActualQty !== null).length,
-      })),
+      data: await decorateSapCountingDocuments(
+        this.prisma,
+        data.map((item) => ({
+          Id: item.Id,
+          RecordNumber: item.RecordNumber,
+          Category: item.Category,
+          Status: item.Status,
+          Tolerance: item.Tolerance,
+          CreatedAt: item.CreatedAt,
+          CreatedBy: item.CreatedBy,
+          StartedAt: item.StartedAt,
+          CompletedAt: item.CompletedAt,
+          CompletedBy: item.CompletedBy,
+          Notes: item.Notes,
+          Details: item.Details,
+          TotalItems: item.Details.length,
+          CompletedItems: item.Details.filter((d) => d.ActualQty !== null)
+            .length,
+        })),
+      ),
       meta: {
         page,
         limit,
@@ -299,35 +308,40 @@ export class InventoryCountingService {
 
     await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
 
-    return {
-      Id: result.Id,
-      RecordNumber: result.RecordNumber,
-      Category: result.Category,
-      Status: result.Status,
-      Tolerance: result.Tolerance,
-      CreatedAt: result.CreatedAt,
-      CreatedBy: result.CreatedBy,
-      StartedAt: result.StartedAt,
-      CompletedAt: result.CompletedAt,
-      CompletedBy: result.CompletedBy,
-      Notes: result.Notes,
-      Details: result.Details.map((d) => ({
-        Id: d.Id,
-        OpnameId: d.OpnameId,
-        MaterialId: d.MaterialId,
-        FinishGoodId: d.FinishGoodId,
-        Location: d.Location,
-        SystemQty: d.SystemQty,
-        SystemQtyRack: d.SystemQtyRack,
-        ActualQty: d.ActualQty,
-        ActualQtyRack: d.ActualQtyRack,
-        DiffQty: d.DiffQty,
-        DiffQtyRack: d.DiffQtyRack,
-        Notes: d.Notes,
-      })),
-      TotalItems: result.Details.length,
-      CompletedItems: result.Details.filter((d) => d.ActualQty !== null).length,
-    };
+    return (
+      await decorateSapCountingDocuments(this.prisma, [
+        {
+          Id: result.Id,
+          RecordNumber: result.RecordNumber,
+          Category: result.Category,
+          Status: result.Status,
+          Tolerance: result.Tolerance,
+          CreatedAt: result.CreatedAt,
+          CreatedBy: result.CreatedBy,
+          StartedAt: result.StartedAt,
+          CompletedAt: result.CompletedAt,
+          CompletedBy: result.CompletedBy,
+          Notes: result.Notes,
+          Details: result.Details.map((d) => ({
+            Id: d.Id,
+            OpnameId: d.OpnameId,
+            MaterialId: d.MaterialId,
+            FinishGoodId: d.FinishGoodId,
+            Location: d.Location,
+            SystemQty: d.SystemQty,
+            SystemQtyRack: d.SystemQtyRack,
+            ActualQty: d.ActualQty,
+            ActualQtyRack: d.ActualQtyRack,
+            DiffQty: d.DiffQty,
+            DiffQtyRack: d.DiffQtyRack,
+            Notes: d.Notes,
+          })),
+          TotalItems: result.Details.length,
+          CompletedItems: result.Details.filter((d) => d.ActualQty !== null)
+            .length,
+        },
+      ])
+    )[0];
   }
 
   async update(id: string, dto: UpdateInventoryCountingDto, updatedBy: string) {
@@ -502,10 +516,19 @@ export class InventoryCountingService {
         location: 'inventory-counting.service.ts:350',
       });
 
-      await auditedWrite(this.prisma, (tx) =>
-        tx.stockOpname.delete({
-          where: { Id: id },
-        }),
+      await withInventoryTransaction(
+        this.prisma,
+        existing.Category,
+        async (tx) => {
+          const current = await tx.stockOpname.findUnique({
+            where: { Id: id },
+          });
+          if (!current || current.Status !== OpnameStatus.DRAFT)
+            throw new BadRequestException(
+              'Only DRAFT inventory counting can be deleted.',
+            );
+          return tx.stockOpname.delete({ where: { Id: id } });
+        },
       );
 
       await this.logService.addLog({
@@ -779,6 +802,7 @@ export class InventoryCountingService {
               referenceId: id,
             });
           }
+          await captureCountingStart(tx, id, startedBy);
 
           await this.logService.addLog({
             processId: localProcessId,
@@ -1190,6 +1214,7 @@ export class InventoryCountingService {
               'Inventory counting has already been started or changed concurrently.',
             );
           }
+          await captureCountingStart(tx, dto.inventoryCountingId, createdBy);
         },
       );
 
@@ -1560,29 +1585,40 @@ export class InventoryCountingService {
         }
       }
 
-      await auditedTransaction(this.prisma, async (tx) => {
-        for (const result of dto.results) {
-          const detail = counting.Details.find(
-            (candidate) => candidate.Id === result.detailId,
-          )!;
-          const updateData =
-            detail.Location === LocationType.RACK
-              ? {
-                  ActualQty: result.actualQty,
-                  ActualQtyRack: result.actualQty,
-                  DiffQty: result.actualQty - detail.SystemQty,
-                  DiffQtyRack: result.actualQty - detail.SystemQtyRack,
-                }
-              : {
-                  ActualQty: result.actualQty,
-                  DiffQty: result.actualQty - detail.SystemQty,
-                };
-          await tx.stockOpnameDetail.update({
-            where: { Id: detail.Id },
-            data: updateData,
+      await withInventoryTransaction(
+        this.prisma,
+        counting.Category,
+        async (tx) => {
+          const current = await tx.stockOpname.findUnique({
+            where: { Id: opnameId },
           });
-        }
-      });
+          if (current?.Status !== OpnameStatus.IN_PROGRESS)
+            throw new ConflictException(
+              'Inventory counting was closed or cancelled. Refresh before applying counts.',
+            );
+          for (const result of dto.results) {
+            const detail = counting.Details.find(
+              (candidate) => candidate.Id === result.detailId,
+            )!;
+            const updateData =
+              detail.Location === LocationType.RACK
+                ? {
+                    ActualQty: result.actualQty,
+                    ActualQtyRack: result.actualQty,
+                    DiffQty: result.actualQty - detail.SystemQty,
+                    DiffQtyRack: result.actualQty - detail.SystemQtyRack,
+                  }
+                : {
+                    ActualQty: result.actualQty,
+                    DiffQty: result.actualQty - detail.SystemQty,
+                  };
+            await tx.stockOpnameDetail.update({
+              where: { Id: detail.Id },
+              data: updateData,
+            });
+          }
+        },
+      );
 
       await this.logService.addLog({
         processId: logProcess.ProcessId,
@@ -1983,170 +2019,12 @@ export class InventoryCountingService {
     dto: UpdateActualStockDto,
     updatedBy: string,
   ) {
-    let logProcess: LogProcessModel | undefined;
-
-    try {
-      logProcess = await this.logService.startProcess({
-        functionId: 'INV_COUNT_007',
-        functionName: 'InventoryCountingService.updateActualStock',
-        createdBy: updatedBy,
-      });
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Updating actual stock: OpnameId=${id}, DetailId=${detailId}`,
-        type: 'INFO',
-        location: 'inventory-counting.service.ts:644',
-      });
-
-      // STEP 1: Validate StockOpnameDetail exists
-      const detail = await this.prisma.stockOpnameDetail.findUnique({
-        where: { Id: detailId },
-        include: {
-          OpnameData: true,
-        },
-      });
-
-      if (!detail) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `StockOpnameDetail not found: ${detailId}`,
-          type: 'ERROR',
-          location: 'inventory-counting.service.ts:658',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-        throw new NotFoundException(
-          `StockOpnameDetail with ID ${detailId} not found`,
-        );
-      }
-
-      if (detail.OpnameId !== id) {
-        throw new NotFoundException(
-          `StockOpnameDetail with ID ${detailId} was not found for inventory counting ${id}`,
-        );
-      }
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message: `Found detail: MaterialId=${detail.MaterialId}, FinishGoodId=${detail.FinishGoodId}`,
-        type: 'INFO',
-        location: 'inventory-counting.service.ts:666',
-      });
-
-      // STEP 2: Validate parent StockOpname status
-      if (detail.OpnameData.Status !== OpnameStatus.IN_PROGRESS) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `Cannot update actual stock because parent status is ${detail.OpnameData.Status}. Must be IN_PROGRESS.`,
-          type: 'ERROR',
-          location: 'inventory-counting.service.ts:674',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-        throw new BadRequestException(
-          `Cannot update actual stock because inventory counting status is ${detail.OpnameData.Status}`,
-        );
-      }
-
-      // STEP 3: Calculate diffs
-      // For MATERIAL with actualQtyRack: DiffQtyRack = actualQtyRack - SystemQtyRack
-      // For all others: DiffQty = actualQty - SystemQty
-      const diffQty = dto.actualQty - detail.SystemQty;
-      const diffQtyRack =
-        dto.actualQtyRack !== undefined && dto.actualQtyRack !== null
-          ? dto.actualQtyRack - (detail.SystemQtyRack ?? 0)
-          : undefined;
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message:
-          `Calculating diff: ActualQty=${dto.actualQty} - SystemQty=${detail.SystemQty} = DiffQty=${diffQty}` +
-          (diffQtyRack !== undefined
-            ? `; ActualQtyRack=${dto.actualQtyRack} - SystemQtyRack=${detail.SystemQtyRack ?? 0} = DiffQtyRack=${diffQtyRack}`
-            : ''),
-        type: 'INFO',
-        location: 'inventory-counting.service.ts:686',
-      });
-
-      // STEP 4: Update the detail
-      const updateData: any = {
-        ActualQty: dto.actualQty,
-        DiffQty: diffQty,
-        Notes: dto.notes || detail.Notes,
-      };
-      if (diffQtyRack !== undefined) {
-        updateData.ActualQtyRack = dto.actualQtyRack;
-        updateData.DiffQtyRack = diffQtyRack;
-      }
-
-      const result = await auditedWrite(this.prisma, (tx) =>
-        tx.stockOpnameDetail.update({
-          where: { Id: detailId },
-          data: updateData,
-        }),
-      );
-
-      // Synchronize paired row for MATERIAL so that both locations are updated
-      if (detail.MaterialId) {
-        if (
-          detail.Location === LocationType.WAREHOUSE &&
-          dto.actualQtyRack !== undefined &&
-          dto.actualQtyRack !== null
-        ) {
-          const rackDetail = await this.prisma.stockOpnameDetail.findFirst({
-            where: {
-              OpnameId: detail.OpnameId,
-              MaterialId: detail.MaterialId,
-              Location: LocationType.RACK,
-            },
-          });
-          if (rackDetail) {
-            await auditedWrite(this.prisma, (tx) =>
-              tx.stockOpnameDetail.update({
-                where: { Id: rackDetail.Id },
-                data: {
-                  ActualQty: dto.actualQtyRack,
-                  ActualQtyRack: dto.actualQtyRack,
-                  DiffQtyRack:
-                    (dto.actualQtyRack ?? 0) - (rackDetail.SystemQtyRack ?? 0),
-                  DiffQty:
-                    (dto.actualQtyRack ?? 0) - (rackDetail.SystemQty ?? 0),
-                },
-              }),
-            );
-          }
-        }
-      }
-
-      await this.logService.addLog({
-        processId: logProcess.ProcessId,
-        message:
-          `Actual stock updated: ActualQty=${result.ActualQty}, DiffQty=${result.DiffQty}` +
-          (result.ActualQtyRack !== null
-            ? `, ActualQtyRack=${result.ActualQtyRack}, DiffQtyRack=${result.DiffQtyRack}`
-            : ''),
-        type: 'INFO',
-        location: 'inventory-counting.service.ts:714',
-      });
-
-      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
-
-      return {
-        success: true,
-        processId: logProcess.ProcessId,
-        data: result,
-      };
-    } catch (error) {
-      if (logProcess) {
-        await this.logService.addLog({
-          processId: logProcess.ProcessId,
-          message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          type: 'ERROR',
-          location: 'inventory-counting.service.ts:716',
-        });
-        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
-      }
-      throw error;
-    }
+    const result = await this.batchUpdateActualStock(
+      id,
+      { items: [{ detailId, ...dto }] },
+      updatedBy,
+    );
+    return { ...result, data: result.data[0] };
   }
 
   async batchUpdateActualStock(
@@ -2228,10 +2106,14 @@ export class InventoryCountingService {
               DiffQty: item.actualQty - detail.SystemQty,
               Notes: item.notes ?? detail.Notes,
             };
-            if (item.actualQtyRack !== undefined) {
-              updateData.ActualQtyRack = item.actualQtyRack;
+            if (
+              detail.Location === LocationType.RACK ||
+              item.actualQtyRack !== undefined
+            ) {
+              const rackQuantity = item.actualQtyRack ?? item.actualQty;
+              updateData.ActualQtyRack = rackQuantity;
               updateData.DiffQtyRack =
-                item.actualQtyRack - (detail.SystemQtyRack ?? 0);
+                rackQuantity - (detail.SystemQtyRack ?? 0);
             }
 
             const updated = await tx.stockOpnameDetail.update({
@@ -2430,6 +2312,7 @@ export class InventoryCountingService {
               `Cannot close inventory counting. ${currentIncomplete.length} items still have incomplete actual quantities.`,
             );
           }
+          await captureCountingFinish(tx, id, closedBy);
           let adjustedCount = 0;
           const ledgerEntries: Array<{
             Id: string;
@@ -2713,6 +2596,7 @@ export class InventoryCountingService {
             'Inventory counting has already been cancelled or changed concurrently.',
           );
         }
+        await captureCountingFinish(tx, id, cancelledBy, true);
       },
     );
 

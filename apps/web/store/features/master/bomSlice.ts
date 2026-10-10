@@ -2,6 +2,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   get,
+  type ApiSuccessEnvelope,
   getApiErrorMessage,
   type PaginatedApiSuccessEnvelope,
 } from "../../utils/apiService";
@@ -60,21 +61,24 @@ const initialState: BOMState = {
 };
 
 export const exportBomExcel = createAsyncThunk(
-    'bom/exportExcel',
-    async (query: { search?: string } | undefined, {rejectWithValue}) => {
-        try {
-            const { downloadWithAutoFilename } = await import('../../utils/apiService');
-            await downloadWithAutoFilename('/master/bill-of-materials/export', {
-                params: {
-                    search: query?.search
-                }
-            });
-            return true;
-        } catch (error: unknown) {
-            const { getApiErrorMessage } = await import('../../utils/apiService');
-            return rejectWithValue(getApiErrorMessage(error, 'Failed to export bill of materials'));
-        }
+  "bom/exportExcel",
+  async (query: { search?: string } | undefined, { rejectWithValue }) => {
+    try {
+      const { downloadWithAutoFilename } =
+        await import("../../utils/apiService");
+      await downloadWithAutoFilename("/master/bill-of-materials/export", {
+        params: {
+          search: query?.search,
+        },
+      });
+      return true;
+    } catch (error: unknown) {
+      const { getApiErrorMessage } = await import("../../utils/apiService");
+      return rejectWithValue(
+        getApiErrorMessage(error, "Failed to export bill of materials"),
+      );
     }
+  },
 );
 
 export const fetchBOM = createAsyncThunk<
@@ -126,3 +130,41 @@ const bomSlice = createSlice({
 
 export const { setBOMQuery } = bomSlice.actions;
 export default bomSlice.reducer;
+
+export interface SapBomPreview {
+  finishGoodId: number;
+  partNumber: string;
+  sapPartNumber: string | null;
+  status: "FOUND" | "NOT_FOUND" | "UNKNOWN" | "DISABLED" | "UNMAPPED";
+  checkedAt: string | null;
+  stale: boolean;
+  bom: {
+    TreeCode: string;
+    Quantity: number;
+    ProductDescription: string | null;
+    ProductTreeLines: {
+      LineNumber: number;
+      ItemCode: string;
+      Quantity: number;
+      Warehouse: string | null;
+      WarehouseName: string | null;
+      ItemType: string | null;
+    }[];
+  } | null;
+}
+
+export const fetchSapBom = createAsyncThunk<
+  SapBomPreview,
+  number,
+  { rejectValue: string }
+>("bom/fetchSap", async (finishGoodId, { rejectWithValue, signal }) => {
+  try {
+    const response = await get<ApiSuccessEnvelope<SapBomPreview>>(
+      `/master/bill-of-materials/sap/${finishGoodId}`,
+      { signal },
+    );
+    return response.data;
+  } catch (error: unknown) {
+    return rejectWithValue(getApiErrorMessage(error, "Failed to load SAP BOM"));
+  }
+});

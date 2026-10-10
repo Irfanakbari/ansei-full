@@ -18,6 +18,7 @@ describe('PokayokeService', () => {
   let logService: any;
 
   const mockPrismaService = {
+    productionFinding: { findFirst: jest.fn() },
     assemblySession: { findFirst: jest.fn() },
     labelData: {
       findUnique: jest.fn(),

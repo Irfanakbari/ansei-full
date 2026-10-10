@@ -46,6 +46,8 @@ services:
   redis:
     image: redis:7-alpine
     container_name: ansei-redis
+    command:
+      ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
     restart: unless-stopped
     ports:
       - "6379:6379"

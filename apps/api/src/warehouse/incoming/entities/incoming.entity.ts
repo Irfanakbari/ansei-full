@@ -1,3 +1,4 @@
+import type { SapDocumentSummary } from '../../../common/sap/sap-document-summary';
 /**
  * Supplier Entity - For Incoming response
  */
@@ -32,6 +33,7 @@ export interface IncomingMaterialEntity {
  * Incoming Entity - Incoming header response format
  */
 export interface IncomingEntity {
+  SAPDocuments?: SapDocumentSummary[];
   Id: string;
   PoId: string;
   Description: string | null;

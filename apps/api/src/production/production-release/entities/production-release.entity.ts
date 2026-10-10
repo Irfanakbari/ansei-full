@@ -1,3 +1,4 @@
+import { SapDocumentSummary } from '../../../common/sap/sap-document-summary';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ProductionStatus } from '../../../generated/prisma/enums';
 
@@ -95,6 +96,8 @@ export class ForecastItemEntity {
 }
 
 export class ProductionReleaseEntity {
+  @ApiPropertyOptional({ type: [SapDocumentSummary] })
+  SAPDocuments?: SapDocumentSummary[];
   @ApiProperty({ example: 'uuid-1234' })
   Id: string;
 

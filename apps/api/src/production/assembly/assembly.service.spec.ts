@@ -52,7 +52,15 @@ describe('AssemblyService', () => {
       create: jest.fn(),
       update: jest.fn(),
     },
-    inventoryLedger: { aggregate: jest.fn(), create: jest.fn() },
+    inventoryLedger: {
+      aggregate: jest.fn(),
+      create: jest.fn(),
+      findMany: jest.fn(),
+    },
+    sapTransaction: {
+      findFirst: jest.fn().mockResolvedValue(null),
+      findMany: jest.fn(),
+    },
     finishGood: { update: jest.fn() },
     stockOpname: { findFirst: jest.fn() },
   };
@@ -68,6 +76,8 @@ describe('AssemblyService', () => {
   );
   beforeEach(() => {
     jest.resetAllMocks();
+    tx.inventoryLedger.findMany.mockResolvedValue([]);
+    tx.sapTransaction.findMany.mockResolvedValue([]);
     prisma.$transaction.mockImplementation(
       (fn: (client: Prisma.TransactionClient) => Promise<unknown>) =>
         fn(tx as unknown as Prisma.TransactionClient),
@@ -291,7 +301,9 @@ describe('AssemblyService', () => {
     tx.assemblySession.findMany.mockResolvedValue([session]);
     tx.assemblySession.count.mockResolvedValue(1);
     const result = await service.findAll({ activeReleaseOnly: true });
-    expect(result.data).toEqual([session]);
+    expect(result.data).toEqual([
+      { ...session, SAPIntegration: { status: 'NOT_CAPTURED', events: [] } },
+    ]);
     expect(tx.assemblySession.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({

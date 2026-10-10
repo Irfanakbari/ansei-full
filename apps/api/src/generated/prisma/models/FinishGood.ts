@@ -352,10 +352,10 @@ export type FinishGoodWhereUniqueInput = Prisma.AtLeast<{
   ActiveBomRevisionId?: string
   Id?: number
   PartNumber?: string
-  PartNumberSAP?: string
   AND?: Prisma.FinishGoodWhereInput | Prisma.FinishGoodWhereInput[]
   OR?: Prisma.FinishGoodWhereInput[]
   NOT?: Prisma.FinishGoodWhereInput | Prisma.FinishGoodWhereInput[]
+  PartNumberSAP?: Prisma.StringNullableFilter<"FinishGood"> | string | null
   PartName?: Prisma.StringFilter<"FinishGood"> | string
   IsPassthrough?: Prisma.BoolFilter<"FinishGood"> | boolean
   Alias?: Prisma.StringNullableFilter<"FinishGood"> | string | null
@@ -379,7 +379,7 @@ export type FinishGoodWhereUniqueInput = Prisma.AtLeast<{
   ProductionReport?: Prisma.ProductionReportListRelationFilter
   InventoryLedger?: Prisma.InventoryLedgerListRelationFilter
   StockOpnameDetail?: Prisma.StockOpnameDetailListRelationFilter
-}, "Id" | "ActiveBomRevisionId" | "PartNumber" | "PartNumberSAP">
+}, "Id" | "ActiveBomRevisionId" | "PartNumber">
 
 export type FinishGoodOrderByWithAggregationInput = {
   ActiveBomRevisionId?: Prisma.SortOrderInput | Prisma.SortOrder

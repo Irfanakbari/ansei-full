@@ -100,9 +100,11 @@ describe('OutboxProcessor', () => {
     const inventoryCounting = {
       generateSnapshot: jest.fn().mockResolvedValue(Buffer.from('snapshot')),
     };
+    const sapMaterial = { send: jest.fn().mockResolvedValue('SENT') };
     const queue = { add: jest.fn() };
     return {
       event,
+      sapMaterial,
       db,
       state,
       smtp,
@@ -117,6 +119,7 @@ describe('OutboxProcessor', () => {
         documents as never,
         inventoryCounting as never,
         state as never,
+        sapMaterial as never,
       ),
       job: {
         name: 'dispatchOutboxEvent',
@@ -124,6 +127,46 @@ describe('OutboxProcessor', () => {
       },
     };
   }
+  it('records successful SAP delivery without email or printer side effects', async () => {
+    const f = fixture('SAP_MATERIAL_UPDATE');
+    await f.processor.process(f.job as never);
+    expect(f.sapMaterial.send).toHaveBeenCalledWith(f.event.Payload);
+    expect(f.state.change).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        Status: 'SUCCEEDED',
+        LastErrorCode: 'SAP_MATERIAL_SYNCED',
+      }),
+      'SAP_SYNCED',
+    );
+    expect(f.smtp.sendEmail).not.toHaveBeenCalled();
+  });
+  it('marks idempotent SAP field updates retryable on failure', async () => {
+    const f = fixture('SAP_MATERIAL_UPDATE');
+    f.sapMaterial.send.mockRejectedValue(
+      new Error('private upstream response'),
+    );
+    await f.processor.process(f.job as never);
+    expect(f.state.change).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        Status: 'FAILED',
+        LastErrorCode: SAFE_RETRY,
+        LastError: 'SAP material synchronization failed; retry scheduled.',
+      }),
+      'PREPARATION_FAILED',
+    );
+  });
+  it('records a superseded SAP event without claiming it was applied', async () => {
+    const f = fixture('SAP_MATERIAL_UPDATE');
+    f.sapMaterial.send.mockResolvedValue('SUPERSEDED');
+    await f.processor.process(f.job as never);
+    expect(f.state.change).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({ LastErrorCode: 'SAP_MATERIAL_SUPERSEDED' }),
+      'SAP_SUPERSEDED',
+    );
+  });
   it('uses the established stock snapshot workbook for inventory package generation', async () => {
     const f = fixture('INVENTORY_COUNTING_PACKAGE');
     f.event.Payload = { inventoryCountingId: 'sto-1', actor: 'counter' };

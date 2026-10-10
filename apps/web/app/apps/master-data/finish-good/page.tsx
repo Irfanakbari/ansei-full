@@ -1,324 +1,445 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
-import React, {useState, useEffect, useRef} from 'react';
-import {Table, Card, Breadcrumb, Input, Space, Button, Tag, Tooltip, App} from 'antd';
-import type {InputRef, TableProps} from 'antd';
-import type {FilterDropdownProps} from 'antd/es/table/interface';
+import React, { useState, useEffect, useRef } from "react";
 import {
-    ReloadOutlined,
-    SearchOutlined,
-    PlusOutlined,
-    StopOutlined,
-    CheckCircleOutlined,
-    SwapOutlined,
-    DownloadOutlined
-} from '@ant-design/icons';
-import ToolbarWrapper from '@/components/ToolbarWrapper';
-import ButtonToolbar from '@/components/ButtonToolbar';
-import {useDispatch, useSelector} from 'react-redux';
-import {AppDispatch, RootState} from '@/store';
+  Table,
+  Card,
+  Breadcrumb,
+  Input,
+  Space,
+  Button,
+  Tag,
+  Tooltip,
+  App,
+} from "antd";
+import type { InputRef, TableProps } from "antd";
+import type { FilterDropdownProps } from "antd/es/table/interface";
 import {
-    FinishGoodEntity,
-    fetchFinishGood,
-    setFinishGoodQuery,
-    reactivateFinishGood,
-    exportFinishGoodExcel
-} from '@/store/features/master/finishGoodSlice';
-import CreateFinishGoodModal from './_components/CreateFinishGoodModal';
-import FinishGoodModal from './_components/FinishGoodModal';
-import DiscontinueFinishGoodModal from './_components/DiscontinueFinishGoodModal';
-import TransferFinishGoodStockModal from './_components/TransferFinishGoodStockModal';
-import GoldenArrowAction from '@/components/GoldenArrowAction';
-import {useSingleRowSelection} from '@/hooks/useSingleRowSelection';
-import {formatDateTime} from '@/lib/utils/dateTime';
+  ReloadOutlined,
+  SearchOutlined,
+  PlusOutlined,
+  StopOutlined,
+  CheckCircleOutlined,
+  CheckCircleFilled,
+  CloseCircleFilled,
+  QuestionCircleOutlined,
+  SwapOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
+import ToolbarWrapper from "@/components/ToolbarWrapper";
+import ButtonToolbar from "@/components/ButtonToolbar";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import {
+  FinishGoodEntity,
+  fetchFinishGood,
+  setFinishGoodQuery,
+  reactivateFinishGood,
+  exportFinishGoodExcel,
+} from "@/store/features/master/finishGoodSlice";
+import CreateFinishGoodModal from "./_components/CreateFinishGoodModal";
+import FinishGoodModal from "./_components/FinishGoodModal";
+import DiscontinueFinishGoodModal from "./_components/DiscontinueFinishGoodModal";
+import TransferFinishGoodStockModal from "./_components/TransferFinishGoodStockModal";
+import GoldenArrowAction from "@/components/GoldenArrowAction";
+import { useSingleRowSelection } from "@/hooks/useSingleRowSelection";
+import { formatDateTime } from "@/lib/utils/dateTime";
 
 export default function FinishGoodPage() {
-    const {message, modal} = App.useApp();
-    const dispatch = useDispatch<AppDispatch>();
-    const {data, loading, pagination, query} = useSelector((state: RootState) => state.finishGood);
-    const {
-        selectedRecord,
-        selectRecord,
-        clearSelection,
-        isSelected
-    } = useSingleRowSelection(data, (record) => record.Id);
+  const { message, modal } = App.useApp();
+  const dispatch = useDispatch<AppDispatch>();
+  const { data, loading, pagination, query } = useSelector(
+    (state: RootState) => state.finishGood,
+  );
+  const { selectedRecord, selectRecord, clearSelection, isSelected } =
+    useSingleRowSelection(data, (record) => record.Id);
 
-    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
-    const [modalData, setModalData] = useState<FinishGoodEntity | null>(null);
-    const [isDiscontinueModalVisible, setIsDiscontinueModalVisible] = useState(false);
-    const [discontinueData, setDiscontinueData] = useState<FinishGoodEntity | null>(null);
-    const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [modalData, setModalData] = useState<FinishGoodEntity | null>(null);
+  const [isDiscontinueModalVisible, setIsDiscontinueModalVisible] =
+    useState(false);
+  const [discontinueData, setDiscontinueData] =
+    useState<FinishGoodEntity | null>(null);
+  const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
 
-    useEffect(() => {
-        dispatch(fetchFinishGood(query));
-    }, [dispatch, query]);
+  useEffect(() => {
+    dispatch(fetchFinishGood(query));
+  }, [dispatch, query]);
 
-    const searchInput = useRef<InputRef>(null);
-    const [searchColumn, setSearchColumn] = useState("PartNumber");
+  const searchInput = useRef<InputRef>(null);
+  const [searchColumn, setSearchColumn] = useState("PartNumber");
 
-    const getColumnSearchProps = (dataIndex: string) => ({
-        filterDropdown: ({setSelectedKeys, selectedKeys, confirm, clearFilters}: FilterDropdownProps) => (
-            <div style={{padding: 8}} onKeyDown={(e) => e.stopPropagation()}>
-                <Input
-                    ref={searchInput}
-                    placeholder={`Search ${dataIndex}`}
-                    value={String(selectedKeys[0] ?? '')}
-                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-                    onPressEnter={() => confirm()}
-                    style={{marginBottom: 8, display: 'block'}}
-                />
-                <Space>
-                    <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined/>} size="small"
-                            style={{width: 90}}>
-                        Search
-                    </Button>
-                    <Button onClick={() => clearFilters?.({confirm: true})} size="small" style={{width: 90}}>
-                        Reset
-                    </Button>
-                </Space>
-            </div>
-        ),
-        filterIcon: (filtered: boolean) => (
-            <SearchOutlined style={{color: filtered ? '#1677ff' : undefined}}/>
-        ),
-        filteredValue: searchColumn === dataIndex && query.search ? [query.search] : null,
-        filterDropdownProps: {
-            onOpenChange: (open: boolean) => {
-                if (open) setSearchColumn(dataIndex);
+  const getColumnSearchProps = (dataIndex: string) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }: FilterDropdownProps) => (
+      <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={String(selectedKeys[0] ?? "")}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => confirm()}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => confirm()}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters?.({ confirm: true })}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
+    filteredValue:
+      searchColumn === dataIndex && query.search ? [query.search] : null,
+    filterDropdownProps: {
+      onOpenChange: (open: boolean) => {
+        if (open) setSearchColumn(dataIndex);
+      },
+    },
+  });
+
+  const columns: TableProps<FinishGoodEntity>["columns"] = [
+    {
+      title: "Part Number",
+      dataIndex: "PartNumber",
+      key: "PartNumber",
+      ...getColumnSearchProps("PartNumber"),
+      render: (value: string, record: FinishGoodEntity) => (
+        <Space size={4}>
+          <GoldenArrowAction
+            tooltip="View finish good details"
+            ariaLabel={`View finish good details for ${value}`}
+            onClick={() => {
+              selectRecord(record);
+              setModalData(record);
+            }}
+          />
+          <span>{value}</span>
+        </Space>
+      ),
+    },
+    {
+      title: "Part Number SAP",
+      dataIndex: "PartNumberSAP",
+      key: "PartNumberSAP",
+      render: (value: string | null) => value || "-",
+      ...getColumnSearchProps("PartNumberSAP"),
+    },
+    {
+      title: "Status",
+      dataIndex: "IsActive",
+      key: "IsActive",
+      align: "center" as const,
+      render: (isActive: boolean, record: FinishGoodEntity) =>
+        isActive ? (
+          <Tag color="success">Active</Tag>
+        ) : (
+          <Tooltip
+            title={
+              record.DiscontinueDate
+                ? `Discontinued on ${formatDateTime(record.DiscontinueDate)}`
+                : "Discontinued"
             }
-        },
-    });
+          >
+            <Tag color="error">Discontinued</Tag>
+          </Tooltip>
+        ),
+    },
+    {
+      title: "Passthrough",
+      dataIndex: "IsPassthrough",
+      key: "IsPassthrough",
+      render: (value: boolean) =>
+        value ? "Yes — skip Assy" : "No — Assy required",
+    },
+    {
+      title: "Part Name",
+      dataIndex: "PartName",
+      key: "PartName",
+      ...getColumnSearchProps("PartName"),
+    },
+    {
+      title: "Alias",
+      dataIndex: "Alias",
+      key: "Alias",
+      render: (val: string | null) => val || "-",
+      ...getColumnSearchProps("Alias"),
+    },
+    {
+      title: "Price",
+      dataIndex: "Price",
+      key: "Price",
+      align: "right" as const,
+      render: (val: number | null) =>
+        val ? `Rp ${val.toLocaleString("id-ID")}` : "-",
+    },
+    {
+      title: "Qty",
+      dataIndex: "Qty",
+      key: "Qty",
+      align: "right" as const,
+    },
+    {
+      title: "Created Date",
+      dataIndex: "CreatedAt",
+      key: "CreatedAt",
+      render: (val: string) => formatDateTime(val),
+    },
+    {
+      title: "Created By",
+      dataIndex: "CreatedBy",
+      key: "CreatedBy",
+      render: (_: string, record: FinishGoodEntity) =>
+        record.CreatedByName || record.CreatedBy || "-",
+    },
+    {
+      title: "Updated Date",
+      dataIndex: "UpdatedAt",
+      key: "UpdatedAt",
+      render: (value: string) => formatDateTime(value),
+    },
+    {
+      title: "Updated By",
+      dataIndex: "UpdatedBy",
+      key: "UpdatedBy",
+      render: (_: string | null, record: FinishGoodEntity) =>
+        record.UpdatedByName || record.UpdatedBy || "-",
+    },
+    {
+      title: "SAP Sync Status",
+      key: "SAPSyncStatus",
+      width: 145,
+      render: (_: unknown, record: FinishGoodEntity) => {
+        const status = record.SAPSyncStatus;
+        const label =
+          status === "SYNCED"
+            ? "Synced: item exists in SAP"
+            : status === "NOT_FOUND"
+              ? "Item not found in SAP"
+              : "SAP status unavailable. Refresh to check again.";
+        const checked = record.SAPSyncCheckedAt
+          ? ` Last checked: ${formatDateTime(record.SAPSyncCheckedAt)}${record.SAPSyncStale ? " (cached; refresh pending)" : ""}`
+          : "";
+        return (
+          <Tooltip title={label + checked}>
+            <span role="img" aria-label={label + checked}>
+              {status === "SYNCED" ? (
+                <CheckCircleFilled style={{ color: "#52c41a", fontSize: 18 }} />
+              ) : status === "NOT_FOUND" ? (
+                <CloseCircleFilled style={{ color: "#ff4d4f", fontSize: 18 }} />
+              ) : (
+                <QuestionCircleOutlined
+                  style={{ color: "#8c8c8c", fontSize: 18 }}
+                />
+              )}
+            </span>
+          </Tooltip>
+        );
+      },
+    },
+  ];
 
-    const columns: TableProps<FinishGoodEntity>['columns'] = [
-        {
-            title: 'Part Number',
-            dataIndex: 'PartNumber',
-            key: 'PartNumber',
-            ...getColumnSearchProps('PartNumber'),
-            render: (value: string, record: FinishGoodEntity) => <Space size={4}>
-                <GoldenArrowAction tooltip="View finish good details"
-                                   ariaLabel={`View finish good details for ${value}`}
-                                   onClick={() => {
-                                       selectRecord(record);
-                                       setModalData(record);
-                                   }}/>
-                <span>{value}</span>
-            </Space>
-        },
-        {
-            title: 'Part Number SAP',
-            dataIndex: 'PartNumberSAP',
-            key: 'PartNumberSAP',
-            render: (value: string | null) => value || '-',
-            ...getColumnSearchProps('PartNumberSAP')
-        },
-        {
-            title: 'Status',
-            dataIndex: 'IsActive',
-            key: 'IsActive',
-            align: 'center' as const,
-            render: (isActive: boolean, record: FinishGoodEntity) => (
-                isActive ? (
-                    <Tag color="success">Active</Tag>
-                ) : (
-                    <Tooltip title={record.DiscontinueDate ? `Discontinued on ${formatDateTime(record.DiscontinueDate)}` : 'Discontinued'}>
-                        <Tag color="error">Discontinued</Tag>
-                    </Tooltip>
-                )
-            ),
-        },
-        {
-            title: 'Passthrough',
-            dataIndex: 'IsPassthrough',
-            key: 'IsPassthrough',
-            render: (value: boolean) => value ? 'Yes — skip Assy' : 'No — Assy required'
-        },
-        {
-            title: 'Part Name',
-            dataIndex: 'PartName',
-            key: 'PartName',
-            ...getColumnSearchProps('PartName')
-        },
-        {
-            title: 'Alias',
-            dataIndex: 'Alias',
-            key: 'Alias',
-            render: (val: string | null) => val || '-',
-            ...getColumnSearchProps('Alias')
-        },
-        {
-            title: 'Price',
-            dataIndex: 'Price',
-            key: 'Price',
-            align: 'right' as const,
-            render: (val: number | null) => val ? `Rp ${val.toLocaleString('id-ID')}` : '-'
-        },
-        {
-            title: 'Qty',
-            dataIndex: 'Qty',
-            key: 'Qty',
-            align: 'right' as const
-        },
-        {
-            title: 'Created Date',
-            dataIndex: 'CreatedAt',
-            key: 'CreatedAt',
-            render: (val: string) => formatDateTime(val)
-        },
-        {
-            title: 'Created By',
-            dataIndex: 'CreatedBy',
-            key: 'CreatedBy',
-            render: (_: string, record: FinishGoodEntity) => record.CreatedByName || record.CreatedBy || '-'
-        },
-        {
-            title: 'Updated Date',
-            dataIndex: 'UpdatedAt',
-            key: 'UpdatedAt',
-            render: (value: string) => formatDateTime(value)
-        },
-        {
-            title: 'Updated By',
-            dataIndex: 'UpdatedBy',
-            key: 'UpdatedBy',
-            render: (_: string | null, record: FinishGoodEntity) => record.UpdatedByName || record.UpdatedBy || '-'
-        },
-    ];
+  const handleDiscontinue = () => {
+    if (selectedRecord) {
+      setDiscontinueData(selectedRecord);
+      setIsDiscontinueModalVisible(true);
+    }
+  };
 
-    const handleDiscontinue = () => {
-        if (selectedRecord) {
-            setDiscontinueData(selectedRecord);
-            setIsDiscontinueModalVisible(true);
+  const handleReactivate = () => {
+    if (!selectedRecord) return;
+    modal.confirm({
+      title: "Reactivate Finish Good?",
+      icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
+      content: `Are you sure you want to reactivate finish good "${selectedRecord.PartNumber}"?`,
+      okText: "Reactivate",
+      centered: true,
+      onOk: async () => {
+        try {
+          const result = await dispatch(
+            reactivateFinishGood(selectedRecord.Id),
+          );
+          if (reactivateFinishGood.rejected.match(result)) {
+            throw new Error(
+              (result.payload as string) || "Failed to reactivate finish good",
+            );
+          }
+          message.success(
+            `Finish good "${selectedRecord.PartNumber}" reactivated successfully`,
+          );
+          dispatch(fetchFinishGood(query));
+        } catch (error: unknown) {
+          message.error(
+            error instanceof Error
+              ? error.message
+              : "Failed to reactivate finish good",
+          );
         }
-    };
+      },
+    });
+  };
 
-    const handleReactivate = () => {
-        if (!selectedRecord) return;
-        modal.confirm({
-            title: 'Reactivate Finish Good?',
-            icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-            content: `Are you sure you want to reactivate finish good "${selectedRecord.PartNumber}"?`,
-            okText: 'Reactivate',
-            centered: true,
-            onOk: async () => {
-                try {
-                    const result = await dispatch(reactivateFinishGood(selectedRecord.Id));
-                    if (reactivateFinishGood.rejected.match(result)) {
-                        throw new Error((result.payload as string) || 'Failed to reactivate finish good');
-                    }
-                    message.success(`Finish good "${selectedRecord.PartNumber}" reactivated successfully`);
-                    dispatch(fetchFinishGood(query));
-                } catch (error: unknown) {
-                    message.error(error instanceof Error ? error.message : 'Failed to reactivate finish good');
-                }
-            },
-        });
-    };
+  return (
+    <Card variant="borderless" styles={{ body: { padding: 0 } }}>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: "Home" },
+          { title: "Master Data" },
+          { title: "Finish Good" },
+        ]}
+      />
+      <ToolbarWrapper>
+        <ButtonToolbar
+          title="Refresh"
+          icon={<ReloadOutlined />}
+          onClick={() => {
+            dispatch(fetchFinishGood(query));
+          }}
+        />
+        <ButtonToolbar
+          title="Create"
+          icon={<PlusOutlined />}
+          onClick={() => setIsCreateModalVisible(true)}
+        />
+        <ButtonToolbar
+          title="Transfer Stock"
+          icon={<SwapOutlined />}
+          enable={Boolean(selectedRecord && selectedRecord.Qty > 0)}
+          onClick={() => setIsTransferModalVisible(true)}
+        />
+        <ButtonToolbar
+          title="Discontinue"
+          icon={<StopOutlined />}
+          onClick={handleDiscontinue}
+          enable={Boolean(selectedRecord && selectedRecord.IsActive)}
+        />
+        <ButtonToolbar
+          title="Reactivate"
+          icon={<CheckCircleOutlined />}
+          onClick={handleReactivate}
+          enable={Boolean(selectedRecord && !selectedRecord.IsActive)}
+        />
+        <ButtonToolbar
+          title="Download Excel"
+          icon={<DownloadOutlined />}
+          onClick={() => dispatch(exportFinishGoodExcel(query))}
+        />
+      </ToolbarWrapper>
 
-    return (
-        <Card variant="borderless" styles={{body: {padding: 0}}}>
-            <Breadcrumb style={{marginBottom: 16}}
-                        items={[{title: 'Home'}, {title: 'Master Data'}, {title: 'Finish Good'}]}/>
-            <ToolbarWrapper>
-                <ButtonToolbar title="Refresh" icon={<ReloadOutlined/>} onClick={() => {
-                    dispatch(fetchFinishGood(query));
-                }}/>
-                <ButtonToolbar title="Create" icon={<PlusOutlined/>} onClick={() => setIsCreateModalVisible(true)}/>
-                <ButtonToolbar
-                    title="Transfer Stock"
-                    icon={<SwapOutlined/>}
-                    enable={Boolean(selectedRecord && selectedRecord.Qty > 0)}
-                    onClick={() => setIsTransferModalVisible(true)}
-                />
-                <ButtonToolbar
-                    title="Discontinue"
-                    icon={<StopOutlined/>}
-                    onClick={handleDiscontinue}
-                    enable={Boolean(selectedRecord && selectedRecord.IsActive)}
-                />
-                <ButtonToolbar
-                    title="Reactivate"
-                    icon={<CheckCircleOutlined/>}
-                    onClick={handleReactivate}
-                    enable={Boolean(selectedRecord && !selectedRecord.IsActive)}
-                />
-                <ButtonToolbar
-                    title="Download Excel"
-                    icon={<DownloadOutlined/>}
-                    onClick={() => dispatch(exportFinishGoodExcel(query))}
-                />
-            </ToolbarWrapper>
+      <Table
+        columns={columns}
+        dataSource={data}
+        size="small"
+        loading={loading}
+        onChange={(pageInfo, tableFilters) =>
+          dispatch(
+            setFinishGoodQuery({
+              page:
+                tableFilters.PartNumberSAP ||
+                tableFilters.PartNumber ||
+                tableFilters.PartName ||
+                tableFilters.Alias
+                  ? 1
+                  : pageInfo.current,
+              limit: pageInfo.pageSize,
+              search: String(
+                tableFilters.PartNumberSAP?.[0] ??
+                  tableFilters.PartNumber?.[0] ??
+                  tableFilters.PartName?.[0] ??
+                  tableFilters.Alias?.[0] ??
+                  "",
+              ),
+            }),
+          )
+        }
+        pagination={{
+          size: "small",
+          current: pagination.page,
+          pageSize: pagination.limit,
+          total: pagination.totalItems,
+          showSizeChanger: true,
+          showTotal: (total) => `Total ${total} items`,
+        }}
+        rowKey="Id"
+        onRow={(record) => ({
+          onClick: () => selectRecord(record),
+          onDoubleClick: () => {
+            selectRecord(record);
+            setModalData(record);
+          },
+        })}
+        rowClassName={(record) =>
+          isSelected(record) ? "ant-table-row-selected" : ""
+        }
+        scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
+        className="small-table"
+        style={{ fontSize: "11px" }}
+      />
 
-            <Table
-                columns={columns}
-                dataSource={data}
-                size="small"
-                loading={loading}
-                onChange={(pageInfo, tableFilters) => dispatch(setFinishGoodQuery({
-                    page: tableFilters.PartNumberSAP || tableFilters.PartNumber || tableFilters.PartName || tableFilters.Alias ? 1 : pageInfo.current,
-                    limit: pageInfo.pageSize,
-                    search: String(tableFilters.PartNumberSAP?.[0] ?? tableFilters.PartNumber?.[0] ?? tableFilters.PartName?.[0] ?? tableFilters.Alias?.[0] ?? '')
-                }))}
-                pagination={{
-                    size: 'small',
-                    current: pagination.page,
-                    pageSize: pagination.limit,
-                    total: pagination.totalItems,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Total ${total} items`,
-                }}
-                rowKey="Id"
-                onRow={(record) => ({
-                    onClick: () => selectRecord(record),
-                    onDoubleClick: () => {
-                        selectRecord(record);
-                        setModalData(record);
-                    },
-                })}
-                rowClassName={(record) => isSelected(record) ? 'ant-table-row-selected' : ''}
-                scroll={{x: 'max-content', y: 'calc(100vh - 380px)'}}
-                className="small-table"
-                style={{fontSize: '11px'}}
-            />
+      <FinishGoodModal
+        open={modalData !== null}
+        data={modalData}
+        onClose={() => setModalData(null)}
+        onChanged={() => {
+          clearSelection();
+          setModalData(null);
+          void dispatch(fetchFinishGood(query));
+        }}
+      />
 
-            <FinishGoodModal open={modalData !== null} data={modalData} onClose={() => setModalData(null)}
-                             onChanged={() => {
-                                 clearSelection();
-                                 setModalData(null);
-                                 void dispatch(fetchFinishGood(query));
-                             }}/>
+      <CreateFinishGoodModal
+        visible={isCreateModalVisible}
+        onClose={() => setIsCreateModalVisible(false)}
+        onSuccess={() => void dispatch(fetchFinishGood(query))}
+      />
 
-            <CreateFinishGoodModal
-                visible={isCreateModalVisible}
-                onClose={() => setIsCreateModalVisible(false)}
-                onSuccess={() => void dispatch(fetchFinishGood(query))}
-            />
+      {discontinueData && (
+        <DiscontinueFinishGoodModal
+          visible={isDiscontinueModalVisible}
+          onClose={() => {
+            setIsDiscontinueModalVisible(false);
+            void dispatch(fetchFinishGood(query));
+          }}
+          data={discontinueData}
+        />
+      )}
 
-            {discontinueData && (
-                <DiscontinueFinishGoodModal
-                    visible={isDiscontinueModalVisible}
-                    onClose={() => {
-                        setIsDiscontinueModalVisible(false);
-                        void dispatch(fetchFinishGood(query));
-                    }}
-                    data={discontinueData}
-                />
-            )}
-
-            {selectedRecord && (
-                <TransferFinishGoodStockModal
-                    visible={isTransferModalVisible}
-                    onClose={() => {
-                        setIsTransferModalVisible(false);
-                    }}
-                    onSuccess={() => {
-                        clearSelection();
-                        void dispatch(fetchFinishGood(query));
-                    }}
-                    data={selectedRecord}
-                />
-            )}
-        </Card>
-    );
+      {selectedRecord && (
+        <TransferFinishGoodStockModal
+          visible={isTransferModalVisible}
+          onClose={() => {
+            setIsTransferModalVisible(false);
+          }}
+          onSuccess={() => {
+            clearSelection();
+            void dispatch(fetchFinishGood(query));
+          }}
+          data={selectedRecord}
+        />
+      )}
+    </Card>
+  );
 }

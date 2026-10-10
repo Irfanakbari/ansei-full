@@ -1,3 +1,7 @@
+import { decorateSapOperations } from '../../common/sap/sap-operation-status';
+import { createSapLedger } from '../../common/sap/sap-transaction-capture';
+import { recordCustomerReturn } from './customer-return.helper';
+import { CustomerReturnDto } from './dto/customer-return.dto';
 import { snapshotBomEntries } from '../../common/helpers/bom-snapshot.helper';
 import {
   Injectable,
@@ -27,6 +31,20 @@ import { getDeliveryProgress } from '../../common/helpers/delivery-progress.help
 
 @Injectable()
 export class DeliveryService {
+  returns(deliveryId: number) {
+    return this.prisma.customerReturn.findMany({
+      where: { DeliveryId: deliveryId },
+      orderBy: { CreatedAt: 'desc' },
+    });
+  }
+  customerReturn(
+    deliveryId: number,
+    dto: CustomerReturnDto,
+    actor: string,
+    returnId?: string,
+  ) {
+    return recordCustomerReturn(this.prisma, deliveryId, dto, actor, returnId);
+  }
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
@@ -474,23 +492,27 @@ export class DeliveryService {
           });
 
           // Create InventoryLedger entry (OUTGOING - barang keluar ke customer)
-          await tx.inventoryLedger.create({
-            data: {
-              Id: crypto.randomUUID(),
-              TransactionDate: new Date(),
-              ItemCategory: 'FINISH_GOOD',
-              FinishGoodId: labelData.FinishGoodId,
-              Location: 'FINISH_GOOD_AREA',
-              TransactionType: 'DELIVERY_TO_CUSTOMER',
-              ReferenceDoc: `DELIVERY-${delivery.Id}`,
-              BalanceBefore: balanceBefore,
-              QtyIn: 0,
-              QtyOut: labelData.QtyThisBox,
-              BalanceAfter: balanceAfter,
-              CreatedBy: createdBy,
-              Notes: `Delivery for PO: ${labelData.ProductionDemandId}, Label: ${labelData.LabelNumber}`,
+          await createSapLedger(
+            tx,
+            {
+              data: {
+                Id: crypto.randomUUID(),
+                TransactionDate: new Date(),
+                ItemCategory: 'FINISH_GOOD',
+                FinishGoodId: labelData.FinishGoodId,
+                Location: 'FINISH_GOOD_AREA',
+                TransactionType: 'DELIVERY_TO_CUSTOMER',
+                ReferenceDoc: `DELIVERY-${delivery.Id}`,
+                BalanceBefore: balanceBefore,
+                QtyIn: 0,
+                QtyOut: labelData.QtyThisBox,
+                BalanceAfter: balanceAfter,
+                CreatedBy: createdBy,
+                Notes: `Delivery for PO: ${labelData.ProductionDemandId}, Label: ${labelData.LabelNumber}`,
+              },
             },
-          });
+            labelData.ProductionDemandId,
+          );
 
           await this.logService.addLog({
             processId: localProcessId,
@@ -670,17 +692,22 @@ export class DeliveryService {
     ]);
 
     return {
-      data: data.map((item) => ({
-        id: item.Id,
-        forecastId: item.ProductionDemandId,
-        qty: item.Qty,
-        palletNumber: item.PalletNumber ?? null,
-        createdAt: item.CreatedAt,
-        createdBy: item.CreatedBy,
-        labelDataId: item.LabelDataId,
-        labelNumber: item.LabelData?.LabelNumber ?? item.LabelDataId,
-        releaseNumber: item.LabelData?.ProductionRelease?.ReleaseNumber ?? null,
-      })),
+      data: await decorateSapOperations(
+        this.prisma,
+        data.map((item) => ({
+          id: item.Id,
+          forecastId: item.ProductionDemandId,
+          qty: item.Qty,
+          palletNumber: item.PalletNumber ?? null,
+          createdAt: item.CreatedAt,
+          createdBy: item.CreatedBy,
+          labelDataId: item.LabelDataId,
+          labelNumber: item.LabelData?.LabelNumber ?? item.LabelDataId,
+          releaseNumber:
+            item.LabelData?.ProductionRelease?.ReleaseNumber ?? null,
+        })),
+        (row) => `DELIVERY-${row.id}`,
+      ),
       meta: {
         page,
         limit,

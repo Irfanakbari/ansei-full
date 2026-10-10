@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { OpnameStatus, ItemCategory } from '../../generated/prisma/enums';
+import { SapDocumentSummary } from '../../common/sap/sap-document-summary';
 
 export class InventoryCountingDetailEntity {
   @ApiProperty()
@@ -43,6 +44,15 @@ export class InventoryCountingDetailEntity {
 }
 
 export class InventoryCountingEntity {
+  @ApiPropertyOptional({ type: [SapDocumentSummary] })
+  SAPDocuments?: SapDocumentSummary[];
+
+  @ApiPropertyOptional({
+    type: Object,
+    description:
+      'Local SAP counting state: integrated, ready (verified freeze), held (stock barrier).',
+  })
+  SAPCounting?: { integrated: boolean; ready: boolean; held: boolean };
   @ApiProperty()
   Id: string;
 

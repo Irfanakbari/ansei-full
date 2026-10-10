@@ -4,6 +4,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import {
+  ApiOutlined,
   BellOutlined,
   DatabaseOutlined,
   FileTextOutlined,
@@ -48,7 +49,7 @@ import {
 import CreditInformationModal from "./_components/CreditInformationModal";
 import "../batik.css";
 
-const APP_VERSION = "6.6.12";
+const APP_VERSION = "6.18.0";
 const APP_YEAR = "2026";
 
 const LATEST_RELEASE_SUMMARY = [
@@ -306,6 +307,47 @@ const baseMenuItems: MenuItem[] = [
       [...PERMISSIONS.productionFindings],
     ),
   ]),
+  getItem("SAP Connection", "sap-connection", <ApiOutlined />, [
+    getItem(
+      <Link href="/apps/sap-connection/overview">Overview</Link>,
+      "sap-overview",
+      undefined,
+      undefined,
+      [...PERMISSIONS.systemLogs],
+    ),
+    getItem(
+      <Link href="/apps/sap-connection/transactions">Transactions</Link>,
+      "sap-transactions",
+      undefined,
+      undefined,
+      [...PERMISSIONS.systemLogs],
+    ),
+    getItem(
+      <Link href="/apps/sap-connection/stock-reconciliation">
+        Stock Reconciliation
+      </Link>,
+      "sap-stock-reconciliation",
+      undefined,
+      undefined,
+      [...PERMISSIONS.systemLogs],
+    ),
+    getItem(
+      <Link href="/apps/sap-connection/mappings">Mappings</Link>,
+      "sap-mappings",
+      undefined,
+      undefined,
+      [...PERMISSIONS.systemLogs],
+    ),
+    getItem(
+      <Link href="/apps/sap-connection/connection-cache">
+        Connection & Cache
+      </Link>,
+      "sap-connection-cache",
+      undefined,
+      undefined,
+      [...PERMISSIONS.systemLogs],
+    ),
+  ]),
   getItem(
     "System Administration",
     "system-administration",
@@ -533,6 +575,8 @@ const getMenuKeyFromPath = (path: string): string => {
   if (path.startsWith("/apps/production/delivery")) return "prod-delivery";
   if (path.startsWith("/apps/production/production-report"))
     return "prod-production-report";
+  if (path.startsWith("/apps/sap-connection/"))
+    return "sap-" + path.split("/")[3];
   if (path.startsWith("/apps/system-administration/user-accounts"))
     return "sa-user-accounts";
   if (path.startsWith("/apps/system-administration/roles-configuration"))
@@ -543,6 +587,8 @@ const getMenuKeyFromPath = (path: string): string => {
     return "sa-permissions-setup";
   if (path.startsWith("/apps/system-administration/system-log"))
     return "sa-system-logs";
+  if (path.startsWith("/apps/system-administration/sap-connection"))
+    return "sap-overview";
   if (path.startsWith("/apps/system-administration/stock-transaction-log"))
     return "sa-stock-transaction-log";
   if (path.startsWith("/apps/system-administration/printer-config"))

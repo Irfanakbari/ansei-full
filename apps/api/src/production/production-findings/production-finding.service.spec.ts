@@ -22,7 +22,11 @@ function createHarness(finding: Record<string, unknown>) {
       update: jest.fn().mockResolvedValue(finding),
     },
     productionFindingEvent: { create: jest.fn().mockResolvedValue({}) },
-    productionFindingAllocation: { create: jest.fn().mockResolvedValue({}) },
+    productionFindingAllocation: {
+      create: jest.fn().mockResolvedValue({}),
+      findUnique: jest.fn().mockResolvedValue(null),
+    },
+    labelData: { findUnique: jest.fn() },
     productionTraceEvent: { create: jest.fn().mockResolvedValue({}) },
     shopping: { findUnique: jest.fn() },
     businessCommand: {
@@ -48,6 +52,52 @@ function createHarness(finding: Record<string, unknown>) {
 }
 
 describe('ProductionFindingService', () => {
+  it.each([
+    ['delivered', { DeliveryHistory: { Id: 1 } }, 'Customer Return'],
+    ['invalidated', { InvalidatedAt: new Date() }, 'invalidated'],
+    ['moved release', { ProductionReleaseId: 'other' }, 'current RELEASED'],
+    ['excess quantity', { QtyThisBox: 1 }, 'exceeds label'],
+  ])(
+    'blocks %s FG rework before approval or stock writes',
+    async (_name, overrides, message) => {
+      const finding = {
+        Id: 'finding',
+        Category: 'FINISH_GOOD',
+        Status: 'PENDING',
+        LabelId: 1,
+        ReleaseId: 'release',
+        ProductionDemandId: 'demand',
+        Qty: 2,
+      };
+      const { tx, prisma, logs } = createHarness(finding);
+      tx.labelData.findUnique.mockResolvedValue({
+        Id: 1,
+        InvalidatedAt: null,
+        DeliveryHistory: null,
+        QtyThisBox: 10,
+        ProductionReleaseId: 'release',
+        ProductionDemandId: 'demand',
+        POData: {
+          ProductionReleaseId: 'release',
+          ProductionRelease: { Status: 'RELEASED' },
+        },
+        ...(overrides as object),
+      });
+      const service = new ProductionFindingService(
+        prisma as unknown as PrismaService,
+        logs as unknown as LogProcessService,
+      );
+      await expect(
+        service.approve(
+          'finding',
+          { requestId, disposition: 'REWORK' },
+          'leader',
+        ),
+      ).rejects.toThrow(String(message));
+      expect(tx.productionFinding.update).not.toHaveBeenCalled();
+      expect(tx.productionFindingEvent.create).not.toHaveBeenCalled();
+    },
+  );
   describe('public options', () => {
     function createOptionsService() {
       const prisma = {
@@ -413,6 +463,23 @@ describe('ProductionFindingService', () => {
         CreatedBy: 'leader',
       },
     });
+    tx.productionFindingAllocation.findUnique.mockResolvedValue({
+      Id: 'allocation',
+    });
+    tx.productionFindingAllocation.create.mockClear();
+    await expect(
+      module.get(ProductionFindingService).allocate(
+        'finding-1',
+        {
+          requestId: '22222222-2222-4222-8222-222222222222',
+          componentId: 'component-1',
+          shoppingId: 'shopping-1',
+          qty: 1,
+        },
+        'leader',
+      ),
+    ).rejects.toThrow('already allocated');
+    expect(tx.productionFindingAllocation.create).not.toHaveBeenCalled();
   });
 
   it('completes a finish-good finding only when every component is covered', async () => {

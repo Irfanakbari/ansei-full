@@ -9,6 +9,7 @@ import rolesReducer from "./features/roles/rolesSlice";
 import apiKeysReducer from "./features/apiKeys/apiKeysSlice";
 
 import systemLogReducer from "./features/system-log/systemLogSlice";
+import sapConnectionReducer from "./features/system-administration/sapConnectionSlice";
 import stockTransactionLogReducer from "./features/system-administration/stockTransactionLogSlice";
 
 // Master Data slices
@@ -62,6 +63,7 @@ export const store = configureStore({
     apiKeys: apiKeysReducer,
 
     systemLog: systemLogReducer,
+    sapConnection: sapConnectionReducer,
     stockTransactionLog: stockTransactionLogReducer,
 
     // Master Data

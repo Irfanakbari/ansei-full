@@ -323,6 +323,7 @@ suite(
         {} as never,
         {} as never,
         state,
+        {} as never,
       );
       await processor.process({
         name: 'dispatchOutboxEvent',

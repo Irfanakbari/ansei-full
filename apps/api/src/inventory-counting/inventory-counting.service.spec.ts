@@ -30,6 +30,10 @@ describe('InventoryCountingService', () => {
 
   beforeEach(async () => {
     const mockPrismaService = {
+      sapTransaction: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
       $queryRaw: jest.fn(),
       stockOpname: {
         findUnique: jest.fn(),
@@ -290,6 +294,19 @@ describe('InventoryCountingService', () => {
   });
 
   describe('remove', () => {
+    it('does not delete a counting started after the initial validation', async () => {
+      prismaService.stockOpname.findUnique
+        .mockResolvedValueOnce({
+          Id: '123',
+          RecordNumber: 'AIC-10102604',
+          Category: ItemCategory.MATERIAL,
+          Status: OpnameStatus.DRAFT,
+          _count: { Details: 2 },
+        })
+        .mockResolvedValueOnce({ Status: OpnameStatus.IN_PROGRESS });
+      await expect(service.remove('123')).rejects.toThrow('Only DRAFT');
+      expect(prismaService.stockOpname.delete).not.toHaveBeenCalled();
+    });
     it('should delete DRAFT inventory counting', async () => {
       const mockExisting = {
         Id: '123',
@@ -546,7 +563,11 @@ describe('InventoryCountingService', () => {
         DiffQty: -5,
       };
 
-      prismaService.stockOpnameDetail.findUnique.mockResolvedValue(mockDetail);
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Category: ItemCategory.MATERIAL,
+        ...mockDetail.OpnameData,
+      });
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue([mockDetail]);
       prismaService.stockOpnameDetail.update.mockResolvedValue(mockUpdated);
 
       const result = await service.updateActualStock(
@@ -568,7 +589,11 @@ describe('InventoryCountingService', () => {
         OpnameData: { Status: OpnameStatus.COMPLETED },
       };
 
-      prismaService.stockOpnameDetail.findUnique.mockResolvedValue(mockDetail);
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Category: ItemCategory.MATERIAL,
+        ...mockDetail.OpnameData,
+      });
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue([mockDetail]);
 
       await expect(
         service.updateActualStock('123', 1, { actualQty: 100 }, 'test'),
@@ -991,6 +1016,7 @@ describe('InventoryCountingService', () => {
 
       prismaService.$transaction.mockImplementation((callback: any) => {
         const tx = {
+          sapTransaction: { findUnique: jest.fn().mockResolvedValue(null) },
           material: {
             findUnique: jest.fn().mockResolvedValue(mockMaterial),
             update: jest

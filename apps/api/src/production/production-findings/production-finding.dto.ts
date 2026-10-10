@@ -105,12 +105,21 @@ export class SubmitFinishGoodFindingDto {
 }
 
 export class ReviewFindingDto {
+  @ApiPropertyOptional({ enum: ['REWORK', 'SCRAP'] })
+  @IsOptional()
+  @IsEnum(['REWORK', 'SCRAP'])
+  disposition?: 'REWORK' | 'SCRAP';
   @ApiProperty() @IsUUID() requestId: string;
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   @MaxLength(1000)
   note?: string;
+}
+
+export class ReplacementPickDto extends ReviewFindingDto {
+  @ApiProperty() @IsUUID() componentId: string;
+  @ApiProperty() @IsInt() @Min(1) @Max(2147483647) qty: number;
 }
 
 export class RejectFindingDto {

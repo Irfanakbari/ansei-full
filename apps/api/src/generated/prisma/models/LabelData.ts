@@ -27,16 +27,24 @@ export type AggregateLabelData = {
 }
 
 export type LabelDataAvgAggregateOutputType = {
+  StockSourceLabelId: number | null
+  ReplacesLabelId: number | null
   Id: number | null
   QtyThisBox: number | null
 }
 
 export type LabelDataSumAggregateOutputType = {
+  StockSourceLabelId: number | null
+  ReplacesLabelId: number | null
   Id: number | null
   QtyThisBox: number | null
 }
 
 export type LabelDataMinAggregateOutputType = {
+  InvalidatedAt: Date | null
+  StockSourceLabelId: number | null
+  ReplacesLabelId: number | null
+  ReplacementFindingId: string | null
   LegacyPoId: string | null
   RequiresAssembly: boolean | null
   Id: number | null
@@ -50,6 +58,10 @@ export type LabelDataMinAggregateOutputType = {
 }
 
 export type LabelDataMaxAggregateOutputType = {
+  InvalidatedAt: Date | null
+  StockSourceLabelId: number | null
+  ReplacesLabelId: number | null
+  ReplacementFindingId: string | null
   LegacyPoId: string | null
   RequiresAssembly: boolean | null
   Id: number | null
@@ -63,6 +75,10 @@ export type LabelDataMaxAggregateOutputType = {
 }
 
 export type LabelDataCountAggregateOutputType = {
+  InvalidatedAt: number
+  StockSourceLabelId: number
+  ReplacesLabelId: number
+  ReplacementFindingId: number
   LegacyPoId: number
   RequiresAssembly: number
   Id: number
@@ -78,16 +94,24 @@ export type LabelDataCountAggregateOutputType = {
 
 
 export type LabelDataAvgAggregateInputType = {
+  StockSourceLabelId?: true
+  ReplacesLabelId?: true
   Id?: true
   QtyThisBox?: true
 }
 
 export type LabelDataSumAggregateInputType = {
+  StockSourceLabelId?: true
+  ReplacesLabelId?: true
   Id?: true
   QtyThisBox?: true
 }
 
 export type LabelDataMinAggregateInputType = {
+  InvalidatedAt?: true
+  StockSourceLabelId?: true
+  ReplacesLabelId?: true
+  ReplacementFindingId?: true
   LegacyPoId?: true
   RequiresAssembly?: true
   Id?: true
@@ -101,6 +125,10 @@ export type LabelDataMinAggregateInputType = {
 }
 
 export type LabelDataMaxAggregateInputType = {
+  InvalidatedAt?: true
+  StockSourceLabelId?: true
+  ReplacesLabelId?: true
+  ReplacementFindingId?: true
   LegacyPoId?: true
   RequiresAssembly?: true
   Id?: true
@@ -114,6 +142,10 @@ export type LabelDataMaxAggregateInputType = {
 }
 
 export type LabelDataCountAggregateInputType = {
+  InvalidatedAt?: true
+  StockSourceLabelId?: true
+  ReplacesLabelId?: true
+  ReplacementFindingId?: true
   LegacyPoId?: true
   RequiresAssembly?: true
   Id?: true
@@ -214,6 +246,10 @@ export type LabelDataGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 }
 
 export type LabelDataGroupByOutputType = {
+  InvalidatedAt: Date | null
+  StockSourceLabelId: number | null
+  ReplacesLabelId: number | null
+  ReplacementFindingId: string | null
   LegacyPoId: string | null
   RequiresAssembly: boolean | null
   Id: number
@@ -250,6 +286,10 @@ export type LabelDataWhereInput = {
   AND?: Prisma.LabelDataWhereInput | Prisma.LabelDataWhereInput[]
   OR?: Prisma.LabelDataWhereInput[]
   NOT?: Prisma.LabelDataWhereInput | Prisma.LabelDataWhereInput[]
+  InvalidatedAt?: Prisma.DateTimeNullableFilter<"LabelData"> | Date | string | null
+  StockSourceLabelId?: Prisma.IntNullableFilter<"LabelData"> | number | null
+  ReplacesLabelId?: Prisma.IntNullableFilter<"LabelData"> | number | null
+  ReplacementFindingId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   LegacyPoId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   RequiresAssembly?: Prisma.BoolNullableFilter<"LabelData"> | boolean | null
   Id?: Prisma.IntFilter<"LabelData"> | number
@@ -272,6 +312,10 @@ export type LabelDataWhereInput = {
 }
 
 export type LabelDataOrderByWithRelationInput = {
+  InvalidatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  StockSourceLabelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ReplacesLabelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ReplacementFindingId?: Prisma.SortOrderInput | Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
@@ -299,6 +343,10 @@ export type LabelDataWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.LabelDataWhereInput | Prisma.LabelDataWhereInput[]
   OR?: Prisma.LabelDataWhereInput[]
   NOT?: Prisma.LabelDataWhereInput | Prisma.LabelDataWhereInput[]
+  InvalidatedAt?: Prisma.DateTimeNullableFilter<"LabelData"> | Date | string | null
+  StockSourceLabelId?: Prisma.IntNullableFilter<"LabelData"> | number | null
+  ReplacesLabelId?: Prisma.IntNullableFilter<"LabelData"> | number | null
+  ReplacementFindingId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   LegacyPoId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   RequiresAssembly?: Prisma.BoolNullableFilter<"LabelData"> | boolean | null
   FinishGoodId?: Prisma.StringFilter<"LabelData"> | string
@@ -319,6 +367,10 @@ export type LabelDataWhereUniqueInput = Prisma.AtLeast<{
 }, "Id" | "LabelNumber">
 
 export type LabelDataOrderByWithAggregationInput = {
+  InvalidatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  StockSourceLabelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ReplacesLabelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ReplacementFindingId?: Prisma.SortOrderInput | Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
@@ -340,6 +392,10 @@ export type LabelDataScalarWhereWithAggregatesInput = {
   AND?: Prisma.LabelDataScalarWhereWithAggregatesInput | Prisma.LabelDataScalarWhereWithAggregatesInput[]
   OR?: Prisma.LabelDataScalarWhereWithAggregatesInput[]
   NOT?: Prisma.LabelDataScalarWhereWithAggregatesInput | Prisma.LabelDataScalarWhereWithAggregatesInput[]
+  InvalidatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"LabelData"> | Date | string | null
+  StockSourceLabelId?: Prisma.IntNullableWithAggregatesFilter<"LabelData"> | number | null
+  ReplacesLabelId?: Prisma.IntNullableWithAggregatesFilter<"LabelData"> | number | null
+  ReplacementFindingId?: Prisma.StringNullableWithAggregatesFilter<"LabelData"> | string | null
   LegacyPoId?: Prisma.StringNullableWithAggregatesFilter<"LabelData"> | string | null
   RequiresAssembly?: Prisma.BoolNullableWithAggregatesFilter<"LabelData"> | boolean | null
   Id?: Prisma.IntWithAggregatesFilter<"LabelData"> | number
@@ -353,6 +409,10 @@ export type LabelDataScalarWhereWithAggregatesInput = {
 }
 
 export type LabelDataCreateInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -370,6 +430,10 @@ export type LabelDataCreateInput = {
 }
 
 export type LabelDataUncheckedCreateInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -387,6 +451,10 @@ export type LabelDataUncheckedCreateInput = {
 }
 
 export type LabelDataUpdateInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -404,6 +472,10 @@ export type LabelDataUpdateInput = {
 }
 
 export type LabelDataUncheckedUpdateInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -421,6 +493,10 @@ export type LabelDataUncheckedUpdateInput = {
 }
 
 export type LabelDataCreateManyInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -434,6 +510,10 @@ export type LabelDataCreateManyInput = {
 }
 
 export type LabelDataUpdateManyMutationInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -442,6 +522,10 @@ export type LabelDataUpdateManyMutationInput = {
 }
 
 export type LabelDataUncheckedUpdateManyInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -465,6 +549,10 @@ export type LabelDataOrderByRelationAggregateInput = {
 }
 
 export type LabelDataCountOrderByAggregateInput = {
+  InvalidatedAt?: Prisma.SortOrder
+  StockSourceLabelId?: Prisma.SortOrder
+  ReplacesLabelId?: Prisma.SortOrder
+  ReplacementFindingId?: Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
@@ -478,11 +566,17 @@ export type LabelDataCountOrderByAggregateInput = {
 }
 
 export type LabelDataAvgOrderByAggregateInput = {
+  StockSourceLabelId?: Prisma.SortOrder
+  ReplacesLabelId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   QtyThisBox?: Prisma.SortOrder
 }
 
 export type LabelDataMaxOrderByAggregateInput = {
+  InvalidatedAt?: Prisma.SortOrder
+  StockSourceLabelId?: Prisma.SortOrder
+  ReplacesLabelId?: Prisma.SortOrder
+  ReplacementFindingId?: Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
@@ -496,6 +590,10 @@ export type LabelDataMaxOrderByAggregateInput = {
 }
 
 export type LabelDataMinOrderByAggregateInput = {
+  InvalidatedAt?: Prisma.SortOrder
+  StockSourceLabelId?: Prisma.SortOrder
+  ReplacesLabelId?: Prisma.SortOrder
+  ReplacementFindingId?: Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
@@ -509,6 +607,8 @@ export type LabelDataMinOrderByAggregateInput = {
 }
 
 export type LabelDataSumOrderByAggregateInput = {
+  StockSourceLabelId?: Prisma.SortOrder
+  ReplacesLabelId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   QtyThisBox?: Prisma.SortOrder
 }
@@ -756,6 +856,10 @@ export type LabelDataUncheckedUpdateManyWithoutDemandNestedInput = {
 }
 
 export type LabelDataCreateWithoutPartDataInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -772,6 +876,10 @@ export type LabelDataCreateWithoutPartDataInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutPartDataInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -817,6 +925,10 @@ export type LabelDataScalarWhereInput = {
   AND?: Prisma.LabelDataScalarWhereInput | Prisma.LabelDataScalarWhereInput[]
   OR?: Prisma.LabelDataScalarWhereInput[]
   NOT?: Prisma.LabelDataScalarWhereInput | Prisma.LabelDataScalarWhereInput[]
+  InvalidatedAt?: Prisma.DateTimeNullableFilter<"LabelData"> | Date | string | null
+  StockSourceLabelId?: Prisma.IntNullableFilter<"LabelData"> | number | null
+  ReplacesLabelId?: Prisma.IntNullableFilter<"LabelData"> | number | null
+  ReplacementFindingId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   LegacyPoId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   RequiresAssembly?: Prisma.BoolNullableFilter<"LabelData"> | boolean | null
   Id?: Prisma.IntFilter<"LabelData"> | number
@@ -830,6 +942,10 @@ export type LabelDataScalarWhereInput = {
 }
 
 export type LabelDataCreateWithoutLegacyForecastInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -846,6 +962,10 @@ export type LabelDataCreateWithoutLegacyForecastInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutLegacyForecastInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
@@ -888,6 +1008,10 @@ export type LabelDataUpdateManyWithWhereWithoutLegacyForecastInput = {
 }
 
 export type LabelDataCreateWithoutProductionReleaseInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -904,6 +1028,10 @@ export type LabelDataCreateWithoutProductionReleaseInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutProductionReleaseInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -946,6 +1074,10 @@ export type LabelDataUpdateManyWithWhereWithoutProductionReleaseInput = {
 }
 
 export type LabelDataCreateWithoutAssemblySessionsInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -962,6 +1094,10 @@ export type LabelDataCreateWithoutAssemblySessionsInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutAssemblySessionsInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -994,6 +1130,10 @@ export type LabelDataUpdateToOneWithWhereWithoutAssemblySessionsInput = {
 }
 
 export type LabelDataUpdateWithoutAssemblySessionsInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1010,6 +1150,10 @@ export type LabelDataUpdateWithoutAssemblySessionsInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutAssemblySessionsInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1026,6 +1170,10 @@ export type LabelDataUncheckedUpdateWithoutAssemblySessionsInput = {
 }
 
 export type LabelDataCreateWithoutPokayokeHistoryInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -1042,6 +1190,10 @@ export type LabelDataCreateWithoutPokayokeHistoryInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutPokayokeHistoryInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -1074,6 +1226,10 @@ export type LabelDataUpdateToOneWithWhereWithoutPokayokeHistoryInput = {
 }
 
 export type LabelDataUpdateWithoutPokayokeHistoryInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1090,6 +1246,10 @@ export type LabelDataUpdateWithoutPokayokeHistoryInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutPokayokeHistoryInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1106,6 +1266,10 @@ export type LabelDataUncheckedUpdateWithoutPokayokeHistoryInput = {
 }
 
 export type LabelDataCreateWithoutDeliveryHistoryInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -1122,6 +1286,10 @@ export type LabelDataCreateWithoutDeliveryHistoryInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutDeliveryHistoryInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -1154,6 +1322,10 @@ export type LabelDataUpdateToOneWithWhereWithoutDeliveryHistoryInput = {
 }
 
 export type LabelDataUpdateWithoutDeliveryHistoryInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1170,6 +1342,10 @@ export type LabelDataUpdateWithoutDeliveryHistoryInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutDeliveryHistoryInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1186,6 +1362,10 @@ export type LabelDataUncheckedUpdateWithoutDeliveryHistoryInput = {
 }
 
 export type LabelDataCreateWithoutProductionFindingsInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -1202,6 +1382,10 @@ export type LabelDataCreateWithoutProductionFindingsInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutProductionFindingsInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -1234,6 +1418,10 @@ export type LabelDataUpdateToOneWithWhereWithoutProductionFindingsInput = {
 }
 
 export type LabelDataUpdateWithoutProductionFindingsInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1250,6 +1438,10 @@ export type LabelDataUpdateWithoutProductionFindingsInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutProductionFindingsInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1266,6 +1458,10 @@ export type LabelDataUncheckedUpdateWithoutProductionFindingsInput = {
 }
 
 export type LabelDataCreateWithoutDemandInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -1282,6 +1478,10 @@ export type LabelDataCreateWithoutDemandInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutDemandInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -1324,6 +1524,10 @@ export type LabelDataUpdateManyWithWhereWithoutDemandInput = {
 }
 
 export type LabelDataCreateManyPartDataInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -1336,6 +1540,10 @@ export type LabelDataCreateManyPartDataInput = {
 }
 
 export type LabelDataUpdateWithoutPartDataInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1352,6 +1560,10 @@ export type LabelDataUpdateWithoutPartDataInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutPartDataInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1368,6 +1580,10 @@ export type LabelDataUncheckedUpdateWithoutPartDataInput = {
 }
 
 export type LabelDataUncheckedUpdateManyWithoutPartDataInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1380,6 +1596,10 @@ export type LabelDataUncheckedUpdateManyWithoutPartDataInput = {
 }
 
 export type LabelDataCreateManyLegacyForecastInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
   LabelNumber: string
@@ -1392,6 +1612,10 @@ export type LabelDataCreateManyLegacyForecastInput = {
 }
 
 export type LabelDataUpdateWithoutLegacyForecastInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1408,6 +1632,10 @@ export type LabelDataUpdateWithoutLegacyForecastInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutLegacyForecastInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1424,6 +1652,10 @@ export type LabelDataUncheckedUpdateWithoutLegacyForecastInput = {
 }
 
 export type LabelDataUncheckedUpdateManyWithoutLegacyForecastInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1436,6 +1668,10 @@ export type LabelDataUncheckedUpdateManyWithoutLegacyForecastInput = {
 }
 
 export type LabelDataCreateManyProductionReleaseInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -1448,6 +1684,10 @@ export type LabelDataCreateManyProductionReleaseInput = {
 }
 
 export type LabelDataUpdateWithoutProductionReleaseInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1464,6 +1704,10 @@ export type LabelDataUpdateWithoutProductionReleaseInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutProductionReleaseInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1480,6 +1724,10 @@ export type LabelDataUncheckedUpdateWithoutProductionReleaseInput = {
 }
 
 export type LabelDataUncheckedUpdateManyWithoutProductionReleaseInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1520,6 +1768,10 @@ export type LabelDataUncheckedUpdateManyWithoutPODataNestedInput = {
 }
 
 export type LabelDataCreateManyDemandInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -1532,6 +1784,10 @@ export type LabelDataCreateManyDemandInput = {
 }
 
 export type LabelDataUpdateWithoutDemandInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1548,6 +1804,10 @@ export type LabelDataUpdateWithoutDemandInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutDemandInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1564,6 +1824,10 @@ export type LabelDataUncheckedUpdateWithoutDemandInput = {
 }
 
 export type LabelDataUncheckedUpdateManyWithoutDemandInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1576,6 +1840,10 @@ export type LabelDataUncheckedUpdateManyWithoutDemandInput = {
 }
 
 export type LabelDataCreateWithoutPODataInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
   LabelNumber: string
   Scanned?: boolean
@@ -1592,6 +1860,10 @@ export type LabelDataCreateWithoutPODataInput = {
 }
 
 export type LabelDataUncheckedCreateWithoutPODataInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -1634,6 +1906,10 @@ export type LabelDataUpdateManyWithWhereWithoutPODataInput = {
 }
 
 export type LabelDataUpdateWithoutPODataInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1650,6 +1926,10 @@ export type LabelDataUpdateWithoutPODataInput = {
 }
 
 export type LabelDataUncheckedUpdateWithoutPODataInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1666,6 +1946,10 @@ export type LabelDataUncheckedUpdateWithoutPODataInput = {
 }
 
 export type LabelDataCreateManyPODataInput = {
+  InvalidatedAt?: Date | string | null
+  StockSourceLabelId?: number | null
+  ReplacesLabelId?: number | null
+  ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
   Id?: number
@@ -1678,6 +1962,10 @@ export type LabelDataCreateManyPODataInput = {
 }
 
 export type LabelDataUncheckedUpdateManyWithoutPODataInput = {
+  InvalidatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  StockSourceLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   Id?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1739,6 +2027,10 @@ export type LabelDataCountOutputTypeCountPokayokeHistoryArgs<ExtArgs extends run
 
 
 export type LabelDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  InvalidatedAt?: boolean
+  StockSourceLabelId?: boolean
+  ReplacesLabelId?: boolean
+  ReplacementFindingId?: boolean
   LegacyPoId?: boolean
   RequiresAssembly?: boolean
   Id?: boolean
@@ -1762,6 +2054,10 @@ export type LabelDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 }, ExtArgs["result"]["labelData"]>
 
 export type LabelDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  InvalidatedAt?: boolean
+  StockSourceLabelId?: boolean
+  ReplacesLabelId?: boolean
+  ReplacementFindingId?: boolean
   LegacyPoId?: boolean
   RequiresAssembly?: boolean
   Id?: boolean
@@ -1780,6 +2076,10 @@ export type LabelDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 }, ExtArgs["result"]["labelData"]>
 
 export type LabelDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  InvalidatedAt?: boolean
+  StockSourceLabelId?: boolean
+  ReplacesLabelId?: boolean
+  ReplacementFindingId?: boolean
   LegacyPoId?: boolean
   RequiresAssembly?: boolean
   Id?: boolean
@@ -1798,6 +2098,10 @@ export type LabelDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 }, ExtArgs["result"]["labelData"]>
 
 export type LabelDataSelectScalar = {
+  InvalidatedAt?: boolean
+  StockSourceLabelId?: boolean
+  ReplacesLabelId?: boolean
+  ReplacementFindingId?: boolean
   LegacyPoId?: boolean
   RequiresAssembly?: boolean
   Id?: boolean
@@ -1810,7 +2114,7 @@ export type LabelDataSelectScalar = {
   PokayokeScanHistoryId?: boolean
 }
 
-export type LabelDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"LegacyPoId" | "RequiresAssembly" | "Id" | "LabelNumber" | "FinishGoodId" | "ProductionDemandId" | "Scanned" | "QtyThisBox" | "ProductionReleaseId" | "PokayokeScanHistoryId", ExtArgs["result"]["labelData"]>
+export type LabelDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"InvalidatedAt" | "StockSourceLabelId" | "ReplacesLabelId" | "ReplacementFindingId" | "LegacyPoId" | "RequiresAssembly" | "Id" | "LabelNumber" | "FinishGoodId" | "ProductionDemandId" | "Scanned" | "QtyThisBox" | "ProductionReleaseId" | "PokayokeScanHistoryId", ExtArgs["result"]["labelData"]>
 export type LabelDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   LegacyForecast?: boolean | Prisma.LabelData$LegacyForecastArgs<ExtArgs>
   Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
@@ -1852,6 +2156,10 @@ export type $LabelDataPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     ProductionRelease: Prisma.$ProductionReleasePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    InvalidatedAt: Date | null
+    StockSourceLabelId: number | null
+    ReplacesLabelId: number | null
+    ReplacementFindingId: string | null
     LegacyPoId: string | null
     RequiresAssembly: boolean | null
     Id: number
@@ -1945,8 +2253,8 @@ export interface LabelDataDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    * // Get first 10 LabelData
    * const labelData = await prisma.labelData.findMany({ take: 10 })
    * 
-   * // Only select the `LegacyPoId`
-   * const labelDataWithLegacyPoIdOnly = await prisma.labelData.findMany({ select: { LegacyPoId: true } })
+   * // Only select the `InvalidatedAt`
+   * const labelDataWithInvalidatedAtOnly = await prisma.labelData.findMany({ select: { InvalidatedAt: true } })
    * 
    */
   findMany<T extends LabelDataFindManyArgs>(args?: Prisma.SelectSubset<T, LabelDataFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -1990,9 +2298,9 @@ export interface LabelDataDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    *   ]
    * })
    * 
-   * // Create many LabelData and only return the `LegacyPoId`
-   * const labelDataWithLegacyPoIdOnly = await prisma.labelData.createManyAndReturn({
-   *   select: { LegacyPoId: true },
+   * // Create many LabelData and only return the `InvalidatedAt`
+   * const labelDataWithInvalidatedAtOnly = await prisma.labelData.createManyAndReturn({
+   *   select: { InvalidatedAt: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -2081,9 +2389,9 @@ export interface LabelDataDelegate<ExtArgs extends runtime.Types.Extensions.Inte
    *   ]
    * })
    * 
-   * // Update zero or more LabelData and only return the `LegacyPoId`
-   * const labelDataWithLegacyPoIdOnly = await prisma.labelData.updateManyAndReturn({
-   *   select: { LegacyPoId: true },
+   * // Update zero or more LabelData and only return the `InvalidatedAt`
+   * const labelDataWithInvalidatedAtOnly = await prisma.labelData.updateManyAndReturn({
+   *   select: { InvalidatedAt: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -2294,6 +2602,10 @@ export interface Prisma__LabelDataClient<T, Null = never, ExtArgs extends runtim
  * Fields of the LabelData model
  */
 export interface LabelDataFieldRefs {
+  readonly InvalidatedAt: Prisma.FieldRef<"LabelData", 'DateTime'>
+  readonly StockSourceLabelId: Prisma.FieldRef<"LabelData", 'Int'>
+  readonly ReplacesLabelId: Prisma.FieldRef<"LabelData", 'Int'>
+  readonly ReplacementFindingId: Prisma.FieldRef<"LabelData", 'String'>
   readonly LegacyPoId: Prisma.FieldRef<"LabelData", 'String'>
   readonly RequiresAssembly: Prisma.FieldRef<"LabelData", 'Boolean'>
   readonly Id: Prisma.FieldRef<"LabelData", 'Int'>

@@ -171,6 +171,7 @@ export type ProductionReleaseStatus =
 
 // Production release entity interface
 export interface ProductionReleaseEntity {
+  SAPDocuments?: import("@/components/SapDocumentNumbers").SapDocumentSummary[];
   SourceType: "PO" | "NON_PO";
   Id: string;
   ReleaseNumber: string;

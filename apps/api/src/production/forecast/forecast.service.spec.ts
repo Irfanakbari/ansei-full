@@ -37,6 +37,8 @@ describe('ForecastService', () => {
 
   beforeEach(async () => {
     prismaService = {
+      sapTransaction: { findMany: jest.fn().mockResolvedValue([]) },
+      sapDemandMapping: { findMany: jest.fn().mockResolvedValue([]) },
       $executeRaw: jest.fn(),
       $transaction: jest.fn(),
       pokayokeScanHistory: { count: jest.fn().mockResolvedValue(0) },
@@ -114,6 +116,44 @@ describe('ForecastService', () => {
   });
 
   describe('findAll', () => {
+    it.each(['findAll', 'findOrders'] as const)(
+      '%s decorates only the requested page while preserving filters and totals',
+      async (method) => {
+        prismaService.forecast.count.mockResolvedValue(75);
+        prismaService.forecast.findMany.mockResolvedValue([
+          { Id: 51, PoId: 'PO-51', Qty: 30 },
+        ]);
+        const result = await service[method]({
+          page: 2,
+          limit: 50,
+          partNumber: 'FG-1',
+        });
+        expect(result.meta).toEqual({
+          page: 2,
+          limit: 50,
+          totalItems: 75,
+          totalPages: 2,
+        });
+        expect(result.data[0]).toMatchObject({
+          PoId: 'PO-51',
+          SAPDocuments: [],
+        });
+        expect(prismaService.forecast.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            skip: 50,
+            take: 50,
+            where: expect.objectContaining({
+              FinishGoodId: { contains: 'FG-1', mode: 'insensitive' },
+            }),
+          }),
+        );
+        expect(prismaService.sapTransaction.findMany).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { Kind: 'SALES_ORDER', DemandId: { in: ['PO-51'] } },
+          }),
+        );
+      },
+    );
     it('should return all forecasts', async () => {
       const mockForecasts = [{ Id: 1, PoId: 'PO-001', Qty: 100 }];
       prismaService.forecast.count.mockResolvedValue(1);
@@ -121,7 +161,9 @@ describe('ForecastService', () => {
 
       const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result.data).toEqual(mockForecasts);
+      expect(result.data).toEqual(
+        mockForecasts.map((row) => ({ ...row, SAPDocuments: [] })),
+      );
     });
 
     it('should filter forecasts by an inclusive delivery date range', async () => {

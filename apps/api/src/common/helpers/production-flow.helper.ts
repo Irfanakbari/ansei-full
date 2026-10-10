@@ -26,11 +26,37 @@ export async function assertLabelReady(
   shoppingOnly = false,
 ) {
   const label = await tx.labelData.findUnique({ where: { Id: labelId } });
-  if (!label || (requireScanned && !label.Scanned)) {
+  if (!label || label.InvalidatedAt || (requireScanned && !label.Scanned)) {
     throw new BadRequestException(
       'Label is missing, delivered, or has not passed POKAYOKE. Refresh and scan again.',
     );
   }
+  if (
+    await tx.productionFinding.findFirst({
+      where: {
+        LabelId: label.Id,
+        DeletedAt: null,
+        Status: { in: ['PENDING', 'WAITING_PART_CHANGE'] },
+      },
+      select: { Id: true },
+    })
+  )
+    throw new BadRequestException(
+      'Resolve the open NG finding before assembly, POKAYOKE, or delivery.',
+    );
+  if (label.ReplacementFindingId) {
+    const finding = await tx.productionFinding.findUnique({
+      where: { Id: label.ReplacementFindingId },
+    });
+    if (finding?.Status !== 'COMPLETED')
+      throw new BadRequestException(
+        'Scrap replacement materials must be picked and approved before assembly.',
+      );
+  }
+  if (shoppingOnly && label.StockSourceLabelId)
+    throw new BadRequestException(
+      'This split label already has production stock; proceed to quality validation.',
+    );
   if (
     await tx.deliveryHistory.findUnique({
       where: { LabelDataId: label.LabelNumber },
@@ -74,7 +100,10 @@ export async function assertLabelReady(
   if (shoppingOnly) return { label, forecast };
   if (label.RequiresAssembly === true) {
     const session = await tx.assemblySession.findFirst({
-      where: { LabelDataId: label.Id, Status: 'COMPLETED' },
+      where: {
+        LabelDataId: label.StockSourceLabelId ?? label.Id,
+        Status: 'COMPLETED',
+      },
     });
     if (!session)
       throw new BadRequestException(
@@ -90,7 +119,11 @@ export async function assertLabelReady(
       },
       _sum: { QtyIn: true },
     });
-    if (result._sum.QtyIn !== label.QtyThisBox)
+    if (
+      label.StockSourceLabelId
+        ? (result._sum.QtyIn ?? 0) < label.QtyThisBox
+        : result._sum.QtyIn !== label.QtyThisBox
+    )
       throw new BadRequestException('Assembly stock result is missing.');
     return { label, forecast };
   }

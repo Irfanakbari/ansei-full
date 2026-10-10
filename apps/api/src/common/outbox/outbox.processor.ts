@@ -1,8 +1,10 @@
+import { SapMaterialWriteService } from '../sap/sap-material-write.service';
+import { SapPostingService } from '../sap/sap-posting.service';
 import { integrationDeadline } from './integration-deadline';
 import { OutboxService } from './outbox.service';
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import type { Job } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SmtpService } from '../utils/smtp.service';
@@ -134,6 +136,8 @@ export class OutboxProcessor extends WorkerHost {
     private readonly inventoryCountingDocuments: InventoryCountingDocumentService,
     private readonly inventoryCountingService: InventoryCountingService,
     private readonly state: OutboxStateService,
+    private readonly sapMaterial: SapMaterialWriteService,
+    @Optional() private readonly sapPosting?: SapPostingService,
   ) {
     super();
   }
@@ -160,6 +164,48 @@ export class OutboxProcessor extends WorkerHost {
     if (!event) return;
     let externalStarted = false;
     try {
+      if (
+        ['SAP_TRANSACTION', 'SAP_MATERIAL_UPDATE'].includes(event.Type) &&
+        this.sapPosting &&
+        !(await this.sapPosting.postingEnabled())
+      ) {
+        await this.state.change(
+          event,
+          {
+            Status: 'PENDING',
+            MaxAttempts: { increment: 1 },
+            LastErrorCode: 'SAP_PAUSED',
+            LastError:
+              'SAP sync is paused. This transaction will resume when enabled.',
+            NextAttemptAt: new Date(Date.now() + 5000),
+          },
+          'SAP_PAUSED',
+        );
+        return;
+      }
+      if (event.Type === 'SAP_TRANSACTION') {
+        if (!this.sapPosting)
+          throw new Error('SAP transaction worker unavailable');
+        await this.sapPosting.process(event);
+        return;
+      }
+      if (event.Type === 'SAP_MATERIAL_UPDATE') {
+        const outcome = await this.sapMaterial.send(event.Payload);
+        await this.state.change(
+          event,
+          {
+            Status: 'SUCCEEDED',
+            SucceededAt: new Date(),
+            LastErrorCode:
+              outcome === 'SENT'
+                ? 'SAP_MATERIAL_SYNCED'
+                : 'SAP_MATERIAL_SUPERSEDED',
+            LastError: null,
+          },
+          outcome === 'SENT' ? 'SAP_SYNCED' : 'SAP_SUPERSEDED',
+        );
+        return;
+      }
       if (event.Type === 'PRINT_PART_TAG_ANSEI') {
         const payload = printPayload(event.Payload);
         event = await this.state.change(
@@ -449,7 +495,9 @@ export class OutboxProcessor extends WorkerHost {
           LastErrorCode: externalStarted ? UNCERTAIN : SAFE_RETRY,
           LastError: externalStarted
             ? 'Email delivery outcome requires reconciliation.'
-            : 'Preparation failed before external delivery.',
+            : event.Type === 'SAP_MATERIAL_UPDATE'
+              ? 'SAP material synchronization failed; retry scheduled.'
+              : 'Preparation failed before external delivery.',
           NextAttemptAt: new Date(
             Date.now() +
               Math.min(300000, 5000 * 2 ** Math.min(event.Attempts - 1, 6)),

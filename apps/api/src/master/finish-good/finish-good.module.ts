@@ -1,3 +1,4 @@
+import { SapModule } from '../../common/sap/sap.module';
 import { Module } from '@nestjs/common';
 import { FinishGoodController } from './finish-good.controller';
 import { FinishGoodService } from './finish-good.service';
@@ -9,7 +10,7 @@ import { BillOfMaterialsModule } from './bill-of-materials/bill-of-materials.mod
 @Module({
   controllers: [FinishGoodController],
   providers: [FinishGoodService, PrismaService],
-  imports: [LogProcessModule, BoxQtyModule, BillOfMaterialsModule],
+  imports: [SapModule, LogProcessModule, BoxQtyModule, BillOfMaterialsModule],
   exports: [FinishGoodService],
 })
 export class FinishGoodModule {}

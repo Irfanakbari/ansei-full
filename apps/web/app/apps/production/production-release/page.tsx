@@ -35,6 +35,9 @@ import ManageForecastsModal from "./_components/ManageForecastsModal";
 import CancelProductionReleaseModal from "./_components/CancelProductionReleaseModal";
 import { formatDateTime } from "@/lib/utils/dateTime";
 import GoldenArrowAction from "@/components/GoldenArrowAction";
+import SapDocumentNumbers, {
+  type SapDocumentSummary,
+} from "@/components/SapDocumentNumbers";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING: "warning",
@@ -219,6 +222,14 @@ export default function ProductionReleasePage() {
             />
           )}
         </div>
+      ),
+    },
+    {
+      title: "SAP Doc Number",
+      dataIndex: "SAPDocuments",
+      key: "SAPDocuments",
+      render: (value: SapDocumentSummary[] | undefined) => (
+        <SapDocumentNumbers value={value} />
       ),
     },
   ];

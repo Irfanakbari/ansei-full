@@ -1,6 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-07-16 */
 "use client";
 
+import SapStatusTag from "@/components/SapStatusTag";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Table,
@@ -206,6 +207,13 @@ export default function ShoppingPage() {
       dataIndex: "CreatedAt",
       key: "CreatedAt",
       render: formatDateTime,
+    },
+    {
+      title: "SAP Status",
+      key: "SAPIntegration",
+      render: (_: unknown, row: ShoppingEntity) => (
+        <SapStatusTag value={row.SAPIntegration} />
+      ),
     },
   ];
 

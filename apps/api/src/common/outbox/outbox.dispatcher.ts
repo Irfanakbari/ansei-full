@@ -1,4 +1,6 @@
 import { integrationDeadline } from './integration-deadline';
+import { SapPostingService } from '../sap/sap-posting.service';
+import { Optional } from '@nestjs/common';
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-19 */
 import { InjectQueue } from '@nestjs/bullmq';
 import {
@@ -28,6 +30,7 @@ export class OutboxDispatcher implements OnModuleInit, OnModuleDestroy {
     private readonly prisma: PrismaService,
     @InjectQueue(OUTBOX_QUEUE) private readonly queue: Queue,
     private readonly state: OutboxStateService,
+    @Optional() private readonly sapPosting?: SapPostingService,
   ) {}
   onModuleInit() {
     this.timer = setInterval(() => this.scheduleDispatch(), 5000);
@@ -49,6 +52,7 @@ export class OutboxDispatcher implements OnModuleInit, OnModuleDestroy {
     if (this.running) return;
     this.running = true;
     try {
+      await this.sapPosting?.heartbeat();
       const staleBefore = new Date(Date.now() - 10 * 60 * 1000);
       const active = await this.prisma.outboxEvent.findMany({
         where: {
@@ -128,6 +132,13 @@ export class OutboxDispatcher implements OnModuleInit, OnModuleDestroy {
       }
       const events = await this.prisma.outboxEvent.findMany({
         where: {
+          ...(this.sapPosting && !(await this.sapPosting.postingEnabled())
+            ? {
+                Type: {
+                  notIn: ['SAP_TRANSACTION', 'SAP_MATERIAL_UPDATE'] as const,
+                },
+              }
+            : {}),
           OR: [
             { Status: 'PENDING' },
             { Status: 'FAILED', LastErrorCode: SAFE_RETRY },

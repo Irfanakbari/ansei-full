@@ -1,3 +1,5 @@
+import { decorateSapOperations } from '../../common/sap/sap-operation-status';
+import { createSapLedger } from '../../common/sap/sap-transaction-capture';
 import {
   auditedTransaction,
   auditedWrite,
@@ -164,7 +166,12 @@ export class ShoppingService {
       }),
     ]);
     return {
-      data,
+      data: await decorateSapOperations(
+        this.prisma,
+        data,
+        (row) => row.Id,
+        true,
+      ),
       meta: {
         page: query.page,
         limit: query.limit,
@@ -753,23 +760,27 @@ export class ShoppingService {
       const validForecastId = isAdditional ? null : dto.forecastId;
 
       // Create InventoryLedger entry
-      await tx.inventoryLedger.create({
-        data: {
-          Id: crypto.randomUUID(),
-          TransactionDate: new Date(),
-          ItemCategory: 'MATERIAL',
-          MaterialId: dto.materialId,
-          Location: LocationType.RACK,
-          TransactionType: TransactionType.PRODUCTION_USAGE,
-          ReferenceDoc: shoppingId,
-          BalanceBefore: balanceBefore,
-          QtyIn: 0,
-          QtyOut: dto.qtyPick,
-          BalanceAfter: balanceAfter,
-          CreatedBy: createdBy,
-          Notes: `${dto.type === TypeShopping.REGULER ? 'REGULER' : 'ADDITIONAL'} shopping pick${validForecastId ? ` for PO: ${validForecastId}` : ''}`,
+      await createSapLedger(
+        tx,
+        {
+          data: {
+            Id: crypto.randomUUID(),
+            TransactionDate: new Date(),
+            ItemCategory: 'MATERIAL',
+            MaterialId: dto.materialId,
+            Location: LocationType.RACK,
+            TransactionType: TransactionType.PRODUCTION_USAGE,
+            ReferenceDoc: shoppingId,
+            BalanceBefore: balanceBefore,
+            QtyIn: 0,
+            QtyOut: dto.qtyPick,
+            BalanceAfter: balanceAfter,
+            CreatedBy: createdBy,
+            Notes: `${dto.type === TypeShopping.REGULER ? 'REGULER' : 'ADDITIONAL'} shopping pick${validForecastId ? ` for PO: ${validForecastId}` : ''}`,
+          },
         },
-      });
+        validForecastId ?? undefined,
+      );
 
       await this.logService.addLog({
         processId,
@@ -870,23 +881,27 @@ export class ShoppingService {
               });
 
               // Create InventoryLedger entry for PRODUCTION_RESULT
-              await tx.inventoryLedger.create({
-                data: {
-                  Id: crypto.randomUUID(),
-                  TransactionDate: new Date(),
-                  ItemCategory: 'FINISH_GOOD',
-                  FinishGoodId: finishGoodContext.finishGoodId,
-                  Location: LocationType.FINISH_GOOD_AREA,
-                  TransactionType: TransactionType.PRODUCTION_RESULT,
-                  ReferenceDoc: `PROD-${shoppingId}`,
-                  BalanceBefore: fgBalanceBefore,
-                  QtyIn: finishGoodContext.forecastQty,
-                  QtyOut: 0,
-                  BalanceAfter: fgBalanceAfter,
-                  CreatedBy: createdBy,
-                  Notes: `Production Result from REGULER shopping completion for PO: ${dto.forecastId}. Material: ${dto.materialId}, QtyPick: ${dto.qtyPick}`,
+              await createSapLedger(
+                tx,
+                {
+                  data: {
+                    Id: crypto.randomUUID(),
+                    TransactionDate: new Date(),
+                    ItemCategory: 'FINISH_GOOD',
+                    FinishGoodId: finishGoodContext.finishGoodId,
+                    Location: LocationType.FINISH_GOOD_AREA,
+                    TransactionType: TransactionType.PRODUCTION_RESULT,
+                    ReferenceDoc: `PROD-${shoppingId}`,
+                    BalanceBefore: fgBalanceBefore,
+                    QtyIn: finishGoodContext.forecastQty,
+                    QtyOut: 0,
+                    BalanceAfter: fgBalanceAfter,
+                    CreatedBy: createdBy,
+                    Notes: `Production Result from REGULER shopping completion for PO: ${dto.forecastId}. Material: ${dto.materialId}, QtyPick: ${dto.qtyPick}`,
+                  },
                 },
-              });
+                validForecastId,
+              );
             }
             const [forecast, boxQTY] = await Promise.all([
               tx.productionOrder.findUniqueOrThrow({

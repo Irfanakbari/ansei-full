@@ -28,11 +28,22 @@ import {
   SubmitMaterialFindingDto,
 } from './production-finding.dto';
 import { ProductionFindingService } from './production-finding.service';
+import { ReplacementPickDto } from './production-finding.dto';
 
 @ApiTags('Production Findings')
 @Controller('production/findings')
 export class ProductionFindingController {
   constructor(private readonly service: ProductionFindingService) {}
+
+  @Post(':id/replacement-pick')
+  @Permission('IPCS.MATERIAL_NG_REVIEW')
+  replacementPick(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ReplacementPickDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.service.replacementPick(id, dto, user.username);
+  }
 
   @Public()
   @Throttle({ default: { limit: 30, ttl: 60000 } })

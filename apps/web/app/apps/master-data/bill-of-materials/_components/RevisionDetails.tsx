@@ -21,6 +21,7 @@ import {
   Tag,
 } from "antd";
 import {
+  CloudOutlined,
   CheckOutlined,
   CopyOutlined,
   ReloadOutlined,
@@ -42,6 +43,8 @@ import {
 import type { BomRevision } from "@/store/features/traceability/types";
 import { fetchMaterial } from "@/store/features/master/materialSlice";
 import { formatDateTime } from "@/lib/utils/dateTime";
+
+import SapBomModal from "./SapBomModal";
 
 type Line = { materialId: number; qty: number; label: string };
 type RevisionDetailsProps = {
@@ -67,6 +70,7 @@ export default function RevisionDetails({
   const { message } = App.useApp();
   const { can, actor } = usePhasePermission();
   const materials = useSelector((s: RootState) => s.material);
+  const [sapOpen, setSapOpen] = useState(false);
   const [revision, setRevision] = useState<BomRevision | null>(null);
   const [lines, setLines] = useState<Line[]>([]);
   const [reason, setReason] = useState("");
@@ -285,7 +289,17 @@ export default function RevisionDetails({
           enable={editable && !saving}
           onClick={() => setAction("cancel")}
         />
+        <ButtonToolbar
+          title="SAP BOM"
+          icon={<CloudOutlined />}
+          enable={!!revision && can("IPCS.BOM_REVISION_READ")}
+          onClick={() => setSapOpen(true)}
+        />
       </ToolbarWrapper>
+      <SapBomModal
+        finishGoodId={sapOpen && revision ? revision.FinishGoodId : null}
+        onClose={() => setSapOpen(false)}
+      />
       {error && <Alert type="error" title={error} />}
       {revision && (
         <>

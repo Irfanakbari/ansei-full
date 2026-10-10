@@ -25,6 +25,7 @@ describe('production flow prerequisites', () => {
     ProductionRelease: { Status: 'RELEASED' },
   };
   const mocks = {
+    productionFinding: { findFirst: jest.fn() },
     assemblySession: { findFirst: jest.fn() },
     labelData: { findUnique: jest.fn() },
     productionOrder: { findUnique: jest.fn() },
@@ -46,6 +47,13 @@ describe('production flow prerequisites', () => {
     ]);
     mocks.deliveryHistory.findUnique.mockResolvedValue(null);
     mocks.inventoryLedger.aggregate.mockResolvedValue({ _sum: { QtyIn: 201 } });
+  });
+  it('blocks open NG findings before downstream production or delivery', async () => {
+    mocks.productionFinding.findFirst.mockResolvedValue({ Id: 'finding' });
+    await expect(assertLabelReady(tx, 1, true)).rejects.toThrow(
+      'open NG finding',
+    );
+    expect(mocks.shopping.findMany).not.toHaveBeenCalled();
   });
 
   it('blocks assy labels even when shopping already has a full forecast result', async () => {

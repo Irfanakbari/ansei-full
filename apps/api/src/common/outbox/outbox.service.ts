@@ -58,11 +58,17 @@ export class OutboxService {
       completionEvidence:
         event.Status !== 'SUCCEEDED'
           ? 'NOT_COMPLETED'
-          : event.LastErrorCode === 'OUTBOX_TRANSPORT_ACCEPTED'
-            ? 'TRANSPORT_ACCEPTED'
-            : event.LastErrorCode === 'OUTBOX_MANUALLY_CONFIRMED'
-              ? 'MANUAL_CONFIRMATION'
-              : 'LEGACY_UNVERIFIED',
+          : ['SAP_MATERIAL_SYNCED', 'SAP_TRANSACTION_SYNCED'].includes(
+                event.LastErrorCode ?? '',
+              )
+            ? 'SAP_APPLIED'
+            : event.LastErrorCode === 'SAP_MATERIAL_SUPERSEDED'
+              ? 'SUPERSEDED'
+              : event.LastErrorCode === 'OUTBOX_TRANSPORT_ACCEPTED'
+                ? 'TRANSPORT_ACCEPTED'
+                : event.LastErrorCode === 'OUTBOX_MANUALLY_CONFIRMED'
+                  ? 'MANUAL_CONFIRMATION'
+                  : 'LEGACY_UNVERIFIED',
       attempts: event.Attempts,
       maxAttempts: event.MaxAttempts,
       nextAttemptAt: event.NextAttemptAt,
@@ -84,6 +90,7 @@ export class OutboxService {
     input: {
       idempotencyKey: string;
       type:
+        | 'SAP_MATERIAL_UPDATE'
         | 'PRINT_PART_TAG_ANSEI'
         | 'DELIVERY_NOTE_EMAIL'
         | 'PALLET_CONNECTOR_HISTORY'
@@ -225,6 +232,10 @@ export class OutboxService {
         await tx.$executeRaw`SELECT "Id" FROM "OutboxEvent" WHERE "Id"=${id} FOR UPDATE`;
         const event = await tx.outboxEvent.findUnique({ where: { Id: id } });
         if (!event) throw new NotFoundException('Integration event not found');
+        if (event.Type === 'SAP_TRANSACTION')
+          throw new ConflictException(
+            'Use SAP Connection for evidence-based transaction recovery. Manual confirmation cannot mark SAP stock as synchronized.',
+          );
         if (
           event.Status !== 'FAILED' ||
           event.Attempts !== dto.expectedAttempts ||

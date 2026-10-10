@@ -1,3 +1,5 @@
+import { decorateSapOperations } from '../../common/sap/sap-operation-status';
+import { createSapLedger } from '../../common/sap/sap-transaction-capture';
 import { auditedTransaction } from '../../common/helpers/audited-transaction.helper';
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-18 */
 import {
@@ -188,7 +190,11 @@ export class AssemblyService {
       this.prisma.assemblySession.count({ where }),
     ]);
     return {
-      data,
+      data: await decorateSapOperations(
+        this.prisma,
+        data,
+        (row) => `ASSY-${row.Id}`,
+      ),
       meta: {
         page,
         limit,
@@ -412,23 +418,27 @@ export class AssemblyService {
       });
       const before = (stock._sum.QtyIn ?? 0) - (stock._sum.QtyOut ?? 0);
       const after = before + label.QtyThisBox;
-      await tx.inventoryLedger.create({
-        data: {
-          Id: randomUUID(),
-          TransactionDate: new Date(),
-          ItemCategory: 'FINISH_GOOD',
-          FinishGoodId: label.FinishGoodId,
-          Location: 'FINISH_GOOD_AREA',
-          TransactionType: 'PRODUCTION_RESULT',
-          ReferenceDoc: `ASSY-${id}`,
-          BalanceBefore: before,
-          QtyIn: label.QtyThisBox,
-          QtyOut: 0,
-          BalanceAfter: after,
-          CreatedBy: actor,
-          Notes: 'Assembly box completion',
+      await createSapLedger(
+        tx,
+        {
+          data: {
+            Id: randomUUID(),
+            TransactionDate: new Date(),
+            ItemCategory: 'FINISH_GOOD',
+            FinishGoodId: label.FinishGoodId,
+            Location: 'FINISH_GOOD_AREA',
+            TransactionType: 'PRODUCTION_RESULT',
+            ReferenceDoc: `ASSY-${id}`,
+            BalanceBefore: before,
+            QtyIn: label.QtyThisBox,
+            QtyOut: 0,
+            BalanceAfter: after,
+            CreatedBy: actor,
+            Notes: 'Assembly box completion',
+          },
         },
-      });
+        label.ProductionDemandId,
+      );
       await tx.finishGood.update({
         where: { PartNumber: label.FinishGoodId },
         data: { Qty: after, UpdatedBy: actor },

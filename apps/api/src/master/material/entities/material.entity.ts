@@ -13,6 +13,34 @@ export class SatuanDataEntity {
 }
 
 export class MaterialEntity {
+  @ApiPropertyOptional({
+    enum: ['PENDING', 'SYNCED', 'FAILED', 'NOT_REQUESTED', 'DISABLED'],
+    description:
+      'Delivery status of the latest current material edit to SAP, separate from item existence',
+  })
+  SAPUpdateStatus?: string;
+  @ApiPropertyOptional({ type: String, nullable: true })
+  SAPUpdateCheckedAt?: string | null;
+
+  @ApiPropertyOptional({
+    enum: ['SYNCED', 'NOT_FOUND', 'UNKNOWN'],
+    description:
+      'GET only: existence in configured SAP item group; UNKNOWN when unavailable',
+  })
+  SAPSyncStatus?: 'SYNCED' | 'NOT_FOUND' | 'UNKNOWN';
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Last complete SAP snapshot timestamp',
+  })
+  SAPSyncCheckedAt?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Snapshot is older than the refresh interval',
+  })
+  SAPSyncStale?: boolean;
+
   @ApiProperty({ description: 'ID material', example: 1 })
   Id: number;
 

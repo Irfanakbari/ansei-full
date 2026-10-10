@@ -1,3 +1,4 @@
+import { decorateSapForecastDocuments } from '../../common/sap/sap-document-summary';
 import {
   auditedTransaction,
   auditedWrite,
@@ -140,7 +141,7 @@ export class ForecastService {
       }),
     ]);
     return {
-      data,
+      data: await decorateSapForecastDocuments(this.prisma, data),
       meta: {
         page,
         limit,
@@ -211,7 +212,7 @@ export class ForecastService {
       }),
     ]);
     return {
-      data,
+      data: await decorateSapForecastDocuments(this.prisma, data),
       meta: {
         page,
         limit,
@@ -261,7 +262,7 @@ export class ForecastService {
       throw new NotFoundException(`Forecast with id ${id} not found`);
     }
 
-    return forecast;
+    return (await decorateSapForecastDocuments(this.prisma, [forecast]))[0];
   }
 
   async create(dto: CreateForecastDto, createdBy: string) {

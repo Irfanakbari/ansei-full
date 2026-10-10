@@ -27,16 +27,20 @@ export type AggregateProductionFinding = {
 }
 
 export type ProductionFindingAvgAggregateOutputType = {
+  ReplacementLabelId: number | null
   Qty: number | null
   LabelId: number | null
 }
 
 export type ProductionFindingSumAggregateOutputType = {
+  ReplacementLabelId: number | null
   Qty: number | null
   LabelId: number | null
 }
 
 export type ProductionFindingMinAggregateOutputType = {
+  Disposition: string | null
+  ReplacementLabelId: number | null
   LegacyPoId: string | null
   Id: string | null
   RecordNumber: string | null
@@ -64,6 +68,8 @@ export type ProductionFindingMinAggregateOutputType = {
 }
 
 export type ProductionFindingMaxAggregateOutputType = {
+  Disposition: string | null
+  ReplacementLabelId: number | null
   LegacyPoId: string | null
   Id: string | null
   RecordNumber: string | null
@@ -91,6 +97,8 @@ export type ProductionFindingMaxAggregateOutputType = {
 }
 
 export type ProductionFindingCountAggregateOutputType = {
+  Disposition: number
+  ReplacementLabelId: number
   LegacyPoId: number
   Id: number
   RecordNumber: number
@@ -120,16 +128,20 @@ export type ProductionFindingCountAggregateOutputType = {
 
 
 export type ProductionFindingAvgAggregateInputType = {
+  ReplacementLabelId?: true
   Qty?: true
   LabelId?: true
 }
 
 export type ProductionFindingSumAggregateInputType = {
+  ReplacementLabelId?: true
   Qty?: true
   LabelId?: true
 }
 
 export type ProductionFindingMinAggregateInputType = {
+  Disposition?: true
+  ReplacementLabelId?: true
   LegacyPoId?: true
   Id?: true
   RecordNumber?: true
@@ -157,6 +169,8 @@ export type ProductionFindingMinAggregateInputType = {
 }
 
 export type ProductionFindingMaxAggregateInputType = {
+  Disposition?: true
+  ReplacementLabelId?: true
   LegacyPoId?: true
   Id?: true
   RecordNumber?: true
@@ -184,6 +198,8 @@ export type ProductionFindingMaxAggregateInputType = {
 }
 
 export type ProductionFindingCountAggregateInputType = {
+  Disposition?: true
+  ReplacementLabelId?: true
   LegacyPoId?: true
   Id?: true
   RecordNumber?: true
@@ -298,6 +314,8 @@ export type ProductionFindingGroupByArgs<ExtArgs extends runtime.Types.Extension
 }
 
 export type ProductionFindingGroupByOutputType = {
+  Disposition: string
+  ReplacementLabelId: number | null
   LegacyPoId: string | null
   Id: string
   RecordNumber: string
@@ -348,6 +366,8 @@ export type ProductionFindingWhereInput = {
   AND?: Prisma.ProductionFindingWhereInput | Prisma.ProductionFindingWhereInput[]
   OR?: Prisma.ProductionFindingWhereInput[]
   NOT?: Prisma.ProductionFindingWhereInput | Prisma.ProductionFindingWhereInput[]
+  Disposition?: Prisma.StringFilter<"ProductionFinding"> | string
+  ReplacementLabelId?: Prisma.IntNullableFilter<"ProductionFinding"> | number | null
   LegacyPoId?: Prisma.StringNullableFilter<"ProductionFinding"> | string | null
   Id?: Prisma.StringFilter<"ProductionFinding"> | string
   RecordNumber?: Prisma.StringFilter<"ProductionFinding"> | string
@@ -385,6 +405,8 @@ export type ProductionFindingWhereInput = {
 }
 
 export type ProductionFindingOrderByWithRelationInput = {
+  Disposition?: Prisma.SortOrder
+  ReplacementLabelId?: Prisma.SortOrderInput | Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
   RecordNumber?: Prisma.SortOrder
@@ -427,6 +449,8 @@ export type ProductionFindingWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ProductionFindingWhereInput | Prisma.ProductionFindingWhereInput[]
   OR?: Prisma.ProductionFindingWhereInput[]
   NOT?: Prisma.ProductionFindingWhereInput | Prisma.ProductionFindingWhereInput[]
+  Disposition?: Prisma.StringFilter<"ProductionFinding"> | string
+  ReplacementLabelId?: Prisma.IntNullableFilter<"ProductionFinding"> | number | null
   LegacyPoId?: Prisma.StringNullableFilter<"ProductionFinding"> | string | null
   Category?: Prisma.EnumProductionFindingCategoryFilter<"ProductionFinding"> | $Enums.ProductionFindingCategory
   Status?: Prisma.EnumProductionFindingStatusFilter<"ProductionFinding"> | $Enums.ProductionFindingStatus
@@ -462,6 +486,8 @@ export type ProductionFindingWhereUniqueInput = Prisma.AtLeast<{
 }, "Id" | "RecordNumber">
 
 export type ProductionFindingOrderByWithAggregationInput = {
+  Disposition?: Prisma.SortOrder
+  ReplacementLabelId?: Prisma.SortOrderInput | Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   Id?: Prisma.SortOrder
   RecordNumber?: Prisma.SortOrder
@@ -497,6 +523,8 @@ export type ProductionFindingScalarWhereWithAggregatesInput = {
   AND?: Prisma.ProductionFindingScalarWhereWithAggregatesInput | Prisma.ProductionFindingScalarWhereWithAggregatesInput[]
   OR?: Prisma.ProductionFindingScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ProductionFindingScalarWhereWithAggregatesInput | Prisma.ProductionFindingScalarWhereWithAggregatesInput[]
+  Disposition?: Prisma.StringWithAggregatesFilter<"ProductionFinding"> | string
+  ReplacementLabelId?: Prisma.IntNullableWithAggregatesFilter<"ProductionFinding"> | number | null
   LegacyPoId?: Prisma.StringNullableWithAggregatesFilter<"ProductionFinding"> | string | null
   Id?: Prisma.StringWithAggregatesFilter<"ProductionFinding"> | string
   RecordNumber?: Prisma.StringWithAggregatesFilter<"ProductionFinding"> | string
@@ -524,6 +552,8 @@ export type ProductionFindingScalarWhereWithAggregatesInput = {
 }
 
 export type ProductionFindingCreateInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -555,6 +585,8 @@ export type ProductionFindingCreateInput = {
 }
 
 export type ProductionFindingUncheckedCreateInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -585,6 +617,8 @@ export type ProductionFindingUncheckedCreateInput = {
 }
 
 export type ProductionFindingUpdateInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -616,6 +650,8 @@ export type ProductionFindingUpdateInput = {
 }
 
 export type ProductionFindingUncheckedUpdateInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -646,6 +682,8 @@ export type ProductionFindingUncheckedUpdateInput = {
 }
 
 export type ProductionFindingCreateManyInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -673,6 +711,8 @@ export type ProductionFindingCreateManyInput = {
 }
 
 export type ProductionFindingUpdateManyMutationInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -694,6 +734,8 @@ export type ProductionFindingUpdateManyMutationInput = {
 }
 
 export type ProductionFindingUncheckedUpdateManyInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -731,6 +773,8 @@ export type ProductionFindingOrderByRelationAggregateInput = {
 }
 
 export type ProductionFindingCountOrderByAggregateInput = {
+  Disposition?: Prisma.SortOrder
+  ReplacementLabelId?: Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   RecordNumber?: Prisma.SortOrder
@@ -758,11 +802,14 @@ export type ProductionFindingCountOrderByAggregateInput = {
 }
 
 export type ProductionFindingAvgOrderByAggregateInput = {
+  ReplacementLabelId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   LabelId?: Prisma.SortOrder
 }
 
 export type ProductionFindingMaxOrderByAggregateInput = {
+  Disposition?: Prisma.SortOrder
+  ReplacementLabelId?: Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   RecordNumber?: Prisma.SortOrder
@@ -790,6 +837,8 @@ export type ProductionFindingMaxOrderByAggregateInput = {
 }
 
 export type ProductionFindingMinOrderByAggregateInput = {
+  Disposition?: Prisma.SortOrder
+  ReplacementLabelId?: Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   RecordNumber?: Prisma.SortOrder
@@ -817,6 +866,7 @@ export type ProductionFindingMinOrderByAggregateInput = {
 }
 
 export type ProductionFindingSumOrderByAggregateInput = {
+  ReplacementLabelId?: Prisma.SortOrder
   Qty?: Prisma.SortOrder
   LabelId?: Prisma.SortOrder
 }
@@ -1133,6 +1183,8 @@ export type ProductionFindingUncheckedUpdateManyWithoutDemandNestedInput = {
 }
 
 export type ProductionFindingCreateWithoutMaterialInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -1163,6 +1215,8 @@ export type ProductionFindingCreateWithoutMaterialInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutMaterialInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -1221,6 +1275,8 @@ export type ProductionFindingScalarWhereInput = {
   AND?: Prisma.ProductionFindingScalarWhereInput | Prisma.ProductionFindingScalarWhereInput[]
   OR?: Prisma.ProductionFindingScalarWhereInput[]
   NOT?: Prisma.ProductionFindingScalarWhereInput | Prisma.ProductionFindingScalarWhereInput[]
+  Disposition?: Prisma.StringFilter<"ProductionFinding"> | string
+  ReplacementLabelId?: Prisma.IntNullableFilter<"ProductionFinding"> | number | null
   LegacyPoId?: Prisma.StringNullableFilter<"ProductionFinding"> | string | null
   Id?: Prisma.StringFilter<"ProductionFinding"> | string
   RecordNumber?: Prisma.StringFilter<"ProductionFinding"> | string
@@ -1248,6 +1304,8 @@ export type ProductionFindingScalarWhereInput = {
 }
 
 export type ProductionFindingCreateWithoutLegacyForecastInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -1278,6 +1336,8 @@ export type ProductionFindingCreateWithoutLegacyForecastInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutLegacyForecastInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -1333,6 +1393,8 @@ export type ProductionFindingUpdateManyWithWhereWithoutLegacyForecastInput = {
 }
 
 export type ProductionFindingCreateWithoutReleaseInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -1363,6 +1425,8 @@ export type ProductionFindingCreateWithoutReleaseInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutReleaseInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -1418,6 +1482,8 @@ export type ProductionFindingUpdateManyWithWhereWithoutReleaseInput = {
 }
 
 export type ProductionFindingCreateWithoutLabelInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -1448,6 +1514,8 @@ export type ProductionFindingCreateWithoutLabelInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutLabelInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -1503,6 +1571,8 @@ export type ProductionFindingUpdateManyWithWhereWithoutLabelInput = {
 }
 
 export type ProductionFindingCreateWithoutSnapshotInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -1533,6 +1603,8 @@ export type ProductionFindingCreateWithoutSnapshotInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutSnapshotInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -1588,6 +1660,8 @@ export type ProductionFindingUpdateManyWithWhereWithoutSnapshotInput = {
 }
 
 export type ProductionFindingCreateWithoutComponentsInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -1618,6 +1692,8 @@ export type ProductionFindingCreateWithoutComponentsInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutComponentsInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -1663,6 +1739,8 @@ export type ProductionFindingUpdateToOneWithWhereWithoutComponentsInput = {
 }
 
 export type ProductionFindingUpdateWithoutComponentsInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -1693,6 +1771,8 @@ export type ProductionFindingUpdateWithoutComponentsInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutComponentsInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1722,6 +1802,8 @@ export type ProductionFindingUncheckedUpdateWithoutComponentsInput = {
 }
 
 export type ProductionFindingCreateWithoutAllocationsInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -1752,6 +1834,8 @@ export type ProductionFindingCreateWithoutAllocationsInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutAllocationsInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -1797,6 +1881,8 @@ export type ProductionFindingUpdateToOneWithWhereWithoutAllocationsInput = {
 }
 
 export type ProductionFindingUpdateWithoutAllocationsInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -1827,6 +1913,8 @@ export type ProductionFindingUpdateWithoutAllocationsInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutAllocationsInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1856,6 +1944,8 @@ export type ProductionFindingUncheckedUpdateWithoutAllocationsInput = {
 }
 
 export type ProductionFindingCreateWithoutEventsInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -1886,6 +1976,8 @@ export type ProductionFindingCreateWithoutEventsInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutEventsInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -1931,6 +2023,8 @@ export type ProductionFindingUpdateToOneWithWhereWithoutEventsInput = {
 }
 
 export type ProductionFindingUpdateWithoutEventsInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -1961,6 +2055,8 @@ export type ProductionFindingUpdateWithoutEventsInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutEventsInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1990,6 +2086,8 @@ export type ProductionFindingUncheckedUpdateWithoutEventsInput = {
 }
 
 export type ProductionFindingCreateWithoutDemandInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -2020,6 +2118,8 @@ export type ProductionFindingCreateWithoutDemandInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutDemandInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -2075,6 +2175,8 @@ export type ProductionFindingUpdateManyWithWhereWithoutDemandInput = {
 }
 
 export type ProductionFindingCreateManyMaterialInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -2101,6 +2203,8 @@ export type ProductionFindingCreateManyMaterialInput = {
 }
 
 export type ProductionFindingUpdateWithoutMaterialInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -2131,6 +2235,8 @@ export type ProductionFindingUpdateWithoutMaterialInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutMaterialInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2160,6 +2266,8 @@ export type ProductionFindingUncheckedUpdateWithoutMaterialInput = {
 }
 
 export type ProductionFindingUncheckedUpdateManyWithoutMaterialInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2186,6 +2294,8 @@ export type ProductionFindingUncheckedUpdateManyWithoutMaterialInput = {
 }
 
 export type ProductionFindingCreateManyLegacyForecastInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -2212,6 +2322,8 @@ export type ProductionFindingCreateManyLegacyForecastInput = {
 }
 
 export type ProductionFindingUpdateWithoutLegacyForecastInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -2242,6 +2354,8 @@ export type ProductionFindingUpdateWithoutLegacyForecastInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutLegacyForecastInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -2271,6 +2385,8 @@ export type ProductionFindingUncheckedUpdateWithoutLegacyForecastInput = {
 }
 
 export type ProductionFindingUncheckedUpdateManyWithoutLegacyForecastInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -2297,6 +2413,8 @@ export type ProductionFindingUncheckedUpdateManyWithoutLegacyForecastInput = {
 }
 
 export type ProductionFindingCreateManyReleaseInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -2323,6 +2441,8 @@ export type ProductionFindingCreateManyReleaseInput = {
 }
 
 export type ProductionFindingUpdateWithoutReleaseInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -2353,6 +2473,8 @@ export type ProductionFindingUpdateWithoutReleaseInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutReleaseInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2382,6 +2504,8 @@ export type ProductionFindingUncheckedUpdateWithoutReleaseInput = {
 }
 
 export type ProductionFindingUncheckedUpdateManyWithoutReleaseInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2436,6 +2560,8 @@ export type ProductionFindingUncheckedUpdateManyWithoutForecastNestedInput = {
 }
 
 export type ProductionFindingCreateManyLabelInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -2462,6 +2588,8 @@ export type ProductionFindingCreateManyLabelInput = {
 }
 
 export type ProductionFindingUpdateWithoutLabelInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -2492,6 +2620,8 @@ export type ProductionFindingUpdateWithoutLabelInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutLabelInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2521,6 +2651,8 @@ export type ProductionFindingUncheckedUpdateWithoutLabelInput = {
 }
 
 export type ProductionFindingUncheckedUpdateManyWithoutLabelInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2547,6 +2679,8 @@ export type ProductionFindingUncheckedUpdateManyWithoutLabelInput = {
 }
 
 export type ProductionFindingCreateManySnapshotInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -2573,6 +2707,8 @@ export type ProductionFindingCreateManySnapshotInput = {
 }
 
 export type ProductionFindingUpdateWithoutSnapshotInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -2603,6 +2739,8 @@ export type ProductionFindingUpdateWithoutSnapshotInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutSnapshotInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2632,6 +2770,8 @@ export type ProductionFindingUncheckedUpdateWithoutSnapshotInput = {
 }
 
 export type ProductionFindingUncheckedUpdateManyWithoutSnapshotInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2658,6 +2798,8 @@ export type ProductionFindingUncheckedUpdateManyWithoutSnapshotInput = {
 }
 
 export type ProductionFindingCreateManyDemandInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -2684,6 +2826,8 @@ export type ProductionFindingCreateManyDemandInput = {
 }
 
 export type ProductionFindingUpdateWithoutDemandInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -2714,6 +2858,8 @@ export type ProductionFindingUpdateWithoutDemandInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutDemandInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2743,6 +2889,8 @@ export type ProductionFindingUncheckedUpdateWithoutDemandInput = {
 }
 
 export type ProductionFindingUncheckedUpdateManyWithoutDemandInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2769,6 +2917,8 @@ export type ProductionFindingUncheckedUpdateManyWithoutDemandInput = {
 }
 
 export type ProductionFindingCreateWithoutForecastInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   Id?: string
   RecordNumber: string
   Category: $Enums.ProductionFindingCategory
@@ -2799,6 +2949,8 @@ export type ProductionFindingCreateWithoutForecastInput = {
 }
 
 export type ProductionFindingUncheckedCreateWithoutForecastInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -2854,6 +3006,8 @@ export type ProductionFindingUpdateManyWithWhereWithoutForecastInput = {
 }
 
 export type ProductionFindingUpdateWithoutForecastInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Category?: Prisma.EnumProductionFindingCategoryFieldUpdateOperationsInput | $Enums.ProductionFindingCategory
@@ -2884,6 +3038,8 @@ export type ProductionFindingUpdateWithoutForecastInput = {
 }
 
 export type ProductionFindingUncheckedUpdateWithoutForecastInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2913,6 +3069,8 @@ export type ProductionFindingUncheckedUpdateWithoutForecastInput = {
 }
 
 export type ProductionFindingCreateManyForecastInput = {
+  Disposition?: string
+  ReplacementLabelId?: number | null
   LegacyPoId?: string | null
   Id?: string
   RecordNumber: string
@@ -2939,6 +3097,8 @@ export type ProductionFindingCreateManyForecastInput = {
 }
 
 export type ProductionFindingUncheckedUpdateManyWithoutForecastInput = {
+  Disposition?: Prisma.StringFieldUpdateOperationsInput | string
+  ReplacementLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   RecordNumber?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3014,6 +3174,8 @@ export type ProductionFindingCountOutputTypeCountEventsArgs<ExtArgs extends runt
 
 
 export type ProductionFindingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  Disposition?: boolean
+  ReplacementLabelId?: boolean
   LegacyPoId?: boolean
   Id?: boolean
   RecordNumber?: boolean
@@ -3052,6 +3214,8 @@ export type ProductionFindingSelect<ExtArgs extends runtime.Types.Extensions.Int
 }, ExtArgs["result"]["productionFinding"]>
 
 export type ProductionFindingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  Disposition?: boolean
+  ReplacementLabelId?: boolean
   LegacyPoId?: boolean
   Id?: boolean
   RecordNumber?: boolean
@@ -3086,6 +3250,8 @@ export type ProductionFindingSelectCreateManyAndReturn<ExtArgs extends runtime.T
 }, ExtArgs["result"]["productionFinding"]>
 
 export type ProductionFindingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
+  Disposition?: boolean
+  ReplacementLabelId?: boolean
   LegacyPoId?: boolean
   Id?: boolean
   RecordNumber?: boolean
@@ -3120,6 +3286,8 @@ export type ProductionFindingSelectUpdateManyAndReturn<ExtArgs extends runtime.T
 }, ExtArgs["result"]["productionFinding"]>
 
 export type ProductionFindingSelectScalar = {
+  Disposition?: boolean
+  ReplacementLabelId?: boolean
   LegacyPoId?: boolean
   Id?: boolean
   RecordNumber?: boolean
@@ -3146,7 +3314,7 @@ export type ProductionFindingSelectScalar = {
   DeletedBy?: boolean
 }
 
-export type ProductionFindingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"LegacyPoId" | "Id" | "RecordNumber" | "Category" | "Status" | "Location" | "MaterialId" | "Qty" | "Reason" | "Reporter" | "SubmittedAt" | "ProductionDemandId" | "ReleaseId" | "SnapshotId" | "LabelId" | "ReviewedBy" | "ReviewedAt" | "ReviewNote" | "CompletedBy" | "CompletedAt" | "CreatedAt" | "UpdatedAt" | "DeletedAt" | "DeletedBy", ExtArgs["result"]["productionFinding"]>
+export type ProductionFindingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Disposition" | "ReplacementLabelId" | "LegacyPoId" | "Id" | "RecordNumber" | "Category" | "Status" | "Location" | "MaterialId" | "Qty" | "Reason" | "Reporter" | "SubmittedAt" | "ProductionDemandId" | "ReleaseId" | "SnapshotId" | "LabelId" | "ReviewedBy" | "ReviewedAt" | "ReviewNote" | "CompletedBy" | "CompletedAt" | "CreatedAt" | "UpdatedAt" | "DeletedAt" | "DeletedBy", ExtArgs["result"]["productionFinding"]>
 export type ProductionFindingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   LegacyForecast?: boolean | Prisma.ProductionFinding$LegacyForecastArgs<ExtArgs>
   Demand?: boolean | Prisma.ProductionFinding$DemandArgs<ExtArgs>
@@ -3194,6 +3362,8 @@ export type $ProductionFindingPayload<ExtArgs extends runtime.Types.Extensions.I
     Events: Prisma.$ProductionFindingEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    Disposition: string
+    ReplacementLabelId: number | null
     LegacyPoId: string | null
     Id: string
     RecordNumber: string
@@ -3301,8 +3471,8 @@ export interface ProductionFindingDelegate<ExtArgs extends runtime.Types.Extensi
    * // Get first 10 ProductionFindings
    * const productionFindings = await prisma.productionFinding.findMany({ take: 10 })
    * 
-   * // Only select the `LegacyPoId`
-   * const productionFindingWithLegacyPoIdOnly = await prisma.productionFinding.findMany({ select: { LegacyPoId: true } })
+   * // Only select the `Disposition`
+   * const productionFindingWithDispositionOnly = await prisma.productionFinding.findMany({ select: { Disposition: true } })
    * 
    */
   findMany<T extends ProductionFindingFindManyArgs>(args?: Prisma.SelectSubset<T, ProductionFindingFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionFindingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -3346,9 +3516,9 @@ export interface ProductionFindingDelegate<ExtArgs extends runtime.Types.Extensi
    *   ]
    * })
    * 
-   * // Create many ProductionFindings and only return the `LegacyPoId`
-   * const productionFindingWithLegacyPoIdOnly = await prisma.productionFinding.createManyAndReturn({
-   *   select: { LegacyPoId: true },
+   * // Create many ProductionFindings and only return the `Disposition`
+   * const productionFindingWithDispositionOnly = await prisma.productionFinding.createManyAndReturn({
+   *   select: { Disposition: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -3437,9 +3607,9 @@ export interface ProductionFindingDelegate<ExtArgs extends runtime.Types.Extensi
    *   ]
    * })
    * 
-   * // Update zero or more ProductionFindings and only return the `LegacyPoId`
-   * const productionFindingWithLegacyPoIdOnly = await prisma.productionFinding.updateManyAndReturn({
-   *   select: { LegacyPoId: true },
+   * // Update zero or more ProductionFindings and only return the `Disposition`
+   * const productionFindingWithDispositionOnly = await prisma.productionFinding.updateManyAndReturn({
+   *   select: { Disposition: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -3651,6 +3821,8 @@ export interface Prisma__ProductionFindingClient<T, Null = never, ExtArgs extend
  * Fields of the ProductionFinding model
  */
 export interface ProductionFindingFieldRefs {
+  readonly Disposition: Prisma.FieldRef<"ProductionFinding", 'String'>
+  readonly ReplacementLabelId: Prisma.FieldRef<"ProductionFinding", 'Int'>
   readonly LegacyPoId: Prisma.FieldRef<"ProductionFinding", 'String'>
   readonly Id: Prisma.FieldRef<"ProductionFinding", 'String'>
   readonly RecordNumber: Prisma.FieldRef<"ProductionFinding", 'String'>

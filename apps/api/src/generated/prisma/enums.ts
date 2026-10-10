@@ -20,6 +20,7 @@ export type LocationType = (typeof LocationType)[keyof typeof LocationType]
 
 
 export const TransactionType = {
+  CUSTOMER_RETURN: 'CUSTOMER_RETURN',
   INCOMING_SUPPLIER: 'INCOMING_SUPPLIER',
   TRANSFER_TO_RACK: 'TRANSFER_TO_RACK',
   PRODUCTION_USAGE: 'PRODUCTION_USAGE',
@@ -85,6 +86,8 @@ export type NotificationType = (typeof NotificationType)[keyof typeof Notificati
 
 
 export const OutboxEventType = {
+  SAP_TRANSACTION: 'SAP_TRANSACTION',
+  SAP_MATERIAL_UPDATE: 'SAP_MATERIAL_UPDATE',
   PRINT_PART_TAG_ANSEI: 'PRINT_PART_TAG_ANSEI',
   DELIVERY_NOTE_EMAIL: 'DELIVERY_NOTE_EMAIL',
   PALLET_CONNECTOR_HISTORY: 'PALLET_CONNECTOR_HISTORY',

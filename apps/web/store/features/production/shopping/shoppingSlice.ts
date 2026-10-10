@@ -36,6 +36,7 @@ export interface ForecastData {
 
 // Shopping entity interface
 export interface ShoppingEntity {
+  SAPIntegration?: import("@/components/SapStatusTag").SapOperationStatus;
   Purpose: string;
   Id: string;
   ProductionDemandId: string;

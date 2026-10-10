@@ -30,6 +30,10 @@ describe('ProductionReleaseService', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     prismaService = {
+      sapTransaction: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
       material: { findMany: jest.fn().mockResolvedValue([]) },
       productionTraceEvent: { createMany: jest.fn() },
       $executeRaw: jest.fn(),
@@ -341,6 +345,7 @@ describe('ProductionReleaseService', () => {
   describe('findOne', () => {
     it('should return a release by id', async () => {
       const mockRelease = {
+        Forecasts: [],
         Id: 'rel-1',
         ReleaseNumber: 'PR-001',
         Status: 'RELEASED',
@@ -373,6 +378,7 @@ describe('ProductionReleaseService', () => {
       const mockRelease = {
         Id: 'rel-1',
         ReleaseNumber: 'PR-2026-001',
+        Forecasts: [],
         Status: ProductionStatus.DRAFT,
         IsNoAttachment: true,
       };
@@ -445,6 +451,7 @@ describe('ProductionReleaseService', () => {
       });
       prismaService.productionRelease.findUnique.mockResolvedValue({
         ReleaseNumber: 'PR-20260921-010',
+        Forecasts: [],
       });
 
       await service.create(createDto, 'testuser');
@@ -493,6 +500,7 @@ describe('ProductionReleaseService', () => {
 
   describe('update', () => {
     const existingRelease = {
+      Forecasts: [],
       Id: 'rel-1',
       ReleaseNumber: 'PR-001',
       Status: ProductionStatus.DRAFT,
@@ -1119,6 +1127,7 @@ describe('ProductionReleaseService', () => {
 
   describe('forecast amendments', () => {
     const released = {
+      Forecasts: [],
       Id: 'rel-1',
       ReleaseNumber: 'PR-001',
       Status: ProductionStatus.RELEASED,

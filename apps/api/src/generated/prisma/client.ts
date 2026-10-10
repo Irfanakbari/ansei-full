@@ -150,6 +150,36 @@ export type ShoppingCompletion = Prisma.ShoppingCompletionModel
  */
 export type OutboxEvent = Prisma.OutboxEventModel
 /**
+ * Model SapTransaction
+ * 
+ */
+export type SapTransaction = Prisma.SapTransactionModel
+/**
+ * Model SapDemandMapping
+ * 
+ */
+export type SapDemandMapping = Prisma.SapDemandMappingModel
+/**
+ * Model SapBackflushPick
+ * 
+ */
+export type SapBackflushPick = Prisma.SapBackflushPickModel
+/**
+ * Model SapStockSnapshot
+ * 
+ */
+export type SapStockSnapshot = Prisma.SapStockSnapshotModel
+/**
+ * Model SapConnectionState
+ * 
+ */
+export type SapConnectionState = Prisma.SapConnectionStateModel
+/**
+ * Model SapExternalDocument
+ * 
+ */
+export type SapExternalDocument = Prisma.SapExternalDocumentModel
+/**
  * Model ProductionReport
  * 
  */
@@ -314,6 +344,11 @@ export type BusinessCommand = Prisma.BusinessCommandModel
  * 
  */
 export type ProductionFinding = Prisma.ProductionFindingModel
+/**
+ * Model CustomerReturn
+ * 
+ */
+export type CustomerReturn = Prisma.CustomerReturnModel
 /**
  * Model ProductionFindingComponent
  * 

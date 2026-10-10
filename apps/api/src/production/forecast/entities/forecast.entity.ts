@@ -1,3 +1,4 @@
+import { SapDocumentSummary } from '../../../common/sap/sap-document-summary';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
@@ -15,6 +16,8 @@ export class PartDataEntity {
  * Forecast Entity - Forecast response format
  */
 export class ForecastEntity {
+  @ApiPropertyOptional({ type: [SapDocumentSummary] })
+  SAPDocuments?: SapDocumentSummary[];
   @ApiProperty({ description: 'ID forecast', example: 1 })
   Id: number;
 

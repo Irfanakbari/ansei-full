@@ -31,7 +31,16 @@ export interface InventoryCountingPackageEmailPayload {
   message?: string;
 }
 
+export interface SapMaterialUpdatePayload {
+  materialId: number;
+  itemCode: string;
+  partName: string;
+  minimumStock: number;
+  maximumStock: number;
+}
+
 export type OutboxPayload =
+  | SapMaterialUpdatePayload
   | PartTagAnseiPayload
   | DeliveryNoteEmailPayload
   | PalletConnectorHistoryPayload
@@ -51,7 +60,9 @@ export interface SafeOutboxEvent {
     | 'NOT_COMPLETED'
     | 'TRANSPORT_ACCEPTED'
     | 'MANUAL_CONFIRMATION'
-    | 'LEGACY_UNVERIFIED';
+    | 'LEGACY_UNVERIFIED'
+    | 'SAP_APPLIED'
+    | 'SUPERSEDED';
   attempts: number;
   maxAttempts: number;
   nextAttemptAt: Date;

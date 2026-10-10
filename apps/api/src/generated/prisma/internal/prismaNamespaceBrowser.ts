@@ -73,6 +73,12 @@ export const ModelName = {
   Shopping: 'Shopping',
   ShoppingCompletion: 'ShoppingCompletion',
   OutboxEvent: 'OutboxEvent',
+  SapTransaction: 'SapTransaction',
+  SapDemandMapping: 'SapDemandMapping',
+  SapBackflushPick: 'SapBackflushPick',
+  SapStockSnapshot: 'SapStockSnapshot',
+  SapConnectionState: 'SapConnectionState',
+  SapExternalDocument: 'SapExternalDocument',
   ProductionReport: 'ProductionReport',
   LabelData: 'LabelData',
   AssemblySession: 'AssemblySession',
@@ -106,6 +112,7 @@ export const ModelName = {
   ProductionBomSnapshotLine: 'ProductionBomSnapshotLine',
   BusinessCommand: 'BusinessCommand',
   ProductionFinding: 'ProductionFinding',
+  CustomerReturn: 'CustomerReturn',
   ProductionFindingComponent: 'ProductionFindingComponent',
   ProductionFindingAllocation: 'ProductionFindingAllocation',
   ProductionFindingEvent: 'ProductionFindingEvent',
@@ -493,6 +500,95 @@ export const OutboxEventScalarFieldEnum = {
 export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[keyof typeof OutboxEventScalarFieldEnum]
 
 
+export const SapTransactionScalarFieldEnum = {
+  Id: 'Id',
+  SourceKey: 'SourceKey',
+  LedgerId: 'LedgerId',
+  DemandId: 'DemandId',
+  Kind: 'Kind',
+  Company: 'Company',
+  Warehouse: 'Warehouse',
+  ItemCode: 'ItemCode',
+  Quantity: 'Quantity',
+  Snapshot: 'Snapshot',
+  SubmittedRequest: 'SubmittedRequest',
+  Effects: 'Effects',
+  DocumentEntry: 'DocumentEntry',
+  DocumentNumber: 'DocumentNumber',
+  PostedAt: 'PostedAt',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type SapTransactionScalarFieldEnum = (typeof SapTransactionScalarFieldEnum)[keyof typeof SapTransactionScalarFieldEnum]
+
+
+export const SapDemandMappingScalarFieldEnum = {
+  DemandId: 'DemandId',
+  Company: 'Company',
+  ItemCode: 'ItemCode',
+  SalesOrderEntry: 'SalesOrderEntry',
+  SalesOrderLine: 'SalesOrderLine',
+  AutoCreate: 'AutoCreate',
+  CardCode: 'CardCode',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
+} as const
+
+export type SapDemandMappingScalarFieldEnum = (typeof SapDemandMappingScalarFieldEnum)[keyof typeof SapDemandMappingScalarFieldEnum]
+
+
+export const SapBackflushPickScalarFieldEnum = {
+  LedgerId: 'LedgerId',
+  Company: 'Company',
+  Warehouse: 'Warehouse',
+  ItemCode: 'ItemCode',
+  DemandId: 'DemandId',
+  Quantity: 'Quantity',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type SapBackflushPickScalarFieldEnum = (typeof SapBackflushPickScalarFieldEnum)[keyof typeof SapBackflushPickScalarFieldEnum]
+
+
+export const SapStockSnapshotScalarFieldEnum = {
+  Company: 'Company',
+  Warehouse: 'Warehouse',
+  ItemCode: 'ItemCode',
+  Quantity: 'Quantity',
+  ObservedAt: 'ObservedAt',
+  StartedAt: 'StartedAt'
+} as const
+
+export type SapStockSnapshotScalarFieldEnum = (typeof SapStockSnapshotScalarFieldEnum)[keyof typeof SapStockSnapshotScalarFieldEnum]
+
+
+export const SapConnectionStateScalarFieldEnum = {
+  Company: 'Company',
+  IntegrationSettings: 'IntegrationSettings',
+  CheckedAt: 'CheckedAt',
+  Connected: 'Connected',
+  RefreshStartedAt: 'RefreshStartedAt',
+  RefreshedAt: 'RefreshedAt',
+  RefreshError: 'RefreshError',
+  WorkerAt: 'WorkerAt',
+  DocumentCursors: 'DocumentCursors'
+} as const
+
+export type SapConnectionStateScalarFieldEnum = (typeof SapConnectionStateScalarFieldEnum)[keyof typeof SapConnectionStateScalarFieldEnum]
+
+
+export const SapExternalDocumentScalarFieldEnum = {
+  Company: 'Company',
+  Resource: 'Resource',
+  DocumentEntry: 'DocumentEntry',
+  DocumentNumber: 'DocumentNumber',
+  Warehouse: 'Warehouse',
+  ObservedAt: 'ObservedAt'
+} as const
+
+export type SapExternalDocumentScalarFieldEnum = (typeof SapExternalDocumentScalarFieldEnum)[keyof typeof SapExternalDocumentScalarFieldEnum]
+
+
 export const ProductionReportScalarFieldEnum = {
   LegacyPoId: 'LegacyPoId',
   Id: 'Id',
@@ -534,6 +630,10 @@ export type ProductionReportScalarFieldEnum = (typeof ProductionReportScalarFiel
 
 
 export const LabelDataScalarFieldEnum = {
+  InvalidatedAt: 'InvalidatedAt',
+  StockSourceLabelId: 'StockSourceLabelId',
+  ReplacesLabelId: 'ReplacesLabelId',
+  ReplacementFindingId: 'ReplacementFindingId',
   LegacyPoId: 'LegacyPoId',
   RequiresAssembly: 'RequiresAssembly',
   Id: 'Id',
@@ -1015,6 +1115,8 @@ export type BusinessCommandScalarFieldEnum = (typeof BusinessCommandScalarFieldE
 
 
 export const ProductionFindingScalarFieldEnum = {
+  Disposition: 'Disposition',
+  ReplacementLabelId: 'ReplacementLabelId',
   LegacyPoId: 'LegacyPoId',
   Id: 'Id',
   RecordNumber: 'RecordNumber',
@@ -1042,6 +1144,19 @@ export const ProductionFindingScalarFieldEnum = {
 } as const
 
 export type ProductionFindingScalarFieldEnum = (typeof ProductionFindingScalarFieldEnum)[keyof typeof ProductionFindingScalarFieldEnum]
+
+
+export const CustomerReturnScalarFieldEnum = {
+  Id: 'Id',
+  DeliveryId: 'DeliveryId',
+  Quantity: 'Quantity',
+  ScrappedQuantity: 'ScrappedQuantity',
+  Reason: 'Reason',
+  CreatedBy: 'CreatedBy',
+  CreatedAt: 'CreatedAt'
+} as const
+
+export type CustomerReturnScalarFieldEnum = (typeof CustomerReturnScalarFieldEnum)[keyof typeof CustomerReturnScalarFieldEnum]
 
 
 export const ProductionFindingComponentScalarFieldEnum = {

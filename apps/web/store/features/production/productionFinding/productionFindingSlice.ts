@@ -1,6 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-29 */
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { commandIdentity } from "@/store/utils/commandIdentity";
 import { withBasePath } from "@/lib/base-path";
 import {
   del,
@@ -41,6 +42,8 @@ export interface FindingComponent {
 }
 
 export interface ProductionFinding {
+  Disposition?: string;
+  ReplacementLabelId?: number | null;
   Id: string;
   RecordNumber: string;
   Category: FindingCategory;
@@ -303,7 +306,12 @@ export const fetchFinding = createAsyncThunk<
   }
 });
 
-type FindingCommand = { id: string; requestId: string; note?: string };
+type FindingCommand = {
+  id: string;
+  requestId: string;
+  note?: string;
+  disposition?: "REWORK" | "SCRAP";
+};
 const command = (name: string, action: string) =>
   createAsyncThunk<ProductionFinding, FindingCommand, { rejectValue: string }>(
     `productionFindings/${name}`,
@@ -320,6 +328,30 @@ const command = (name: string, action: string) =>
       }
     },
   );
+export const pickFindingReplacement = createAsyncThunk<
+  ProductionFinding,
+  FindingCommand & { componentId: string; qty: number },
+  { rejectValue: string }
+>(
+  "productionFindings/replacementPick",
+  async ({ id, requestId: _requestId, ...body }, { rejectWithValue }) => {
+    void _requestId;
+    const path = "/production/findings/" + id + "/replacement-pick";
+    try {
+      const identity = await commandIdentity("POST", path, body);
+      const result = (
+        await post<ApiSuccessEnvelope<ProductionFinding>>(path, {
+          ...body,
+          requestId: identity.id,
+        })
+      ).data;
+      identity.complete();
+      return result;
+    } catch (error) {
+      return rejectWithValue(getApiErrorMessage(error));
+    }
+  },
+);
 export const approveFinding = command("approve", "approve");
 export const rejectFinding = command("reject", "reject");
 export const completeFinding = command("complete", "complete");

@@ -20,6 +20,7 @@ export interface FGData {
 
 // Forecast entity interface
 export interface ForecastEntity {
+  SAPDocuments?: import("@/components/SapDocumentNumbers").SapDocumentSummary[];
   Id: number;
   PoId: string;
   Date: string;

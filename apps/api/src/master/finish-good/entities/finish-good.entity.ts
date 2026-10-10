@@ -4,6 +4,25 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
  * FinishGood Entity - Finish Good response format
  */
 export class FinishGoodEntity {
+  @ApiPropertyOptional({
+    enum: ['SYNCED', 'NOT_FOUND', 'UNKNOWN'],
+    description:
+      'GET only: existence in configured SAP item group; UNKNOWN when unavailable',
+  })
+  SAPSyncStatus?: 'SYNCED' | 'NOT_FOUND' | 'UNKNOWN';
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Last complete SAP snapshot timestamp',
+  })
+  SAPSyncCheckedAt?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Snapshot is older than the refresh interval',
+  })
+  SAPSyncStale?: boolean;
+
   @ApiProperty({ description: 'Skip assembly after shopping' })
   IsPassthrough: boolean;
 
@@ -13,7 +32,11 @@ export class FinishGoodEntity {
   @ApiProperty({ description: 'Part number', example: 'FG-001' })
   PartNumber: string;
 
-  @ApiProperty({ description: 'SAP part number', type: String, nullable: true })
+  @ApiProperty({
+    description: 'SAP item code; may be shared by multiple Genba finish goods',
+    type: String,
+    nullable: true,
+  })
   PartNumberSAP: string | null;
 
   @ApiProperty({ description: 'Nama part', example: 'Cover Assembly A' })

@@ -1,3 +1,5 @@
+import { commandIdentity } from "@/store/utils/commandIdentity";
+import type { SapOperationStatus } from "@/components/SapStatusTag";
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-10 - Updated 2026-06-16*/
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
@@ -10,6 +12,7 @@ import {
 
 // Delivery entity interface
 export interface DeliveryEntity {
+  SAPIntegration?: SapOperationStatus;
   id: number;
   forecastId: string;
   qty: number;
@@ -233,3 +236,52 @@ const deliverySlice = createSlice({
 export const { setFilters, resetFilters, clearCreateResult } =
   deliverySlice.actions;
 export default deliverySlice.reducer;
+
+export interface CustomerReturnRow {
+  Id: string;
+  DeliveryId: number;
+  Quantity: number;
+  ScrappedQuantity: number;
+  Reason: string;
+  CreatedAt: string;
+}
+export const fetchCustomerReturns = createAsyncThunk<
+  CustomerReturnRow[],
+  number,
+  { rejectValue: string }
+>("delivery/returns", async (id, { rejectWithValue }) => {
+  try {
+    return (
+      await get<ApiSuccessEnvelope<CustomerReturnRow[]>>(
+        "/production/delivery/" + id + "/returns",
+      )
+    ).data;
+  } catch (error) {
+    return rejectWithValue(getApiErrorMessage(error));
+  }
+});
+export const recordCustomerReturn = createAsyncThunk<
+  unknown,
+  { deliveryId: number; quantity: number; reason: string; returnId?: string },
+  { rejectValue: string }
+>(
+  "delivery/recordReturn",
+  async ({ deliveryId, returnId, ...body }, { rejectWithValue }) => {
+    try {
+      const path =
+        "/production/delivery/" +
+        deliveryId +
+        "/returns" +
+        (returnId ? "/" + returnId + "/scrap" : "");
+      const command = await commandIdentity("POST", path, body);
+      const result = await post<ApiSuccessEnvelope<unknown>>(path, {
+        ...body,
+        requestId: command.id,
+      });
+      command.complete();
+      return result.data;
+    } catch (error) {
+      return rejectWithValue(getApiErrorMessage(error));
+    }
+  },
+);

@@ -1,3 +1,5 @@
+import { OutboxService } from '../../common/outbox/outbox.service';
+import { SapItemSyncService } from '../../common/sap/sap-item-sync.service';
 import * as ExcelJS from 'exceljs';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
@@ -15,6 +17,8 @@ jest.mock('../../common/log-process/log-process.service');
 
 describe('MaterialService', () => {
   let service: MaterialService;
+  const writesEnabled = jest.fn();
+  const enqueue = jest.fn();
 
   const mockSatuan = { Id: 1, Name: 'Pcs' };
 
@@ -22,6 +26,9 @@ describe('MaterialService', () => {
     Id: 1,
     PartNumber: 'MAT-001',
     PartName: 'Baut M8',
+    PartNumberSAP: null,
+    MinimumStock: 0,
+    MaximumStock: 0,
     CreatedAt: new Date(),
     CreatedBy: 'admin',
     UpdatedAt: new Date(),
@@ -59,6 +66,10 @@ describe('MaterialService', () => {
   };
 
   let prismaService: {
+    $transaction: jest.Mock;
+    $queryRaw: jest.Mock;
+    outboxEvent: { findMany: jest.Mock };
+    actionAuditEvent: { create: jest.Mock };
     material: {
       count: jest.Mock;
       findMany: jest.Mock;
@@ -80,7 +91,13 @@ describe('MaterialService', () => {
   };
 
   beforeEach(async () => {
+    writesEnabled.mockReturnValue(false);
+    enqueue.mockReset();
     prismaService = {
+      $transaction: jest.fn((work) => work(prismaService)),
+      $queryRaw: jest.fn(),
+      outboxEvent: { findMany: jest.fn().mockResolvedValue([]) },
+      actionAuditEvent: { create: jest.fn() },
       material: {
         count: jest.fn(),
         findMany: jest.fn(),
@@ -111,6 +128,14 @@ describe('MaterialService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MaterialService,
+        { provide: OutboxService, useValue: { create: enqueue } },
+        {
+          provide: SapItemSyncService,
+          useValue: {
+            decorate: jest.fn((items: unknown[]) => items),
+            materialWritesEnabled: writesEnabled,
+          },
+        },
         { provide: PrismaService, useValue: prismaService },
         { provide: LogProcessService, useValue: logService },
       ],
@@ -131,7 +156,13 @@ describe('MaterialService', () => {
 
       const result = await service.findAll({ page: 1, limit: 50 });
 
-      expect(result.data).toEqual(expectedMaterials);
+      expect(result.data).toEqual(
+        expectedMaterials.map((row) => ({
+          ...row,
+          SAPUpdateStatus: 'DISABLED',
+          SAPUpdateCheckedAt: null,
+        })),
+      );
       expect(prismaService.material.findMany).toHaveBeenCalledWith({
         include: { SatuanData: true, SupplierData: true },
         orderBy: [{ Id: 'asc' }],
@@ -172,7 +203,7 @@ describe('MaterialService', () => {
 
       const result = await service.findOne(1);
 
-      expect(result).toEqual(mockMaterial);
+      expect(result).toEqual(expect.objectContaining(mockMaterial));
       expect(prismaService.material.findUnique).toHaveBeenCalledWith({
         where: { Id: 1 },
         include: { SatuanData: true, SupplierData: true },
@@ -192,7 +223,7 @@ describe('MaterialService', () => {
 
       const result = await service.findByPartNumber('MAT-001');
 
-      expect(result).toEqual(mockMaterial);
+      expect(result).toEqual(expect.objectContaining(mockMaterial));
       expect(prismaService.material.findUnique).toHaveBeenCalledWith({
         where: { PartNumber: 'MAT-001' },
         include: { SatuanData: true, SupplierData: true },
@@ -285,6 +316,90 @@ describe('MaterialService', () => {
         mockLogProcess.ProcessId,
         'FAILED',
       );
+    });
+  });
+
+  describe('SAP update outbox', () => {
+    beforeEach(() => {
+      writesEnabled.mockReturnValue(true);
+      logService.startProcess.mockResolvedValue(mockLogProcess);
+      prismaService.material.findUnique.mockResolvedValue(mockMaterial);
+      prismaService.material.update.mockResolvedValue({
+        ...mockMaterial,
+        PartName: 'New',
+      });
+    });
+    it('enqueues the changed snapshot inside the material transaction with actor audit', async () => {
+      await service.update(1, { partName: 'New' }, 'editor');
+      expect(enqueue).toHaveBeenCalledWith(
+        prismaService,
+        expect.objectContaining({
+          type: 'SAP_MATERIAL_UPDATE',
+          actor: 'editor',
+          referenceId: '1',
+          payload: {
+            materialId: 1,
+            itemCode: 'MAT-001',
+            partName: 'New',
+            minimumStock: 0,
+            maximumStock: 0,
+          },
+        }),
+      );
+      expect(prismaService.$transaction).toHaveBeenCalled();
+      expect(prismaService.actionAuditEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            Actor: 'editor',
+            Before: expect.objectContaining({ partName: 'Baut M8' }),
+            After: expect.objectContaining({
+              partName: 'New',
+              ManageStockByWarehouse: 'tNO',
+            }),
+          }),
+        }),
+      );
+    });
+    it('fails the transaction when the durable job cannot be saved', async () => {
+      enqueue.mockRejectedValue(new Error('Database unavailable'));
+      await expect(
+        service.update(1, { partName: 'New' }, 'editor'),
+      ).rejects.toThrow('Database unavailable');
+    });
+    it('does not enqueue unrelated/no-op edits', async () => {
+      prismaService.material.update.mockResolvedValue({
+        ...mockMaterial,
+        Remark: 'changed',
+      });
+      await service.update(1, { remark: 'changed' }, 'editor');
+      expect(enqueue).not.toHaveBeenCalled();
+    });
+    it('distinguishes delivered changes from item existence', async () => {
+      prismaService.outboxEvent.findMany.mockResolvedValue([
+        {
+          ReferenceId: '1',
+          Status: 'SUCCEEDED',
+          LastErrorCode: 'SAP_MATERIAL_SYNCED',
+          UpdatedAt: new Date(),
+          Payload: {
+            materialId: 1,
+            itemCode: 'MAT-001',
+            partName: 'Baut M8',
+            minimumStock: 0,
+            maximumStock: 0,
+          },
+        },
+      ]);
+      expect(await service.findOne(1)).toMatchObject({
+        SAPUpdateStatus: 'SYNCED',
+      });
+      prismaService.material.findUnique.mockResolvedValue({
+        ...mockMaterial,
+        PartName: 'Newer',
+      });
+      expect(await service.findOne(1)).toMatchObject({
+        SAPUpdateStatus: 'NOT_REQUESTED',
+      });
     });
   });
 
@@ -459,9 +574,11 @@ describe('MaterialService', () => {
     it.each([undefined, null, '', '   ', '  SAP-002  '])(
       'normalizes update input %s without erasing omitted values',
       async (value) => {
-        prismaService.material.findUnique
-          .mockResolvedValueOnce({ ...mockMaterial, PartNumberSAP: 'OLD' })
-          .mockResolvedValue(null);
+        prismaService.material.findUnique.mockImplementation(({ where }) =>
+          where.Id
+            ? Promise.resolve({ ...mockMaterial, PartNumberSAP: 'OLD' })
+            : Promise.resolve(null),
+        );
         await service.update(
           mockMaterial.Id,
           { partNumberSAP: value },

@@ -1,3 +1,7 @@
+import { createSapLedger } from '../../common/sap/sap-transaction-capture';
+import { approveFgScrap, pickScrapReplacement } from './fg-scrap.helper';
+import { lockProductionFlow } from '../../common/helpers/production-flow.helper';
+import { ReplacementPickDto } from './production-finding.dto';
 import {
   BadRequestException,
   ConflictException,
@@ -140,6 +144,7 @@ export class ProductionFindingService {
   async getPublicLabelOptions(query: PublicFindingOptionsQueryDto) {
     const labels = await this.prisma.labelData.findMany({
       where: {
+        InvalidatedAt: null,
         ProductionRelease: { is: { Status: 'RELEASED' } },
         ...(query.search
           ? {
@@ -355,6 +360,7 @@ export class ProductionFindingService {
       actor,
       dto,
       async (tx, processId) => {
+        await lockProductionFlow(tx);
         const label = await tx.labelData.findUnique({
           where: { LabelNumber: dto.labelNumber },
           include: {
@@ -439,6 +445,7 @@ export class ProductionFindingService {
       actor,
       { id, ...dto },
       async (tx, processId) => {
+        await lockProductionFlow(tx);
         const finding = await tx.productionFinding.findUnique({
           where: { Id: id },
         });
@@ -480,6 +487,7 @@ export class ProductionFindingService {
       actor,
       { id, ...dto },
       async (tx, processId) => {
+        await lockProductionFlow(tx);
         const finding = await tx.productionFinding.findUnique({
           where: { Id: id },
         });
@@ -487,6 +495,45 @@ export class ProductionFindingService {
           throw new NotFoundException('Production finding not found.');
         if (finding.Status !== 'PENDING')
           throw new ConflictException('Only pending findings can be approved.');
+        if (finding.Category === 'FINISH_GOOD') {
+          const label = finding.LabelId
+            ? await tx.labelData.findUnique({
+                where: { Id: finding.LabelId },
+                include: {
+                  DeliveryHistory: true,
+                  POData: { include: { ProductionRelease: true } },
+                },
+              })
+            : null;
+          if (!label || label.InvalidatedAt)
+            throw new ConflictException(
+              'The finding label is missing or invalidated. Review its replacement label.',
+            );
+          if (label.DeliveryHistory)
+            throw new ConflictException(
+              'Delivered FG must be handled through Customer Return before rework or scrap.',
+            );
+          if (
+            label.POData.ProductionRelease?.Status !== 'RELEASED' ||
+            label.ProductionReleaseId !== finding.ReleaseId ||
+            label.POData.ProductionReleaseId !== finding.ReleaseId ||
+            label.ProductionDemandId !== finding.ProductionDemandId
+          )
+            throw new ConflictException(
+              'The finding must belong to the current RELEASED production order.',
+            );
+          if (finding.Qty > label.QtyThisBox)
+            throw new BadRequestException(
+              'Finding quantity exceeds label quantity.',
+            );
+        }
+        if (dto.disposition === 'SCRAP') {
+          if (finding.Category !== 'FINISH_GOOD')
+            throw new BadRequestException(
+              'FG disposition only applies to finish-good findings.',
+            );
+          await approveFgScrap(tx, finding, actor);
+        }
         const waitsForPartChange =
           finding.Category === 'FINISH_GOOD' || finding.Location === 'ASSY';
         if (!waitsForPartChange) await this.approveMaterial(tx, finding, actor);
@@ -573,7 +620,7 @@ export class ProductionFindingService {
       throw new BadRequestException(
         'Insufficient material stock for NG scrap.',
       );
-    await tx.inventoryLedger.create({
+    await createSapLedger(tx, {
       data: {
         ItemCategory: 'MATERIAL',
         MaterialId: finding.MaterialId,
@@ -597,6 +644,23 @@ export class ProductionFindingService {
     });
   }
 
+  replacementPick(id: string, dto: ReplacementPickDto, actor: string) {
+    return this.execute(
+      'FG_SCRAP_REPLACEMENT_PICK',
+      dto.requestId,
+      actor,
+      { id, ...dto },
+      async (tx) => {
+        await pickScrapReplacement(tx, id, dto.componentId, dto.qty, actor);
+        await this.addEvent(tx, id, 'REPLACEMENT_PICKED', actor, {
+          componentId: dto.componentId,
+          qty: dto.qty,
+        });
+        return { id, event: 'REPLACEMENT_PICKED' };
+      },
+    );
+  }
+
   reject(id: string, dto: RejectFindingDto, actor: string) {
     return this.execute(
       'PRODUCTION_FINDING_REJECT',
@@ -604,6 +668,7 @@ export class ProductionFindingService {
       actor,
       { id, ...dto },
       async (tx, processId) => {
+        await lockProductionFlow(tx);
         const finding = await tx.productionFinding.findUnique({
           where: { Id: id },
         });
@@ -643,6 +708,7 @@ export class ProductionFindingService {
       actor,
       { id, ...dto },
       async (tx, processId) => {
+        await lockProductionFlow(tx);
         const finding = await tx.productionFinding.findUnique({
           where: { Id: id },
           include: { Components: { include: { Allocations: true } } },
@@ -656,6 +722,10 @@ export class ProductionFindingService {
         if (finding.Status !== 'WAITING_PART_CHANGE')
           throw new ConflictException(
             'Finding is not waiting for part change.',
+          );
+        if (finding.Disposition?.startsWith('SCRAP_'))
+          throw new ConflictException(
+            'Use the dedicated scrap replacement pick to avoid double consumption.',
           );
         const component = finding.Components.find(
           (item) => item.Id === dto.componentId,
@@ -688,6 +758,14 @@ export class ProductionFindingService {
         if (dto.qty > shopping.QtyPick)
           throw new BadRequestException(
             'Allocation exceeds shopping quantity.',
+          );
+        if (
+          await tx.productionFindingAllocation.findUnique({
+            where: { ShoppingId: shopping.Id },
+          })
+        )
+          throw new ConflictException(
+            'This additional picking is already allocated to a finding.',
           );
         await tx.productionFindingAllocation.create({
           data: {
@@ -723,6 +801,7 @@ export class ProductionFindingService {
       actor,
       { id, ...dto },
       async (tx, processId) => {
+        await lockProductionFlow(tx);
         const finding = await tx.productionFinding.findUnique({
           where: { Id: id },
           include: { Components: { include: { Allocations: true } } },

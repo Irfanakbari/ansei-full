@@ -1,5 +1,8 @@
 /*By Irfan Akbari Vuteq Indonesia - 2026-06-10*/
 "use client";
+import SapStatusTag, {
+  type SapOperationStatus,
+} from "@/components/SapStatusTag";
 
 import Link from "next/link";
 import { usePhasePermission } from "@/components/traceability/usePhasePermission";
@@ -30,6 +33,8 @@ import {
   setFilters,
 } from "@/store/features/production/delivery/deliverySlice";
 import { fetchPreDelivery } from "@/store/features/production/preDelivery/preDeliverySlice";
+import CustomerReturnModal from "./_components/CustomerReturnModal";
+import type { DeliveryEntity } from "@/store/features/production/delivery/deliverySlice";
 import CreateDeliveryModal from "./_components/CreateDeliveryModal";
 
 const formatDateTime = (val: string | null | undefined) => {
@@ -52,6 +57,7 @@ export default function DeliveryPage() {
   );
   const searchInput = useRef<InputRef>(null);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [returnDelivery, setReturnDelivery] = useState<DeliveryEntity>();
 
   useEffect(() => {
     dispatch(fetchDelivery(filters));
@@ -130,6 +136,16 @@ export default function DeliveryPage() {
 
   const columns = [
     {
+      title: "Return",
+      key: "return",
+      render: (_: unknown, row: DeliveryEntity) =>
+        can("IPCS.DELIVERY_READ") && (
+          <Button size="small" onClick={() => setReturnDelivery(row)}>
+            Customer Return
+          </Button>
+        ),
+    },
+    {
       title: "Traceability",
       key: "traceability",
       render: (_: unknown, row: { forecastId: string; labelDataId: string }) =>
@@ -195,6 +211,14 @@ export default function DeliveryPage() {
       dataIndex: "createdAt",
       key: "createdAt",
       render: formatDateTime,
+    },
+    {
+      title: "SAP Sync Status",
+      dataIndex: "SAPIntegration",
+      key: "SAPIntegration",
+      render: (value: SapOperationStatus | undefined) => (
+        <SapStatusTag value={value} />
+      ),
     },
   ];
 
@@ -265,6 +289,10 @@ export default function DeliveryPage() {
         className="small-table"
       />
 
+      <CustomerReturnModal
+        delivery={returnDelivery}
+        onClose={() => setReturnDelivery(undefined)}
+      />
       <CreateDeliveryModal
         visible={isCreateModalVisible}
         onClose={() => setIsCreateModalVisible(false)}

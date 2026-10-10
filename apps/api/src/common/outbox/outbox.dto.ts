@@ -21,11 +21,15 @@ export class IntegrationQueryDto extends PaginationQueryDto {
   @IsIn(['PENDING', 'QUEUED', 'PROCESSING', 'SUCCEEDED', 'FAILED'])
   status?: 'PENDING' | 'QUEUED' | 'PROCESSING' | 'SUCCEEDED' | 'FAILED';
   @ApiPropertyOptional({
-    enum: ['PRINT_PART_TAG_ANSEI', 'DELIVERY_NOTE_EMAIL'],
+    enum: [
+      'PRINT_PART_TAG_ANSEI',
+      'DELIVERY_NOTE_EMAIL',
+      'SAP_MATERIAL_UPDATE',
+    ],
   })
   @IsOptional()
-  @IsIn(['PRINT_PART_TAG_ANSEI', 'DELIVERY_NOTE_EMAIL'])
-  type?: 'PRINT_PART_TAG_ANSEI' | 'DELIVERY_NOTE_EMAIL';
+  @IsIn(['PRINT_PART_TAG_ANSEI', 'DELIVERY_NOTE_EMAIL', 'SAP_MATERIAL_UPDATE'])
+  type?: 'PRINT_PART_TAG_ANSEI' | 'DELIVERY_NOTE_EMAIL' | 'SAP_MATERIAL_UPDATE';
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
@@ -58,6 +62,8 @@ export class IntegrationEventDto {
       'TRANSPORT_ACCEPTED',
       'MANUAL_CONFIRMATION',
       'LEGACY_UNVERIFIED',
+      'SAP_APPLIED',
+      'SUPERSEDED',
     ],
   })
   completionEvidence: string;

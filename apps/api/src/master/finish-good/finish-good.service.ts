@@ -1,3 +1,7 @@
+import {
+  SapItemSyncService,
+  type SapSync,
+} from '../../common/sap/sap-item-sync.service';
 import { auditedWrite } from '../../common/helpers/audited-transaction.helper';
 import {
   Injectable,
@@ -37,6 +41,7 @@ export class FinishGoodService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
+    private readonly sap: SapItemSyncService,
   ) {}
 
   async exportExcel(query: SearchPaginationQueryDto): Promise<Buffer> {
@@ -126,7 +131,7 @@ export class FinishGoodService {
 
   async findAll(
     query: SearchPaginationQueryDto,
-  ): Promise<ApiResult<FinishGoodModel[], PaginationMeta>> {
+  ): Promise<ApiResult<(FinishGoodModel & SapSync)[], PaginationMeta>> {
     const where: Prisma.FinishGoodWhereInput = query.search
       ? {
           OR: [
@@ -147,7 +152,7 @@ export class FinishGoodService {
       }),
     ]);
     return {
-      data,
+      data: this.sap.decorate(data, 'finishGood'),
       meta: {
         page: query.page,
         limit: query.limit,
@@ -157,7 +162,7 @@ export class FinishGoodService {
     };
   }
 
-  async findOne(id: number): Promise<FinishGoodModel> {
+  async findOne(id: number): Promise<FinishGoodModel & SapSync> {
     const result = await this.prisma.finishGood.findUnique({
       where: { Id: id },
     });
@@ -166,10 +171,12 @@ export class FinishGoodService {
       throw new NotFoundException(`FinishGood with id ${id} not found`);
     }
 
-    return result;
+    return this.sap.decorate([result], 'finishGood')[0];
   }
 
-  async findByPartNumber(partNumber: string): Promise<FinishGoodModel> {
+  async findByPartNumber(
+    partNumber: string,
+  ): Promise<FinishGoodModel & SapSync> {
     const result = await this.prisma.finishGood.findUnique({
       where: { PartNumber: partNumber },
     });
@@ -180,7 +187,7 @@ export class FinishGoodService {
       );
     }
 
-    return result;
+    return this.sap.decorate([result], 'finishGood')[0];
   }
 
   async create(
@@ -216,17 +223,6 @@ export class FinishGoodService {
         throw new ConflictException(
           `FinishGood with part number ${dto.partNumber} already exists`,
         );
-      }
-
-      if (partNumberSAP) {
-        const sapConflict = await this.prisma.finishGood.findUnique({
-          where: { PartNumberSAP: partNumberSAP },
-        });
-        if (sapConflict) {
-          throw new ConflictException(
-            'FinishGood with this SAP part number already exists',
-          );
-        }
       }
 
       const result = await auditedWrite(this.prisma, (tx) =>
@@ -332,17 +328,6 @@ export class FinishGoodService {
         type: 'INFO',
         location: 'finish-good.service.ts:112',
       });
-
-      if (partNumberSAP) {
-        const sapConflict = await this.prisma.finishGood.findUnique({
-          where: { PartNumberSAP: partNumberSAP },
-        });
-        if (sapConflict && sapConflict.Id !== id) {
-          throw new ConflictException(
-            'FinishGood with this SAP part number already exists',
-          );
-        }
-      }
 
       const result = await auditedWrite(this.prisma, (tx) =>
         tx.finishGood.update({

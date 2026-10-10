@@ -1,5 +1,8 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-18 */
 "use client";
+import SapStatusTag, {
+  type SapOperationStatus,
+} from "@/components/SapStatusTag";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -184,6 +187,14 @@ export default function AssemblyPage() {
               ? "Completed"
               : "Cancelled"}
         </Tag>
+      ),
+    },
+    {
+      title: "SAP Sync Status",
+      dataIndex: "SAPIntegration",
+      key: "SAPIntegration",
+      render: (value: SapOperationStatus | undefined) => (
+        <SapStatusTag value={value} />
       ),
     },
   ];

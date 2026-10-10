@@ -1,3 +1,9 @@
+import { decorateSapIncomingDocuments } from '../../common/sap/sap-document-summary';
+import { decorateSapOperations } from '../../common/sap/sap-operation-status';
+import {
+  captureSapIncomingReceipt,
+  type SapIncomingLine,
+} from '../../common/sap/sap-transaction-capture';
 import {
   claimCommand,
   finishCommand,
@@ -94,7 +100,14 @@ export class IncomingService {
     ]);
 
     return {
-      data: results.map((item) => this.mapToIncomingEntity(item)),
+      data: await decorateSapIncomingDocuments(
+        this.prisma,
+        await decorateSapOperations(
+          this.prisma,
+          results.map((item) => this.mapToIncomingEntity(item)),
+          (item) => item.PoId,
+        ),
+      ),
       meta: {
         page,
         limit,
@@ -121,7 +134,16 @@ export class IncomingService {
       throw new NotFoundException(`Incoming with id ${id} not found`);
     }
 
-    return this.mapToIncomingEntity(incoming);
+    return (
+      await decorateSapIncomingDocuments(
+        this.prisma,
+        await decorateSapOperations(
+          this.prisma,
+          [this.mapToIncomingEntity(incoming)],
+          (item) => item.PoId,
+        ),
+      )
+    )[0];
   }
 
   async create(dto: CreateIncomingDto, createdBy: string) {
@@ -148,9 +170,6 @@ export class IncomingService {
         'Incoming Material',
       );
 
-      // POKAYOKE: Validate all material PartNumbers exist in Material master
-      await this.validateMaterialsExist(dto.materials, logProcess.ProcessId);
-
       // Generate auto ID
       const incomingId = await this.generateIncomingId();
 
@@ -163,6 +182,12 @@ export class IncomingService {
 
       const processId = logProcess.ProcessId;
       const result = await auditedTransaction(this.prisma, async (tx) => {
+        await this.validateMaterialsExist(
+          dto.materials,
+          processId,
+          tx,
+          dto.supplierId,
+        );
         // Create Incoming header
         const incoming = await tx.incoming.create({
           data: {
@@ -272,55 +297,79 @@ export class IncomingService {
       });
 
       const processId = logProcess.ProcessId;
-      const result = await auditedTransaction(this.prisma, async (tx) => {
-        // Update Incoming header
-        const updateData: Record<string, unknown> = {};
-        if (dto.description !== undefined)
-          updateData.Description = dto.description;
-        if (dto.receivedBy !== undefined)
-          updateData.ReceivedBy = dto.receivedBy;
-        if (dto.supplierId !== undefined)
-          updateData.SupplierId = dto.supplierId;
+      const result = await auditedTransaction(
+        this.prisma,
+        async (tx) => {
+          const current = await tx.incoming.findUnique({
+            where: { Id: id },
+            include: { IncomingMaterial: true },
+          });
+          if (!current)
+            throw new NotFoundException(`Incoming with id ${id} not found`);
+          if (current.Closed || current.ApprovedAt) {
+            throw new BadRequestException(
+              'Cannot edit incoming that has been closed or approved.',
+            );
+          }
+          await this.validateMaterialsExist(
+            dto.materials ??
+              current.IncomingMaterial.map((item) => ({
+                materialId: item.MaterialId ?? 0,
+              })),
+            processId,
+            tx,
+            dto.supplierId ?? current.SupplierId,
+          );
+          // Update Incoming header
+          const updateData: Record<string, unknown> = {};
+          if (dto.description !== undefined)
+            updateData.Description = dto.description;
+          if (dto.receivedBy !== undefined)
+            updateData.ReceivedBy = dto.receivedBy;
+          if (dto.supplierId !== undefined)
+            updateData.SupplierId = dto.supplierId;
 
-        const updated = await tx.incoming.update({
-          where: { Id: id },
-          data: updateData,
-          include: {
-            SupplierData: true,
-            IncomingMaterial: {
-              include: {
-                MaterialData: true,
+          const updated = await tx.incoming.update({
+            where: { Id: id },
+            data: updateData,
+            include: {
+              SupplierData: true,
+              IncomingMaterial: {
+                include: {
+                  MaterialData: true,
+                },
               },
             },
-          },
-        });
-
-        // Update materials if provided
-        if (dto.materials && dto.materials.length > 0) {
-          // Delete existing materials
-          await tx.incomingMaterial.deleteMany({
-            where: { IncomingId: id },
           });
 
-          // Create new materials
-          await tx.incomingMaterial.createMany({
-            data: dto.materials.map((m) => ({
-              IncomingId: id,
-              MaterialId: m.materialId,
-              Qty: m.qty,
-            })),
-          });
+          // Update materials if provided
+          if (dto.materials && dto.materials.length > 0) {
+            // Delete existing materials
+            await tx.incomingMaterial.deleteMany({
+              where: { IncomingId: id },
+            });
 
-          await this.logService.addLog({
-            processId,
-            message: `Updated ${dto.materials.length} incoming materials`,
-            type: 'INFO',
-            location: 'incoming.service.ts:168',
-          });
-        }
+            // Create new materials
+            await tx.incomingMaterial.createMany({
+              data: dto.materials.map((m) => ({
+                IncomingId: id,
+                MaterialId: m.materialId,
+                Qty: m.qty,
+              })),
+            });
 
-        return updated;
-      });
+            await this.logService.addLog({
+              processId,
+              message: `Updated ${dto.materials.length} incoming materials`,
+              type: 'INFO',
+              location: 'incoming.service.ts:168',
+            });
+          }
+
+          return updated;
+        },
+        { isolationLevel: 'Serializable' },
+      );
 
       await this.logService.addLog({
         processId,
@@ -514,6 +563,10 @@ export class IncomingService {
               'POKAYOKE: QtyChecked must equal Qty for all materials before receiving.',
             );
           }
+          this.assertMaterialSuppliers(
+            current.SupplierId,
+            current.IncomingMaterial.map((item) => item.MaterialData),
+          );
           // Update incoming status
           await tx.incoming.update({
             where: { Id: id },
@@ -533,6 +586,7 @@ export class IncomingService {
           });
 
           // Process each incoming material
+          const sapLines: SapIncomingLine[] = [];
           for (const item of current.IncomingMaterial) {
             if (!item.MaterialId || !item.MaterialData) {
               await this.logService.addLog({
@@ -565,9 +619,10 @@ export class IncomingService {
 
             // Create InventoryLedger entry
             // Note: InventoryLedger.MaterialId references Material.PartNumber (String), not Material.Id (Int)
+            const ledgerId = crypto.randomUUID();
             await tx.inventoryLedger.create({
               data: {
-                Id: crypto.randomUUID(),
+                Id: ledgerId,
                 TransactionDate: now,
                 ItemCategory: 'MATERIAL',
                 MaterialId: material.PartNumber,
@@ -581,6 +636,13 @@ export class IncomingService {
                 CreatedBy: receivedBy,
                 Notes: `Incoming from PO: ${existing.PoId}`,
               },
+            });
+
+            sapLines.push({
+              ledgerId,
+              partNumber: material.PartNumber,
+              itemCode: material.PartNumberSAP?.trim() || material.PartNumber,
+              quantity: item.Qty,
             });
 
             await this.logService.addLog({
@@ -608,6 +670,12 @@ export class IncomingService {
               client: tx,
             });
           }
+          await captureSapIncomingReceipt(
+            tx,
+            { id: current.Id, poNumber: current.PoId, date: now },
+            sapLines,
+            receivedBy,
+          );
           await this.logService.addLog({
             processId,
             message: `Receive completed: ${current.IncomingMaterial.length} items, ${totalQty} total qty`,
@@ -716,41 +784,62 @@ export class IncomingService {
       }
 
       // Use transaction to update all QtyChecked values
-      await auditedTransaction(this.prisma, async (tx) => {
-        for (const checkItem of dto.materials) {
-          // Find the material data
-          const materialData = existing.IncomingMaterial.find(
-            (m) => m.Id === checkItem.incomingMaterialId,
-          );
-
-          if (!materialData) {
-            continue;
+      await auditedTransaction(
+        this.prisma,
+        async (tx) => {
+          const current = await tx.incoming.findUnique({
+            where: { Id: id },
+            include: { IncomingMaterial: { include: { MaterialData: true } } },
+          });
+          if (!current)
+            throw new NotFoundException(`Incoming with id ${id} not found`);
+          if (current.Closed || current.ApprovedAt) {
+            throw new BadRequestException(
+              'Cannot check incoming that has been closed or approved.',
+            );
           }
+          this.assertMaterialSuppliers(
+            current.SupplierId,
+            current.IncomingMaterial.map((item) => item.MaterialData),
+          );
+          for (const checkItem of dto.materials) {
+            // Find the material data
+            const materialData = current.IncomingMaterial.find(
+              (m) => m.Id === checkItem.incomingMaterialId,
+            );
 
-          // Update QtyChecked
-          await tx.incomingMaterial.update({
-            where: { Id: checkItem.incomingMaterialId },
-            data: {
-              QtyChecked: checkItem.qtyChecked,
-            },
-          });
+            if (!materialData) {
+              throw new BadRequestException(
+                'Incoming materials changed. Refresh and check again.',
+              );
+            }
 
-          await this.logService.addLog({
-            processId,
-            message: `Updated QtyChecked for incoming material ${checkItem.incomingMaterialId}: ${materialData.Qty} -> ${checkItem.qtyChecked}`,
-            type: 'INFO',
-            location: 'incoming.service.ts:575',
-          });
+            // Update QtyChecked
+            await tx.incomingMaterial.update({
+              where: { Id: checkItem.incomingMaterialId },
+              data: {
+                QtyChecked: checkItem.qtyChecked,
+              },
+            });
 
-          materialsChecked.push({
-            incomingMaterialId: checkItem.incomingMaterialId,
-            materialId: materialData.MaterialId,
-            partNumber: materialData.MaterialData?.PartNumber || 'Unknown',
-            qtyExpected: materialData.Qty,
-            qtyChecked: checkItem.qtyChecked,
-          });
-        }
-      });
+            await this.logService.addLog({
+              processId,
+              message: `Updated QtyChecked for incoming material ${checkItem.incomingMaterialId}: ${materialData.Qty} -> ${checkItem.qtyChecked}`,
+              type: 'INFO',
+              location: 'incoming.service.ts:575',
+            });
+
+            materialsChecked.push({
+              incomingMaterialId: checkItem.incomingMaterialId,
+              materialId: materialData.MaterialId,
+              partNumber: materialData.MaterialData?.PartNumber || 'Unknown',
+              qtyExpected: materialData.Qty,
+              qtyChecked: checkItem.qtyChecked,
+            });
+          }
+        },
+        { isolationLevel: 'Serializable' },
+      );
 
       await this.logService.addLog({
         processId,
@@ -822,6 +911,8 @@ export class IncomingService {
   private async validateMaterialsExist(
     materials: { materialId: number }[],
     processId: string,
+    tx: Prisma.TransactionClient,
+    supplierId: number,
   ): Promise<void> {
     const materialIds = materials.map((m) => m.materialId);
     if (materialIds.length === 0) {
@@ -836,11 +927,12 @@ export class IncomingService {
       message: `POKAYOKE: Validating ${materialIds.length} materials exist in Material master`,
       type: 'INFO',
       location: 'incoming.service.ts:368',
+      client: tx,
     });
 
-    const existingMaterials = await this.prisma.material.findMany({
+    const existingMaterials = await tx.material.findMany({
       where: { Id: { in: materialIds } },
-      select: { Id: true, PartNumber: true, IsActive: true },
+      select: { Id: true, PartNumber: true, IsActive: true, SupplierId: true },
     });
 
     const existingIds = new Set(existingMaterials.map((m) => m.Id));
@@ -867,6 +959,7 @@ export class IncomingService {
         message: `POKAYOKE FAILED: Materials ${missingMaterials.join(', ')} not found in Material master`,
         type: 'ERROR',
         location: 'incoming.service.ts:385',
+        client: tx,
       });
 
       throw new BadRequestException(
@@ -880,6 +973,7 @@ export class IncomingService {
         message: `POKAYOKE FAILED: Materials ${discontinuedMaterials.join(', ')} are discontinued (IsActive=false)`,
         type: 'ERROR',
         location: 'incoming.service.ts:400',
+        client: tx,
       });
 
       throw new BadRequestException(
@@ -887,12 +981,31 @@ export class IncomingService {
       );
     }
 
+    this.assertMaterialSuppliers(supplierId, existingMaterials);
+
     await this.logService.addLog({
       processId,
       message: `POKAYOKE: All ${materialIds.length} materials validated successfully (all active)`,
       type: 'INFO',
       location: 'incoming.service.ts:408',
+      client: tx,
     });
+  }
+
+  private assertMaterialSuppliers(
+    supplierId: number,
+    materials: ({ SupplierId: number | null } | null)[],
+  ): void {
+    if (
+      !materials.length ||
+      materials.some(
+        (material) => !material || material.SupplierId !== supplierId,
+      )
+    ) {
+      throw new BadRequestException(
+        'All materials must belong to the Supplier selected in the Incoming header. Remove mismatched materials or change the Supplier.',
+      );
+    }
   }
 
   /**

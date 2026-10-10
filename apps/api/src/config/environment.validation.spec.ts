@@ -9,6 +9,34 @@ const productionEnvironment = {
 };
 
 describe('validateEnvironment', () => {
+  it('validates the shared SAP session encryption key without exposing it', () => {
+    expect(() =>
+      validateEnvironment({
+        ...productionEnvironment,
+        SAP_SESSION_CACHE_KEY: 'ab'.repeat(32),
+      }),
+    ).not.toThrow();
+    expect(() =>
+      validateEnvironment({
+        ...productionEnvironment,
+        SAP_SESSION_CACHE_KEY: '',
+      }),
+    ).not.toThrow();
+    expect(() =>
+      validateEnvironment({
+        ...productionEnvironment,
+        SAP_SESSION_CACHE_KEY: 'sensitive-value',
+      }),
+    ).toThrow('SAP_SESSION_CACHE_KEY must contain 64 hexadecimal characters');
+    try {
+      validateEnvironment({
+        ...productionEnvironment,
+        SAP_SESSION_CACHE_KEY: 'sensitive-value',
+      });
+    } catch (error) {
+      expect(String(error)).not.toContain('sensitive-value');
+    }
+  });
   it('accepts a minimal production configuration with optional integrations disabled', () => {
     expect(validateEnvironment({ ...productionEnvironment })).toEqual(
       productionEnvironment,

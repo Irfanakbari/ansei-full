@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { SapDocumentSummary } from '../../../common/sap/sap-document-summary';
 
 export class SupplierResponseDto {
   @ApiProperty({ example: 1 })
@@ -43,6 +44,8 @@ export class IncomingMaterialResponseDto {
 }
 
 export class IncomingResponseDto {
+  @ApiPropertyOptional({ type: [SapDocumentSummary] })
+  SAPDocuments?: SapDocumentSummary[];
   @ApiProperty({ example: 'INC-160726-001' })
   Id: string;
 

@@ -1,3 +1,5 @@
+import { decorateSapReleaseDocuments } from '../../common/sap/sap-document-summary';
+import { captureSapDemand } from '../../common/sap/sap-transaction-capture';
 import { forecastCandidateWhere } from './forecast-candidates';
 import {
   auditedTransaction,
@@ -433,7 +435,10 @@ export class ProductionReleaseService {
     });
 
     return {
-      data: releasesWithProgress,
+      data: await decorateSapReleaseDocuments(
+        this.prisma,
+        releasesWithProgress,
+      ),
       meta: {
         page: query.page,
         limit: query.limit,
@@ -504,10 +509,14 @@ export class ProductionReleaseService {
       0,
     );
 
-    return {
-      ...release,
-      TotalGoodQty: totalGoodQty,
-    };
+    return (
+      await decorateSapReleaseDocuments(this.prisma, [
+        {
+          ...release,
+          TotalGoodQty: totalGoodQty,
+        },
+      ])
+    )[0];
   }
 
   async getForecastCandidates(
@@ -774,6 +783,8 @@ export class ProductionReleaseService {
           ).map((item) => item.PoId);
           const forecasts = await this.getAmendmentForecasts(tx, forecastIds);
           this.assertNoOperationalActivity(forecasts);
+          for (const forecast of forecasts)
+            await captureSapDemand(tx, forecast.PoId, actor, 'cancel');
           await tx.labelData.deleteMany({ where: { ProductionReleaseId: id } });
           await tx.productionDemand.updateMany({
             where: { ProductionReleaseId: id },
@@ -863,6 +874,8 @@ export class ProductionReleaseService {
             );
           if (release.Status === ProductionStatus.RELEASED) {
             await snapshotRelease(tx, id, actor, log.ProcessId);
+            for (const forecast of forecasts)
+              await captureSapDemand(tx, forecast.PoId, actor);
             const createdLabels = await tx.labelData.createMany({
               data: labels,
             });
@@ -870,7 +883,9 @@ export class ProductionReleaseService {
               throw new ConflictException(
                 'Not all labels could be generated. Refresh and try again.',
               );
-          }
+          } else
+            for (const forecast of forecasts)
+              await captureSapDemand(tx, forecast.PoId, actor, 'draft');
           const aggregate = await tx.productionOrder.aggregate({
             where: { ProductionReleaseId: id },
             _sum: { Qty: true },
@@ -939,6 +954,8 @@ export class ProductionReleaseService {
             throw new ConflictException(
               'Cannot remove all forecasts. Cancel the production release instead.',
             );
+          for (const forecast of forecasts)
+            await captureSapDemand(tx, forecast.PoId, actor, 'cancel');
           if (release.Status === ProductionStatus.RELEASED) {
             await tx.labelData.deleteMany({
               where: {
@@ -1079,6 +1096,8 @@ export class ProductionReleaseService {
               'Forecast assignment changed. Refresh and try again.',
             );
           }
+          for (const forecast of forecasts)
+            await captureSapDemand(tx, forecast.PoId, createdBy, 'draft');
           return created;
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
@@ -1351,6 +1370,7 @@ export class ProductionReleaseService {
                   FinishGoodId: true,
                   DeliveryHistory: { select: { Qty: true } },
                   LabelData: {
+                    where: { InvalidatedAt: null },
                     select: {
                       Scanned: true,
                       QtyThisBox: true,
@@ -1438,6 +1458,20 @@ export class ProductionReleaseService {
               where: { ProductionReleaseId: id },
               select: { PoId: true },
             });
+            for (const order of linkedOrders) {
+              await captureSapDemand(
+                tx,
+                order.PoId,
+                updatedBy,
+                dto.status === ProductionStatus.CANCELLED
+                  ? 'cancel'
+                  : dto.status === ProductionStatus.COMPLETED
+                    ? true
+                    : dto.status === ProductionStatus.DRAFT
+                      ? 'draft'
+                      : false,
+              );
+            }
             await tx.productionTraceEvent.createMany({
               data: linkedOrders.map((order) => ({
                 ProductionDemandId: order.PoId,
@@ -1681,6 +1715,12 @@ export class ProductionReleaseService {
         }
 
         // Delete related LabelData first
+        const sapDemands = await tx.productionOrder.findMany({
+          where: { ProductionReleaseId: id },
+          select: { PoId: true },
+        });
+        for (const demand of sapDemands)
+          await captureSapDemand(tx, demand.PoId, deletedBy, 'cancel');
         if (existing._count.LabelDatas > 0) {
           await this.logService.addLog({
             processId,

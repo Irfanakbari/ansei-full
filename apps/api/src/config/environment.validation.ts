@@ -153,6 +153,33 @@ export function validateEnvironment(environment: Environment): Environment {
   if (maxSize && !/^\d+[kmg]$/i.test(maxSize))
     errors.push('ERROR_LOG_MAX_SIZE must be a size such as 20m');
 
+  if (
+    environment.SAP_SESSION_CACHE_KEY &&
+    !/^[a-f0-9]{64}$/i.test(environment.SAP_SESSION_CACHE_KEY)
+  ) {
+    errors.push('SAP_SESSION_CACHE_KEY must contain 64 hexadecimal characters');
+  }
+
+  const sapCapture = enabled(
+    environment,
+    'SAP_TRANSACTION_CAPTURE_ENABLED',
+    false,
+  );
+  enabled(environment, 'SAP_AUTO_SALES_ORDER_ENABLED', false);
+  const sapWrite = enabled(environment, 'SAP_TRANSACTION_WRITE_ENABLED', false);
+  if (sapCapture || sapWrite)
+    required(
+      environment,
+      [
+        'SAP_COMPANY_DB',
+        'SAP_TRANSACTION_WAREHOUSE',
+        'SAP_TRANSACTION_ITEM_ALLOWLIST',
+        'SAP_TRANSACTION_MATERIAL_ALLOWLIST',
+      ],
+      errors,
+    );
+  if (sapWrite && !sapCapture)
+    errors.push('SAP transaction posting requires transaction capture');
   if (errors.length > 0) {
     throw new Error(
       `Invalid environment configuration: ${[...new Set(errors)].join('; ')}`,

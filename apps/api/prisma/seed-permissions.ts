@@ -159,6 +159,10 @@ const allPermissions = [
     Description: 'Delete production report',
   },
   { Action: 'IPCS.REPORT_READ', Description: 'Read reports' },
+  {
+    Action: 'IPCS.SAP_MAPPING_UPDATE',
+    Description: 'Manage reviewed SAP Sales Order mappings',
+  },
   { Action: 'IPCS.SYSTEM_LOG_READ', Description: 'Read system logs' },
   { Action: 'IPCS.API_KEY_READ', Description: 'Read API keys' },
   { Action: 'IPCS.API_KEY_CREATE', Description: 'Create API keys' },

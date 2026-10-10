@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  Param,
+  ParseIntPipe,
+  ParseUUIDPipe,
+} from '@nestjs/common';
+import { CustomerReturnDto } from './dto/customer-return.dto';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -19,6 +29,35 @@ import type { ICurrentUser } from '../../auth/interfaces/current-user.interface'
 @Controller('production/delivery')
 export class DeliveryController {
   constructor(private readonly deliveryService: DeliveryService) {}
+  @Get(':id/returns')
+  @Permission('IPCS.DELIVERY_READ')
+  returns(@Param('id', ParseIntPipe) id: number) {
+    return this.deliveryService.returns(id);
+  }
+  @Post(':id/returns')
+  @Permission('IPCS.DELIVERY_CREATE')
+  customerReturn(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CustomerReturnDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.deliveryService.customerReturn(id, dto, user.username);
+  }
+  @Post(':id/returns/:returnId/scrap')
+  @Permission('IPCS.MATERIAL_NG_REVIEW')
+  scrapReturn(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('returnId', ParseUUIDPipe) returnId: string,
+    @Body() dto: CustomerReturnDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.deliveryService.customerReturn(
+      id,
+      dto,
+      user.username,
+      returnId,
+    );
+  }
 
   @Post()
   @Permission('IPCS.DELIVERY_CREATE')

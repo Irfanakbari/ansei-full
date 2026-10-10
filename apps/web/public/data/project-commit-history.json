@@ -2,59 +2,563 @@
   "repository": {
     "source": "combined-git-history",
     "upstreamRepository": "https://github.com/Vuteq-Indonesia/api-ansei-revamp",
-    "generatedAt": "2026-09-30",
-    "commitCount": 127,
+    "generatedAt": "2026-10-10",
+    "commitCount": 162,
     "format": "standardized-curated-commit-summaries"
   },
   "commits": [
-    { "hash": "fcb8827453cabbd4a0c86eb073b46212777fb365", "shortHash": "fcb8827", "author": "irfanakbari", "date": "2026-09-30T10:57:18+07:00", "category": "Feature", "summary": "Unify NG reporting, add ASSY replacement flow, and introduce readable operational record numbers" },
-    { "hash": "49f6ac6c6b82c9972f85e9928bba25f626ad8754", "shortHash": "49f6ac6", "author": "irfanakbari", "date": "2026-09-26T14:15:50+07:00", "category": "Fix", "summary": "Harden inventory input and NAS paths" },
-    { "hash": "a28c04ac2cd8040c94b72fc7dec7b76d5176b703", "shortHash": "a28c04a", "author": "irfanakbari", "date": "2026-09-25T16:24:46+07:00", "category": "Feature", "summary": "Add incoming supply inflow trends, supplier breakdown, and raw material metrics" },
-    { "hash": "400a43fa44986ce144abeed50074b3d3486f15fa", "shortHash": "400a43f", "author": "irfanakbari", "date": "2026-09-25T14:15:17+07:00", "category": "Fix", "summary": "Resolve infinite stock transfer fetch loop and fix BOM search reset" },
-    { "hash": "3e22be7b15406f054fc5e7759b1aae3351b19d3b", "shortHash": "3e22be7", "author": "irfanakbari", "date": "2026-09-25T12:30:34+07:00", "category": "Fix", "summary": "Unpack data envelope in auth session profile parser and forward request to apiUrl" },
-    { "hash": "d90c1bfc6565eb59dbc4ed7025c02cfa2dc86748", "shortHash": "d90c1bf", "author": "irfanakbari", "date": "2026-09-25T09:55:43+07:00", "category": "Feature", "summary": "Sort forecasts by delivery date ascending" },
-    { "hash": "7e5c9bfdb9ddb52111112989cf4170d3010a87d9", "shortHash": "7e5c9bf", "author": "irfanakbari", "date": "2026-09-25T09:19:32+07:00", "category": "Feature", "summary": "Add server-side filters for poNumber, partNumber, and deliveryDate" },
-    { "hash": "b41c1addc67b2688c42d807c77bc4e6461e92c4b", "shortHash": "b41c1ad", "author": "irfanakbari", "date": "2026-09-25T09:09:09+07:00", "category": "Fix", "summary": "Clarify PO ID versus PO number labels in forecast modal" },
-    { "hash": "16b1d9464737cad92d28aa8afeec170d5d61c1f4", "shortHash": "16b1d94", "author": "irfanakbari", "date": "2026-09-25T08:48:12+07:00", "category": "Fix", "summary": "Remove overly strict multipart limits causing 'Too many parts' during forecast Excel import" },
-    { "hash": "94e55f207e7b9c9e47df976a81bd11ffcb175b44", "shortHash": "94e55f2", "author": "irfanakbari", "date": "2026-09-25T08:15:29+07:00", "category": "Fix", "summary": "Resolve formatting errors in bill of materials and finish good services" },
-    { "hash": "998d24e3d0dd8d151366eead44ac108aefa34e5c", "shortHash": "998d24e", "author": "irfanakbari", "date": "2026-09-25T08:11:21+07:00", "category": "Style", "summary": "Enhance Excel layout and styling for material, finish good, and BOM reports" },
-    { "hash": "cbcd485e637b80951d7b8b6668d79b23266fc81e", "shortHash": "cbcd485", "author": "irfanakbari", "date": "2026-09-25T07:48:58+07:00", "category": "Fix", "summary": "Fix material quantity type check in stock transfer modal visibility" },
-    { "hash": "9556ae9563e503657cce8ad27ef1a077d81406a4", "shortHash": "9556ae9", "author": "irfanakbari", "date": "2026-09-25T07:39:56+07:00", "category": "Fix", "summary": "Resolve formatting errors in bill-of-materials service" },
-    { "hash": "3a98c776925146843011a78b7c325bf1bdfa3898", "shortHash": "3a98c77", "author": "irfanakbari", "date": "2026-09-25T06:34:41+07:00", "category": "Fix", "summary": "Fix TypeScript errors in Excel export endpoints" },
-    { "hash": "936be4a72e4ce99903c04059ab755202d7ae5bab", "shortHash": "936be4a", "author": "irfanakbari", "date": "2026-09-25T06:18:02+07:00", "category": "Chore", "summary": "Update generated Prisma client" },
-    { "hash": "6b23c42e0a99e1f806aa8fa4aa5e2dc3475eaff0", "shortHash": "6b23c42", "author": "irfanakbari", "date": "2026-09-25T02:26:20+07:00", "category": "Feature", "summary": "Add finish good actions by ID, supplier filter, and Excel exports" },
-    { "hash": "48d10a2c6933c98ce802f6b0b243b8414f8707c6", "shortHash": "48d10a2", "author": "irfanakbari", "date": "2026-09-25T02:05:07+07:00", "category": "Feature", "summary": "Limit display skill matrix to three columns and add BOM part-name search" },
-    { "hash": "ec4235c4e2f174ab3352121ed4f8f6bced9b8fb4", "shortHash": "ec4235c", "author": "irfanakbari", "date": "2026-09-25T02:01:38+07:00", "category": "Fix", "summary": "Populate active BOM revisions and lines alongside legacy bills of materials" },
-    { "hash": "267b922038aa353890c2effcd58791fa432d89f7", "shortHash": "267b922", "author": "irfanakbari", "date": "2026-09-24T22:35:53+07:00", "category": "Feature", "summary": "Add production seeders for master data, materials, finish goods, BOM, and manpower" },
-    { "hash": "0dae10db0b22b507851b07d36befde9d2954365a", "shortHash": "0dae10d", "author": "irfanakbari", "date": "2026-09-24T19:26:15+07:00", "category": "Feature", "summary": "Add part lifecycle, discontinuation, reactivation, supersession stock transfer, source, and remarks" },
-    { "hash": "8236ac1cdf2233387fae2ddeeb2cee71324dc209", "shortHash": "8236ac1", "author": "irfanakbari", "date": "2026-09-24T15:39:18+07:00", "category": "Test", "summary": "Add extreme inventory end-to-end suite" },
-    { "hash": "ca778ee78edf0418be93cd1938456eced2a37969", "shortHash": "ca778ee", "author": "irfanakbari", "date": "2026-09-23T18:16:47+07:00", "category": "Fix", "summary": "Resolve user display names in material usage and NG case tables" },
-    { "hash": "1675eddfb668ba78932709550b70e5ae0a5cded7", "shortHash": "1675edd", "author": "irfanakbari", "date": "2026-09-23T18:13:16+07:00", "category": "Fix", "summary": "Remove legacy notice banner and adjust timeline table scroll height" },
-    { "hash": "ec3a2fe50b0c77c7e60575ec06af0ee37914261e", "shortHash": "ec3a2fe", "author": "irfanakbari", "date": "2026-09-23T16:29:43+07:00", "category": "Fix", "summary": "Constrain timeline table vertical scrolling within the viewport" },
-    { "hash": "345b7b9f924a153615d366eeca475a824c683c38", "shortHash": "345b7b9", "author": "irfanakbari", "date": "2026-09-23T15:34:06+07:00", "category": "Fix", "summary": "Unwrap pallet option response envelope and fetch when the modal opens" },
-    { "hash": "f74c04082745a845a4681f9d7105bcdd41ed6be0", "shortHash": "f74c040", "author": "irfanakbari", "date": "2026-09-23T15:03:06+07:00", "category": "Feature", "summary": "Support PALLET_CONNECTOR_API_KEY in pallet connector requests" },
-    { "hash": "65a993fe8eb4e716173bb49c8bd72bade036f213", "shortHash": "65a993f", "author": "irfanakbari", "date": "2026-09-23T14:34:47+07:00", "category": "Feature", "summary": "Add pallet numbers with asynchronous connector history sync and traceability display" },
-    { "hash": "83d210a90856c6b70abc1e2f02a745a1312aa49d", "shortHash": "83d210a", "author": "irfanakbari", "date": "2026-09-23T08:55:58+07:00", "category": "Fix", "summary": "Batch actual stock saves during inventory counting" },
-    { "hash": "f7b7345b0b7521d69fe69ab0856bbaaf2126944f", "shortHash": "f7b7345", "author": "irfanakbari", "date": "2026-09-22T15:37:33+07:00", "category": "Feature", "summary": "Add OCR audit attachments to inventory counting" },
-    { "hash": "1e8d80942cc547ffa9c5bcfcffc02bbe7c487790", "shortHash": "1e8d809", "author": "irfanakbari", "date": "2026-09-22T11:25:44+07:00", "category": "Fix", "summary": "Include warehouse details in rack scan validation" },
-    { "hash": "86c2ee0c7212621e49dd3f9c3a7e891b4e0e4e3b", "shortHash": "86c2ee0", "author": "irfanakbari", "date": "2026-09-22T11:23:52+07:00", "category": "Fix", "summary": "Anchor display layout and add permission timestamp migration" },
-    { "hash": "a066485ed7fbb7b6efccf4f0c49c71d47b2d6e8a", "shortHash": "a066485", "author": "irfanakbari", "date": "2026-09-22T11:21:26+07:00", "category": "Fix", "summary": "Make the production display fill the viewport" },
-    { "hash": "f8b6c94a7932e7ced5a846928e760d404e6392e5", "shortHash": "f8b6c94", "author": "irfanakbari", "date": "2026-09-22T10:50:08+07:00", "category": "Validation", "summary": "Validate stock transfer order behavior" },
-    { "hash": "7315603b08be86d453ccf7fa6e241b9434410493", "shortHash": "7315603", "author": "irfanakbari", "date": "2026-09-22T10:49:53+07:00", "category": "Validation", "summary": "Validate stock transfer order flow" },
-    { "hash": "0cdb7cf409291e53424644e99c40dd7a91134731", "shortHash": "0cdb7cf", "author": "irfanakbari", "date": "2026-09-21T18:02:12+07:00", "category": "Fix", "summary": "Scope supplier barcode read access" },
-    { "hash": "d97f57ccb27b2455ffd86af1d360115820fc922f", "shortHash": "d97f57c", "author": "irfanakbari", "date": "2026-09-21T16:31:00+07:00", "category": "Feature", "summary": "Configure supplier barcode formats" },
-    { "hash": "0846d99d76f479ee903b8bc4094331652bff2a7b", "shortHash": "0846d99", "author": "irfanakbari", "date": "2026-09-21T15:53:06+07:00", "category": "Fix", "summary": "Include the label renderer workspace in Docker builds" },
-    { "hash": "c8544efc73ca0d6c6896a52b1f5e068f98e01c01", "shortHash": "c8544ef", "author": "irfanakbari", "date": "2026-09-21T15:15:16+07:00", "category": "Feature", "summary": "Show aggregate production release progress" },
-    { "hash": "16b44a3d6e3de362733e5dcdf454721e760b97f9", "shortHash": "16b44a3", "author": "irfanakbari", "date": "2026-09-21T14:46:48+07:00", "category": "Fix", "summary": "Stream forecast label PDFs without serialization" },
-    { "hash": "d85cf353c5eedc743cfa941ac6ce72a7c4ee2f74", "shortHash": "d85cf35", "author": "irfanakbari", "date": "2026-09-21T14:40:03+07:00", "category": "Fix", "summary": "Support Node.js 22 module resolution in the label renderer" },
-    { "hash": "e9a23698c3938a1f0ebaf559fe3b51c402866f2e", "shortHash": "e9a2369", "author": "irfanakbari", "date": "2026-09-21T14:05:49+07:00", "category": "Feature", "summary": "Add forecast label downloads with a no-data guard and shared renderer" },
-    { "hash": "53c04505430644f6951400afce67330209ae8e0c", "shortHash": "53c0450", "author": "irfanakbari", "date": "2026-09-21T09:00:30+07:00", "category": "Fix", "summary": "Correct typo in analytical report queries" },
-    { "hash": "7c2fcdf3c1b1651bbce5618155c711313baba823", "shortHash": "7c2fcdf", "author": "irfanakbari", "date": "2026-09-21T08:51:38+07:00", "category": "Feature", "summary": "Add production efficiency, Poka-Yoke falloff, and scrap rate reports" },
-    { "hash": "c7dd94a04e8428689cbd46698bc1e12e183884ec", "shortHash": "c7dd94a", "author": "irfanakbari", "date": "2026-09-21T08:24:17+07:00", "category": "Fix", "summary": "Adjust tests for optional manual release number pre-check" },
-    { "hash": "56ecac16c5e8ad2bd993b2ce90bce767f6f37b4c", "shortHash": "56ecac1", "author": "irfanakbari", "date": "2026-09-21T08:16:42+07:00", "category": "Feature", "summary": "Auto-generate production release numbers and resolve actor names" },
-    { "hash": "e9addc390b9feb44911ed2483d492961644f678d", "shortHash": "e9addc3", "author": "irfanakbari", "date": "2026-09-20T22:36:12+07:00", "category": "Feature", "summary": "Enforce Poka-Yoke readiness and improve traceability clarity" },
-    { "hash": "2913dc158960481ee3e7a966f7be0b65929cae79", "shortHash": "2913dc1", "author": "irfanakbari", "date": "2026-09-20T21:44:29+07:00", "category": "Fix", "summary": "Align shopping filters and assembly progress" },
-    { "hash": "48e48b2e71d4691055fdcab71302ac294a3557df", "shortHash": "48e48b2", "author": "irfanakbari", "date": "2026-09-20T21:34:32+07:00", "category": "Chore", "summary": "Update project commit history" },
+    {
+      "hash": "release-6.18.0",
+      "shortHash": "v6.18.0",
+      "author": "ANSEI Team",
+      "date": "2026-10-10T22:02:42+07:00",
+      "category": "Release",
+      "summary": "Version 6.18.0: Integrate SAP operational transactions across material, BOM, production, warehouse, delivery, returns, and stock reconciliation"
+    },
+    {
+      "hash": "2c6bf3acdc8e8d3d766ab23084477347d055eff2",
+      "shortHash": "2c6bf3a",
+      "author": "irfanakbari",
+      "date": "2026-10-10T20:59:28+07:00",
+      "category": "Feature",
+      "summary": "Add monthly delivery workbook with Delivered and Received sheets"
+    },
+    {
+      "hash": "92738c51fb94bf285cf4d8241ce95db83fb9aeef",
+      "shortHash": "92738c5",
+      "author": "irfanakbari",
+      "date": "2026-10-09T14:34:42+07:00",
+      "category": "Feature",
+      "summary": "Add nullable unique SAP part numbers to master data"
+    },
+    {
+      "hash": "16317ac610edde50044e526893514b424977b014",
+      "shortHash": "16317ac",
+      "author": "irfanakbari",
+      "date": "2026-10-08T11:49:47+07:00",
+      "category": "Fix",
+      "summary": "Expose rack locations for PDA picking scan validation"
+    },
+    {
+      "hash": "d1c21564795b572cc435dd4c75aba81c5aa557f5",
+      "shortHash": "d1c2156",
+      "author": "irfanakbari",
+      "date": "2026-10-08T08:26:07+07:00",
+      "category": "Fix",
+      "summary": "Separate finished goods and materials in BOM Excel exports"
+    },
+    {
+      "hash": "01f0058aed9c1e19a4b385eab94f9e0d8332324e",
+      "shortHash": "01f0058",
+      "author": "irfanakbari",
+      "date": "2026-10-07T16:00:37+07:00",
+      "category": "Fix",
+      "summary": "Resolve test imports independently of quote formatting in CI"
+    },
+    {
+      "hash": "2652a97cdc39068a64d335d903bdbcd155c4e3c9",
+      "shortHash": "2652a97",
+      "author": "irfanakbari",
+      "date": "2026-10-07T15:13:30+07:00",
+      "category": "Feature",
+      "summary": "Support PO and non-PO demand across production workflows"
+    },
+    {
+      "hash": "2b0a2e0d62a4d30ab76058443171a6fd97cc7a7a",
+      "shortHash": "2b0a2e0",
+      "author": "irfanakbari",
+      "date": "2026-10-07T07:41:19+07:00",
+      "category": "Fix",
+      "summary": "Support private HTTP NAS uploads"
+    },
+    {
+      "hash": "12dccb8b9f9de9c5e4f97ed6d9dbaeb34ac49533",
+      "shortHash": "12dccb8",
+      "author": "irfanakbari",
+      "date": "2026-10-06T19:14:35+07:00",
+      "category": "Fix",
+      "summary": "Validate transfer rack scans and hydrate the display modal"
+    },
+    {
+      "hash": "61f9f4adf357bd45e3f50ba458f81a67811bdc7d",
+      "shortHash": "61f9f4a",
+      "author": "irfanakbari",
+      "date": "2026-10-06T13:59:36+07:00",
+      "category": "Fix",
+      "summary": "Explain active production release conflicts clearly"
+    },
+    {
+      "hash": "abc747debfa098859ef7b98338508556cbf62eb9",
+      "shortHash": "abc747d",
+      "author": "irfanakbari",
+      "date": "2026-10-06T13:35:09+07:00",
+      "category": "Fix",
+      "summary": "Allow single-picture manpower multipart uploads"
+    },
+    {
+      "hash": "428c57f35f60a68581b9fd2d4ad07693804fc0c1",
+      "shortHash": "428c57f",
+      "author": "irfanakbari",
+      "date": "2026-10-06T13:30:59+07:00",
+      "category": "Feature",
+      "summary": "Add the public production dashboard and enforce delivery cycle order"
+    },
+    {
+      "hash": "792e63a290a45ccdf00dc19ceed062c361f79a6c",
+      "shortHash": "792e63a",
+      "author": "irfanakbari",
+      "date": "2026-10-06T08:43:23+07:00",
+      "category": "Feature",
+      "summary": "Support supplier barcode field offsets"
+    },
+    {
+      "hash": "b87116e5c16dd99110b64f596287996bb99cc53b",
+      "shortHash": "b87116e",
+      "author": "irfanakbari",
+      "date": "2026-10-06T08:08:22+07:00",
+      "category": "Fix",
+      "summary": "Create display configuration and media in one request"
+    },
+    {
+      "hash": "407a2e721fa49f5e19920b3248fafd099b55bd67",
+      "shortHash": "407a2e7",
+      "author": "irfanakbari",
+      "date": "2026-10-05T16:14:27+07:00",
+      "category": "Style",
+      "summary": "Reduce the production toolbar segmented control height"
+    },
+    {
+      "hash": "43ccd84b6bf183991c901b2c5998353a3dc96bc2",
+      "shortHash": "43ccd84",
+      "author": "irfanakbari",
+      "date": "2026-10-05T16:08:44+07:00",
+      "category": "Feature",
+      "summary": "Add active release and full history filtering to production"
+    },
+    {
+      "hash": "4c2a6239bca9df270236d1c33c42976eedbea77b",
+      "shortHash": "4c2a623",
+      "author": "irfanakbari",
+      "date": "2026-10-05T14:55:19+07:00",
+      "category": "Fix",
+      "summary": "Serve ANSEI under its base path and clean up CI build environments"
+    },
+    {
+      "hash": "a2dd022f87c6985c5540c1c11f166be932d56361",
+      "shortHash": "a2dd022",
+      "author": "irfanakbari",
+      "date": "2026-10-02T15:00:05+07:00",
+      "category": "Revert",
+      "summary": "Revert the initial ANSEI base path change"
+    },
+    {
+      "hash": "3f6e521e1bfbff0bdc53963e50935b167a84dcdf",
+      "shortHash": "3f6e521",
+      "author": "irfanakbari",
+      "date": "2026-10-02T14:51:12+07:00",
+      "category": "Fix",
+      "summary": "Serve ANSEI under the /ansei base path"
+    },
+    {
+      "hash": "c57ec6fdc75fa8f8bf2ff446095f1ca3b0b33977",
+      "shortHash": "c57ec6f",
+      "author": "irfanakbari",
+      "date": "2026-10-01T08:19:45+07:00",
+      "category": "Fix",
+      "summary": "Align the outbox processor constructor in phase-three tests"
+    },
+    {
+      "hash": "4db189302888d9583452186e11cdcd38c5f7ffaf",
+      "shortHash": "4db1893",
+      "author": "irfanakbari",
+      "date": "2026-09-30T10:58:18+07:00",
+      "category": "Chore",
+      "summary": "Record the unified NG reporting release in project history"
+    },
+    {
+      "hash": "fcb8827453cabbd4a0c86eb073b46212777fb365",
+      "shortHash": "fcb8827",
+      "author": "irfanakbari",
+      "date": "2026-09-30T10:57:18+07:00",
+      "category": "Feature",
+      "summary": "Unify NG reporting, add ASSY replacement flow, and introduce readable operational record numbers"
+    },
+    {
+      "hash": "49f6ac6c6b82c9972f85e9928bba25f626ad8754",
+      "shortHash": "49f6ac6",
+      "author": "irfanakbari",
+      "date": "2026-09-26T14:15:50+07:00",
+      "category": "Fix",
+      "summary": "Harden inventory input and NAS paths"
+    },
+    {
+      "hash": "a28c04ac2cd8040c94b72fc7dec7b76d5176b703",
+      "shortHash": "a28c04a",
+      "author": "irfanakbari",
+      "date": "2026-09-25T16:24:46+07:00",
+      "category": "Feature",
+      "summary": "Add incoming supply inflow trends, supplier breakdown, and raw material metrics"
+    },
+    {
+      "hash": "400a43fa44986ce144abeed50074b3d3486f15fa",
+      "shortHash": "400a43f",
+      "author": "irfanakbari",
+      "date": "2026-09-25T14:15:17+07:00",
+      "category": "Fix",
+      "summary": "Resolve infinite stock transfer fetch loop and fix BOM search reset"
+    },
+    {
+      "hash": "3e22be7b15406f054fc5e7759b1aae3351b19d3b",
+      "shortHash": "3e22be7",
+      "author": "irfanakbari",
+      "date": "2026-09-25T12:30:34+07:00",
+      "category": "Fix",
+      "summary": "Unpack data envelope in auth session profile parser and forward request to apiUrl"
+    },
+    {
+      "hash": "d90c1bfc6565eb59dbc4ed7025c02cfa2dc86748",
+      "shortHash": "d90c1bf",
+      "author": "irfanakbari",
+      "date": "2026-09-25T09:55:43+07:00",
+      "category": "Feature",
+      "summary": "Sort forecasts by delivery date ascending"
+    },
+    {
+      "hash": "7e5c9bfdb9ddb52111112989cf4170d3010a87d9",
+      "shortHash": "7e5c9bf",
+      "author": "irfanakbari",
+      "date": "2026-09-25T09:19:32+07:00",
+      "category": "Feature",
+      "summary": "Add server-side filters for poNumber, partNumber, and deliveryDate"
+    },
+    {
+      "hash": "b41c1addc67b2688c42d807c77bc4e6461e92c4b",
+      "shortHash": "b41c1ad",
+      "author": "irfanakbari",
+      "date": "2026-09-25T09:09:09+07:00",
+      "category": "Fix",
+      "summary": "Clarify PO ID versus PO number labels in forecast modal"
+    },
+    {
+      "hash": "16b1d9464737cad92d28aa8afeec170d5d61c1f4",
+      "shortHash": "16b1d94",
+      "author": "irfanakbari",
+      "date": "2026-09-25T08:48:12+07:00",
+      "category": "Fix",
+      "summary": "Remove overly strict multipart limits causing 'Too many parts' during forecast Excel import"
+    },
+    {
+      "hash": "94e55f207e7b9c9e47df976a81bd11ffcb175b44",
+      "shortHash": "94e55f2",
+      "author": "irfanakbari",
+      "date": "2026-09-25T08:15:29+07:00",
+      "category": "Fix",
+      "summary": "Resolve formatting errors in bill of materials and finish good services"
+    },
+    {
+      "hash": "998d24e3d0dd8d151366eead44ac108aefa34e5c",
+      "shortHash": "998d24e",
+      "author": "irfanakbari",
+      "date": "2026-09-25T08:11:21+07:00",
+      "category": "Style",
+      "summary": "Enhance Excel layout and styling for material, finish good, and BOM reports"
+    },
+    {
+      "hash": "cbcd485e637b80951d7b8b6668d79b23266fc81e",
+      "shortHash": "cbcd485",
+      "author": "irfanakbari",
+      "date": "2026-09-25T07:48:58+07:00",
+      "category": "Fix",
+      "summary": "Fix material quantity type check in stock transfer modal visibility"
+    },
+    {
+      "hash": "9556ae9563e503657cce8ad27ef1a077d81406a4",
+      "shortHash": "9556ae9",
+      "author": "irfanakbari",
+      "date": "2026-09-25T07:39:56+07:00",
+      "category": "Fix",
+      "summary": "Resolve formatting errors in bill-of-materials service"
+    },
+    {
+      "hash": "3a98c776925146843011a78b7c325bf1bdfa3898",
+      "shortHash": "3a98c77",
+      "author": "irfanakbari",
+      "date": "2026-09-25T06:34:41+07:00",
+      "category": "Fix",
+      "summary": "Fix TypeScript errors in Excel export endpoints"
+    },
+    {
+      "hash": "936be4a72e4ce99903c04059ab755202d7ae5bab",
+      "shortHash": "936be4a",
+      "author": "irfanakbari",
+      "date": "2026-09-25T06:18:02+07:00",
+      "category": "Chore",
+      "summary": "Update generated Prisma client"
+    },
+    {
+      "hash": "6b23c42e0a99e1f806aa8fa4aa5e2dc3475eaff0",
+      "shortHash": "6b23c42",
+      "author": "irfanakbari",
+      "date": "2026-09-25T02:26:20+07:00",
+      "category": "Feature",
+      "summary": "Add finish good actions by ID, supplier filter, and Excel exports"
+    },
+    {
+      "hash": "48d10a2c6933c98ce802f6b0b243b8414f8707c6",
+      "shortHash": "48d10a2",
+      "author": "irfanakbari",
+      "date": "2026-09-25T02:05:07+07:00",
+      "category": "Feature",
+      "summary": "Limit display skill matrix to three columns and add BOM part-name search"
+    },
+    {
+      "hash": "ec4235c4e2f174ab3352121ed4f8f6bced9b8fb4",
+      "shortHash": "ec4235c",
+      "author": "irfanakbari",
+      "date": "2026-09-25T02:01:38+07:00",
+      "category": "Fix",
+      "summary": "Populate active BOM revisions and lines alongside legacy bills of materials"
+    },
+    {
+      "hash": "267b922038aa353890c2effcd58791fa432d89f7",
+      "shortHash": "267b922",
+      "author": "irfanakbari",
+      "date": "2026-09-24T22:35:53+07:00",
+      "category": "Feature",
+      "summary": "Add production seeders for master data, materials, finish goods, BOM, and manpower"
+    },
+    {
+      "hash": "0dae10db0b22b507851b07d36befde9d2954365a",
+      "shortHash": "0dae10d",
+      "author": "irfanakbari",
+      "date": "2026-09-24T19:26:15+07:00",
+      "category": "Feature",
+      "summary": "Add part lifecycle, discontinuation, reactivation, supersession stock transfer, source, and remarks"
+    },
+    {
+      "hash": "8236ac1cdf2233387fae2ddeeb2cee71324dc209",
+      "shortHash": "8236ac1",
+      "author": "irfanakbari",
+      "date": "2026-09-24T15:39:18+07:00",
+      "category": "Test",
+      "summary": "Add extreme inventory end-to-end suite"
+    },
+    {
+      "hash": "ca778ee78edf0418be93cd1938456eced2a37969",
+      "shortHash": "ca778ee",
+      "author": "irfanakbari",
+      "date": "2026-09-23T18:16:47+07:00",
+      "category": "Fix",
+      "summary": "Resolve user display names in material usage and NG case tables"
+    },
+    {
+      "hash": "1675eddfb668ba78932709550b70e5ae0a5cded7",
+      "shortHash": "1675edd",
+      "author": "irfanakbari",
+      "date": "2026-09-23T18:13:16+07:00",
+      "category": "Fix",
+      "summary": "Remove legacy notice banner and adjust timeline table scroll height"
+    },
+    {
+      "hash": "ec3a2fe50b0c77c7e60575ec06af0ee37914261e",
+      "shortHash": "ec3a2fe",
+      "author": "irfanakbari",
+      "date": "2026-09-23T16:29:43+07:00",
+      "category": "Fix",
+      "summary": "Constrain timeline table vertical scrolling within the viewport"
+    },
+    {
+      "hash": "345b7b9f924a153615d366eeca475a824c683c38",
+      "shortHash": "345b7b9",
+      "author": "irfanakbari",
+      "date": "2026-09-23T15:34:06+07:00",
+      "category": "Fix",
+      "summary": "Unwrap pallet option response envelope and fetch when the modal opens"
+    },
+    {
+      "hash": "f74c04082745a845a4681f9d7105bcdd41ed6be0",
+      "shortHash": "f74c040",
+      "author": "irfanakbari",
+      "date": "2026-09-23T15:03:06+07:00",
+      "category": "Feature",
+      "summary": "Support PALLET_CONNECTOR_API_KEY in pallet connector requests"
+    },
+    {
+      "hash": "65a993fe8eb4e716173bb49c8bd72bade036f213",
+      "shortHash": "65a993f",
+      "author": "irfanakbari",
+      "date": "2026-09-23T14:34:47+07:00",
+      "category": "Feature",
+      "summary": "Add pallet numbers with asynchronous connector history sync and traceability display"
+    },
+    {
+      "hash": "83d210a90856c6b70abc1e2f02a745a1312aa49d",
+      "shortHash": "83d210a",
+      "author": "irfanakbari",
+      "date": "2026-09-23T08:55:58+07:00",
+      "category": "Fix",
+      "summary": "Batch actual stock saves during inventory counting"
+    },
+    {
+      "hash": "f7b7345b0b7521d69fe69ab0856bbaaf2126944f",
+      "shortHash": "f7b7345",
+      "author": "irfanakbari",
+      "date": "2026-09-22T15:37:33+07:00",
+      "category": "Feature",
+      "summary": "Add OCR audit attachments to inventory counting"
+    },
+    {
+      "hash": "1e8d80942cc547ffa9c5bcfcffc02bbe7c487790",
+      "shortHash": "1e8d809",
+      "author": "irfanakbari",
+      "date": "2026-09-22T11:25:44+07:00",
+      "category": "Fix",
+      "summary": "Include warehouse details in rack scan validation"
+    },
+    {
+      "hash": "86c2ee0c7212621e49dd3f9c3a7e891b4e0e4e3b",
+      "shortHash": "86c2ee0",
+      "author": "irfanakbari",
+      "date": "2026-09-22T11:23:52+07:00",
+      "category": "Fix",
+      "summary": "Anchor display layout and add permission timestamp migration"
+    },
+    {
+      "hash": "a066485ed7fbb7b6efccf4f0c49c71d47b2d6e8a",
+      "shortHash": "a066485",
+      "author": "irfanakbari",
+      "date": "2026-09-22T11:21:26+07:00",
+      "category": "Fix",
+      "summary": "Make the production display fill the viewport"
+    },
+    {
+      "hash": "f8b6c94a7932e7ced5a846928e760d404e6392e5",
+      "shortHash": "f8b6c94",
+      "author": "irfanakbari",
+      "date": "2026-09-22T10:50:08+07:00",
+      "category": "Validation",
+      "summary": "Validate stock transfer order behavior"
+    },
+    {
+      "hash": "7315603b08be86d453ccf7fa6e241b9434410493",
+      "shortHash": "7315603",
+      "author": "irfanakbari",
+      "date": "2026-09-22T10:49:53+07:00",
+      "category": "Validation",
+      "summary": "Validate stock transfer order flow"
+    },
+    {
+      "hash": "0cdb7cf409291e53424644e99c40dd7a91134731",
+      "shortHash": "0cdb7cf",
+      "author": "irfanakbari",
+      "date": "2026-09-21T18:02:12+07:00",
+      "category": "Fix",
+      "summary": "Scope supplier barcode read access"
+    },
+    {
+      "hash": "d97f57ccb27b2455ffd86af1d360115820fc922f",
+      "shortHash": "d97f57c",
+      "author": "irfanakbari",
+      "date": "2026-09-21T16:31:00+07:00",
+      "category": "Feature",
+      "summary": "Configure supplier barcode formats"
+    },
+    {
+      "hash": "0846d99d76f479ee903b8bc4094331652bff2a7b",
+      "shortHash": "0846d99",
+      "author": "irfanakbari",
+      "date": "2026-09-21T15:53:06+07:00",
+      "category": "Fix",
+      "summary": "Include the label renderer workspace in Docker builds"
+    },
+    {
+      "hash": "c8544efc73ca0d6c6896a52b1f5e068f98e01c01",
+      "shortHash": "c8544ef",
+      "author": "irfanakbari",
+      "date": "2026-09-21T15:15:16+07:00",
+      "category": "Feature",
+      "summary": "Show aggregate production release progress"
+    },
+    {
+      "hash": "16b44a3d6e3de362733e5dcdf454721e760b97f9",
+      "shortHash": "16b44a3",
+      "author": "irfanakbari",
+      "date": "2026-09-21T14:46:48+07:00",
+      "category": "Fix",
+      "summary": "Stream forecast label PDFs without serialization"
+    },
+    {
+      "hash": "d85cf353c5eedc743cfa941ac6ce72a7c4ee2f74",
+      "shortHash": "d85cf35",
+      "author": "irfanakbari",
+      "date": "2026-09-21T14:40:03+07:00",
+      "category": "Fix",
+      "summary": "Support Node.js 22 module resolution in the label renderer"
+    },
+    {
+      "hash": "e9a23698c3938a1f0ebaf559fe3b51c402866f2e",
+      "shortHash": "e9a2369",
+      "author": "irfanakbari",
+      "date": "2026-09-21T14:05:49+07:00",
+      "category": "Feature",
+      "summary": "Add forecast label downloads with a no-data guard and shared renderer"
+    },
+    {
+      "hash": "53c04505430644f6951400afce67330209ae8e0c",
+      "shortHash": "53c0450",
+      "author": "irfanakbari",
+      "date": "2026-09-21T09:00:30+07:00",
+      "category": "Fix",
+      "summary": "Correct typo in analytical report queries"
+    },
+    {
+      "hash": "7c2fcdf3c1b1651bbce5618155c711313baba823",
+      "shortHash": "7c2fcdf",
+      "author": "irfanakbari",
+      "date": "2026-09-21T08:51:38+07:00",
+      "category": "Feature",
+      "summary": "Add production efficiency, Poka-Yoke falloff, and scrap rate reports"
+    },
+    {
+      "hash": "c7dd94a04e8428689cbd46698bc1e12e183884ec",
+      "shortHash": "c7dd94a",
+      "author": "irfanakbari",
+      "date": "2026-09-21T08:24:17+07:00",
+      "category": "Fix",
+      "summary": "Adjust tests for optional manual release number pre-check"
+    },
+    {
+      "hash": "56ecac16c5e8ad2bd993b2ce90bce767f6f37b4c",
+      "shortHash": "56ecac1",
+      "author": "irfanakbari",
+      "date": "2026-09-21T08:16:42+07:00",
+      "category": "Feature",
+      "summary": "Auto-generate production release numbers and resolve actor names"
+    },
+    {
+      "hash": "e9addc390b9feb44911ed2483d492961644f678d",
+      "shortHash": "e9addc3",
+      "author": "irfanakbari",
+      "date": "2026-09-20T22:36:12+07:00",
+      "category": "Feature",
+      "summary": "Enforce Poka-Yoke readiness and improve traceability clarity"
+    },
+    {
+      "hash": "2913dc158960481ee3e7a966f7be0b65929cae79",
+      "shortHash": "2913dc1",
+      "author": "irfanakbari",
+      "date": "2026-09-20T21:44:29+07:00",
+      "category": "Fix",
+      "summary": "Align shopping filters and assembly progress"
+    },
+    {
+      "hash": "48e48b2e71d4691055fdcab71302ac294a3557df",
+      "shortHash": "48e48b2",
+      "author": "irfanakbari",
+      "date": "2026-09-20T21:34:32+07:00",
+      "category": "Chore",
+      "summary": "Update project commit history"
+    },
     {
       "hash": "3d314b1eb5855bd38fe1b39bcafa0149ef9330ef",
       "shortHash": "3d314b1",

@@ -1,8 +1,12 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-16 */
 import { BadRequestException } from '@nestjs/common';
 import { ItemCategory, OpnameStatus } from '../../generated/prisma/enums';
+import type { Prisma } from '../../generated/prisma/client';
 
 export interface ActiveInventoryCountingPrismaTarget {
+  sapTransaction?: {
+    findFirst(args: Prisma.SapTransactionFindFirstArgs): Promise<unknown>;
+  };
   stockOpname: {
     findFirst(args: {
       where: {
@@ -37,6 +41,23 @@ export async function assertNoActiveInventoryCounting(
   category?: ItemCategory,
   transactionName?: string,
 ): Promise<void> {
+  // Durable barrier survives MES close/cancel and Redis loss until SAP unfreeze is verified.
+  if (
+    prisma.sapTransaction &&
+    (await prisma.sapTransaction.findFirst({
+      where: {
+        Kind: 'INVENTORY_COUNTING',
+        Event: { ReferenceType: 'STO_HOLD' },
+        ...(category
+          ? { Snapshot: { path: ['category'], equals: category } }
+          : {}),
+      },
+      select: { Id: true },
+    }))
+  )
+    throw new BadRequestException(
+      'SAP inventory counting is still active or awaiting recovery. Finish posting and unfreeze before moving stock.',
+    );
   if (!prisma?.stockOpname?.findFirst) {
     return;
   }

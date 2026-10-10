@@ -31,6 +31,7 @@ describe('IncomingService', () => {
     PartName: 'Test Material',
     QtyWarehouse: 100,
     IsActive: true,
+    SupplierId: 1,
   };
 
   beforeEach(async () => {
@@ -58,6 +59,11 @@ describe('IncomingService', () => {
       },
       inventoryLedger: {
         create: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      sapTransaction: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       businessCommand: {
         findUnique: jest.fn(),
@@ -100,6 +106,142 @@ describe('IncomingService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('supplier boundary', () => {
+    const dto = {
+      poId: 'PO-TEST',
+      supplierId: 1,
+      receivedBy: 'tester',
+      materials: [
+        { materialId: 1, qty: 5 },
+        { materialId: 2, qty: 5 },
+      ],
+    };
+    const openIncoming = {
+      Id: 'incoming-1',
+      PoId: 'PO-TEST',
+      SupplierId: 1,
+      Closed: false,
+      ApprovedAt: null,
+      IncomingMaterial: [
+        {
+          Id: 1,
+          MaterialId: 1,
+          Qty: 5,
+          QtyChecked: 5,
+          MaterialData: { ...mockMaterial, SupplierId: 2 },
+        },
+      ],
+    };
+
+    it.each([2, null])(
+      'rejects creation with material supplier %s before any header is saved',
+      async (supplierId) => {
+        prismaService.material.findMany.mockResolvedValue([
+          mockMaterial,
+          { ...mockMaterial, Id: 2, SupplierId: supplierId },
+        ]);
+        await expect(service.create(dto, 'tester')).rejects.toThrow(
+          'All materials must belong',
+        );
+        expect(prismaService.incoming.create).not.toHaveBeenCalled();
+        expect(
+          prismaService.incomingMaterial.createMany,
+        ).not.toHaveBeenCalled();
+      },
+    );
+
+    it('accepts multiple materials from the header supplier', async () => {
+      prismaService.material.findMany.mockResolvedValue([
+        mockMaterial,
+        { ...mockMaterial, Id: 2 },
+      ]);
+      prismaService.incoming.create.mockResolvedValue({ Id: 'new' });
+      await expect(service.create(dto, 'tester')).resolves.toEqual({
+        Id: 'new',
+      });
+      expect(prismaService.incomingMaterial.createMany).toHaveBeenCalledWith({
+        data: [
+          { IncomingId: 'new', MaterialId: 1, Qty: 5, QtyChecked: 0 },
+          { IncomingId: 'new', MaterialId: 2, Qty: 5, QtyChecked: 0 },
+        ],
+      });
+    });
+
+    it('rejects changing only the header supplier when retained materials do not match', async () => {
+      prismaService.incoming.findUnique.mockResolvedValue(openIncoming);
+      prismaService.material.findMany.mockResolvedValue([mockMaterial]);
+      await expect(
+        service.update('incoming-1', { supplierId: 2 }, 'tester'),
+      ).rejects.toThrow('All materials must belong');
+      expect(prismaService.incoming.update).not.toHaveBeenCalled();
+      expect(prismaService.incomingMaterial.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it('rejects replacing materials with a different supplier without changing the header', async () => {
+      prismaService.incoming.findUnique.mockResolvedValue(openIncoming);
+      prismaService.material.findMany.mockResolvedValue([
+        { ...mockMaterial, SupplierId: 2 },
+      ]);
+      await expect(
+        service.update(
+          'incoming-1',
+          { materials: [{ materialId: 1, qty: 5 }] },
+          'tester',
+        ),
+      ).rejects.toThrow('All materials must belong');
+      expect(prismaService.incoming.update).not.toHaveBeenCalled();
+    });
+
+    it('allows changing header and all materials to the same supplier together', async () => {
+      prismaService.incoming.findUnique.mockResolvedValue(openIncoming);
+      prismaService.material.findMany.mockResolvedValue([
+        { ...mockMaterial, SupplierId: 2 },
+      ]);
+      prismaService.incoming.update.mockResolvedValue({
+        ...openIncoming,
+        SupplierId: 2,
+      });
+      await expect(
+        service.update(
+          'incoming-1',
+          { supplierId: 2, materials: [{ materialId: 1, qty: 5 }] },
+          'tester',
+        ),
+      ).resolves.toMatchObject({ SupplierId: 2 });
+      expect(prismaService.incomingMaterial.createMany).toHaveBeenCalled();
+    });
+
+    it('rejects checking existing mixed-supplier records without updating quantities', async () => {
+      prismaService.incoming.findUnique.mockResolvedValue(openIncoming);
+      await expect(
+        service.check(
+          'incoming-1',
+          { materials: [{ incomingMaterialId: 1, qtyChecked: 5 }] },
+          'tester',
+        ),
+      ).rejects.toThrow('All materials must belong');
+      expect(prismaService.incomingMaterial.update).not.toHaveBeenCalled();
+    });
+
+    it.each([openIncoming.IncomingMaterial[0].MaterialData, null])(
+      'rejects receipt of mismatched or missing material before stock and SAP capture',
+      async (material) => {
+        prismaService.incoming.findUnique.mockResolvedValue({
+          ...openIncoming,
+          IncomingMaterial: [
+            { ...openIncoming.IncomingMaterial[0], MaterialData: material },
+          ],
+        });
+        await expect(service.receive('incoming-1', 'tester')).rejects.toThrow(
+          'All materials must belong',
+        );
+        expect(prismaService.incoming.update).not.toHaveBeenCalled();
+        expect(prismaService.inventoryLedger.create).not.toHaveBeenCalled();
+        expect(prismaService.material.update).not.toHaveBeenCalled();
+      },
+    );
+  });
+
   describe('findAll', () => {
     it('should return all incomings', async () => {
       const mockIncomings = [
@@ -135,7 +277,11 @@ describe('IncomingService', () => {
 
       const result = await service.findOne('uuid-1');
 
-      expect(result).toEqual(mockIncoming);
+      expect(result).toEqual({
+        ...mockIncoming,
+        SAPIntegration: { status: 'NOT_CAPTURED', events: [] },
+        SAPDocuments: [],
+      });
     });
 
     it('should throw NotFoundException when not found', async () => {
@@ -195,6 +341,7 @@ describe('IncomingService', () => {
     const mockIncomingWithMaterials = {
       Id: 'uuid-1',
       PoId: 'PO-001',
+      SupplierId: 1,
       Closed: false,
       ApprovedAt: null,
       ApprovedBy: null,
@@ -204,14 +351,14 @@ describe('IncomingService', () => {
           MaterialId: 1,
           Qty: 100,
           QtyChecked: 0,
-          MaterialData: { PartNumber: 'MAT-001' },
+          MaterialData: { PartNumber: 'MAT-001', SupplierId: 1 },
         },
         {
           Id: 2,
           MaterialId: 2,
           Qty: 50,
           QtyChecked: 0,
-          MaterialData: { PartNumber: 'MAT-002' },
+          MaterialData: { PartNumber: 'MAT-002', SupplierId: 1 },
         },
       ],
     };
@@ -286,6 +433,7 @@ describe('IncomingService', () => {
     const mockIncomingForReceive = {
       Id: 'uuid-1',
       PoId: 'PO-001',
+      SupplierId: 1,
       Closed: false,
       ApprovedAt: null,
       ApprovedBy: null,
@@ -295,7 +443,7 @@ describe('IncomingService', () => {
           MaterialId: 1,
           Qty: 100,
           QtyChecked: 100, // Equal - can receive
-          MaterialData: { PartNumber: 'MAT-001' },
+          MaterialData: { PartNumber: 'MAT-001', SupplierId: 1 },
         },
       ],
     };

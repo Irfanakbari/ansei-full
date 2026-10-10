@@ -19,6 +19,7 @@ describe('DeliveryService', () => {
   let outboxService: any;
 
   const createMockTx = () => ({
+    productionFinding: { findFirst: jest.fn().mockResolvedValue(null) },
     productionTraceEvent: { create: jest.fn() },
     $executeRaw: jest.fn(),
     assemblySession: { findFirst: jest.fn().mockResolvedValue(null) },
@@ -81,7 +82,14 @@ describe('DeliveryService', () => {
       count: jest.fn(),
       findFirst: jest.fn(),
     },
-    inventoryLedger: { create: jest.fn() },
+    inventoryLedger: {
+      create: jest.fn(),
+      findMany: jest.fn().mockResolvedValue([]),
+    },
+    sapTransaction: {
+      findFirst: jest.fn().mockResolvedValue(null),
+      findMany: jest.fn().mockResolvedValue([]),
+    },
     $transaction: jest.fn(),
   };
 

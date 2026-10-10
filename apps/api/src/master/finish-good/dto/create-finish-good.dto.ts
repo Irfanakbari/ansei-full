@@ -25,7 +25,8 @@ export class CreateFinishGoodDto {
   partNumber: string;
 
   @ApiPropertyOptional({
-    description: 'Unique SAP part number',
+    description:
+      'SAP item code; multiple Genba finish goods may share this code',
     type: String,
     nullable: true,
   })

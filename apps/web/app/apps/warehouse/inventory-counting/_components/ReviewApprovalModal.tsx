@@ -302,7 +302,11 @@ const ReviewApprovalModal: React.FC<Props> = ({
               icon={<CheckOutlined />}
               loading={submitting}
               disabled={
-                !confirmedCheck || stats.incomplete > 0 || stats.total === 0
+                !confirmedCheck ||
+                stats.incomplete > 0 ||
+                stats.total === 0 ||
+                (data?.SAPCounting?.integrated === true &&
+                  !data.SAPCounting.ready)
               }
               onClick={handleApprove}
             >

@@ -4,9 +4,9 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider     = "prisma-client"
-  output       = "../src/generated/prisma"
-  moduleFormat = "cjs"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  moduleFormat    = "cjs"
   previewFeatures = ["views"]
 }
 
@@ -25,6 +25,7 @@ enum LocationType {
 
 // jenis transaksi buat tracking di ledger
 enum TransactionType {
+  CUSTOMER_RETURN
   INCOMING_SUPPLIER
   TRANSFER_TO_RACK
   PRODUCTION_USAGE
@@ -71,6 +72,8 @@ enum NotificationType {
 }
 
 enum OutboxEventType {
+  SAP_TRANSACTION
+  SAP_MATERIAL_UPDATE
   PRINT_PART_TAG_ANSEI
   DELIVERY_NOTE_EMAIL
   PALLET_CONNECTOR_HISTORY
@@ -227,7 +230,7 @@ model FinishGood {
   BomRevisions        BomRevision[] @relation("RevisionFinishGood")
   Id                  Int           @id @default(autoincrement())
   PartNumber          String        @unique
-  PartNumberSAP       String?       @unique
+  PartNumberSAP       String?
   PartName            String
   IsPassthrough       Boolean       @default(false)
 
@@ -248,13 +251,15 @@ model FinishGood {
   BillOfMaterials   BillOfMaterials[]
   BoxQTY            BoxQTY?
   Forecast          Forecast[]
-  NonPoForecasts ForecastNonPo[]
-  ProductionOrders ProductionOrder[]
+  NonPoForecasts    ForecastNonPo[]
+  ProductionOrders  ProductionOrder[]
   LabelData         LabelData[]
   LineStatus        LineStatus[]
   ProductionReport  ProductionReport[]
   InventoryLedger   InventoryLedger[]
   StockOpnameDetail StockOpnameDetail[]
+
+  @@index([PartNumberSAP])
 }
 
 model BoxQTY {
@@ -453,23 +458,23 @@ model IncomingMaterial {
 }
 
 model Forecast {
-  Demand ProductionDemand?
-  BomSnapshots    ProductionBomSnapshot[]
+  Demand             ProductionDemand?
+  BomSnapshots       ProductionBomSnapshot[]
   ProductionFindings ProductionFinding[]
-  TraceEvents       ProductionTraceEvent[]
-  Id                Int                     @id @default(autoincrement())
-  PoId            String                  @unique
-  Date            DateTime
-  VendorCode      String
-  VendorName      String
-  ReceivingArea   String
-  DeliveryDate    DateTime
-  DeliveryPeriod  Int
-  Classification  String
-  PoNumber        String
-  Item            Int
-  Qty             Int
-  FinishGoodId    String
+  TraceEvents        ProductionTraceEvent[]
+  Id                 Int                     @id @default(autoincrement())
+  PoId               String                  @unique
+  Date               DateTime
+  VendorCode         String
+  VendorName         String
+  ReceivingArea      String
+  DeliveryDate       DateTime
+  DeliveryPeriod     Int
+  Classification     String
+  PoNumber           String
+  Item               Int
+  Qty                Int
+  FinishGoodId       String
 
   // Relasi ke jadwal produksi. Jika null, berarti PO ini belum dijadwalkan oleh Leader.
   ProductionReleaseId String?
@@ -500,9 +505,9 @@ model ProductionRelease {
   BomSnapshots       ProductionBomSnapshot[]
   ProductionFindings ProductionFinding[]
   TraceEvents        ProductionTraceEvent[]
-  Id              String                  @id @default(uuid())
-  ReleaseNumber   String                  @unique
-  PlanDate        DateTime
+  Id                 String                  @id @default(uuid())
+  ReleaseNumber      String                  @unique
+  PlanDate           DateTime
 
   Status ProductionStatus @default(DRAFT)
   Notes  String?
@@ -521,12 +526,12 @@ model ProductionRelease {
   IsNoAttachment Boolean @default(false)
 
   // 1 Jadwal rilis BANYAK PO (Forecast)
-  SourceType DemandSource @default(PO)
-  Demands ProductionDemand[]
+  SourceType      DemandSource                  @default(PO)
+  Demands         ProductionDemand[]
   LegacyForecasts Forecast[]
-  Forecasts   ProductionOrder[]
-  LabelDatas  LabelData[]
-  Attachments ProductionReleaseAttachment[]
+  Forecasts       ProductionOrder[]
+  LabelDatas      LabelData[]
+  Attachments     ProductionReleaseAttachment[]
 
   @@index([PlanDate])
   @@index([Status])
@@ -554,27 +559,27 @@ model ProductionReleaseAttachment {
 }
 
 model Shopping {
-  LegacyPoId String? @map("ForecastId")
-  LegacyForecast Forecast? @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
-  Demand ProductionDemand? @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
-  Purpose        ShoppingPurpose            @default(LEGACY_UNCLASSIFIED)
-  Destination    String?
-  SnapshotLineId String?
-  CommandId      String?
-  SnapshotLine   ProductionBomSnapshotLine? @relation(fields: [SnapshotLineId], references: [Id], onDelete: Restrict)
-  Command        BusinessCommand?           @relation(fields: [CommandId], references: [Id], onDelete: Restrict)
-  Id             String                     @id
-  Description    String?
-  Type           TypeShopping
-  CreatedAt      DateTime                   @default(now())
-  UpdatedAt      DateTime                   @updatedAt
-  ProductionDemandId     String?
-  CreatedBy      String
-  QtyPick        Int
-  MaterialId     String
+  LegacyPoId         String?                    @map("ForecastId")
+  LegacyForecast     Forecast?                  @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
+  Demand             ProductionDemand?          @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
+  Purpose            ShoppingPurpose            @default(LEGACY_UNCLASSIFIED)
+  Destination        String?
+  SnapshotLineId     String?
+  CommandId          String?
+  SnapshotLine       ProductionBomSnapshotLine? @relation(fields: [SnapshotLineId], references: [Id], onDelete: Restrict)
+  Command            BusinessCommand?           @relation(fields: [CommandId], references: [Id], onDelete: Restrict)
+  Id                 String                     @id
+  Description        String?
+  Type               TypeShopping
+  CreatedAt          DateTime                   @default(now())
+  UpdatedAt          DateTime                   @updatedAt
+  ProductionDemandId String?
+  CreatedBy          String
+  QtyPick            Int
+  MaterialId         String
 
-  ForecastData      ProductionOrder?                     @relation(fields: [ProductionDemandId], references: [PoId], map: "Shopping_order_view")
-  MaterialData      Material                      @relation(fields: [MaterialId], references: [PartNumber])
+  ForecastData      ProductionOrder?             @relation(fields: [ProductionDemandId], references: [PoId], map: "Shopping_order_view")
+  MaterialData      Material                     @relation(fields: [MaterialId], references: [PartNumber])
   FindingAllocation ProductionFindingAllocation?
 
   @@index([ProductionDemandId], map: "Shopping_forecastId_fkey")
@@ -582,13 +587,13 @@ model Shopping {
 }
 
 model ShoppingCompletion {
-  LegacyPoId String? @unique @map("ForecastId")
-  LegacyForecast Forecast? @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
-  Demand ProductionDemand @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
-  ProductionDemandId String   @id
-  ShoppingId String   @unique
-  CreatedAt  DateTime @default(now())
-  CreatedBy  String
+  LegacyPoId         String?          @unique @map("ForecastId")
+  LegacyForecast     Forecast?        @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
+  Demand             ProductionDemand @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
+  ProductionDemandId String           @id
+  ShoppingId         String           @unique
+  CreatedAt          DateTime         @default(now())
+  CreatedBy          String
 
   Forecast ProductionOrder @relation(fields: [ProductionDemandId], references: [PoId], map: "ShoppingCompletion_order_view")
 
@@ -596,6 +601,7 @@ model ShoppingCompletion {
 }
 
 model OutboxEvent {
+  SapTransaction SapTransaction?
   PrintJob       PrintJob?
   Id             String            @id @default(uuid())
   IdempotencyKey String            @unique @db.VarChar(255)
@@ -621,70 +627,158 @@ model OutboxEvent {
   @@index([ReferenceType, ReferenceId, CreatedAt])
 }
 
-model ProductionReport {
-  LegacyPoId String? @map("ForecastId")
-  LegacyForecast Forecast? @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
-  Demand ProductionDemand? @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
-  Id              Int              @id @default(autoincrement())
-  Date            String?
-  Time            String?
-  ProductionStamp DateTime
-  NgQty           Int              @default(0)
-  StartTime       String?
-  StartStamp      DateTime?
-  EndTime         String?
-  EndStamp        DateTime?
-  StopMinute      Int?             @default(0)
-  LatchDate       String?
-  CableHDate      String?
-  CableLDate      String?
-  CoverDate       String?
-  RodDate         String?
-  SponsDate       String?
-  SponsRearDate   String?
-  ClipDate        String?
-  LeverDate       String?
-  SmallPadDate    String?
-  ActuatorDate    String?
-  BackPlateDate   String?
-  StampDate       String?
-  PoNumber        String?
-  CreatedAt       DateTime         @default(now())
-  UpdatedAt       DateTime         @updatedAt
-  ValidatedAt     DateTime?
-  ValidatedBy     String?
-  RecordType      PartType?
-  Qty             Int              @default(0)
-  ManPowerUid     String
-  FinishGoodId    String
-  ProductionDemandId      String?
+// Immutable operational intent. Delivery state belongs exclusively to OutboxEvent.
+model SapTransaction {
+  Id               String      @id
+  Event            OutboxEvent @relation(fields: [Id], references: [Id], onDelete: Restrict)
+  SourceKey        String      @unique
+  LedgerId         String?     @unique
+  DemandId         String?
+  Kind             String
+  Company          String
+  Warehouse        String
+  ItemCode         String
+  Quantity         Int
+  Snapshot         Json
+  SubmittedRequest Json?
+  Effects          Json
+  DocumentEntry    Int?
+  DocumentNumber   Int?
+  PostedAt         DateTime?
+  CreatedAt        DateTime    @default(now())
 
-  ManPowerData ManPower   @relation(fields: [ManPowerUid], references: [Uid])
-  FGData       FinishGood @relation(fields: [FinishGoodId], references: [PartNumber])
-  ForecastData ProductionOrder?  @relation(fields: [ProductionDemandId], references: [PoId], map: "ProductionReport_order_view")
+  @@index([DemandId, Kind])
+  @@index([Company, Warehouse, ItemCode])
+}
+
+model SapDemandMapping {
+  DemandId        String   @id
+  Company         String
+  ItemCode        String
+  SalesOrderEntry Int?
+  SalesOrderLine  Int?
+  AutoCreate      Boolean  @default(false)
+  CardCode        String
+  UpdatedAt       DateTime @updatedAt
+  UpdatedBy       String
+}
+
+model SapBackflushPick {
+  LedgerId  String   @id
+  Company   String
+  Warehouse String
+  ItemCode  String
+  DemandId  String
+  Quantity  Int
+  CreatedAt DateTime @default(now())
+
+  @@index([Company, Warehouse, ItemCode])
+  @@index([DemandId])
+}
+
+model SapStockSnapshot {
+  Company    String
+  Warehouse  String
+  ItemCode   String
+  Quantity   Float
+  ObservedAt DateTime
+  StartedAt  DateTime
+
+  @@id([Company, Warehouse, ItemCode])
+}
+
+model SapConnectionState {
+  Company             String    @id
+  IntegrationSettings Json?
+  CheckedAt           DateTime?
+  Connected           Boolean   @default(false)
+  RefreshStartedAt    DateTime?
+  RefreshedAt         DateTime?
+  RefreshError        String?
+  WorkerAt            DateTime?
+  DocumentCursors     Json?
+}
+
+model SapExternalDocument {
+  Company        String
+  Resource       String
+  DocumentEntry  Int
+  DocumentNumber Int
+  Warehouse      String
+  ObservedAt     DateTime @default(now())
+
+  @@id([Company, Resource, DocumentEntry])
+  @@index([Company, Warehouse, ObservedAt])
+}
+
+model ProductionReport {
+  LegacyPoId         String?           @map("ForecastId")
+  LegacyForecast     Forecast?         @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
+  Demand             ProductionDemand? @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
+  Id                 Int               @id @default(autoincrement())
+  Date               String?
+  Time               String?
+  ProductionStamp    DateTime
+  NgQty              Int               @default(0)
+  StartTime          String?
+  StartStamp         DateTime?
+  EndTime            String?
+  EndStamp           DateTime?
+  StopMinute         Int?              @default(0)
+  LatchDate          String?
+  CableHDate         String?
+  CableLDate         String?
+  CoverDate          String?
+  RodDate            String?
+  SponsDate          String?
+  SponsRearDate      String?
+  ClipDate           String?
+  LeverDate          String?
+  SmallPadDate       String?
+  ActuatorDate       String?
+  BackPlateDate      String?
+  StampDate          String?
+  PoNumber           String?
+  CreatedAt          DateTime          @default(now())
+  UpdatedAt          DateTime          @updatedAt
+  ValidatedAt        DateTime?
+  ValidatedBy        String?
+  RecordType         PartType?
+  Qty                Int               @default(0)
+  ManPowerUid        String
+  FinishGoodId       String
+  ProductionDemandId String?
+
+  ManPowerData ManPower         @relation(fields: [ManPowerUid], references: [Uid])
+  FGData       FinishGood       @relation(fields: [FinishGoodId], references: [PartNumber])
+  ForecastData ProductionOrder? @relation(fields: [ProductionDemandId], references: [PoId], map: "ProductionReport_order_view")
 
   @@unique([Date, ManPowerUid, FinishGoodId, CreatedAt])
   @@index([ProductionDemandId])
 }
 
 model LabelData {
-  LegacyPoId String? @map("ForecastId")
-  LegacyForecast Forecast? @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
-  Demand ProductionDemand @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
-  ProductionFindings ProductionFinding[]
-  RequiresAssembly  Boolean?
-  AssemblySessions AssemblySession[]
-  Id               Int               @id @default(autoincrement())
-  LabelNumber      String            @unique
-  FinishGoodId     String
-  ProductionDemandId       String
-  Scanned          Boolean           @default(false)
-  QtyThisBox       Int               @default(0)
+  InvalidatedAt        DateTime?
+  StockSourceLabelId   Int?
+  ReplacesLabelId      Int?
+  ReplacementFindingId String?
+  LegacyPoId           String?             @map("ForecastId")
+  LegacyForecast       Forecast?           @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
+  Demand               ProductionDemand    @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
+  ProductionFindings   ProductionFinding[]
+  RequiresAssembly     Boolean?
+  AssemblySessions     AssemblySession[]
+  Id                   Int                 @id @default(autoincrement())
+  LabelNumber          String              @unique
+  FinishGoodId         String
+  ProductionDemandId   String
+  Scanned              Boolean             @default(false)
+  QtyThisBox           Int                 @default(0)
 
   DeliveryHistory       DeliveryHistory?
   PokayokeHistory       PokayokeScanHistory[]
   PartData              FinishGood            @relation(fields: [FinishGoodId], references: [PartNumber])
-  POData                ProductionOrder              @relation(fields: [ProductionDemandId], references: [PoId], map: "LabelData_order_view")
+  POData                ProductionOrder       @relation(fields: [ProductionDemandId], references: [PoId], map: "LabelData_order_view")
   ProductionRelease     ProductionRelease?    @relation(fields: [ProductionReleaseId], references: [Id])
   ProductionReleaseId   String?
   PokayokeScanHistoryId String?
@@ -701,23 +795,23 @@ enum AssemblyStatus {
 }
 
 model AssemblySession {
-  Id                String           @id @default(uuid())
+  Id                String         @id @default(uuid())
   LabelDataId       Int
   ManPowerUid       String
   ManPowerName      String
-  Status            AssemblyStatus   @default(IN_PROGRESS)
-  StartedAt         DateTime         @default(now())
+  Status            AssemblyStatus @default(IN_PROGRESS)
+  StartedAt         DateTime       @default(now())
   EndedAt           DateTime?
   CancelledAt       DateTime?
   CancelledBy       String?
   CancelReason      String?
-  StartRequestId    String           @unique
-  CompleteRequestId String?          @unique
+  StartRequestId    String         @unique
+  CompleteRequestId String?        @unique
   CreatedBy         String
   CompletedBy       String?
   Channel           String
-  LabelData         LabelData        @relation(fields: [LabelDataId], references: [Id], onDelete: Restrict)
-  ManPower          ManPower         @relation(fields: [ManPowerUid], references: [Uid], onDelete: Restrict)
+  LabelData         LabelData      @relation(fields: [LabelDataId], references: [Id], onDelete: Restrict)
+  ManPower          ManPower       @relation(fields: [ManPowerUid], references: [Uid], onDelete: Restrict)
 
   @@index([LabelDataId, Status])
   @@index([ManPowerUid, Status])
@@ -739,19 +833,19 @@ model PokayokeScanHistory {
 }
 
 model DeliveryHistory {
-  LegacyPoId String? @map("ForecastId")
-  LegacyForecast Forecast? @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
-  Demand ProductionDemand @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
-  Id           Int      @id @default(autoincrement())
-  ProductionDemandId   String
-  Qty          Int
-  PalletNumber String?
-  CreatedAt    DateTime @default(now())
-  CreatedBy    String
-  LabelDataId  String   @unique(map: "DeliveryHistory_pk")
+  LegacyPoId         String?          @map("ForecastId")
+  LegacyForecast     Forecast?        @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
+  Demand             ProductionDemand @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
+  Id                 Int              @id @default(autoincrement())
+  ProductionDemandId String
+  Qty                Int
+  PalletNumber       String?
+  CreatedAt          DateTime         @default(now())
+  CreatedBy          String
+  LabelDataId        String           @unique(map: "DeliveryHistory_pk")
 
-  PoData    ProductionOrder  @relation(fields: [ProductionDemandId], references: [PoId], map: "DeliveryHistory_order_view")
-  LabelData LabelData @relation(fields: [LabelDataId], references: [LabelNumber])
+  PoData    ProductionOrder @relation(fields: [ProductionDemandId], references: [PoId], map: "DeliveryHistory_order_view")
+  LabelData LabelData       @relation(fields: [LabelDataId], references: [LabelNumber])
 
   @@index([ProductionDemandId], map: "DeliveryHistory_forecastId_fkey")
   @@index([CreatedAt])
@@ -1212,11 +1306,11 @@ model BomRevisionEvent {
 }
 
 model ProductionBomSnapshot {
-  LegacyPoId String? @map("ForecastId")
-  LegacyForecast Forecast? @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
-  Demand ProductionDemand @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
+  LegacyPoId           String?                     @map("ForecastId")
+  LegacyForecast       Forecast?                   @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
+  Demand               ProductionDemand            @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
   Id                   String                      @id @default(uuid())
-  ProductionDemandId           String
+  ProductionDemandId   String
   ReleaseId            String
   RevisionId           String
   Version              Int
@@ -1226,7 +1320,7 @@ model ProductionBomSnapshot {
   FinishGoodPartName   String
   CreatedBy            String
   CreatedAt            DateTime                    @default(now())
-  Forecast             ProductionOrder                    @relation(fields: [ProductionDemandId], references: [PoId], map: "ProductionBomSnapshot_order_view")
+  Forecast             ProductionOrder             @relation(fields: [ProductionDemandId], references: [PoId], map: "ProductionBomSnapshot_order_view")
   Release              ProductionRelease           @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
   Revision             BomRevision                 @relation(fields: [RevisionId], references: [Id], onDelete: Restrict)
   Previous             ProductionBomSnapshot?      @relation("PreviousSnapshot", fields: [PreviousId], references: [Id], onDelete: Restrict)
@@ -1239,16 +1333,16 @@ model ProductionBomSnapshot {
 }
 
 model ProductionBomSnapshotLine {
-  Id          String                @id @default(uuid())
-  SnapshotId  String
-  MaterialId  Int
-  QtyPerUnit  Int
-  RequiredQty Int
-  PartNumber  String
-  PartName    String
-  UnitName    String?
-  Snapshot    ProductionBomSnapshot @relation(fields: [SnapshotId], references: [Id], onDelete: Restrict)
-  Material    Material              @relation(fields: [MaterialId], references: [Id], onDelete: Restrict)
+  Id                          String                       @id @default(uuid())
+  SnapshotId                  String
+  MaterialId                  Int
+  QtyPerUnit                  Int
+  RequiredQty                 Int
+  PartNumber                  String
+  PartName                    String
+  UnitName                    String?
+  Snapshot                    ProductionBomSnapshot        @relation(fields: [SnapshotId], references: [Id], onDelete: Restrict)
+  Material                    Material                     @relation(fields: [MaterialId], references: [Id], onDelete: Restrict)
   Shopping                    Shopping[]
   ProductionFindingComponents ProductionFindingComponent[]
 
@@ -1269,55 +1363,69 @@ model BusinessCommand {
 }
 
 model ProductionFinding {
-  LegacyPoId String? @map("ForecastId")
-  LegacyForecast Forecast? @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
-  Demand ProductionDemand? @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
-  Id             String                    @id @default(uuid())
-  RecordNumber   String                    @unique
-  Category       ProductionFindingCategory
-  Status         ProductionFindingStatus   @default(PENDING)
-  Location       LocationType?
-  MaterialId     String?
-  Qty            Int
-  Reason         String
-  Reporter       String
-  SubmittedAt    DateTime                  @default(now())
-  ProductionDemandId     String?
-  ReleaseId      String?
-  SnapshotId     String?
-  LabelId        Int?
-  ReviewedBy     String?
-  ReviewedAt     DateTime?
-  ReviewNote     String?
-  CompletedBy    String?
-  CompletedAt    DateTime?
-  CreatedAt      DateTime                  @default(now())
-  UpdatedAt      DateTime                  @updatedAt
-  DeletedAt      DateTime?
-  DeletedBy      String?
-  Material       Material?                 @relation(fields: [MaterialId], references: [PartNumber], onDelete: Restrict)
-  Forecast       ProductionOrder?                 @relation(fields: [ProductionDemandId], references: [PoId], map: "ProductionFinding_order_view")
-  Release        ProductionRelease?        @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
-  Snapshot       ProductionBomSnapshot?    @relation(fields: [SnapshotId], references: [Id], onDelete: Restrict)
-  Label          LabelData?                @relation(fields: [LabelId], references: [Id], onDelete: Restrict)
-  Components     ProductionFindingComponent[]
-  Allocations    ProductionFindingAllocation[]
-  Events         ProductionFindingEvent[]
+  Disposition        String                        @default("REWORK")
+  ReplacementLabelId Int?
+  LegacyPoId         String?                       @map("ForecastId")
+  LegacyForecast     Forecast?                     @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
+  Demand             ProductionDemand?             @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
+  Id                 String                        @id @default(uuid())
+  RecordNumber       String                        @unique
+  Category           ProductionFindingCategory
+  Status             ProductionFindingStatus       @default(PENDING)
+  Location           LocationType?
+  MaterialId         String?
+  Qty                Int
+  Reason             String
+  Reporter           String
+  SubmittedAt        DateTime                      @default(now())
+  ProductionDemandId String?
+  ReleaseId          String?
+  SnapshotId         String?
+  LabelId            Int?
+  ReviewedBy         String?
+  ReviewedAt         DateTime?
+  ReviewNote         String?
+  CompletedBy        String?
+  CompletedAt        DateTime?
+  CreatedAt          DateTime                      @default(now())
+  UpdatedAt          DateTime                      @updatedAt
+  DeletedAt          DateTime?
+  DeletedBy          String?
+  Material           Material?                     @relation(fields: [MaterialId], references: [PartNumber], onDelete: Restrict)
+  Forecast           ProductionOrder?              @relation(fields: [ProductionDemandId], references: [PoId], map: "ProductionFinding_order_view")
+  Release            ProductionRelease?            @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
+  Snapshot           ProductionBomSnapshot?        @relation(fields: [SnapshotId], references: [Id], onDelete: Restrict)
+  Label              LabelData?                    @relation(fields: [LabelId], references: [Id], onDelete: Restrict)
+  Components         ProductionFindingComponent[]
+  Allocations        ProductionFindingAllocation[]
+  Events             ProductionFindingEvent[]
 
   @@index([Status, SubmittedAt])
   @@index([ProductionDemandId, SubmittedAt])
   @@index([MaterialId, SubmittedAt])
 }
 
+model CustomerReturn {
+  Id               String   @id @default(uuid())
+  DeliveryId       Int
+  Quantity         Int
+  ScrappedQuantity Int      @default(0)
+  Reason           String
+  CreatedBy        String
+  CreatedAt        DateTime @default(now())
+
+  @@index([DeliveryId])
+}
+
 model ProductionFindingComponent {
-  Id             String                     @id @default(uuid())
+  Id             String                        @id @default(uuid())
   FindingId      String
   SnapshotLineId String?
   MaterialId     String
   Qty            Int
-  Finding        ProductionFinding          @relation(fields: [FindingId], references: [Id], onDelete: Restrict)
-  SnapshotLine   ProductionBomSnapshotLine? @relation(fields: [SnapshotLineId], references: [Id], onDelete: Restrict)
-  Material       Material                   @relation(fields: [MaterialId], references: [PartNumber], onDelete: Restrict)
+  Finding        ProductionFinding             @relation(fields: [FindingId], references: [Id], onDelete: Restrict)
+  SnapshotLine   ProductionBomSnapshotLine?    @relation(fields: [SnapshotLineId], references: [Id], onDelete: Restrict)
+  Material       Material                      @relation(fields: [MaterialId], references: [PartNumber], onDelete: Restrict)
   Allocations    ProductionFindingAllocation[]
 
   @@unique([FindingId, SnapshotLineId])
@@ -1341,40 +1449,39 @@ model ProductionFindingAllocation {
 }
 
 model ProductionFindingEvent {
-  Id         String            @id @default(uuid())
-  FindingId  String
-  Type       String
-  Actor      String
-  Metadata   Json?
-  CreatedAt  DateTime          @default(now())
-  Finding    ProductionFinding @relation(fields: [FindingId], references: [Id], onDelete: Restrict)
+  Id        String            @id @default(uuid())
+  FindingId String
+  Type      String
+  Actor     String
+  Metadata  Json?
+  CreatedAt DateTime          @default(now())
+  Finding   ProductionFinding @relation(fields: [FindingId], references: [Id], onDelete: Restrict)
 
   @@index([FindingId, CreatedAt])
 }
 
 model ProductionTraceEvent {
-  LegacyPoId String? @map("ForecastId")
-  LegacyForecast Forecast? @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
-  Demand ProductionDemand @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
-  Id            String             @id @default(uuid())
-  ProductionDemandId    String
-  ReleaseId     String?
-  Type          String
-  SourceType    String
-  SourceId      String
-  Actor         String
-  CorrelationId String
-  ProcessId     String?
-  Metadata      Json?
-  CreatedAt     DateTime           @default(now())
-  Forecast      ProductionOrder           @relation(fields: [ProductionDemandId], references: [PoId], map: "ProductionTraceEvent_order_view")
-  Release       ProductionRelease? @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
-  Process       LogProcess?        @relation(fields: [ProcessId], references: [ProcessId], onDelete: Restrict)
+  LegacyPoId         String?            @map("ForecastId")
+  LegacyForecast     Forecast?          @relation(fields: [LegacyPoId], references: [PoId], onDelete: Restrict)
+  Demand             ProductionDemand   @relation(fields: [ProductionDemandId], references: [Id], onDelete: Restrict)
+  Id                 String             @id @default(uuid())
+  ProductionDemandId String
+  ReleaseId          String?
+  Type               String
+  SourceType         String
+  SourceId           String
+  Actor              String
+  CorrelationId      String
+  ProcessId          String?
+  Metadata           Json?
+  CreatedAt          DateTime           @default(now())
+  Forecast           ProductionOrder    @relation(fields: [ProductionDemandId], references: [PoId], map: "ProductionTraceEvent_order_view")
+  Release            ProductionRelease? @relation(fields: [ReleaseId], references: [Id], onDelete: Restrict)
+  Process            LogProcess?        @relation(fields: [ProcessId], references: [ProcessId], onDelete: Restrict)
 
   @@index([ProductionDemandId, CreatedAt, Id])
   @@index([CorrelationId])
 }
-
 
 enum DemandSource {
   PO
@@ -1382,77 +1489,79 @@ enum DemandSource {
 }
 
 model ForecastNonPo {
-  Id Int @id @default(autoincrement())
-  ReferenceNumber String @unique
-  PartNumber String
-  DeliveryDate DateTime
-  ReceivingArea String
-  DeliveryPeriod Int
-  Qty Int
-  PoNumber String?
-  Notes String?
-  CreatedAt DateTime @default(now())
-  CreatedBy String
-  UpdatedAt DateTime @updatedAt
-  UpdatedBy String
-  PartData FinishGood @relation(fields: [PartNumber], references: [PartNumber], onDelete: Restrict)
-  Demand ProductionDemand?
+  Id              Int               @id @default(autoincrement())
+  ReferenceNumber String            @unique
+  PartNumber      String
+  DeliveryDate    DateTime
+  ReceivingArea   String
+  DeliveryPeriod  Int
+  Qty             Int
+  PoNumber        String?
+  Notes           String?
+  CreatedAt       DateTime          @default(now())
+  CreatedBy       String
+  UpdatedAt       DateTime          @updatedAt
+  UpdatedBy       String
+  PartData        FinishGood        @relation(fields: [PartNumber], references: [PartNumber], onDelete: Restrict)
+  Demand          ProductionDemand?
+
   @@index([DeliveryDate])
   @@index([PartNumber])
 }
 
 model ProductionDemand {
   // Stable operational reference. Existing PO IDs and barcode bases are preserved.
-  Id String @id
-  SourceType DemandSource
-  ForecastPoId String? @unique
-  ForecastNonPoId Int? @unique
+  Id                  String                  @id
+  SourceType          DemandSource
+  ForecastPoId        String?                 @unique
+  ForecastNonPoId     Int?                    @unique
   ProductionReleaseId String?
-  Forecast Forecast? @relation(fields: [ForecastPoId], references: [PoId], onDelete: Cascade, onUpdate: Cascade)
-  ForecastNonPo ForecastNonPo? @relation(fields: [ForecastNonPoId], references: [Id], onDelete: Cascade)
-  ProductionRelease ProductionRelease? @relation(fields: [ProductionReleaseId], references: [Id], onDelete: Restrict)
-  Shopping Shopping[]
-  ShoppingCompletion ShoppingCompletion?
-  ProductionReport ProductionReport[]
-  LabelData LabelData[]
-  DeliveryHistory DeliveryHistory[]
-  BomSnapshots ProductionBomSnapshot[]
-  ProductionFindings ProductionFinding[]
-  TraceEvents ProductionTraceEvent[]
+  Forecast            Forecast?               @relation(fields: [ForecastPoId], references: [PoId], onDelete: Cascade, onUpdate: Cascade)
+  ForecastNonPo       ForecastNonPo?          @relation(fields: [ForecastNonPoId], references: [Id], onDelete: Cascade)
+  ProductionRelease   ProductionRelease?      @relation(fields: [ProductionReleaseId], references: [Id], onDelete: Restrict)
+  Shopping            Shopping[]
+  ShoppingCompletion  ShoppingCompletion?
+  ProductionReport    ProductionReport[]
+  LabelData           LabelData[]
+  DeliveryHistory     DeliveryHistory[]
+  BomSnapshots        ProductionBomSnapshot[]
+  ProductionFindings  ProductionFinding[]
+  TraceEvents         ProductionTraceEvent[]
+
   @@index([ProductionReleaseId])
 }
 
 model ForecastNonPoImport {
-  Id String @id @default(uuid())
-  FileHash String @unique
-  RequestId String @unique
-  SourceIds Int[] @default([])
-  PayloadHash String?
+  Id           String   @id @default(uuid())
+  FileHash     String   @unique
+  RequestId    String   @unique
+  SourceIds    Int[]    @default([])
+  PayloadHash  String?
   CreatedCount Int
-  CreatedAt DateTime @default(now())
-  CreatedBy String
+  CreatedAt    DateTime @default(now())
+  CreatedBy    String
 }
 
 // Read-only projection; SQL definition lives in the demand migration.
 view ProductionOrder {
-  SourceType DemandSource
-  Notes String?
-  BomSnapshots    ProductionBomSnapshot[]
+  SourceType         DemandSource
+  Notes              String?
+  BomSnapshots       ProductionBomSnapshot[]
   ProductionFindings ProductionFinding[]
-  TraceEvents       ProductionTraceEvent[]
-  Id Int @unique
-  PoId            String                  @unique
-  Date            DateTime
-  VendorCode      String
-  VendorName      String
-  ReceivingArea   String
-  DeliveryDate    DateTime
-  DeliveryPeriod  Int
-  Classification  String
-  PoNumber        String
-  Item            Int
-  Qty             Int
-  FinishGoodId    String
+  TraceEvents        ProductionTraceEvent[]
+  Id                 Int                     @unique
+  PoId               String                  @unique
+  Date               DateTime
+  VendorCode         String
+  VendorName         String
+  ReceivingArea      String
+  DeliveryDate       DateTime
+  DeliveryPeriod     Int
+  Classification     String
+  PoNumber           String
+  Item               Int
+  Qty                Int
+  FinishGoodId       String
 
   // Relasi ke jadwal produksi. Jika null, berarti PO ini belum dijadwalkan oleh Leader.
   ProductionReleaseId String?
@@ -1464,5 +1573,4 @@ view ProductionOrder {
   ShoppingCompletion ShoppingCompletion?
   ProductionRelease  ProductionRelease?  @relation(fields: [ProductionReleaseId], references: [Id])
   ProductionReport   ProductionReport[]
-
 }

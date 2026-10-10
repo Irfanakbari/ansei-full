@@ -1,3 +1,4 @@
+import { SapItemSyncService } from '../../common/sap/sap-item-sync.service';
 import * as ExcelJS from 'exceljs';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
@@ -110,6 +111,10 @@ describe('FinishGoodService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         FinishGoodService,
+        {
+          provide: SapItemSyncService,
+          useValue: { decorate: jest.fn((items: unknown[]) => items) },
+        },
         { provide: PrismaService, useValue: prismaService },
         { provide: LogProcessService, useValue: logService },
       ],
@@ -473,31 +478,68 @@ describe('FinishGoodService', () => {
       expect(prismaService.finishGood.update).toHaveBeenCalled();
     });
 
-    it('rejects a duplicate on create and records failure', async () => {
-      prismaService.finishGood.findUnique
-        .mockResolvedValueOnce(null)
-        .mockResolvedValueOnce({ ...mockFinishGood, Id: 2 });
-      await expect(
-        service.create(
-          { partNumber: 'NEW', partName: 'New', partNumberSAP: 'SAP' },
+    it('allows distinct Genba parts to share a SAP item on create', async () => {
+      prismaService.finishGood.findUnique.mockImplementation(
+        ({
+          where,
+        }: {
+          where: { PartNumber?: string; PartNumberSAP?: string };
+        }) =>
+          Promise.resolve(
+            where.PartNumberSAP
+              ? { ...mockFinishGood, PartNumberSAP: '5715B132-KD1' }
+              : null,
+          ),
+      );
+      for (const partNumber of ['5715B132-KD', '5715B132-KD1']) {
+        await service.create(
+          {
+            partNumber,
+            partName: 'Shared SAP item',
+            partNumberSAP: '5715B132-KD1',
+          },
           'tester',
-        ),
-      ).rejects.toBeInstanceOf(ConflictException);
-      expect(prismaService.finishGood.create).not.toHaveBeenCalled();
+        );
+      }
+      expect(prismaService.finishGood.create).toHaveBeenCalledTimes(2);
+      for (const partNumber of ['5715B132-KD', '5715B132-KD1']) {
+        expect(prismaService.finishGood.create).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              PartNumber: partNumber,
+              PartNumberSAP: '5715B132-KD1',
+            }),
+          }),
+        );
+      }
       expect(logService.completeProcess).toHaveBeenCalledWith(
         mockLogProcess.ProcessId,
-        'FAILED',
+        'SUCCESS',
       );
+      expect(prismaService.inventoryLedger.create).not.toHaveBeenCalled();
     });
 
-    it('rejects a duplicate on update', async () => {
-      prismaService.finishGood.findUnique
-        .mockResolvedValueOnce(mockFinishGood)
-        .mockResolvedValueOnce({ ...mockFinishGood, Id: 2 });
-      await expect(
-        service.update(mockFinishGood.Id, { partNumberSAP: 'SAP' }, 'tester'),
-      ).rejects.toBeInstanceOf(ConflictException);
-      expect(prismaService.finishGood.update).not.toHaveBeenCalled();
+    it('allows updating SAP mapping to a code already used by another FG', async () => {
+      prismaService.finishGood.findUnique.mockImplementation(
+        ({ where }: { where: { Id?: number; PartNumberSAP?: string } }) =>
+          Promise.resolve(
+            where.Id
+              ? mockFinishGood
+              : { ...mockFinishGood, Id: 2, PartNumberSAP: '5715B132-KD1' },
+          ),
+      );
+      await service.update(
+        mockFinishGood.Id,
+        { partNumberSAP: '5715B132-KD1' },
+        'tester',
+      );
+      expect(prismaService.finishGood.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { Id: mockFinishGood.Id },
+          data: expect.objectContaining({ PartNumberSAP: '5715B132-KD1' }),
+        }),
+      );
+      expect(prismaService.inventoryLedger.create).not.toHaveBeenCalled();
     });
 
     it('searches SAP consistently but excludes it from Excel cells', async () => {

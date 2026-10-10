@@ -1,3 +1,4 @@
+import type { SapOperationStatus } from "@/components/SapStatusTag";
 /* By Irfan Akbari Vuteq Indonesia - 2026-09-18 */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { withBasePath } from "@/lib/base-path";
@@ -9,6 +10,7 @@ import {
   type ApiSuccessEnvelope,
 } from "@/store/utils/apiService";
 export interface AssemblySession {
+  SAPIntegration?: SapOperationStatus;
   Id: string;
   ManPowerUid: string;
   ManPowerName: string;
