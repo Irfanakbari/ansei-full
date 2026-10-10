@@ -3,10 +3,18 @@
     "source": "combined-git-history",
     "upstreamRepository": "https://github.com/Vuteq-Indonesia/api-ansei-revamp",
     "generatedAt": "2026-10-10",
-    "commitCount": 162,
+    "commitCount": 163,
     "format": "standardized-curated-commit-summaries"
   },
   "commits": [
+    {
+      "hash": "release-6.18.1",
+      "shortHash": "v6.18.1",
+      "author": "ANSEI Team",
+      "date": "2026-10-10T22:30:15+07:00",
+      "category": "Fix",
+      "summary": "Version 6.18.1: Correct SAP connection state migration order for clean database deployments"
+    },
     {
       "hash": "release-6.18.0",
       "shortHash": "v6.18.0",

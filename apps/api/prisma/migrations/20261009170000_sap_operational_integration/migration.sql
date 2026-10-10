@@ -27,10 +27,6 @@ CREATE TABLE "SapStockSnapshot" (
   "ObservedAt" TIMESTAMP(3) NOT NULL, "StartedAt" TIMESTAMP(3) NOT NULL,
   CONSTRAINT "SapStockSnapshot_pkey" PRIMARY KEY ("Company", "Warehouse", "ItemCode")
 );
-CREATE TABLE "SapConnectionState" (
-  "Company" TEXT PRIMARY KEY, "CheckedAt" TIMESTAMP(3), "Connected" BOOLEAN NOT NULL DEFAULT false,
-  "RefreshStartedAt" TIMESTAMP(3), "RefreshedAt" TIMESTAMP(3), "RefreshError" TEXT, "WorkerAt" TIMESTAMP(3)
-);
 ALTER TABLE "LabelData" ADD COLUMN "InvalidatedAt" TIMESTAMP(3), ADD COLUMN "StockSourceLabelId" INTEGER,
   ADD COLUMN "ReplacesLabelId" INTEGER, ADD COLUMN "ReplacementFindingId" TEXT;
 ALTER TABLE "ProductionFinding" ADD COLUMN "Disposition" TEXT NOT NULL DEFAULT 'REWORK', ADD COLUMN "ReplacementLabelId" INTEGER;
