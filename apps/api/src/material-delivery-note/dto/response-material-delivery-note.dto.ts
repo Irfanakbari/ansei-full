@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DeliveryNoteStatus } from '../../generated/prisma/enums';
+import { SapDocumentSummary } from '../../common/sap/sap-document-summary';
 
 export class MaterialResponseDto {
   @ApiProperty({ example: 'PN-001' })
@@ -77,6 +78,13 @@ export class MaterialDeliveryNoteResponseDto {
 
   @ApiProperty({ type: [MaterialDeliveryNoteDetailResponseDto] })
   Details: MaterialDeliveryNoteDetailResponseDto[];
+
+  @ApiProperty({
+    type: [SapDocumentSummary],
+    required: false,
+    description: 'SAP Goods Issue documents linked to this delivery note',
+  })
+  SAPDocuments?: SapDocumentSummary[];
 }
 
 export class PaginatedMaterialDeliveryNoteResponseDto {

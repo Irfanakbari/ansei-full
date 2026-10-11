@@ -48,6 +48,7 @@ describe('MaterialDeliveryNoteService', () => {
     ShippedBy: null,
     ReceivedAt: null,
     ReceivedBy: null,
+    SAPDocuments: [],
     Details: [
       {
         Id: 1,
@@ -83,7 +84,13 @@ describe('MaterialDeliveryNoteService', () => {
         update: jest.fn(),
       },
       inventoryLedger: {
+        create: jest.fn().mockImplementation((args) => args.data),
         createMany: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+      sapTransaction: {
+        findFirst: jest.fn().mockResolvedValue(null),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       $transaction: jest.fn((callback) => callback(prismaService)),
       outboxEvent: { upsert: jest.fn() },
@@ -485,18 +492,16 @@ describe('MaterialDeliveryNoteService', () => {
         where: { PartNumber: 'MAT-001' },
         data: { QtyRack: 0, UpdatedBy: 'admin' },
       });
-      expect(prismaService.inventoryLedger.createMany).toHaveBeenCalledWith({
-        data: [
-          expect.objectContaining({
-            MaterialId: 'MAT-001',
-            Location: LocationType.RACK,
-            TransactionType: TransactionType.MATERIAL_OUT_DELIVERY,
-            BalanceBefore: 100,
-            QtyIn: 0,
-            QtyOut: 100,
-            BalanceAfter: 0,
-          }),
-        ],
+      expect(prismaService.inventoryLedger.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          MaterialId: 'MAT-001',
+          Location: LocationType.RACK,
+          TransactionType: TransactionType.MATERIAL_OUT_DELIVERY,
+          BalanceBefore: 100,
+          QtyIn: 0,
+          QtyOut: 100,
+          BalanceAfter: 0,
+        }),
       });
     });
 

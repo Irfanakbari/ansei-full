@@ -11,7 +11,7 @@ export class PartDataEntity {
   PartName: string;
 }
 
-export class BoxQTYEntity {
+export class FinishGoodBoxQTYEntity {
   @ApiProperty({ description: 'ID', example: 1 })
   Id: number;
 

@@ -413,7 +413,8 @@ export async function createSapLedger(
           : ledger.TransactionType === 'CUSTOMER_RETURN'
             ? 'RETURN'
             : ledger.TransactionType === 'NG_SCRAP' ||
-                ledger.TransactionType === 'PRODUCTION_USAGE'
+                ledger.TransactionType === 'PRODUCTION_USAGE' ||
+                ledger.TransactionType === 'MATERIAL_OUT_DELIVERY'
               ? 'GOODS_ISSUE'
               : 'UNSUPPORTED_MOVEMENT';
   const effects: SapEffect[] = [

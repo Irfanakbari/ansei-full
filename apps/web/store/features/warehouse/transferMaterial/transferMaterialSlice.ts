@@ -35,6 +35,7 @@ export interface TransferMaterialEntity {
     ReceivedBy: string | null;
     ReceivedByName?: string | null;
     Details?: TransferMaterialDetailEntity[];
+    SAPDocuments?: import("@/components/SapDocumentNumbers").SapDocumentSummary[];
 }
 
 // Create DTO

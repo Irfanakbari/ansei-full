@@ -41,6 +41,7 @@ export interface MaterialDeliveryNoteEntity {
   ReceivedBy: string | null;
   ReceivedByName?: string | null;
   Details: MaterialDeliveryNoteDetailEntity[];
+  SAPDocuments?: import('../../common/sap/sap-document-summary').SapDocumentSummary[];
 }
 
 /**

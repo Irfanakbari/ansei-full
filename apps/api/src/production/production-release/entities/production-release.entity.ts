@@ -41,7 +41,7 @@ export class PokayokeProgressEntity {
   percentage: number;
 }
 
-export class AssemblyProgressEntity {
+export class ReleaseAssemblyProgressEntity {
   @ApiProperty({ example: true })
   required: boolean;
 
@@ -143,8 +143,8 @@ export class ProductionReleaseEntity {
   @ApiProperty({ type: () => PokayokeProgressEntity })
   progressPokayoke: PokayokeProgressEntity;
 
-  @ApiProperty({ type: () => AssemblyProgressEntity })
-  progressAssembly: AssemblyProgressEntity;
+  @ApiProperty({ type: () => ReleaseAssemblyProgressEntity })
+  progressAssembly: ReleaseAssemblyProgressEntity;
 
   @ApiProperty({ type: () => OverallProgressEntity })
   progressOverall: OverallProgressEntity;

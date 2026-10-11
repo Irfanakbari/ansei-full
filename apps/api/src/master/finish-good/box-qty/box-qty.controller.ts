@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { BoxQtyService } from './box-qty.service';
 import { CreateBoxQtyDto, UpdateBoxQtyDto } from './dto';
-import { BoxQTYEntity } from './entities/box-qty.entity';
+import { FinishGoodBoxQTYEntity } from './entities/box-qty.entity';
 import { Permission } from '../../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../../auth/decorators/current-user.decorator';
 import type { ICurrentUser } from '../../../auth/interfaces/current-user.interface';
@@ -27,7 +27,7 @@ export class BoxQtyController {
   constructor(private readonly boxQtyService: BoxQtyService) {}
 
   @ApiOperation({ summary: 'Get all box qty' })
-  @ApiResponse({ status: 200, type: [BoxQTYEntity] })
+  @ApiResponse({ status: 200, type: [FinishGoodBoxQTYEntity] })
   @Get()
   @Permission('IPCS.MASTER_READ')
   async findAll(@CurrentUser() _user: ICurrentUser) {
@@ -35,7 +35,7 @@ export class BoxQtyController {
   }
 
   @ApiOperation({ summary: 'Get box qty by ID' })
-  @ApiResponse({ status: 200, type: BoxQTYEntity })
+  @ApiResponse({ status: 200, type: FinishGoodBoxQTYEntity })
   @ApiResponse({ status: 404, description: 'BoxQty tidak ditemukan' })
   @Get(':id')
   @Permission('IPCS.MASTER_READ')
@@ -48,7 +48,7 @@ export class BoxQtyController {
 
   // IMPORTANT: Specific routes MUST come before parameterized routes
   @ApiOperation({ summary: 'Get box qty by part number' })
-  @ApiResponse({ status: 200, type: BoxQTYEntity })
+  @ApiResponse({ status: 200, type: FinishGoodBoxQTYEntity })
   @Get('part-number/:partNumber')
   @Permission('IPCS.MASTER_READ')
   async findByPartNumber(
@@ -59,7 +59,7 @@ export class BoxQtyController {
   }
 
   @ApiOperation({ summary: 'Create new box qty' })
-  @ApiResponse({ status: 201, type: BoxQTYEntity })
+  @ApiResponse({ status: 201, type: FinishGoodBoxQTYEntity })
   @Post()
   @Permission('IPCS.MASTER_CREATE')
   async create(
@@ -70,7 +70,7 @@ export class BoxQtyController {
   }
 
   @ApiOperation({ summary: 'Update box qty' })
-  @ApiResponse({ status: 200, type: BoxQTYEntity })
+  @ApiResponse({ status: 200, type: FinishGoodBoxQTYEntity })
   @ApiResponse({ status: 404, description: 'BoxQty tidak ditemukan' })
   @Patch(':id')
   @Permission('IPCS.MASTER_UPDATE')

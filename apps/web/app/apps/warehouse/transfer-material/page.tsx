@@ -32,6 +32,9 @@ import EmailDNModal from './_components/EmailDNModal';
 import {formatDateTime} from '@/lib/utils/dateTime';
 import GoldenArrowAction from '@/components/GoldenArrowAction';
 import {useSingleRowSelection} from '@/hooks/useSingleRowSelection';
+import SapDocumentNumbers, {
+    type SapDocumentSummary,
+} from '@/components/SapDocumentNumbers';
 
 const STATUS_COLORS: Record<string, string> = {
     DRAFT: 'default',
@@ -320,6 +323,14 @@ export default function TransferMaterialPage() {
             render: formatDateTime,
             sorter: (a: any, b: any) => new Date(a.CreatedAt).getTime() - new Date(b.CreatedAt).getTime(),
             sortOrder: sortedInfo.columnKey === 'CreatedAt' ? sortedInfo.order : null,
+        },
+        {
+            title: 'SAP Doc Number',
+            dataIndex: 'SAPDocuments',
+            key: 'SAPDocuments',
+            render: (value: SapDocumentSummary[] | undefined) => (
+                <SapDocumentNumbers value={value} />
+            ),
         },
     ];
 

@@ -38,6 +38,8 @@ import {
   getUserDisplayNameMap,
   getUserDisplayName,
 } from '../common/helpers/user-lookup.helper';
+import { createSapLedger } from '../common/sap/sap-transaction-capture';
+import { decorateSapMaterialDeliveryNoteDocuments } from '../common/sap/sap-document-summary';
 import { OutboxService } from '../common/outbox/outbox.service';
 
 @Injectable()
@@ -260,8 +262,13 @@ export class MaterialDeliveryNoteService {
       this.prisma.materialDeliveryNote.count({ where }),
     ]);
 
-    return {
+    const decoratedData = await decorateSapMaterialDeliveryNoteDocuments(
+      this.prisma,
       data,
+    );
+
+    return {
+      data: decoratedData,
       meta: {
         page,
         limit,
@@ -295,7 +302,11 @@ export class MaterialDeliveryNoteService {
       throw new NotFoundException(`Delivery note not found: ${id}`);
     }
 
-    return dn;
+    const [decorated] = await decorateSapMaterialDeliveryNoteDocuments(
+      this.prisma,
+      [dn],
+    );
+    return decorated;
   }
 
   // Get details only
@@ -760,7 +771,6 @@ export class MaterialDeliveryNoteService {
               'Qty picking harus sama dengan qty requested sebelum kirim.',
             );
           }
-          const ledgerEntries: Prisma.InventoryLedgerCreateManyInput[] = [];
 
           for (const detail of currentDn.Details) {
             // Get current stock
@@ -795,30 +805,27 @@ export class MaterialDeliveryNoteService {
               data: { QtyRack: balanceAfter, UpdatedBy: shippedBy },
             });
 
-            // Create ledger entry
-            ledgerEntries.push({
-              ItemCategory: ItemCategory.MATERIAL,
-              MaterialId: detail.MaterialId,
-              Location: LocationType.RACK,
-              TransactionType: TransactionType.MATERIAL_OUT_DELIVERY,
-              ReferenceDoc: currentDn.DeliveryNoteNum,
-              BalanceBefore: balanceBefore,
-              QtyIn: 0,
-              QtyOut: qtyOut,
-              BalanceAfter: balanceAfter,
-              CreatedBy: shippedBy,
-              Notes: `Delivery Note: ${currentDn.DeliveryNoteNum}`,
+            // Create ledger entry and capture SAP intent if applicable
+            await createSapLedger(tx, {
+              data: {
+                ItemCategory: ItemCategory.MATERIAL,
+                MaterialId: detail.MaterialId,
+                Location: LocationType.RACK,
+                TransactionType: TransactionType.MATERIAL_OUT_DELIVERY,
+                ReferenceDoc: currentDn.DeliveryNoteNum,
+                BalanceBefore: balanceBefore,
+                QtyIn: 0,
+                QtyOut: qtyOut,
+                BalanceAfter: balanceAfter,
+                CreatedBy: shippedBy,
+                Notes: `Delivery Note: ${currentDn.DeliveryNoteNum} -> ${currentDn.Destination}`,
+              },
             });
-          }
-
-          // Bulk create ledger entries
-          if (ledgerEntries.length > 0) {
-            await tx.inventoryLedger.createMany({ data: ledgerEntries });
           }
 
           await this.logService.addLog({
             processId: localProcessId,
-            message: `Created ${ledgerEntries.length} InventoryLedger entries`,
+            message: `Created ${currentDn.Details.length} InventoryLedger entries with SAP capture if applicable`,
             type: 'INFO',
             location: 'material-delivery-note.service.ts:531',
             client: tx,

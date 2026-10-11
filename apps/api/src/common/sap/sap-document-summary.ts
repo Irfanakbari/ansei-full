@@ -16,6 +16,7 @@ export class SapDocumentSummary {
   @ApiProperty({
     enum: [
       'GOODS_RECEIPT',
+      'GOODS_ISSUE',
       'PRODUCTION_ORDER',
       'SALES_ORDER',
       'INVENTORY_COUNTING',
@@ -232,6 +233,41 @@ export async function decorateSapIncomingDocuments<T extends { PoId: string }>(
   return rows.map((row) => ({
     ...row,
     SAPDocuments: summarizeSapDocuments(byReference.get(row.PoId) ?? []),
+  }));
+}
+
+export async function decorateSapMaterialDeliveryNoteDocuments<
+  T extends { DeliveryNoteNum: string },
+>(prisma: PrismaService, rows: T[]) {
+  if (!rows.length) return [];
+  const ledgers = await prisma.inventoryLedger.findMany({
+    where: {
+      ReferenceDoc: { in: rows.map((row) => row.DeliveryNoteNum) },
+      TransactionType: 'MATERIAL_OUT_DELIVERY',
+    },
+    select: { Id: true, ReferenceDoc: true },
+  });
+  const postings = ledgers.length
+    ? await prisma.sapTransaction.findMany({
+        where: {
+          Kind: 'GOODS_ISSUE',
+          LedgerId: { in: ledgers.map((row) => row.Id) },
+        },
+        select: selection,
+        orderBy: [{ CreatedAt: 'asc' }, { Id: 'asc' }],
+      })
+    : [];
+  const byReference = new Map<string, Posting[]>();
+  const refs = new Map(ledgers.map((row) => [row.Id, row.ReferenceDoc]));
+  for (const posting of postings) {
+    const ref = posting.LedgerId ? refs.get(posting.LedgerId) : undefined;
+    if (ref) byReference.set(ref, [...(byReference.get(ref) ?? []), posting]);
+  }
+  return rows.map((row) => ({
+    ...row,
+    SAPDocuments: summarizeSapDocuments(
+      byReference.get(row.DeliveryNoteNum) ?? [],
+    ),
   }));
 }
 

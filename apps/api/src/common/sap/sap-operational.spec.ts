@@ -145,6 +145,15 @@ describe('Atomic SAP intent capture', () => {
     );
     expect(f.db.sapBackflushPick.create).not.toHaveBeenCalled();
   });
+  it('material delivery note shipping creates a Goods Issue', async () => {
+    const f = fixture('MATERIAL_OUT_DELIVERY');
+    await f.run();
+    expect(f.db.sapTransaction.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ Kind: 'GOODS_ISSUE', Quantity: 20 }),
+      }),
+    );
+  });
   it('disabled capture preserves the existing ledger operation without integration writes', async () => {
     process.env.SAP_TRANSACTION_CAPTURE_ENABLED = 'false';
     const f = fixture();
