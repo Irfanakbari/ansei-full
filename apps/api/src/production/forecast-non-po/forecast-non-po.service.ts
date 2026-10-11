@@ -13,6 +13,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import type { Prisma } from '../../generated/prisma/client';
 import { LogProcessService } from '../../common/log-process/log-process.service';
 import { auditedTransaction } from '../../common/helpers/audited-transaction.helper';
+import { decorateSapForecastDocuments } from '../../common/sap/sap-document-summary';
 import {
   lockProductionFlow,
   buildProductionLabels,
@@ -117,7 +118,10 @@ export class ForecastNonPoService {
       }),
     ]);
     return {
-      data,
+      data: await decorateSapForecastDocuments(
+        this.prisma,
+        data.map((row) => ({ ...row, PoId: row.ReferenceNumber })),
+      ),
       meta: {
         page: query.page,
         limit: query.limit,
@@ -143,7 +147,10 @@ export class ForecastNonPoService {
       if (error instanceof ConflictException) operationalLocked = true;
       else throw error;
     }
-    return { ...row, operationalLocked };
+    const [decorated] = await decorateSapForecastDocuments(this.prisma, [
+      { ...row, PoId: row.ReferenceNumber },
+    ]);
+    return { ...decorated, operationalLocked };
   }
 
   private fields(dto: NonPoFieldsDto) {

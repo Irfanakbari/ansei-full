@@ -266,7 +266,10 @@ export async function captureSapDemand(
           snapshot: {
             dueDate: order.DeliveryDate.toISOString().slice(0, 10),
             date: sapPostingDate(new Date()),
-            poNumber: order.PoNumber,
+            poNumber:
+              order.SourceType === 'NON_PO' && !order.PoNumber.trim()
+                ? order.PoId
+                : order.PoNumber,
             releaseNumber: order.ProductionRelease?.ReleaseNumber ?? null,
           },
           effects: [],

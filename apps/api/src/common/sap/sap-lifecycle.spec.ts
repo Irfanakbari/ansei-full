@@ -127,6 +127,30 @@ describe('Durable SAP production lifecycle capture', () => {
       Snapshot: expect.objectContaining({ orderEventId: f.rows[0].Id }),
     });
   });
+  it('uses the Non PO reference as the customer reference when PO number is blank', async () => {
+    const f = fixture();
+    f.db.productionOrder.findUniqueOrThrow.mockResolvedValue({
+      PoId: 'NPO-REFERENCE',
+      SourceType: 'NON_PO',
+      Qty: 30,
+      FinishGoodId: 'MES-FG',
+      PoNumber: '',
+      DeliveryDate: new Date('2026-10-09'),
+      PartData: { PartNumberSAP: 'FG', ActiveBomRevisionId: 'BOM' },
+      ProductionRelease: { ReleaseNumber: 'RELEASE-1' },
+    });
+
+    await captureSapDemand(f.tx, 'NPO-REFERENCE', 'actor');
+
+    expect(f.rows.find((row) => row.Kind === 'SALES_ORDER')).toMatchObject({
+      DemandId: 'NPO-REFERENCE',
+      SourceKey: 'sales-order:NPO-REFERENCE',
+      Snapshot: expect.objectContaining({
+        poNumber: 'NPO-REFERENCE',
+        releaseNumber: 'RELEASE-1',
+      }),
+    });
+  });
   it('freezes dimensions and preserves the creation event when settings change', async () => {
     const f = fixture();
     await captureSapDemand(f.tx, 'DEMAND', 'actor', 'draft');

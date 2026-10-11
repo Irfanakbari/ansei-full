@@ -30,6 +30,9 @@ import type { AppDispatch, RootState } from "@/store";
 import ButtonToolbar from "@/components/ButtonToolbar";
 import GoldenArrowAction from "@/components/GoldenArrowAction";
 import FinishGoodLinkedModal from "@/components/production/FinishGoodLinkedModal";
+import SapDocumentNumbers, {
+  type SapDocumentSummary,
+} from "@/components/SapDocumentNumbers";
 import { formatDateTime } from "@/lib/utils/dateTime";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import {
@@ -198,6 +201,14 @@ export default function ForecastNonPoPage() {
             {row.Demand?.ProductionReleaseId ? "RELEASED" : "DRAFT"}
           </Tag>
         </Tooltip>
+      ),
+    },
+    {
+      title: "SAP Doc Number",
+      dataIndex: "SAPDocuments",
+      key: "SAPDocuments",
+      render: (value: SapDocumentSummary[] | undefined) => (
+        <SapDocumentNumbers value={value} />
       ),
     },
   ];

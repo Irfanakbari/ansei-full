@@ -23,6 +23,7 @@ import {
   type NonPoValues,
 } from "@/store/features/production/forecastNonPo/forecastNonPoSlice";
 import { createAssemblyRequestId } from "@/store/features/production/assembly/requestId";
+import SapDocumentNumbers from "@/components/SapDocumentNumbers";
 
 interface Props {
   open: boolean;
@@ -144,6 +145,11 @@ export default function NonPoModal({
           Release: {record.Demand.ProductionRelease.ReleaseNumber} (
           {record.Demand.ProductionRelease.Status}). Operational fields lock
           once processing starts; PO Number and Notes remain editable.
+        </Typography.Paragraph>
+      )}
+      {detail && record && (
+        <Typography.Paragraph>
+          SAP Documents: <SapDocumentNumbers value={record.SAPDocuments} />
         </Typography.Paragraph>
       )}
       <Form form={form} layout="vertical" disabled={detail || saving}>

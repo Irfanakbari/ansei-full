@@ -29,6 +29,7 @@ export interface NonPoRecord {
   Qty: number;
   PoNumber: string | null;
   Notes: string | null;
+  SAPDocuments?: import("@/components/SapDocumentNumbers").SapDocumentSummary[];
   PartData?: { PartName: string };
   Demand?: {
     Id: string;
