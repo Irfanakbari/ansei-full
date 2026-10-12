@@ -246,9 +246,11 @@ export default function SapSectionPage({ section }: { section: SapSection }) {
                         },
                         {
                           key: "material",
-                          label: "Material pilot allowlist",
+                          label: "Material capture scope",
                           children:
-                            overview.allowedMaterials.join(", ") || "None",
+                            overview.materialCaptureScope === "ALL"
+                              ? "All materials"
+                              : overview.materialCaptureScope,
                         },
                         {
                           key: "tls",

@@ -16,7 +16,7 @@ SAP must allow **Allow Inbound Posting with Zero Price** for positive difference
 4. Approve: capture absolute final counts, local stock ledger/cache changes, audit and dependent SAP events atomically. Worker updates the counting, posts one Inventory Posting containing all changed items, then closes the counting. Zero difference skips the posting.
 5. The durable `STO_HOLD` survives local completion, SAP outages and missing Redis jobs. Stock stays held until SAP close is verified. Deletion rechecks DRAFT state under the inventory transaction lock to prevent deleting a concurrently started counting.
 
-Normal PostgreSQL outbox dispatch/sweeper, shared SAP sessions and cache are reused. Capture and posting flags/allowlists remain applicable; this release does not replay old STO history. Once a held STO has been captured, its finish/recovery still follows its frozen mapping.
+Normal PostgreSQL outbox dispatch/sweeper, shared SAP sessions and cache are reused. Capture and posting flags remain applicable; all materials use their effective SAP key while the finish-good allowlist remains applicable. This release does not replay old STO history. Once a held STO has been captured, its finish/recovery still follows its frozen mapping.
 
 ## Identity, status and recovery
 

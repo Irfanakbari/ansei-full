@@ -58,7 +58,7 @@ describe('Atomic SAP intent capture', () => {
   const original = { ...process.env };
   beforeEach(() => {
     process.env.SAP_TRANSACTION_CAPTURE_ENABLED = 'true';
-    process.env.SAP_TRANSACTION_MATERIAL_ALLOWLIST = 'MAT';
+    delete process.env.SAP_TRANSACTION_MATERIAL_ALLOWLIST;
     process.env.SAP_COMPANY_DB = 'TEST';
   });
   afterEach(() => {
@@ -121,6 +121,22 @@ describe('Atomic SAP intent capture', () => {
           LedgerId: 'ledger',
           Kind: 'GOODS_RECEIPT',
           Effects: [{ itemCode: 'MAT', quantity: 20 }],
+        }),
+      }),
+    );
+  });
+  it('captures every material with the trimmed MES part number fallback', async () => {
+    const f = fixture();
+    f.db.material.findUnique.mockResolvedValue({
+      PartNumber: '  MES-MAT  ',
+      PartNumberSAP: '   ',
+    });
+    await f.run();
+    expect(f.db.sapTransaction.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          ItemCode: 'MES-MAT',
+          Effects: [{ itemCode: 'MES-MAT', quantity: 20 }],
         }),
       }),
     );

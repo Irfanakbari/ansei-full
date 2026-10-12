@@ -210,14 +210,6 @@ export class SapPostingService {
       }
       if (!lines?.length)
         throw new SapBlocked('Incoming receipt lines are missing.');
-      if (
-        !Array.isArray(snapshot.disallowedItemCodes) ||
-        snapshot.disallowedItemCodes.length
-      ) {
-        throw new SapBlocked(
-          'All incoming materials must be included in the SAP trial allowlist. No partial receipt was sent.',
-        );
-      }
       const poNumber =
         typeof snapshot.reference === 'string' ? snapshot.reference.trim() : '';
       if (!poNumber) throw new SapBlocked('Incoming PO number is missing.');

@@ -22,7 +22,7 @@ export interface SapOverview {
   postingEnabled: boolean;
   tlsValidation: boolean;
   allowedFinishGoods: string[];
-  allowedMaterials: string[];
+  materialCaptureScope: "ALL";
   counts: Record<string, number>;
   oldestPendingAt: string | null;
   lastPostedAt: string | null;

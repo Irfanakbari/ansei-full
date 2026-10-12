@@ -134,11 +134,7 @@ export class SapConnectionService {
       )
         .split(',')
         .filter(Boolean),
-      allowedMaterials: (
-        this.config.get<string>('SAP_TRANSACTION_MATERIAL_ALLOWLIST') ?? ''
-      )
-        .split(',')
-        .filter(Boolean),
+      materialCaptureScope: 'ALL',
       tlsValidation: this.config.get('SAP_TLS_REJECT_UNAUTHORIZED') !== 'false',
       session: this.sap.sessionHealth(),
       redis,
@@ -371,7 +367,7 @@ export class SapConnectionService {
         const codes = [
           ...new Set(
             [...materials, ...finishGoods].map(
-              (item) => item.PartNumberSAP?.trim() || item.PartNumber,
+              (item) => item.PartNumberSAP?.trim() || item.PartNumber.trim(),
             ),
           ),
         ].sort();
@@ -538,7 +534,8 @@ export class SapConnectionService {
           }
         >();
         for (const material of materials) {
-          const code = material.PartNumberSAP?.trim() || material.PartNumber;
+          const code =
+            material.PartNumberSAP?.trim() || material.PartNumber.trim();
           const row = groups.get(code) ?? {
             itemCode: code,
             names: [],

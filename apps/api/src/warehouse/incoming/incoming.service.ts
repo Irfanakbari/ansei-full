@@ -641,7 +641,8 @@ export class IncomingService {
             sapLines.push({
               ledgerId,
               partNumber: material.PartNumber,
-              itemCode: material.PartNumberSAP?.trim() || material.PartNumber,
+              itemCode:
+                material.PartNumberSAP?.trim() || material.PartNumber.trim(),
               quantity: item.Qty,
             });
 

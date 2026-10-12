@@ -1,4 +1,14 @@
-# SAP Connection — 6.15.6
+# SAP Connection — 6.20.3
+
+All materials are captured automatically when SAP transaction capture is enabled.
+Their effective SAP key is the trimmed `PartNumberSAP`, falling back to the trimmed
+MES `PartNumber`. Material capture no longer depends on
+`SAP_TRANSACTION_MATERIAL_ALLOWLIST`; the finish-good pilot allowlist remains.
+Incoming receipt, inventory-ledger and inventory-counting intents are committed
+atomically with their MES transaction. Missing SAP items, business validation
+failures and network failures are handled later by the outbox as visible
+Blocked/Failed/Needs Reconciliation work and do not roll back the committed MES
+operation.
 
 Posting dates now use the Asia/Jakarta business date, independent of server
 timezone, for new Incoming receipts, ledger-derived SAP events and automatic
@@ -19,8 +29,8 @@ ID anchors existing operational lookups; every ledger ID, MES/SAP part mapping a
 quantity is frozen in Snapshot.lines, with stock effects for every line. Capture,
 ledger and stock-cache writes share the existing inventory transaction. Historical
 single-line events remain supported and are never merged or reposted automatically.
-An Incoming partly outside the trial allowlist is held as a whole. Every line must
-pass item/unit/warehouse/zero-cost validation. POST readback and unknown-outcome
+Every Incoming material is captured. Every line must pass SAP
+item/unit/warehouse/zero-cost validation asynchronously before posting. POST readback and unknown-outcome
 recovery require the complete line set; a partial match cannot confirm the event.
 
 Live dev trial on 2026-10-10: INC-101026-001 / DEV-SAP-GROUPED-10-20261010 was
@@ -189,12 +199,10 @@ SAP_TRANSACTION_CAPTURE_ENABLED=false
 SAP_TRANSACTION_WRITE_ENABLED=false
 SAP_TRANSACTION_WAREHOUSE=DMY-ANS
 SAP_TRANSACTION_ITEM_ALLOWLIST=5715B132-KD
-SAP_TRANSACTION_MATERIAL_ALLOWLIST=
 SAP_AUTO_SALES_ORDER_ENABLED=false
 ```
 
-Before activation, set the reviewed component allowlist, confirm opening balances,
-grant permissions and bind the actual SO. Capture must precede operational trial
+Before activation, confirm opening balances, grant permissions and bind the actual SO. Capture must precede operational trial
 transactions. Never enable by replaying all historical ledger rows. Then enable
 posting only for the verified pilot scope.
 

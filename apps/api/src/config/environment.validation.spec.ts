@@ -43,6 +43,18 @@ describe('validateEnvironment', () => {
     );
   });
 
+  it('does not require the deprecated material allowlist for SAP capture', () => {
+    expect(() =>
+      validateEnvironment({
+        ...productionEnvironment,
+        SAP_TRANSACTION_CAPTURE_ENABLED: 'true',
+        SAP_COMPANY_DB: 'company',
+        SAP_TRANSACTION_WAREHOUSE: 'warehouse',
+        SAP_TRANSACTION_ITEM_ALLOWLIST: 'FG',
+      }),
+    ).not.toThrow();
+  });
+
   it('requires enabled integration settings without exposing values', () => {
     expect(() =>
       validateEnvironment({

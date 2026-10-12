@@ -131,14 +131,8 @@ export async function captureCountingStart(
     throw new ConflictException(
       'Finish or recover the previous SAP inventory counting before starting another.',
     );
-  const allowed = new Set(
-    (
-      process.env[
-        count.Category === 'MATERIAL'
-          ? 'SAP_TRANSACTION_MATERIAL_ALLOWLIST'
-          : 'SAP_TRANSACTION_ITEM_ALLOWLIST'
-      ] ?? ''
-    )
+  const allowedFinishGoods = new Set(
+    (process.env.SAP_TRANSACTION_ITEM_ALLOWLIST ?? '')
       .split(',')
       .map((x) => x.trim())
       .filter(Boolean),
@@ -156,7 +150,7 @@ export async function captureCountingStart(
           })
         ).map((m) => ({
           part: m.PartNumber,
-          code: m.PartNumberSAP?.trim() || m.PartNumber,
+          code: m.PartNumberSAP?.trim() || m.PartNumber.trim(),
           locations: [
             { name: 'WAREHOUSE', qty: m.QtyWarehouse },
             { name: 'RACK', qty: m.QtyRack },
@@ -168,14 +162,14 @@ export async function captureCountingStart(
           })
         ).map((m) => ({
           part: m.PartNumber,
-          code: m.PartNumberSAP?.trim() || m.PartNumber,
+          code: m.PartNumberSAP?.trim() || m.PartNumber.trim(),
           locations: [{ name: 'FINISH_GOOD_AREA', qty: m.Qty }],
         }));
   const codes = new Set(
     masters
       .filter(
         (m) =>
-          allowed.has(m.code) &&
+          (count.Category === 'MATERIAL' || allowedFinishGoods.has(m.code)) &&
           count.Details.some(
             (d) => (d.MaterialId ?? d.FinishGoodId) === m.part,
           ),

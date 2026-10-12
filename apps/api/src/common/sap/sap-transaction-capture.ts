@@ -20,10 +20,6 @@ export async function captureSapIncomingReceipt(
   actor: string,
 ) {
   if (!sapCaptureEnabled() || !lines.length) return;
-  const allowlist = (process.env.SAP_TRANSACTION_MATERIAL_ALLOWLIST ?? '')
-    .split(',')
-    .map((value) => value.trim());
-  if (!lines.some((line) => allowlist.includes(line.itemCode))) return;
   return captureSapIntent(
     tx,
     {
@@ -37,13 +33,6 @@ export async function captureSapIncomingReceipt(
         reference: incoming.poNumber,
         date: sapPostingDate(incoming.date),
         lines,
-        disallowedItemCodes: [
-          ...new Set(
-            lines
-              .filter((line) => !allowlist.includes(line.itemCode))
-              .map((line) => line.itemCode),
-          ),
-        ],
       },
       effects: lines.map((line) => ({
         itemCode: line.itemCode,
@@ -233,7 +222,7 @@ export async function captureSapDemand(
   });
   let components = (bom?.Lines ?? []).map((line) => ({
     partNumber: line.PartNumber,
-    itemCode: line.Material.PartNumberSAP?.trim() || line.PartNumber,
+    itemCode: line.Material.PartNumberSAP?.trim() || line.PartNumber.trim(),
     perUnit: line.QtyPerUnit,
     unit: line.UnitName ?? '',
   }));
@@ -244,7 +233,7 @@ export async function captureSapDemand(
     });
     components = (revision?.Lines ?? []).map((line) => ({
       partNumber: line.PartNumber,
-      itemCode: line.Material.PartNumberSAP?.trim() || line.PartNumber,
+      itemCode: line.Material.PartNumberSAP?.trim() || line.PartNumber.trim(),
       perUnit: line.Qty,
       unit: line.UnitName ?? '',
     }));
@@ -378,20 +367,12 @@ export async function createSapLedger(
     frozenCode ||
     material?.PartNumberSAP?.trim() ||
     fg?.PartNumberSAP?.trim() ||
-    ledger.MaterialId ||
-    ledger.FinishGoodId ||
+    material?.PartNumber.trim() ||
+    fg?.PartNumber.trim() ||
+    ledger.MaterialId?.trim() ||
+    ledger.FinishGoodId?.trim() ||
     '';
-  // Material allowlist is explicit; FG allowlist alone must never include all materials.
-  const materialAllowed = (process.env.SAP_TRANSACTION_MATERIAL_ALLOWLIST ?? '')
-    .split(',')
-    .map((x) => x.trim())
-    .includes(code);
-  if (
-    material
-      ? !materialAllowed && !frozenCode
-      : !sapAllowed(code) && !frozenCode
-  )
-    return ledger;
+  if (!material && !sapAllowed(code) && !frozenCode) return ledger;
   if (ledger.TransactionType === 'PRODUCTION_USAGE' && demandId) {
     await tx.sapBackflushPick.create({
       data: {

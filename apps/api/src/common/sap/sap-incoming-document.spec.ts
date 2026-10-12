@@ -30,7 +30,6 @@ function row(): SapTransaction {
     Quantity: 20,
     Snapshot: {
       lines,
-      disallowedItemCodes: [],
       reference: 'PO-1',
       incomingId: 'INC-1',
       date: '2026-10-10',
@@ -51,7 +50,7 @@ describe('Grouped incoming capture', () => {
   });
   it('captures one immutable event for all ledger lines, and replays the same source safely', async () => {
     process.env.SAP_TRANSACTION_CAPTURE_ENABLED = 'true';
-    process.env.SAP_TRANSACTION_MATERIAL_ALLOWLIST = 'SAP-A,SAP-B';
+    delete process.env.SAP_TRANSACTION_MATERIAL_ALLOWLIST;
     const db = {
       sapTransaction: {
         findUnique: jest.fn().mockResolvedValue(null),
@@ -81,7 +80,7 @@ describe('Grouped incoming capture', () => {
       SourceKey: 'incoming:INC-1',
       LedgerId: 'l1',
       Quantity: 20,
-      Snapshot: { lines, disallowedItemCodes: [], date: '2026-10-10' },
+      Snapshot: { lines, date: '2026-10-10' },
       Effects: [
         { itemCode: 'SAP-A', quantity: 10 },
         { itemCode: 'SAP-B', quantity: 10 },
@@ -145,18 +144,12 @@ describe('Grouped SAP Goods Receipt preparation and proof', () => {
       }),
     ).toBe(false);
   });
-  it('blocks the whole receipt if any line fails valuation or the pilot scope', async () => {
+  it('blocks the whole receipt if any line fails valuation', async () => {
     const { service, validate } = fixture();
     validate
       .mockResolvedValueOnce({ AvgStdPrice: 0 })
       .mockResolvedValueOnce({ AvgStdPrice: 5 });
     await expect(service.prepare(row())).rejects.toThrow('zero-cost');
-    const mixed = row();
-    mixed.Snapshot = {
-      ...(mixed.Snapshot as Prisma.InputJsonObject),
-      disallowedItemCodes: ['SAP-B'],
-    };
-    await expect(service.prepare(mixed)).rejects.toThrow('No partial receipt');
   });
   it('rejects invalid totals and duplicate ledger identities, preserving legacy single-line events', () => {
     expect(() => incomingLines({ ...row(), Quantity: 10 })).toThrow(

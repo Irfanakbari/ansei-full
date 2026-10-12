@@ -174,7 +174,6 @@ export function validateEnvironment(environment: Environment): Environment {
         'SAP_COMPANY_DB',
         'SAP_TRANSACTION_WAREHOUSE',
         'SAP_TRANSACTION_ITEM_ALLOWLIST',
-        'SAP_TRANSACTION_MATERIAL_ALLOWLIST',
       ],
       errors,
     );
