@@ -13,6 +13,7 @@ import {
   Modal,
   Space,
   Table,
+  Tabs,
   Tag,
   Typography,
   Tooltip,
@@ -495,15 +496,6 @@ export default function SapTables({
         )}
       </ToolbarWrapper>
       {error && <Alert type="error" showIcon title={error} />}
-      {kind === "stock" && (
-        <Alert
-          className="mb-3"
-          type="info"
-          showIcon
-          title="MES Total = Warehouse + Rack"
-          description="Expected SAP = MES Total + Awaiting Backflush − Pending Net Effect. Values use the snapshot cutoff. Unexplained differences require investigation; stock is never overwritten automatically."
-        />
-      )}
       {kind === "transactions" && (
         <Table<SapTransactionRow>
           size="small"
@@ -530,82 +522,101 @@ export default function SapTables({
         />
       )}
       {kind === "stock" && (
-        <Table<SapStockRow>
-          size="small"
-          className="small-table"
-          style={{ fontSize: "11px" }}
-          onRow={(row) => ({ onClick: () => setSelectedKey(row.itemCode) })}
-          rowClassName={(row) =>
-            row.itemCode === selectedKey ? "ant-table-row-selected" : ""
-          }
-          rowKey="itemCode"
-          columns={stockColumns}
-          dataSource={stock}
-          loading={loading}
-          pagination={pagination}
-          scroll={{ x: "max-content", y: "calc(100vh - 380px)" }}
-          expandable={{
-            expandedRowRender: (row) => (
-              <Space orientation="vertical">
-                <span>{row.names.join(", ")}</span>
-                <span>Snapshot cutoff: {formatDateTime(row.cutoff)}</span>
-                <Button
-                  onClick={() => {
-                    setDetail({
-                      id: row.itemCode,
-                      status: row.status,
-                      source: row.partNumbers.join(", "),
-                      error: row.unexplained
-                        ? "Investigate pending documents and SAP transactions outside MES."
-                        : null,
-                      effects: [],
-                      audit: [],
-                    });
+        <Tabs
+          defaultActiveKey="reconciliation"
+          items={[
+            {
+              key: "reconciliation",
+              label: "Stock Reconciliation",
+              children: (
+                <Table<SapStockRow>
+                  size="small"
+                  className="small-table"
+                  style={{ fontSize: "11px" }}
+                  onRow={(row) => ({
+                    onClick: () => setSelectedKey(row.itemCode),
+                  })}
+                  rowClassName={(row) =>
+                    row.itemCode === selectedKey
+                      ? "ant-table-row-selected"
+                      : ""
+                  }
+                  rowKey="itemCode"
+                  columns={stockColumns}
+                  dataSource={stock}
+                  loading={loading}
+                  pagination={pagination}
+                  scroll={{ x: "max-content", y: "calc(100vh - 420px)" }}
+                  expandable={{
+                    expandedRowRender: (row) => (
+                      <Space orientation="vertical">
+                        <span>{row.names.join(", ")}</span>
+                        <span>
+                          Snapshot cutoff: {formatDateTime(row.cutoff)}
+                        </span>
+                        <Button
+                          onClick={() => {
+                            setDetail({
+                              id: row.itemCode,
+                              status: row.status,
+                              source: row.partNumbers.join(", "),
+                              error: row.unexplained
+                                ? "Investigate pending documents and SAP transactions outside MES."
+                                : null,
+                              effects: [],
+                              audit: [],
+                            });
+                          }}
+                        >
+                          Review difference
+                        </Button>
+                      </Space>
+                    ),
                   }}
-                >
-                  Review difference
-                </Button>
-              </Space>
-            ),
-          }}
+                />
+              ),
+            },
+            {
+              key: "external-documents",
+              label: "SAP Documents Outside MES",
+              children: (
+                <>
+                  <Typography.Paragraph type="secondary">
+                    Monitoring starts at the first stock refresh. New SAP
+                    documents without a recognized MES reference are listed
+                    here; balances are never overwritten.
+                  </Typography.Paragraph>
+                  <Table<SapExternalRow>
+                    size="small"
+                    className="small-table"
+                    style={{ fontSize: "11px" }}
+                    rowKey={(row) => row.Resource + "-" + row.DocumentEntry}
+                    dataSource={external}
+                    columns={[
+                      { title: "Document", dataIndex: "Resource" },
+                      { title: "SAP Number", dataIndex: "DocumentNumber" },
+                      { title: "Warehouse", dataIndex: "Warehouse" },
+                      {
+                        title: "Detected",
+                        dataIndex: "ObservedAt",
+                        render: formatDateTime,
+                      },
+                    ]}
+                    pagination={{
+                      size: "small",
+                      showTotal: (total) => `Total ${total} records`,
+                      current: externalPage,
+                      pageSize: 10,
+                      total: externalTotal,
+                      onChange: setExternalPage,
+                    }}
+                    scroll={{ x: "max-content" }}
+                  />
+                </>
+              ),
+            },
+          ]}
         />
-      )}
-      {kind === "stock" && (
-        <>
-          <Typography.Title level={5}>
-            SAP documents outside MES
-          </Typography.Title>
-          <Typography.Paragraph type="secondary">
-            Monitoring starts at the first stock refresh. New SAP documents
-            without a recognized MES reference are listed here; balances are
-            never overwritten.
-          </Typography.Paragraph>
-          <Table<SapExternalRow>
-            size="small"
-            className="small-table"
-            style={{ fontSize: "11px" }}
-            rowKey={(row) => row.Resource + "-" + row.DocumentEntry}
-            dataSource={external}
-            columns={[
-              { title: "Document", dataIndex: "Resource" },
-              { title: "SAP Number", dataIndex: "DocumentNumber" },
-              { title: "Warehouse", dataIndex: "Warehouse" },
-              {
-                title: "Detected",
-                dataIndex: "ObservedAt",
-                render: formatDateTime,
-              },
-            ]}
-            pagination={{
-              size: "small",
-              showTotal: (total) => `Total ${total} records`,
-              current: externalPage,
-              pageSize: 10,
-              total: externalTotal,
-              onChange: setExternalPage,
-            }}
-          />
-        </>
       )}
       {kind === "mappings" && (
         <Table<SapMappingRow>
