@@ -472,6 +472,7 @@ export async function createSapLedger(
       snapshot: {
         components,
         itemCategory: ledger.ItemCategory,
+        transactionType: ledger.TransactionType,
         deliveryId,
         dependencyId,
         orderEventId: frozenOrder?.Id ?? null,

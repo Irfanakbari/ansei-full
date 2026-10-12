@@ -117,11 +117,46 @@ describe('Incoming SAP document references', () => {
       'Incoming PO number is missing',
     );
   });
-  it('reconciles both old and new receipt formats without matching another receipt with the same PO', () => {
+  it('uses the material delivery note number in SAP Goods Issue remarks', async () => {
+    const service = new SapPostingService(
+      {} as PrismaService,
+      {} as SapItemSyncService,
+      {} as OutboxStateService,
+      new ConfigService({
+        SAP_COMPANY_DB: 'TEST',
+        SAP_TRANSACTION_WAREHOUSE: 'DMY-ANS',
+      }),
+    );
+    jest.spyOn(service, 'validateItem').mockResolvedValue({});
+    const result = await service.prepare({
+      Id: id,
+      Company: 'TEST',
+      Warehouse: 'DMY-ANS',
+      Kind: 'GOODS_ISSUE',
+      Quantity: 100,
+      ItemCode: 'MAT',
+      Snapshot: {
+        transactionType: 'MATERIAL_OUT_DELIVERY',
+        reference: 'SJ-MAT/2026/10/0001',
+        date: '2026-10-11',
+      },
+    } as unknown as SapTransaction);
+    expect(result.body).toMatchObject({
+      Comments: 'SJ-MAT/2026/10/0001',
+      JournalMemo: `ANSEI:${id}`,
+      DocumentLines: [
+        { ItemCode: 'MAT', Quantity: 100, WarehouseCode: 'DMY-ANS' },
+      ],
+    });
+  });
+  it('reconciles old and new correlation-marker formats without matching another business reference', () => {
     expect(sapCorrelationFilter('GOODS_RECEIPT', id)).toBe(
       `(Comments eq 'ANSEI:${id}' or JournalMemo eq 'ANSEI:${id}')`,
     );
     expect(sapCorrelationFilter('SALES_ORDER', id)).toBe(
+      `(Comments eq 'ANSEI:${id}' or JournalMemo eq 'ANSEI:${id}')`,
+    );
+    expect(sapCorrelationFilter('GOODS_ISSUE', id)).toBe(
       `(Comments eq 'ANSEI:${id}' or JournalMemo eq 'ANSEI:${id}')`,
     );
     expect(sapDocumentMarker({ Comments: `ANSEI:${id}` })).toBe(id);

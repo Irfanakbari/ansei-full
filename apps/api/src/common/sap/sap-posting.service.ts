@@ -549,6 +549,17 @@ export class SapPostingService {
       DocumentLines: [line],
     };
     if (
+      row.Kind === 'GOODS_ISSUE' &&
+      snapshot.transactionType === 'MATERIAL_OUT_DELIVERY'
+    ) {
+      const deliveryNoteNumber =
+        typeof snapshot.reference === 'string' ? snapshot.reference.trim() : '';
+      if (!deliveryNoteNumber)
+        throw new SapBlocked('Material delivery note number is missing.');
+      body.Comments = deliveryNoteNumber;
+      body.JournalMemo = reference;
+    }
+    if (
       row.Kind === 'RETURN' ||
       String(snapshot.reference).startsWith('RETURN_SCRAP:')
     ) {

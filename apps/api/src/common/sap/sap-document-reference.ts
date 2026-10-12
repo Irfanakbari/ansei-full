@@ -3,7 +3,11 @@ export function sapCorrelationFilter(kind: string, id: string): string {
   const marker = `ANSEI:${id.replace(/'/g, "''")}`;
   if (kind === 'PRODUCTION_ORDER')
     return `(Remarks eq '${marker}' or JournalRemarks eq '${marker}')`;
-  if (kind === 'GOODS_RECEIPT' || kind === 'SALES_ORDER')
+  if (
+    kind === 'GOODS_RECEIPT' ||
+    kind === 'GOODS_ISSUE' ||
+    kind === 'SALES_ORDER'
+  )
     return `(Comments eq '${marker}' or JournalMemo eq '${marker}')`;
   return `Comments eq '${marker}'`;
 }
