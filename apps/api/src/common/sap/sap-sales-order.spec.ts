@@ -129,7 +129,7 @@ describe('Automatic SAP Sales Order preparation', () => {
       CardCode: 'MANUAL_CUST',
     });
   });
-  it('uses frozen project and cost center on Sales Order lines', async () => {
+  it('uses frozen project and cost center on Sales Order header and lines', async () => {
     const f = fixture();
     f.row.Snapshot = {
       ...(f.row.Snapshot as object),
@@ -137,6 +137,10 @@ describe('Automatic SAP Sales Order preparation', () => {
       costCenter: '2000',
     };
     const request = await f.service.prepare(f.row);
+    expect(request.body).toMatchObject({
+      Project: '2010',
+      DistributionRule: '2000',
+    });
     expect(request.body.DocumentLines).toEqual([
       expect.objectContaining({ ProjectCode: '2010', CostingCode: '2000' }),
     ]);
@@ -152,7 +156,7 @@ describe('Automatic SAP Sales Order preparation', () => {
     });
     await expect(f.service.prepare(f.row)).rejects.toThrow('already linked');
   });
-  it('blocks an unpriced customer list instead of using another list', async () => {
+  it('allows zero or unpriced item prices and trusts SAP price list resolution', async () => {
     const f = fixture();
     f.sap.readResource.mockResolvedValue({
       CardType: 'cCustomer',
@@ -160,9 +164,12 @@ describe('Automatic SAP Sales Order preparation', () => {
       Frozen: 'tNO',
       PriceListNum: 2,
     });
-    await expect(f.service.prepare(f.row)).rejects.toThrow(
-      'no positive item price',
-    );
+    f.item.ItemPrices = [{ PriceList: 2, Price: 0 }];
+    const request = await f.service.prepare(f.row);
+    expect(request.resource).toBe('Orders');
+    expect(request.body).toMatchObject({
+      CardCode: 'CUSTOMER',
+    });
   });
   it('production order waits for confirmed SO evidence', async () => {
     const f = fixture();

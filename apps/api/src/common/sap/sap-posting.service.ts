@@ -295,18 +295,6 @@ export class SapPostingService {
         item.SalesItem !== 'tYES'
       )
         throw new SapBlocked('The SAP customer or sales item is inactive.');
-      const prices = item.ItemPrices as
-        { PriceList: number; Price: number }[] | undefined;
-      if (
-        !prices?.some(
-          (price) =>
-            price.PriceList === customer.PriceListNum &&
-            Number(price.Price) > 0,
-        )
-      )
-        throw new SapBlocked(
-          'The customer price list has no positive item price. Review pricing in SAP before creating the Sales Order.',
-        );
       return {
         resource,
         method: 'POST',
@@ -324,6 +312,7 @@ export class SapPostingService {
             .filter(Boolean)
             .join(' | '),
           JournalMemo: reference,
+          ...productionDimensions,
           DocumentLines: [
             {
               ItemCode: row.ItemCode,
