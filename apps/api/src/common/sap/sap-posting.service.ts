@@ -251,11 +251,26 @@ export class SapPostingService {
     if (row.Kind === 'SALES_ORDER') {
       if (this.config.get('SAP_AUTO_SALES_ORDER_ENABLED') !== 'true')
         throw new SapBlocked('Automatic Sales Orders are disabled.');
-      const mapping = row.DemandId
+      let mapping = row.DemandId
         ? await this.prisma.sapDemandMapping.findUnique({
             where: { DemandId: row.DemandId },
           })
         : null;
+      if (!mapping && row.DemandId) {
+        const defaultCardCode =
+          this.config.get<string>('SAP_DEFAULT_CUSTOMER_CODE')?.trim() ||
+          'C000053';
+        mapping = await this.prisma.sapDemandMapping.create({
+          data: {
+            DemandId: row.DemandId,
+            Company: row.Company,
+            ItemCode: row.ItemCode,
+            CardCode: defaultCardCode,
+            AutoCreate: true,
+            UpdatedBy: 'SYSTEM:DEFAULT_CUSTOMER',
+          },
+        });
+      }
       if (
         !mapping?.AutoCreate ||
         mapping.Company !== row.Company ||

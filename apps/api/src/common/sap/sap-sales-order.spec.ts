@@ -16,7 +16,16 @@ describe('Automatic SAP Sales Order preparation', () => {
       SalesOrderEntry: null,
     };
     const db = {
-      sapDemandMapping: { findUnique: jest.fn().mockResolvedValue(mapping) },
+      sapDemandMapping: {
+        findUnique: jest.fn().mockResolvedValue(mapping),
+        create: jest.fn().mockImplementation(({ data }) =>
+          Promise.resolve({
+            ...data,
+            SalesOrderEntry: null,
+            SalesOrderLine: null,
+          }),
+        ),
+      },
       sapTransaction: { findUnique: jest.fn().mockResolvedValue(null) },
     };
     const sap = {
@@ -88,12 +97,37 @@ describe('Automatic SAP Sales Order preparation', () => {
       JournalMemo: 'ANSEI:event',
     });
   });
-  it('blocks a missing customer mapping instead of guessing one', async () => {
+  it('auto-creates mapping with default customer C000053 when no prior mapping exists', async () => {
     const f = fixture();
     f.db.sapDemandMapping.findUnique.mockResolvedValue(null);
-    await expect(f.service.prepare(f.row)).rejects.toThrow(
-      'Map an active SAP customer',
+    const request = await f.service.prepare(f.row);
+    expect(f.db.sapDemandMapping.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          DemandId: 'DEMAND',
+          CardCode: 'C000053',
+          AutoCreate: true,
+        }),
+      }),
     );
+    expect(request.body).toMatchObject({
+      CardCode: 'C000053',
+    });
+  });
+  it('honors manually mapped customer instead of default C000053', async () => {
+    const f = fixture();
+    f.db.sapDemandMapping.findUnique.mockResolvedValue({
+      AutoCreate: true,
+      Company: 'TEST',
+      ItemCode: 'FG',
+      CardCode: 'MANUAL_CUST',
+      SalesOrderEntry: null,
+    });
+    const request = await f.service.prepare(f.row);
+    expect(f.db.sapDemandMapping.create).not.toHaveBeenCalled();
+    expect(request.body).toMatchObject({
+      CardCode: 'MANUAL_CUST',
+    });
   });
   it('uses frozen project and cost center on Sales Order lines', async () => {
     const f = fixture();
