@@ -214,7 +214,7 @@ describe('SAP posting failure boundaries', () => {
     const db = {
       sapTransaction: {
         findUniqueOrThrow: jest.fn().mockResolvedValue(row),
-        update: jest.fn(),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
       sapConnectionState: {
         findUnique: jest
@@ -281,7 +281,7 @@ describe('SAP posting failure boundaries', () => {
       'SAP_SENDING',
       'SYSTEM:OUTBOX',
     );
-    expect(f.db.sapTransaction.update).toHaveBeenCalledWith(
+    expect(f.db.sapTransaction.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: {
           SubmittedRequest: {
@@ -377,6 +377,6 @@ describe('SAP posting failure boundaries', () => {
     f.state.changeInTransaction.mockResolvedValue(null);
     await f.service.process(f.event);
     expect(f.confirm).not.toHaveBeenCalled();
-    expect(f.db.sapTransaction.update).not.toHaveBeenCalled();
+    expect(f.db.sapTransaction.updateMany).not.toHaveBeenCalled();
   });
 });

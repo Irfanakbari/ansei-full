@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Prisma } from '../../generated/prisma/client';
+import { Prisma, type SapTransaction } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { auditedTransaction } from '../helpers/audited-transaction.helper';
 import {
@@ -40,6 +40,28 @@ import {
   matchesIncomingDocument,
   receiptItemLabel,
 } from './sap-incoming-document';
+import { captureSapIntent } from './sap-transaction-capture';
+
+const SAP_RETRY_ORDER: Record<string, number> = {
+  SALES_ORDER: 0,
+  PRODUCTION_ORDER: 1,
+  PRODUCTION_RELEASE: 2,
+  GOODS_RECEIPT: 3,
+  GOODS_ISSUE: 3,
+  PRODUCTION_RECEIPT: 4,
+  DELIVERY: 5,
+  RETURN: 6,
+  PRODUCTION_CLOSE: 7,
+  PRODUCTION_CANCEL: 7,
+  INVENTORY_COUNTING: 0,
+  COUNTING_UPDATE: 1,
+  INVENTORY_POSTING: 2,
+  COUNTING_CLOSE: 3,
+};
+
+export function sapRetryRank(kind: string) {
+  return SAP_RETRY_ORDER[kind] ?? 100;
+}
 
 export function sapStatus(event: {
   Status: string;
@@ -876,6 +898,17 @@ export class SapConnectionService {
     });
   }
   async retry(id: string, dto: SapActionDto, actor: string) {
+    const candidate = await this.prisma.sapTransaction.findUnique({
+      where: { Id: id },
+      include: { Event: true },
+    });
+    const replacementRequest =
+      candidate?.SubmittedRequest &&
+      candidate.Kind === 'PRODUCTION_ORDER' &&
+      candidate.Event.Status === 'FAILED' &&
+      candidate.Event.LastErrorCode === 'SAP_BLOCKED'
+        ? await this.posting.prepare(candidate)
+        : null;
     return auditedTransaction(this.prisma, async (tx) => {
       const command = await claimCommand(
         tx,
@@ -885,7 +918,12 @@ export class SapConnectionService {
         { id, ...dto },
       );
       if (command.duplicate) return command.command.Result;
-      const event = await tx.outboxEvent.findUnique({ where: { Id: id } });
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('SAP_RETRY'), hashtext(${id}))`;
+      const row = await tx.sapTransaction.findUnique({
+        where: { Id: id },
+        include: { Event: true },
+      });
+      const event = row?.Event;
       if (
         !event ||
         event.Type !== 'SAP_TRANSACTION' ||
@@ -895,6 +933,42 @@ export class SapConnectionService {
         throw new ConflictException(
           'Only a known unsent or rejected transaction can be retried. Unknown outcomes require reconciliation.',
         );
+      if (row.SubmittedRequest) {
+        if (
+          row.Kind !== 'PRODUCTION_ORDER' ||
+          event.LastErrorCode !== 'SAP_BLOCKED'
+        )
+          throw new ConflictException(
+            'Submitted request evidence is immutable. Reconcile the original transaction instead of resending it.',
+          );
+        if (
+          !replacementRequest ||
+          JSON.stringify(replacementRequest) ===
+            JSON.stringify(row.SubmittedRequest)
+        )
+          throw new ConflictException(
+            'The rejected production order request is unchanged. Correct the source data before creating a replacement intent.',
+          );
+        const replacement = await this.createProductionOrderReplacement(
+          tx,
+          row,
+          actor,
+        );
+        await this.state.changeInTransaction(
+          tx,
+          event,
+          {
+            LastErrorCode: 'SAP_BLOCKED',
+            LastError: `Superseded by replacement intent ${replacement.Id}.`,
+          },
+          'SAP_REPLACED',
+          actor,
+          dto.reason,
+        );
+        const result = { id: replacement.Id, replacedId: id };
+        await finishCommand(tx, command.command.Id, result);
+        return result;
+      }
       const changed = await this.state.changeInTransaction(
         tx,
         event,
@@ -915,6 +989,83 @@ export class SapConnectionService {
       await finishCommand(tx, command.command.Id, { id });
       return { id };
     });
+  }
+  async retryAll(dto: SapActionDto, actor: string) {
+    return auditedTransaction(this.prisma, async (tx) => {
+      const command = await claimCommand(
+        tx,
+        'SAP_RETRY_ALL',
+        dto.requestId,
+        actor,
+        dto,
+      );
+      if (command.duplicate) return command.command.Result;
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('SAP_RETRY_ALL'))`;
+      const rows = await tx.sapTransaction.findMany({
+        where: {
+          Company: this.company(),
+          Warehouse: this.warehouse(),
+          SubmittedRequest: { equals: Prisma.DbNull },
+          Event: {
+            Status: 'FAILED',
+            LastErrorCode: { in: [SAFE_RETRY, 'SAP_BLOCKED'] },
+          },
+        },
+        include: { Event: true },
+        orderBy: [{ CreatedAt: 'asc' }, { Id: 'asc' }],
+      });
+      rows.sort(
+        (left, right) =>
+          sapRetryRank(left.Kind) - sapRetryRank(right.Kind) ||
+          left.CreatedAt.getTime() - right.CreatedAt.getTime() ||
+          left.Id.localeCompare(right.Id),
+      );
+      const base = Date.now();
+      const retried: string[] = [];
+      for (const row of rows) {
+        const changed = await this.state.changeInTransaction(
+          tx,
+          row.Event,
+          {
+            Status: 'PENDING',
+            NextAttemptAt: new Date(base + sapRetryRank(row.Kind) * 1000),
+            MaxAttempts: row.Event.Attempts + 5,
+            LastErrorCode: null,
+            LastError: null,
+            FailedAt: null,
+          },
+          'SAP_RETRY_ALL',
+          actor,
+          dto.reason,
+        );
+        if (changed) retried.push(row.Id);
+      }
+      const result = { retried, count: retried.length };
+      await finishCommand(tx, command.command.Id, result);
+      return result;
+    });
+  }
+  private async createProductionOrderReplacement(
+    tx: Prisma.TransactionClient,
+    row: SapTransaction,
+    actor: string,
+  ) {
+    return captureSapIntent(
+      tx,
+      {
+        sourceKey: `replacement:${row.Id}`,
+        kind: 'PRODUCTION_ORDER',
+        itemCode: row.ItemCode,
+        quantity: row.Quantity,
+        demandId: row.DemandId ?? undefined,
+        snapshot: {
+          ...(row.Snapshot as Prisma.JsonObject),
+          replacesIntentId: row.Id,
+        },
+        effects: row.Effects as unknown as SapEffect[],
+      },
+      actor,
+    );
   }
   async reconcile(id: string, actor: string) {
     const row = await this.prisma.sapTransaction.findUnique({

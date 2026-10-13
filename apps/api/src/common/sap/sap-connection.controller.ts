@@ -101,6 +101,11 @@ export class SapConnectionController {
   refresh(@CurrentUser() user: ICurrentUser) {
     return this.service.refresh(user.username);
   }
+  @Post('transactions/retry-all')
+  @Permission('IPCS.INTEGRATION_RECOVER')
+  retryAll(@Body() dto: SapActionDto, @CurrentUser() user: ICurrentUser) {
+    return this.service.retryAll(dto, user.username);
+  }
   @Post('transactions/:id/retry')
   @Permission('IPCS.INTEGRATION_RECOVER')
   retry(

@@ -99,6 +99,7 @@ export default function SapTables({
   const [detail, setDetail] = useState<SapDetail>();
   const [saving, setSaving] = useState(false);
   const [automaticSales, setAutomaticSales] = useState(false);
+  const [retryAll, setRetryAll] = useState(false);
   const [form] = Form.useForm<{
     cardCode: string;
     reason: string;
@@ -220,7 +221,11 @@ export default function SapTables({
                 },
               }
             : {
-                action: cancelCounting ? "cancel-counting" : "retry",
+                action: retryAll
+                  ? "retry-all"
+                  : cancelCounting
+                    ? "cancel-counting"
+                    : "retry",
                 id: selected?.id,
                 body: { reason: values.reason },
               },
@@ -229,6 +234,7 @@ export default function SapTables({
       message.success("Action recorded.");
       setSelected(undefined);
       setMapping(undefined);
+      setRetryAll(false);
       setQuery({ ...query });
     } catch (failure) {
       if (!(failure && typeof failure === "object" && "errorFields" in failure))
@@ -403,6 +409,17 @@ export default function SapTables({
             {can("IPCS.INTEGRATION_RECOVER") && (
               <>
                 <ButtonToolbar
+                  title="Retry All Safe"
+                  icon={<ReloadOutlined />}
+                  enable={!saving}
+                  onClick={() => {
+                    form.resetFields();
+                    setSelected(undefined);
+                    setCancelCounting(false);
+                    setRetryAll(true);
+                  }}
+                />
+                <ButtonToolbar
                   title="Retry"
                   icon={<ReloadOutlined />}
                   enable={
@@ -414,6 +431,7 @@ export default function SapTables({
                   onClick={() => {
                     form.resetFields();
                     setCancelCounting(false);
+                    setRetryAll(false);
                     setSelected(transactionRow);
                   }}
                 />
@@ -428,6 +446,7 @@ export default function SapTables({
                   onClick={() => {
                     form.resetFields();
                     setCancelCounting(true);
+                    setRetryAll(false);
                     setSelected(transactionRow);
                   }}
                 />
@@ -643,9 +662,11 @@ export default function SapTables({
       <Modal
         centered
         forceRender
-        open={!!selected || !!mapping}
+        open={!!selected || !!mapping || retryAll}
         title={
-          mapping
+          retryAll
+            ? "Retry all safe SAP transactions"
+            : mapping
             ? automaticSales
               ? "Automatic Sales Order customer"
               : "Map Sales Order line"
@@ -657,6 +678,7 @@ export default function SapTables({
           if (!saving) {
             setSelected(undefined);
             setMapping(undefined);
+            setRetryAll(false);
           }
         }}
         onOk={() => {

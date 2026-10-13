@@ -5,10 +5,10 @@ import {
   incomingLines,
   matchesIncomingDocument,
 } from './sap-incoming-document';
+import { Prisma } from '../../generated/prisma/client';
 import type {
   OutboxEvent,
   SapTransaction,
-  Prisma,
 } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { auditedTransaction } from '../helpers/audited-transaction.helper';
@@ -808,12 +808,19 @@ export class SapPostingService {
               'SYSTEM:OUTBOX',
             );
             if (!claimed) return null;
-            await tx.sapTransaction.update({
-              where: { Id: row.Id },
+            const frozen = await tx.sapTransaction.updateMany({
+              where: {
+                Id: row.Id,
+                SubmittedRequest: { equals: Prisma.DbNull },
+              },
               data: {
                 SubmittedRequest: request as unknown as Prisma.InputJsonValue,
               },
             });
+            if (!frozen.count && !row.SubmittedRequest)
+              throw new SapBlocked(
+                'Submitted request evidence changed before posting.',
+              );
             return claimed;
           });
           if (!changed)

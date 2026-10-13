@@ -151,6 +151,7 @@ export const sapAction = createAsyncThunk<
       | "check"
       | "refresh-stock"
       | "retry"
+      | "retry-all"
       | "cancel-counting"
       | "reconcile"
       | "mappings"
@@ -164,13 +165,16 @@ export const sapAction = createAsyncThunk<
   async ({ action, id, body = {} }, { rejectWithValue }) => {
     try {
       const path =
-        action === "retry" ||
-        action === "cancel-counting" ||
-        action === "reconcile"
-          ? `/sap-connection/transactions/${encodeURIComponent(id ?? "")}/${action}`
-          : `/sap-connection/${action}`;
+        action === "retry-all"
+          ? "/sap-connection/transactions/retry-all"
+          : action === "retry" ||
+              action === "cancel-counting" ||
+              action === "reconcile"
+            ? `/sap-connection/transactions/${encodeURIComponent(id ?? "")}/${action}`
+            : `/sap-connection/${action}`;
       if (
         action === "retry" ||
+        action === "retry-all" ||
         action === "cancel-counting" ||
         action === "mappings"
       ) {
