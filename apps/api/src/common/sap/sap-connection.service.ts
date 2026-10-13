@@ -1209,12 +1209,20 @@ export class SapConnectionService {
       actor,
     );
 
-    // Relink downstream PRODUCTION_RELEASE events to the replacement orderEventId
+    // Relink downstream production events to the replacement orderEventId
     if (row.DemandId) {
       const dependents = await tx.sapTransaction.findMany({
         where: {
           DemandId: row.DemandId,
-          Kind: 'PRODUCTION_RELEASE',
+          Kind: {
+            in: [
+              'PRODUCTION_RELEASE',
+              'PRODUCTION_RECEIPT',
+              'DELIVERY',
+              'PRODUCTION_CLOSE',
+              'PRODUCTION_CANCEL',
+            ],
+          },
         },
       });
       for (const dep of dependents) {

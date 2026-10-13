@@ -148,7 +148,7 @@ export class SapPostingService {
     return item;
   }
   async order(row: SapTransaction) {
-    const order = row.DemandId
+    let order = row.DemandId
       ? await this.prisma.sapTransaction.findUnique({
           where: {
             Id: String(
@@ -158,6 +158,18 @@ export class SapPostingService {
           include: { Event: true },
         })
       : null;
+
+    // If the referenced order was replaced/superseded, follow the replacement lineage
+    if (order && order.Event.Status !== 'SUCCEEDED' && row.DemandId) {
+      const replacement = await this.prisma.sapTransaction.findUnique({
+        where: { SourceKey: `replacement:${order.Id}` },
+        include: { Event: true },
+      });
+      if (replacement) {
+        order = replacement;
+      }
+    }
+
     if (
       !order ||
       order.Event.Status !== 'SUCCEEDED' ||

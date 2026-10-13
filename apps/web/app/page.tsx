@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { withBasePath } from "@/lib/base-path";
 
-const APP_VERSION = "6.26.0";
+const APP_VERSION = "6.27.0";
 
 export default function LoginPage() {
   useEffect(() => {

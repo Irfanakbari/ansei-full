@@ -90,6 +90,11 @@ describe('SAP dependency-aware recovery', () => {
         create: jest
           .fn()
           .mockImplementation(({ data }) => Promise.resolve(data)),
+        update: jest.fn().mockImplementation(({ where, data }) => {
+          const r = rows.find((val) => val.Id === where.Id);
+          if (r) Object.assign(r, data);
+          return Promise.resolve(r ?? data);
+        }),
       },
       outboxEvent: { create: jest.fn() },
       actionAuditEvent: { create: jest.fn() },
@@ -289,6 +294,43 @@ describe('SAP dependency-aware recovery', () => {
             replacesIntentId: 'old-so-all',
           }),
         }),
+      }),
+    );
+  });
+
+  it('relinks downstream production receipt and delivery when replacing production order', async () => {
+    const staleOrder = row('old-order-dep', 'PRODUCTION_ORDER', 'SAP_BLOCKED');
+    staleOrder.DemandId = 'DEMAND-1';
+    staleOrder.SubmittedRequest = {
+      resource: 'ProductionOrders',
+      method: 'POST',
+      body: { PlannedQuantity: 9 },
+    };
+    const receipt = row('rcpt-1', 'PRODUCTION_RECEIPT', 'SAP_DEPENDENCY');
+    receipt.DemandId = 'DEMAND-1';
+    receipt.Snapshot = { orderEventId: 'old-order-dep' };
+
+    const f = fixture([staleOrder, receipt]);
+    f.posting.prepare.mockResolvedValue({
+      resource: 'ProductionOrders',
+      method: 'POST',
+      body: { PlannedQuantity: 10 },
+    });
+    await f.service.retryAll(
+      {
+        requestId: '00000000-0000-4000-8000-000000000007',
+        reason: 'relink dependents',
+      },
+      'operator',
+    );
+    expect(f.db.sapTransaction.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { Id: 'rcpt-1' },
+        data: {
+          Snapshot: expect.objectContaining({
+            orderEventId: expect.any(String),
+          }),
+        },
       }),
     );
   });
