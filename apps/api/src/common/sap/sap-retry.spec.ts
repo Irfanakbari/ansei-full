@@ -151,7 +151,7 @@ describe('SAP dependency-aware recovery', () => {
     );
   });
 
-  it('queries only definitive failures without submitted evidence or uncertain outcomes', async () => {
+  it('queries only definitive failures without uncertain outcomes', async () => {
     const f = fixture([]);
     await f.service.retryAll(
       {
@@ -163,7 +163,6 @@ describe('SAP dependency-aware recovery', () => {
     expect(f.db.sapTransaction.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
-          SubmittedRequest: expect.anything(),
           Event: {
             Status: 'FAILED',
             LastErrorCode: { in: [SAFE_RETRY, 'SAP_BLOCKED'] },
@@ -213,7 +212,10 @@ describe('SAP dependency-aware recovery', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           SourceKey: 'replacement:old-order',
-          Snapshot: expect.objectContaining({ replacesIntentId: 'old-order' }),
+          Snapshot: expect.objectContaining({
+            replacesIntentId: 'old-order',
+            dueDate: expect.any(String),
+          }),
         }),
       }),
     );
@@ -222,5 +224,39 @@ describe('SAP dependency-aware recovery', () => {
       method: 'POST',
       body: { PlannedQuantity: 9 },
     });
+  });
+
+  it('retryAll includes and creates replacements for rejected production orders with stale requests', async () => {
+    const stale = row('old-order-all', 'PRODUCTION_ORDER', 'SAP_BLOCKED');
+    stale.SubmittedRequest = {
+      resource: 'ProductionOrders',
+      method: 'POST',
+      body: { PlannedQuantity: 9 },
+    };
+    const f = fixture([stale]);
+    f.posting.prepare.mockResolvedValue({
+      resource: 'ProductionOrders',
+      method: 'POST',
+      body: { PlannedQuantity: 10 },
+    });
+    const result = await f.service.retryAll(
+      {
+        requestId: '00000000-0000-4000-8000-000000000005',
+        reason: 'retry all stale orders',
+      },
+      'operator',
+    );
+    expect(result.count).toBe(1);
+    expect(f.db.sapTransaction.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          SourceKey: 'replacement:old-order-all',
+          Snapshot: expect.objectContaining({
+            replacesIntentId: 'old-order-all',
+            dueDate: expect.any(String),
+          }),
+        }),
+      }),
+    );
   });
 });
