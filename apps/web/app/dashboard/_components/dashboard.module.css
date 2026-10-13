@@ -1,25 +1,25 @@
 /* Genba monitor: illustrated process flow, readable metrics and system themes. */
 .dashboard {
-  --background: #edf2f7;
-  --panel: #ffffff;
-  --surface: #f3f6fa;
-  --text: #14243a;
-  --muted: #40546a;
-  --border: #c6d1de;
-  --track: #dae3ed;
-  --teal: #09683d;
-  --blue: #164e9c;
-  --amber: #845000;
-  --red: #ae2119;
-  --success-bg: #e4f1e9;
-  --progress-bg: #e6eef9;
-  --warning-bg: #fff1cd;
-  --assembly: #5b459a;
-  --assembly-bg: #eee9fa;
-  --panel-shadow: 0 3px 12px #1e35520a;
+  --background: #0b1220;
+  --panel: #162235;
+  --surface: #202f45;
+  --text: #f8fafc;
+  --muted: #c8d3e1;
+  --border: #42556f;
+  --track: #354963;
+  --teal: #75e0aa;
+  --blue: #9fc7ff;
+  --amber: #ffd27a;
+  --red: #ff9e98;
+  --success-bg: #1d3a2c;
+  --progress-bg: #243d5e;
+  --warning-bg: #47391d;
+  --assembly: #cbbcff;
+  --assembly-bg: #3c3257;
+  --panel-shadow: 0 8px 24px #0000002e;
   --motion-state: running;
   --chart-font: clamp(13px, 0.95vw, 18px);
-  color-scheme: light;
+  color-scheme: dark;
   height: 100dvh;
   min-height: 700px;
   width: 100%;
@@ -28,7 +28,9 @@
   grid-template-rows: auto auto minmax(0, 1fr) minmax(0, 1.4fr) auto;
   gap: clamp(8px, 0.75vw, 14px);
   overflow: hidden;
-  background: var(--background);
+  background:
+    radial-gradient(circle at top left, #183354 0, transparent 34%),
+    linear-gradient(145deg, var(--background), #101b2b 58%, #0b1421);
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
   font-size: clamp(14px, 0.94vw, 18px);
@@ -38,28 +40,6 @@
 }
 .dashboard[data-motion="paused"] {
   --motion-state: paused;
-}
-@media (prefers-color-scheme: dark) {
-  .dashboard {
-    --background: #0f1926;
-    --panel: #182637;
-    --surface: #223349;
-    --text: #f5f6f7;
-    --muted: #d0d5dc;
-    --border: #41566e;
-    --track: #3b5069;
-    --teal: #7bd5a5;
-    --blue: #9fc5ff;
-    --amber: #ffd27b;
-    --red: #ff9d95;
-    --success-bg: #213c2d;
-    --progress-bg: #253c59;
-    --warning-bg: #43371d;
-    --assembly: #cab9ff;
-    --assembly-bg: #3b3155;
-    --panel-shadow: 0 4px 16px #00000018;
-    color-scheme: dark;
-  }
 }
 .dashboard * {
   box-sizing: border-box;
