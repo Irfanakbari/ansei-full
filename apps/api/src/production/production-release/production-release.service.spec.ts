@@ -171,6 +171,7 @@ describe('ProductionReleaseService', () => {
                 PartNumber: 'MAT-1',
                 PartName: 'Material',
                 QtyPerUnit: 3,
+                RequiredQty: 6,
               },
             ],
           } as Awaited<ReturnType<typeof latestSnapshot>>);
@@ -199,6 +200,102 @@ describe('ProductionReleaseService', () => {
         }
       },
     );
+  });
+
+  describe('getForecastList shopping progress', () => {
+    it('returns all snapshot materials and aggregates repeated picks', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        Id: 'REL-1',
+        Status: 'RELEASED',
+      });
+      prismaService.productionOrder.findMany.mockResolvedValue([
+        {
+          PoId: 'PO-1',
+          FinishGoodId: 'FG-1',
+          Qty: 99,
+          DeliveryDate: new Date('2026-07-21T00:00:00.000Z'),
+          PartData: { PartNumber: 'FG-1', PartName: 'Finish Good' },
+          Shopping: [
+            {
+              Id: 'SHP-1',
+              SnapshotLineId: 'LINE-1',
+              MaterialId: 'MAT-1',
+              QtyPick: 2,
+              MaterialData: {
+                PartNumber: 'MAT-1',
+                PartName: 'Current Material 1',
+              },
+            },
+            {
+              Id: 'SHP-2',
+              SnapshotLineId: 'LINE-1',
+              MaterialId: 'MAT-1',
+              QtyPick: 3,
+              MaterialData: {
+                PartNumber: 'MAT-1',
+                PartName: 'Current Material 1',
+              },
+            },
+          ],
+        },
+      ]);
+      prismaService.finishGood.findMany.mockResolvedValue([
+        { Id: 1, PartNumber: 'FG-1' },
+      ]);
+      prismaService.billOfMaterials.findMany.mockResolvedValue([]);
+      jest.mocked(latestSnapshot).mockResolvedValueOnce({
+        Lines: [
+          {
+            Id: 'LINE-1',
+            MaterialId: 10,
+            PartNumber: 'MAT-1',
+            PartName: 'Snapshot Material 1',
+            QtyPerUnit: 3,
+            RequiredQty: 12,
+          },
+          {
+            Id: 'LINE-2',
+            MaterialId: 20,
+            PartNumber: 'MAT-2',
+            PartName: 'Snapshot Material 2',
+            QtyPerUnit: 4,
+            RequiredQty: 16,
+          },
+        ],
+      } as Awaited<ReturnType<typeof latestSnapshot>>);
+      prismaService.material.findMany.mockResolvedValue([
+        { PartNumber: 'MAT-1', RackLocation: 'A-01' },
+        { PartNumber: 'MAT-2', RackLocation: 'A-02' },
+      ]);
+
+      const result = await service.getForecastList('REL-1');
+
+      expect(result.Forecasts[0]).toEqual(
+        expect.objectContaining({
+          QtyRequired: 28,
+          Shopping: [
+            {
+              Id: null,
+              MaterialId: 'MAT-1',
+              MaterialPartNumber: 'MAT-1',
+              MaterialName: 'Snapshot Material 1',
+              QtyPick: 5,
+              QtyRequired: 12,
+              RackLocation: 'A-01',
+            },
+            {
+              Id: null,
+              MaterialId: 'MAT-2',
+              MaterialPartNumber: 'MAT-2',
+              MaterialName: 'Snapshot Material 2',
+              QtyPick: 0,
+              QtyRequired: 16,
+              RackLocation: 'A-02',
+            },
+          ],
+        }),
+      );
+    });
   });
 
   describe('findAll', () => {

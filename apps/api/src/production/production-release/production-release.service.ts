@@ -2333,12 +2333,11 @@ export class ProductionReleaseService {
     const forecasts = forecastsData.map((forecast) => {
       const fgId = fgPartNumberToIdMap.get(forecast.FinishGoodId);
       const snapshot = snapshots.get(forecast.PoId);
-      const bomQtyPerFg = snapshot
-        ? snapshot.Lines.reduce((n, l) => n + l.QtyPerUnit, 0)
+      const qtyRequired = snapshot
+        ? snapshot.Lines.reduce((total, line) => total + line.RequiredQty, 0)
         : release.Status === 'DRAFT' && fgId
-          ? (bomQtyPerFgMap.get(fgId) ?? 0)
+          ? forecast.Qty * (bomQtyPerFgMap.get(fgId) ?? 0)
           : 0;
-      const qtyRequired = forecast.Qty * bomQtyPerFg;
       const bomMaterials = snapshot
         ? new Map(
             snapshot.Lines.map((line) => [
@@ -2356,57 +2355,34 @@ export class ProductionReleaseService {
           ? bomByFgMap.get(fgId)
           : undefined;
 
-      // Get shopping data or generate from BOM if empty
-      let shoppingList: Array<{
-        Id: string | null;
-        MaterialId: string;
-        MaterialPartNumber: string | null;
-        MaterialName: string | null;
-        QtyPick: number;
-        QtyRequired: number;
-      }>;
+      // Always start with every required material, then apply recorded picks.
+      const shoppingByMaterial = new Map<
+        string,
+        {
+          shoppingIds: string[];
+          MaterialId: string;
+          MaterialPartNumber: string | null;
+          MaterialName: string | null;
+          QtyPick: number;
+          QtyRequired: number;
+        }
+      >();
 
-      if (forecast.Shopping.length > 0) {
-        // Use existing shopping data with QtyRequired from BOM
-        shoppingList = forecast.Shopping.map((shop) => {
-          // Get QtyRequired for this material from BOM
-          const bomEntry = bomMaterials?.get(
-            shop.MaterialData?.PartNumber
-              ? // MaterialData uses PartNumber which needs to be mapped to MaterialId
-                // For now, calculate based on shopping material ID match with BOM material
-                0
-              : 0,
-          );
-
-          // Find matching BOM entry by material ID
-          let qtyRequiredPerMaterial =
-            snapshot?.Lines.find((line) => line.Id === shop.SnapshotLineId)
-              ?.RequiredQty ?? 0;
-          if (!qtyRequiredPerMaterial && bomMaterials) {
-            for (const [bomMaterialId, bomInfo] of bomMaterials) {
-              if (shop.MaterialId === bomInfo.materialData.PartNumber) {
-                qtyRequiredPerMaterial = bomInfo.qty * forecast.Qty;
-                break;
-              }
-            }
-          }
-
-          return {
-            Id: shop.Id,
-            MaterialId: shop.MaterialId,
-            MaterialPartNumber:
-              shop.MaterialData?.PartNumber ?? shop.MaterialId,
-            MaterialName: shop.MaterialData?.PartName,
-            QtyPick: shop.QtyPick,
-            QtyRequired: qtyRequiredPerMaterial,
-          };
-        });
-      } else if (bomMaterials && bomMaterials.size > 0) {
-        // No shopping data - generate from BOM with QtyRequired
-        shoppingList = [];
-        for (const [materialId, bomInfo] of bomMaterials) {
-          shoppingList.push({
-            Id: null,
+      if (snapshot) {
+        for (const line of snapshot.Lines) {
+          shoppingByMaterial.set(line.PartNumber, {
+            shoppingIds: [],
+            MaterialId: line.PartNumber,
+            MaterialPartNumber: line.PartNumber,
+            MaterialName: line.PartName,
+            QtyPick: 0,
+            QtyRequired: line.RequiredQty,
+          });
+        }
+      } else if (release.Status === 'DRAFT' && bomMaterials) {
+        for (const bomInfo of bomMaterials.values()) {
+          shoppingByMaterial.set(bomInfo.materialData.PartNumber, {
+            shoppingIds: [],
             MaterialId: bomInfo.materialData.PartNumber,
             MaterialPartNumber: bomInfo.materialData.PartNumber,
             MaterialName: bomInfo.materialData.PartName,
@@ -2414,11 +2390,32 @@ export class ProductionReleaseService {
             QtyRequired: bomInfo.qty * forecast.Qty,
           });
         }
-        // Sort by MaterialId
-        shoppingList.sort((a, b) => a.MaterialId.localeCompare(b.MaterialId));
-      } else {
-        shoppingList = [];
       }
+
+      for (const shop of forecast.Shopping) {
+        const existing = shoppingByMaterial.get(shop.MaterialId);
+        if (existing) {
+          existing.shoppingIds.push(shop.Id);
+          existing.QtyPick += shop.QtyPick;
+          continue;
+        }
+
+        shoppingByMaterial.set(shop.MaterialId, {
+          shoppingIds: [shop.Id],
+          MaterialId: shop.MaterialId,
+          MaterialPartNumber: shop.MaterialData?.PartNumber ?? shop.MaterialId,
+          MaterialName: shop.MaterialData?.PartName ?? null,
+          QtyPick: shop.QtyPick,
+          QtyRequired: 0,
+        });
+      }
+
+      const shoppingList = [...shoppingByMaterial.values()]
+        .map(({ shoppingIds, ...item }) => ({
+          Id: shoppingIds.length === 1 ? shoppingIds[0] : null,
+          ...item,
+        }))
+        .sort((a, b) => a.MaterialId.localeCompare(b.MaterialId));
 
       return {
         PoId: forecast.PoId,
