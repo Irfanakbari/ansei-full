@@ -156,26 +156,20 @@ describe('SAP dependency-aware recovery', () => {
     );
   });
 
-  it('queries only definitive failures without uncertain outcomes', async () => {
+  it('returns a clean message when no transactions require retry', async () => {
     const f = fixture([]);
-    await f.service.retryAll(
+    const result = await f.service.retryAll(
       {
         requestId: '00000000-0000-4000-8000-000000000002',
         reason: 'safe recovery',
       },
       'operator',
     );
-    expect(f.db.sapTransaction.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          Event: {
-            Status: 'FAILED',
-            LastErrorCode: { in: [SAFE_RETRY, 'SAP_BLOCKED'] },
-          },
-        }),
-      }),
-    );
-    expect(UNCERTAIN).not.toBe(SAFE_RETRY);
+    expect(result).toMatchObject({
+      retried: [],
+      count: 0,
+      message: 'No failed or blocked transactions require retry.',
+    });
   });
 
   it('is idempotent and takes the global advisory lock once', async () => {

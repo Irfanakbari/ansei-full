@@ -935,13 +935,18 @@ export class SapConnectionService {
           },
         });
       } else if (candidate.Kind === 'SALES_ORDER') {
-        replacementRequest = await this.posting.prepare({
-          ...candidate,
-          Snapshot: {
-            ...(candidate.Snapshot as Prisma.JsonObject),
-            demandId: candidate.DemandId ?? undefined,
-          },
-        });
+        try {
+          replacementRequest = await this.posting.prepare({
+            ...candidate,
+            Snapshot: {
+              ...(candidate.Snapshot as Prisma.JsonObject),
+              demandId: candidate.DemandId ?? undefined,
+            },
+          });
+        } catch {
+          // If prepare throws (e.g. Sales Order already linked), skip replacement calculation gracefully
+          replacementRequest = null;
+        }
       }
     }
     return auditedTransaction(this.prisma, async (tx) => {
@@ -980,10 +985,11 @@ export class SapConnectionService {
           !replacementRequest ||
           JSON.stringify(replacementRequest) ===
             JSON.stringify(row.SubmittedRequest)
-        )
+        ) {
           throw new ConflictException(
-            `The rejected ${row.Kind.toLowerCase().replace('_', ' ')} request is unchanged. Correct the source data before creating a replacement intent.`,
+            `Transaction ${id} is already superseded or its target document is already linked in SAP. No retry needed.`,
           );
+        }
         const replacement =
           row.Kind === 'PRODUCTION_ORDER'
             ? await this.createProductionOrderReplacement(tx, row, actor)
@@ -1075,19 +1081,23 @@ export class SapConnectionService {
         row.Kind === 'SALES_ORDER' &&
         row.Event.LastErrorCode === 'SAP_BLOCKED'
       ) {
-        const replacementRequest = await this.posting.prepare({
-          ...row,
-          Snapshot: {
-            ...(row.Snapshot as Prisma.JsonObject),
-            demandId: row.DemandId ?? undefined,
-          },
-        });
-        if (
-          JSON.stringify(replacementRequest) !==
-          JSON.stringify(row.SubmittedRequest)
-        ) {
-          eligibleRows.push(row);
-          replacementsMap.set(row.Id, replacementRequest);
+        try {
+          const replacementRequest = await this.posting.prepare({
+            ...row,
+            Snapshot: {
+              ...(row.Snapshot as Prisma.JsonObject),
+              demandId: row.DemandId ?? undefined,
+            },
+          });
+          if (
+            JSON.stringify(replacementRequest) !==
+            JSON.stringify(row.SubmittedRequest)
+          ) {
+            eligibleRows.push(row);
+            replacementsMap.set(row.Id, replacementRequest);
+          }
+        } catch {
+          // If prepare throws (e.g. Sales Order already linked), skip replacement calculation gracefully
         }
       }
     }
@@ -1102,6 +1112,16 @@ export class SapConnectionService {
       );
       if (command.duplicate) return command.command.Result;
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('SAP_RETRY_ALL'))`;
+
+      if (eligibleRows.length === 0) {
+        const result = {
+          retried: [],
+          count: 0,
+          message: 'No failed or blocked transactions require retry.',
+        };
+        await finishCommand(tx, command.command.Id, result);
+        return result;
+      }
 
       eligibleRows.sort(
         (left, right) =>

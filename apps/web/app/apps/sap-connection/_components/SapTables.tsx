@@ -204,7 +204,7 @@ export default function SapTables({
     try {
       const values = await form.validateFields();
       setSaving(true);
-      await dispatch(
+      const actionResult = await dispatch(
         sapAction(
           mapping
             ? {
@@ -231,7 +231,18 @@ export default function SapTables({
               },
         ),
       ).unwrap();
-      message.success("Action recorded.");
+      const infoMsg =
+        actionResult &&
+        typeof actionResult === "object" &&
+        "message" in actionResult &&
+        typeof (actionResult as { message: unknown }).message === "string"
+          ? (actionResult as { message: string }).message
+          : actionResult &&
+              typeof actionResult === "object" &&
+              "count" in actionResult
+            ? `Action recorded (${(actionResult as { count: number }).count} transactions queued).`
+            : "Action recorded.";
+      message.success(infoMsg);
       setSelected(undefined);
       setMapping(undefined);
       setRetryAll(false);
