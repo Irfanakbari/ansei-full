@@ -295,19 +295,22 @@ export class SapPostingService {
         item.SalesItem !== 'tYES'
       )
         throw new SapBlocked('The SAP customer or sales item is inactive.');
+      const numAtCard =
+        typeof snapshot.demandId === 'string' && snapshot.demandId.trim()
+          ? snapshot.demandId.trim()
+          : row.DemandId?.trim() || String(snapshot.poNumber ?? '');
       return {
         resource,
         method: 'POST',
         body: {
           CardCode: mapping.CardCode,
-          NumAtCard: snapshot.poNumber,
+          NumAtCard: numAtCard,
           DocDate: snapshot.date,
           DocDueDate: snapshot.dueDate,
           Comments: [
             snapshot.releaseNumber,
-            snapshot.poNumber
-              ? `PO: ${String(snapshot.poNumber)}`
-              : `Demand: ${row.DemandId}`,
+            snapshot.poNumber ? `PO: ${String(snapshot.poNumber)}` : null,
+            row.DemandId ? `Demand: ${row.DemandId}` : null,
           ]
             .filter(Boolean)
             .join(' | '),

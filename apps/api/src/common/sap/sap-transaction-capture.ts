@@ -271,6 +271,7 @@ export async function captureSapDemand(
               order.SourceType === 'NON_PO' && !order.PoNumber.trim()
                 ? order.PoId
                 : order.PoNumber,
+            demandId,
             releaseNumber: order.ProductionRelease?.ReleaseNumber ?? null,
           },
           effects: [],

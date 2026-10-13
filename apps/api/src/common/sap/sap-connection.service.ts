@@ -906,28 +906,44 @@ export class SapConnectionService {
       where: { Id: id },
       include: { Event: true },
     });
-    const replacementRequest =
+    let replacementRequest: {
+      resource: string;
+      body: Record<string, unknown>;
+      method: 'POST' | 'PATCH';
+    } | null = null;
+
+    if (
       candidate?.SubmittedRequest &&
-      candidate.Kind === 'PRODUCTION_ORDER' &&
       candidate.Event.Status === 'FAILED' &&
       candidate.Event.LastErrorCode === 'SAP_BLOCKED'
-        ? await this.posting.prepare({
-            ...candidate,
-            Snapshot: {
-              ...(candidate.Snapshot as Prisma.JsonObject),
-              dueDate: sapDemandDueDate(
-                new Date(
-                  typeof (candidate.Snapshot as Record<string, unknown>)
-                    .dueDate === 'string'
-                    ? ((candidate.Snapshot as Record<string, unknown>)
-                        .dueDate as string)
-                    : Date.now(),
-                ),
-                new Date(),
+    ) {
+      if (candidate.Kind === 'PRODUCTION_ORDER') {
+        replacementRequest = await this.posting.prepare({
+          ...candidate,
+          Snapshot: {
+            ...(candidate.Snapshot as Prisma.JsonObject),
+            dueDate: sapDemandDueDate(
+              new Date(
+                typeof (candidate.Snapshot as Record<string, unknown>)
+                  .dueDate === 'string'
+                  ? ((candidate.Snapshot as Record<string, unknown>)
+                      .dueDate as string)
+                  : Date.now(),
               ),
-            },
-          })
-        : null;
+              new Date(),
+            ),
+          },
+        });
+      } else if (candidate.Kind === 'SALES_ORDER') {
+        replacementRequest = await this.posting.prepare({
+          ...candidate,
+          Snapshot: {
+            ...(candidate.Snapshot as Prisma.JsonObject),
+            demandId: candidate.DemandId ?? undefined,
+          },
+        });
+      }
+    }
     return auditedTransaction(this.prisma, async (tx) => {
       const command = await claimCommand(
         tx,
@@ -954,7 +970,7 @@ export class SapConnectionService {
         );
       if (row.SubmittedRequest) {
         if (
-          row.Kind !== 'PRODUCTION_ORDER' ||
+          !['PRODUCTION_ORDER', 'SALES_ORDER'].includes(row.Kind) ||
           event.LastErrorCode !== 'SAP_BLOCKED'
         )
           throw new ConflictException(
@@ -966,13 +982,12 @@ export class SapConnectionService {
             JSON.stringify(row.SubmittedRequest)
         )
           throw new ConflictException(
-            'The rejected production order request is unchanged. Correct the source data before creating a replacement intent.',
+            `The rejected ${row.Kind.toLowerCase().replace('_', ' ')} request is unchanged. Correct the source data before creating a replacement intent.`,
           );
-        const replacement = await this.createProductionOrderReplacement(
-          tx,
-          row,
-          actor,
-        );
+        const replacement =
+          row.Kind === 'PRODUCTION_ORDER'
+            ? await this.createProductionOrderReplacement(tx, row, actor)
+            : await this.createSalesOrderReplacement(tx, row, actor);
         await this.state.changeInTransaction(
           tx,
           event,
@@ -1056,6 +1071,24 @@ export class SapConnectionService {
           eligibleRows.push(row);
           replacementsMap.set(row.Id, replacementRequest);
         }
+      } else if (
+        row.Kind === 'SALES_ORDER' &&
+        row.Event.LastErrorCode === 'SAP_BLOCKED'
+      ) {
+        const replacementRequest = await this.posting.prepare({
+          ...row,
+          Snapshot: {
+            ...(row.Snapshot as Prisma.JsonObject),
+            demandId: row.DemandId ?? undefined,
+          },
+        });
+        if (
+          JSON.stringify(replacementRequest) !==
+          JSON.stringify(row.SubmittedRequest)
+        ) {
+          eligibleRows.push(row);
+          replacementsMap.set(row.Id, replacementRequest);
+        }
       }
     }
 
@@ -1096,15 +1129,18 @@ export class SapConnectionService {
 
         if (freshRow.SubmittedRequest) {
           if (
-            freshRow.Kind === 'PRODUCTION_ORDER' &&
+            ['PRODUCTION_ORDER', 'SALES_ORDER'].includes(freshRow.Kind) &&
             freshRow.Event.LastErrorCode === 'SAP_BLOCKED' &&
             replacementsMap.has(freshRow.Id)
           ) {
-            const replacement = await this.createProductionOrderReplacement(
-              tx,
-              freshRow,
-              actor,
-            );
+            const replacement =
+              freshRow.Kind === 'PRODUCTION_ORDER'
+                ? await this.createProductionOrderReplacement(
+                    tx,
+                    freshRow,
+                    actor,
+                  )
+                : await this.createSalesOrderReplacement(tx, freshRow, actor);
             await this.state.changeInTransaction(
               tx,
               freshRow.Event,
@@ -1190,6 +1226,55 @@ export class SapConnectionService {
               Snapshot: {
                 ...(dep.Snapshot as Prisma.JsonObject),
                 orderEventId: replacement.Id,
+              },
+            },
+          });
+        }
+      }
+    }
+
+    return replacement;
+  }
+  private async createSalesOrderReplacement(
+    tx: Prisma.TransactionClient,
+    row: SapTransaction,
+    actor: string,
+  ) {
+    const replacement = await captureSapIntent(
+      tx,
+      {
+        sourceKey: `replacement:${row.Id}`,
+        kind: 'SALES_ORDER',
+        itemCode: row.ItemCode,
+        quantity: row.Quantity,
+        demandId: row.DemandId ?? undefined,
+        snapshot: {
+          ...(row.Snapshot as Prisma.JsonObject),
+          demandId: row.DemandId ?? undefined,
+          replacesIntentId: row.Id,
+        },
+        effects: row.Effects as unknown as SapEffect[],
+      },
+      actor,
+    );
+
+    // Relink downstream PRODUCTION_ORDER and PRODUCTION_RELEASE events to the replacement salesOrderEventId
+    if (row.DemandId) {
+      const dependents = await tx.sapTransaction.findMany({
+        where: {
+          DemandId: row.DemandId,
+          Kind: { in: ['PRODUCTION_ORDER', 'PRODUCTION_RELEASE'] },
+        },
+      });
+      for (const dep of dependents) {
+        const snap = dep.Snapshot as Record<string, unknown>;
+        if (snap?.salesOrderEventId === row.Id) {
+          await tx.sapTransaction.update({
+            where: { Id: dep.Id },
+            data: {
+              Snapshot: {
+                ...(dep.Snapshot as Prisma.JsonObject),
+                salesOrderEventId: replacement.Id,
               },
             },
           });

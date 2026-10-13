@@ -259,4 +259,37 @@ describe('SAP dependency-aware recovery', () => {
       }),
     );
   });
+
+  it('retryAll includes and creates replacements for rejected sales orders with duplicate NumAtCard', async () => {
+    const stale = row('old-so-all', 'SALES_ORDER', 'SAP_BLOCKED');
+    stale.SubmittedRequest = {
+      resource: 'Orders',
+      method: 'POST',
+      body: { NumAtCard: 'PO-OLD' },
+    };
+    const f = fixture([stale]);
+    f.posting.prepare.mockResolvedValue({
+      resource: 'Orders',
+      method: 'POST',
+      body: { NumAtCard: 'DEMAND-UNIQUE' },
+    });
+    const result = await f.service.retryAll(
+      {
+        requestId: '00000000-0000-4000-8000-000000000006',
+        reason: 'retry all stale sales orders',
+      },
+      'operator',
+    );
+    expect(result.count).toBe(1);
+    expect(f.db.sapTransaction.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          SourceKey: 'replacement:old-so-all',
+          Snapshot: expect.objectContaining({
+            replacesIntentId: 'old-so-all',
+          }),
+        }),
+      }),
+    );
+  });
 });

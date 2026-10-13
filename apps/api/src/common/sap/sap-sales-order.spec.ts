@@ -73,8 +73,8 @@ describe('Automatic SAP Sales Order preparation', () => {
     expect(request.resource).toBe('Orders');
     expect(request.body).toMatchObject({
       CardCode: 'CUSTOMER',
-      NumAtCard: 'CUSTOMER-PO',
-      Comments: 'PO: CUSTOMER-PO',
+      NumAtCard: 'DEMAND',
+      Comments: 'PO: CUSTOMER-PO | Demand: DEMAND',
       JournalMemo: 'ANSEI:event',
       DocumentLines: [
         { ItemCode: 'FG', Quantity: 30, WarehouseCode: 'DMY-ANS' },
@@ -92,8 +92,8 @@ describe('Automatic SAP Sales Order preparation', () => {
     };
     const request = await f.service.prepare(f.row);
     expect(request.body).toMatchObject({
-      NumAtCard: 'CUSTOMER-PO',
-      Comments: 'PR-20261009-001 | PO: CUSTOMER-PO',
+      NumAtCard: 'DEMAND',
+      Comments: 'PR-20261009-001 | PO: CUSTOMER-PO | Demand: DEMAND',
       JournalMemo: 'ANSEI:event',
     });
   });
