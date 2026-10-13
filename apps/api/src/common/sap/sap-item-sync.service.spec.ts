@@ -1,6 +1,6 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-10-09 */
 import { ConfigService } from '@nestjs/config';
-import { SapItemSyncService } from './sap-item-sync.service';
+import { SapItemSyncService, SapPostingError } from './sap-item-sync.service';
 import { request as httpsRequest } from 'node:https';
 import { EventEmitter } from 'node:events';
 
@@ -76,6 +76,34 @@ describe('SapItemSyncService', () => {
     await expect(service.getProductTree('SAP')).rejects.toThrow(
       'SAP item query failed',
     );
+  });
+
+  it('retains only bounded SAP business-error fields for rejected postings', async () => {
+    fetchMock.mockResolvedValueOnce(login()).mockResolvedValueOnce(
+      response(
+        {
+          error: {
+            code: '-5002',
+            message: {
+              value: 'Due date must not be earlier than posting date',
+            },
+            privatePayload: 'must-not-leak',
+          },
+        },
+        400,
+      ),
+    );
+    let error: unknown;
+    try {
+      await service.postTransaction('ProductionOrders', {}, async () => {});
+    } catch (caught) {
+      error = caught;
+    }
+    expect(error).toBeInstanceOf(SapPostingError);
+    expect((error as Error).message).toContain(
+      '-5002: Due date must not be earlier than posting date',
+    );
+    expect((error as Error).message).not.toContain('privatePayload');
   });
 
   it('loads all warehouse pages once and shares concurrent lookups', async () => {

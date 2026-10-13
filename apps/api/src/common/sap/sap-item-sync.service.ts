@@ -25,13 +25,42 @@ export class SapPostingError extends Error {
   constructor(
     public readonly uncertain: boolean,
     public readonly httpStatus?: number,
+    public readonly sapDetail?: string,
   ) {
     super(
       uncertain
         ? 'SAP posting outcome is unknown; reconcile before retry.'
-        : `SAP rejected the transaction${httpStatus ? ` (HTTP ${httpStatus})` : ''}.`,
+        : `SAP rejected the transaction${httpStatus ? ` (HTTP ${httpStatus})` : ''}${sapDetail ? `: ${sapDetail}` : '.'}`,
     );
   }
+}
+
+function sanitizedSapError(value: unknown): string | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+  const error = (value as Record<string, unknown>).error;
+  if (!error || typeof error !== 'object' || Array.isArray(error)) return;
+  const record = error as Record<string, unknown>;
+  const messageValue =
+    record.message &&
+    typeof record.message === 'object' &&
+    !Array.isArray(record.message)
+      ? (record.message as Record<string, unknown>).value
+      : record.message;
+  const parts = [record.code, messageValue]
+    .filter((item): item is string => typeof item === 'string')
+    .map((item) =>
+      [...item]
+        .map((character) =>
+          character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127
+            ? ' '
+            : character,
+        )
+        .join('')
+        .trim(),
+    )
+    .filter(Boolean);
+  if (!parts.length) return;
+  return parts.join(': ').slice(0, 350);
 }
 
 function object(value: unknown): Record<string, unknown> {
@@ -110,11 +139,19 @@ export class SapItemSyncService {
         await this.rejectSession(session);
         continue;
       }
-      if (!response.ok)
+      if (!response.ok) {
+        let detail: string | undefined;
+        try {
+          detail = sanitizedSapError(await response.json());
+        } catch {
+          // Never persist unrestricted SAP response bodies.
+        }
         throw new SapPostingError(
           response.status >= 500 || response.status === 408,
           response.status,
+          detail,
         );
+      }
       if (response.status === 204) return {};
       try {
         return object(await response.json());

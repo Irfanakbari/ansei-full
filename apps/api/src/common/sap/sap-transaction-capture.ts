@@ -72,6 +72,12 @@ export function sapAllowed(code: string): boolean {
     .map((x) => x.trim())
     .includes(code);
 }
+
+export function sapDemandDueDate(deliveryDate: Date, capturedAt: Date): string {
+  const delivery = deliveryDate.toISOString().slice(0, 10);
+  const posting = sapPostingDate(capturedAt);
+  return delivery < posting ? posting : delivery;
+}
 export async function sapAudit(
   tx: Prisma.TransactionClient,
   actor: string,
@@ -242,6 +248,8 @@ export async function captureSapDemand(
       unit: line.UnitName ?? '',
     }));
   }
+  const capturedAt = new Date();
+  const dueDate = sapDemandDueDate(order.DeliveryDate, capturedAt);
   let salesOrderEventId: string | null = null;
   if (!close && process.env.SAP_AUTO_SALES_ORDER_ENABLED === 'true') {
     const binding = await tx.sapDemandMapping.findUnique({
@@ -257,8 +265,8 @@ export async function captureSapDemand(
           quantity: order.Qty,
           demandId,
           snapshot: {
-            dueDate: order.DeliveryDate.toISOString().slice(0, 10),
-            date: sapPostingDate(new Date()),
+            dueDate,
+            date: sapPostingDate(capturedAt),
             poNumber:
               order.SourceType === 'NON_PO' && !order.PoNumber.trim()
                 ? order.PoId
@@ -311,7 +319,7 @@ export async function captureSapDemand(
         salesOrderEventId,
         previousCancellationId: !ending ? (terminal?.Id ?? null) : null,
         bomId: bom?.Id ?? null,
-        dueDate: order.DeliveryDate.toISOString().slice(0, 10),
+        dueDate,
       },
       effects: [],
     },

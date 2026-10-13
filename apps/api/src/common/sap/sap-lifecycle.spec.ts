@@ -1,8 +1,22 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-10-09 */
 import type { Prisma } from '../../generated/prisma/client';
-import { captureSapDemand } from './sap-transaction-capture';
+import { captureSapDemand, sapDemandDueDate } from './sap-transaction-capture';
 describe('Durable SAP production lifecycle capture', () => {
   const original = { ...process.env };
+  it('uses the Jakarta capture date when a demand delivery date is already past', () => {
+    expect(
+      sapDemandDueDate(
+        new Date('2026-10-06T00:00:00.000Z'),
+        new Date('2026-10-13T01:00:00.000Z'),
+      ),
+    ).toBe('2026-10-13');
+    expect(
+      sapDemandDueDate(
+        new Date('2026-10-20T00:00:00.000Z'),
+        new Date('2026-10-13T01:00:00.000Z'),
+      ),
+    ).toBe('2026-10-20');
+  });
   beforeEach(() => {
     Object.assign(process.env, {
       SAP_TRANSACTION_CAPTURE_ENABLED: 'true',
