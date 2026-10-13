@@ -2,7 +2,7 @@
 // Reference presentation metadata; never use this catalog as a stock source.
 export const DELIVERY_MONTHLY_TEMPLATE = {
   source:
-    'SEPTEMBER 2026 REPORT (version 1).xlsb; Forecast, Delivered, and Parts Received; inspected 2026-10-10. Layout and catalog only; no historical quantities.',
+    'SEPTEMBER 2026 REPORT (version 1).xlsb; Forecast, Delivered, Parts Received, and NG Parts; inspected 2026-10-10. Layout and catalog only; no historical quantities.',
   catalog: [
     {
       row: 6,

@@ -5,6 +5,7 @@ import {
   createDeliveryMonthlyWorkbook,
   type MonthlyOrder,
   type MonthlyDelivery,
+  type MonthlyNgFinding,
   type MonthlyReceipt,
 } from './delivery-monthly.workbook';
 import { ReportService } from './report.service';
@@ -54,6 +55,15 @@ const receipt = (approvedAt = '2026-09-01T02:00:00Z'): MonthlyReceipt => ({
     },
   ],
 });
+const ngFinding = (submittedAt = '2026-09-02T03:00:00Z'): MonthlyNgFinding => ({
+  SubmittedAt: new Date(submittedAt),
+  Qty: 7,
+  Reason: 'Pad sobek',
+  Reporter: 'Nengsih',
+  Location: 'ASSY',
+  Material: { PartNumber: 'B1F-B0850', PartName: 'Rubber, water proof' },
+  Label: null,
+});
 const result = (value: unknown) =>
   typeof value === 'object' && value !== null && 'result' in value
     ? value.result
@@ -71,6 +81,7 @@ describe('Delivery Report (Monthly)', () => {
       [order],
       deliveries,
       [receipt()],
+      [ngFinding()],
     );
     const workbook = new Workbook();
     await workbook.xlsx.load(await source.xlsx.writeBuffer());
@@ -78,6 +89,7 @@ describe('Delivery Report (Monthly)', () => {
       'Forecast',
       'Delivered',
       'Received',
+      'NG Report',
     ]);
     const forecast = workbook.getWorksheet('Forecast')!;
     const sheet = workbook.getWorksheet('Delivered')!;
@@ -111,6 +123,20 @@ describe('Delivery Report (Monthly)', () => {
     expect(received.getCell('F6').value).toBe('MAT-001');
     expect(received.getCell('H6').value).toBe(42);
     expect(result(received.getCell('H7').value)).toBe(42);
+    expect(received.getColumn(7).width).toBeGreaterThan('Part Name'.length);
+    expect(received.getColumn(9).width).toBeGreaterThan('Received By'.length);
+    const ngReport = workbook.getWorksheet('NG Report')!;
+    expect(ngReport.getCell('B2').value).toBe('NG PARTS');
+    expect(ngReport.getCell('C6').value).toEqual(
+      new Date('2026-09-02T00:00:00Z'),
+    );
+    expect(ngReport.getCell('D6').value).toBe('B1F-B0850');
+    expect(ngReport.getCell('E6').value).toBe('Rubber, water proof');
+    expect(ngReport.getCell('F6').value).toBe(7);
+    expect(ngReport.getCell('G6').value).toBe('Nengsih');
+    expect(ngReport.getCell('H6').value).toBe('ASSY');
+    expect(ngReport.getCell('I6').value).toBe('Pad sobek');
+    expect(result(ngReport.getCell('F7').value)).toBe(7);
   });
 
   it('keeps only material lines in Received and puts the Incoming PO Number in Hashtag', () => {
@@ -227,6 +253,7 @@ describe('Delivery Report (Monthly)', () => {
       productionOrder: { findMany: jest.fn().mockResolvedValue([order]) },
       deliveryHistory: { findMany: jest.fn().mockResolvedValue([]) },
       incoming: { findMany: jest.fn().mockResolvedValue([]) },
+      productionFinding: { findMany: jest.fn().mockResolvedValue([]) },
       $transaction: jest.fn((queries: Promise<unknown>[]) =>
         Promise.all(queries),
       ),
@@ -264,6 +291,17 @@ describe('Delivery Report (Monthly)', () => {
         where: {
           Closed: true,
           ApprovedAt: {
+            gte: new Date('2026-08-31T17:00:00Z'),
+            lt: new Date('2026-09-30T17:00:00Z'),
+          },
+        },
+      }),
+    );
+    expect(prisma.productionFinding.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          DeletedAt: null,
+          SubmittedAt: {
             gte: new Date('2026-08-31T17:00:00Z'),
             lt: new Date('2026-09-30T17:00:00Z'),
           },

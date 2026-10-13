@@ -128,12 +128,18 @@ export class SapConnectionService {
         this.config.get('SAP_TRANSACTION_CAPTURE_ENABLED') === 'true',
       postingEnabled: settings.enabled,
       settings,
-      allowedFinishGoods: (
-        this.config.get<string>('SAP_TRANSACTION_ITEM_ALLOWLIST') ??
-        '5715B132-KD'
-      )
-        .split(',')
-        .filter(Boolean),
+      allowedFinishGoods: (() => {
+        const allowlist = this.config
+          .get<string>('SAP_TRANSACTION_ITEM_ALLOWLIST')
+          ?.trim();
+        if (!allowlist || allowlist === '*' || allowlist === 'ALL') {
+          return ['ALL'];
+        }
+        return allowlist
+          .split(',')
+          .map((x) => x.trim())
+          .filter(Boolean);
+      })(),
       materialCaptureScope: 'ALL',
       tlsValidation: this.config.get('SAP_TLS_REJECT_UNAUTHORIZED') !== 'false',
       session: this.sap.sessionHealth(),

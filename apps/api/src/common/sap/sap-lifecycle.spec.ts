@@ -151,6 +151,23 @@ describe('Durable SAP production lifecycle capture', () => {
       }),
     });
   });
+  it('captures all finish goods automatically when allowlist is unset or set to ALL', async () => {
+    delete process.env.SAP_TRANSACTION_ITEM_ALLOWLIST;
+    const f = fixture();
+    f.db.productionOrder.findUniqueOrThrow.mockResolvedValue({
+      PoId: 'ANY-FG-DEMAND',
+      SourceType: 'NON_PO',
+      Qty: 10,
+      FinishGoodId: 'MES-FG-ANY',
+      PoNumber: 'PO-ANY',
+      DeliveryDate: new Date('2026-10-09'),
+      PartData: { PartNumberSAP: 'FG-ANY-T', ActiveBomRevisionId: 'BOM' },
+      ProductionRelease: { ReleaseNumber: 'REL-ANY' },
+    });
+
+    await captureSapDemand(f.tx, 'ANY-FG-DEMAND', 'actor');
+    expect(f.rows.some((row) => row.ItemCode === 'FG-ANY-T')).toBe(true);
+  });
   it('freezes dimensions and preserves the creation event when settings change', async () => {
     const f = fixture();
     await captureSapDemand(f.tx, 'DEMAND', 'actor', 'draft');

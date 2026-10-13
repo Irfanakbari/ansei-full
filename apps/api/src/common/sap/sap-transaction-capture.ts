@@ -63,7 +63,11 @@ export function sapScope() {
   };
 }
 export function sapAllowed(code: string): boolean {
-  return (process.env.SAP_TRANSACTION_ITEM_ALLOWLIST ?? '5715B132-KD')
+  const allowlist = process.env.SAP_TRANSACTION_ITEM_ALLOWLIST?.trim();
+  if (!allowlist || allowlist === '*' || allowlist === 'ALL') {
+    return true;
+  }
+  return allowlist
     .split(',')
     .map((x) => x.trim())
     .includes(code);

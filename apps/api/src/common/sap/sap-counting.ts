@@ -131,12 +131,17 @@ export async function captureCountingStart(
     throw new ConflictException(
       'Finish or recover the previous SAP inventory counting before starting another.',
     );
-  const allowedFinishGoods = new Set(
-    (process.env.SAP_TRANSACTION_ITEM_ALLOWLIST ?? '')
-      .split(',')
-      .map((x) => x.trim())
-      .filter(Boolean),
-  );
+  const rawFgAllowlist = process.env.SAP_TRANSACTION_ITEM_ALLOWLIST?.trim();
+  const allowAllFg =
+    !rawFgAllowlist || rawFgAllowlist === '*' || rawFgAllowlist === 'ALL';
+  const allowedFinishGoods = allowAllFg
+    ? null
+    : new Set(
+        rawFgAllowlist
+          .split(',')
+          .map((x) => x.trim())
+          .filter(Boolean),
+      );
   const masters =
     count.Category === 'MATERIAL'
       ? (
@@ -169,7 +174,9 @@ export async function captureCountingStart(
     masters
       .filter(
         (m) =>
-          (count.Category === 'MATERIAL' || allowedFinishGoods.has(m.code)) &&
+          (count.Category === 'MATERIAL' ||
+            allowAllFg ||
+            allowedFinishGoods!.has(m.code)) &&
           count.Details.some(
             (d) => (d.MaterialId ?? d.FinishGoodId) === m.part,
           ),

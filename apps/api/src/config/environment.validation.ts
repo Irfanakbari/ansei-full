@@ -170,11 +170,7 @@ export function validateEnvironment(environment: Environment): Environment {
   if (sapCapture || sapWrite)
     required(
       environment,
-      [
-        'SAP_COMPANY_DB',
-        'SAP_TRANSACTION_WAREHOUSE',
-        'SAP_TRANSACTION_ITEM_ALLOWLIST',
-      ],
+      ['SAP_COMPANY_DB', 'SAP_TRANSACTION_WAREHOUSE'],
       errors,
     );
   if (sapWrite && !sapCapture)

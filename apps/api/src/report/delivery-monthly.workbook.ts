@@ -37,6 +37,19 @@ export interface MonthlyReceipt {
   }[];
 }
 
+export interface MonthlyNgFinding {
+  SubmittedAt: Date;
+  Qty: number;
+  Reason: string;
+  Reporter: string;
+  Location: string | null;
+  Material: { PartNumber: string; PartName: string } | null;
+  Label: {
+    FinishGoodId: string;
+    PartData: { PartName: string };
+  } | null;
+}
+
 const quantityFormat = '_(* #,##0_);_(* (#,##0);_(* "-"??_);_(@_)';
 const black = { argb: 'FF000000' };
 const thin = { style: 'thin' as const, color: black };
@@ -75,6 +88,29 @@ function fill(color: string) {
     pattern: 'solid' as const,
     fgColor: { argb: `FF${color}` },
   };
+}
+
+function autoFitColumns(
+  sheet: Worksheet,
+  firstColumn: number,
+  lastColumn: number,
+  minimumWidth = 10,
+  maximumWidth = 60,
+) {
+  for (let column = firstColumn; column <= lastColumn; column++) {
+    let longest = 0;
+    sheet.getColumn(column).eachCell({ includeEmpty: false }, (cell) => {
+      const value = cell.text;
+      longest = Math.max(
+        longest,
+        ...value.split(/\r?\n/).map((line) => line.length),
+      );
+    });
+    sheet.getColumn(column).width = Math.min(
+      maximumWidth,
+      Math.max(minimumWidth, longest + 2),
+    );
+  }
 }
 
 function setup(
@@ -154,6 +190,7 @@ export function createDeliveryMonthlyWorkbook(
     'ProductionDemandId' | 'Qty' | 'CreatedAt'
   >[],
   receipts: MonthlyReceipt[] = [],
+  ngFindings: MonthlyNgFinding[] = [],
 ): Workbook {
   const workbook = new Workbook();
   workbook.creator = 'ANSEI';
@@ -165,6 +202,9 @@ export function createDeliveryMonthlyWorkbook(
     views: [{ state: 'frozen', xSplit: 6, ySplit: 5, showGridLines: false }],
   });
   const received = workbook.addWorksheet('Received', {
+    views: [{ state: 'frozen', ySplit: 5, showGridLines: false }],
+  });
+  const ngReport = workbook.addWorksheet('NG Report', {
     views: [{ state: 'frozen', ySplit: 5, showGridLines: false }],
   });
   setup(forecast, template.forecastWidths, 'ACTUAL FORECAST', month);
@@ -536,5 +576,90 @@ export function createDeliveryMonthlyWorkbook(
     };
   }
   received.autoFilter = `B5:I${Math.max(5, receivedTotalRow - 1)}`;
+  autoFitColumns(received, 2, 9, 8, 60);
+
+  // ProductionFinding is the source of truth for reported NG parts. Material
+  // findings use Material; finish-good findings use the reported label's FG.
+  const ngWidths = [21.75, 45, 75, 110, 180, 60, 100, 100, 240];
+  setup(ngReport, ngWidths, 'NG PARTS', month);
+  const ngHeaders = [
+    'No',
+    'Date',
+    'Part Number',
+    'Part Name',
+    'QTY',
+    'Finder',
+    'Location',
+    'Remark',
+  ];
+  ngReport.getRow(5).height = 28.5;
+  ngHeaders.forEach((header, index) => {
+    ngReport.getCell(5, index + 2).value = header;
+  });
+  styleTableRow(ngReport, 5, 9, true);
+  ngFindings.forEach((finding, index) => {
+    const row = index + 6;
+    const partNumber =
+      finding.Material?.PartNumber ?? finding.Label?.FinishGoodId ?? '-';
+    const partName =
+      finding.Material?.PartName ?? finding.Label?.PartData.PartName ?? '-';
+    const values = [
+      index + 1,
+      new Date(`${jakartaDate(finding.SubmittedAt)}T00:00:00Z`),
+      partNumber,
+      partName,
+      finding.Qty,
+      finding.Reporter,
+      finding.Location ?? 'ASSY',
+      finding.Reason,
+    ];
+    values.forEach((value, column) => {
+      ngReport.getCell(row, column + 2).value = value;
+    });
+    styleTableRow(ngReport, row, 9);
+    ngReport.getCell(row, 3).numFmt = 'dd-mmm-yyyy';
+    ngReport.getCell(row, 6).numFmt = quantityFormat;
+    for (const column of [4, 5, 7, 8, 9]) {
+      ngReport.getCell(row, column).alignment = {
+        horizontal: 'left',
+        vertical: 'middle',
+        wrapText: column === 5 || column === 9,
+      };
+    }
+    ngReport.getCell(row, 6).alignment = {
+      horizontal: 'right',
+      vertical: 'middle',
+    };
+    ngReport.getRow(row).height = Math.max(
+      22.5,
+      Math.ceil(Math.max(partName.length / 40, finding.Reason.length / 50)) *
+        18.75,
+    );
+  });
+  const ngTotalRow = ngFindings.length + 6;
+  styleTableRow(ngReport, ngTotalRow, 9);
+  ngReport.mergeCells(ngTotalRow, 2, ngTotalRow, 5);
+  ngReport.getCell(ngTotalRow, 2).value = 'Total';
+  ngReport.getCell(ngTotalRow, 2).font = {
+    name: 'Calibri',
+    size: 12,
+    bold: true,
+  };
+  ngReport.getCell(ngTotalRow, 6).value = {
+    formula: `SUM(F6:F${Math.max(6, ngTotalRow - 1)})`,
+    result: ngFindings.reduce((total, finding) => total + finding.Qty, 0),
+  };
+  ngReport.getCell(ngTotalRow, 6).numFmt = quantityFormat;
+  for (let col = 2; col <= 9; col++) {
+    ngReport.getCell(ngTotalRow, col).fill = fill('FFFF99');
+    ngReport.getCell(ngTotalRow, col).border = {
+      top: medium,
+      bottom: medium,
+      left: col === 2 ? medium : thin,
+      right: col === 9 ? medium : thin,
+    };
+  }
+  ngReport.autoFilter = `B5:I${Math.max(5, ngTotalRow - 1)}`;
+  autoFitColumns(ngReport, 2, 9, 8, 60);
   return workbook;
 }

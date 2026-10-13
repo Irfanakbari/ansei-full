@@ -1,9 +1,10 @@
-# SAP Connection — 6.20.3
+# SAP Connection — 6.21.0
 
-All materials are captured automatically when SAP transaction capture is enabled.
+All materials and finish goods are captured automatically when SAP transaction capture is enabled.
 Their effective SAP key is the trimmed `PartNumberSAP`, falling back to the trimmed
 MES `PartNumber`. Material capture no longer depends on
-`SAP_TRANSACTION_MATERIAL_ALLOWLIST`; the finish-good pilot allowlist remains.
+`SAP_TRANSACTION_MATERIAL_ALLOWLIST`, and finish-good capture no longer requires an item allowlist;
+`SAP_TRANSACTION_ITEM_ALLOWLIST` is optional (supports 'ALL', '*' or omit for full sync).
 Incoming receipt, inventory-ledger and inventory-counting intents are committed
 atomically with their MES transaction. Missing SAP items, business validation
 failures and network failures are handled later by the outbox as visible

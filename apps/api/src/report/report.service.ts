@@ -48,48 +48,70 @@ export class ReportService {
       PartData: { select: { PartName: true } },
     } as const;
     // A consistent read snapshot keeps all sheets aligned during active operations.
-    const [orders, orderDeliveries, receipts] = await this.prisma.$transaction(
-      [
-        this.prisma.productionOrder.findMany({
-          where: { DeliveryDate: { gte: start, lt: end } },
-          select: orderSelect,
-          orderBy: [
-            { DeliveryDate: 'asc' },
-            { PoNumber: 'asc' },
-            { Item: 'asc' },
-            { PoId: 'asc' },
-          ],
-        }),
-        this.prisma.deliveryHistory.findMany({
-          where: {
-            PoData: { DeliveryDate: { gte: start, lt: end } },
-          },
-          select: { ProductionDemandId: true, Qty: true, CreatedAt: true },
-        }),
-        this.prisma.incoming.findMany({
-          where: {
-            Closed: true,
-            ApprovedAt: { gte: actualStart, lt: actualEnd },
-          },
-          select: {
-            PoId: true,
-            ApprovedAt: true,
-            ReceivedBy: true,
-            SupplierData: { select: { Name: true } },
-            IncomingMaterial: {
-              select: {
-                Qty: true,
-                MaterialData: {
-                  select: { PartNumber: true, PartName: true },
+    const [orders, orderDeliveries, receipts, ngFindings] =
+      await this.prisma.$transaction(
+        [
+          this.prisma.productionOrder.findMany({
+            where: { DeliveryDate: { gte: start, lt: end } },
+            select: orderSelect,
+            orderBy: [
+              { DeliveryDate: 'asc' },
+              { PoNumber: 'asc' },
+              { Item: 'asc' },
+              { PoId: 'asc' },
+            ],
+          }),
+          this.prisma.deliveryHistory.findMany({
+            where: {
+              PoData: { DeliveryDate: { gte: start, lt: end } },
+            },
+            select: { ProductionDemandId: true, Qty: true, CreatedAt: true },
+          }),
+          this.prisma.incoming.findMany({
+            where: {
+              Closed: true,
+              ApprovedAt: { gte: actualStart, lt: actualEnd },
+            },
+            select: {
+              PoId: true,
+              ApprovedAt: true,
+              ReceivedBy: true,
+              SupplierData: { select: { Name: true } },
+              IncomingMaterial: {
+                select: {
+                  Qty: true,
+                  MaterialData: {
+                    select: { PartNumber: true, PartName: true },
+                  },
                 },
               },
             },
-          },
-          orderBy: [{ ApprovedAt: 'asc' }, { PoId: 'asc' }],
-        }),
-      ],
-      { isolationLevel: 'RepeatableRead' },
-    );
+            orderBy: [{ ApprovedAt: 'asc' }, { PoId: 'asc' }],
+          }),
+          this.prisma.productionFinding.findMany({
+            where: {
+              DeletedAt: null,
+              SubmittedAt: { gte: actualStart, lt: actualEnd },
+            },
+            select: {
+              SubmittedAt: true,
+              Qty: true,
+              Reason: true,
+              Reporter: true,
+              Location: true,
+              Material: { select: { PartNumber: true, PartName: true } },
+              Label: {
+                select: {
+                  FinishGoodId: true,
+                  PartData: { select: { PartName: true } },
+                },
+              },
+            },
+            orderBy: [{ SubmittedAt: 'asc' }, { Id: 'asc' }],
+          }),
+        ],
+        { isolationLevel: 'RepeatableRead' },
+      );
     return this.writeBuffer(
       createDeliveryMonthlyWorkbook(
         month,
@@ -100,6 +122,7 @@ export class ReportService {
           ApprovedAt: receipt.ApprovedAt!,
           SupplierName: receipt.SupplierData.Name,
         })),
+        ngFindings,
       ),
     );
   }
