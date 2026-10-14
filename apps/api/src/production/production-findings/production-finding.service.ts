@@ -146,6 +146,9 @@ export class ProductionFindingService {
       where: {
         InvalidatedAt: null,
         ProductionRelease: { is: { Status: 'RELEASED' } },
+        // Only finished boxes (assembly COMPLETED) that have not been delivered yet.
+        AssemblySessions: { some: { Status: 'COMPLETED' } },
+        DeliveryHistory: { is: null },
         ...(query.search
           ? {
               OR: [

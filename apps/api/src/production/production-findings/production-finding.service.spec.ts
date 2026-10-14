@@ -155,7 +155,7 @@ describe('ProductionFindingService', () => {
       });
     });
 
-    it('returns minimal options from released production labels only', async () => {
+    it('returns minimal options from assembled, undelivered released labels only', async () => {
       const { prisma, service } = createOptionsService();
       prisma.labelData.findMany.mockResolvedValue([
         {
@@ -180,6 +180,8 @@ describe('ProductionFindingService', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             ProductionRelease: { is: { Status: 'RELEASED' } },
+            AssemblySessions: { some: { Status: 'COMPLETED' } },
+            DeliveryHistory: { is: null },
           }),
           select: {
             LabelNumber: true,

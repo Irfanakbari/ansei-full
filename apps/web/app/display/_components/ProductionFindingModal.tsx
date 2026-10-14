@@ -222,11 +222,11 @@ export default function ProductionFindingModal({
         <Select
           showSearch
           filterOption={false}
-          placeholder="Search released labels"
+          placeholder="Search assembled labels"
           loading={checking}
           onSearch={(value) => void loadLabelOptions(value)}
           onChange={(value) => void inspectFinishGoodLabel(value)}
-          notFoundContent={labelOptionsLoading ? "Loading..." : labelOptionsError ?? "No released labels found"}
+          notFoundContent={labelOptionsLoading ? "Loading..." : labelOptionsError ?? "No assembled, undelivered labels found"}
           options={labelOptions.map((option) => ({
             value: option.labelNumber,
             label: `${option.labelNumber} · Qty ${option.labelQty} · ${option.finishGoodPartName}`,
