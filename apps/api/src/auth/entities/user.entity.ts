@@ -38,4 +38,11 @@ export class UserEntity {
     example: ['MASTER_READ', 'MASTER_CREATE', 'PRODUCTION_READ'],
   })
   Permission: string[] | null;
+
+  @ApiProperty({
+    description: 'Status akses user',
+    enum: ['ACTIVE', 'PENDING'],
+    example: 'ACTIVE',
+  })
+  AccessStatus: 'ACTIVE' | 'PENDING';
 }

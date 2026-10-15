@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { MTCAuthAction, MTCAuthStatus } from '../generated/prisma/enums';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -28,11 +29,16 @@ export class AuthService {
     });
   }
 
-  async getUserWithPermissions(ssoSubject: string) {
-    const user = await this.prisma.mTCUserManagement.findUnique({
-      where: { SsoObjectId: ssoSubject },
-      include: { Role: { include: { Permission: true } } },
-    });
+  async getUserWithPermissions(ssoSubject: string): Promise<UserEntity | null> {
+    const user =
+      (await this.prisma.mTCUserManagement.findUnique({
+        where: { SsoObjectId: ssoSubject },
+        include: { Role: { include: { Permission: true } } },
+      })) ??
+      (await this.prisma.mTCUserManagement.findUnique({
+        where: { UserId: ssoSubject },
+        include: { Role: { include: { Permission: true } } },
+      }));
     if (!user) return null;
 
     return {
@@ -43,6 +49,7 @@ export class AuthService {
       RoleName: user.Role?.RoleName ?? null,
       Permission:
         user.Role?.Permission.map((permission) => permission.Action) ?? [],
+      AccessStatus: user.RoleId === null || !user.Role ? 'PENDING' : 'ACTIVE',
     };
   }
 }

@@ -1,19 +1,48 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useVuteqSso } from "@vuteq/sso-client-react/react";
 import { withBasePath } from "@/lib/base-path";
 
-const APP_VERSION = "6.28.1";
+const APP_VERSION = "6.29.0";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { session, loading } = useVuteqSso();
+
   useEffect(() => {
-    // Full document navigation — NOT Next.js client (RSC) navigation.
-    // The /auth/login route handler responds with a 302 to the external SSO issuer;
-    // a client-side router fetch would follow that redirect as a cross-origin fetch
-    // and fail the CORS preflight against /oidc/authorize.
-    window.location.replace(withBasePath("/auth/login"));
-  }, []);
+    if (loading) return;
+    if (!session) {
+      // Full document navigation — NOT Next.js client (RSC) navigation.
+      // The /auth/login route handler responds with a 302 to the external SSO issuer;
+      // a client-side router fetch would follow that redirect as a cross-origin fetch
+      // and fail the CORS preflight against /oidc/authorize.
+      window.location.replace(withBasePath("/auth/login"));
+      return;
+    }
+
+    const profile = session.attributes as
+      | { AccessStatus?: string; RoleName?: string }
+      | undefined;
+    const isGlobalSuper = session.globalRoles?.includes("SUPER_ADMINISTRATOR");
+    const hasRole = Boolean(session.roles?.[0] || profile?.RoleName);
+    const isPending =
+      profile?.AccessStatus === "PENDING" || (!hasRole && !isGlobalSuper);
+
+    if (isPending) {
+      router.replace("/auth/pending-account");
+    } else if (
+      profile?.AccessStatus === "ACTIVE" ||
+      hasRole ||
+      isGlobalSuper
+    ) {
+      router.replace("/apps");
+    } else {
+      router.replace("/auth/error");
+    }
+  }, [loading, router, session]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-950 text-white">

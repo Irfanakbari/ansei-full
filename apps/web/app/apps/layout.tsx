@@ -715,6 +715,25 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("processing401");
         }
+
+        const profile = session.attributes as
+          | { AccessStatus?: string; RoleName?: string }
+          | undefined;
+        const isGlobalSuper = session.globalRoles.includes("SUPER_ADMINISTRATOR");
+        const hasRole = Boolean(session.roles[0] || profile?.RoleName);
+        const isPending =
+          profile?.AccessStatus === "PENDING" || (!hasRole && !isGlobalSuper);
+
+        if (isPending) {
+          router.replace("/auth/pending-account");
+          return;
+        }
+
+        if (profile?.AccessStatus && profile.AccessStatus !== "ACTIVE") {
+          router.replace("/auth/error");
+          return;
+        }
+
         dispatch(
           setAuthData({
             user: {
@@ -726,9 +745,9 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
               Email: session.user.email ?? "",
               LastLogin: "",
               DeptPermission: [],
-              RoleName: session.globalRoles.includes("SUPER_ADMINISTRATOR")
+              RoleName: isGlobalSuper
                 ? "SUPER"
-                : (session.roles[0] ?? ""),
+                : (session.roles[0] ?? profile?.RoleName ?? ""),
               Permission: session.permissions,
               GlobalRoles: session.globalRoles,
             },

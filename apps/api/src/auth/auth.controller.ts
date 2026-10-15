@@ -21,7 +21,7 @@ export class AuthController {
   @Get('profile')
   async getProfile(
     @CurrentUser() user: ICurrentUser,
-  ): Promise<Omit<UserEntity, 'RoleName'> | null> {
+  ): Promise<UserEntity | null> {
     return this.authService.getUserWithPermissions(user.username);
   }
 }
