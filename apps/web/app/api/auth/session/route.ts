@@ -70,15 +70,34 @@ export async function GET(request: Request) {
     // If backend profile is unreachable
   }
 
+  const globalSuper = session.globalRoles.includes('SUPER_ADMINISTRATOR');
+  const globalRoAdmin = session.globalRoles.includes('RO_ADMINISTRATOR');
+
   if (profile) {
-    const globalSuper = session.globalRoles.includes('SUPER_ADMINISTRATOR');
     if (globalSuper) {
       profile.RoleName = 'SUPER';
       profile.Permission = [...new Set([...(profile.Permission ?? []), 'SUPER'])];
       profile.AccessStatus = 'ACTIVE';
+    } else if (globalRoAdmin) {
+      if (!profile.RoleName || profile.RoleName === 'READONLY' || profile.AccessStatus === 'PENDING') {
+        profile.RoleName = 'READONLY';
+        profile.AccessStatus = 'ACTIVE';
+      }
     } else if (!profile.RoleName) {
       profile.AccessStatus = 'PENDING';
     }
+  } else if (globalSuper || globalRoAdmin) {
+    profile = {
+      UserId: session.profile.sub,
+      Name:
+        session.profile.name ??
+        session.profile.preferred_username ??
+        session.profile.sub,
+      Email: session.profile.email,
+      RoleName: globalSuper ? 'SUPER' : 'READONLY',
+      Permission: globalSuper ? ['SUPER'] : [],
+      AccessStatus: 'ACTIVE',
+    };
   }
 
   return Response.json(

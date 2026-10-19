@@ -31,10 +31,19 @@ export class PermissionsGuard implements CanActivate {
       return false;
     }
 
-    // // Check if user has all required permissions
-    // return requiredPermissions.every((permission) =>
-    //   user.permissions.includes(permission),
-    // );
+    // RO_ADMINISTRATOR from global SSO or local READONLY role has authority for all read-only endpoints
+    if (
+      (user.globalRoles?.includes('RO_ADMINISTRATOR') ||
+        user.roleName === 'READONLY') &&
+      requiredPermissions.some(
+        (permission) =>
+          permission.endsWith('_READ') ||
+          permission.endsWith('_VIEW') ||
+          permission === 'DASHBOARD_VIEW',
+      )
+    ) {
+      return true;
+    }
 
     // Check if user has at least one required permission (OR)
     return requiredPermissions.some((permission) =>

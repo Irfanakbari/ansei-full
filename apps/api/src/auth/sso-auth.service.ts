@@ -9,6 +9,7 @@ import {
   VuteqSsoService,
   type VuteqAuthContext,
   type VuteqIdentity,
+  type VuteqAccessClaims,
 } from '@vuteq/sso-client-nest';
 import type { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -44,7 +45,8 @@ export class SsoAuthService implements OnModuleInit {
         secret: configService.get<string>('VUTEQ_SSO_SECRET') ?? '',
         allowedClientIds,
         global: false,
-        resolveAuthorization: (identity) => this.resolveAuthorization(identity),
+        resolveAuthorization: (identity, claims) =>
+          this.resolveAuthorization(identity, claims),
       });
     } catch (error) {
       this.logUnavailable(error);
@@ -72,19 +74,40 @@ export class SsoAuthService implements OnModuleInit {
     return this.service.authenticate(authorization);
   }
 
-  private async resolveAuthorization(identity: VuteqIdentity) {
+  private async resolveAuthorization(
+    identity: VuteqIdentity,
+    claims?: VuteqAccessClaims,
+  ) {
     const email = identity.email ?? `${identity.id}@sso.invalid`;
     const name = identity.name ?? identity.username ?? identity.id;
+    const isRoAdmin = claims?.roles?.includes('RO_ADMINISTRATOR') ?? false;
+
     const existingBySsoId = await this.prisma.mTCUserManagement.findUnique({
       where: { SsoObjectId: identity.id },
+      include: { Role: { include: { Permission: true } } },
     });
     const existingByEmail = existingBySsoId
       ? null
       : await this.prisma.mTCUserManagement.findUnique({
           where: { Email: email },
+          include: { Role: { include: { Permission: true } } },
         });
     const existing = existingBySsoId ?? existingByEmail;
     const auditActor = identity.username ?? identity.email ?? identity.id;
+
+    let readonlyRole: Prisma.MTCRoleGetPayload<{
+      include: { Permission: true };
+    }> | null = null;
+    if (isRoAdmin && (!existing || !existing.RoleId || !existing.Role)) {
+      readonlyRole = await this.prisma.mTCRole.findUnique({
+        where: { RoleName: 'READONLY' },
+        include: { Permission: true },
+      });
+    }
+
+    const roleIdToAssign =
+      existing?.RoleId ?? (isRoAdmin && readonlyRole ? readonlyRole.Id : null);
+
     const user: SsoUserWithAuthorization = existing
       ? await this.prisma.mTCUserManagement.update({
           where: { Id: existing.Id },
@@ -93,6 +116,7 @@ export class SsoAuthService implements OnModuleInit {
             SsoObjectId: identity.id,
             Name: name,
             Email: email,
+            RoleId: roleIdToAssign,
             LastLogin: new Date(),
           },
           include: { Role: { include: { Permission: true } } },
@@ -103,7 +127,7 @@ export class SsoAuthService implements OnModuleInit {
             SsoObjectId: identity.id,
             Name: name,
             Email: email,
-            RoleId: null,
+            RoleId: roleIdToAssign,
             LastLogin: new Date(),
             CreatedBy: auditActor,
             UpdatedBy: auditActor,
@@ -111,11 +135,28 @@ export class SsoAuthService implements OnModuleInit {
           include: { Role: { include: { Permission: true } } },
         });
     if (!user.IsActive) throw new Error('User account is inactive');
+
+    const effectiveRole = user.Role ?? (isRoAdmin ? readonlyRole : null);
+    let permissions =
+      effectiveRole?.Permission.map((permission) => permission.Action) ?? [];
+
+    if (isRoAdmin && permissions.length === 0) {
+      const readPermissions = await this.prisma.mTCPermission.findMany({
+        where: {
+          OR: [{ Action: { endsWith: '_READ' } }, { Action: 'DASHBOARD_VIEW' }],
+        },
+      });
+      permissions = readPermissions.map((permission) => permission.Action);
+    }
+
     return {
-      roles: user.Role ? [user.Role.RoleName] : [],
-      permissions:
-        user.Role?.Permission.map((permission) => permission.Action) ?? [],
-      attributes: { roleId: user.RoleId },
+      roles: effectiveRole
+        ? [effectiveRole.RoleName]
+        : isRoAdmin
+          ? ['READONLY']
+          : [],
+      permissions,
+      attributes: { roleId: user.RoleId ?? effectiveRole?.Id ?? null },
     };
   }
 

@@ -187,4 +187,75 @@ describe(SsoAuthService.name, () => {
       attributes: { roleId: 7 },
     });
   });
+
+  it('assigns READONLY role and permissions directly when SSO claims include RO_ADMINISTRATOR', async () => {
+    const readonlyRole = {
+      Id: 99,
+      RoleName: 'READONLY',
+      Permission: [
+        { Action: 'IPCS.MASTER_READ' },
+        { Action: 'IPCS.INCOMING_READ' },
+        { Action: 'DASHBOARD_VIEW' },
+      ],
+    };
+    const create = jest.fn().mockResolvedValue({
+      Id: 'new-user-uuid',
+      IsActive: true,
+      RoleId: 99,
+      Role: readonlyRole,
+    });
+    const findUniqueUser = jest.fn().mockResolvedValue(null);
+    const findUniqueRole = jest.fn().mockResolvedValue(readonlyRole);
+    const provisionPrisma = {
+      mTCUserManagement: {
+        findUnique: findUniqueUser,
+        create,
+        update: jest.fn(),
+      },
+      mTCRole: { findUnique: findUniqueRole },
+    } as unknown as PrismaService;
+
+    jest
+      .mocked(VuteqSsoService)
+      .mockImplementationOnce(
+        () => ({ metadata: jest.fn() }) as unknown as VuteqSsoService,
+      );
+
+    new SsoAuthService(
+      config({
+        VUTEQ_SSO_BASE_URL: 'https://sso.example.test',
+        VUTEQ_SSO_SECRET: 'registered-secret-value',
+      }),
+      provisionPrisma,
+    );
+    const sdkOptions = jest.mocked(VuteqSsoService).mock.calls[0][0];
+    const identity = {
+      id: 'ro-subject-456',
+      username: 'readonly.user',
+      email: 'ro@example.test',
+      name: 'ReadOnly User',
+    } as VuteqIdentity;
+    const claims = {
+      roles: ['RO_ADMINISTRATOR'],
+    } as any;
+
+    const authorization = await sdkOptions.resolveAuthorization(
+      identity,
+      claims,
+    );
+
+    expect(create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        RoleId: 99,
+        CreatedBy: 'readonly.user',
+        UpdatedBy: 'readonly.user',
+      }),
+      include: { Role: { include: { Permission: true } } },
+    });
+    expect(authorization).toEqual({
+      roles: ['READONLY'],
+      permissions: ['IPCS.MASTER_READ', 'IPCS.INCOMING_READ', 'DASHBOARD_VIEW'],
+      attributes: { roleId: 99 },
+    });
+  });
 });

@@ -468,6 +468,8 @@ const applyPermission = (
     globalRoles.includes("SUPER_ADMINISTRATOR") ||
     permissions.includes("SUPER") ||
     permissions.includes("*");
+  const isRoAdmin =
+    roleName === "READONLY" || globalRoles.includes("RO_ADMINISTRATOR");
 
   return menus.map((menu) => {
     if (!menu || (menu as any).type === "divider") {
@@ -496,7 +498,11 @@ const applyPermission = (
     const matchesSelfPermission =
       !menuItem.permission ||
       menuItem.permission.length === 0 ||
-      menuItem.permission.some((p: string) => permissions.includes(p));
+      menuItem.permission.some((p: string) => permissions.includes(p)) ||
+      (isRoAdmin &&
+        menuItem.permission.some(
+          (p: string) => p.endsWith("_READ") || p.endsWith("_VIEW"),
+        ));
 
     const hasPermission =
       isSuper ||
@@ -720,9 +726,12 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
           | { AccessStatus?: string; RoleName?: string }
           | undefined;
         const isGlobalSuper = session.globalRoles.includes("SUPER_ADMINISTRATOR");
+        const isGlobalRoAdmin = session.globalRoles.includes("RO_ADMINISTRATOR");
         const hasRole = Boolean(session.roles[0] || profile?.RoleName);
         const isPending =
-          profile?.AccessStatus === "PENDING" || (!hasRole && !isGlobalSuper);
+          profile?.AccessStatus === "PENDING"
+            ? !isGlobalSuper && !isGlobalRoAdmin
+            : !hasRole && !isGlobalSuper && !isGlobalRoAdmin;
 
         if (isPending) {
           router.replace("/auth/pending-account");
@@ -747,6 +756,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
               DeptPermission: [],
               RoleName: isGlobalSuper
                 ? "SUPER"
+                : isGlobalRoAdmin && (!profile?.RoleName || profile.RoleName === "READONLY")
+                ? "READONLY"
                 : (session.roles[0] ?? profile?.RoleName ?? ""),
               Permission: session.permissions,
               GlobalRoles: session.globalRoles,

@@ -80,5 +80,48 @@ describe('AuthService', () => {
         AccessStatus: 'ACTIVE',
       });
     });
+
+    it('returns READONLY role and ACTIVE status when user has RO_ADMINISTRATOR global role and no local role', async () => {
+      prisma.mTCUserManagement.findUnique.mockResolvedValue({
+        Id: 'uuid-1',
+        UserId: 'ro-user-01',
+        Name: 'RO User',
+        Email: 'ro@example.com',
+        LastLogin: new Date('2026-10-15T00:00:00.000Z'),
+        RoleId: null,
+        Role: null,
+      });
+      (prisma as any).mTCRole = {
+        findUnique: jest.fn().mockResolvedValue({
+          Id: 2,
+          RoleName: 'READONLY',
+          Permission: [
+            { Action: 'IPCS.MASTER_READ' },
+            { Action: 'DASHBOARD_VIEW' },
+          ],
+        }),
+      };
+      (prisma as any).mTCUserManagement.update = jest
+        .fn()
+        .mockResolvedValue({});
+
+      const result = await authService.getUserWithPermissions('ro-user-01', [
+        'RO_ADMINISTRATOR',
+      ]);
+
+      expect(result).toEqual({
+        UserId: 'ro-user-01',
+        Name: 'RO User',
+        Email: 'ro@example.com',
+        LastLogin: expect.any(Date),
+        RoleName: 'READONLY',
+        Permission: ['IPCS.MASTER_READ', 'DASHBOARD_VIEW'],
+        AccessStatus: 'ACTIVE',
+      });
+      expect((prisma as any).mTCUserManagement.update).toHaveBeenCalledWith({
+        where: { Id: 'uuid-1' },
+        data: { RoleId: 2 },
+      });
+    });
   });
 });

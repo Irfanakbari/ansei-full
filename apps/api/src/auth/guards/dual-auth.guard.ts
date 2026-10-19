@@ -165,6 +165,20 @@ export class DualAuthGuard implements CanActivate {
       return false;
     }
 
+    // RO_ADMINISTRATOR from global SSO or local READONLY role has authority for all read-only endpoints
+    if (
+      (user.globalRoles?.includes('RO_ADMINISTRATOR') ||
+        user.roleName === 'READONLY') &&
+      requiredPermissions.some(
+        (permission) =>
+          permission.endsWith('_READ') ||
+          permission.endsWith('_VIEW') ||
+          permission === 'DASHBOARD_VIEW',
+      )
+    ) {
+      return true;
+    }
+
     // Check if user has at least one required permission (OR logic)
     return requiredPermissions.some((permission) =>
       user.permissions.includes(permission),

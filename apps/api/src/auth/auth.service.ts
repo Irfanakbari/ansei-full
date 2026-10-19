@@ -29,7 +29,10 @@ export class AuthService {
     });
   }
 
-  async getUserWithPermissions(ssoSubject: string): Promise<UserEntity | null> {
+  async getUserWithPermissions(
+    ssoSubject: string,
+    globalRoles?: string[],
+  ): Promise<UserEntity | null> {
     const user =
       (await this.prisma.mTCUserManagement.findUnique({
         where: { SsoObjectId: ssoSubject },
@@ -41,15 +44,53 @@ export class AuthService {
       }));
     if (!user) return null;
 
+    let roleName = user.Role?.RoleName ?? null;
+    let permissions =
+      user.Role?.Permission.map((permission) => permission.Action) ?? [];
+    let accessStatus: 'ACTIVE' | 'PENDING' =
+      user.RoleId === null || !user.Role ? 'PENDING' : 'ACTIVE';
+
+    const isRoAdmin = globalRoles?.includes('RO_ADMINISTRATOR') ?? false;
+
+    if (isRoAdmin && (!roleName || accessStatus === 'PENDING')) {
+      const readonlyRole = await this.prisma.mTCRole.findUnique({
+        where: { RoleName: 'READONLY' },
+        include: { Permission: true },
+      });
+      if (readonlyRole) {
+        roleName = readonlyRole.RoleName;
+        permissions = readonlyRole.Permission.map((p) => p.Action);
+        accessStatus = 'ACTIVE';
+
+        if (!user.RoleId) {
+          await this.prisma.mTCUserManagement.update({
+            where: { Id: user.Id },
+            data: { RoleId: readonlyRole.Id },
+          });
+        }
+      } else {
+        const readPermissions = await this.prisma.mTCPermission.findMany({
+          where: {
+            OR: [
+              { Action: { endsWith: '_READ' } },
+              { Action: 'DASHBOARD_VIEW' },
+            ],
+          },
+        });
+        roleName = 'READONLY';
+        permissions = readPermissions.map((p) => p.Action);
+        accessStatus = 'ACTIVE';
+      }
+    }
+
     return {
       UserId: user.UserId,
       Name: user.Name,
       Email: user.Email,
       LastLogin: user.LastLogin,
-      RoleName: user.Role?.RoleName ?? null,
-      Permission:
-        user.Role?.Permission.map((permission) => permission.Action) ?? [],
-      AccessStatus: user.RoleId === null || !user.Role ? 'PENDING' : 'ACTIVE',
+      RoleName: roleName,
+      Permission: permissions,
+      AccessStatus: accessStatus,
     };
   }
 }

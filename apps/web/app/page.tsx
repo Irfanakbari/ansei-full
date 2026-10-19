@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useVuteqSso } from "@vuteq/sso-client-react/react";
 import { withBasePath } from "@/lib/base-path";
 
-const APP_VERSION = "6.29.0";
+const APP_VERSION = "6.30.0";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,16 +27,20 @@ export default function LoginPage() {
       | { AccessStatus?: string; RoleName?: string }
       | undefined;
     const isGlobalSuper = session.globalRoles?.includes("SUPER_ADMINISTRATOR");
+    const isGlobalRoAdmin = session.globalRoles?.includes("RO_ADMINISTRATOR");
     const hasRole = Boolean(session.roles?.[0] || profile?.RoleName);
     const isPending =
-      profile?.AccessStatus === "PENDING" || (!hasRole && !isGlobalSuper);
+      profile?.AccessStatus === "PENDING"
+        ? !isGlobalSuper && !isGlobalRoAdmin
+        : !hasRole && !isGlobalSuper && !isGlobalRoAdmin;
 
     if (isPending) {
       router.replace("/auth/pending-account");
     } else if (
       profile?.AccessStatus === "ACTIVE" ||
       hasRole ||
-      isGlobalSuper
+      isGlobalSuper ||
+      isGlobalRoAdmin
     ) {
       router.replace("/apps");
     } else {
