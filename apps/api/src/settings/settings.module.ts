@@ -3,6 +3,7 @@ import { DashboardSettingModule } from './dashboard-setting/dashboard-setting.mo
 import { EmailNotificationModule } from './email-notification/email-notification.module';
 import { PrintAgentModule } from './print-agent/print-agent.module';
 import { DisplayConfigModule } from './display-config/display-config.module';
+import { AssemblyProcessSettingModule } from './assembly-process/assembly-process-setting.module';
 
 @Module({
   imports: [
@@ -10,12 +11,14 @@ import { DisplayConfigModule } from './display-config/display-config.module';
     EmailNotificationModule,
     PrintAgentModule,
     DisplayConfigModule,
+    AssemblyProcessSettingModule,
   ],
   exports: [
     DashboardSettingModule,
     EmailNotificationModule,
     PrintAgentModule,
     DisplayConfigModule,
+    AssemblyProcessSettingModule,
   ],
 })
 export class SettingsModule {}

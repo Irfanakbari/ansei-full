@@ -92,6 +92,7 @@ export class AssemblyService {
     const candidates = await this.prisma.labelData.findMany({
       where: {
         RequiresAssembly: true,
+        BypassAssembly: false,
         Scanned: false,
         QtyThisBox: { gt: 0 },
         ProductionRelease: { Status: 'RELEASED' },
@@ -142,6 +143,7 @@ export class AssemblyService {
         count({ POData: { ShoppingCompletion: null } }),
         count({
           RequiresAssembly: true,
+          BypassAssembly: false,
           POData: { ShoppingCompletion: { isNot: null } },
           AssemblySessions: {
             none: { Status: { in: ['IN_PROGRESS', 'COMPLETED'] } },
@@ -324,6 +326,10 @@ export class AssemblyService {
         throw new BadRequestException(
           'This label does not require assembly. Continue to pre-delivery.',
         );
+      if (label.BypassAssembly)
+        throw new BadRequestException(
+          'This label is completed automatically by the assembly bypass process.',
+        );
       if (label.Scanned)
         throw new ConflictException('Label already passed POKAYOKE.');
       const occupied = await tx.assemblySession.findFirst({
@@ -366,12 +372,18 @@ export class AssemblyService {
         include: sessionInclude,
       });
       if (!session) throw new NotFoundException('Assembly session not found.');
+      if (!('manPowerNik' in dto) && !session.ManPowerUid)
+        throw new BadRequestException(
+          'System-created assembly sessions cannot be completed manually.',
+        );
       const operator =
         'manPowerNik' in dto
           ? await this.operator(tx, dto.manPowerNik)
-          : await tx.manPower.findUnique({
-              where: { Uid: session.ManPowerUid },
-            });
+          : session.ManPowerUid
+            ? await tx.manPower.findUnique({
+                where: { Uid: session.ManPowerUid },
+              })
+            : null;
       if (!operator?.Status)
         throw new BadRequestException(
           'The assembly manpower is no longer active.',

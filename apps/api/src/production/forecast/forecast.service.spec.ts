@@ -42,6 +42,11 @@ describe('ForecastService', () => {
       $executeRaw: jest.fn(),
       $transaction: jest.fn(),
       pokayokeScanHistory: { count: jest.fn().mockResolvedValue(0) },
+      assemblyProcessSetting: {
+        findUniqueOrThrow: jest
+          .fn()
+          .mockResolvedValue({ BypassAllAssembly: false }),
+      },
       forecast: {
         findUniqueOrThrow: jest.fn().mockResolvedValue({
           ProductionRelease: null,

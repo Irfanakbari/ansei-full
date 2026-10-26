@@ -433,6 +433,7 @@ export const ModelName = {
   LineStatus: 'LineStatus',
   EmailNotification: 'EmailNotification',
   DashboardSetting: 'DashboardSetting',
+  AssemblyProcessSetting: 'AssemblyProcessSetting',
   LogProcess: 'LogProcess',
   ActionAuditEvent: 'ActionAuditEvent',
   LogProcessDetail: 'LogProcessDetail',
@@ -482,7 +483,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "satuan" | "supplier" | "supplierBarcodeFormat" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "recordNumberCounter" | "stockOpnameDetail" | "stockOpnameAttachment" | "incoming" | "incomingMaterial" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingCompletion" | "outboxEvent" | "sapTransaction" | "sapDemandMapping" | "sapBackflushPick" | "sapStockSnapshot" | "sapConnectionState" | "sapExternalDocument" | "productionReport" | "labelData" | "assemblySession" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "logProcess" | "actionAuditEvent" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printAgent" | "printAgentEnrollment" | "printAgentCredential" | "profilePrinter" | "printJob" | "printJobEvent" | "apiKey" | "displayConfig" | "bomRevision" | "bomRevisionLine" | "bomRevisionEvent" | "productionBomSnapshot" | "productionBomSnapshotLine" | "businessCommand" | "productionFinding" | "customerReturn" | "productionFindingComponent" | "productionFindingAllocation" | "productionFindingEvent" | "productionTraceEvent" | "forecastNonPo" | "productionDemand" | "forecastNonPoImport" | "productionOrder"
+    modelProps: "satuan" | "supplier" | "supplierBarcodeFormat" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "recordNumberCounter" | "stockOpnameDetail" | "stockOpnameAttachment" | "incoming" | "incomingMaterial" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingCompletion" | "outboxEvent" | "sapTransaction" | "sapDemandMapping" | "sapBackflushPick" | "sapStockSnapshot" | "sapConnectionState" | "sapExternalDocument" | "productionReport" | "labelData" | "assemblySession" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "assemblyProcessSetting" | "logProcess" | "actionAuditEvent" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printAgent" | "printAgentEnrollment" | "printAgentCredential" | "profilePrinter" | "printJob" | "printJobEvent" | "apiKey" | "displayConfig" | "bomRevision" | "bomRevisionLine" | "bomRevisionEvent" | "productionBomSnapshot" | "productionBomSnapshotLine" | "businessCommand" | "productionFinding" | "customerReturn" | "productionFindingComponent" | "productionFindingAllocation" | "productionFindingEvent" | "productionTraceEvent" | "forecastNonPo" | "productionDemand" | "forecastNonPoImport" | "productionOrder"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3147,6 +3148,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DashboardSettingCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DashboardSettingCountAggregateOutputType> | number
+        }
+      }
+    }
+    AssemblyProcessSetting: {
+      payload: Prisma.$AssemblyProcessSettingPayload<ExtArgs>
+      fields: Prisma.AssemblyProcessSettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AssemblyProcessSettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AssemblyProcessSettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload>
+        }
+        findFirst: {
+          args: Prisma.AssemblyProcessSettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AssemblyProcessSettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload>
+        }
+        findMany: {
+          args: Prisma.AssemblyProcessSettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload>[]
+        }
+        create: {
+          args: Prisma.AssemblyProcessSettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload>
+        }
+        createMany: {
+          args: Prisma.AssemblyProcessSettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AssemblyProcessSettingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload>[]
+        }
+        delete: {
+          args: Prisma.AssemblyProcessSettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload>
+        }
+        update: {
+          args: Prisma.AssemblyProcessSettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.AssemblyProcessSettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AssemblyProcessSettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AssemblyProcessSettingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload>[]
+        }
+        upsert: {
+          args: Prisma.AssemblyProcessSettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AssemblyProcessSettingPayload>
+        }
+        aggregate: {
+          args: Prisma.AssemblyProcessSettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAssemblyProcessSetting>
+        }
+        groupBy: {
+          args: Prisma.AssemblyProcessSettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssemblyProcessSettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AssemblyProcessSettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AssemblyProcessSettingCountAggregateOutputType> | number
         }
       }
     }
@@ -6166,6 +6241,7 @@ export const LabelDataScalarFieldEnum = {
   ReplacementFindingId: 'ReplacementFindingId',
   LegacyPoId: 'LegacyPoId',
   RequiresAssembly: 'RequiresAssembly',
+  BypassAssembly: 'BypassAssembly',
   Id: 'Id',
   LabelNumber: 'LabelNumber',
   FinishGoodId: 'FinishGoodId',
@@ -6260,6 +6336,17 @@ export const DashboardSettingScalarFieldEnum = {
 } as const
 
 export type DashboardSettingScalarFieldEnum = (typeof DashboardSettingScalarFieldEnum)[keyof typeof DashboardSettingScalarFieldEnum]
+
+
+export const AssemblyProcessSettingScalarFieldEnum = {
+  Id: 'Id',
+  BypassAllAssembly: 'BypassAllAssembly',
+  ChangeReason: 'ChangeReason',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
+} as const
+
+export type AssemblyProcessSettingScalarFieldEnum = (typeof AssemblyProcessSettingScalarFieldEnum)[keyof typeof AssemblyProcessSettingScalarFieldEnum]
 
 
 export const LogProcessScalarFieldEnum = {
@@ -7532,6 +7619,7 @@ export type GlobalOmitConfig = {
   lineStatus?: Prisma.LineStatusOmit
   emailNotification?: Prisma.EmailNotificationOmit
   dashboardSetting?: Prisma.DashboardSettingOmit
+  assemblyProcessSetting?: Prisma.AssemblyProcessSettingOmit
   logProcess?: Prisma.LogProcessOmit
   actionAuditEvent?: Prisma.ActionAuditEventOmit
   logProcessDetail?: Prisma.LogProcessDetailOmit

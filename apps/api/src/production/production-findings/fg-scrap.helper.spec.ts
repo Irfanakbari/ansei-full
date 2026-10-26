@@ -25,6 +25,7 @@ describe('FG scrap inventory and label boundaries', () => {
       FinishGoodId: 'FG',
       QtyThisBox: 10,
       RequiresAssembly: true,
+      BypassAssembly: false,
       InvalidatedAt: null,
       Scanned: false,
       DeliveryHistory: null as object | null,
@@ -32,6 +33,11 @@ describe('FG scrap inventory and label boundaries', () => {
     };
     const db = {
       $executeRaw: jest.fn(),
+      assemblyProcessSetting: {
+        findUniqueOrThrow: jest
+          .fn()
+          .mockResolvedValue({ BypassAllAssembly: false }),
+      },
       labelData: {
         findUniqueOrThrow: jest.fn().mockResolvedValue(label),
         findMany: jest.fn().mockResolvedValue([label]),

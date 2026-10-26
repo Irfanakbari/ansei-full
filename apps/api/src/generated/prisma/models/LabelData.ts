@@ -47,6 +47,7 @@ export type LabelDataMinAggregateOutputType = {
   ReplacementFindingId: string | null
   LegacyPoId: string | null
   RequiresAssembly: boolean | null
+  BypassAssembly: boolean | null
   Id: number | null
   LabelNumber: string | null
   FinishGoodId: string | null
@@ -64,6 +65,7 @@ export type LabelDataMaxAggregateOutputType = {
   ReplacementFindingId: string | null
   LegacyPoId: string | null
   RequiresAssembly: boolean | null
+  BypassAssembly: boolean | null
   Id: number | null
   LabelNumber: string | null
   FinishGoodId: string | null
@@ -81,6 +83,7 @@ export type LabelDataCountAggregateOutputType = {
   ReplacementFindingId: number
   LegacyPoId: number
   RequiresAssembly: number
+  BypassAssembly: number
   Id: number
   LabelNumber: number
   FinishGoodId: number
@@ -114,6 +117,7 @@ export type LabelDataMinAggregateInputType = {
   ReplacementFindingId?: true
   LegacyPoId?: true
   RequiresAssembly?: true
+  BypassAssembly?: true
   Id?: true
   LabelNumber?: true
   FinishGoodId?: true
@@ -131,6 +135,7 @@ export type LabelDataMaxAggregateInputType = {
   ReplacementFindingId?: true
   LegacyPoId?: true
   RequiresAssembly?: true
+  BypassAssembly?: true
   Id?: true
   LabelNumber?: true
   FinishGoodId?: true
@@ -148,6 +153,7 @@ export type LabelDataCountAggregateInputType = {
   ReplacementFindingId?: true
   LegacyPoId?: true
   RequiresAssembly?: true
+  BypassAssembly?: true
   Id?: true
   LabelNumber?: true
   FinishGoodId?: true
@@ -252,6 +258,7 @@ export type LabelDataGroupByOutputType = {
   ReplacementFindingId: string | null
   LegacyPoId: string | null
   RequiresAssembly: boolean | null
+  BypassAssembly: boolean
   Id: number
   LabelNumber: string
   FinishGoodId: string
@@ -292,6 +299,7 @@ export type LabelDataWhereInput = {
   ReplacementFindingId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   LegacyPoId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   RequiresAssembly?: Prisma.BoolNullableFilter<"LabelData"> | boolean | null
+  BypassAssembly?: Prisma.BoolFilter<"LabelData"> | boolean
   Id?: Prisma.IntFilter<"LabelData"> | number
   LabelNumber?: Prisma.StringFilter<"LabelData"> | string
   FinishGoodId?: Prisma.StringFilter<"LabelData"> | string
@@ -318,6 +326,7 @@ export type LabelDataOrderByWithRelationInput = {
   ReplacementFindingId?: Prisma.SortOrderInput | Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrderInput | Prisma.SortOrder
+  BypassAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -349,6 +358,7 @@ export type LabelDataWhereUniqueInput = Prisma.AtLeast<{
   ReplacementFindingId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   LegacyPoId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   RequiresAssembly?: Prisma.BoolNullableFilter<"LabelData"> | boolean | null
+  BypassAssembly?: Prisma.BoolFilter<"LabelData"> | boolean
   FinishGoodId?: Prisma.StringFilter<"LabelData"> | string
   ProductionDemandId?: Prisma.StringFilter<"LabelData"> | string
   Scanned?: Prisma.BoolFilter<"LabelData"> | boolean
@@ -373,6 +383,7 @@ export type LabelDataOrderByWithAggregationInput = {
   ReplacementFindingId?: Prisma.SortOrderInput | Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrderInput | Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrderInput | Prisma.SortOrder
+  BypassAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -398,6 +409,7 @@ export type LabelDataScalarWhereWithAggregatesInput = {
   ReplacementFindingId?: Prisma.StringNullableWithAggregatesFilter<"LabelData"> | string | null
   LegacyPoId?: Prisma.StringNullableWithAggregatesFilter<"LabelData"> | string | null
   RequiresAssembly?: Prisma.BoolNullableWithAggregatesFilter<"LabelData"> | boolean | null
+  BypassAssembly?: Prisma.BoolWithAggregatesFilter<"LabelData"> | boolean
   Id?: Prisma.IntWithAggregatesFilter<"LabelData"> | number
   LabelNumber?: Prisma.StringWithAggregatesFilter<"LabelData"> | string
   FinishGoodId?: Prisma.StringWithAggregatesFilter<"LabelData"> | string
@@ -414,6 +426,7 @@ export type LabelDataCreateInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -436,6 +449,7 @@ export type LabelDataUncheckedCreateInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -456,6 +470,7 @@ export type LabelDataUpdateInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -478,6 +493,7 @@ export type LabelDataUncheckedUpdateInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -499,6 +515,7 @@ export type LabelDataCreateManyInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -515,6 +532,7 @@ export type LabelDataUpdateManyMutationInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -528,6 +546,7 @@ export type LabelDataUncheckedUpdateManyInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -555,6 +574,7 @@ export type LabelDataCountOrderByAggregateInput = {
   ReplacementFindingId?: Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrder
+  BypassAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -579,6 +599,7 @@ export type LabelDataMaxOrderByAggregateInput = {
   ReplacementFindingId?: Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrder
+  BypassAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -596,6 +617,7 @@ export type LabelDataMinOrderByAggregateInput = {
   ReplacementFindingId?: Prisma.SortOrder
   LegacyPoId?: Prisma.SortOrder
   RequiresAssembly?: Prisma.SortOrder
+  BypassAssembly?: Prisma.SortOrder
   Id?: Prisma.SortOrder
   LabelNumber?: Prisma.SortOrder
   FinishGoodId?: Prisma.SortOrder
@@ -861,6 +883,7 @@ export type LabelDataCreateWithoutPartDataInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -882,6 +905,7 @@ export type LabelDataUncheckedCreateWithoutPartDataInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   ProductionDemandId: string
@@ -931,6 +955,7 @@ export type LabelDataScalarWhereInput = {
   ReplacementFindingId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   LegacyPoId?: Prisma.StringNullableFilter<"LabelData"> | string | null
   RequiresAssembly?: Prisma.BoolNullableFilter<"LabelData"> | boolean | null
+  BypassAssembly?: Prisma.BoolFilter<"LabelData"> | boolean
   Id?: Prisma.IntFilter<"LabelData"> | number
   LabelNumber?: Prisma.StringFilter<"LabelData"> | string
   FinishGoodId?: Prisma.StringFilter<"LabelData"> | string
@@ -947,6 +972,7 @@ export type LabelDataCreateWithoutLegacyForecastInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -967,6 +993,7 @@ export type LabelDataUncheckedCreateWithoutLegacyForecastInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1013,6 +1040,7 @@ export type LabelDataCreateWithoutProductionReleaseInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -1034,6 +1062,7 @@ export type LabelDataUncheckedCreateWithoutProductionReleaseInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1079,6 +1108,7 @@ export type LabelDataCreateWithoutAssemblySessionsInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -1100,6 +1130,7 @@ export type LabelDataUncheckedCreateWithoutAssemblySessionsInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1135,6 +1166,7 @@ export type LabelDataUpdateWithoutAssemblySessionsInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1156,6 +1188,7 @@ export type LabelDataUncheckedUpdateWithoutAssemblySessionsInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1175,6 +1208,7 @@ export type LabelDataCreateWithoutPokayokeHistoryInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -1196,6 +1230,7 @@ export type LabelDataUncheckedCreateWithoutPokayokeHistoryInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1231,6 +1266,7 @@ export type LabelDataUpdateWithoutPokayokeHistoryInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1252,6 +1288,7 @@ export type LabelDataUncheckedUpdateWithoutPokayokeHistoryInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1271,6 +1308,7 @@ export type LabelDataCreateWithoutDeliveryHistoryInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -1292,6 +1330,7 @@ export type LabelDataUncheckedCreateWithoutDeliveryHistoryInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1327,6 +1366,7 @@ export type LabelDataUpdateWithoutDeliveryHistoryInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1348,6 +1388,7 @@ export type LabelDataUncheckedUpdateWithoutDeliveryHistoryInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1367,6 +1408,7 @@ export type LabelDataCreateWithoutProductionFindingsInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -1388,6 +1430,7 @@ export type LabelDataUncheckedCreateWithoutProductionFindingsInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1423,6 +1466,7 @@ export type LabelDataUpdateWithoutProductionFindingsInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1444,6 +1488,7 @@ export type LabelDataUncheckedUpdateWithoutProductionFindingsInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1463,6 +1508,7 @@ export type LabelDataCreateWithoutDemandInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -1484,6 +1530,7 @@ export type LabelDataUncheckedCreateWithoutDemandInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1530,6 +1577,7 @@ export type LabelDataCreateManyPartDataInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   ProductionDemandId: string
@@ -1545,6 +1593,7 @@ export type LabelDataUpdateWithoutPartDataInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1566,6 +1615,7 @@ export type LabelDataUncheckedUpdateWithoutPartDataInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1586,6 +1636,7 @@ export type LabelDataUncheckedUpdateManyWithoutPartDataInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionDemandId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1601,6 +1652,7 @@ export type LabelDataCreateManyLegacyForecastInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1617,6 +1669,7 @@ export type LabelDataUpdateWithoutLegacyForecastInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1637,6 +1690,7 @@ export type LabelDataUncheckedUpdateWithoutLegacyForecastInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1657,6 +1711,7 @@ export type LabelDataUncheckedUpdateManyWithoutLegacyForecastInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1674,6 +1729,7 @@ export type LabelDataCreateManyProductionReleaseInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1689,6 +1745,7 @@ export type LabelDataUpdateWithoutProductionReleaseInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1710,6 +1767,7 @@ export type LabelDataUncheckedUpdateWithoutProductionReleaseInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1730,6 +1788,7 @@ export type LabelDataUncheckedUpdateManyWithoutProductionReleaseInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1774,6 +1833,7 @@ export type LabelDataCreateManyDemandInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1789,6 +1849,7 @@ export type LabelDataUpdateWithoutDemandInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1810,6 +1871,7 @@ export type LabelDataUncheckedUpdateWithoutDemandInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1830,6 +1892,7 @@ export type LabelDataUncheckedUpdateManyWithoutDemandInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1845,6 +1908,7 @@ export type LabelDataCreateWithoutPODataInput = {
   ReplacesLabelId?: number | null
   ReplacementFindingId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   LabelNumber: string
   Scanned?: boolean
   QtyThisBox?: number
@@ -1866,6 +1930,7 @@ export type LabelDataUncheckedCreateWithoutPODataInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1911,6 +1976,7 @@ export type LabelDataUpdateWithoutPODataInput = {
   ReplacesLabelId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   Scanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   QtyThisBox?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1932,6 +1998,7 @@ export type LabelDataUncheckedUpdateWithoutPODataInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1952,6 +2019,7 @@ export type LabelDataCreateManyPODataInput = {
   ReplacementFindingId?: string | null
   LegacyPoId?: string | null
   RequiresAssembly?: boolean | null
+  BypassAssembly?: boolean
   Id?: number
   LabelNumber: string
   FinishGoodId: string
@@ -1968,6 +2036,7 @@ export type LabelDataUncheckedUpdateManyWithoutPODataInput = {
   ReplacementFindingId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   LegacyPoId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   RequiresAssembly?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  BypassAssembly?: Prisma.BoolFieldUpdateOperationsInput | boolean
   Id?: Prisma.IntFieldUpdateOperationsInput | number
   LabelNumber?: Prisma.StringFieldUpdateOperationsInput | string
   FinishGoodId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2033,6 +2102,7 @@ export type LabelDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   ReplacementFindingId?: boolean
   LegacyPoId?: boolean
   RequiresAssembly?: boolean
+  BypassAssembly?: boolean
   Id?: boolean
   LabelNumber?: boolean
   FinishGoodId?: boolean
@@ -2060,6 +2130,7 @@ export type LabelDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   ReplacementFindingId?: boolean
   LegacyPoId?: boolean
   RequiresAssembly?: boolean
+  BypassAssembly?: boolean
   Id?: boolean
   LabelNumber?: boolean
   FinishGoodId?: boolean
@@ -2082,6 +2153,7 @@ export type LabelDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   ReplacementFindingId?: boolean
   LegacyPoId?: boolean
   RequiresAssembly?: boolean
+  BypassAssembly?: boolean
   Id?: boolean
   LabelNumber?: boolean
   FinishGoodId?: boolean
@@ -2104,6 +2176,7 @@ export type LabelDataSelectScalar = {
   ReplacementFindingId?: boolean
   LegacyPoId?: boolean
   RequiresAssembly?: boolean
+  BypassAssembly?: boolean
   Id?: boolean
   LabelNumber?: boolean
   FinishGoodId?: boolean
@@ -2114,7 +2187,7 @@ export type LabelDataSelectScalar = {
   PokayokeScanHistoryId?: boolean
 }
 
-export type LabelDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"InvalidatedAt" | "StockSourceLabelId" | "ReplacesLabelId" | "ReplacementFindingId" | "LegacyPoId" | "RequiresAssembly" | "Id" | "LabelNumber" | "FinishGoodId" | "ProductionDemandId" | "Scanned" | "QtyThisBox" | "ProductionReleaseId" | "PokayokeScanHistoryId", ExtArgs["result"]["labelData"]>
+export type LabelDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"InvalidatedAt" | "StockSourceLabelId" | "ReplacesLabelId" | "ReplacementFindingId" | "LegacyPoId" | "RequiresAssembly" | "BypassAssembly" | "Id" | "LabelNumber" | "FinishGoodId" | "ProductionDemandId" | "Scanned" | "QtyThisBox" | "ProductionReleaseId" | "PokayokeScanHistoryId", ExtArgs["result"]["labelData"]>
 export type LabelDataInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   LegacyForecast?: boolean | Prisma.LabelData$LegacyForecastArgs<ExtArgs>
   Demand?: boolean | Prisma.ProductionDemandDefaultArgs<ExtArgs>
@@ -2162,6 +2235,7 @@ export type $LabelDataPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     ReplacementFindingId: string | null
     LegacyPoId: string | null
     RequiresAssembly: boolean | null
+    BypassAssembly: boolean
     Id: number
     LabelNumber: string
     FinishGoodId: string
@@ -2608,6 +2682,7 @@ export interface LabelDataFieldRefs {
   readonly ReplacementFindingId: Prisma.FieldRef<"LabelData", 'String'>
   readonly LegacyPoId: Prisma.FieldRef<"LabelData", 'String'>
   readonly RequiresAssembly: Prisma.FieldRef<"LabelData", 'Boolean'>
+  readonly BypassAssembly: Prisma.FieldRef<"LabelData", 'Boolean'>
   readonly Id: Prisma.FieldRef<"LabelData", 'Int'>
   readonly LabelNumber: Prisma.FieldRef<"LabelData", 'String'>
   readonly FinishGoodId: Prisma.FieldRef<"LabelData", 'String'>

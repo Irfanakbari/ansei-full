@@ -113,6 +113,7 @@ describe('AssemblyService', () => {
       expect.objectContaining({
         where: expect.objectContaining({
           RequiresAssembly: true,
+          BypassAssembly: false,
           ProductionRelease: { Status: 'RELEASED' },
           AssemblySessions: {
             none: { Status: { in: ['IN_PROGRESS', 'COMPLETED'] } },

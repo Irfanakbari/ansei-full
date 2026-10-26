@@ -155,6 +155,7 @@ export function buildProductionLabels(
   releaseId: string,
   boxQty: number,
   requiresAssembly: boolean,
+  bypassAssembly = false,
 ) {
   return Array.from(
     { length: Math.ceil(forecast.Qty / boxQty) },
@@ -168,6 +169,7 @@ export function buildProductionLabels(
         QtyThisBox: qty,
         ProductionReleaseId: releaseId,
         RequiresAssembly: requiresAssembly,
+        BypassAssembly: requiresAssembly && bypassAssembly,
       };
     },
   );

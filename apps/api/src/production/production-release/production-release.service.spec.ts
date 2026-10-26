@@ -38,6 +38,11 @@ describe('ProductionReleaseService', () => {
       productionTraceEvent: { createMany: jest.fn() },
       $executeRaw: jest.fn(),
       assemblySession: { count: jest.fn().mockResolvedValue(0) },
+      assemblyProcessSetting: {
+        findUniqueOrThrow: jest
+          .fn()
+          .mockResolvedValue({ BypassAllAssembly: false }),
+      },
       productionRelease: {
         findMany: jest.fn(),
         findUnique: jest.fn(),

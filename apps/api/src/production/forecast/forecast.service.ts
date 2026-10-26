@@ -556,6 +556,12 @@ export class ForecastService {
                 'Box Qty must be configured with a value greater than 0.',
               );
             }
+            const bypassAssembly = (
+              await tx.assemblyProcessSetting.findUniqueOrThrow({
+                where: { Id: 1 },
+                select: { BypassAllAssembly: true },
+              })
+            ).BypassAllAssembly;
             await tx.labelData.createMany({
               data: buildProductionLabels(
                 result,
@@ -569,6 +575,7 @@ export class ForecastService {
                         where: { PartNumber: result.FinishGoodId },
                       })
                     ).IsPassthrough,
+                bypassAssembly,
               ),
             });
           }

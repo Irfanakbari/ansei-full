@@ -87,6 +87,7 @@ export const ModelName = {
   LineStatus: 'LineStatus',
   EmailNotification: 'EmailNotification',
   DashboardSetting: 'DashboardSetting',
+  AssemblyProcessSetting: 'AssemblyProcessSetting',
   LogProcess: 'LogProcess',
   ActionAuditEvent: 'ActionAuditEvent',
   LogProcessDetail: 'LogProcessDetail',
@@ -636,6 +637,7 @@ export const LabelDataScalarFieldEnum = {
   ReplacementFindingId: 'ReplacementFindingId',
   LegacyPoId: 'LegacyPoId',
   RequiresAssembly: 'RequiresAssembly',
+  BypassAssembly: 'BypassAssembly',
   Id: 'Id',
   LabelNumber: 'LabelNumber',
   FinishGoodId: 'FinishGoodId',
@@ -730,6 +732,17 @@ export const DashboardSettingScalarFieldEnum = {
 } as const
 
 export type DashboardSettingScalarFieldEnum = (typeof DashboardSettingScalarFieldEnum)[keyof typeof DashboardSettingScalarFieldEnum]
+
+
+export const AssemblyProcessSettingScalarFieldEnum = {
+  Id: 'Id',
+  BypassAllAssembly: 'BypassAllAssembly',
+  ChangeReason: 'ChangeReason',
+  UpdatedAt: 'UpdatedAt',
+  UpdatedBy: 'UpdatedBy'
+} as const
+
+export type AssemblyProcessSettingScalarFieldEnum = (typeof AssemblyProcessSettingScalarFieldEnum)[keyof typeof AssemblyProcessSettingScalarFieldEnum]
 
 
 export const LogProcessScalarFieldEnum = {

@@ -741,6 +741,7 @@ export class ProductionReleaseService {
     forecasts: Awaited<
       ReturnType<ProductionReleaseService['getAmendmentForecasts']>
     >,
+    bypassAssembly: boolean,
   ) {
     return forecasts.flatMap((forecast) => {
       const boxQty = forecast.PartData?.BoxQTY?.Qty ?? 0;
@@ -759,6 +760,7 @@ export class ProductionReleaseService {
         releaseId,
         boxQty,
         !forecast.PartData.IsPassthrough,
+        bypassAssembly,
       );
     });
   }
@@ -860,9 +862,18 @@ export class ProductionReleaseService {
               'Order source must match the release; Non PO requires demandIds.',
             );
           this.assertNoOperationalActivity(forecasts);
+          const bypassAssembly =
+            release.Status === ProductionStatus.RELEASED
+              ? (
+                  await tx.assemblyProcessSetting.findUniqueOrThrow({
+                    where: { Id: 1 },
+                    select: { BypassAllAssembly: true },
+                  })
+                ).BypassAllAssembly
+              : false;
           const labels =
             release.Status === ProductionStatus.RELEASED
-              ? this.buildLabels(id, forecasts)
+              ? this.buildLabels(id, forecasts, bypassAssembly)
               : [];
           const result = await tx.productionDemand.updateMany({
             where: { Id: { in: dto.forecastIds }, ProductionReleaseId: null },
@@ -1332,6 +1343,12 @@ export class ProductionReleaseService {
                 `Cannot release production. Box Qty must be configured with a value greater than 0 for: ${details}.`,
               );
             }
+            const bypassAssembly = (
+              await tx.assemblyProcessSetting.findUniqueOrThrow({
+                where: { Id: 1 },
+                select: { BypassAllAssembly: true },
+              })
+            ).BypassAllAssembly;
             const labels = this.buildLabels(
               id,
               linkedForecasts.map((forecast) => ({
@@ -1346,6 +1363,7 @@ export class ProductionReleaseService {
                 LabelData: [],
                 ShoppingCompletion: null,
               })),
+              bypassAssembly,
             );
             const createdLabels = await tx.labelData.createMany({
               data: labels,
@@ -1586,6 +1604,12 @@ export class ProductionReleaseService {
       location: 'production-release.service.ts:226',
     });
 
+    const bypassAssembly = (
+      await this.prisma.assemblyProcessSetting.findUniqueOrThrow({
+        where: { Id: 1 },
+        select: { BypassAllAssembly: true },
+      })
+    ).BypassAllAssembly;
     const labelDataToCreate: {
       LabelNumber: string;
       FinishGoodId: string;
@@ -1594,6 +1618,7 @@ export class ProductionReleaseService {
       QtyThisBox: number;
       ProductionReleaseId: string;
       RequiresAssembly: boolean;
+      BypassAssembly: boolean;
     }[] = [];
 
     for (const forecast of forecasts) {
@@ -1640,6 +1665,7 @@ export class ProductionReleaseService {
           QtyThisBox: qtyInBox,
           ProductionReleaseId: releaseId,
           RequiresAssembly: !forecast.PartData.IsPassthrough,
+          BypassAssembly: !forecast.PartData.IsPassthrough && bypassAssembly,
         });
       }
     }

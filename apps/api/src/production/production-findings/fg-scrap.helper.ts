@@ -195,6 +195,12 @@ export async function approveFgScrap(
         ) || 0,
     ),
   );
+  const bypassAssembly = (
+    await tx.assemblyProcessSetting.findUniqueOrThrow({
+      where: { Id: 1 },
+      select: { BypassAllAssembly: true },
+    })
+  ).BypassAllAssembly;
   const makeLabel = async (qty: number, replacement: boolean) => {
     if (++seq > 999 || qty > 99999)
       throw new ConflictException(
@@ -210,6 +216,8 @@ export async function approveFgScrap(
         Scanned: false,
         RequiresAssembly:
           replacement || !hasReceipt ? true : label.RequiresAssembly,
+        BypassAssembly:
+          !replacement && hasReceipt ? label.BypassAssembly : bypassAssembly,
         ReplacesLabelId: label.Id,
         StockSourceLabelId: !replacement && hasReceipt ? label.Id : null,
         ReplacementFindingId: replacement ? finding.Id : null,

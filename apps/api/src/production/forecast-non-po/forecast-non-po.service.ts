@@ -378,12 +378,19 @@ export class ForecastNonPoService {
               throw new BadRequestException(
                 'Configure Box Qty before changing a released order.',
               );
+            const bypassAssembly = (
+              await tx.assemblyProcessSetting.findUniqueOrThrow({
+                where: { Id: 1 },
+                select: { BypassAllAssembly: true },
+              })
+            ).BypassAllAssembly;
             await tx.labelData.createMany({
               data: buildProductionLabels(
                 order,
                 releaseId,
                 qty,
                 !order.PartData.IsPassthrough,
+                bypassAssembly,
               ),
             });
           }

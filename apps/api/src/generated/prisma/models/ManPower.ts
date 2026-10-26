@@ -463,6 +463,11 @@ export type ManPowerScalarRelationFilter = {
   isNot?: Prisma.ManPowerWhereInput
 }
 
+export type ManPowerNullableScalarRelationFilter = {
+  is?: Prisma.ManPowerWhereInput | null
+  isNot?: Prisma.ManPowerWhereInput | null
+}
+
 export type ManPowerCreateNestedOneWithoutSkillMatrixInput = {
   create?: Prisma.XOR<Prisma.ManPowerCreateWithoutSkillMatrixInput, Prisma.ManPowerUncheckedCreateWithoutSkillMatrixInput>
   connectOrCreate?: Prisma.ManPowerCreateOrConnectWithoutSkillMatrixInput
@@ -497,10 +502,12 @@ export type ManPowerCreateNestedOneWithoutAssemblySessionsInput = {
   connect?: Prisma.ManPowerWhereUniqueInput
 }
 
-export type ManPowerUpdateOneRequiredWithoutAssemblySessionsNestedInput = {
+export type ManPowerUpdateOneWithoutAssemblySessionsNestedInput = {
   create?: Prisma.XOR<Prisma.ManPowerCreateWithoutAssemblySessionsInput, Prisma.ManPowerUncheckedCreateWithoutAssemblySessionsInput>
   connectOrCreate?: Prisma.ManPowerCreateOrConnectWithoutAssemblySessionsInput
   upsert?: Prisma.ManPowerUpsertWithoutAssemblySessionsInput
+  disconnect?: Prisma.ManPowerWhereInput | boolean
+  delete?: Prisma.ManPowerWhereInput | boolean
   connect?: Prisma.ManPowerWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ManPowerUpdateToOneWithWhereWithoutAssemblySessionsInput, Prisma.ManPowerUpdateWithoutAssemblySessionsInput>, Prisma.ManPowerUncheckedUpdateWithoutAssemblySessionsInput>
 }

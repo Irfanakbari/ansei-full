@@ -114,6 +114,7 @@ const PERMISSIONS = {
   printer: ["IPCS.MASTER_READ"],
   email: ["IPCS.MASTER_READ"],
   display: ["DISPLAY_CONFIG_READ"],
+  assemblyProcess: ["IPCS.MASTER_READ"],
 
   // Report
   reports: ["IPCS.REPORT_READ"],
@@ -432,6 +433,15 @@ const baseMenuItems: MenuItem[] = [
         undefined,
         [...PERMISSIONS.display],
       ),
+      getItem(
+        <Link href="/apps/system-administration/assembly-process">
+          Assembly Process
+        </Link>,
+        "sa-assembly-process",
+        undefined,
+        undefined,
+        [...PERMISSIONS.assemblyProcess],
+      ),
     ],
   ),
   getItem(
@@ -603,6 +613,8 @@ const getMenuKeyFromPath = (path: string): string => {
     return "sa-email-config";
   if (path.startsWith("/apps/system-administration/display-config"))
     return "sa-display-config";
+  if (path.startsWith("/apps/system-administration/assembly-process"))
+    return "sa-assembly-process";
   if (path.startsWith("/apps/report")) return "reports";
   return "dashboard";
 };

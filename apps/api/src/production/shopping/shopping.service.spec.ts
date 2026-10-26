@@ -33,8 +33,16 @@ describe('ShoppingService', () => {
       },
       productionTraceEvent: { create: jest.fn() },
       labelData: {
-        findMany: jest.fn().mockResolvedValue([{ RequiresAssembly: false }]),
+        findMany: jest.fn().mockResolvedValue([
+          {
+            Id: 1,
+            QtyThisBox: 1,
+            RequiresAssembly: false,
+            BypassAssembly: false,
+          },
+        ]),
       },
+      assemblySession: { create: jest.fn() },
       productionOrder: { findUnique: jest.fn(), findUniqueOrThrow: jest.fn() },
       productionRelease: { findUnique: jest.fn() },
       snapshotRequirements: { findMany: jest.fn() },
@@ -70,6 +78,11 @@ describe('ShoppingService', () => {
       },
       outboxEvent: { upsert: jest.fn() },
       $executeRaw: jest.fn().mockResolvedValue(1),
+      $queryRaw: jest
+        .fn()
+        .mockResolvedValue([
+          { CreatedAt: new Date('2026-10-26T08:00:00.000Z') },
+        ]),
       $transaction: jest.fn((cb) => cb(prismaService)),
     };
 
@@ -419,12 +432,7 @@ describe('ShoppingService', () => {
     });
 
     it('does not increment finish good or add a duplicate production ledger when the durable claim exists', async () => {
-      prismaService.$executeRaw.mockImplementation(
-        (sql: TemplateStringsArray) =>
-          Promise.resolve(
-            sql.join('').includes('INSERT INTO "ShoppingCompletion"') ? 0 : 1,
-          ),
-      );
+      prismaService.$queryRaw.mockResolvedValue([]);
 
       await service['executeShoppingTransaction'](dto, 'test', 'PR123', {
         finishGoodId: 'FG-001',
@@ -494,6 +502,73 @@ describe('ShoppingService', () => {
         }),
       );
       expect(outboxService.create).toHaveBeenCalled();
+    });
+
+    it('creates completed bypass sessions at the shopping timestamp with running balances and no PROD receipt', async () => {
+      const completedAt = new Date('2026-10-26T08:00:00.000Z');
+      prismaService.$queryRaw.mockResolvedValue([{ CreatedAt: completedAt }]);
+      prismaService.labelData.findMany.mockResolvedValue([
+        { Id: 11, QtyThisBox: 4, RequiresAssembly: true, BypassAssembly: true },
+        { Id: 12, QtyThisBox: 6, RequiresAssembly: true, BypassAssembly: true },
+      ]);
+      prismaService.assemblySession.create
+        .mockResolvedValueOnce({
+          Id: 'bypass-11',
+          CompleteRequestId: 'BYPASS-COMPLETE-LABEL-11',
+        })
+        .mockResolvedValueOnce({
+          Id: 'bypass-12',
+          CompleteRequestId: 'BYPASS-COMPLETE-LABEL-12',
+        });
+
+      await service['executeShoppingTransaction'](dto, 'test', 'PR123', {
+        finishGoodId: 'FG-001',
+        forecastQty: 1,
+      });
+
+      expect(prismaService.assemblySession.create).toHaveBeenCalledTimes(2);
+      expect(prismaService.assemblySession.create).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            LabelDataId: 11,
+            ManPowerUid: null,
+            ManPowerName: 'BYPASS SYSTEM',
+            StartRequestId: 'BYPASS-START-LABEL-11',
+            CompleteRequestId: 'BYPASS-COMPLETE-LABEL-11',
+            Channel: 'BYPASS_SYSTEM',
+            CreatedBy: 'SYSTEM',
+            CompletedBy: 'SYSTEM',
+            StartedAt: completedAt,
+            EndedAt: completedAt,
+          }),
+        }),
+      );
+      expect(prismaService.inventoryLedger.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          ReferenceDoc: 'ASSY-bypass-11',
+          BalanceBefore: 5,
+          QtyIn: 4,
+          BalanceAfter: 9,
+        }),
+      });
+      expect(prismaService.inventoryLedger.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          ReferenceDoc: 'ASSY-bypass-12',
+          BalanceBefore: 9,
+          QtyIn: 6,
+          BalanceAfter: 15,
+        }),
+      });
+      expect(prismaService.inventoryLedger.create).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ ReferenceDoc: 'PROD-SHP-001' }),
+        }),
+      );
+      expect(prismaService.finishGood.update).toHaveBeenCalledWith({
+        where: { PartNumber: 'FG-001' },
+        data: { Qty: 15, UpdatedBy: 'SYSTEM' },
+      });
     });
 
     it('creates exactly one production result after transaction-local completion recheck wins the claim', async () => {

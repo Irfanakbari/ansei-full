@@ -830,13 +830,15 @@ export class ShoppingService {
           finishGoodContext.forecastQty,
         ))
       ) {
-        const markerCount = await tx.$executeRaw`
+        const completionRows = await tx.$queryRaw<{ CreatedAt: Date }[]>`
           INSERT INTO "ShoppingCompletion" ("ProductionDemandId", "ShoppingId", "CreatedBy")
           VALUES (${validForecastId}, ${shoppingId}, ${createdBy})
           ON CONFLICT ("ProductionDemandId") DO NOTHING
+          RETURNING "CreatedAt"
         `;
 
-        if (markerCount === 1) {
+        if (completionRows.length === 1) {
+          const completionCreatedAt = completionRows[0].CreatedAt;
           await tx.$executeRaw`SELECT 1 FROM "FinishGood" WHERE "PartNumber" = ${finishGoodContext.finishGoodId} FOR UPDATE`;
           // Get current FinishGood stock
           const fg = await tx.finishGood.findUnique({
@@ -847,20 +849,105 @@ export class ShoppingService {
           if (fg) {
             const labels = await tx.labelData.findMany({
               where: { ProductionDemandId: validForecastId },
-              select: { RequiresAssembly: true },
+              select: {
+                Id: true,
+                QtyThisBox: true,
+                RequiresAssembly: true,
+                BypassAssembly: true,
+              },
+              orderBy: { Id: 'asc' },
             });
             if (
               labels.length === 0 ||
               labels.some(
                 (label) =>
-                  label.RequiresAssembly !== labels[0].RequiresAssembly,
+                  label.RequiresAssembly !== labels[0].RequiresAssembly ||
+                  label.BypassAssembly !== labels[0].BypassAssembly,
+              ) ||
+              labels.some(
+                (label) =>
+                  label.BypassAssembly && label.RequiresAssembly !== true,
               )
             ) {
               throw new BadRequestException(
                 'Production labels are missing or have inconsistent assembly rules.',
               );
             }
-            if (labels[0].RequiresAssembly !== true) {
+            if (labels[0].BypassAssembly) {
+              await assertNoActiveInventoryCounting(
+                tx,
+                ItemCategory.FINISH_GOOD,
+                'Bypass assembly completion',
+              );
+              await tx.$executeRaw`SELECT 1 FROM "FinishGood" WHERE "PartNumber" = ${finishGoodContext.finishGoodId} FOR UPDATE`;
+              const stock = await tx.inventoryLedger.aggregate({
+                where: {
+                  FinishGoodId: finishGoodContext.finishGoodId,
+                  ItemCategory: 'FINISH_GOOD',
+                  Location: 'FINISH_GOOD_AREA',
+                },
+                _sum: { QtyIn: true, QtyOut: true },
+              });
+              let balance = (stock._sum.QtyIn ?? 0) - (stock._sum.QtyOut ?? 0);
+              for (const label of labels) {
+                const sessionId = crypto.randomUUID();
+                const session = await tx.assemblySession.create({
+                  data: {
+                    Id: sessionId,
+                    LabelDataId: label.Id,
+                    ManPowerUid: null,
+                    ManPowerName: 'BYPASS SYSTEM',
+                    Status: 'COMPLETED',
+                    StartedAt: completionCreatedAt,
+                    EndedAt: completionCreatedAt,
+                    StartRequestId: `BYPASS-START-LABEL-${label.Id}`,
+                    CompleteRequestId: `BYPASS-COMPLETE-LABEL-${label.Id}`,
+                    CreatedBy: 'SYSTEM',
+                    CompletedBy: 'SYSTEM',
+                    Channel: 'BYPASS_SYSTEM',
+                  },
+                });
+                const after = balance + label.QtyThisBox;
+                await createSapLedger(
+                  tx,
+                  {
+                    data: {
+                      Id: crypto.randomUUID(),
+                      TransactionDate: completionCreatedAt,
+                      ItemCategory: 'FINISH_GOOD',
+                      FinishGoodId: finishGoodContext.finishGoodId,
+                      Location: LocationType.FINISH_GOOD_AREA,
+                      TransactionType: TransactionType.PRODUCTION_RESULT,
+                      ReferenceDoc: `ASSY-${session.Id}`,
+                      BalanceBefore: balance,
+                      QtyIn: label.QtyThisBox,
+                      QtyOut: 0,
+                      BalanceAfter: after,
+                      CreatedBy: 'SYSTEM',
+                      Notes: 'Assembly bypass system completion',
+                    },
+                  },
+                  validForecastId,
+                );
+                await tx.productionTraceEvent.create({
+                  data: {
+                    ProductionDemandId: validForecastId,
+                    ReleaseId: snapshot?.ReleaseId,
+                    Type: 'ASSEMBLY_COMPLETE',
+                    SourceType: 'AssemblySession',
+                    SourceId: session.Id,
+                    Actor: 'SYSTEM',
+                    CorrelationId: session.CompleteRequestId ?? session.Id,
+                    ProcessId: processId,
+                  },
+                });
+                balance = after;
+              }
+              await tx.finishGood.update({
+                where: { PartNumber: finishGoodContext.finishGoodId },
+                data: { Qty: balance, UpdatedBy: 'SYSTEM' },
+              });
+            } else if (labels[0].RequiresAssembly !== true) {
               const stock = await tx.inventoryLedger.aggregate({
                 where: {
                   FinishGoodId: finishGoodContext.finishGoodId,

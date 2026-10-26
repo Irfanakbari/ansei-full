@@ -46,6 +46,7 @@ import emailNotificationReducer from "./features/settings/emailNotificationSlice
 import printAgentReducer from "./features/settings/printAgentSlice";
 import displayConfigReducer from "./features/settings/displayConfig/displayConfigSlice";
 import displayReducer from "./features/display/displaySlice";
+import assemblyProcessSettingReducer from "./features/settings/assemblyProcessSettingSlice";
 
 // Dashboard slice
 import dashboardReducer from "./features/dashboard/dashboardSlice";
@@ -100,6 +101,7 @@ export const store = configureStore({
     printAgent: printAgentReducer,
     displayConfig: displayConfigReducer,
     display: displayReducer,
+    assemblyProcessSetting: assemblyProcessSettingReducer,
 
     // Dashboard
     dashboard: dashboardReducer,
