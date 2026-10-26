@@ -35,13 +35,13 @@ export default function AssemblyProcessSettingPage() {
   const user = useSelector((state: RootState) => state.auth.user);
   const canUpdate = Boolean(
     user?.RoleName === "SUPER" ||
-      user?.GlobalRoles?.includes("SUPER_ADMINISTRATOR") ||
-      user?.Permission?.some(
-        (permission) =>
-          permission === "SUPER" ||
-          permission === "*" ||
-          permission === "IPCS.MASTER_UPDATE",
-      ),
+    user?.GlobalRoles?.includes("SUPER_ADMINISTRATOR") ||
+    user?.Permission?.some(
+      (permission) =>
+        permission === "SUPER" ||
+        permission === "*" ||
+        permission === "IPCS.MASTER_UPDATE",
+    ),
   );
   const [form] = Form.useForm<ReasonForm>();
   const [nextValue, setNextValue] = useState<boolean | null>(null);
@@ -53,6 +53,12 @@ export default function AssemblyProcessSettingPage() {
   const save = async () => {
     const values = await form.validateFields();
     if (nextValue === null || !data || !canUpdate) return;
+    if (!data.UpdatedAt || Number.isNaN(Date.parse(data.UpdatedAt))) {
+      void message.error(
+        "Setting data is stale. Refresh the page and try again.",
+      );
+      return;
+    }
     await dispatch(
       updateAssemblyProcessSetting({
         bypassAllAssembly: nextValue,

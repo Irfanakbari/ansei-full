@@ -1,5 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { get, getApiErrorMessage, patch } from "@/store/utils/apiService";
+import {
+  get,
+  getApiErrorMessage,
+  patch,
+  type ApiSuccessEnvelope,
+} from "@/store/utils/apiService";
 
 export interface AssemblyProcessSetting {
   Id: number;
@@ -29,7 +34,10 @@ export const fetchAssemblyProcessSetting = createAsyncThunk<
   { rejectValue: string }
 >("assemblyProcessSetting/fetch", async (_, { rejectWithValue }) => {
   try {
-    return await get<AssemblyProcessSetting>("/settings/assembly-process");
+    const response = await get<ApiSuccessEnvelope<AssemblyProcessSetting>>(
+      "/settings/assembly-process",
+    );
+    return response.data;
   } catch (error: unknown) {
     return rejectWithValue(
       getApiErrorMessage(error, "Failed to load assembly process setting"),
@@ -47,10 +55,11 @@ export const updateAssemblyProcessSetting = createAsyncThunk<
   { rejectValue: string }
 >("assemblyProcessSetting/update", async (data, { rejectWithValue }) => {
   try {
-    return await patch<AssemblyProcessSetting, typeof data>(
-      "/settings/assembly-process",
-      data,
-    );
+    const response = await patch<
+      ApiSuccessEnvelope<AssemblyProcessSetting>,
+      typeof data
+    >("/settings/assembly-process", data);
+    return response.data;
   } catch (error: unknown) {
     return rejectWithValue(
       getApiErrorMessage(error, "Failed to update assembly process setting"),

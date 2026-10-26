@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useVuteqSso } from "@vuteq/sso-client-react/react";
 import { withBasePath } from "@/lib/base-path";
 
-const APP_VERSION = "6.31.0";
+const APP_VERSION = "6.31.1";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -24,8 +24,7 @@ export default function LoginPage() {
     }
 
     const profile = session.attributes as
-      | { AccessStatus?: string; RoleName?: string }
-      | undefined;
+      { AccessStatus?: string; RoleName?: string } | undefined;
     const isGlobalSuper = session.globalRoles?.includes("SUPER_ADMINISTRATOR");
     const isGlobalRoAdmin = session.globalRoles?.includes("RO_ADMINISTRATOR");
     const hasRole = Boolean(session.roles?.[0] || profile?.RoleName);
