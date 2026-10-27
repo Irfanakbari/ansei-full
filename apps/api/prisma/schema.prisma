@@ -301,6 +301,7 @@ model ManPower {
   EmployeeType     String
   ProductionReport ProductionReport[]
   SkillMatrix      SkillMatrix[]
+  Users            MTCUserManagement[]
 }
 
 model SkillMatrix {
@@ -532,6 +533,7 @@ model ProductionRelease {
   Forecasts       ProductionOrder[]
   LabelDatas      LabelData[]
   Attachments     ProductionReleaseAttachment[]
+  ApprovalChallenges ProductionReleaseApprovalChallenge[]
 
   @@index([PlanDate])
   @@index([Status])
@@ -556,6 +558,37 @@ model ProductionReleaseAttachment {
 
   @@index([ProductionReleaseId])
   @@map("DeliveryAttachment")
+}
+
+enum ApprovalChallengeStatus {
+  PENDING
+  CONSUMED
+  EXPIRED
+  LOCKED
+}
+
+model ProductionReleaseApprovalChallenge {
+  Id                  String                  @id @default(uuid())
+  ProductionReleaseId String
+  ProductionRelease   ProductionRelease       @relation(fields: [ProductionReleaseId], references: [Id], onDelete: Cascade)
+  RequesterUserId     String
+  ApproverUserId      String
+  TargetPhoneNumber   String                  @db.VarChar(32)
+  CodeHash            String                  @db.VarChar(128)
+  Status              ApprovalChallengeStatus @default(PENDING)
+  AttemptCount        Int                     @default(0)
+  MaxAttempts         Int                     @default(3)
+  ExpiresAt           DateTime
+  ConsumedAt          DateTime?
+  CreatedAt           DateTime                @default(now())
+  UpdatedAt           DateTime                @updatedAt
+  CreatedBy           String
+  UpdatedBy           String
+
+  @@index([ProductionReleaseId, Status])
+  @@index([RequesterUserId, Status])
+  @@index([ApproverUserId, Status])
+  @@index([ExpiresAt])
 }
 
 model Shopping {
@@ -982,8 +1015,12 @@ model MTCUserManagement {
   mtcauthLogs MTCAuthLog[]
   ApiKeys     ApiKey[]
 
+  ManpowerUid String?
+  Manpower    ManPower? @relation(fields: [ManpowerUid], references: [Uid], onUpdate: Cascade, onDelete: SetNull)
+
   @@index([Email])
   @@index([SsoObjectId])
+  @@index([ManpowerUid])
 }
 
 enum MTCAuthAction {

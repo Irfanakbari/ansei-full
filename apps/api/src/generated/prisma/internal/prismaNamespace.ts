@@ -416,6 +416,7 @@ export const ModelName = {
   Forecast: 'Forecast',
   ProductionRelease: 'ProductionRelease',
   ProductionReleaseAttachment: 'ProductionReleaseAttachment',
+  ProductionReleaseApprovalChallenge: 'ProductionReleaseApprovalChallenge',
   Shopping: 'Shopping',
   ShoppingCompletion: 'ShoppingCompletion',
   OutboxEvent: 'OutboxEvent',
@@ -483,7 +484,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "satuan" | "supplier" | "supplierBarcodeFormat" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "recordNumberCounter" | "stockOpnameDetail" | "stockOpnameAttachment" | "incoming" | "incomingMaterial" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "shopping" | "shoppingCompletion" | "outboxEvent" | "sapTransaction" | "sapDemandMapping" | "sapBackflushPick" | "sapStockSnapshot" | "sapConnectionState" | "sapExternalDocument" | "productionReport" | "labelData" | "assemblySession" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "assemblyProcessSetting" | "logProcess" | "actionAuditEvent" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printAgent" | "printAgentEnrollment" | "printAgentCredential" | "profilePrinter" | "printJob" | "printJobEvent" | "apiKey" | "displayConfig" | "bomRevision" | "bomRevisionLine" | "bomRevisionEvent" | "productionBomSnapshot" | "productionBomSnapshotLine" | "businessCommand" | "productionFinding" | "customerReturn" | "productionFindingComponent" | "productionFindingAllocation" | "productionFindingEvent" | "productionTraceEvent" | "forecastNonPo" | "productionDemand" | "forecastNonPoImport" | "productionOrder"
+    modelProps: "satuan" | "supplier" | "supplierBarcodeFormat" | "material" | "finishGood" | "boxQTY" | "billOfMaterials" | "manPower" | "skillMatrix" | "inventoryLedger" | "stockOpname" | "recordNumberCounter" | "stockOpnameDetail" | "stockOpnameAttachment" | "incoming" | "incomingMaterial" | "forecast" | "productionRelease" | "productionReleaseAttachment" | "productionReleaseApprovalChallenge" | "shopping" | "shoppingCompletion" | "outboxEvent" | "sapTransaction" | "sapDemandMapping" | "sapBackflushPick" | "sapStockSnapshot" | "sapConnectionState" | "sapExternalDocument" | "productionReport" | "labelData" | "assemblySession" | "pokayokeScanHistory" | "deliveryHistory" | "lineStatus" | "emailNotification" | "dashboardSetting" | "assemblyProcessSetting" | "logProcess" | "actionAuditEvent" | "logProcessDetail" | "mTCUserSession" | "mTCUserManagement" | "mTCAuthLog" | "mTCRole" | "mTCPermission" | "materialDeliveryNote" | "materialDeliveryNoteDetail" | "printAgent" | "printAgentEnrollment" | "printAgentCredential" | "profilePrinter" | "printJob" | "printJobEvent" | "apiKey" | "displayConfig" | "bomRevision" | "bomRevisionLine" | "bomRevisionEvent" | "productionBomSnapshot" | "productionBomSnapshotLine" | "businessCommand" | "productionFinding" | "customerReturn" | "productionFindingComponent" | "productionFindingAllocation" | "productionFindingEvent" | "productionTraceEvent" | "forecastNonPo" | "productionDemand" | "forecastNonPoImport" | "productionOrder"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1890,6 +1891,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProductionReleaseAttachmentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProductionReleaseAttachmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProductionReleaseApprovalChallenge: {
+      payload: Prisma.$ProductionReleaseApprovalChallengePayload<ExtArgs>
+      fields: Prisma.ProductionReleaseApprovalChallengeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProductionReleaseApprovalChallengeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProductionReleaseApprovalChallengeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload>
+        }
+        findFirst: {
+          args: Prisma.ProductionReleaseApprovalChallengeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProductionReleaseApprovalChallengeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload>
+        }
+        findMany: {
+          args: Prisma.ProductionReleaseApprovalChallengeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload>[]
+        }
+        create: {
+          args: Prisma.ProductionReleaseApprovalChallengeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload>
+        }
+        createMany: {
+          args: Prisma.ProductionReleaseApprovalChallengeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProductionReleaseApprovalChallengeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload>[]
+        }
+        delete: {
+          args: Prisma.ProductionReleaseApprovalChallengeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload>
+        }
+        update: {
+          args: Prisma.ProductionReleaseApprovalChallengeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload>
+        }
+        deleteMany: {
+          args: Prisma.ProductionReleaseApprovalChallengeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProductionReleaseApprovalChallengeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProductionReleaseApprovalChallengeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload>[]
+        }
+        upsert: {
+          args: Prisma.ProductionReleaseApprovalChallengeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProductionReleaseApprovalChallengePayload>
+        }
+        aggregate: {
+          args: Prisma.ProductionReleaseApprovalChallengeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProductionReleaseApprovalChallenge>
+        }
+        groupBy: {
+          args: Prisma.ProductionReleaseApprovalChallengeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionReleaseApprovalChallengeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProductionReleaseApprovalChallengeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProductionReleaseApprovalChallengeCountAggregateOutputType> | number
         }
       }
     }
@@ -6049,6 +6124,27 @@ export const ProductionReleaseAttachmentScalarFieldEnum = {
 export type ProductionReleaseAttachmentScalarFieldEnum = (typeof ProductionReleaseAttachmentScalarFieldEnum)[keyof typeof ProductionReleaseAttachmentScalarFieldEnum]
 
 
+export const ProductionReleaseApprovalChallengeScalarFieldEnum = {
+  Id: 'Id',
+  ProductionReleaseId: 'ProductionReleaseId',
+  RequesterUserId: 'RequesterUserId',
+  ApproverUserId: 'ApproverUserId',
+  TargetPhoneNumber: 'TargetPhoneNumber',
+  CodeHash: 'CodeHash',
+  Status: 'Status',
+  AttemptCount: 'AttemptCount',
+  MaxAttempts: 'MaxAttempts',
+  ExpiresAt: 'ExpiresAt',
+  ConsumedAt: 'ConsumedAt',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy'
+} as const
+
+export type ProductionReleaseApprovalChallengeScalarFieldEnum = (typeof ProductionReleaseApprovalChallengeScalarFieldEnum)[keyof typeof ProductionReleaseApprovalChallengeScalarFieldEnum]
+
+
 export const ShoppingScalarFieldEnum = {
   LegacyPoId: 'LegacyPoId',
   Purpose: 'Purpose',
@@ -6421,7 +6517,8 @@ export const MTCUserManagementScalarFieldEnum = {
   UpdatedAt: 'UpdatedAt',
   UpdatedBy: 'UpdatedBy',
   SsoObjectId: 'SsoObjectId',
-  RoleId: 'RoleId'
+  RoleId: 'RoleId',
+  ManpowerUid: 'ManpowerUid'
 } as const
 
 export type MTCUserManagementScalarFieldEnum = (typeof MTCUserManagementScalarFieldEnum)[keyof typeof MTCUserManagementScalarFieldEnum]
@@ -7126,6 +7223,20 @@ export type ListEnumDemandSourceFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'ApprovalChallengeStatus'
+ */
+export type EnumApprovalChallengeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApprovalChallengeStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ApprovalChallengeStatus[]'
+ */
+export type ListEnumApprovalChallengeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApprovalChallengeStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'ShoppingPurpose'
  */
 export type EnumShoppingPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShoppingPurpose'>
@@ -7602,6 +7713,7 @@ export type GlobalOmitConfig = {
   forecast?: Prisma.ForecastOmit
   productionRelease?: Prisma.ProductionReleaseOmit
   productionReleaseAttachment?: Prisma.ProductionReleaseAttachmentOmit
+  productionReleaseApprovalChallenge?: Prisma.ProductionReleaseApprovalChallengeOmit
   shopping?: Prisma.ShoppingOmit
   shoppingCompletion?: Prisma.ShoppingCompletionOmit
   outboxEvent?: Prisma.OutboxEventOmit

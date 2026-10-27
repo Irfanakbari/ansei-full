@@ -70,6 +70,7 @@ export const ModelName = {
   Forecast: 'Forecast',
   ProductionRelease: 'ProductionRelease',
   ProductionReleaseAttachment: 'ProductionReleaseAttachment',
+  ProductionReleaseApprovalChallenge: 'ProductionReleaseApprovalChallenge',
   Shopping: 'Shopping',
   ShoppingCompletion: 'ShoppingCompletion',
   OutboxEvent: 'OutboxEvent',
@@ -445,6 +446,27 @@ export const ProductionReleaseAttachmentScalarFieldEnum = {
 export type ProductionReleaseAttachmentScalarFieldEnum = (typeof ProductionReleaseAttachmentScalarFieldEnum)[keyof typeof ProductionReleaseAttachmentScalarFieldEnum]
 
 
+export const ProductionReleaseApprovalChallengeScalarFieldEnum = {
+  Id: 'Id',
+  ProductionReleaseId: 'ProductionReleaseId',
+  RequesterUserId: 'RequesterUserId',
+  ApproverUserId: 'ApproverUserId',
+  TargetPhoneNumber: 'TargetPhoneNumber',
+  CodeHash: 'CodeHash',
+  Status: 'Status',
+  AttemptCount: 'AttemptCount',
+  MaxAttempts: 'MaxAttempts',
+  ExpiresAt: 'ExpiresAt',
+  ConsumedAt: 'ConsumedAt',
+  CreatedAt: 'CreatedAt',
+  UpdatedAt: 'UpdatedAt',
+  CreatedBy: 'CreatedBy',
+  UpdatedBy: 'UpdatedBy'
+} as const
+
+export type ProductionReleaseApprovalChallengeScalarFieldEnum = (typeof ProductionReleaseApprovalChallengeScalarFieldEnum)[keyof typeof ProductionReleaseApprovalChallengeScalarFieldEnum]
+
+
 export const ShoppingScalarFieldEnum = {
   LegacyPoId: 'LegacyPoId',
   Purpose: 'Purpose',
@@ -817,7 +839,8 @@ export const MTCUserManagementScalarFieldEnum = {
   UpdatedAt: 'UpdatedAt',
   UpdatedBy: 'UpdatedBy',
   SsoObjectId: 'SsoObjectId',
-  RoleId: 'RoleId'
+  RoleId: 'RoleId',
+  ManpowerUid: 'ManpowerUid'
 } as const
 
 export type MTCUserManagementScalarFieldEnum = (typeof MTCUserManagementScalarFieldEnum)[keyof typeof MTCUserManagementScalarFieldEnum]

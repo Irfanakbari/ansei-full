@@ -223,6 +223,48 @@ interface ProductionReleaseState {
     totalItems: number;
     totalPages: number;
   };
+  autocompleteApprovers: AutocompleteApprover[];
+  autocompleteApproversLoading: boolean;
+  autocompleteExecuting: boolean;
+  autocompleteOtpRequesting: boolean;
+}
+
+export interface AutocompleteApprover {
+  userId: string;
+  name: string;
+  roleName: string;
+  maskedPhoneNumber: string;
+}
+
+export interface RequestAutocompleteOtpPayload {
+  id: string;
+  approverUserId: string;
+}
+
+export interface RequestAutocompleteOtpResponse {
+  challengeId: string;
+  approverName: string;
+  maskedPhoneNumber: string;
+  expiresInSeconds: number;
+}
+
+export interface ExecuteAutocompletePayload {
+  id: string;
+  challengeId: string;
+  otp: string;
+}
+
+export interface ExecuteAutocompleteResponse {
+  releaseId: string;
+  releaseNumber: string;
+  status: string;
+  totalProductionMinutes: number;
+  demandsProcessed: number;
+  shoppingPicksCompleted: number;
+  assemblySessionsCompleted: number;
+  pokayokeScanned: number;
+  deliveriesCreated: number;
+  message: string;
 }
 
 const initialState: ProductionReleaseState = {
@@ -242,6 +284,10 @@ const initialState: ProductionReleaseState = {
     totalItems: 0,
     totalPages: 0,
   },
+  autocompleteApprovers: [],
+  autocompleteApproversLoading: false,
+  autocompleteExecuting: false,
+  autocompleteOtpRequesting: false,
 };
 
 export const fetchProductionReleaseForecastCandidates = createAsyncThunk<
@@ -649,6 +695,68 @@ export const deleteAttachment = createAsyncThunk(
   },
 );
 
+// Autocomplete Approvers
+export const fetchAutocompleteApprovers = createAsyncThunk<
+  AutocompleteApprover[],
+  void,
+  { rejectValue: string }
+>(
+  "productionRelease/fetchAutocompleteApprovers",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await get<AutocompleteApprover[]>(
+        "/production/production-release/autocomplete/approvers",
+      );
+    } catch (error: unknown) {
+      return rejectWithValue(
+        getApiErrorMessage(error, "Failed to load approvers"),
+      );
+    }
+  },
+);
+
+// Request Autocomplete OTP
+export const requestAutocompleteOtp = createAsyncThunk<
+  RequestAutocompleteOtpResponse,
+  RequestAutocompleteOtpPayload,
+  { rejectValue: string }
+>(
+  "productionRelease/requestAutocompleteOtp",
+  async ({ id, approverUserId }, { rejectWithValue }) => {
+    try {
+      return await post<RequestAutocompleteOtpResponse>(
+        `/production/production-release/${encodeURIComponent(id)}/autocomplete/request-otp`,
+        { approverUserId },
+      );
+    } catch (error: unknown) {
+      return rejectWithValue(
+        getApiErrorMessage(error, "Failed to request OTP"),
+      );
+    }
+  },
+);
+
+// Execute Autocomplete All
+export const executeAutocompleteAll = createAsyncThunk<
+  ExecuteAutocompleteResponse,
+  ExecuteAutocompletePayload,
+  { rejectValue: string }
+>(
+  "productionRelease/executeAutocompleteAll",
+  async ({ id, challengeId, otp }, { rejectWithValue }) => {
+    try {
+      return await post<ExecuteAutocompleteResponse>(
+        `/production/production-release/${encodeURIComponent(id)}/autocomplete/execute`,
+        { challengeId, otp },
+      );
+    } catch (error: unknown) {
+      return rejectWithValue(
+        getApiErrorMessage(error, "Failed to execute autocomplete"),
+      );
+    }
+  },
+);
+
 // Clear detail
 export const clearProductionReleaseDetail = createAsyncThunk(
   "productionRelease/clearDetail",
@@ -788,6 +896,40 @@ const productionReleaseSlice = createSlice({
       // Clear detail
       .addCase(clearProductionReleaseDetail.fulfilled, (state) => {
         state.detail = null;
+      })
+      // Autocomplete approvers
+      .addCase(fetchAutocompleteApprovers.pending, (state) => {
+        state.autocompleteApproversLoading = true;
+      })
+      .addCase(fetchAutocompleteApprovers.fulfilled, (state, action) => {
+        state.autocompleteApproversLoading = false;
+        state.autocompleteApprovers = action.payload;
+      })
+      .addCase(fetchAutocompleteApprovers.rejected, (state, action) => {
+        state.autocompleteApproversLoading = false;
+        state.error = action.payload ?? "Failed to load approvers";
+      })
+      // Request OTP
+      .addCase(requestAutocompleteOtp.pending, (state) => {
+        state.autocompleteOtpRequesting = true;
+      })
+      .addCase(requestAutocompleteOtp.fulfilled, (state) => {
+        state.autocompleteOtpRequesting = false;
+      })
+      .addCase(requestAutocompleteOtp.rejected, (state, action) => {
+        state.autocompleteOtpRequesting = false;
+        state.error = action.payload ?? "Failed to request OTP";
+      })
+      // Execute autocomplete
+      .addCase(executeAutocompleteAll.pending, (state) => {
+        state.autocompleteExecuting = true;
+      })
+      .addCase(executeAutocompleteAll.fulfilled, (state) => {
+        state.autocompleteExecuting = false;
+      })
+      .addCase(executeAutocompleteAll.rejected, (state, action) => {
+        state.autocompleteExecuting = false;
+        state.error = action.payload ?? "Failed to execute autocomplete";
       });
   },
 });

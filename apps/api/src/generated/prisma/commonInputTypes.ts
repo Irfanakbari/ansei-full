@@ -399,6 +399,23 @@ export type EnumDemandSourceWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumDemandSourceFilter<$PrismaModel>
 }
 
+export type EnumApprovalChallengeStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ApprovalChallengeStatus | Prisma.EnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ApprovalChallengeStatus[] | Prisma.ListEnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ApprovalChallengeStatus[] | Prisma.ListEnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumApprovalChallengeStatusFilter<$PrismaModel> | $Enums.ApprovalChallengeStatus
+}
+
+export type EnumApprovalChallengeStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ApprovalChallengeStatus | Prisma.EnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ApprovalChallengeStatus[] | Prisma.ListEnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ApprovalChallengeStatus[] | Prisma.ListEnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumApprovalChallengeStatusWithAggregatesFilter<$PrismaModel> | $Enums.ApprovalChallengeStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumApprovalChallengeStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumApprovalChallengeStatusFilter<$PrismaModel>
+}
+
 export type EnumShoppingPurposeFilter<$PrismaModel = never> = {
   equals?: $Enums.ShoppingPurpose | Prisma.EnumShoppingPurposeFieldRefInput<$PrismaModel>
   in?: $Enums.ShoppingPurpose[] | Prisma.ListEnumShoppingPurposeFieldRefInput<$PrismaModel>
@@ -1266,6 +1283,23 @@ export type NestedEnumDemandSourceWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumDemandSourceFilter<$PrismaModel>
   _max?: Prisma.NestedEnumDemandSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumApprovalChallengeStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ApprovalChallengeStatus | Prisma.EnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ApprovalChallengeStatus[] | Prisma.ListEnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ApprovalChallengeStatus[] | Prisma.ListEnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumApprovalChallengeStatusFilter<$PrismaModel> | $Enums.ApprovalChallengeStatus
+}
+
+export type NestedEnumApprovalChallengeStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ApprovalChallengeStatus | Prisma.EnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ApprovalChallengeStatus[] | Prisma.ListEnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ApprovalChallengeStatus[] | Prisma.ListEnumApprovalChallengeStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumApprovalChallengeStatusWithAggregatesFilter<$PrismaModel> | $Enums.ApprovalChallengeStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumApprovalChallengeStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumApprovalChallengeStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumShoppingPurposeFilter<$PrismaModel = never> = {

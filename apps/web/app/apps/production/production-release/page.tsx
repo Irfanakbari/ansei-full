@@ -20,6 +20,7 @@ import {
   PlusOutlined,
   StopOutlined,
   TagsOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import ToolbarWrapper from "@/components/ToolbarWrapper";
 import ButtonToolbar from "@/components/ButtonToolbar";
@@ -33,6 +34,7 @@ import CreateProductionReleaseModal from "./_components/CreateProductionReleaseM
 import ProductionReleaseModal from "./_components/ProductionReleaseModal";
 import ManageForecastsModal from "./_components/ManageForecastsModal";
 import CancelProductionReleaseModal from "./_components/CancelProductionReleaseModal";
+import AutocompleteReleaseModal from "./_components/AutocompleteReleaseModal";
 import { formatDateTime } from "@/lib/utils/dateTime";
 import GoldenArrowAction from "@/components/GoldenArrowAction";
 import SapDocumentNumbers, {
@@ -60,6 +62,8 @@ export default function ProductionReleasePage() {
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isManageModalVisible, setIsManageModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [isAutocompleteModalVisible, setIsAutocompleteModalVisible] =
+    useState(false);
   const [sortedInfo, setSortedInfo] = useState<any>({});
   const [query, setQuery] = useState({
     page: 1,
@@ -270,6 +274,12 @@ export default function ProductionReleasePage() {
           onClick={() => setIsCancelModalVisible(true)}
           enable={selectedRecord?.Status === "RELEASED"}
         />
+        <ButtonToolbar
+          title="Bypass & Complete All"
+          icon={<CheckCircleOutlined />}
+          onClick={() => setIsAutocompleteModalVisible(true)}
+          enable={selectedRecord?.Status === "RELEASED"}
+        />
       </ToolbarWrapper>
 
       <Table
@@ -336,6 +346,15 @@ export default function ProductionReleasePage() {
         open={isCancelModalVisible}
         release={selectedRecord}
         onClose={() => setIsCancelModalVisible(false)}
+        onSuccess={() => {
+          setSelectedRecord(null);
+          dispatch(fetchProductionRelease(query));
+        }}
+      />
+      <AutocompleteReleaseModal
+        open={isAutocompleteModalVisible}
+        release={selectedRecord}
+        onClose={() => setIsAutocompleteModalVisible(false)}
         onSuccess={() => {
           setSelectedRecord(null);
           dispatch(fetchProductionRelease(query));

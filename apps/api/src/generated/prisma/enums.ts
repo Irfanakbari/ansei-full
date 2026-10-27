@@ -197,6 +197,16 @@ export const ProductionStatus = {
 export type ProductionStatus = (typeof ProductionStatus)[keyof typeof ProductionStatus]
 
 
+export const ApprovalChallengeStatus = {
+  PENDING: 'PENDING',
+  CONSUMED: 'CONSUMED',
+  EXPIRED: 'EXPIRED',
+  LOCKED: 'LOCKED'
+} as const
+
+export type ApprovalChallengeStatus = (typeof ApprovalChallengeStatus)[keyof typeof ApprovalChallengeStatus]
+
+
 export const AssemblyStatus = {
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',

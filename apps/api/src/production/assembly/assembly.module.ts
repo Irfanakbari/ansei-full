@@ -10,5 +10,6 @@ import { AssemblyService } from './assembly.service';
 @Module({
   controllers: [AssemblyController, DisplayAssemblyController],
   providers: [AssemblyService, PrismaService, LogProcessService],
+  exports: [AssemblyService],
 })
 export class AssemblyModule {}

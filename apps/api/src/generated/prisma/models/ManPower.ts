@@ -233,6 +233,7 @@ export type ManPowerWhereInput = {
   AssemblySessions?: Prisma.AssemblySessionListRelationFilter
   ProductionReport?: Prisma.ProductionReportListRelationFilter
   SkillMatrix?: Prisma.SkillMatrixListRelationFilter
+  Users?: Prisma.MTCUserManagementListRelationFilter
 }
 
 export type ManPowerOrderByWithRelationInput = {
@@ -250,6 +251,7 @@ export type ManPowerOrderByWithRelationInput = {
   AssemblySessions?: Prisma.AssemblySessionOrderByRelationAggregateInput
   ProductionReport?: Prisma.ProductionReportOrderByRelationAggregateInput
   SkillMatrix?: Prisma.SkillMatrixOrderByRelationAggregateInput
+  Users?: Prisma.MTCUserManagementOrderByRelationAggregateInput
 }
 
 export type ManPowerWhereUniqueInput = Prisma.AtLeast<{
@@ -270,6 +272,7 @@ export type ManPowerWhereUniqueInput = Prisma.AtLeast<{
   AssemblySessions?: Prisma.AssemblySessionListRelationFilter
   ProductionReport?: Prisma.ProductionReportListRelationFilter
   SkillMatrix?: Prisma.SkillMatrixListRelationFilter
+  Users?: Prisma.MTCUserManagementListRelationFilter
 }, "Uid" | "Nik">
 
 export type ManPowerOrderByWithAggregationInput = {
@@ -321,6 +324,7 @@ export type ManPowerCreateInput = {
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutManPowerInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutManPowerDataInput
   SkillMatrix?: Prisma.SkillMatrixCreateNestedManyWithoutManPowerDataInput
+  Users?: Prisma.MTCUserManagementCreateNestedManyWithoutManpowerInput
 }
 
 export type ManPowerUncheckedCreateInput = {
@@ -338,6 +342,7 @@ export type ManPowerUncheckedCreateInput = {
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutManPowerInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutManPowerDataInput
   SkillMatrix?: Prisma.SkillMatrixUncheckedCreateNestedManyWithoutManPowerDataInput
+  Users?: Prisma.MTCUserManagementUncheckedCreateNestedManyWithoutManpowerInput
 }
 
 export type ManPowerUpdateInput = {
@@ -355,6 +360,7 @@ export type ManPowerUpdateInput = {
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutManPowerNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutManPowerDataNestedInput
   SkillMatrix?: Prisma.SkillMatrixUpdateManyWithoutManPowerDataNestedInput
+  Users?: Prisma.MTCUserManagementUpdateManyWithoutManpowerNestedInput
 }
 
 export type ManPowerUncheckedUpdateInput = {
@@ -372,6 +378,7 @@ export type ManPowerUncheckedUpdateInput = {
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutManPowerNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutManPowerDataNestedInput
   SkillMatrix?: Prisma.SkillMatrixUncheckedUpdateManyWithoutManPowerDataNestedInput
+  Users?: Prisma.MTCUserManagementUncheckedUpdateManyWithoutManpowerNestedInput
 }
 
 export type ManPowerCreateManyInput = {
@@ -512,6 +519,22 @@ export type ManPowerUpdateOneWithoutAssemblySessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ManPowerUpdateToOneWithWhereWithoutAssemblySessionsInput, Prisma.ManPowerUpdateWithoutAssemblySessionsInput>, Prisma.ManPowerUncheckedUpdateWithoutAssemblySessionsInput>
 }
 
+export type ManPowerCreateNestedOneWithoutUsersInput = {
+  create?: Prisma.XOR<Prisma.ManPowerCreateWithoutUsersInput, Prisma.ManPowerUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.ManPowerCreateOrConnectWithoutUsersInput
+  connect?: Prisma.ManPowerWhereUniqueInput
+}
+
+export type ManPowerUpdateOneWithoutUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.ManPowerCreateWithoutUsersInput, Prisma.ManPowerUncheckedCreateWithoutUsersInput>
+  connectOrCreate?: Prisma.ManPowerCreateOrConnectWithoutUsersInput
+  upsert?: Prisma.ManPowerUpsertWithoutUsersInput
+  disconnect?: Prisma.ManPowerWhereInput | boolean
+  delete?: Prisma.ManPowerWhereInput | boolean
+  connect?: Prisma.ManPowerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ManPowerUpdateToOneWithWhereWithoutUsersInput, Prisma.ManPowerUpdateWithoutUsersInput>, Prisma.ManPowerUncheckedUpdateWithoutUsersInput>
+}
+
 export type ManPowerCreateWithoutSkillMatrixInput = {
   Uid?: string
   Nik: string
@@ -526,6 +549,7 @@ export type ManPowerCreateWithoutSkillMatrixInput = {
   EmployeeType: string
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutManPowerInput
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutManPowerDataInput
+  Users?: Prisma.MTCUserManagementCreateNestedManyWithoutManpowerInput
 }
 
 export type ManPowerUncheckedCreateWithoutSkillMatrixInput = {
@@ -542,6 +566,7 @@ export type ManPowerUncheckedCreateWithoutSkillMatrixInput = {
   EmployeeType: string
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutManPowerInput
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutManPowerDataInput
+  Users?: Prisma.MTCUserManagementUncheckedCreateNestedManyWithoutManpowerInput
 }
 
 export type ManPowerCreateOrConnectWithoutSkillMatrixInput = {
@@ -574,6 +599,7 @@ export type ManPowerUpdateWithoutSkillMatrixInput = {
   EmployeeType?: Prisma.StringFieldUpdateOperationsInput | string
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutManPowerNestedInput
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutManPowerDataNestedInput
+  Users?: Prisma.MTCUserManagementUpdateManyWithoutManpowerNestedInput
 }
 
 export type ManPowerUncheckedUpdateWithoutSkillMatrixInput = {
@@ -590,6 +616,7 @@ export type ManPowerUncheckedUpdateWithoutSkillMatrixInput = {
   EmployeeType?: Prisma.StringFieldUpdateOperationsInput | string
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutManPowerNestedInput
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutManPowerDataNestedInput
+  Users?: Prisma.MTCUserManagementUncheckedUpdateManyWithoutManpowerNestedInput
 }
 
 export type ManPowerCreateWithoutProductionReportInput = {
@@ -606,6 +633,7 @@ export type ManPowerCreateWithoutProductionReportInput = {
   EmployeeType: string
   AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutManPowerInput
   SkillMatrix?: Prisma.SkillMatrixCreateNestedManyWithoutManPowerDataInput
+  Users?: Prisma.MTCUserManagementCreateNestedManyWithoutManpowerInput
 }
 
 export type ManPowerUncheckedCreateWithoutProductionReportInput = {
@@ -622,6 +650,7 @@ export type ManPowerUncheckedCreateWithoutProductionReportInput = {
   EmployeeType: string
   AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutManPowerInput
   SkillMatrix?: Prisma.SkillMatrixUncheckedCreateNestedManyWithoutManPowerDataInput
+  Users?: Prisma.MTCUserManagementUncheckedCreateNestedManyWithoutManpowerInput
 }
 
 export type ManPowerCreateOrConnectWithoutProductionReportInput = {
@@ -654,6 +683,7 @@ export type ManPowerUpdateWithoutProductionReportInput = {
   EmployeeType?: Prisma.StringFieldUpdateOperationsInput | string
   AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutManPowerNestedInput
   SkillMatrix?: Prisma.SkillMatrixUpdateManyWithoutManPowerDataNestedInput
+  Users?: Prisma.MTCUserManagementUpdateManyWithoutManpowerNestedInput
 }
 
 export type ManPowerUncheckedUpdateWithoutProductionReportInput = {
@@ -670,6 +700,7 @@ export type ManPowerUncheckedUpdateWithoutProductionReportInput = {
   EmployeeType?: Prisma.StringFieldUpdateOperationsInput | string
   AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutManPowerNestedInput
   SkillMatrix?: Prisma.SkillMatrixUncheckedUpdateManyWithoutManPowerDataNestedInput
+  Users?: Prisma.MTCUserManagementUncheckedUpdateManyWithoutManpowerNestedInput
 }
 
 export type ManPowerCreateWithoutAssemblySessionsInput = {
@@ -686,6 +717,7 @@ export type ManPowerCreateWithoutAssemblySessionsInput = {
   EmployeeType: string
   ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutManPowerDataInput
   SkillMatrix?: Prisma.SkillMatrixCreateNestedManyWithoutManPowerDataInput
+  Users?: Prisma.MTCUserManagementCreateNestedManyWithoutManpowerInput
 }
 
 export type ManPowerUncheckedCreateWithoutAssemblySessionsInput = {
@@ -702,6 +734,7 @@ export type ManPowerUncheckedCreateWithoutAssemblySessionsInput = {
   EmployeeType: string
   ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutManPowerDataInput
   SkillMatrix?: Prisma.SkillMatrixUncheckedCreateNestedManyWithoutManPowerDataInput
+  Users?: Prisma.MTCUserManagementUncheckedCreateNestedManyWithoutManpowerInput
 }
 
 export type ManPowerCreateOrConnectWithoutAssemblySessionsInput = {
@@ -734,6 +767,7 @@ export type ManPowerUpdateWithoutAssemblySessionsInput = {
   EmployeeType?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReport?: Prisma.ProductionReportUpdateManyWithoutManPowerDataNestedInput
   SkillMatrix?: Prisma.SkillMatrixUpdateManyWithoutManPowerDataNestedInput
+  Users?: Prisma.MTCUserManagementUpdateManyWithoutManpowerNestedInput
 }
 
 export type ManPowerUncheckedUpdateWithoutAssemblySessionsInput = {
@@ -750,6 +784,91 @@ export type ManPowerUncheckedUpdateWithoutAssemblySessionsInput = {
   EmployeeType?: Prisma.StringFieldUpdateOperationsInput | string
   ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutManPowerDataNestedInput
   SkillMatrix?: Prisma.SkillMatrixUncheckedUpdateManyWithoutManPowerDataNestedInput
+  Users?: Prisma.MTCUserManagementUncheckedUpdateManyWithoutManpowerNestedInput
+}
+
+export type ManPowerCreateWithoutUsersInput = {
+  Uid?: string
+  Nik: string
+  PicturePath?: string | null
+  Name: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Status?: boolean
+  Line?: string | null
+  EmployeeType: string
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutManPowerInput
+  ProductionReport?: Prisma.ProductionReportCreateNestedManyWithoutManPowerDataInput
+  SkillMatrix?: Prisma.SkillMatrixCreateNestedManyWithoutManPowerDataInput
+}
+
+export type ManPowerUncheckedCreateWithoutUsersInput = {
+  Uid?: string
+  Nik: string
+  PicturePath?: string | null
+  Name: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  Status?: boolean
+  Line?: string | null
+  EmployeeType: string
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutManPowerInput
+  ProductionReport?: Prisma.ProductionReportUncheckedCreateNestedManyWithoutManPowerDataInput
+  SkillMatrix?: Prisma.SkillMatrixUncheckedCreateNestedManyWithoutManPowerDataInput
+}
+
+export type ManPowerCreateOrConnectWithoutUsersInput = {
+  where: Prisma.ManPowerWhereUniqueInput
+  create: Prisma.XOR<Prisma.ManPowerCreateWithoutUsersInput, Prisma.ManPowerUncheckedCreateWithoutUsersInput>
+}
+
+export type ManPowerUpsertWithoutUsersInput = {
+  update: Prisma.XOR<Prisma.ManPowerUpdateWithoutUsersInput, Prisma.ManPowerUncheckedUpdateWithoutUsersInput>
+  create: Prisma.XOR<Prisma.ManPowerCreateWithoutUsersInput, Prisma.ManPowerUncheckedCreateWithoutUsersInput>
+  where?: Prisma.ManPowerWhereInput
+}
+
+export type ManPowerUpdateToOneWithWhereWithoutUsersInput = {
+  where?: Prisma.ManPowerWhereInput
+  data: Prisma.XOR<Prisma.ManPowerUpdateWithoutUsersInput, Prisma.ManPowerUncheckedUpdateWithoutUsersInput>
+}
+
+export type ManPowerUpdateWithoutUsersInput = {
+  Uid?: Prisma.StringFieldUpdateOperationsInput | string
+  Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmployeeType?: Prisma.StringFieldUpdateOperationsInput | string
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutManPowerNestedInput
+  ProductionReport?: Prisma.ProductionReportUpdateManyWithoutManPowerDataNestedInput
+  SkillMatrix?: Prisma.SkillMatrixUpdateManyWithoutManPowerDataNestedInput
+}
+
+export type ManPowerUncheckedUpdateWithoutUsersInput = {
+  Uid?: Prisma.StringFieldUpdateOperationsInput | string
+  Nik?: Prisma.StringFieldUpdateOperationsInput | string
+  PicturePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Name?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  Status?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Line?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  EmployeeType?: Prisma.StringFieldUpdateOperationsInput | string
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutManPowerNestedInput
+  ProductionReport?: Prisma.ProductionReportUncheckedUpdateManyWithoutManPowerDataNestedInput
+  SkillMatrix?: Prisma.SkillMatrixUncheckedUpdateManyWithoutManPowerDataNestedInput
 }
 
 
@@ -761,12 +880,14 @@ export type ManPowerCountOutputType = {
   AssemblySessions: number
   ProductionReport: number
   SkillMatrix: number
+  Users: number
 }
 
 export type ManPowerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   AssemblySessions?: boolean | ManPowerCountOutputTypeCountAssemblySessionsArgs
   ProductionReport?: boolean | ManPowerCountOutputTypeCountProductionReportArgs
   SkillMatrix?: boolean | ManPowerCountOutputTypeCountSkillMatrixArgs
+  Users?: boolean | ManPowerCountOutputTypeCountUsersArgs
 }
 
 /**
@@ -800,6 +921,13 @@ export type ManPowerCountOutputTypeCountSkillMatrixArgs<ExtArgs extends runtime.
   where?: Prisma.SkillMatrixWhereInput
 }
 
+/**
+ * ManPowerCountOutputType without action
+ */
+export type ManPowerCountOutputTypeCountUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MTCUserManagementWhereInput
+}
+
 
 export type ManPowerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Uid?: boolean
@@ -816,6 +944,7 @@ export type ManPowerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   AssemblySessions?: boolean | Prisma.ManPower$AssemblySessionsArgs<ExtArgs>
   ProductionReport?: boolean | Prisma.ManPower$ProductionReportArgs<ExtArgs>
   SkillMatrix?: boolean | Prisma.ManPower$SkillMatrixArgs<ExtArgs>
+  Users?: boolean | Prisma.ManPower$UsersArgs<ExtArgs>
   _count?: boolean | Prisma.ManPowerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["manPower"]>
 
@@ -866,6 +995,7 @@ export type ManPowerInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   AssemblySessions?: boolean | Prisma.ManPower$AssemblySessionsArgs<ExtArgs>
   ProductionReport?: boolean | Prisma.ManPower$ProductionReportArgs<ExtArgs>
   SkillMatrix?: boolean | Prisma.ManPower$SkillMatrixArgs<ExtArgs>
+  Users?: boolean | Prisma.ManPower$UsersArgs<ExtArgs>
   _count?: boolean | Prisma.ManPowerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ManPowerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -877,6 +1007,7 @@ export type $ManPowerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     AssemblySessions: Prisma.$AssemblySessionPayload<ExtArgs>[]
     ProductionReport: Prisma.$ProductionReportPayload<ExtArgs>[]
     SkillMatrix: Prisma.$SkillMatrixPayload<ExtArgs>[]
+    Users: Prisma.$MTCUserManagementPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Uid: string
@@ -1287,6 +1418,7 @@ export interface Prisma__ManPowerClient<T, Null = never, ExtArgs extends runtime
   AssemblySessions<T extends Prisma.ManPower$AssemblySessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ManPower$AssemblySessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssemblySessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ProductionReport<T extends Prisma.ManPower$ProductionReportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ManPower$ProductionReportArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   SkillMatrix<T extends Prisma.ManPower$SkillMatrixArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ManPower$SkillMatrixArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SkillMatrixPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  Users<T extends Prisma.ManPower$UsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ManPower$UsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MTCUserManagementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1789,6 +1921,30 @@ export type ManPower$SkillMatrixArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.SkillMatrixScalarFieldEnum | Prisma.SkillMatrixScalarFieldEnum[]
+}
+
+/**
+ * ManPower.Users
+ */
+export type ManPower$UsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MTCUserManagement
+   */
+  select?: Prisma.MTCUserManagementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MTCUserManagement
+   */
+  omit?: Prisma.MTCUserManagementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MTCUserManagementInclude<ExtArgs> | null
+  where?: Prisma.MTCUserManagementWhereInput
+  orderBy?: Prisma.MTCUserManagementOrderByWithRelationInput | Prisma.MTCUserManagementOrderByWithRelationInput[]
+  cursor?: Prisma.MTCUserManagementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MTCUserManagementScalarFieldEnum | Prisma.MTCUserManagementScalarFieldEnum[]
 }
 
 /**

@@ -308,6 +308,7 @@ export type ProductionReleaseWhereInput = {
   Forecasts?: Prisma.ProductionOrderListRelationFilter
   LabelDatas?: Prisma.LabelDataListRelationFilter
   Attachments?: Prisma.ProductionReleaseAttachmentListRelationFilter
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeListRelationFilter
 }
 
 export type ProductionReleaseOrderByWithRelationInput = {
@@ -333,6 +334,7 @@ export type ProductionReleaseOrderByWithRelationInput = {
   Forecasts?: Prisma.ProductionOrderOrderByRelationAggregateInput
   LabelDatas?: Prisma.LabelDataOrderByRelationAggregateInput
   Attachments?: Prisma.ProductionReleaseAttachmentOrderByRelationAggregateInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeOrderByRelationAggregateInput
 }
 
 export type ProductionReleaseWhereUniqueInput = Prisma.AtLeast<{
@@ -361,6 +363,7 @@ export type ProductionReleaseWhereUniqueInput = Prisma.AtLeast<{
   Forecasts?: Prisma.ProductionOrderListRelationFilter
   LabelDatas?: Prisma.LabelDataListRelationFilter
   Attachments?: Prisma.ProductionReleaseAttachmentListRelationFilter
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeListRelationFilter
 }, "Id" | "ReleaseNumber">
 
 export type ProductionReleaseOrderByWithAggregationInput = {
@@ -428,6 +431,7 @@ export type ProductionReleaseCreateInput = {
   Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateInput = {
@@ -453,6 +457,7 @@ export type ProductionReleaseUncheckedCreateInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUpdateInput = {
@@ -478,6 +483,7 @@ export type ProductionReleaseUpdateInput = {
   Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateInput = {
@@ -503,6 +509,7 @@ export type ProductionReleaseUncheckedUpdateInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseCreateManyInput = {
@@ -671,6 +678,20 @@ export type ProductionReleaseUpdateOneWithoutAttachmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.ProductionReleaseUpdateWithoutAttachmentsInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutAttachmentsInput>
 }
 
+export type ProductionReleaseCreateNestedOneWithoutApprovalChallengesInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutApprovalChallengesInput, Prisma.ProductionReleaseUncheckedCreateWithoutApprovalChallengesInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutApprovalChallengesInput
+  connect?: Prisma.ProductionReleaseWhereUniqueInput
+}
+
+export type ProductionReleaseUpdateOneRequiredWithoutApprovalChallengesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutApprovalChallengesInput, Prisma.ProductionReleaseUncheckedCreateWithoutApprovalChallengesInput>
+  connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutApprovalChallengesInput
+  upsert?: Prisma.ProductionReleaseUpsertWithoutApprovalChallengesInput
+  connect?: Prisma.ProductionReleaseWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductionReleaseUpdateToOneWithWhereWithoutApprovalChallengesInput, Prisma.ProductionReleaseUpdateWithoutApprovalChallengesInput>, Prisma.ProductionReleaseUncheckedUpdateWithoutApprovalChallengesInput>
+}
+
 export type ProductionReleaseCreateNestedOneWithoutLabelDatasInput = {
   create?: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutLabelDatasInput, Prisma.ProductionReleaseUncheckedCreateWithoutLabelDatasInput>
   connectOrCreate?: Prisma.ProductionReleaseCreateOrConnectWithoutLabelDatasInput
@@ -771,6 +792,7 @@ export type ProductionReleaseCreateWithoutLegacyForecastsInput = {
   Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutLegacyForecastsInput = {
@@ -795,6 +817,7 @@ export type ProductionReleaseUncheckedCreateWithoutLegacyForecastsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutLegacyForecastsInput = {
@@ -835,6 +858,7 @@ export type ProductionReleaseUpdateWithoutLegacyForecastsInput = {
   Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutLegacyForecastsInput = {
@@ -859,6 +883,7 @@ export type ProductionReleaseUncheckedUpdateWithoutLegacyForecastsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseCreateWithoutAttachmentsInput = {
@@ -883,6 +908,7 @@ export type ProductionReleaseCreateWithoutAttachmentsInput = {
   LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
   Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutAttachmentsInput = {
@@ -907,6 +933,7 @@ export type ProductionReleaseUncheckedCreateWithoutAttachmentsInput = {
   LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
   Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutAttachmentsInput = {
@@ -947,6 +974,7 @@ export type ProductionReleaseUpdateWithoutAttachmentsInput = {
   LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
   Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutAttachmentsInput = {
@@ -971,6 +999,123 @@ export type ProductionReleaseUncheckedUpdateWithoutAttachmentsInput = {
   LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedUpdateManyWithoutProductionReleaseNestedInput
+}
+
+export type ProductionReleaseCreateWithoutApprovalChallengesInput = {
+  Id?: string
+  ReleaseNumber: string
+  PlanDate: Date | string
+  Status?: $Enums.ProductionStatus
+  Notes?: string | null
+  TotalTargetQty?: number
+  TotalGoodQty?: number
+  TotalNgQty?: number
+  TotalProductionMinutes?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingCreateNestedManyWithoutReleaseInput
+  TraceEvents?: Prisma.ProductionTraceEventCreateNestedManyWithoutReleaseInput
+  Demands?: Prisma.ProductionDemandCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
+  LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+}
+
+export type ProductionReleaseUncheckedCreateWithoutApprovalChallengesInput = {
+  Id?: string
+  ReleaseNumber: string
+  PlanDate: Date | string
+  Status?: $Enums.ProductionStatus
+  Notes?: string | null
+  TotalTargetQty?: number
+  TotalGoodQty?: number
+  TotalNgQty?: number
+  TotalProductionMinutes?: number | null
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  IsNoAttachment?: boolean
+  SourceType?: $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedCreateNestedManyWithoutReleaseInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedCreateNestedManyWithoutReleaseInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedCreateNestedManyWithoutReleaseInput
+  Demands?: Prisma.ProductionDemandUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
+  LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+}
+
+export type ProductionReleaseCreateOrConnectWithoutApprovalChallengesInput = {
+  where: Prisma.ProductionReleaseWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutApprovalChallengesInput, Prisma.ProductionReleaseUncheckedCreateWithoutApprovalChallengesInput>
+}
+
+export type ProductionReleaseUpsertWithoutApprovalChallengesInput = {
+  update: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutApprovalChallengesInput, Prisma.ProductionReleaseUncheckedUpdateWithoutApprovalChallengesInput>
+  create: Prisma.XOR<Prisma.ProductionReleaseCreateWithoutApprovalChallengesInput, Prisma.ProductionReleaseUncheckedCreateWithoutApprovalChallengesInput>
+  where?: Prisma.ProductionReleaseWhereInput
+}
+
+export type ProductionReleaseUpdateToOneWithWhereWithoutApprovalChallengesInput = {
+  where?: Prisma.ProductionReleaseWhereInput
+  data: Prisma.XOR<Prisma.ProductionReleaseUpdateWithoutApprovalChallengesInput, Prisma.ProductionReleaseUncheckedUpdateWithoutApprovalChallengesInput>
+}
+
+export type ProductionReleaseUpdateWithoutApprovalChallengesInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Status?: Prisma.EnumProductionStatusFieldUpdateOperationsInput | $Enums.ProductionStatus
+  Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUpdateManyWithoutReleaseNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUpdateManyWithoutReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
+  LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+}
+
+export type ProductionReleaseUncheckedUpdateWithoutApprovalChallengesInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ReleaseNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  PlanDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  Status?: Prisma.EnumProductionStatusFieldUpdateOperationsInput | $Enums.ProductionStatus
+  Notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  TotalTargetQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalGoodQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalNgQty?: Prisma.IntFieldUpdateOperationsInput | number
+  TotalProductionMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  IsNoAttachment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  SourceType?: Prisma.EnumDemandSourceFieldUpdateOperationsInput | $Enums.DemandSource
+  BomSnapshots?: Prisma.ProductionBomSnapshotUncheckedUpdateManyWithoutReleaseNestedInput
+  ProductionFindings?: Prisma.ProductionFindingUncheckedUpdateManyWithoutReleaseNestedInput
+  TraceEvents?: Prisma.ProductionTraceEventUncheckedUpdateManyWithoutReleaseNestedInput
+  Demands?: Prisma.ProductionDemandUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseCreateWithoutLabelDatasInput = {
@@ -995,6 +1140,7 @@ export type ProductionReleaseCreateWithoutLabelDatasInput = {
   LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
   Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutLabelDatasInput = {
@@ -1019,6 +1165,7 @@ export type ProductionReleaseUncheckedCreateWithoutLabelDatasInput = {
   LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
   Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutLabelDatasInput = {
@@ -1059,6 +1206,7 @@ export type ProductionReleaseUpdateWithoutLabelDatasInput = {
   LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
   Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutLabelDatasInput = {
@@ -1083,6 +1231,7 @@ export type ProductionReleaseUncheckedUpdateWithoutLabelDatasInput = {
   LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseCreateWithoutBomSnapshotsInput = {
@@ -1107,6 +1256,7 @@ export type ProductionReleaseCreateWithoutBomSnapshotsInput = {
   Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutBomSnapshotsInput = {
@@ -1131,6 +1281,7 @@ export type ProductionReleaseUncheckedCreateWithoutBomSnapshotsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutBomSnapshotsInput = {
@@ -1171,6 +1322,7 @@ export type ProductionReleaseUpdateWithoutBomSnapshotsInput = {
   Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutBomSnapshotsInput = {
@@ -1195,6 +1347,7 @@ export type ProductionReleaseUncheckedUpdateWithoutBomSnapshotsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseCreateWithoutProductionFindingsInput = {
@@ -1219,6 +1372,7 @@ export type ProductionReleaseCreateWithoutProductionFindingsInput = {
   Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutProductionFindingsInput = {
@@ -1243,6 +1397,7 @@ export type ProductionReleaseUncheckedCreateWithoutProductionFindingsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutProductionFindingsInput = {
@@ -1283,6 +1438,7 @@ export type ProductionReleaseUpdateWithoutProductionFindingsInput = {
   Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutProductionFindingsInput = {
@@ -1307,6 +1463,7 @@ export type ProductionReleaseUncheckedUpdateWithoutProductionFindingsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseCreateWithoutTraceEventsInput = {
@@ -1331,6 +1488,7 @@ export type ProductionReleaseCreateWithoutTraceEventsInput = {
   Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutTraceEventsInput = {
@@ -1355,6 +1513,7 @@ export type ProductionReleaseUncheckedCreateWithoutTraceEventsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutTraceEventsInput = {
@@ -1395,6 +1554,7 @@ export type ProductionReleaseUpdateWithoutTraceEventsInput = {
   Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutTraceEventsInput = {
@@ -1419,6 +1579,7 @@ export type ProductionReleaseUncheckedUpdateWithoutTraceEventsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseCreateWithoutDemandsInput = {
@@ -1443,6 +1604,7 @@ export type ProductionReleaseCreateWithoutDemandsInput = {
   Forecasts?: Prisma.ProductionOrderCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutDemandsInput = {
@@ -1467,6 +1629,7 @@ export type ProductionReleaseUncheckedCreateWithoutDemandsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutDemandsInput = {
@@ -1507,6 +1670,7 @@ export type ProductionReleaseUpdateWithoutDemandsInput = {
   Forecasts?: Prisma.ProductionOrderUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutDemandsInput = {
@@ -1531,6 +1695,7 @@ export type ProductionReleaseUncheckedUpdateWithoutDemandsInput = {
   Forecasts?: Prisma.ProductionOrderUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUpdateOneWithoutForecastsNestedInput = {
@@ -1565,6 +1730,7 @@ export type ProductionReleaseCreateWithoutForecastsInput = {
   LegacyForecasts?: Prisma.ForecastCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseUncheckedCreateWithoutForecastsInput = {
@@ -1589,6 +1755,7 @@ export type ProductionReleaseUncheckedCreateWithoutForecastsInput = {
   LegacyForecasts?: Prisma.ForecastUncheckedCreateNestedManyWithoutProductionReleaseInput
   LabelDatas?: Prisma.LabelDataUncheckedCreateNestedManyWithoutProductionReleaseInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedCreateNestedManyWithoutProductionReleaseInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedCreateNestedManyWithoutProductionReleaseInput
 }
 
 export type ProductionReleaseCreateOrConnectWithoutForecastsInput = {
@@ -1629,6 +1796,7 @@ export type ProductionReleaseUpdateWithoutForecastsInput = {
   LegacyForecasts?: Prisma.ForecastUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUpdateManyWithoutProductionReleaseNestedInput
 }
 
 export type ProductionReleaseUncheckedUpdateWithoutForecastsInput = {
@@ -1653,6 +1821,7 @@ export type ProductionReleaseUncheckedUpdateWithoutForecastsInput = {
   LegacyForecasts?: Prisma.ForecastUncheckedUpdateManyWithoutProductionReleaseNestedInput
   LabelDatas?: Prisma.LabelDataUncheckedUpdateManyWithoutProductionReleaseNestedInput
   Attachments?: Prisma.ProductionReleaseAttachmentUncheckedUpdateManyWithoutProductionReleaseNestedInput
+  ApprovalChallenges?: Prisma.ProductionReleaseApprovalChallengeUncheckedUpdateManyWithoutProductionReleaseNestedInput
 }
 
 
@@ -1669,6 +1838,7 @@ export type ProductionReleaseCountOutputType = {
   Forecasts: number
   LabelDatas: number
   Attachments: number
+  ApprovalChallenges: number
 }
 
 export type ProductionReleaseCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1680,6 +1850,7 @@ export type ProductionReleaseCountOutputTypeSelect<ExtArgs extends runtime.Types
   Forecasts?: boolean | ProductionReleaseCountOutputTypeCountForecastsArgs
   LabelDatas?: boolean | ProductionReleaseCountOutputTypeCountLabelDatasArgs
   Attachments?: boolean | ProductionReleaseCountOutputTypeCountAttachmentsArgs
+  ApprovalChallenges?: boolean | ProductionReleaseCountOutputTypeCountApprovalChallengesArgs
 }
 
 /**
@@ -1748,6 +1919,13 @@ export type ProductionReleaseCountOutputTypeCountAttachmentsArgs<ExtArgs extends
   where?: Prisma.ProductionReleaseAttachmentWhereInput
 }
 
+/**
+ * ProductionReleaseCountOutputType without action
+ */
+export type ProductionReleaseCountOutputTypeCountApprovalChallengesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductionReleaseApprovalChallengeWhereInput
+}
+
 
 export type ProductionReleaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
@@ -1772,6 +1950,7 @@ export type ProductionReleaseSelect<ExtArgs extends runtime.Types.Extensions.Int
   Forecasts?: boolean | Prisma.ProductionRelease$ForecastsArgs<ExtArgs>
   LabelDatas?: boolean | Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>
   Attachments?: boolean | Prisma.ProductionRelease$AttachmentsArgs<ExtArgs>
+  ApprovalChallenges?: boolean | Prisma.ProductionRelease$ApprovalChallengesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionReleaseCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["productionRelease"]>
 
@@ -1836,6 +2015,7 @@ export type ProductionReleaseInclude<ExtArgs extends runtime.Types.Extensions.In
   Forecasts?: boolean | Prisma.ProductionRelease$ForecastsArgs<ExtArgs>
   LabelDatas?: boolean | Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>
   Attachments?: boolean | Prisma.ProductionRelease$AttachmentsArgs<ExtArgs>
+  ApprovalChallenges?: boolean | Prisma.ProductionRelease$ApprovalChallengesArgs<ExtArgs>
   _count?: boolean | Prisma.ProductionReleaseCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProductionReleaseIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1852,6 +2032,7 @@ export type $ProductionReleasePayload<ExtArgs extends runtime.Types.Extensions.I
     Forecasts: Prisma.$ProductionOrderPayload<ExtArgs>[]
     LabelDatas: Prisma.$LabelDataPayload<ExtArgs>[]
     Attachments: Prisma.$ProductionReleaseAttachmentPayload<ExtArgs>[]
+    ApprovalChallenges: Prisma.$ProductionReleaseApprovalChallengePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: string
@@ -2270,6 +2451,7 @@ export interface Prisma__ProductionReleaseClient<T, Null = never, ExtArgs extend
   Forecasts<T extends Prisma.ProductionRelease$ForecastsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$ForecastsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   LabelDatas<T extends Prisma.ProductionRelease$LabelDatasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$LabelDatasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Attachments<T extends Prisma.ProductionRelease$AttachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$AttachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionReleaseAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ApprovalChallenges<T extends Prisma.ProductionRelease$ApprovalChallengesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionRelease$ApprovalChallengesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductionReleaseApprovalChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2895,6 +3077,30 @@ export type ProductionRelease$AttachmentsArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.ProductionReleaseAttachmentScalarFieldEnum | Prisma.ProductionReleaseAttachmentScalarFieldEnum[]
+}
+
+/**
+ * ProductionRelease.ApprovalChallenges
+ */
+export type ProductionRelease$ApprovalChallengesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductionReleaseApprovalChallenge
+   */
+  select?: Prisma.ProductionReleaseApprovalChallengeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductionReleaseApprovalChallenge
+   */
+  omit?: Prisma.ProductionReleaseApprovalChallengeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionReleaseApprovalChallengeInclude<ExtArgs> | null
+  where?: Prisma.ProductionReleaseApprovalChallengeWhereInput
+  orderBy?: Prisma.ProductionReleaseApprovalChallengeOrderByWithRelationInput | Prisma.ProductionReleaseApprovalChallengeOrderByWithRelationInput[]
+  cursor?: Prisma.ProductionReleaseApprovalChallengeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductionReleaseApprovalChallengeScalarFieldEnum | Prisma.ProductionReleaseApprovalChallengeScalarFieldEnum[]
 }
 
 /**

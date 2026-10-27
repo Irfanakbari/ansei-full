@@ -26,17 +26,39 @@ import {
   CancelProductionReleaseDto,
   AmendProductionReleaseForecastsDto,
   ProductionReleaseForecastCandidatesQueryDto,
+  RequestAutocompleteOtpDto,
+  ExecuteAutocompleteDto,
 } from './dto';
+import {
+  AutocompleteApproverEntity,
+  RequestAutocompleteOtpResponseEntity,
+  ExecuteAutocompleteResponseEntity,
+} from './entities';
 import type { LogProcessModel } from '../../generated/prisma/models';
-import { ProductionStatus } from '../../generated/prisma/enums';
+import {
+  ProductionStatus,
+  ApprovalChallengeStatus,
+  PokayokeCompareStatus,
+} from '../../generated/prisma/enums';
 import { Prisma } from '../../generated/prisma/client';
 import { assertNoActiveInventoryCounting } from '../../common/helpers/inventory-counting-check.helper';
-import { randomUUID } from 'node:crypto';
+import {
+  randomUUID,
+  randomInt,
+  createHash,
+  timingSafeEqual,
+} from 'node:crypto';
 import { validateUploadContent } from '../../common/utils/upload-security.util';
 import {
   buildProductionLabels,
   lockProductionFlow,
 } from '../../common/helpers/production-flow.helper';
+import { ShoppingService } from '../shopping/shopping.service';
+import { AssemblyService } from '../assembly/assembly.service';
+import { PokayokeService } from '../pokayoke/pokayoke.service';
+import { DeliveryService } from '../delivery/delivery.service';
+import { FonnteService } from '../../common/utils/fonnte.service';
+import type { ICurrentUser } from '../../auth/interfaces/current-user.interface';
 
 // Allowed file extensions and max size
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -47,6 +69,11 @@ export class ProductionReleaseService {
     private readonly prisma: PrismaService,
     private readonly logService: LogProcessService,
     private readonly nasUploadService: NasUploadService,
+    private readonly shoppingService: ShoppingService,
+    private readonly assemblyService: AssemblyService,
+    private readonly pokayokeService: PokayokeService,
+    private readonly deliveryService: DeliveryService,
+    private readonly fonnteService: FonnteService,
   ) {}
 
   private selectionIds(
@@ -2481,5 +2508,550 @@ export class ProductionReleaseService {
         })),
       })),
     };
+  }
+
+  async getAutocompleteApprovers(): Promise<AutocompleteApproverEntity[]> {
+    const users = await this.prisma.mTCUserManagement.findMany({
+      where: {
+        IsActive: true,
+        PhoneNumber: { not: null },
+        Role: {
+          RoleName: {
+            in: ['MANAGER', 'SUPER', 'SUPER_ADMIN', 'MANAGEMENT'],
+            mode: 'insensitive',
+          },
+        },
+      },
+      select: {
+        Id: true,
+        UserId: true,
+        Name: true,
+        PhoneNumber: true,
+        Role: {
+          select: {
+            RoleName: true,
+          },
+        },
+      },
+      orderBy: { Name: 'asc' },
+    });
+
+    return users.map((u) => {
+      const rawPhone = u.PhoneNumber || '';
+      let masked = rawPhone;
+      if (rawPhone.length >= 8) {
+        const prefix = rawPhone.slice(0, 4);
+        const suffix = rawPhone.slice(-4);
+        masked = `${prefix}${'*'.repeat(Math.max(2, rawPhone.length - 8))}${suffix}`;
+      }
+      return {
+        userId: u.UserId,
+        name: u.Name,
+        roleName: u.Role?.RoleName || 'MANAGER',
+        maskedPhoneNumber: masked,
+      };
+    });
+  }
+
+  async requestAutocompleteOtp(
+    releaseId: string,
+    dto: RequestAutocompleteOtpDto,
+    requesterUsername: string,
+  ): Promise<RequestAutocompleteOtpResponseEntity> {
+    const release = await this.prisma.productionRelease.findUnique({
+      where: { Id: releaseId },
+      select: { Id: true, ReleaseNumber: true, Status: true },
+    });
+    if (!release) {
+      throw new NotFoundException(
+        `Production release with ID ${releaseId} not found`,
+      );
+    }
+    if (release.Status !== ProductionStatus.RELEASED) {
+      throw new BadRequestException(
+        `Only RELEASED production release can be autocompleted. Current status: ${release.Status}`,
+      );
+    }
+
+    const approver = await this.prisma.mTCUserManagement.findFirst({
+      where: {
+        UserId: dto.approverUserId,
+        IsActive: true,
+        PhoneNumber: { not: null },
+        Role: {
+          RoleName: {
+            in: ['MANAGER', 'SUPER', 'SUPER_ADMIN', 'MANAGEMENT'],
+            mode: 'insensitive',
+          },
+        },
+      },
+      select: {
+        Id: true,
+        UserId: true,
+        Name: true,
+        PhoneNumber: true,
+        Role: { select: { RoleName: true } },
+      },
+    });
+
+    if (!approver || !approver.PhoneNumber) {
+      throw new BadRequestException(
+        `Approver user ${dto.approverUserId} is not an active manager/super with a valid phone number`,
+      );
+    }
+
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+    const recentChallenge =
+      await this.prisma.productionReleaseApprovalChallenge.findFirst({
+        where: {
+          ProductionReleaseId: releaseId,
+          RequesterUserId: requesterUsername,
+          Status: ApprovalChallengeStatus.PENDING,
+          CreatedAt: { gte: oneMinuteAgo },
+        },
+        orderBy: { CreatedAt: 'desc' },
+      });
+
+    if (recentChallenge) {
+      const elapsedSeconds = Math.floor(
+        (Date.now() - recentChallenge.CreatedAt.getTime()) / 1000,
+      );
+      const retryAfter = Math.max(1, 60 - elapsedSeconds);
+      throw new ConflictException(
+        `An OTP was recently requested. Please wait ${retryAfter} seconds before requesting a new OTP.`,
+      );
+    }
+
+    await this.prisma.productionReleaseApprovalChallenge.updateMany({
+      where: {
+        ProductionReleaseId: releaseId,
+        RequesterUserId: requesterUsername,
+        Status: ApprovalChallengeStatus.PENDING,
+      },
+      data: {
+        Status: ApprovalChallengeStatus.EXPIRED,
+        UpdatedBy: requesterUsername,
+      },
+    });
+
+    const rawOtp = randomInt(100000, 1000000).toString();
+    const codeHash = createHash('sha256').update(rawOtp).digest('hex');
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    const challenge =
+      await this.prisma.productionReleaseApprovalChallenge.create({
+        data: {
+          ProductionReleaseId: releaseId,
+          RequesterUserId: requesterUsername,
+          ApproverUserId: approver.UserId,
+          TargetPhoneNumber: approver.PhoneNumber,
+          CodeHash: codeHash,
+          Status: ApprovalChallengeStatus.PENDING,
+          AttemptCount: 0,
+          MaxAttempts: 3,
+          ExpiresAt: expiresAt,
+          CreatedBy: requesterUsername,
+          UpdatedBy: requesterUsername,
+        },
+      });
+
+    const message =
+      `*ANSEI - APPROVAL OTP*\n\n` +
+      `Halo *${approver.Name}*,\n` +
+      `User *${requesterUsername}* mengajukan *Bypass & Autocomplete All* untuk Jadwal Rilis *${release.ReleaseNumber}*.\n\n` +
+      `Kode OTP Anda: *${rawOtp}*\n\n` +
+      `Kode ini berlaku selama 5 menit. JANGAN berikan kode ini kepada pihak yang tidak berkepentingan.`;
+
+    await this.fonnteService.sendWhatsApp(approver.PhoneNumber, message);
+
+    const rawPhone = approver.PhoneNumber;
+    let masked = rawPhone;
+    if (rawPhone.length >= 8) {
+      const prefix = rawPhone.slice(0, 4);
+      const suffix = rawPhone.slice(-4);
+      masked = `${prefix}${'*'.repeat(Math.max(2, rawPhone.length - 8))}${suffix}`;
+    }
+
+    return {
+      challengeId: challenge.Id,
+      approverName: approver.Name,
+      maskedPhoneNumber: masked,
+      expiresInSeconds: 300,
+    };
+  }
+
+  async executeAutocompleteAll(
+    releaseId: string,
+    dto: ExecuteAutocompleteDto,
+    currentUser: ICurrentUser,
+  ): Promise<ExecuteAutocompleteResponseEntity> {
+    let logProcess: LogProcessModel | undefined;
+
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'PROD_RELEASE_AUTOCOMPLETE_001',
+        functionName: 'ProductionReleaseService.executeAutocompleteAll',
+        createdBy: currentUser.username,
+      });
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Starting autocomplete for release ${releaseId}`,
+        type: 'INFO',
+        location: 'production-release.service.ts:executeAutocompleteAll',
+      });
+
+      const release = await this.prisma.productionRelease.findUnique({
+        where: { Id: releaseId },
+        include: {
+          Demands: true,
+          LabelDatas: true,
+        },
+      });
+
+      if (!release) {
+        throw new NotFoundException(
+          `Production release with ID ${releaseId} not found`,
+        );
+      }
+      if (release.Status !== ProductionStatus.RELEASED) {
+        throw new BadRequestException(
+          `Only RELEASED production release can be autocompleted. Current status: ${release.Status}`,
+        );
+      }
+
+      const challenge =
+        await this.prisma.productionReleaseApprovalChallenge.findUnique({
+          where: { Id: dto.challengeId },
+        });
+      if (!challenge) {
+        throw new NotFoundException('OTP challenge not found');
+      }
+      if (challenge.ProductionReleaseId !== releaseId) {
+        throw new BadRequestException(
+          'OTP challenge does not match this release',
+        );
+      }
+      if (challenge.RequesterUserId !== currentUser.username) {
+        throw new BadRequestException(
+          'OTP challenge does not belong to the requesting user',
+        );
+      }
+      if (challenge.Status === ApprovalChallengeStatus.CONSUMED) {
+        throw new ConflictException('OTP challenge has already been used');
+      }
+      if (
+        challenge.Status === ApprovalChallengeStatus.LOCKED ||
+        challenge.AttemptCount >= challenge.MaxAttempts
+      ) {
+        throw new ConflictException(
+          'OTP challenge is locked due to maximum failed attempts exceeded',
+        );
+      }
+
+      const now = new Date();
+      if (
+        challenge.Status === ApprovalChallengeStatus.EXPIRED ||
+        now > challenge.ExpiresAt
+      ) {
+        if (challenge.Status !== ApprovalChallengeStatus.EXPIRED) {
+          await this.prisma.productionReleaseApprovalChallenge.update({
+            where: { Id: challenge.Id },
+            data: {
+              Status: ApprovalChallengeStatus.EXPIRED,
+              UpdatedBy: currentUser.username,
+            },
+          });
+        }
+        throw new ConflictException(
+          'OTP challenge has expired. Please request a new OTP.',
+        );
+      }
+
+      const inputHash = createHash('sha256')
+        .update(dto.otp.trim())
+        .digest('hex');
+      const isMatch = timingSafeEqual(
+        Buffer.from(challenge.CodeHash, 'utf8'),
+        Buffer.from(inputHash, 'utf8'),
+      );
+
+      if (!isMatch) {
+        const nextAttempt = challenge.AttemptCount + 1;
+        const isLocked = nextAttempt >= challenge.MaxAttempts;
+        await this.prisma.productionReleaseApprovalChallenge.update({
+          where: { Id: challenge.Id },
+          data: {
+            AttemptCount: nextAttempt,
+            Status: isLocked
+              ? ApprovalChallengeStatus.LOCKED
+              : challenge.Status,
+            UpdatedBy: currentUser.username,
+          },
+        });
+        if (isLocked) {
+          throw new ConflictException(
+            'Too many failed OTP attempts. Challenge is now locked.',
+          );
+        }
+        throw new BadRequestException(
+          `Invalid OTP code. Remaining attempts: ${challenge.MaxAttempts - nextAttempt}`,
+        );
+      }
+
+      await this.prisma.productionReleaseApprovalChallenge.update({
+        where: { Id: challenge.Id },
+        data: {
+          Status: ApprovalChallengeStatus.CONSUMED,
+          ConsumedAt: now,
+          UpdatedBy: currentUser.username,
+        },
+      });
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `OTP challenge ${challenge.Id} verified and consumed successfully`,
+        type: 'INFO',
+        location: 'production-release.service.ts:executeAutocompleteAll',
+      });
+
+      const activeCounting = await this.prisma.stockOpname.findFirst({
+        where: { Status: { in: ['IN_PROGRESS', 'DRAFT'] } },
+      });
+      if (activeCounting) {
+        throw new BadRequestException(
+          'Cannot autocomplete production release while Stock Opname / Inventory Counting is active',
+        );
+      }
+
+      const bypassSetting = await this.prisma.assemblyProcessSetting.findUnique(
+        {
+          where: { Id: 1 },
+        },
+      );
+      const bypassAllAssembly = bypassSetting?.BypassAllAssembly ?? false;
+
+      const needsAssembly = release.LabelDatas.some(
+        (l) => l.RequiresAssembly && !l.BypassAssembly && !bypassAllAssembly,
+      );
+
+      let executorManpowerNik: string | undefined;
+
+      if (needsAssembly) {
+        const userRecord = await this.prisma.mTCUserManagement.findUnique({
+          where: { UserId: currentUser.username },
+          include: { Manpower: true },
+        });
+
+        if (userRecord?.Manpower?.Nik && userRecord.Manpower.Status) {
+          executorManpowerNik = userRecord.Manpower.Nik;
+        } else {
+          const manpowerByNik = await this.prisma.manPower.findUnique({
+            where: { Nik: currentUser.username },
+          });
+          if (manpowerByNik && manpowerByNik.Status) {
+            executorManpowerNik = manpowerByNik.Nik;
+          } else {
+            throw new BadRequestException(
+              `User ${currentUser.username} is not mapped to an active Manpower record. Assembly requires an active Manpower assignment.`,
+            );
+          }
+        }
+      }
+
+      let shoppingPicksCount = 0;
+      let assemblySessionsCount = 0;
+      let pokayokeScannedCount = 0;
+      let deliveriesCreatedCount = 0;
+
+      for (const demand of release.Demands) {
+        const reqStatus = await this.shoppingService.checkRequirement(
+          demand.Id,
+        );
+        if (reqStatus.summary.totalQtyRemaining > 0) {
+          for (const item of reqStatus.requirements) {
+            if (item.qtyRemaining > 0) {
+              const material = await this.prisma.material.findUnique({
+                where: { PartNumber: item.materialId },
+                select: { QtyRack: true, PartNumber: true, PartName: true },
+              });
+              if (!material || material.QtyRack < item.qtyRemaining) {
+                throw new BadRequestException(
+                  `Insufficient rack stock for material ${material?.PartNumber || item.materialId}. Required: ${item.qtyRemaining}, Available: ${material?.QtyRack ?? 0}. Process stopped without creating synthetic stock.`,
+                );
+              }
+
+              await this.shoppingService.create(
+                {
+                  requestId: randomUUID(),
+                  materialId: item.materialId,
+                  qtyPick: item.qtyRemaining,
+                  type: 'REGULER',
+                  purpose: 'STANDARD',
+                  forecastId: demand.Id,
+                  description: `Auto-complete pick for demand ${demand.Id}`,
+                },
+                currentUser.username,
+              );
+              shoppingPicksCount++;
+            }
+          }
+        }
+
+        const demandLabels = release.LabelDatas.filter(
+          (l) => l.ProductionDemandId === demand.Id,
+        );
+
+        for (const label of demandLabels) {
+          if (
+            label.RequiresAssembly &&
+            !label.BypassAssembly &&
+            !bypassAllAssembly
+          ) {
+            const sessions = await this.prisma.assemblySession.findMany({
+              where: { LabelDataId: label.Id },
+              include: { ManPower: true },
+              orderBy: { StartedAt: 'desc' },
+            });
+
+            const completed = sessions.find((s) => s.Status === 'COMPLETED');
+            if (!completed) {
+              const inProgress = sessions.find(
+                (s) => s.Status === 'IN_PROGRESS',
+              );
+              if (inProgress) {
+                await this.assemblyService.complete(
+                  inProgress.Id,
+                  {
+                    requestId: randomUUID(),
+                    manPowerNik:
+                      inProgress.ManPower?.Nik || executorManpowerNik!,
+                  },
+                  currentUser.username,
+                );
+                assemblySessionsCount++;
+              } else {
+                const session = await this.assemblyService.start(
+                  {
+                    requestId: randomUUID(),
+                    labelNumber: label.LabelNumber,
+                    manPowerNik: executorManpowerNik!,
+                  },
+                  currentUser.username,
+                  'INTERNAL',
+                );
+                await this.assemblyService.complete(
+                  session.Id,
+                  {
+                    requestId: randomUUID(),
+                    manPowerNik: executorManpowerNik!,
+                  },
+                  currentUser.username,
+                );
+                assemblySessionsCount++;
+              }
+            }
+          }
+
+          const freshLabel = await this.prisma.labelData.findUnique({
+            where: { Id: label.Id },
+            select: { Scanned: true },
+          });
+
+          if (!freshLabel?.Scanned) {
+            await this.pokayokeService.scan(
+              {
+                labelNumber: label.LabelNumber,
+                status: PokayokeCompareStatus.SUKSES,
+              },
+              currentUser.username,
+            );
+            pokayokeScannedCount++;
+          }
+
+          const existingDelivery = await this.prisma.deliveryHistory.findUnique(
+            {
+              where: { LabelDataId: label.LabelNumber },
+            },
+          );
+
+          if (!existingDelivery) {
+            await this.deliveryService.create(
+              {
+                labelNumber: label.LabelNumber,
+              },
+              currentUser.username,
+            );
+            deliveriesCreatedCount++;
+          }
+        }
+      }
+
+      const firstReleaseTrace =
+        await this.prisma.productionTraceEvent.findFirst({
+          where: {
+            ReleaseId: releaseId,
+            Type: 'RELEASE_STATUS_CHANGED',
+          },
+          orderBy: { CreatedAt: 'asc' },
+        });
+      const startTime = firstReleaseTrace
+        ? firstReleaseTrace.CreatedAt.getTime()
+        : release.CreatedAt.getTime();
+      const durationMinutes = Math.max(
+        1,
+        Math.round((Date.now() - startTime) / 60000),
+      );
+
+      const attachmentCount =
+        await this.prisma.productionReleaseAttachment.count({
+          where: { ProductionReleaseId: releaseId },
+        });
+
+      await this.update(
+        releaseId,
+        {
+          status: ProductionStatus.COMPLETED,
+          totalProductionMinutes: durationMinutes,
+          isNoAttachment:
+            release.IsNoAttachment || attachmentCount > 0
+              ? release.IsNoAttachment
+              : true,
+        },
+        currentUser.username,
+      );
+
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Autocomplete completed successfully for release ${release.ReleaseNumber}. Duration: ${durationMinutes} mins.`,
+        type: 'INFO',
+        location: 'production-release.service.ts:executeAutocompleteAll',
+      });
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+
+      return {
+        releaseId: release.Id,
+        releaseNumber: release.ReleaseNumber,
+        status: ProductionStatus.COMPLETED,
+        totalProductionMinutes: durationMinutes,
+        demandsProcessed: release.Demands.length,
+        shoppingPicksCompleted: shoppingPicksCount,
+        assemblySessionsCompleted: assemblySessionsCount,
+        pokayokeScanned: pokayokeScannedCount,
+        deliveriesCreated: deliveriesCreatedCount,
+        message: `Production release ${release.ReleaseNumber} has been successfully autocompleted and marked COMPLETED.`,
+      };
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'ERROR',
+          location: 'production-release.service.ts:executeAutocompleteAll',
+        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
   }
 }

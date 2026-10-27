@@ -8,6 +8,11 @@ import { ProductionReleaseService } from './production-release.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
 import { NasUploadService } from '../../common/utils/nas-upload.service';
+import { ShoppingService } from '../shopping/shopping.service';
+import { AssemblyService } from '../assembly/assembly.service';
+import { PokayokeService } from '../pokayoke/pokayoke.service';
+import { DeliveryService } from '../delivery/delivery.service';
+import { FonnteService } from '../../common/utils/fonnte.service';
 import {
   BadRequestException,
   ConflictException,
@@ -26,6 +31,11 @@ describe('ProductionReleaseService', () => {
   let prismaService: any;
   let logService: any;
   let nasUploadService: any;
+  let shoppingService: any;
+  let assemblyService: any;
+  let pokayokeService: any;
+  let deliveryService: any;
+  let fonnteService: any;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -92,6 +102,21 @@ describe('ProductionReleaseService', () => {
         count: jest.fn(),
         delete: jest.fn(),
       },
+      mTCUserManagement: {
+        findMany: jest.fn(),
+        findFirst: jest.fn(),
+        findUnique: jest.fn(),
+      },
+      productionReleaseApprovalChallenge: {
+        findFirst: jest.fn(),
+        findUnique: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+        updateMany: jest.fn(),
+      },
+      manPower: {
+        findUnique: jest.fn(),
+      },
       $transaction: jest.fn(),
     };
 
@@ -110,12 +135,46 @@ describe('ProductionReleaseService', () => {
       deleteFile: jest.fn(),
     };
 
+    shoppingService = {
+      checkRequirement: jest.fn().mockResolvedValue({
+        summary: { totalQtyRemaining: 0 },
+        requirements: [],
+      }),
+      create: jest.fn().mockResolvedValue({}),
+    };
+
+    assemblyService = {
+      start: jest.fn().mockResolvedValue({ Id: 'session-1' }),
+      complete: jest
+        .fn()
+        .mockResolvedValue({ Id: 'session-1', Status: 'COMPLETED' }),
+    };
+
+    pokayokeService = {
+      scan: jest.fn().mockResolvedValue({}),
+    };
+
+    deliveryService = {
+      create: jest.fn().mockResolvedValue({}),
+    };
+
+    fonnteService = {
+      sendWhatsApp: jest
+        .fn()
+        .mockResolvedValue({ success: true, messageId: 'msg-1' }),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductionReleaseService,
         { provide: PrismaService, useValue: prismaService },
         { provide: LogProcessService, useValue: logService },
         { provide: NasUploadService, useValue: nasUploadService },
+        { provide: ShoppingService, useValue: shoppingService },
+        { provide: AssemblyService, useValue: assemblyService },
+        { provide: PokayokeService, useValue: pokayokeService },
+        { provide: DeliveryService, useValue: deliveryService },
+        { provide: FonnteService, useValue: fonnteService },
       ],
     }).compile();
 
@@ -1697,6 +1756,147 @@ describe('ProductionReleaseService', () => {
       await expect(
         service.deleteAttachment('rel-1', 999, 'testuser'),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('getAutocompleteApprovers', () => {
+    it('returns masked phone numbers and role details for active managers', async () => {
+      prismaService.mTCUserManagement.findMany.mockResolvedValue([
+        {
+          Id: 'usr-1',
+          UserId: 'mgr-01',
+          Name: 'Manager Satu',
+          PhoneNumber: '081234567890',
+          Role: { RoleName: 'MANAGER' },
+        },
+      ]);
+
+      const result = await service.getAutocompleteApprovers();
+
+      expect(result).toEqual([
+        {
+          userId: 'mgr-01',
+          name: 'Manager Satu',
+          roleName: 'MANAGER',
+          maskedPhoneNumber: '0812****7890',
+        },
+      ]);
+    });
+  });
+
+  describe('requestAutocompleteOtp', () => {
+    it('rejects requesting OTP for a non-RELEASED release', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        Id: 'rel-1',
+        Status: ProductionStatus.DRAFT,
+      });
+
+      await expect(
+        service.requestAutocompleteOtp(
+          'rel-1',
+          { approverUserId: 'mgr-01' },
+          'requester',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('rejects requesting OTP when approver is not active manager with phone', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        Id: 'rel-1',
+        Status: ProductionStatus.RELEASED,
+      });
+      prismaService.mTCUserManagement.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.requestAutocompleteOtp(
+          'rel-1',
+          { approverUserId: 'mgr-01' },
+          'requester',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('sends OTP WhatsApp and creates challenge with 5-minute expiry', async () => {
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        Id: 'rel-1',
+        ReleaseNumber: 'PR-2026-001',
+        Status: ProductionStatus.RELEASED,
+      });
+      prismaService.mTCUserManagement.findFirst.mockResolvedValue({
+        Id: 'usr-1',
+        UserId: 'mgr-01',
+        Name: 'Manager Satu',
+        PhoneNumber: '081234567890',
+        Role: { RoleName: 'MANAGER' },
+      });
+      prismaService.productionReleaseApprovalChallenge.findFirst.mockResolvedValue(
+        null,
+      );
+      prismaService.productionReleaseApprovalChallenge.create.mockResolvedValue(
+        {
+          Id: 'challenge-uuid',
+        },
+      );
+
+      const result = await service.requestAutocompleteOtp(
+        'rel-1',
+        { approverUserId: 'mgr-01' },
+        'requester',
+      );
+
+      expect(result.challengeId).toBe('challenge-uuid');
+      expect(result.approverName).toBe('Manager Satu');
+      expect(result.maskedPhoneNumber).toBe('0812****7890');
+      expect(fonnteService.sendWhatsApp).toHaveBeenCalledWith(
+        '081234567890',
+        expect.stringContaining('ANSEI - APPROVAL OTP'),
+      );
+    });
+  });
+
+  describe('executeAutocompleteAll', () => {
+    it('rejects execution when OTP code is incorrect and increments attempt', async () => {
+      const crypto = require('node:crypto');
+      const codeHash = crypto
+        .createHash('sha256')
+        .update('123456')
+        .digest('hex');
+      prismaService.productionRelease.findUnique.mockResolvedValue({
+        Id: 'rel-1',
+        Status: ProductionStatus.RELEASED,
+        Demands: [],
+        LabelDatas: [],
+      });
+      prismaService.productionReleaseApprovalChallenge.findUnique.mockResolvedValue(
+        {
+          Id: 'chal-1',
+          ProductionReleaseId: 'rel-1',
+          RequesterUserId: 'requester',
+          Status: 'PENDING',
+          AttemptCount: 0,
+          MaxAttempts: 3,
+          ExpiresAt: new Date(Date.now() + 60000),
+          CodeHash: codeHash,
+        },
+      );
+
+      logService.startProcess.mockResolvedValue({ ProcessId: 'PR-1' });
+
+      await expect(
+        service.executeAutocompleteAll(
+          'rel-1',
+          { challengeId: 'chal-1', otp: '999999' },
+          { username: 'requester', name: 'Requester' } as any,
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      expect(
+        prismaService.productionReleaseApprovalChallenge.update,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ AttemptCount: 1 }),
+        }),
+      );
     });
   });
 });

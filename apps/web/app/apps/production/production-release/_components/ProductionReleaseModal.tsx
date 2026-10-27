@@ -3,7 +3,7 @@
 
 import React, {useRef, useState} from "react";
 import {App, Button} from "antd";
-import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined, CheckCircleOutlined} from "@ant-design/icons";
 import {useDispatch} from "react-redux";
 import {AppDispatch} from "@/store";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@/store/features/production/productionRelease/productionReleaseSlice";
 import DetailProductionReleaseModal from "./DetailProductionReleaseModal";
 import EditProductionReleaseModal from "./EditProductionReleaseModal";
+import AutocompleteReleaseModal from "./AutocompleteReleaseModal";
 
 interface Props {
     open: boolean;
@@ -26,6 +27,7 @@ export default function ProductionReleaseModal({open, data, onClose, onUpdated, 
     const dispatch = useDispatch<AppDispatch>();
     const [editing, setEditing] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [autocompleteOpen, setAutocompleteOpen] = useState(false);
     const deleteInFlight = useRef(false);
 
     if (!data) return null;
@@ -68,16 +70,32 @@ export default function ProductionReleaseModal({open, data, onClose, onUpdated, 
                                            }}/>;
     }
 
-    return <DetailProductionReleaseModal
-        visible={open}
-        data={data}
-        busy={deleting}
-        onClose={onClose}
-        footer={[
-            data.Status === "DRAFT" && <Button key="delete" danger icon={<DeleteOutlined/>} loading={deleting}
-                                               onClick={handleDelete}>Delete</Button>,
-            <Button key="edit" type="primary" icon={<EditOutlined/>} disabled={deleting}
-                    onClick={() => setEditing(true)}>Edit</Button>,
-        ]}
-    />;
+    return (
+        <>
+            <DetailProductionReleaseModal
+                visible={open}
+                data={data}
+                busy={deleting}
+                onClose={onClose}
+                footer={[
+                    data.Status === "DRAFT" && <Button key="delete" danger icon={<DeleteOutlined/>} loading={deleting}
+                                                       onClick={handleDelete}>Delete</Button>,
+                    data.Status === "RELEASED" && <Button key="autocomplete" icon={<CheckCircleOutlined/>}
+                                                          onClick={() => setAutocompleteOpen(true)}>Bypass & Complete All</Button>,
+                    <Button key="edit" type="primary" icon={<EditOutlined/>} disabled={deleting}
+                            onClick={() => setEditing(true)}>Edit</Button>,
+                ]}
+            />
+            <AutocompleteReleaseModal
+                open={autocompleteOpen}
+                release={data}
+                onClose={() => setAutocompleteOpen(false)}
+                onSuccess={() => {
+                    setAutocompleteOpen(false);
+                    onUpdated();
+                    onClose();
+                }}
+            />
+        </>
+    );
 }

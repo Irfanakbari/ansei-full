@@ -7,3 +7,5 @@ export { ProductionReleaseQueryDto } from './production-release-query.dto';
 export { CancelProductionReleaseDto } from './cancel-production-release.dto';
 export { AmendProductionReleaseForecastsDto } from './amend-production-release-forecasts.dto';
 export { ProductionReleaseForecastCandidatesQueryDto } from './production-release-forecast-candidates-query.dto';
+export { RequestAutocompleteOtpDto } from './request-autocomplete-otp.dto';
+export { ExecuteAutocompleteDto } from './execute-autocomplete.dto';

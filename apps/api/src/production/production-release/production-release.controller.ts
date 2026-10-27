@@ -28,6 +28,8 @@ import {
   CancelProductionReleaseDto,
   AmendProductionReleaseForecastsDto,
   ProductionReleaseForecastCandidatesQueryDto,
+  RequestAutocompleteOtpDto,
+  ExecuteAutocompleteDto,
 } from './dto';
 import {
   AttachmentResponseEntity,
@@ -38,6 +40,9 @@ import {
   ProductionReleaseDetailEntity,
   ProductionReleaseEntity,
   PaginatedProductionReleaseEntity,
+  AutocompleteApproverEntity,
+  RequestAutocompleteOtpResponseEntity,
+  ExecuteAutocompleteResponseEntity,
 } from './entities';
 import { Permission } from '../../auth/decorators/permission.decorator';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
@@ -105,6 +110,13 @@ export class ProductionReleaseController {
     @Query() query: ProductionReleaseForecastCandidatesQueryDto,
   ) {
     return this.productionReleaseService.getCandidateIds(query, id);
+  }
+
+  @Get('autocomplete/approvers')
+  @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
+  @ApiResponse({ status: 200, type: [AutocompleteApproverEntity] })
+  async getAutocompleteApprovers(@CurrentUser() _user: ICurrentUser) {
+    return this.productionReleaseService.getAutocompleteApprovers();
   }
 
   @Get(':id')
@@ -184,6 +196,32 @@ export class ProductionReleaseController {
     @CurrentUser() user: ICurrentUser,
   ) {
     return this.productionReleaseService.cancel(id, dto, user.username);
+  }
+
+  @Post(':id/autocomplete/request-otp')
+  @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
+  @ApiResponse({ status: 201, type: RequestAutocompleteOtpResponseEntity })
+  async requestAutocompleteOtp(
+    @Param('id') id: string,
+    @Body() dto: RequestAutocompleteOtpDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.productionReleaseService.requestAutocompleteOtp(
+      id,
+      dto,
+      user.username,
+    );
+  }
+
+  @Post(':id/autocomplete/execute')
+  @Permission('IPCS.PRODUCTION_RELEASE_UPDATE')
+  @ApiResponse({ status: 200, type: ExecuteAutocompleteResponseEntity })
+  async executeAutocomplete(
+    @Param('id') id: string,
+    @Body() dto: ExecuteAutocompleteDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.productionReleaseService.executeAutocompleteAll(id, dto, user);
   }
 
   @Post(':id/forecasts/tag')
