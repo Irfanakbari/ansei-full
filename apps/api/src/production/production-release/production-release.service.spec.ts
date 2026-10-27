@@ -4,7 +4,10 @@ jest.mock('../../common/helpers/bom-snapshot.helper', () => ({
   latestSnapshot: jest.fn().mockResolvedValue(null),
 }));
 import { Test, TestingModule } from '@nestjs/testing';
-import { ProductionReleaseService } from './production-release.service';
+import {
+  ProductionReleaseService,
+  requiresAssemblyCompletion,
+} from './production-release.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LogProcessService } from '../../common/log-process/log-process.service';
 import { NasUploadService } from '../../common/utils/nas-upload.service';
@@ -188,6 +191,32 @@ describe('ProductionReleaseService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('requiresAssemblyCompletion', () => {
+    it('requires assembly when the label snapshot requires it and is not bypassed', () => {
+      expect(
+        requiresAssemblyCompletion({
+          RequiresAssembly: true,
+          BypassAssembly: false,
+        }),
+      ).toBe(true);
+    });
+
+    it('skips assembly only when the label snapshot itself is bypassed', () => {
+      expect(
+        requiresAssemblyCompletion({
+          RequiresAssembly: true,
+          BypassAssembly: true,
+        }),
+      ).toBe(false);
+      expect(
+        requiresAssemblyCompletion({
+          RequiresAssembly: false,
+          BypassAssembly: false,
+        }),
+      ).toBe(false);
+    });
   });
 
   describe('getForecastList rack location', () => {

@@ -63,6 +63,13 @@ import type { ICurrentUser } from '../../auth/interfaces/current-user.interface'
 // Allowed file extensions and max size
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
+export function requiresAssemblyCompletion(label: {
+  RequiresAssembly: boolean | null;
+  BypassAssembly: boolean;
+}): boolean {
+  return label.RequiresAssembly === true && !label.BypassAssembly;
+}
+
 @Injectable()
 export class ProductionReleaseService {
   constructor(
@@ -2840,16 +2847,9 @@ export class ProductionReleaseService {
         );
       }
 
-      const bypassSetting = await this.prisma.assemblyProcessSetting.findUnique(
-        {
-          where: { Id: 1 },
-        },
-      );
-      const bypassAllAssembly = bypassSetting?.BypassAllAssembly ?? false;
-
-      const needsAssembly = release.LabelDatas.some(
-        (l) => l.RequiresAssembly && !l.BypassAssembly && !bypassAllAssembly,
-      );
+      // Assembly requirement and bypass are immutable label snapshots taken when
+      // the release was activated. Do not re-read the mutable global setting here.
+      const needsAssembly = release.LabelDatas.some(requiresAssemblyCompletion);
 
       let executorManpowerNik: string | undefined;
 
@@ -2919,11 +2919,7 @@ export class ProductionReleaseService {
         );
 
         for (const label of demandLabels) {
-          if (
-            label.RequiresAssembly &&
-            !label.BypassAssembly &&
-            !bypassAllAssembly
-          ) {
+          if (requiresAssemblyCompletion(label)) {
             const sessions = await this.prisma.assemblySession.findMany({
               where: { LabelDataId: label.Id },
               include: { ManPower: true },
