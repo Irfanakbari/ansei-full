@@ -55,6 +55,8 @@ interface MaterialState {
   data: MaterialEntity[];
   options: MaterialOption[];
   optionsLoading: boolean;
+  transferTargets: MaterialEntity[];
+  transferTargetsLoading: boolean;
   loading: boolean;
   error: string | null;
   query: MaterialQuery;
@@ -77,6 +79,8 @@ const initialState: MaterialState = {
   data: [],
   options: [],
   optionsLoading: false,
+  transferTargets: [],
+  transferTargetsLoading: false,
   loading: false,
   error: null,
   query: { page: 1, limit: 50, search: "", supplierId: undefined },
@@ -148,6 +152,41 @@ export const fetchMaterialOptions = createAsyncThunk<
     );
   }
 });
+
+export const fetchMaterialTransferTargets = createAsyncThunk<
+  MaterialEntity[],
+  void,
+  { rejectValue: string }
+>("material/fetchTransferTargets", async (_, { rejectWithValue }) => {
+  try {
+    const pageSize = 100;
+    const first = await get<PaginatedApiSuccessEnvelope<MaterialEntity>>(
+      "/master/material",
+      { params: { page: 1, limit: pageSize } },
+    );
+    const materials = Array.isArray(first.data) ? [...first.data] : [];
+    const totalPages = Math.max(1, first.meta?.totalPages ?? 1);
+
+    for (let page = 2; page <= totalPages; page += 1) {
+      const response = await get<PaginatedApiSuccessEnvelope<MaterialEntity>>(
+        "/master/material",
+        { params: { page, limit: pageSize } },
+      );
+      if (Array.isArray(response.data)) materials.push(...response.data);
+    }
+
+    return materials;
+  } catch (error: unknown) {
+    return rejectWithValue(
+      getApiErrorMessage(error, "Failed to fetch transfer target materials"),
+    );
+  }
+});
+
+export const clearMaterialTransferTargets = createAsyncThunk(
+  "material/clearTransferTargets",
+  async () => {},
+);
 
 export const fetchMaterialByPartNumber = createAsyncThunk<
   ApiSuccessEnvelope<MaterialEntity>,
@@ -361,6 +400,24 @@ const materialSlice = createSlice({
       .addCase(fetchMaterialOptions.rejected, (state, action) => {
         state.optionsLoading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchMaterialTransferTargets.pending, (state) => {
+        state.transferTargetsLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchMaterialTransferTargets.fulfilled, (state, action) => {
+        state.transferTargetsLoading = false;
+        state.transferTargets = Array.isArray(action.payload)
+          ? action.payload
+          : [];
+      })
+      .addCase(fetchMaterialTransferTargets.rejected, (state, action) => {
+        state.transferTargetsLoading = false;
+        state.transferTargets = [];
+        state.error = action.payload as string;
+      })
+      .addCase(clearMaterialTransferTargets.fulfilled, (state) => {
+        state.transferTargets = [];
       });
   },
 });

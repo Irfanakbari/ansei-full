@@ -3,13 +3,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Input, InputNumber, Select, App, Alert } from 'antd';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '@/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
 import {
+    clearMaterialTransferTargets,
+    fetchMaterialTransferTargets,
     MaterialEntity,
     transferMaterialStock
 } from '@/store/features/master/materialSlice';
-import { get, type PaginatedApiSuccessEnvelope } from '@/store/utils/apiService';
 
 interface Props {
     visible: boolean;
@@ -23,8 +24,9 @@ const TransferMaterialStockModal: React.FC<Props> = ({ visible, onClose, onSucce
     const dispatch = useDispatch<AppDispatch>();
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [fetchingTargets, setFetchingTargets] = useState(false);
-    const [targetMaterials, setTargetMaterials] = useState<MaterialEntity[]>([]);
+    const { transferTargets, transferTargetsLoading } = useSelector(
+        (state: RootState) => state.material,
+    );
     const [selectedLocation, setSelectedLocation] = useState<'WAREHOUSE' | 'RACK'>('WAREHOUSE');
 
     const partNumber = data?.PartNumber;
@@ -38,34 +40,19 @@ const TransferMaterialStockModal: React.FC<Props> = ({ visible, onClose, onSucce
                 targetPartNumber: undefined,
                 reason: '',
             });
-            let alive = true;
-            setFetchingTargets(true);
-            void (async () => {
-                try {
-                    const res = await get<PaginatedApiSuccessEnvelope<MaterialEntity>>('/master/material', {
-                        params: { limit: 200 }
-                    });
-                    if (alive && Array.isArray(res.data)) {
-                        setTargetMaterials(res.data);
-                    }
-                } catch {
-                    // ignore
-                } finally {
-                    if (alive) setFetchingTargets(false);
-                }
-            })();
+            void dispatch(fetchMaterialTransferTargets());
             return () => {
-                alive = false;
+                void dispatch(clearMaterialTransferTargets());
             };
         }
-    }, [visible, partNumber, form]);
+    }, [visible, partNumber, form, dispatch]);
 
     if (!data) return null;
 
     const availableStock = selectedLocation === 'WAREHOUSE' ? data.QtyWarehouse : data.QtyRack;
 
     // Filter candidate target materials: must be active and not the source material
-    const targetOptions = targetMaterials
+    const targetOptions = transferTargets
         .filter((m) => m.IsActive && m.PartNumber !== data.PartNumber)
         .map((m) => ({
             value: m.PartNumber,
@@ -169,7 +156,7 @@ const TransferMaterialStockModal: React.FC<Props> = ({ visible, onClose, onSucce
                     <Select
                         placeholder="Select active target material"
                         showSearch
-                        loading={fetchingTargets}
+                        loading={transferTargetsLoading}
                         optionFilterProp="label"
                         options={targetOptions}
                     />
