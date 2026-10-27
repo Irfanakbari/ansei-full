@@ -2853,7 +2853,17 @@ export class ProductionReleaseService {
 
       let executorManpowerNik: string | undefined;
 
-      if (needsAssembly) {
+      if (needsAssembly && dto.manpowerNik) {
+        const selectedManpower = await this.prisma.manPower.findUnique({
+          where: { Nik: dto.manpowerNik },
+        });
+        if (!selectedManpower?.Status) {
+          throw new BadRequestException(
+            'Selected manpower is not found or inactive.',
+          );
+        }
+        executorManpowerNik = selectedManpower.Nik;
+      } else if (needsAssembly) {
         const userRecord = await this.prisma.mTCUserManagement.findUnique({
           where: { UserId: currentUser.username },
           include: { Manpower: true },
@@ -2869,7 +2879,7 @@ export class ProductionReleaseService {
             executorManpowerNik = manpowerByNik.Nik;
           } else {
             throw new BadRequestException(
-              `User ${currentUser.username} is not mapped to an active Manpower record. Assembly requires an active Manpower assignment.`,
+              `User ${currentUser.username} is not mapped to an active Manpower record. Select an active manpower operator for assembly.`,
             );
           }
         }
@@ -2951,6 +2961,7 @@ export class ProductionReleaseService {
                   },
                   currentUser.username,
                   'INTERNAL',
+                  currentUser.username,
                 );
                 await this.assemblyService.complete(
                   session.Id,

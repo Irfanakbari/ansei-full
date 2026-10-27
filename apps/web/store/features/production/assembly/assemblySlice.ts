@@ -12,8 +12,9 @@ import {
 export interface AssemblySession {
   SAPIntegration?: SapOperationStatus;
   Id: string;
-  ManPowerUid: string;
+  ManPowerUid: string | null;
   ManPowerName: string;
+  UserId?: string | null;
   Status: "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
   StartedAt: string;
   EndedAt: string | null;

@@ -39,6 +39,7 @@ export type AssemblySessionMinAggregateOutputType = {
   LabelDataId: number | null
   ManPowerUid: string | null
   ManPowerName: string | null
+  UserId: string | null
   Status: $Enums.AssemblyStatus | null
   StartedAt: Date | null
   EndedAt: Date | null
@@ -57,6 +58,7 @@ export type AssemblySessionMaxAggregateOutputType = {
   LabelDataId: number | null
   ManPowerUid: string | null
   ManPowerName: string | null
+  UserId: string | null
   Status: $Enums.AssemblyStatus | null
   StartedAt: Date | null
   EndedAt: Date | null
@@ -75,6 +77,7 @@ export type AssemblySessionCountAggregateOutputType = {
   LabelDataId: number
   ManPowerUid: number
   ManPowerName: number
+  UserId: number
   Status: number
   StartedAt: number
   EndedAt: number
@@ -103,6 +106,7 @@ export type AssemblySessionMinAggregateInputType = {
   LabelDataId?: true
   ManPowerUid?: true
   ManPowerName?: true
+  UserId?: true
   Status?: true
   StartedAt?: true
   EndedAt?: true
@@ -121,6 +125,7 @@ export type AssemblySessionMaxAggregateInputType = {
   LabelDataId?: true
   ManPowerUid?: true
   ManPowerName?: true
+  UserId?: true
   Status?: true
   StartedAt?: true
   EndedAt?: true
@@ -139,6 +144,7 @@ export type AssemblySessionCountAggregateInputType = {
   LabelDataId?: true
   ManPowerUid?: true
   ManPowerName?: true
+  UserId?: true
   Status?: true
   StartedAt?: true
   EndedAt?: true
@@ -244,6 +250,7 @@ export type AssemblySessionGroupByOutputType = {
   LabelDataId: number
   ManPowerUid: string | null
   ManPowerName: string
+  UserId: string | null
   Status: $Enums.AssemblyStatus
   StartedAt: Date
   EndedAt: Date | null
@@ -285,6 +292,7 @@ export type AssemblySessionWhereInput = {
   LabelDataId?: Prisma.IntFilter<"AssemblySession"> | number
   ManPowerUid?: Prisma.StringNullableFilter<"AssemblySession"> | string | null
   ManPowerName?: Prisma.StringFilter<"AssemblySession"> | string
+  UserId?: Prisma.StringNullableFilter<"AssemblySession"> | string | null
   Status?: Prisma.EnumAssemblyStatusFilter<"AssemblySession"> | $Enums.AssemblyStatus
   StartedAt?: Prisma.DateTimeFilter<"AssemblySession"> | Date | string
   EndedAt?: Prisma.DateTimeNullableFilter<"AssemblySession"> | Date | string | null
@@ -298,6 +306,7 @@ export type AssemblySessionWhereInput = {
   Channel?: Prisma.StringFilter<"AssemblySession"> | string
   LabelData?: Prisma.XOR<Prisma.LabelDataScalarRelationFilter, Prisma.LabelDataWhereInput>
   ManPower?: Prisma.XOR<Prisma.ManPowerNullableScalarRelationFilter, Prisma.ManPowerWhereInput> | null
+  User?: Prisma.XOR<Prisma.MTCUserManagementNullableScalarRelationFilter, Prisma.MTCUserManagementWhereInput> | null
 }
 
 export type AssemblySessionOrderByWithRelationInput = {
@@ -305,6 +314,7 @@ export type AssemblySessionOrderByWithRelationInput = {
   LabelDataId?: Prisma.SortOrder
   ManPowerUid?: Prisma.SortOrderInput | Prisma.SortOrder
   ManPowerName?: Prisma.SortOrder
+  UserId?: Prisma.SortOrderInput | Prisma.SortOrder
   Status?: Prisma.SortOrder
   StartedAt?: Prisma.SortOrder
   EndedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -318,6 +328,7 @@ export type AssemblySessionOrderByWithRelationInput = {
   Channel?: Prisma.SortOrder
   LabelData?: Prisma.LabelDataOrderByWithRelationInput
   ManPower?: Prisma.ManPowerOrderByWithRelationInput
+  User?: Prisma.MTCUserManagementOrderByWithRelationInput
 }
 
 export type AssemblySessionWhereUniqueInput = Prisma.AtLeast<{
@@ -330,6 +341,7 @@ export type AssemblySessionWhereUniqueInput = Prisma.AtLeast<{
   LabelDataId?: Prisma.IntFilter<"AssemblySession"> | number
   ManPowerUid?: Prisma.StringNullableFilter<"AssemblySession"> | string | null
   ManPowerName?: Prisma.StringFilter<"AssemblySession"> | string
+  UserId?: Prisma.StringNullableFilter<"AssemblySession"> | string | null
   Status?: Prisma.EnumAssemblyStatusFilter<"AssemblySession"> | $Enums.AssemblyStatus
   StartedAt?: Prisma.DateTimeFilter<"AssemblySession"> | Date | string
   EndedAt?: Prisma.DateTimeNullableFilter<"AssemblySession"> | Date | string | null
@@ -341,6 +353,7 @@ export type AssemblySessionWhereUniqueInput = Prisma.AtLeast<{
   Channel?: Prisma.StringFilter<"AssemblySession"> | string
   LabelData?: Prisma.XOR<Prisma.LabelDataScalarRelationFilter, Prisma.LabelDataWhereInput>
   ManPower?: Prisma.XOR<Prisma.ManPowerNullableScalarRelationFilter, Prisma.ManPowerWhereInput> | null
+  User?: Prisma.XOR<Prisma.MTCUserManagementNullableScalarRelationFilter, Prisma.MTCUserManagementWhereInput> | null
 }, "Id" | "StartRequestId" | "CompleteRequestId">
 
 export type AssemblySessionOrderByWithAggregationInput = {
@@ -348,6 +361,7 @@ export type AssemblySessionOrderByWithAggregationInput = {
   LabelDataId?: Prisma.SortOrder
   ManPowerUid?: Prisma.SortOrderInput | Prisma.SortOrder
   ManPowerName?: Prisma.SortOrder
+  UserId?: Prisma.SortOrderInput | Prisma.SortOrder
   Status?: Prisma.SortOrder
   StartedAt?: Prisma.SortOrder
   EndedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -374,6 +388,7 @@ export type AssemblySessionScalarWhereWithAggregatesInput = {
   LabelDataId?: Prisma.IntWithAggregatesFilter<"AssemblySession"> | number
   ManPowerUid?: Prisma.StringNullableWithAggregatesFilter<"AssemblySession"> | string | null
   ManPowerName?: Prisma.StringWithAggregatesFilter<"AssemblySession"> | string
+  UserId?: Prisma.StringNullableWithAggregatesFilter<"AssemblySession"> | string | null
   Status?: Prisma.EnumAssemblyStatusWithAggregatesFilter<"AssemblySession"> | $Enums.AssemblyStatus
   StartedAt?: Prisma.DateTimeWithAggregatesFilter<"AssemblySession"> | Date | string
   EndedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AssemblySession"> | Date | string | null
@@ -403,6 +418,7 @@ export type AssemblySessionCreateInput = {
   Channel: string
   LabelData: Prisma.LabelDataCreateNestedOneWithoutAssemblySessionsInput
   ManPower?: Prisma.ManPowerCreateNestedOneWithoutAssemblySessionsInput
+  User?: Prisma.MTCUserManagementCreateNestedOneWithoutAssemblySessionsInput
 }
 
 export type AssemblySessionUncheckedCreateInput = {
@@ -410,6 +426,7 @@ export type AssemblySessionUncheckedCreateInput = {
   LabelDataId: number
   ManPowerUid?: string | null
   ManPowerName: string
+  UserId?: string | null
   Status?: $Enums.AssemblyStatus
   StartedAt?: Date | string
   EndedAt?: Date | string | null
@@ -439,6 +456,7 @@ export type AssemblySessionUpdateInput = {
   Channel?: Prisma.StringFieldUpdateOperationsInput | string
   LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutAssemblySessionsNestedInput
   ManPower?: Prisma.ManPowerUpdateOneWithoutAssemblySessionsNestedInput
+  User?: Prisma.MTCUserManagementUpdateOneWithoutAssemblySessionsNestedInput
 }
 
 export type AssemblySessionUncheckedUpdateInput = {
@@ -446,6 +464,7 @@ export type AssemblySessionUncheckedUpdateInput = {
   LabelDataId?: Prisma.IntFieldUpdateOperationsInput | number
   ManPowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
+  UserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
   StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -464,6 +483,7 @@ export type AssemblySessionCreateManyInput = {
   LabelDataId: number
   ManPowerUid?: string | null
   ManPowerName: string
+  UserId?: string | null
   Status?: $Enums.AssemblyStatus
   StartedAt?: Date | string
   EndedAt?: Date | string | null
@@ -498,6 +518,7 @@ export type AssemblySessionUncheckedUpdateManyInput = {
   LabelDataId?: Prisma.IntFieldUpdateOperationsInput | number
   ManPowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
+  UserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
   StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -526,6 +547,7 @@ export type AssemblySessionCountOrderByAggregateInput = {
   LabelDataId?: Prisma.SortOrder
   ManPowerUid?: Prisma.SortOrder
   ManPowerName?: Prisma.SortOrder
+  UserId?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   StartedAt?: Prisma.SortOrder
   EndedAt?: Prisma.SortOrder
@@ -548,6 +570,7 @@ export type AssemblySessionMaxOrderByAggregateInput = {
   LabelDataId?: Prisma.SortOrder
   ManPowerUid?: Prisma.SortOrder
   ManPowerName?: Prisma.SortOrder
+  UserId?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   StartedAt?: Prisma.SortOrder
   EndedAt?: Prisma.SortOrder
@@ -566,6 +589,7 @@ export type AssemblySessionMinOrderByAggregateInput = {
   LabelDataId?: Prisma.SortOrder
   ManPowerUid?: Prisma.SortOrder
   ManPowerName?: Prisma.SortOrder
+  UserId?: Prisma.SortOrder
   Status?: Prisma.SortOrder
   StartedAt?: Prisma.SortOrder
   EndedAt?: Prisma.SortOrder
@@ -671,6 +695,48 @@ export type EnumAssemblyStatusFieldUpdateOperationsInput = {
   set?: $Enums.AssemblyStatus
 }
 
+export type AssemblySessionCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.AssemblySessionCreateWithoutUserInput, Prisma.AssemblySessionUncheckedCreateWithoutUserInput> | Prisma.AssemblySessionCreateWithoutUserInput[] | Prisma.AssemblySessionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.AssemblySessionCreateOrConnectWithoutUserInput | Prisma.AssemblySessionCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.AssemblySessionCreateManyUserInputEnvelope
+  connect?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+}
+
+export type AssemblySessionUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.AssemblySessionCreateWithoutUserInput, Prisma.AssemblySessionUncheckedCreateWithoutUserInput> | Prisma.AssemblySessionCreateWithoutUserInput[] | Prisma.AssemblySessionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.AssemblySessionCreateOrConnectWithoutUserInput | Prisma.AssemblySessionCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.AssemblySessionCreateManyUserInputEnvelope
+  connect?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+}
+
+export type AssemblySessionUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.AssemblySessionCreateWithoutUserInput, Prisma.AssemblySessionUncheckedCreateWithoutUserInput> | Prisma.AssemblySessionCreateWithoutUserInput[] | Prisma.AssemblySessionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.AssemblySessionCreateOrConnectWithoutUserInput | Prisma.AssemblySessionCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.AssemblySessionUpsertWithWhereUniqueWithoutUserInput | Prisma.AssemblySessionUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.AssemblySessionCreateManyUserInputEnvelope
+  set?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+  disconnect?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+  delete?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+  connect?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+  update?: Prisma.AssemblySessionUpdateWithWhereUniqueWithoutUserInput | Prisma.AssemblySessionUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.AssemblySessionUpdateManyWithWhereWithoutUserInput | Prisma.AssemblySessionUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.AssemblySessionScalarWhereInput | Prisma.AssemblySessionScalarWhereInput[]
+}
+
+export type AssemblySessionUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.AssemblySessionCreateWithoutUserInput, Prisma.AssemblySessionUncheckedCreateWithoutUserInput> | Prisma.AssemblySessionCreateWithoutUserInput[] | Prisma.AssemblySessionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.AssemblySessionCreateOrConnectWithoutUserInput | Prisma.AssemblySessionCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.AssemblySessionUpsertWithWhereUniqueWithoutUserInput | Prisma.AssemblySessionUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.AssemblySessionCreateManyUserInputEnvelope
+  set?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+  disconnect?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+  delete?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+  connect?: Prisma.AssemblySessionWhereUniqueInput | Prisma.AssemblySessionWhereUniqueInput[]
+  update?: Prisma.AssemblySessionUpdateWithWhereUniqueWithoutUserInput | Prisma.AssemblySessionUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.AssemblySessionUpdateManyWithWhereWithoutUserInput | Prisma.AssemblySessionUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.AssemblySessionScalarWhereInput | Prisma.AssemblySessionScalarWhereInput[]
+}
+
 export type AssemblySessionCreateWithoutManPowerInput = {
   Id?: string
   ManPowerName: string
@@ -686,12 +752,14 @@ export type AssemblySessionCreateWithoutManPowerInput = {
   CompletedBy?: string | null
   Channel: string
   LabelData: Prisma.LabelDataCreateNestedOneWithoutAssemblySessionsInput
+  User?: Prisma.MTCUserManagementCreateNestedOneWithoutAssemblySessionsInput
 }
 
 export type AssemblySessionUncheckedCreateWithoutManPowerInput = {
   Id?: string
   LabelDataId: number
   ManPowerName: string
+  UserId?: string | null
   Status?: $Enums.AssemblyStatus
   StartedAt?: Date | string
   EndedAt?: Date | string | null
@@ -739,6 +807,7 @@ export type AssemblySessionScalarWhereInput = {
   LabelDataId?: Prisma.IntFilter<"AssemblySession"> | number
   ManPowerUid?: Prisma.StringNullableFilter<"AssemblySession"> | string | null
   ManPowerName?: Prisma.StringFilter<"AssemblySession"> | string
+  UserId?: Prisma.StringNullableFilter<"AssemblySession"> | string | null
   Status?: Prisma.EnumAssemblyStatusFilter<"AssemblySession"> | $Enums.AssemblyStatus
   StartedAt?: Prisma.DateTimeFilter<"AssemblySession"> | Date | string
   EndedAt?: Prisma.DateTimeNullableFilter<"AssemblySession"> | Date | string | null
@@ -767,12 +836,14 @@ export type AssemblySessionCreateWithoutLabelDataInput = {
   CompletedBy?: string | null
   Channel: string
   ManPower?: Prisma.ManPowerCreateNestedOneWithoutAssemblySessionsInput
+  User?: Prisma.MTCUserManagementCreateNestedOneWithoutAssemblySessionsInput
 }
 
 export type AssemblySessionUncheckedCreateWithoutLabelDataInput = {
   Id?: string
   ManPowerUid?: string | null
   ManPowerName: string
+  UserId?: string | null
   Status?: $Enums.AssemblyStatus
   StartedAt?: Date | string
   EndedAt?: Date | string | null
@@ -812,10 +883,73 @@ export type AssemblySessionUpdateManyWithWhereWithoutLabelDataInput = {
   data: Prisma.XOR<Prisma.AssemblySessionUpdateManyMutationInput, Prisma.AssemblySessionUncheckedUpdateManyWithoutLabelDataInput>
 }
 
+export type AssemblySessionCreateWithoutUserInput = {
+  Id?: string
+  ManPowerName: string
+  Status?: $Enums.AssemblyStatus
+  StartedAt?: Date | string
+  EndedAt?: Date | string | null
+  CancelledAt?: Date | string | null
+  CancelledBy?: string | null
+  CancelReason?: string | null
+  StartRequestId: string
+  CompleteRequestId?: string | null
+  CreatedBy: string
+  CompletedBy?: string | null
+  Channel: string
+  LabelData: Prisma.LabelDataCreateNestedOneWithoutAssemblySessionsInput
+  ManPower?: Prisma.ManPowerCreateNestedOneWithoutAssemblySessionsInput
+}
+
+export type AssemblySessionUncheckedCreateWithoutUserInput = {
+  Id?: string
+  LabelDataId: number
+  ManPowerUid?: string | null
+  ManPowerName: string
+  Status?: $Enums.AssemblyStatus
+  StartedAt?: Date | string
+  EndedAt?: Date | string | null
+  CancelledAt?: Date | string | null
+  CancelledBy?: string | null
+  CancelReason?: string | null
+  StartRequestId: string
+  CompleteRequestId?: string | null
+  CreatedBy: string
+  CompletedBy?: string | null
+  Channel: string
+}
+
+export type AssemblySessionCreateOrConnectWithoutUserInput = {
+  where: Prisma.AssemblySessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssemblySessionCreateWithoutUserInput, Prisma.AssemblySessionUncheckedCreateWithoutUserInput>
+}
+
+export type AssemblySessionCreateManyUserInputEnvelope = {
+  data: Prisma.AssemblySessionCreateManyUserInput | Prisma.AssemblySessionCreateManyUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type AssemblySessionUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.AssemblySessionWhereUniqueInput
+  update: Prisma.XOR<Prisma.AssemblySessionUpdateWithoutUserInput, Prisma.AssemblySessionUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.AssemblySessionCreateWithoutUserInput, Prisma.AssemblySessionUncheckedCreateWithoutUserInput>
+}
+
+export type AssemblySessionUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.AssemblySessionWhereUniqueInput
+  data: Prisma.XOR<Prisma.AssemblySessionUpdateWithoutUserInput, Prisma.AssemblySessionUncheckedUpdateWithoutUserInput>
+}
+
+export type AssemblySessionUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.AssemblySessionScalarWhereInput
+  data: Prisma.XOR<Prisma.AssemblySessionUpdateManyMutationInput, Prisma.AssemblySessionUncheckedUpdateManyWithoutUserInput>
+}
+
 export type AssemblySessionCreateManyManPowerInput = {
   Id?: string
   LabelDataId: number
   ManPowerName: string
+  UserId?: string | null
   Status?: $Enums.AssemblyStatus
   StartedAt?: Date | string
   EndedAt?: Date | string | null
@@ -844,12 +978,14 @@ export type AssemblySessionUpdateWithoutManPowerInput = {
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Channel?: Prisma.StringFieldUpdateOperationsInput | string
   LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutAssemblySessionsNestedInput
+  User?: Prisma.MTCUserManagementUpdateOneWithoutAssemblySessionsNestedInput
 }
 
 export type AssemblySessionUncheckedUpdateWithoutManPowerInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   LabelDataId?: Prisma.IntFieldUpdateOperationsInput | number
   ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
+  UserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
   StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -867,6 +1003,7 @@ export type AssemblySessionUncheckedUpdateManyWithoutManPowerInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   LabelDataId?: Prisma.IntFieldUpdateOperationsInput | number
   ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
+  UserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
   StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -884,6 +1021,7 @@ export type AssemblySessionCreateManyLabelDataInput = {
   Id?: string
   ManPowerUid?: string | null
   ManPowerName: string
+  UserId?: string | null
   Status?: $Enums.AssemblyStatus
   StartedAt?: Date | string
   EndedAt?: Date | string | null
@@ -912,12 +1050,14 @@ export type AssemblySessionUpdateWithoutLabelDataInput = {
   CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Channel?: Prisma.StringFieldUpdateOperationsInput | string
   ManPower?: Prisma.ManPowerUpdateOneWithoutAssemblySessionsNestedInput
+  User?: Prisma.MTCUserManagementUpdateOneWithoutAssemblySessionsNestedInput
 }
 
 export type AssemblySessionUncheckedUpdateWithoutLabelDataInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
   ManPowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
+  UserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
   StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -933,6 +1073,79 @@ export type AssemblySessionUncheckedUpdateWithoutLabelDataInput = {
 
 export type AssemblySessionUncheckedUpdateManyWithoutLabelDataInput = {
   Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ManPowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
+  UserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
+  StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  StartRequestId?: Prisma.StringFieldUpdateOperationsInput | string
+  CompleteRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Channel?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type AssemblySessionCreateManyUserInput = {
+  Id?: string
+  LabelDataId: number
+  ManPowerUid?: string | null
+  ManPowerName: string
+  Status?: $Enums.AssemblyStatus
+  StartedAt?: Date | string
+  EndedAt?: Date | string | null
+  CancelledAt?: Date | string | null
+  CancelledBy?: string | null
+  CancelReason?: string | null
+  StartRequestId: string
+  CompleteRequestId?: string | null
+  CreatedBy: string
+  CompletedBy?: string | null
+  Channel: string
+}
+
+export type AssemblySessionUpdateWithoutUserInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
+  Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
+  StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  StartRequestId?: Prisma.StringFieldUpdateOperationsInput | string
+  CompleteRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Channel?: Prisma.StringFieldUpdateOperationsInput | string
+  LabelData?: Prisma.LabelDataUpdateOneRequiredWithoutAssemblySessionsNestedInput
+  ManPower?: Prisma.ManPowerUpdateOneWithoutAssemblySessionsNestedInput
+}
+
+export type AssemblySessionUncheckedUpdateWithoutUserInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  LabelDataId?: Prisma.IntFieldUpdateOperationsInput | number
+  ManPowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
+  Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
+  StartedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  EndedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CancelledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  CancelledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CancelReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  StartRequestId?: Prisma.StringFieldUpdateOperationsInput | string
+  CompleteRequestId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  CompletedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  Channel?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type AssemblySessionUncheckedUpdateManyWithoutUserInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  LabelDataId?: Prisma.IntFieldUpdateOperationsInput | number
   ManPowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ManPowerName?: Prisma.StringFieldUpdateOperationsInput | string
   Status?: Prisma.EnumAssemblyStatusFieldUpdateOperationsInput | $Enums.AssemblyStatus
@@ -955,6 +1168,7 @@ export type AssemblySessionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   LabelDataId?: boolean
   ManPowerUid?: boolean
   ManPowerName?: boolean
+  UserId?: boolean
   Status?: boolean
   StartedAt?: boolean
   EndedAt?: boolean
@@ -968,6 +1182,7 @@ export type AssemblySessionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   Channel?: boolean
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
   ManPower?: boolean | Prisma.AssemblySession$ManPowerArgs<ExtArgs>
+  User?: boolean | Prisma.AssemblySession$UserArgs<ExtArgs>
 }, ExtArgs["result"]["assemblySession"]>
 
 export type AssemblySessionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -975,6 +1190,7 @@ export type AssemblySessionSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   LabelDataId?: boolean
   ManPowerUid?: boolean
   ManPowerName?: boolean
+  UserId?: boolean
   Status?: boolean
   StartedAt?: boolean
   EndedAt?: boolean
@@ -988,6 +1204,7 @@ export type AssemblySessionSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   Channel?: boolean
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
   ManPower?: boolean | Prisma.AssemblySession$ManPowerArgs<ExtArgs>
+  User?: boolean | Prisma.AssemblySession$UserArgs<ExtArgs>
 }, ExtArgs["result"]["assemblySession"]>
 
 export type AssemblySessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -995,6 +1212,7 @@ export type AssemblySessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   LabelDataId?: boolean
   ManPowerUid?: boolean
   ManPowerName?: boolean
+  UserId?: boolean
   Status?: boolean
   StartedAt?: boolean
   EndedAt?: boolean
@@ -1008,6 +1226,7 @@ export type AssemblySessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   Channel?: boolean
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
   ManPower?: boolean | Prisma.AssemblySession$ManPowerArgs<ExtArgs>
+  User?: boolean | Prisma.AssemblySession$UserArgs<ExtArgs>
 }, ExtArgs["result"]["assemblySession"]>
 
 export type AssemblySessionSelectScalar = {
@@ -1015,6 +1234,7 @@ export type AssemblySessionSelectScalar = {
   LabelDataId?: boolean
   ManPowerUid?: boolean
   ManPowerName?: boolean
+  UserId?: boolean
   Status?: boolean
   StartedAt?: boolean
   EndedAt?: boolean
@@ -1028,18 +1248,21 @@ export type AssemblySessionSelectScalar = {
   Channel?: boolean
 }
 
-export type AssemblySessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "LabelDataId" | "ManPowerUid" | "ManPowerName" | "Status" | "StartedAt" | "EndedAt" | "CancelledAt" | "CancelledBy" | "CancelReason" | "StartRequestId" | "CompleteRequestId" | "CreatedBy" | "CompletedBy" | "Channel", ExtArgs["result"]["assemblySession"]>
+export type AssemblySessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"Id" | "LabelDataId" | "ManPowerUid" | "ManPowerName" | "UserId" | "Status" | "StartedAt" | "EndedAt" | "CancelledAt" | "CancelledBy" | "CancelReason" | "StartRequestId" | "CompleteRequestId" | "CreatedBy" | "CompletedBy" | "Channel", ExtArgs["result"]["assemblySession"]>
 export type AssemblySessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
   ManPower?: boolean | Prisma.AssemblySession$ManPowerArgs<ExtArgs>
+  User?: boolean | Prisma.AssemblySession$UserArgs<ExtArgs>
 }
 export type AssemblySessionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
   ManPower?: boolean | Prisma.AssemblySession$ManPowerArgs<ExtArgs>
+  User?: boolean | Prisma.AssemblySession$UserArgs<ExtArgs>
 }
 export type AssemblySessionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   LabelData?: boolean | Prisma.LabelDataDefaultArgs<ExtArgs>
   ManPower?: boolean | Prisma.AssemblySession$ManPowerArgs<ExtArgs>
+  User?: boolean | Prisma.AssemblySession$UserArgs<ExtArgs>
 }
 
 export type $AssemblySessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1047,12 +1270,14 @@ export type $AssemblySessionPayload<ExtArgs extends runtime.Types.Extensions.Int
   objects: {
     LabelData: Prisma.$LabelDataPayload<ExtArgs>
     ManPower: Prisma.$ManPowerPayload<ExtArgs> | null
+    User: Prisma.$MTCUserManagementPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     Id: string
     LabelDataId: number
     ManPowerUid: string | null
     ManPowerName: string
+    UserId: string | null
     Status: $Enums.AssemblyStatus
     StartedAt: Date
     EndedAt: Date | null
@@ -1460,6 +1685,7 @@ export interface Prisma__AssemblySessionClient<T, Null = never, ExtArgs extends 
   readonly [Symbol.toStringTag]: "PrismaPromise"
   LabelData<T extends Prisma.LabelDataDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LabelDataDefaultArgs<ExtArgs>>): Prisma.Prisma__LabelDataClient<runtime.Types.Result.GetResult<Prisma.$LabelDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ManPower<T extends Prisma.AssemblySession$ManPowerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssemblySession$ManPowerArgs<ExtArgs>>): Prisma.Prisma__ManPowerClient<runtime.Types.Result.GetResult<Prisma.$ManPowerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  User<T extends Prisma.AssemblySession$UserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssemblySession$UserArgs<ExtArgs>>): Prisma.Prisma__MTCUserManagementClient<runtime.Types.Result.GetResult<Prisma.$MTCUserManagementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1493,6 +1719,7 @@ export interface AssemblySessionFieldRefs {
   readonly LabelDataId: Prisma.FieldRef<"AssemblySession", 'Int'>
   readonly ManPowerUid: Prisma.FieldRef<"AssemblySession", 'String'>
   readonly ManPowerName: Prisma.FieldRef<"AssemblySession", 'String'>
+  readonly UserId: Prisma.FieldRef<"AssemblySession", 'String'>
   readonly Status: Prisma.FieldRef<"AssemblySession", 'AssemblyStatus'>
   readonly StartedAt: Prisma.FieldRef<"AssemblySession", 'DateTime'>
   readonly EndedAt: Prisma.FieldRef<"AssemblySession", 'DateTime'>
@@ -1921,6 +2148,25 @@ export type AssemblySession$ManPowerArgs<ExtArgs extends runtime.Types.Extension
    */
   include?: Prisma.ManPowerInclude<ExtArgs> | null
   where?: Prisma.ManPowerWhereInput
+}
+
+/**
+ * AssemblySession.User
+ */
+export type AssemblySession$UserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MTCUserManagement
+   */
+  select?: Prisma.MTCUserManagementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MTCUserManagement
+   */
+  omit?: Prisma.MTCUserManagementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MTCUserManagementInclude<ExtArgs> | null
+  where?: Prisma.MTCUserManagementWhereInput
 }
 
 /**

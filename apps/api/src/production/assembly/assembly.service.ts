@@ -300,7 +300,12 @@ export class AssemblyService {
     }
   }
 
-  start(dto: StartAssemblyDto, actor: string, channel: 'DISPLAY' | 'INTERNAL') {
+  start(
+    dto: StartAssemblyDto,
+    actor: string,
+    channel: 'DISPLAY' | 'INTERNAL',
+    userId: string | null,
+  ) {
     return this.mutate('START', actor, async (tx) => {
       const operator = await this.operator(tx, dto.manPowerNik);
       const previous = await tx.assemblySession.findUnique({
@@ -310,7 +315,8 @@ export class AssemblyService {
       if (previous) {
         if (
           previous.ManPowerUid !== operator.Uid ||
-          previous.LabelData.LabelNumber !== dto.labelNumber
+          previous.LabelData.LabelNumber !== dto.labelNumber ||
+          previous.UserId !== userId
         )
           throw new ConflictException(
             'Request identity was already used for another operation.',
@@ -352,6 +358,7 @@ export class AssemblyService {
           LabelDataId: label.Id,
           ManPowerUid: operator.Uid,
           ManPowerName: operator.Name,
+          UserId: userId,
           StartRequestId: dto.requestId,
           CreatedBy: actor,
           Channel: channel,

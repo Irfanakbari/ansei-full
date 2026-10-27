@@ -134,7 +134,14 @@ export class TraceabilityService {
       this.prisma.labelData.findMany({
         where: { ProductionDemandId: poId },
         include: {
-          AssemblySessions: true,
+          AssemblySessions: {
+            select: {
+              Id: true,
+              Status: true,
+              StartedAt: true,
+              EndedAt: true,
+            },
+          },
           PokayokeHistory: true,
           DeliveryHistory: true,
         },

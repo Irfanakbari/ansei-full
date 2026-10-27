@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+} from 'class-validator';
 
 export class ExecuteAutocompleteDto {
   @ApiProperty({
@@ -19,4 +25,15 @@ export class ExecuteAutocompleteDto {
   @Length(6, 6)
   @Matches(/^\d{6}$/, { message: 'OTP must be exactly 6 digits' })
   otp: string;
+
+  @ApiProperty({
+    required: false,
+    description:
+      'Active manpower NIK used for automatically completed assembly sessions',
+    example: 'EMP010',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  manpowerNik?: string;
 }

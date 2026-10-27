@@ -534,6 +534,7 @@ describe('ShoppingService', () => {
             LabelDataId: 11,
             ManPowerUid: null,
             ManPowerName: 'BYPASS SYSTEM',
+            UserId: null,
             StartRequestId: 'BYPASS-START-LABEL-11',
             CompleteRequestId: 'BYPASS-COMPLETE-LABEL-11',
             Channel: 'BYPASS_SYSTEM',

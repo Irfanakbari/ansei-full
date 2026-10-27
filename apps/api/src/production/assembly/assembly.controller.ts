@@ -82,7 +82,7 @@ export class AssemblyController {
   @Post('start')
   @Permission('IPCS.ASSEMBLY_CREATE')
   start(@Body() dto: StartAssemblyDto, @CurrentUser() user: ICurrentUser) {
-    return this.service.start(dto, user.username, 'INTERNAL');
+    return this.service.start(dto, user.username, 'INTERNAL', user.username);
   }
   @ApiOkResponse({ type: AssemblySessionEntity })
   @Post(':id/complete')
@@ -137,7 +137,7 @@ export class DisplayAssemblyController {
   @Post('start')
   @Public()
   start(@Body() dto: StartAssemblyDto) {
-    return this.service.start(dto, 'DISPLAY', 'DISPLAY');
+    return this.service.start(dto, 'DISPLAY', 'DISPLAY', null);
   }
   @ApiOkResponse({ type: AssemblySessionEntity })
   @Post(':id/complete')

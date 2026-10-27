@@ -833,6 +833,7 @@ model AssemblySession {
   LabelDataId       Int
   ManPowerUid       String?
   ManPowerName      String
+  UserId            String?
   Status            AssemblyStatus @default(IN_PROGRESS)
   StartedAt         DateTime       @default(now())
   EndedAt           DateTime?
@@ -844,11 +845,13 @@ model AssemblySession {
   CreatedBy         String
   CompletedBy       String?
   Channel           String
-  LabelData         LabelData      @relation(fields: [LabelDataId], references: [Id], onDelete: Restrict)
-  ManPower          ManPower?      @relation(fields: [ManPowerUid], references: [Uid], onDelete: Restrict)
+  LabelData         LabelData          @relation(fields: [LabelDataId], references: [Id], onDelete: Restrict)
+  ManPower          ManPower?          @relation(fields: [ManPowerUid], references: [Uid], onDelete: Restrict)
+  User              MTCUserManagement? @relation(fields: [UserId], references: [UserId], onDelete: SetNull, onUpdate: Cascade)
 
   @@index([LabelDataId, Status])
   @@index([ManPowerUid, Status])
+  @@index([UserId])
   @@index([StartedAt])
 }
 
@@ -1012,8 +1015,9 @@ model MTCUserManagement {
 
   RoleId      Int?
   Role        MTCRole?     @relation(fields: [RoleId], references: [Id], onUpdate: Cascade)
-  mtcauthLogs MTCAuthLog[]
-  ApiKeys     ApiKey[]
+  mtcauthLogs      MTCAuthLog[]
+  ApiKeys          ApiKey[]
+  AssemblySessions AssemblySession[]
 
   ManpowerUid String?
   Manpower    ManPower? @relation(fields: [ManpowerUid], references: [Uid], onUpdate: Cascade, onDelete: SetNull)

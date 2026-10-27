@@ -291,6 +291,7 @@ export type MTCUserManagementWhereInput = {
   Role?: Prisma.XOR<Prisma.MTCRoleNullableScalarRelationFilter, Prisma.MTCRoleWhereInput> | null
   mtcauthLogs?: Prisma.MTCAuthLogListRelationFilter
   ApiKeys?: Prisma.ApiKeyListRelationFilter
+  AssemblySessions?: Prisma.AssemblySessionListRelationFilter
   Manpower?: Prisma.XOR<Prisma.ManPowerNullableScalarRelationFilter, Prisma.ManPowerWhereInput> | null
 }
 
@@ -312,6 +313,7 @@ export type MTCUserManagementOrderByWithRelationInput = {
   Role?: Prisma.MTCRoleOrderByWithRelationInput
   mtcauthLogs?: Prisma.MTCAuthLogOrderByRelationAggregateInput
   ApiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
+  AssemblySessions?: Prisma.AssemblySessionOrderByRelationAggregateInput
   Manpower?: Prisma.ManPowerOrderByWithRelationInput
 }
 
@@ -336,6 +338,7 @@ export type MTCUserManagementWhereUniqueInput = Prisma.AtLeast<{
   Role?: Prisma.XOR<Prisma.MTCRoleNullableScalarRelationFilter, Prisma.MTCRoleWhereInput> | null
   mtcauthLogs?: Prisma.MTCAuthLogListRelationFilter
   ApiKeys?: Prisma.ApiKeyListRelationFilter
+  AssemblySessions?: Prisma.AssemblySessionListRelationFilter
   Manpower?: Prisma.XOR<Prisma.ManPowerNullableScalarRelationFilter, Prisma.ManPowerWhereInput> | null
 }, "Id" | "UserId" | "Email" | "SsoObjectId">
 
@@ -397,6 +400,7 @@ export type MTCUserManagementCreateInput = {
   Role?: Prisma.MTCRoleCreateNestedOneWithoutUsersInput
   mtcauthLogs?: Prisma.MTCAuthLogCreateNestedManyWithoutUserInput
   ApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutUserInput
   Manpower?: Prisma.ManPowerCreateNestedOneWithoutUsersInput
 }
 
@@ -417,6 +421,7 @@ export type MTCUserManagementUncheckedCreateInput = {
   ManpowerUid?: string | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedCreateNestedManyWithoutUserInput
   ApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type MTCUserManagementUpdateInput = {
@@ -435,6 +440,7 @@ export type MTCUserManagementUpdateInput = {
   Role?: Prisma.MTCRoleUpdateOneWithoutUsersNestedInput
   mtcauthLogs?: Prisma.MTCAuthLogUpdateManyWithoutUserNestedInput
   ApiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutUserNestedInput
   Manpower?: Prisma.ManPowerUpdateOneWithoutUsersNestedInput
 }
 
@@ -455,6 +461,7 @@ export type MTCUserManagementUncheckedUpdateInput = {
   ManpowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedUpdateManyWithoutUserNestedInput
   ApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type MTCUserManagementCreateManyInput = {
@@ -516,6 +523,11 @@ export type MTCUserManagementOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type MTCUserManagementNullableScalarRelationFilter = {
+  is?: Prisma.MTCUserManagementWhereInput | null
+  isNot?: Prisma.MTCUserManagementWhereInput | null
+}
+
 export type MTCUserManagementCountOrderByAggregateInput = {
   Id?: Prisma.SortOrder
   UserId?: Prisma.SortOrder
@@ -575,11 +587,6 @@ export type MTCUserManagementSumOrderByAggregateInput = {
   RoleId?: Prisma.SortOrder
 }
 
-export type MTCUserManagementNullableScalarRelationFilter = {
-  is?: Prisma.MTCUserManagementWhereInput | null
-  isNot?: Prisma.MTCUserManagementWhereInput | null
-}
-
 export type MTCUserManagementScalarRelationFilter = {
   is?: Prisma.MTCUserManagementWhereInput
   isNot?: Prisma.MTCUserManagementWhereInput
@@ -625,6 +632,22 @@ export type MTCUserManagementUncheckedUpdateManyWithoutManpowerNestedInput = {
   update?: Prisma.MTCUserManagementUpdateWithWhereUniqueWithoutManpowerInput | Prisma.MTCUserManagementUpdateWithWhereUniqueWithoutManpowerInput[]
   updateMany?: Prisma.MTCUserManagementUpdateManyWithWhereWithoutManpowerInput | Prisma.MTCUserManagementUpdateManyWithWhereWithoutManpowerInput[]
   deleteMany?: Prisma.MTCUserManagementScalarWhereInput | Prisma.MTCUserManagementScalarWhereInput[]
+}
+
+export type MTCUserManagementCreateNestedOneWithoutAssemblySessionsInput = {
+  create?: Prisma.XOR<Prisma.MTCUserManagementCreateWithoutAssemblySessionsInput, Prisma.MTCUserManagementUncheckedCreateWithoutAssemblySessionsInput>
+  connectOrCreate?: Prisma.MTCUserManagementCreateOrConnectWithoutAssemblySessionsInput
+  connect?: Prisma.MTCUserManagementWhereUniqueInput
+}
+
+export type MTCUserManagementUpdateOneWithoutAssemblySessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.MTCUserManagementCreateWithoutAssemblySessionsInput, Prisma.MTCUserManagementUncheckedCreateWithoutAssemblySessionsInput>
+  connectOrCreate?: Prisma.MTCUserManagementCreateOrConnectWithoutAssemblySessionsInput
+  upsert?: Prisma.MTCUserManagementUpsertWithoutAssemblySessionsInput
+  disconnect?: Prisma.MTCUserManagementWhereInput | boolean
+  delete?: Prisma.MTCUserManagementWhereInput | boolean
+  connect?: Prisma.MTCUserManagementWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MTCUserManagementUpdateToOneWithWhereWithoutAssemblySessionsInput, Prisma.MTCUserManagementUpdateWithoutAssemblySessionsInput>, Prisma.MTCUserManagementUncheckedUpdateWithoutAssemblySessionsInput>
 }
 
 export type MTCUserManagementCreateNestedOneWithoutMtcauthLogsInput = {
@@ -715,6 +738,7 @@ export type MTCUserManagementCreateWithoutManpowerInput = {
   Role?: Prisma.MTCRoleCreateNestedOneWithoutUsersInput
   mtcauthLogs?: Prisma.MTCAuthLogCreateNestedManyWithoutUserInput
   ApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutUserInput
 }
 
 export type MTCUserManagementUncheckedCreateWithoutManpowerInput = {
@@ -733,6 +757,7 @@ export type MTCUserManagementUncheckedCreateWithoutManpowerInput = {
   RoleId?: number | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedCreateNestedManyWithoutUserInput
   ApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type MTCUserManagementCreateOrConnectWithoutManpowerInput = {
@@ -781,6 +806,98 @@ export type MTCUserManagementScalarWhereInput = {
   ManpowerUid?: Prisma.StringNullableFilter<"MTCUserManagement"> | string | null
 }
 
+export type MTCUserManagementCreateWithoutAssemblySessionsInput = {
+  Id?: string
+  UserId: string
+  PhoneNumber?: string | null
+  IsActive?: boolean
+  Name: string
+  LastLogin?: Date | string | null
+  Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  SsoObjectId: string
+  Role?: Prisma.MTCRoleCreateNestedOneWithoutUsersInput
+  mtcauthLogs?: Prisma.MTCAuthLogCreateNestedManyWithoutUserInput
+  ApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
+  Manpower?: Prisma.ManPowerCreateNestedOneWithoutUsersInput
+}
+
+export type MTCUserManagementUncheckedCreateWithoutAssemblySessionsInput = {
+  Id?: string
+  UserId: string
+  PhoneNumber?: string | null
+  IsActive?: boolean
+  Name: string
+  LastLogin?: Date | string | null
+  Email: string
+  CreatedAt?: Date | string
+  CreatedBy: string
+  UpdatedAt?: Date | string
+  UpdatedBy: string
+  SsoObjectId: string
+  RoleId?: number | null
+  ManpowerUid?: string | null
+  mtcauthLogs?: Prisma.MTCAuthLogUncheckedCreateNestedManyWithoutUserInput
+  ApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type MTCUserManagementCreateOrConnectWithoutAssemblySessionsInput = {
+  where: Prisma.MTCUserManagementWhereUniqueInput
+  create: Prisma.XOR<Prisma.MTCUserManagementCreateWithoutAssemblySessionsInput, Prisma.MTCUserManagementUncheckedCreateWithoutAssemblySessionsInput>
+}
+
+export type MTCUserManagementUpsertWithoutAssemblySessionsInput = {
+  update: Prisma.XOR<Prisma.MTCUserManagementUpdateWithoutAssemblySessionsInput, Prisma.MTCUserManagementUncheckedUpdateWithoutAssemblySessionsInput>
+  create: Prisma.XOR<Prisma.MTCUserManagementCreateWithoutAssemblySessionsInput, Prisma.MTCUserManagementUncheckedCreateWithoutAssemblySessionsInput>
+  where?: Prisma.MTCUserManagementWhereInput
+}
+
+export type MTCUserManagementUpdateToOneWithWhereWithoutAssemblySessionsInput = {
+  where?: Prisma.MTCUserManagementWhereInput
+  data: Prisma.XOR<Prisma.MTCUserManagementUpdateWithoutAssemblySessionsInput, Prisma.MTCUserManagementUncheckedUpdateWithoutAssemblySessionsInput>
+}
+
+export type MTCUserManagementUpdateWithoutAssemblySessionsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  UserId?: Prisma.StringFieldUpdateOperationsInput | string
+  PhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Name?: Prisma.StringFieldUpdateOperationsInput | string
+  LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
+  Role?: Prisma.MTCRoleUpdateOneWithoutUsersNestedInput
+  mtcauthLogs?: Prisma.MTCAuthLogUpdateManyWithoutUserNestedInput
+  ApiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
+  Manpower?: Prisma.ManPowerUpdateOneWithoutUsersNestedInput
+}
+
+export type MTCUserManagementUncheckedUpdateWithoutAssemblySessionsInput = {
+  Id?: Prisma.StringFieldUpdateOperationsInput | string
+  UserId?: Prisma.StringFieldUpdateOperationsInput | string
+  PhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  IsActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  Name?: Prisma.StringFieldUpdateOperationsInput | string
+  LastLogin?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  Email?: Prisma.StringFieldUpdateOperationsInput | string
+  CreatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  CreatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  UpdatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  UpdatedBy?: Prisma.StringFieldUpdateOperationsInput | string
+  SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
+  RoleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ManpowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mtcauthLogs?: Prisma.MTCAuthLogUncheckedUpdateManyWithoutUserNestedInput
+  ApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type MTCUserManagementCreateWithoutMtcauthLogsInput = {
   Id?: string
   UserId: string
@@ -796,6 +913,7 @@ export type MTCUserManagementCreateWithoutMtcauthLogsInput = {
   SsoObjectId: string
   Role?: Prisma.MTCRoleCreateNestedOneWithoutUsersInput
   ApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutUserInput
   Manpower?: Prisma.ManPowerCreateNestedOneWithoutUsersInput
 }
 
@@ -815,6 +933,7 @@ export type MTCUserManagementUncheckedCreateWithoutMtcauthLogsInput = {
   RoleId?: number | null
   ManpowerUid?: string | null
   ApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type MTCUserManagementCreateOrConnectWithoutMtcauthLogsInput = {
@@ -848,6 +967,7 @@ export type MTCUserManagementUpdateWithoutMtcauthLogsInput = {
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   Role?: Prisma.MTCRoleUpdateOneWithoutUsersNestedInput
   ApiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutUserNestedInput
   Manpower?: Prisma.ManPowerUpdateOneWithoutUsersNestedInput
 }
 
@@ -867,6 +987,7 @@ export type MTCUserManagementUncheckedUpdateWithoutMtcauthLogsInput = {
   RoleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManpowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type MTCUserManagementCreateWithoutRoleInput = {
@@ -884,6 +1005,7 @@ export type MTCUserManagementCreateWithoutRoleInput = {
   SsoObjectId: string
   mtcauthLogs?: Prisma.MTCAuthLogCreateNestedManyWithoutUserInput
   ApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutUserInput
   Manpower?: Prisma.ManPowerCreateNestedOneWithoutUsersInput
 }
 
@@ -903,6 +1025,7 @@ export type MTCUserManagementUncheckedCreateWithoutRoleInput = {
   ManpowerUid?: string | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedCreateNestedManyWithoutUserInput
   ApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type MTCUserManagementCreateOrConnectWithoutRoleInput = {
@@ -946,6 +1069,7 @@ export type MTCUserManagementCreateWithoutApiKeysInput = {
   SsoObjectId: string
   Role?: Prisma.MTCRoleCreateNestedOneWithoutUsersInput
   mtcauthLogs?: Prisma.MTCAuthLogCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionCreateNestedManyWithoutUserInput
   Manpower?: Prisma.ManPowerCreateNestedOneWithoutUsersInput
 }
 
@@ -965,6 +1089,7 @@ export type MTCUserManagementUncheckedCreateWithoutApiKeysInput = {
   RoleId?: number | null
   ManpowerUid?: string | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedCreateNestedManyWithoutUserInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type MTCUserManagementCreateOrConnectWithoutApiKeysInput = {
@@ -998,6 +1123,7 @@ export type MTCUserManagementUpdateWithoutApiKeysInput = {
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   Role?: Prisma.MTCRoleUpdateOneWithoutUsersNestedInput
   mtcauthLogs?: Prisma.MTCAuthLogUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutUserNestedInput
   Manpower?: Prisma.ManPowerUpdateOneWithoutUsersNestedInput
 }
 
@@ -1017,6 +1143,7 @@ export type MTCUserManagementUncheckedUpdateWithoutApiKeysInput = {
   RoleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ManpowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type MTCUserManagementCreateManyManpowerInput = {
@@ -1051,6 +1178,7 @@ export type MTCUserManagementUpdateWithoutManpowerInput = {
   Role?: Prisma.MTCRoleUpdateOneWithoutUsersNestedInput
   mtcauthLogs?: Prisma.MTCAuthLogUpdateManyWithoutUserNestedInput
   ApiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutUserNestedInput
 }
 
 export type MTCUserManagementUncheckedUpdateWithoutManpowerInput = {
@@ -1069,6 +1197,7 @@ export type MTCUserManagementUncheckedUpdateWithoutManpowerInput = {
   RoleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedUpdateManyWithoutUserNestedInput
   ApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type MTCUserManagementUncheckedUpdateManyWithoutManpowerInput = {
@@ -1118,6 +1247,7 @@ export type MTCUserManagementUpdateWithoutRoleInput = {
   SsoObjectId?: Prisma.StringFieldUpdateOperationsInput | string
   mtcauthLogs?: Prisma.MTCAuthLogUpdateManyWithoutUserNestedInput
   ApiKeys?: Prisma.ApiKeyUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUpdateManyWithoutUserNestedInput
   Manpower?: Prisma.ManPowerUpdateOneWithoutUsersNestedInput
 }
 
@@ -1137,6 +1267,7 @@ export type MTCUserManagementUncheckedUpdateWithoutRoleInput = {
   ManpowerUid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mtcauthLogs?: Prisma.MTCAuthLogUncheckedUpdateManyWithoutUserNestedInput
   ApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutUserNestedInput
+  AssemblySessions?: Prisma.AssemblySessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type MTCUserManagementUncheckedUpdateManyWithoutRoleInput = {
@@ -1163,11 +1294,13 @@ export type MTCUserManagementUncheckedUpdateManyWithoutRoleInput = {
 export type MTCUserManagementCountOutputType = {
   mtcauthLogs: number
   ApiKeys: number
+  AssemblySessions: number
 }
 
 export type MTCUserManagementCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   mtcauthLogs?: boolean | MTCUserManagementCountOutputTypeCountMtcauthLogsArgs
   ApiKeys?: boolean | MTCUserManagementCountOutputTypeCountApiKeysArgs
+  AssemblySessions?: boolean | MTCUserManagementCountOutputTypeCountAssemblySessionsArgs
 }
 
 /**
@@ -1194,6 +1327,13 @@ export type MTCUserManagementCountOutputTypeCountApiKeysArgs<ExtArgs extends run
   where?: Prisma.ApiKeyWhereInput
 }
 
+/**
+ * MTCUserManagementCountOutputType without action
+ */
+export type MTCUserManagementCountOutputTypeCountAssemblySessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AssemblySessionWhereInput
+}
+
 
 export type MTCUserManagementSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   Id?: boolean
@@ -1213,6 +1353,7 @@ export type MTCUserManagementSelect<ExtArgs extends runtime.Types.Extensions.Int
   Role?: boolean | Prisma.MTCUserManagement$RoleArgs<ExtArgs>
   mtcauthLogs?: boolean | Prisma.MTCUserManagement$mtcauthLogsArgs<ExtArgs>
   ApiKeys?: boolean | Prisma.MTCUserManagement$ApiKeysArgs<ExtArgs>
+  AssemblySessions?: boolean | Prisma.MTCUserManagement$AssemblySessionsArgs<ExtArgs>
   Manpower?: boolean | Prisma.MTCUserManagement$ManpowerArgs<ExtArgs>
   _count?: boolean | Prisma.MTCUserManagementCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["mTCUserManagement"]>
@@ -1277,6 +1418,7 @@ export type MTCUserManagementInclude<ExtArgs extends runtime.Types.Extensions.In
   Role?: boolean | Prisma.MTCUserManagement$RoleArgs<ExtArgs>
   mtcauthLogs?: boolean | Prisma.MTCUserManagement$mtcauthLogsArgs<ExtArgs>
   ApiKeys?: boolean | Prisma.MTCUserManagement$ApiKeysArgs<ExtArgs>
+  AssemblySessions?: boolean | Prisma.MTCUserManagement$AssemblySessionsArgs<ExtArgs>
   Manpower?: boolean | Prisma.MTCUserManagement$ManpowerArgs<ExtArgs>
   _count?: boolean | Prisma.MTCUserManagementCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1295,6 +1437,7 @@ export type $MTCUserManagementPayload<ExtArgs extends runtime.Types.Extensions.I
     Role: Prisma.$MTCRolePayload<ExtArgs> | null
     mtcauthLogs: Prisma.$MTCAuthLogPayload<ExtArgs>[]
     ApiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
+    AssemblySessions: Prisma.$AssemblySessionPayload<ExtArgs>[]
     Manpower: Prisma.$ManPowerPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1709,6 +1852,7 @@ export interface Prisma__MTCUserManagementClient<T, Null = never, ExtArgs extend
   Role<T extends Prisma.MTCUserManagement$RoleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MTCUserManagement$RoleArgs<ExtArgs>>): Prisma.Prisma__MTCRoleClient<runtime.Types.Result.GetResult<Prisma.$MTCRolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   mtcauthLogs<T extends Prisma.MTCUserManagement$mtcauthLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MTCUserManagement$mtcauthLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MTCAuthLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ApiKeys<T extends Prisma.MTCUserManagement$ApiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MTCUserManagement$ApiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  AssemblySessions<T extends Prisma.MTCUserManagement$AssemblySessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MTCUserManagement$AssemblySessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssemblySessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   Manpower<T extends Prisma.MTCUserManagement$ManpowerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MTCUserManagement$ManpowerArgs<ExtArgs>>): Prisma.Prisma__ManPowerClient<runtime.Types.Result.GetResult<Prisma.$ManPowerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2218,6 +2362,30 @@ export type MTCUserManagement$ApiKeysArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
+}
+
+/**
+ * MTCUserManagement.AssemblySessions
+ */
+export type MTCUserManagement$AssemblySessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AssemblySession
+   */
+  select?: Prisma.AssemblySessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AssemblySession
+   */
+  omit?: Prisma.AssemblySessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssemblySessionInclude<ExtArgs> | null
+  where?: Prisma.AssemblySessionWhereInput
+  orderBy?: Prisma.AssemblySessionOrderByWithRelationInput | Prisma.AssemblySessionOrderByWithRelationInput[]
+  cursor?: Prisma.AssemblySessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AssemblySessionScalarFieldEnum | Prisma.AssemblySessionScalarFieldEnum[]
 }
 
 /**

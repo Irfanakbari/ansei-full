@@ -23,6 +23,7 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
+import { fetchManPower } from "@/store/features/master/manPowerSlice";
 import {
   fetchAutocompleteApprovers,
   requestAutocompleteOtp,
@@ -53,6 +54,9 @@ export default function AutocompleteReleaseModal({
     autocompleteOtpRequesting,
     autocompleteExecuting,
   } = useSelector((state: RootState) => state.productionRelease);
+  const { data: manpowerOptions, loading: manpowerLoading } = useSelector(
+    (state: RootState) => state.manPower,
+  );
 
   const approverList = Array.isArray(autocompleteApprovers)
     ? autocompleteApprovers
@@ -75,6 +79,7 @@ export default function AutocompleteReleaseModal({
   useEffect(() => {
     if (open) {
       void dispatch(fetchAutocompleteApprovers());
+      void dispatch(fetchManPower({ page: 1, limit: 100 }));
       setChallengeId(null);
       setApproverSentInfo(null);
       setSelectedApproverId(null);
@@ -134,12 +139,13 @@ export default function AutocompleteReleaseModal({
     }
 
     try {
-      const values = await form.validateFields(["otp"]);
+      const values = await form.validateFields(["otp", "manpowerNik"]);
       const res = await dispatch(
         executeAutocompleteAll({
           id: release.Id,
           challengeId,
           otp: values.otp.trim(),
+          manpowerNik: values.manpowerNik,
         }),
       ).unwrap();
 
@@ -292,6 +298,31 @@ export default function AutocompleteReleaseModal({
           )}
 
           <Divider className="my-3" />
+
+          <Form.Item
+            name="manpowerNik"
+            label="Operator Manpower untuk Assembly"
+            rules={[
+              {
+                required: true,
+                message: "Pilih operator manpower untuk proses assembly otomatis",
+              },
+            ]}
+            extra="Operator ini dicatat pada seluruh sesi assembly yang dibuat otomatis."
+          >
+            <Select
+              showSearch
+              optionFilterProp="label"
+              loading={manpowerLoading}
+              placeholder="Pilih manpower aktif"
+              options={manpowerOptions
+                .filter((item) => item.Status)
+                .map((item) => ({
+                  value: item.Nik,
+                  label: `${item.Nik} - ${item.Name}${item.Line ? ` (${item.Line})` : ""}`,
+                }))}
+            />
+          </Form.Item>
 
           <Form.Item
             name="otp"

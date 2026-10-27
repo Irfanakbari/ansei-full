@@ -6356,6 +6356,7 @@ export const AssemblySessionScalarFieldEnum = {
   LabelDataId: 'LabelDataId',
   ManPowerUid: 'ManPowerUid',
   ManPowerName: 'ManPowerName',
+  UserId: 'UserId',
   Status: 'Status',
   StartedAt: 'StartedAt',
   EndedAt: 'EndedAt',

@@ -897,6 +897,7 @@ export class ShoppingService {
                     LabelDataId: label.Id,
                     ManPowerUid: null,
                     ManPowerName: 'BYPASS SYSTEM',
+                    UserId: null,
                     Status: 'COMPLETED',
                     StartedAt: completionCreatedAt,
                     EndedAt: completionCreatedAt,

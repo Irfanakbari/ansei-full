@@ -254,6 +254,7 @@ export interface ExecuteAutocompletePayload {
   id: string;
   challengeId: string;
   otp: string;
+  manpowerNik?: string;
 }
 
 export interface ExecuteAutocompleteResponse {
@@ -757,14 +758,14 @@ export const executeAutocompleteAll = createAsyncThunk<
   { rejectValue: string }
 >(
   "productionRelease/executeAutocompleteAll",
-  async ({ id, challengeId, otp }, { rejectWithValue }) => {
+  async ({ id, challengeId, otp, manpowerNik }, { rejectWithValue }) => {
     try {
       const response = await post<
         | ApiSuccessEnvelope<ExecuteAutocompleteResponse>
         | ExecuteAutocompleteResponse
       >(
         `/production/production-release/${encodeURIComponent(id)}/autocomplete/execute`,
-        { challengeId, otp },
+        { challengeId, otp, manpowerNik },
       );
       if (response && "data" in response && response.data) {
         return response.data;

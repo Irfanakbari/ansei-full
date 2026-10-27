@@ -15,8 +15,9 @@ export class AssemblyLabelEntity {
 export class AssemblySessionEntity {
   @ApiProperty({ format: 'uuid' }) Id: string;
   @ApiProperty() LabelDataId: number;
-  @ApiProperty() ManPowerUid: string;
+  @ApiProperty({ nullable: true }) ManPowerUid: string | null;
   @ApiProperty() ManPowerName: string;
+  @ApiProperty({ nullable: true }) UserId: string | null;
   @ApiProperty({ enum: AssemblyStatus }) Status: AssemblyStatus;
   @ApiProperty({ type: String, format: 'date-time' }) StartedAt: Date;
   @ApiProperty({ type: String, format: 'date-time', nullable: true })

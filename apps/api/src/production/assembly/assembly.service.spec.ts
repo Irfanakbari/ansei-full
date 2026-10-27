@@ -30,6 +30,7 @@ describe('AssemblyService', () => {
     Id: 'session-1',
     LabelDataId: 1,
     ManPowerUid: operator.Uid,
+    UserId: null,
     Status: 'IN_PROGRESS',
     LabelData: { LabelNumber: label.LabelNumber },
   };
@@ -171,12 +172,13 @@ describe('AssemblyService', () => {
     );
   });
   it('starts using validated manpower identity and server timestamp, without stock movement', async () => {
-    await service.start(dto, 'DISPLAY', 'DISPLAY');
+    await service.start(dto, 'DISPLAY', 'DISPLAY', null);
     expect(tx.assemblySession.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           ManPowerUid: operator.Uid,
           ManPowerName: operator.Name,
+          UserId: null,
           CreatedBy: 'DISPLAY',
           Channel: 'DISPLAY',
         }),
@@ -186,44 +188,49 @@ describe('AssemblyService', () => {
   });
   it('replays start identity without creating another session', async () => {
     tx.assemblySession.findUnique.mockResolvedValue(session);
-    await expect(service.start(dto, 'DISPLAY', 'DISPLAY')).resolves.toEqual(
-      session,
-    );
+    await expect(
+      service.start(dto, 'DISPLAY', 'DISPLAY', null),
+    ).resolves.toEqual(session);
     expect(tx.assemblySession.create).not.toHaveBeenCalled();
   });
   it('rejects reused start identity for another label', async () => {
     tx.assemblySession.findUnique.mockResolvedValue(session);
     await expect(
-      service.start({ ...dto, labelNumber: 'OTHER' }, 'DISPLAY', 'DISPLAY'),
+      service.start(
+        { ...dto, labelNumber: 'OTHER' },
+        'DISPLAY',
+        'DISPLAY',
+        null,
+      ),
     ).rejects.toThrow('identity');
   });
   it('rejects inactive manpower', async () => {
     tx.manPower.findUnique.mockResolvedValue({ ...operator, Status: false });
-    await expect(service.start(dto, 'DISPLAY', 'DISPLAY')).rejects.toThrow(
-      'active manpower',
-    );
+    await expect(
+      service.start(dto, 'DISPLAY', 'DISPLAY', null),
+    ).rejects.toThrow('active manpower');
     expect(tx.assemblySession.create).not.toHaveBeenCalled();
   });
   it('rejects incomplete shopping', async () => {
     ready.mockRejectedValue(new Error('Shopping incomplete'));
-    await expect(service.start(dto, 'DISPLAY', 'DISPLAY')).rejects.toThrow(
-      'Shopping',
-    );
+    await expect(
+      service.start(dto, 'DISPLAY', 'DISPLAY', null),
+    ).rejects.toThrow('Shopping');
   });
   it('rejects passthrough and legacy labels', async () => {
     tx.labelData.findUnique.mockResolvedValue({
       ...label,
       RequiresAssembly: false,
     });
-    await expect(service.start(dto, 'DISPLAY', 'DISPLAY')).rejects.toThrow(
-      'does not require',
-    );
+    await expect(
+      service.start(dto, 'DISPLAY', 'DISPLAY', null),
+    ).rejects.toThrow('does not require');
   });
   it('rejects occupied manpower or label', async () => {
     tx.assemblySession.findFirst.mockResolvedValue(session);
-    await expect(service.start(dto, 'DISPLAY', 'DISPLAY')).rejects.toThrow(
-      'active assembly',
-    );
+    await expect(
+      service.start(dto, 'DISPLAY', 'DISPLAY', null),
+    ).rejects.toThrow('active assembly');
   });
   it('credits only the box quantity from ledger balance, with audit in the same transaction', async () => {
     tx.assemblySession.findUnique.mockResolvedValueOnce(session);
