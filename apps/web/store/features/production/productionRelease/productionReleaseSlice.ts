@@ -233,12 +233,14 @@ export interface AutocompleteApprover {
   userId: string;
   name: string;
   roleName: string;
+  hasPhoneNumber?: boolean;
   maskedPhoneNumber: string;
 }
 
 export interface RequestAutocompleteOtpPayload {
   id: string;
   approverUserId: string;
+  phoneNumber?: string;
 }
 
 export interface RequestAutocompleteOtpResponse {
@@ -704,9 +706,14 @@ export const fetchAutocompleteApprovers = createAsyncThunk<
   "productionRelease/fetchAutocompleteApprovers",
   async (_, { rejectWithValue }) => {
     try {
-      return await get<AutocompleteApprover[]>(
-        "/production/production-release/autocomplete/approvers",
-      );
+      const response = await get<
+        ApiSuccessEnvelope<AutocompleteApprover[]> | AutocompleteApprover[]
+      >("/production/production-release/autocomplete/approvers");
+      if (Array.isArray(response)) return response;
+      if (response && "data" in response && Array.isArray(response.data)) {
+        return response.data;
+      }
+      return [];
     } catch (error: unknown) {
       return rejectWithValue(
         getApiErrorMessage(error, "Failed to load approvers"),
@@ -722,12 +729,19 @@ export const requestAutocompleteOtp = createAsyncThunk<
   { rejectValue: string }
 >(
   "productionRelease/requestAutocompleteOtp",
-  async ({ id, approverUserId }, { rejectWithValue }) => {
+  async ({ id, approverUserId, phoneNumber }, { rejectWithValue }) => {
     try {
-      return await post<RequestAutocompleteOtpResponse>(
+      const response = await post<
+        | ApiSuccessEnvelope<RequestAutocompleteOtpResponse>
+        | RequestAutocompleteOtpResponse
+      >(
         `/production/production-release/${encodeURIComponent(id)}/autocomplete/request-otp`,
-        { approverUserId },
+        { approverUserId, phoneNumber },
       );
+      if (response && "data" in response && response.data) {
+        return response.data;
+      }
+      return response as RequestAutocompleteOtpResponse;
     } catch (error: unknown) {
       return rejectWithValue(
         getApiErrorMessage(error, "Failed to request OTP"),
@@ -745,10 +759,17 @@ export const executeAutocompleteAll = createAsyncThunk<
   "productionRelease/executeAutocompleteAll",
   async ({ id, challengeId, otp }, { rejectWithValue }) => {
     try {
-      return await post<ExecuteAutocompleteResponse>(
+      const response = await post<
+        | ApiSuccessEnvelope<ExecuteAutocompleteResponse>
+        | ExecuteAutocompleteResponse
+      >(
         `/production/production-release/${encodeURIComponent(id)}/autocomplete/execute`,
         { challengeId, otp },
       );
+      if (response && "data" in response && response.data) {
+        return response.data;
+      }
+      return response as ExecuteAutocompleteResponse;
     } catch (error: unknown) {
       return rejectWithValue(
         getApiErrorMessage(error, "Failed to execute autocomplete"),
@@ -903,7 +924,9 @@ const productionReleaseSlice = createSlice({
       })
       .addCase(fetchAutocompleteApprovers.fulfilled, (state, action) => {
         state.autocompleteApproversLoading = false;
-        state.autocompleteApprovers = action.payload;
+        state.autocompleteApprovers = Array.isArray(action.payload)
+          ? action.payload
+          : [];
       })
       .addCase(fetchAutocompleteApprovers.rejected, (state, action) => {
         state.autocompleteApproversLoading = false;

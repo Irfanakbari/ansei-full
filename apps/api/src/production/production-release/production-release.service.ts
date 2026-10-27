@@ -2514,7 +2514,6 @@ export class ProductionReleaseService {
     const users = await this.prisma.mTCUserManagement.findMany({
       where: {
         IsActive: true,
-        PhoneNumber: { not: null },
         Role: {
           RoleName: {
             in: ['MANAGER', 'SUPER', 'SUPER_ADMIN', 'MANAGEMENT'],
@@ -2537,9 +2536,10 @@ export class ProductionReleaseService {
     });
 
     return users.map((u) => {
-      const rawPhone = u.PhoneNumber || '';
-      let masked = rawPhone;
-      if (rawPhone.length >= 8) {
+      const rawPhone = (u.PhoneNumber || '').trim();
+      const hasPhone = rawPhone.length >= 8;
+      let masked = hasPhone ? rawPhone : 'Belum ada No. WA';
+      if (hasPhone) {
         const prefix = rawPhone.slice(0, 4);
         const suffix = rawPhone.slice(-4);
         masked = `${prefix}${'*'.repeat(Math.max(2, rawPhone.length - 8))}${suffix}`;
@@ -2548,6 +2548,7 @@ export class ProductionReleaseService {
         userId: u.UserId,
         name: u.Name,
         roleName: u.Role?.RoleName || 'MANAGER',
+        hasPhoneNumber: hasPhone,
         maskedPhoneNumber: masked,
       };
     });
@@ -2577,7 +2578,6 @@ export class ProductionReleaseService {
       where: {
         UserId: dto.approverUserId,
         IsActive: true,
-        PhoneNumber: { not: null },
         Role: {
           RoleName: {
             in: ['MANAGER', 'SUPER', 'SUPER_ADMIN', 'MANAGEMENT'],
@@ -2594,10 +2594,26 @@ export class ProductionReleaseService {
       },
     });
 
-    if (!approver || !approver.PhoneNumber) {
+    if (!approver) {
       throw new BadRequestException(
-        `Approver user ${dto.approverUserId} is not an active manager/super with a valid phone number`,
+        `Approver user ${dto.approverUserId} is not an active manager/super user`,
       );
+    }
+
+    let targetPhone = (dto.phoneNumber || approver.PhoneNumber || '').trim();
+
+    if (!targetPhone) {
+      throw new BadRequestException(
+        `Approver ${approver.Name} belum memiliki nomor WhatsApp terdaftar. Silakan masukkan nomor WhatsApp pada form.`,
+      );
+    }
+
+    if (dto.phoneNumber && dto.phoneNumber.trim() !== approver.PhoneNumber) {
+      targetPhone = dto.phoneNumber.trim();
+      await this.prisma.mTCUserManagement.update({
+        where: { UserId: approver.UserId },
+        data: { PhoneNumber: targetPhone },
+      });
     }
 
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
@@ -2644,7 +2660,7 @@ export class ProductionReleaseService {
           ProductionReleaseId: releaseId,
           RequesterUserId: requesterUsername,
           ApproverUserId: approver.UserId,
-          TargetPhoneNumber: approver.PhoneNumber,
+          TargetPhoneNumber: targetPhone,
           CodeHash: codeHash,
           Status: ApprovalChallengeStatus.PENDING,
           AttemptCount: 0,
@@ -2662,9 +2678,9 @@ export class ProductionReleaseService {
       `Kode OTP Anda: *${rawOtp}*\n\n` +
       `Kode ini berlaku selama 5 menit. JANGAN berikan kode ini kepada pihak yang tidak berkepentingan.`;
 
-    await this.fonnteService.sendWhatsApp(approver.PhoneNumber, message);
+    await this.fonnteService.sendWhatsApp(targetPhone, message);
 
-    const rawPhone = approver.PhoneNumber;
+    const rawPhone = targetPhone;
     let masked = rawPhone;
     if (rawPhone.length >= 8) {
       const prefix = rawPhone.slice(0, 4);

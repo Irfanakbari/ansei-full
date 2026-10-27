@@ -106,6 +106,7 @@ describe('ProductionReleaseService', () => {
         findMany: jest.fn(),
         findFirst: jest.fn(),
         findUnique: jest.fn(),
+        update: jest.fn(),
       },
       productionReleaseApprovalChallenge: {
         findFirst: jest.fn(),
@@ -1778,6 +1779,7 @@ describe('ProductionReleaseService', () => {
           userId: 'mgr-01',
           name: 'Manager Satu',
           roleName: 'MANAGER',
+          hasPhoneNumber: true,
           maskedPhoneNumber: '0812****7890',
         },
       ]);

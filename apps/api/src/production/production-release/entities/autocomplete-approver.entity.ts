@@ -11,6 +11,12 @@ export class AutocompleteApproverEntity {
   roleName: string;
 
   @ApiProperty({
+    description: 'Whether user has phone number registered in system',
+    example: true,
+  })
+  hasPhoneNumber: boolean;
+
+  @ApiProperty({
     description: 'Masked WhatsApp phone number',
     example: '62812****7890',
   })

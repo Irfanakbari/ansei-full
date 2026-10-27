@@ -19,6 +19,7 @@ import {
   SendOutlined,
   SafetyCertificateOutlined,
   WarningOutlined,
+  MobileOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -53,6 +54,13 @@ export default function AutocompleteReleaseModal({
     autocompleteExecuting,
   } = useSelector((state: RootState) => state.productionRelease);
 
+  const approverList = Array.isArray(autocompleteApprovers)
+    ? autocompleteApprovers
+    : [];
+
+  const [selectedApproverId, setSelectedApproverId] = useState<string | null>(
+    null,
+  );
   const [challengeId, setChallengeId] = useState<string | null>(null);
   const [approverSentInfo, setApproverSentInfo] = useState<{
     name: string;
@@ -60,11 +68,16 @@ export default function AutocompleteReleaseModal({
   } | null>(null);
   const [cooldown, setCooldown] = useState(0);
 
+  const selectedApprover = approverList.find(
+    (a) => a.userId === selectedApproverId,
+  );
+
   useEffect(() => {
     if (open) {
       void dispatch(fetchAutocompleteApprovers());
       setChallengeId(null);
       setApproverSentInfo(null);
+      setSelectedApproverId(null);
       setCooldown(0);
       form.resetFields();
     }
@@ -82,11 +95,17 @@ export default function AutocompleteReleaseModal({
 
   const handleSendOtp = async () => {
     try {
-      const values = await form.validateFields(["approverUserId"]);
+      const fieldsToValidate =
+        selectedApprover && !selectedApprover.hasPhoneNumber
+          ? ["approverUserId", "phoneNumber"]
+          : ["approverUserId"];
+      const values = await form.validateFields(fieldsToValidate);
+
       const res = await dispatch(
         requestAutocompleteOtp({
           id: release.Id,
           approverUserId: values.approverUserId,
+          phoneNumber: values.phoneNumber,
         }),
       ).unwrap();
 
@@ -215,19 +234,46 @@ export default function AutocompleteReleaseModal({
               placeholder="Pilih Manager atau Super"
               loading={autocompleteApproversLoading}
               disabled={autocompleteOtpRequesting || autocompleteExecuting}
-              options={autocompleteApprovers.map((u) => ({
+              onChange={(value: string) => setSelectedApproverId(value)}
+              options={approverList.map((u) => ({
                 value: u.userId,
                 label: `${u.name} (${u.roleName}) - WA: ${u.maskedPhoneNumber}`,
               }))}
             />
           </Form.Item>
 
+          {selectedApprover && !selectedApprover.hasPhoneNumber && (
+            <Form.Item
+              name="phoneNumber"
+              label="Nomor WhatsApp Approver (Belum terdaftar di sistem)"
+              rules={[
+                {
+                  required: true,
+                  message: "Masukkan nomor WhatsApp untuk mengirimkan OTP",
+                },
+                {
+                  pattern: /^(\+?62|0)[0-9]{8,15}$/,
+                  message:
+                    "Format nomor WhatsApp tidak valid (contoh: 081234567890)",
+                },
+              ]}
+              extra="Nomor WhatsApp ini akan disimpan ke akun approver untuk keperluan verifikasi."
+            >
+              <Input
+                prefix={<MobileOutlined className="text-slate-400" />}
+                placeholder="Contoh: 081234567890"
+              />
+            </Form.Item>
+          )}
+
           <Button
             type="dashed"
             block
             icon={<SendOutlined />}
             loading={autocompleteOtpRequesting}
-            disabled={cooldown > 0 || autocompleteExecuting}
+            disabled={
+              !selectedApproverId || cooldown > 0 || autocompleteExecuting
+            }
             onClick={handleSendOtp}
           >
             {cooldown > 0
