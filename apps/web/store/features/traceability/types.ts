@@ -41,6 +41,7 @@ export interface BomRevision {
     Id: string;
     Action: string;
     Actor: string;
+    ActorName?: string;
     Reason: string;
     CreatedAt: string;
   }[];

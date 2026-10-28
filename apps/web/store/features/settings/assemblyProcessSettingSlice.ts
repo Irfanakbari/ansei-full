@@ -12,6 +12,7 @@ export interface AssemblyProcessSetting {
   ChangeReason: string | null;
   UpdatedAt: string;
   UpdatedBy: string;
+  UpdatedByName?: string | null;
 }
 
 interface AssemblyProcessSettingState {

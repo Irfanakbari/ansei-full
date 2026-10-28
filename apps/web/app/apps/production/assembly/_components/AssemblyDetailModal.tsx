@@ -69,7 +69,7 @@ export default function AssemblyDetailModal({ session, onClose }: Props) {
             {formatDateTime(session.EndedAt)}
           </Descriptions.Item>
           <Descriptions.Item label="Cancelled By" span={{ xs: 1, sm: 2 }}>
-            {session.CancelledBy || "-"}
+            {session.CancelledByName || "-"}
           </Descriptions.Item>
           <Descriptions.Item
             label="Cancellation Reason"

@@ -92,6 +92,16 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<
       checkedBy: 'checkedByName',
       ScannedBy: 'ScannedByName',
       scannedBy: 'scannedByName',
+      CompletedBy: 'CompletedByName',
+      completedBy: 'completedByName',
+      CancelledBy: 'CancelledByName',
+      cancelledBy: 'cancelledByName',
+      Actor: 'ActorName',
+      actor: 'actorName',
+      RequestedBy: 'RequestedByName',
+      requestedBy: 'requestedByName',
+      SubmittedBy: 'SubmittedByName',
+      submittedBy: 'submittedByName',
     } as const;
     const userIds = new Set<string>();
 

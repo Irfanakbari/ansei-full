@@ -552,7 +552,11 @@ export default function RevisionDetails({
                           }),
                       },
                       { title: "Action", dataIndex: "Action" },
-                      { title: "Actor", dataIndex: "Actor" },
+                      {
+                          title: "Actor",
+                          dataIndex: "ActorName",
+                          render: (value: string | undefined) => value || "-",
+                        },
                       { title: "Reason", dataIndex: "Reason" },
                     ]}
                   />

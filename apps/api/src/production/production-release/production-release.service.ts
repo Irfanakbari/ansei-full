@@ -2678,10 +2678,22 @@ export class ProductionReleaseService {
         },
       });
 
+    const requester = await this.prisma.mTCUserManagement.findFirst({
+      where: {
+        OR: [
+          { UserId: requesterUsername },
+          { SsoObjectId: requesterUsername },
+          { Id: requesterUsername },
+        ],
+      },
+      select: { Name: true },
+    });
+    const requesterName = requester?.Name || 'Pengguna ANSEI';
+
     const message =
       `*ANSEI - APPROVAL OTP*\n\n` +
       `Halo *${approver.Name}*,\n` +
-      `User *${requesterUsername}* mengajukan *Bypass & Autocomplete All* untuk Jadwal Rilis *${release.ReleaseNumber}*.\n\n` +
+      `User *${requesterName}* mengajukan *Bypass & Autocomplete All* untuk Jadwal Rilis *${release.ReleaseNumber}*.\n\n` +
       `Kode OTP Anda: *${rawOtp}*\n\n` +
       `Kode ini berlaku selama 5 menit. JANGAN berikan kode ini kepada pihak yang tidak berkepentingan.`;
 

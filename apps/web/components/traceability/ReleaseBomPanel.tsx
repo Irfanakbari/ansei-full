@@ -130,7 +130,11 @@ export default function ReleaseBomPanel({
                                 }),
                             },
                             { title: "Activity", dataIndex: "Type" },
-                            { title: "Actor", dataIndex: "Actor" },
+                            {
+                              title: "Actor",
+                              dataIndex: "actorName",
+                              render: (value: string | undefined) => value || "-",
+                            },
                           ]}
                         />
                         <Link

@@ -117,7 +117,7 @@ export default function AssemblyProcessSettingPage() {
           </Space>
         </Descriptions.Item>
         <Descriptions.Item label="Last changed by">
-          {data?.UpdatedBy ?? "-"}
+          {data?.UpdatedByName ?? "-"}
         </Descriptions.Item>
         <Descriptions.Item label="Last reason">
           {data?.ChangeReason ?? "-"}

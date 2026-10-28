@@ -20,6 +20,8 @@ export interface AssemblySession {
   EndedAt: string | null;
   CancelReason: string | null;
   CancelledBy: string | null;
+  CancelledByName?: string | null;
+  CompletedByName?: string | null;
   LabelData: {
     LabelNumber: string;
     FinishGoodId: string;
