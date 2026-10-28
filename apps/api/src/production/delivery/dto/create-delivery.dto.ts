@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
+import { transformQueryBoolean } from '../../../common/helpers/query-boolean.helper';
 import {
   IsString,
   IsInt,
@@ -58,11 +59,7 @@ export class DeliveryQueryDto {
       'Filter records belonging to active (RELEASED) production release only',
   })
   @IsOptional()
-  @Transform(({ value }: { value: unknown }) => {
-    if (value === true || value === 'true' || value === '1') return true;
-    if (value === false || value === 'false' || value === '0') return false;
-    return undefined;
-  })
+  @Transform(transformQueryBoolean)
   @IsBoolean()
   activeReleaseOnly?: boolean;
 }

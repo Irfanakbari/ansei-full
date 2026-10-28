@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { PokayokeCompareStatus } from '../../../generated/prisma/enums';
+import { transformQueryBoolean } from '../../../common/helpers/query-boolean.helper';
 
 export class CreatePokayokeScanDto {
   @ApiProperty({
@@ -58,11 +59,7 @@ export class PokayokeScanQueryDto {
       'Filter records belonging to active (RELEASED) production release only',
   })
   @IsOptional()
-  @Transform(({ value }: { value: unknown }) => {
-    if (value === true || value === 'true' || value === '1') return true;
-    if (value === false || value === 'false' || value === '0') return false;
-    return undefined;
-  })
+  @Transform(transformQueryBoolean)
   @IsBoolean()
   activeReleaseOnly?: boolean;
 }

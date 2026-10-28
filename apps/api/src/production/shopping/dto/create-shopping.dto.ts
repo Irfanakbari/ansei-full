@@ -14,6 +14,7 @@ import {
   Min,
 } from 'class-validator';
 import { TypeShopping } from '../../../generated/prisma/enums';
+import { transformQueryBoolean } from '../../../common/helpers/query-boolean.helper';
 
 export class CreateShoppingDto {
   @ApiProperty({ format: 'uuid' }) @IsUUID() requestId: string;
@@ -80,11 +81,7 @@ export class ShoppingQueryDto extends SearchPaginationQueryDto {
       'Filter records belonging to active (RELEASED) production release only',
   })
   @IsOptional()
-  @Transform(({ value }: { value: unknown }) => {
-    if (value === true || value === 'true' || value === '1') return true;
-    if (value === false || value === 'false' || value === '0') return false;
-    return undefined;
-  })
+  @Transform(transformQueryBoolean)
   @IsBoolean()
   activeReleaseOnly?: boolean;
 }

@@ -249,6 +249,7 @@ export default function ShoppingPage() {
                 setShoppingQuery({
                   page: 1,
                   activeReleaseOnly: val === "ACTIVE",
+                  scope: val === "ACTIVE" ? "OPERATIONS" : undefined,
                 }),
               )
             }
