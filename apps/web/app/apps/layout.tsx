@@ -664,6 +664,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   );
   const notifications: NotificationsEntity | null = rawNotifications;
   const [isChecking, setIsChecking] = useState(true);
+  const isDemo =
+    process.env.NEXT_PUBLIC_DEMO === "true" || process.env.DEMO === "true";
 
   const isSuperUser =
     isSsoSuperAdmin ||
@@ -1090,6 +1092,24 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 }}
               >
                 Ansei Inventory & Production System
+                {isDemo && (
+                  <span
+                    style={{
+                      marginLeft: 8,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "#fbbf24",
+                      background: "rgba(245, 158, 11, 0.15)",
+                      border: "1px solid rgba(245, 158, 11, 0.4)",
+                      borderRadius: 4,
+                      padding: "2px 8px",
+                      display: "inline-block",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    - SIMULATION MODE (EVERY CHANGE NOT AFFECTED IN LIVE DATABASE)
+                  </span>
+                )}
               </h2>
             </div>
 

@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
   basePath,
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
+    DEMO: process.env.DEMO ?? "",
+    NEXT_PUBLIC_DEMO: process.env.NEXT_PUBLIC_DEMO ?? process.env.DEMO ?? "",
   },
   output: 'standalone',
   outputFileTracingRoot: path.resolve(process.cwd(), '../..'),
