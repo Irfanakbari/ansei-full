@@ -68,7 +68,7 @@ export default function RevisionDetails({
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { message } = App.useApp();
-  const { can, actor } = usePhasePermission();
+  const { can } = usePhasePermission();
   const materials = useSelector((s: RootState) => s.material);
   const [sapOpen, setSapOpen] = useState(false);
   const [revision, setRevision] = useState<BomRevision | null>(null);
@@ -267,8 +267,6 @@ export default function RevisionDetails({
           enable={
             revision?.Status === "SUBMITTED" &&
             can("IPCS.BOM_REVISION_APPROVE") &&
-            actor !== revision.CreatedBy &&
-            actor !== revision.LastEditedBy &&
             !saving
           }
           onClick={() => setAction("approve")}

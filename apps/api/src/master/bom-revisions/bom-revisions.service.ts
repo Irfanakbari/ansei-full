@@ -8,7 +8,6 @@ import {
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -284,10 +283,6 @@ export class BomRevisionsService {
         if (revision.Status !== 'SUBMITTED')
           throw new ConflictException(
             'Only submitted revisions can be approved.',
-          );
-        if ([revision.CreatedBy, revision.LastEditedBy].includes(actor))
-          throw new ForbiddenException(
-            'Creator/editor cannot approve their own BOM.',
           );
         if (revision.BaseRevisionId !== revision.FinishGood.ActiveBomRevisionId)
           throw new ConflictException(
