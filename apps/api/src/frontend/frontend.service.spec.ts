@@ -291,6 +291,11 @@ describe('FrontendService', () => {
         deliveredQty: 10,
         ngQty: 2,
       });
+      const day10 = result.daily.find((d) => d.date === '2026-01-10');
+      expect(day10).toMatchObject({
+        demandQty: 10,
+        deliveredQty: 10,
+      });
     });
 
     it('calculates shopping completion from completed forecast count without mixing quantities', async () => {

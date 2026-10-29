@@ -38,7 +38,7 @@ export class DashboardDailyEntity {
   reportedGoodQty: number;
   @ApiProperty({
     description:
-      'Shipment throughput recorded on this Jakarta calendar day within the selected month',
+      'Delivered quantity for forecasts scheduled on this Jakarta calendar day within the selected month',
   })
   deliveredQty: number;
   @ApiProperty() reportedNgQty: number;

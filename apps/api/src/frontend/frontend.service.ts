@@ -581,7 +581,6 @@ export class FrontendService {
       assemblies,
       labels,
       failedAttempts,
-      deliveries,
     ] = await Promise.all([
       this.prisma.material.count({ where: { IsActive: true } }),
       this.prisma.supplier.count(),
@@ -695,10 +694,6 @@ export class FrontendService {
       }),
       this.prisma.pokayokeScanHistory.count({
         where: { CreatedAt: range, Status: PokayokeCompareStatus.GAGAL },
-      }),
-      this.prisma.deliveryHistory.findMany({
-        where: { CreatedAt: range },
-        select: { ProductionDemandId: true, Qty: true, CreatedAt: true },
       }),
     ]);
     const forecastIds = [
@@ -884,7 +879,13 @@ export class FrontendService {
       moment.tz(date, timezone).format('YYYY-MM-DD');
     forecasts.forEach((item) => {
       const day = dailyMap.get(dayKey(item.DeliveryDate));
-      if (day) day.demandQty += item.Qty;
+      if (day) {
+        day.demandQty += item.Qty;
+        day.deliveredQty += Math.min(
+          deliveredByForecast.get(item.PoId) ?? 0,
+          item.Qty,
+        );
+      }
     });
     approvedIncoming.forEach((item) => {
       if (item.ApprovedAt) {
@@ -903,14 +904,6 @@ export class FrontendService {
       day.reportedGoodQty += Math.max(item.Qty - item.NgQty, 0);
       day.reportedNgQty += item.NgQty;
     });
-    deliveries
-      .filter(
-        (item) =>
-          item.CreatedAt >= periodStart && item.CreatedAt < periodEndExclusive,
-      )
-      .forEach((item) => {
-        dailyMap.get(dayKey(item.CreatedAt))!.deliveredQty += item.Qty;
-      });
     const daily = [...dailyMap].map(([date, values]) => ({ date, ...values }));
     const topPartsMap = new Map<
       string,
