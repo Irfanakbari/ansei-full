@@ -242,7 +242,7 @@ export class InventoryCountingController {
   @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+      limits: { fileSize: 5 * 1024 * 1024, files: 1 },
     }),
   )
   @ApiConsumes('multipart/form-data')
@@ -273,7 +273,7 @@ export class InventoryCountingController {
   @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+      limits: { fileSize: 5 * 1024 * 1024, files: 1 },
     }),
   )
   @ApiConsumes('multipart/form-data')
