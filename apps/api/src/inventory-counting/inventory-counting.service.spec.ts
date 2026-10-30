@@ -9,7 +9,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { LogProcessService } from '../common/log-process/log-process.service';
 import { NasUploadService } from '../common/utils/nas-upload.service';
 import { OutboxService } from '../common/outbox/outbox.service';
-import { ItemCategory, OpnameStatus } from '../generated/prisma/enums';
+import {
+  ItemCategory,
+  LocationType,
+  OpnameStatus,
+} from '../generated/prisma/enums';
+import { Workbook } from 'exceljs';
 
 describe('InventoryCountingService', () => {
   let service: InventoryCountingService;
@@ -167,6 +172,107 @@ describe('InventoryCountingService', () => {
         mockLogProcess.ProcessId,
         'SUCCESS',
         'Inventory counting created successfully',
+      );
+    });
+  });
+
+  describe('Excel result import', () => {
+    async function createWorkbookFile(rows: Array<[string, number, number]>) {
+      const workbook = new Workbook();
+      const worksheet = workbook.addWorksheet('Results');
+      worksheet.addRow(['PartNumber', 'Qty Warehouse', 'Qty Rack']);
+      rows.forEach((row) => worksheet.addRow(row));
+      const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+      return {
+        originalname: 'results.xlsx',
+        mimetype:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        size: buffer.length,
+        buffer,
+      } as Express.Multer.File;
+    }
+
+    it('marks blank quantities invalid instead of interpreting them as zero', async () => {
+      const file = await createWorkbookFile([
+        ['MAT-001', '' as unknown as number, 6],
+      ]);
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        Category: ItemCategory.MATERIAL,
+        Status: OpnameStatus.IN_PROGRESS,
+        Details: [],
+      });
+
+      const result = await service.previewResultImport('123', file);
+
+      expect(result.items[0]).toMatchObject({
+        qtyWarehouse: null,
+        qtyRack: 6,
+        status: 'INVALID',
+      });
+    });
+
+    it('previews unregistered part numbers without writing details', async () => {
+      const file = await createWorkbookFile([['UNKNOWN', 5, 6]]);
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        Category: ItemCategory.MATERIAL,
+        Status: OpnameStatus.IN_PROGRESS,
+        Details: [],
+      });
+
+      const result = await service.previewResultImport('123', file);
+
+      expect(result.canApply).toBe(false);
+      expect(result.items[0]).toMatchObject({
+        partNumber: 'UNKNOWN',
+        status: 'NOT_REGISTERED',
+      });
+      expect(prismaService.stockOpnameDetail.update).not.toHaveBeenCalled();
+    });
+
+    it('applies valid counts to details only and creates no inventory ledger', async () => {
+      const file = await createWorkbookFile([['MAT-001', 5, 6]]);
+      const details = [
+        {
+          Id: 1,
+          OpnameId: '123',
+          MaterialId: 'MAT-001',
+          Location: LocationType.WAREHOUSE,
+          SystemQty: 4,
+          SystemQtyRack: 0,
+        },
+        {
+          Id: 2,
+          OpnameId: '123',
+          MaterialId: 'MAT-001',
+          Location: LocationType.RACK,
+          SystemQty: 7,
+          SystemQtyRack: 7,
+        },
+      ];
+      prismaService.stockOpname.findUnique
+        .mockResolvedValueOnce({
+          Id: '123',
+          Category: ItemCategory.MATERIAL,
+          Status: OpnameStatus.IN_PROGRESS,
+          Details: details,
+        })
+        .mockResolvedValueOnce({ Category: ItemCategory.MATERIAL })
+        .mockResolvedValueOnce({ Status: OpnameStatus.IN_PROGRESS });
+      prismaService.stockOpnameDetail.findMany.mockResolvedValue(details);
+      prismaService.stockOpnameDetail.update.mockImplementation(({ where }) =>
+        Promise.resolve(details.find((detail) => detail.Id === where.Id)),
+      );
+
+      await expect(
+        service.applyResultImport('123', file, 'testuser'),
+      ).resolves.toEqual({ success: true, updatedCount: 1 });
+      expect(prismaService.stockOpnameDetail.update).toHaveBeenCalledTimes(2);
+      expect(prismaService.material.update).not.toHaveBeenCalled();
+      expect(logService.completeProcess).toHaveBeenCalledWith(
+        mockLogProcess.ProcessId,
+        'SUCCESS',
       );
     });
   });
@@ -1172,8 +1278,11 @@ describe('InventoryCountingService', () => {
       const ws = wb.getWorksheet('RACK');
       expect(ws).toBeDefined();
       expect(ws.pageSetup.printTitlesRow).toBe('1:18');
-      expect(ws.getRow(18).values).toContain('Rack System Qty');
+      expect(ws.getRow(18).values).not.toContain('Rack System Qty');
+      expect(ws.getRow(18).values).not.toContain('System Qty (WH)');
+      expect(ws.getRow(18).values).toContain('Rack Actual Qty');
       expect(ws.getRow(18).values).toContain('CHECK');
+      expect(ws.getRow(19).values).not.toContain(10);
     });
   });
 

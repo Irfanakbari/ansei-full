@@ -238,6 +238,73 @@ export class InventoryCountingController {
     );
   }
 
+  @Post(':id/results-import/preview')
+  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOperation({
+    summary: 'Preview an inventory counting Excel result import',
+  })
+  async previewResultImport(
+    @Param('id') id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.inventoryCountingService.previewResultImport(id, file);
+  }
+
+  @Post(':id/results-import/apply')
+  @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOperation({
+    summary: 'Apply a validated inventory counting Excel result import',
+  })
+  async applyResultImport(
+    @Param('id') id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    return this.inventoryCountingService.applyResultImport(
+      id,
+      file,
+      user.username,
+    );
+  }
+
   @Patch(':id')
   @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
   @ApiOperation({ summary: 'Update inventory counting notes' })

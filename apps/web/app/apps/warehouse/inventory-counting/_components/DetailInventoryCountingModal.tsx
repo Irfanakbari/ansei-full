@@ -43,8 +43,10 @@ import {
   SearchOutlined,
   DeleteOutlined,
   ScanOutlined,
+  FileExcelOutlined,
 } from "@ant-design/icons";
 import ReviewApprovalModal from "./ReviewApprovalModal";
+import InventoryCountingResultImportModal from "./InventoryCountingResultImportModal";
 import SapDocumentNumbers from "@/components/SapDocumentNumbers";
 
 export interface MergedCountingDetail extends InventoryCountingDetailEntity {
@@ -101,6 +103,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({
   const [detailRefreshNonce, setDetailRefreshNonce] = useState(0);
   const [ocrProcessing, setOcrProcessing] = useState(false);
   const [ocrApplying, setOcrApplying] = useState(false);
+  const [resultImportOpen, setResultImportOpen] = useState(false);
 
   // Tolerance state
   const [downloadingTemp, setDownloadingTemp] = useState(false);
@@ -841,6 +844,16 @@ const DetailInventoryCountingModal: React.FC<Props> = ({
                 </span>
               </Tooltip>
             )}
+            {data?.Category === "MATERIAL" &&
+              data?.Status === "IN_PROGRESS" &&
+              canUpdate && (
+                <Button
+                  icon={<FileExcelOutlined />}
+                  onClick={() => setResultImportOpen(true)}
+                >
+                  Import Excel Results
+                </Button>
+              )}
             {data?.Status === "COMPLETED" && (
               <Button
                 type="primary"
@@ -994,6 +1007,16 @@ const DetailInventoryCountingModal: React.FC<Props> = ({
           scroll={{ x: 750, y: 400 }}
         />
       </div>
+
+      <InventoryCountingResultImportModal
+        open={resultImportOpen}
+        inventoryCountingId={data.Id}
+        onClose={() => setResultImportOpen(false)}
+        onApplied={() => {
+          setDetailRefreshNonce((value) => value + 1);
+          onRefresh?.();
+        }}
+      />
 
       <ReviewApprovalModal
         visible={isReviewModalVisible}

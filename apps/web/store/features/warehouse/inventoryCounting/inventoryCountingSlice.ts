@@ -81,6 +81,25 @@ export interface OcrPreviewResponse {
   items: OcrPreviewItem[];
 }
 
+export interface ResultImportPreviewItem {
+  rowNumber: number;
+  partNumber: string;
+  qtyWarehouse: number | null;
+  qtyRack: number | null;
+  warehouseDetailId: number | null;
+  rackDetailId: number | null;
+  status: "VALID" | "INVALID" | "NOT_REGISTERED" | "DUPLICATE";
+  message: string | null;
+}
+
+export interface ResultImportPreviewResponse {
+  items: ResultImportPreviewItem[];
+  totalRows: number;
+  validRows: number;
+  invalidRows: number;
+  canApply: boolean;
+}
+
 export interface InventoryCountingPackageStatus {
   generation: {
     status: string;
@@ -518,6 +537,50 @@ export const previewInventoryCountingOcr = createAsyncThunk<
     );
   }
 });
+
+export const previewInventoryCountingResultImport = createAsyncThunk<
+  ResultImportPreviewResponse,
+  { id: string; file: File },
+  { rejectValue: string }
+>(
+  "inventoryCounting/previewResultImport",
+  async ({ id, file }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      return await postFormData<ResultImportPreviewResponse>(
+        `/inventory-counting/${id}/results-import/preview`,
+        formData,
+      );
+    } catch (error: unknown) {
+      return rejectWithValue(
+        getApiErrorMessage(error, "Failed to preview the Excel results"),
+      );
+    }
+  },
+);
+
+export const applyInventoryCountingResultImport = createAsyncThunk<
+  { success: boolean; updatedCount: number },
+  { id: string; file: File },
+  { rejectValue: string }
+>(
+  "inventoryCounting/applyResultImport",
+  async ({ id, file }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      return await postFormData<{ success: boolean; updatedCount: number }>(
+        `/inventory-counting/${id}/results-import/apply`,
+        formData,
+      );
+    } catch (error: unknown) {
+      return rejectWithValue(
+        getApiErrorMessage(error, "Failed to apply the Excel results"),
+      );
+    }
+  },
+);
 
 export const applyInventoryCountingOcr = createAsyncThunk<
   { success: boolean; updatedCount: number },

@@ -42,6 +42,8 @@ describe('InventoryCountingController', () => {
       deleteAttachment: jest.fn(),
       previewOcr: jest.fn(),
       applyOcrResults: jest.fn(),
+      previewResultImport: jest.fn(),
+      applyResultImport: jest.fn(),
       close: jest.fn(),
       generateFinalReport: jest.fn(),
     };
@@ -412,6 +414,29 @@ describe('InventoryCountingController', () => {
         '123',
         file,
         true,
+        mockUser.username,
+      );
+    });
+  });
+
+  describe('Excel result import', () => {
+    it('should preview and apply the uploaded workbook using the authenticated actor', async () => {
+      const file = { originalname: 'results.xlsx' } as Express.Multer.File;
+      const preview = { items: [], canApply: false };
+      const applied = { success: true, updatedCount: 2 };
+      service.previewResultImport.mockResolvedValue(preview);
+      service.applyResultImport.mockResolvedValue(applied);
+
+      await expect(controller.previewResultImport('123', file)).resolves.toBe(
+        preview,
+      );
+      await expect(
+        controller.applyResultImport('123', file, mockUser),
+      ).resolves.toBe(applied);
+      expect(service.previewResultImport).toHaveBeenCalledWith('123', file);
+      expect(service.applyResultImport).toHaveBeenCalledWith(
+        '123',
+        file,
         mockUser.username,
       );
     });

@@ -56,6 +56,7 @@ import { decorateSapCountingDocuments } from '../common/sap/sap-document-summary
 
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
 const MAX_OCR_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_RESULT_IMPORT_ROWS = 5000;
 
 type OcrLocation = LocationType;
 
@@ -69,6 +70,17 @@ export interface OcrPreviewItem extends OcrExtractionItem {
   detailId: number | null;
   matchedPartNumber: string | null;
   status: 'MATCHED' | 'SUGGESTED' | 'DUPLICATE' | 'NOT_FOUND';
+}
+
+export interface ResultImportPreviewItem {
+  rowNumber: number;
+  partNumber: string;
+  qtyWarehouse: number | null;
+  qtyRack: number | null;
+  warehouseDetailId: number | null;
+  rackDetailId: number | null;
+  status: 'VALID' | 'INVALID' | 'NOT_REGISTERED' | 'DUPLICATE';
+  message: string | null;
 }
 
 interface OcrMatchingDetail {
@@ -1636,6 +1648,249 @@ export class InventoryCountingService {
     }
   }
 
+  async previewResultImport(opnameId: string, file: Express.Multer.File) {
+    this.validateResultImportFile(file);
+    const counting = await this.prisma.stockOpname.findUnique({
+      where: { Id: opnameId },
+      include: { Details: true },
+    });
+    if (!counting) {
+      throw new NotFoundException(
+        `Inventory counting with ID ${opnameId} not found`,
+      );
+    }
+    if (counting.Status !== OpnameStatus.IN_PROGRESS) {
+      throw new ConflictException(
+        'Excel results can only be imported while inventory counting is IN_PROGRESS.',
+      );
+    }
+    if (counting.Category !== ItemCategory.MATERIAL) {
+      throw new BadRequestException(
+        'The Warehouse/Rack Excel result format is only available for MATERIAL inventory counting.',
+      );
+    }
+
+    const rows = await this.parseResultImport(file);
+    const seen = new Set<string>();
+    const items: ResultImportPreviewItem[] = rows.map((row) => {
+      const normalized = row.partNumber.toUpperCase();
+      const duplicate = seen.has(normalized);
+      seen.add(normalized);
+      const warehouseDetail = counting.Details.find(
+        (detail) =>
+          detail.MaterialId?.toUpperCase() === normalized &&
+          detail.Location === LocationType.WAREHOUSE,
+      );
+      const rackDetail = counting.Details.find(
+        (detail) =>
+          detail.MaterialId?.toUpperCase() === normalized &&
+          detail.Location === LocationType.RACK,
+      );
+      const invalidQuantity = row.qtyWarehouse === null || row.qtyRack === null;
+      const status = duplicate
+        ? 'DUPLICATE'
+        : invalidQuantity
+          ? 'INVALID'
+          : !warehouseDetail || !rackDetail
+            ? 'NOT_REGISTERED'
+            : 'VALID';
+      return {
+        ...row,
+        warehouseDetailId: warehouseDetail?.Id ?? null,
+        rackDetailId: rackDetail?.Id ?? null,
+        status,
+        message:
+          status === 'DUPLICATE'
+            ? 'Part number appears more than once.'
+            : status === 'INVALID'
+              ? 'Both quantities must be non-negative integers.'
+              : status === 'NOT_REGISTERED'
+                ? 'Part number is not registered in both Warehouse and Rack details for this counting.'
+                : null,
+      };
+    });
+    return {
+      items,
+      totalRows: items.length,
+      validRows: items.filter((item) => item.status === 'VALID').length,
+      invalidRows: items.filter((item) => item.status !== 'VALID').length,
+      canApply:
+        items.length > 0 && items.every((item) => item.status === 'VALID'),
+    };
+  }
+
+  async applyResultImport(
+    opnameId: string,
+    file: Express.Multer.File,
+    updatedBy: string,
+  ) {
+    let logProcess: LogProcessModel | undefined;
+    try {
+      logProcess = await this.logService.startProcess({
+        functionId: 'INV_COUNT_IMPORT_001',
+        functionName: 'InventoryCountingService.applyResultImport',
+        createdBy: updatedBy,
+      });
+      const preview = await this.previewResultImport(opnameId, file);
+      if (!preview.canApply) {
+        throw new BadRequestException(
+          'Excel import contains invalid, duplicate, or unregistered rows. Preview and correct the file before submitting.',
+        );
+      }
+      const counting = await this.prisma.stockOpname.findUnique({
+        where: { Id: opnameId },
+        select: { Category: true },
+      });
+      if (!counting) {
+        throw new NotFoundException(
+          `Inventory counting with ID ${opnameId} not found`,
+        );
+      }
+      await withInventoryTransaction(
+        this.prisma,
+        counting.Category,
+        async (tx) => {
+          const current = await tx.stockOpname.findUnique({
+            where: { Id: opnameId },
+            select: { Status: true },
+          });
+          if (current?.Status !== OpnameStatus.IN_PROGRESS) {
+            throw new ConflictException(
+              'Inventory counting was closed or cancelled. Refresh before applying counts.',
+            );
+          }
+          const detailIds = preview.items.flatMap((item) => [
+            item.warehouseDetailId!,
+            item.rackDetailId!,
+          ]);
+          const details = await tx.stockOpnameDetail.findMany({
+            where: { OpnameId: opnameId, Id: { in: detailIds } },
+          });
+          if (details.length !== detailIds.length) {
+            throw new ConflictException(
+              'Inventory counting details changed. Preview the file again.',
+            );
+          }
+          const detailById = new Map(
+            details.map((detail) => [detail.Id, detail]),
+          );
+          for (const item of preview.items) {
+            const warehouseDetail = detailById.get(item.warehouseDetailId!)!;
+            const rackDetail = detailById.get(item.rackDetailId!)!;
+            await tx.stockOpnameDetail.update({
+              where: { Id: warehouseDetail.Id },
+              data: {
+                ActualQty: item.qtyWarehouse,
+                DiffQty: item.qtyWarehouse! - warehouseDetail.SystemQty,
+              },
+            });
+            await tx.stockOpnameDetail.update({
+              where: { Id: rackDetail.Id },
+              data: {
+                ActualQty: item.qtyRack,
+                ActualQtyRack: item.qtyRack,
+                DiffQty: item.qtyRack! - rackDetail.SystemQty,
+                DiffQtyRack: item.qtyRack! - (rackDetail.SystemQtyRack ?? 0),
+              },
+            });
+          }
+        },
+      );
+      await this.logService.addLog({
+        processId: logProcess.ProcessId,
+        message: `Applied ${preview.validRows} validated Excel result row(s) to inventory counting ${opnameId}.`,
+        type: 'INFO',
+        location: 'inventory-counting.service.ts:applyResultImport',
+      });
+      await this.logService.completeProcess(logProcess.ProcessId, 'SUCCESS');
+      return { success: true, updatedCount: preview.validRows };
+    } catch (error) {
+      if (logProcess) {
+        await this.logService.addLog({
+          processId: logProcess.ProcessId,
+          message: `Excel result import failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          type: 'ERROR',
+          location: 'inventory-counting.service.ts:applyResultImport',
+        });
+        await this.logService.completeProcess(logProcess.ProcessId, 'FAILED');
+      }
+      throw error;
+    }
+  }
+
+  private validateResultImportFile(file: Express.Multer.File): void {
+    validateUploadContent(file, ['xlsx']);
+    if (file.size > MAX_OCR_FILE_SIZE) {
+      throw new BadRequestException(
+        'Excel file too large. Maximum size is 5MB.',
+      );
+    }
+  }
+
+  private async parseResultImport(file: Express.Multer.File) {
+    const workbook = new Workbook();
+    try {
+      await workbook.xlsx.load(
+        file.buffer.buffer.slice(
+          file.buffer.byteOffset,
+          file.buffer.byteOffset + file.buffer.byteLength,
+        ) as ArrayBuffer,
+      );
+    } catch {
+      throw new BadRequestException('Unable to read the Excel workbook.');
+    }
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) throw new BadRequestException('Excel workbook is empty.');
+    const headers = [1, 2, 3].map((column) =>
+      worksheet.getCell(1, column).text.trim().toLowerCase(),
+    );
+    if (
+      headers[0] !== 'partnumber' ||
+      headers[1] !== 'qty warehouse' ||
+      headers[2] !== 'qty rack'
+    ) {
+      throw new BadRequestException(
+        'Excel columns must be A PartNumber, B Qty Warehouse, C Qty Rack.',
+      );
+    }
+    if (worksheet.rowCount - 1 > MAX_RESULT_IMPORT_ROWS) {
+      throw new BadRequestException(
+        `Excel import is limited to ${MAX_RESULT_IMPORT_ROWS} data rows.`,
+      );
+    }
+    const rows: Array<{
+      rowNumber: number;
+      partNumber: string;
+      qtyWarehouse: number | null;
+      qtyRack: number | null;
+    }> = [];
+    for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber += 1) {
+      const row = worksheet.getRow(rowNumber);
+      const partNumber = row.getCell(1).text.trim();
+      const warehouseText = row.getCell(2).text.trim();
+      const rackText = row.getCell(3).text.trim();
+      const warehouse = Number(warehouseText);
+      const rack = Number(rackText);
+      if (!partNumber && !warehouseText && !rackText) continue;
+      const validWarehouse =
+        warehouseText !== '' &&
+        Number.isSafeInteger(warehouse) &&
+        warehouse >= 0;
+      const validRack =
+        rackText !== '' && Number.isSafeInteger(rack) && rack >= 0;
+      rows.push({
+        rowNumber,
+        partNumber,
+        qtyWarehouse: validWarehouse ? warehouse : null,
+        qtyRack: validRack ? rack : null,
+      });
+    }
+    if (rows.length === 0) {
+      throw new BadRequestException('Excel workbook contains no result rows.');
+    }
+    return rows;
+  }
+
   private async getCountingOrThrow(opnameId: string) {
     const counting = await this.prisma.stockOpname.findUnique({
       where: { Id: opnameId },
@@ -2877,10 +3132,9 @@ export class InventoryCountingService {
         // Determine if MATERIAL category
         const isMaterial = inventoryCounting.Category === ItemCategory.MATERIAL;
 
-        // Determine headers based on location for MATERIAL, same for FINISH_GOOD
-        // WAREHOUSE sheet: System Qty (WH), Box, Pieces, Actual Qty (WH)
-        // RACK sheet: Rack System Qty, Box, Pieces, Rack Actual Qty
-        // FINISH_GOOD: System Qty, Box, Pieces, Actual Qty
+        // Material worksheets use blind counting: system quantities are intentionally
+        // excluded so operators cannot anchor their physical count to system stock.
+        // FINISH_GOOD retains its existing worksheet contract.
         const isRack = locationKey === LocationType.RACK;
         const isWarehouse = locationKey === LocationType.WAREHOUSE;
 
@@ -2891,7 +3145,6 @@ export class InventoryCountingService {
                 'Part Number',
                 'Part Name',
                 'Location',
-                'System Qty (WH)',
                 'Box (Full)',
                 'Pieces',
                 'Actual Qty (WH)',
@@ -2903,7 +3156,6 @@ export class InventoryCountingService {
                   'Part Number',
                   'Part Name',
                   'Location',
-                  'Rack System Qty',
                   'Box (Full)',
                   'Pieces',
                   'Rack Actual Qty',
@@ -2953,7 +3205,6 @@ export class InventoryCountingService {
                 { key: 'partNumber', width: 18 },
                 { key: 'partName', width: 25 },
                 { key: 'location', width: 12 },
-                { key: 'systemQty', width: 12 },
                 { key: 'palletFull', width: 10 },
                 { key: 'pieces', width: 10 },
                 { key: 'actualQty', width: 12 },
@@ -2965,7 +3216,6 @@ export class InventoryCountingService {
                   { key: 'partNumber', width: 18 },
                   { key: 'partName', width: 25 },
                   { key: 'location', width: 12 },
-                  { key: 'rackSystemQty', width: 12 },
                   { key: 'palletFull', width: 10 },
                   { key: 'pieces', width: 10 },
                   { key: 'rackActualQty', width: 12 },
@@ -3018,7 +3268,6 @@ export class InventoryCountingService {
                   partNumber: item.MaterialId || item.FinishGoodId || '',
                   partName: itemName,
                   location: item.Location,
-                  systemQty: item.SystemQty,
                   palletFull: '',
                   pieces: '',
                   actualQty: item.ActualQty ?? '',
@@ -3030,7 +3279,6 @@ export class InventoryCountingService {
                     partNumber: item.MaterialId || item.FinishGoodId || '',
                     partName: itemName,
                     location: item.Location,
-                    rackSystemQty: item.SystemQtyRack,
                     palletFull: '',
                     pieces: '',
                     rackActualQty: item.ActualQtyRack ?? '',
@@ -3068,15 +3316,15 @@ export class InventoryCountingService {
             if (colNumber === 2) cell.font = { bold: true };
 
             if (isMaterial && isWarehouse) {
-              // WAREHOUSE: col 8 = Actual Qty (WH), col 9 = CHECK
-              if (colNumber === 8 && item.ActualQty === null) {
+              // WAREHOUSE: col 7 = Actual Qty (WH), col 8 = CHECK
+              if (colNumber === 7 && item.ActualQty === null) {
                 cell.fill = {
                   type: 'pattern',
                   pattern: 'solid',
                   fgColor: { argb: 'FFFFF2CC' },
                 };
               }
-              if (colNumber === 9) {
+              if (colNumber === 8) {
                 cell.fill = {
                   type: 'pattern',
                   pattern: 'solid',
@@ -3084,15 +3332,15 @@ export class InventoryCountingService {
                 };
               }
             } else if (isMaterial && isRack) {
-              // RACK: col 8 = Rack Actual Qty, col 9 = CHECK
-              if (colNumber === 8 && item.ActualQtyRack === null) {
+              // RACK: col 7 = Rack Actual Qty, col 8 = CHECK
+              if (colNumber === 7 && item.ActualQtyRack === null) {
                 cell.fill = {
                   type: 'pattern',
                   pattern: 'solid',
                   fgColor: { argb: 'FFFFF2CC' },
                 };
               }
-              if (colNumber === 9) {
+              if (colNumber === 8) {
                 cell.fill = {
                   type: 'pattern',
                   pattern: 'solid',
