@@ -72,7 +72,9 @@ const allPermissions = [
   { Action: 'IPCS.INCOMING_CREATE', Description: 'Create incoming material' },
   { Action: 'IPCS.INCOMING_UPDATE', Description: 'Update incoming material' },
   { Action: 'IPCS.INCOMING_DELETE', Description: 'Delete incoming material' },
+  { Action: 'IPCS.TRANSFER_READ', Description: 'Read material transfer history' },
   { Action: 'IPCS.TRANSFER_CREATE', Description: 'Create material transfer' },
+  { Action: 'IPCS.TRANSFER_REVERT', Description: 'Revert material transfer' },
   { Action: 'IPCS.MRP_READ', Description: 'Read material run-out' },
   {
     Action: 'IPCS.INVENTORY_COUNTING_READ',

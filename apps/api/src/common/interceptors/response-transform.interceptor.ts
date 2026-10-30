@@ -75,34 +75,39 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<
   private async enrichUserDisplayNames(payload: unknown): Promise<unknown> {
     if (!this.prisma) return payload;
 
-    const auditFields = {
-      CreateBy: 'CreateByName',
-      ChangeBy: 'ChangeByName',
-      CreatedBy: 'CreatedByName',
-      UpdatedBy: 'UpdatedByName',
-      LastEditedBy: 'UpdatedByName',
-      UpdateBy: 'UpdateByName',
-      createdBy: 'createdByName',
-      updatedBy: 'updatedByName',
-      ReceivedBy: 'ReceivedByName',
-      receivedBy: 'receivedByName',
-      ApprovedBy: 'ApprovedByName',
-      approvedBy: 'approvedByName',
-      CheckedBy: 'CheckedByName',
-      checkedBy: 'checkedByName',
-      ScannedBy: 'ScannedByName',
-      scannedBy: 'scannedByName',
-      CompletedBy: 'CompletedByName',
-      completedBy: 'completedByName',
-      CancelledBy: 'CancelledByName',
-      cancelledBy: 'cancelledByName',
-      Actor: 'ActorName',
-      actor: 'actorName',
-      RequestedBy: 'RequestedByName',
-      requestedBy: 'requestedByName',
-      SubmittedBy: 'SubmittedByName',
-      submittedBy: 'submittedByName',
-    } as const;
+    const auditMappings: Array<[string, string]> = [
+      ['CreateBy', 'CreateByName'],
+      ['ChangeBy', 'ChangeByName'],
+      ['CreatedBy', 'CreatedByName'],
+      ['UpdatedBy', 'UpdatedByName'],
+      ['LastEditedBy', 'LastEditedByName'],
+      ['LastEditedBy', 'UpdatedByName'],
+      ['UpdateBy', 'UpdateByName'],
+      ['createdBy', 'createdByName'],
+      ['updatedBy', 'updatedByName'],
+      ['lastEditedBy', 'lastEditedByName'],
+      ['lastEditedBy', 'updatedByName'],
+      ['ReceivedBy', 'ReceivedByName'],
+      ['receivedBy', 'receivedByName'],
+      ['ApprovedBy', 'ApprovedByName'],
+      ['approvedBy', 'approvedByName'],
+      ['CheckedBy', 'CheckedByName'],
+      ['checkedBy', 'checkedByName'],
+      ['ScannedBy', 'ScannedByName'],
+      ['scannedBy', 'scannedByName'],
+      ['CompletedBy', 'CompletedByName'],
+      ['completedBy', 'completedByName'],
+      ['CancelledBy', 'CancelledByName'],
+      ['cancelledBy', 'cancelledByName'],
+      ['RevertedBy', 'RevertedByName'],
+      ['revertedBy', 'revertedByName'],
+      ['Actor', 'ActorName'],
+      ['actor', 'actorName'],
+      ['RequestedBy', 'RequestedByName'],
+      ['requestedBy', 'requestedByName'],
+      ['SubmittedBy', 'SubmittedByName'],
+      ['submittedBy', 'submittedByName'],
+    ];
     const userIds = new Set<string>();
 
     this.visitRecords(payload, (record) => {
@@ -112,9 +117,7 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<
       ) {
         record.UpdatedBy = record.LastEditedBy;
       }
-      for (const sourceField of Object.keys(auditFields) as Array<
-        keyof typeof auditFields
-      >) {
+      for (const [sourceField] of auditMappings) {
         const value = record[sourceField];
         if (typeof value === 'string' && value.trim()) userIds.add(value);
       }
@@ -124,7 +127,7 @@ export class ResponseTransformInterceptor<T> implements NestInterceptor<
 
     const displayNames = await getUserDisplayNameMap([...userIds], this.prisma);
     this.visitRecords(payload, (record) => {
-      for (const [sourceField, displayField] of Object.entries(auditFields)) {
+      for (const [sourceField, displayField] of auditMappings) {
         const value = record[sourceField];
         if (
           typeof value === 'string' &&

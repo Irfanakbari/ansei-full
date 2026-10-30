@@ -664,8 +664,29 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
   );
   const notifications: NotificationsEntity | null = rawNotifications;
   const [isChecking, setIsChecking] = useState(true);
-  const isDemo =
-    process.env.NEXT_PUBLIC_DEMO === "true" || process.env.DEMO === "true";
+  const [isDemo, setIsDemo] = useState<boolean>(() => {
+    return (
+      process.env.NEXT_PUBLIC_DEMO === "true" ||
+      process.env.DEMO === "true" ||
+      (typeof window !== "undefined" &&
+        Boolean((window as any).__ANSEI_DEMO__))
+    );
+  });
+
+  useEffect(() => {
+    if (session?.attributes && "isDemo" in session.attributes) {
+      setIsDemo(Boolean((session.attributes as any).isDemo));
+      return;
+    }
+    fetch(withBasePath("/api/app-config"), { cache: "no-store" })
+      .then((res) => res.json())
+      .then((cfg) => {
+        if (cfg?.demo !== undefined) {
+          setIsDemo(Boolean(cfg.demo));
+        }
+      })
+      .catch(() => {});
+  }, [session]);
 
   const isSuperUser =
     isSsoSuperAdmin ||

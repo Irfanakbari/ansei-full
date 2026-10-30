@@ -8,8 +8,10 @@ interface CounterRow {
 
 export async function nextRecordNumber(
   tx: Prisma.TransactionClient,
-  prefix: 'ANR' | 'AIC',
+  prefix: 'ANR' | 'AIC' | 'TTR',
 ): Promise<string> {
+  const maxSequence = prefix === 'TTR' ? 9999 : 99;
+  const sequenceWidth = prefix === 'TTR' ? 4 : 2;
   const rows = await tx.$queryRaw<CounterRow[]>`
     INSERT INTO "RecordNumberCounter" (
       "Id", "Prefix", "BusinessDate", "LastSequence", "CreatedAt", "UpdatedAt"
@@ -25,13 +27,13 @@ export async function nextRecordNumber(
     ON CONFLICT ("Prefix", "BusinessDate") DO UPDATE
     SET "LastSequence" = "RecordNumberCounter"."LastSequence" + 1,
         "UpdatedAt" = CURRENT_TIMESTAMP
-    WHERE "RecordNumberCounter"."LastSequence" < 99
+    WHERE "RecordNumberCounter"."LastSequence" < ${maxSequence}
     RETURNING "BusinessDate", "LastSequence"
   `;
   const row = rows[0];
   if (!row) {
     throw new ConflictException(
-      `Daily ${prefix} record number limit of 99 has been reached.`,
+      `Daily ${prefix} record number limit of ${maxSequence} has been reached.`,
     );
   }
   const date = new Date(
@@ -40,5 +42,5 @@ export async function nextRecordNumber(
   const dd = String(date.getUTCDate()).padStart(2, '0');
   const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
   const yy = String(date.getUTCFullYear()).slice(-2);
-  return `${prefix}-${dd}${mm}${yy}${String(row.LastSequence).padStart(2, '0')}`;
+  return `${prefix}-${dd}${mm}${yy}${String(row.LastSequence).padStart(sequenceWidth, '0')}`;
 }

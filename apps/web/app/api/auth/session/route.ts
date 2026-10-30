@@ -100,11 +100,18 @@ export async function GET(request: Request) {
     };
   }
 
+  const isDemo =
+    Reflect.get(process.env, 'DEMO') === 'true' ||
+    Reflect.get(process.env, 'NEXT_PUBLIC_DEMO') === 'true';
+
   return Response.json(
     toClientSession(session, {
       roles: profile?.RoleName ? [profile.RoleName] : [],
       permissions: profile?.Permission ?? [],
-      attributes: profile,
+      attributes: {
+        ...(profile ?? {}),
+        isDemo,
+      },
     }),
     { headers: { 'Cache-Control': 'no-store' } },
   );

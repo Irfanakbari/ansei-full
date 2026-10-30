@@ -80,6 +80,21 @@ export class ForecastService {
     PART_NO: 11,
   };
 
+  private readonly DELIVERY_ACTUAL_DATE_COLUMN_MAP = {
+    PO_ID: 1,
+    DATE: 2,
+    VENDOR_CODE: 3,
+    VENDOR_NAME: 4,
+    RECEIVING_AREA: 5,
+    DEL_DATE: 6,
+    DEL_PERIOD: 7,
+    CLASSIFICATION: 8,
+    PO_NO: 9,
+    ITEM: 10,
+    PART_NO: 11,
+    QUANTITY: 13,
+  };
+
   async findAll(query: ForecastQueryDto = { page: 1, limit: 50 }) {
     const page = query?.page ?? 1;
     const limit = query?.limit ?? 50;
@@ -135,7 +150,7 @@ export class ForecastService {
           },
           ProductionRelease: { select: { ReleaseNumber: true } },
         },
-        orderBy: [{ DeliveryDate: 'asc' }, { Id: 'desc' }],
+        orderBy: [{ DeliveryDate: 'desc' }, { Id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -206,7 +221,7 @@ export class ForecastService {
           },
           ProductionRelease: { select: { ReleaseNumber: true } },
         },
-        orderBy: [{ DeliveryDate: 'asc' }, { Id: 'desc' }],
+        orderBy: [{ DeliveryDate: 'desc' }, { Id: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -761,12 +776,30 @@ export class ForecastService {
 
       validateUploadContent(file, ['xlsx']);
 
-      // Read Excel by column position
-      const rawData = await this.excelService.readExcelByPosition(file);
+      const excelResult =
+        await this.excelService.readExcelByPositionWithMetadata(file, {
+          worksheetName: 'Delivery actual date',
+          headerColumns: Array.from(
+            { length: 11 },
+            (_, index) => index + 1,
+          ).concat(13),
+          minimumPopulatedHeaderColumns: 8,
+        });
+      const columnMap = excelResult.usedRequestedWorksheet
+        ? this.DELIVERY_ACTUAL_DATE_COLUMN_MAP
+        : this.COLUMN_MAP;
+      const rawData = excelResult.rows;
+      const deliveryPeriodColumn = excelResult.usedRequestedWorksheet
+        ? 'H'
+        : 'G';
+      const poIdColumn = excelResult.usedRequestedWorksheet ? 'B' : 'A';
 
       // Filter out empty rows (rows where all values are empty strings)
       const filteredData = rawData
-        .map((row: ForecastExcelRow, index) => ({ row, rowNumber: index + 2 }))
+        .map(({ row, rowNumber }) => ({
+          row: row as ForecastExcelRow,
+          rowNumber,
+        }))
         .filter(({ row }) =>
           Object.values(row).some(
             (val) => val !== undefined && String(val).trim() !== '',
@@ -789,19 +822,19 @@ export class ForecastService {
       // Transform data based on column position
       const transformedData = filteredData.map(
         ({ row: rowData, rowNumber }) => {
-          const poId = String(rowData[this.COLUMN_MAP.PO_ID] ?? '').trim();
-          const dateVal = rowData[this.COLUMN_MAP.DATE];
+          const poId = String(rowData[columnMap.PO_ID] ?? '').trim();
+          const dateVal = rowData[columnMap.DATE];
           const vendorCode = String(
-            rowData[this.COLUMN_MAP.VENDOR_CODE] ?? '',
+            rowData[columnMap.VENDOR_CODE] ?? '',
           ).trim();
           const vendorName = String(
-            rowData[this.COLUMN_MAP.VENDOR_NAME] ?? '',
+            rowData[columnMap.VENDOR_NAME] ?? '',
           ).trim();
           const receivingArea = String(
-            rowData[this.COLUMN_MAP.RECEIVING_AREA] ?? '',
+            rowData[columnMap.RECEIVING_AREA] ?? '',
           ).trim();
-          const delDateVal = rowData[this.COLUMN_MAP.DEL_DATE];
-          const deliveryPeriodValue = rowData[this.COLUMN_MAP.DEL_PERIOD];
+          const delDateVal = rowData[columnMap.DEL_DATE];
+          const deliveryPeriodValue = rowData[columnMap.DEL_PERIOD];
           const deliveryPeriod =
             typeof deliveryPeriodValue === 'number'
               ? deliveryPeriodValue
@@ -810,20 +843,20 @@ export class ForecastService {
             typeof deliveryPeriodValue === 'number' ||
             /^\d+$/.test(String(deliveryPeriodValue ?? '').trim());
           const classification = String(
-            rowData[this.COLUMN_MAP.CLASSIFICATION] ?? '',
+            rowData[columnMap.CLASSIFICATION] ?? '',
           ).trim();
-          const poNumber = String(rowData[this.COLUMN_MAP.PO_NO] ?? '').trim();
+          const poNumber = String(rowData[columnMap.PO_NO] ?? '').trim();
           const item =
-            parseInt(String(rowData[this.COLUMN_MAP.ITEM] ?? '0'), 10) || 0;
+            parseInt(String(rowData[columnMap.ITEM] ?? '0'), 10) || 0;
           const qty =
-            parseInt(String(rowData[this.COLUMN_MAP.QUANTITY] ?? '0'), 10) || 0;
-          const finishGoodId = String(
-            rowData[this.COLUMN_MAP.PART_NO] ?? '',
-          ).trim();
+            parseInt(String(rowData[columnMap.QUANTITY] ?? '0'), 10) || 0;
+          const finishGoodId = String(rowData[columnMap.PART_NO] ?? '').trim();
 
           // Validate required fields
           if (!poId) {
-            throw new BadRequestException('PO ID is required in column A');
+            throw new BadRequestException(
+              `PO ID is required in column ${poIdColumn}`,
+            );
           }
           if (
             deliveryPeriodValue === undefined ||
@@ -833,7 +866,7 @@ export class ForecastService {
             deliveryPeriod < 1
           ) {
             throw new BadRequestException(
-              `Spreadsheet row ${rowNumber}, column G (Delivery Cycle / Ritase) must contain a positive integer.`,
+              `Spreadsheet row ${rowNumber}, column ${deliveryPeriodColumn} (Delivery Cycle / Ritase) must contain a positive integer.`,
             );
           }
 

@@ -29,6 +29,9 @@ export interface BomRevision {
   UpdatedAt: string;
   ApprovedAt: string | null;
   ApprovedBy: string | null;
+  ApprovedByName?: string | null;
+  SubmittedBy?: string | null;
+  SubmittedByName?: string | null;
   BaseRevisionId: string | null;
   FinishGood: {
     Id: number;

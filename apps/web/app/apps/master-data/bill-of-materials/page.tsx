@@ -195,7 +195,12 @@ export default function BillOfMaterialsPage() {
       render: (_, r) => r.FinishGood.PartName,
     },
     { title: "Materials", render: (_, r) => r.Lines.length },
-    { title: "Approved By", dataIndex: "ApprovedBy" },
+    {
+      title: "Approved By",
+      dataIndex: "ApprovedBy",
+      key: "ApprovedBy",
+      render: (_, record) => record.ApprovedByName || record.ApprovedBy || "-",
+    },
     {
       title: "Approved At",
       render: (_, r) =>

@@ -112,7 +112,7 @@ export class ForecastNonPoService {
             },
           },
         },
-        orderBy: [{ DeliveryDate: 'asc' }, { Id: 'desc' }],
+        orderBy: [{ DeliveryDate: 'desc' }, { Id: 'desc' }],
         skip: (query.page - 1) * query.limit,
         take: query.limit,
       }),

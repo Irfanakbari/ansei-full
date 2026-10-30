@@ -6,6 +6,22 @@ export interface ExcelRow {
   [columnPosition: number]: string | number | boolean | Date | undefined;
 }
 
+export interface ExcelPositionedRow {
+  row: ExcelRow;
+  rowNumber: number;
+}
+
+export interface ExcelPositionedReadResult {
+  rows: ExcelPositionedRow[];
+  usedRequestedWorksheet: boolean;
+}
+
+export interface ExcelPositionedReadOptions {
+  worksheetName: string;
+  headerColumns: number[];
+  minimumPopulatedHeaderColumns: number;
+}
+
 type ExcelCellValue = ExcelRow[number];
 
 @Injectable()
@@ -16,6 +32,19 @@ export class ExcelService {
    * This approach reads by position rather than header name, making it robust against header name changes.
    */
   async readExcelByPosition(file: Express.Multer.File): Promise<ExcelRow[]> {
+    const result = await this.readExcelByPositionWithMetadata(file);
+    return result.rows.map(({ row }) => row);
+  }
+
+  /**
+   * Reads a requested worksheet when present and detects its header row by
+   * populated column positions. If it is absent, the legacy first-sheet/A1
+   * layout is preserved.
+   */
+  async readExcelByPositionWithMetadata(
+    file: Express.Multer.File,
+    options?: ExcelPositionedReadOptions,
+  ): Promise<ExcelPositionedReadResult> {
     try {
       const workbook = new Workbook();
       const workbookBuffer = file.buffer.buffer.slice(
@@ -23,14 +52,24 @@ export class ExcelService {
         file.buffer.byteOffset + file.buffer.byteLength,
       ) as ArrayBuffer;
       await workbook.xlsx.load(workbookBuffer);
-      const worksheet = workbook.worksheets[0];
+      const requestedWorksheet = options
+        ? workbook.getWorksheet(options.worksheetName)
+        : undefined;
+      const worksheet = requestedWorksheet ?? workbook.worksheets[0];
 
       if (!worksheet) {
-        return [];
+        return { rows: [], usedRequestedWorksheet: false };
       }
 
-      const rows: ExcelRow[] = [];
-      for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
+      const headerRowNumber = requestedWorksheet
+        ? this.findHeaderRowNumber(worksheet, options!)
+        : 1;
+      const rows: ExcelPositionedRow[] = [];
+      for (
+        let rowNumber = headerRowNumber + 1;
+        rowNumber <= worksheet.rowCount;
+        rowNumber++
+      ) {
         const worksheetRow = worksheet.getRow(rowNumber);
         const row: ExcelRow = {};
 
@@ -45,17 +84,45 @@ export class ExcelService {
         }
 
         if (worksheetRow.cellCount > 0) {
-          rows.push(row);
+          rows.push({ row, rowNumber });
         }
       }
 
-      return rows;
+      return {
+        rows,
+        usedRequestedWorksheet: requestedWorksheet !== undefined,
+      };
     } catch (error) {
       throw new Error(
         'Error reading Excel file: ' +
           (error instanceof Error ? error.message : 'Unknown error'),
       );
     }
+  }
+
+  private findHeaderRowNumber(
+    worksheet: import('exceljs').Worksheet,
+    options: ExcelPositionedReadOptions,
+  ): number {
+    for (let rowNumber = 1; rowNumber <= worksheet.rowCount; rowNumber++) {
+      const row = worksheet.getRow(rowNumber);
+      const populatedColumns = options.headerColumns.filter(
+        (columnPosition) => {
+          const value = this.normalizeCellValue(
+            row.getCell(columnPosition + 1).value,
+          );
+          return value !== undefined && String(value).trim() !== '';
+        },
+      ).length;
+
+      if (populatedColumns >= options.minimumPopulatedHeaderColumns) {
+        return rowNumber;
+      }
+    }
+
+    throw new Error(
+      `Unable to detect the header row in worksheet "${options.worksheetName}"`,
+    );
   }
 
   private normalizeCellValue(value: CellValue): ExcelCellValue {

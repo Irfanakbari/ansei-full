@@ -10,6 +10,7 @@ import {
 import { UNCERTAIN, SENDING, SAFE_RETRY } from '../outbox/outbox-state.service';
 import { sapPostingDate } from './sap-posting-date';
 import type { SapItemSyncService } from './sap-item-sync.service';
+import { sapRuntimeSettings } from './sap-runtime-settings';
 
 export const countingKinds = [
   'INVENTORY_COUNTING',
@@ -115,11 +116,13 @@ export async function captureCountingStart(
   actor: string,
 ) {
   if (!sapCaptureEnabled()) return;
+  const scope = sapScope();
+  const settings = await sapRuntimeSettings(tx, scope.company);
+  if (!settings.enabled) return;
   const count = await tx.stockOpname.findUniqueOrThrow({
     where: { Id: id },
     include: { Details: true },
   });
-  const scope = sapScope();
   if (
     await tx.outboxEvent.findFirst({
       where: {

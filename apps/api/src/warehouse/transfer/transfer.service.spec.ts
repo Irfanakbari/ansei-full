@@ -36,6 +36,7 @@ describe('TransferService', () => {
     const mockPrismaService = {
       material: {
         findUnique: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([mockMaterial]),
         update: jest.fn(),
       },
       inventoryLedger: {
@@ -47,8 +48,24 @@ describe('TransferService', () => {
             },
           }),
         ),
+        count: jest.fn().mockResolvedValue(1),
+        findMany: jest.fn(),
+        findFirst: jest.fn(),
         create: jest.fn(),
       },
+      businessCommand: {
+        findUnique: jest.fn().mockResolvedValue(null),
+        create: jest.fn().mockResolvedValue({ Id: 'command-1' }),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      actionAuditEvent: { create: jest.fn() },
+      $executeRaw: jest.fn().mockResolvedValue(1),
+      $queryRaw: jest.fn().mockResolvedValue([
+        {
+          BusinessDate: new Date('2026-10-29T00:00:00.000Z'),
+          LastSequence: 1,
+        },
+      ]),
       $transaction: jest.fn((callback) => callback(mockPrismaService)),
     };
 
@@ -93,6 +110,9 @@ describe('TransferService', () => {
       expect(result.rackBefore).toBe(50);
       expect(result.rackAfter).toBe(80);
       expect(result.transferQty).toBe(30);
+      expect(prismaService.inventoryLedger.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ ReferenceDoc: 'TTR-2910260001' }),
+      });
       expect(logService.startProcess).toHaveBeenCalled();
       expect(logService.completeProcess).toHaveBeenCalled();
     });
@@ -193,6 +213,188 @@ describe('TransferService', () => {
         undefined,
         expect.any(Object),
       );
+    });
+  });
+
+  describe('getTransferHistory', () => {
+    it('should return paginated transfer history with status and paired data', async () => {
+      const mockWhLedger = {
+        Id: 'wh-1',
+        ReferenceDoc: 'TRANSFER-TO-RACK-001',
+        MaterialId: 'MAT-001',
+        Location: 'WAREHOUSE',
+        TransactionType: 'TRANSFER_TO_RACK',
+        BalanceBefore: 100,
+        QtyIn: 0,
+        QtyOut: 20,
+        BalanceAfter: 80,
+        TransactionDate: new Date(),
+        CreatedBy: 'admin',
+        Notes: 'Transfer to Rack',
+      };
+      const mockRackLedger = {
+        Id: 'rack-1',
+        ReferenceDoc: 'TRANSFER-TO-RACK-001',
+        MaterialId: 'MAT-001',
+        Location: 'RACK',
+        TransactionType: 'TRANSFER_TO_RACK',
+        BalanceBefore: 50,
+        QtyIn: 20,
+        QtyOut: 0,
+        BalanceAfter: 70,
+        TransactionDate: new Date(),
+        CreatedBy: 'admin',
+      };
+
+      prismaService.inventoryLedger.count.mockResolvedValue(1);
+      prismaService.inventoryLedger.findMany
+        .mockResolvedValueOnce([mockWhLedger])
+        .mockResolvedValueOnce([mockRackLedger])
+        .mockResolvedValueOnce([]); // no revert
+      prismaService.material.findMany.mockResolvedValue([mockMaterial]);
+
+      const result = await service.getTransferHistory({ page: 1, limit: 50 });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].referenceDoc).toBe('TRANSFER-TO-RACK-001');
+      expect(result.data[0].qty).toBe(20);
+      expect(result.data[0].status).toBe('COMPLETED');
+      expect(result.data[0].partName).toBe('Test Material');
+      expect(result.meta.totalItems).toBe(1);
+    });
+  });
+
+  describe('revertTransfer', () => {
+    it('should successfully revert a transfer, update stock and create reversal ledger entries', async () => {
+      const mockWhLedger = {
+        Id: 'wh-1',
+        ReferenceDoc: 'TRANSFER-TO-RACK-001',
+        MaterialId: 'MAT-001',
+        Location: 'WAREHOUSE',
+        TransactionType: 'TRANSFER_TO_RACK',
+        QtyIn: 0,
+        QtyOut: 20,
+      };
+
+      const mockRackLedger = {
+        Id: 'rack-1',
+        ReferenceDoc: 'TRANSFER-TO-RACK-001',
+        MaterialId: 'MAT-001',
+        Location: 'RACK',
+        TransactionType: 'TRANSFER_TO_RACK',
+        QtyIn: 20,
+        QtyOut: 0,
+      };
+      prismaService.inventoryLedger.findMany.mockResolvedValue([
+        mockWhLedger,
+        mockRackLedger,
+      ]);
+      prismaService.inventoryLedger.findFirst.mockResolvedValue(null);
+
+      prismaService.material.findUnique.mockResolvedValue(mockMaterial);
+      prismaService.material.update.mockResolvedValue({
+        ...mockMaterial,
+        QtyWarehouse: 120,
+        QtyRack: 30,
+      });
+      prismaService.inventoryLedger.create.mockResolvedValue({});
+
+      const result = await service.revertTransfer(
+        'TRANSFER-TO-RACK-001',
+        'admin',
+        'Salah kirim',
+        '00000000-0000-4000-8000-000000000003',
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.referenceDoc).toBe('TRANSFER-TO-RACK-001');
+      expect(result.warehouseAfter).toBe(120); // 100 + 20
+      expect(result.rackAfter).toBe(30); // 50 - 20
+      expect(prismaService.material.update).toHaveBeenCalledWith({
+        where: { PartNumber: 'MAT-001' },
+        data: {
+          QtyWarehouse: 120,
+          QtyRack: 30,
+          UpdatedBy: 'admin',
+        },
+      });
+      expect(prismaService.inventoryLedger.create).toHaveBeenCalledTimes(2);
+    });
+
+    it('should throw NotFoundException if transfer does not exist', async () => {
+      prismaService.inventoryLedger.findMany.mockResolvedValue([]);
+
+      await expect(
+        service.revertTransfer(
+          'NON-EXISTENT',
+          'admin',
+          'Wrong transfer',
+          '00000000-0000-4000-8000-000000000004',
+        ),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw BadRequestException if transfer has already been reverted', async () => {
+      prismaService.inventoryLedger.findMany.mockResolvedValue([
+        {
+          ReferenceDoc: 'TRANSFER-TO-RACK-001',
+          MaterialId: 'MAT-001',
+          Location: 'WAREHOUSE',
+          QtyIn: 0,
+          QtyOut: 20,
+        },
+        {
+          ReferenceDoc: 'TRANSFER-TO-RACK-001',
+          MaterialId: 'MAT-001',
+          Location: 'RACK',
+          QtyIn: 20,
+          QtyOut: 0,
+        },
+      ]);
+      prismaService.inventoryLedger.findFirst.mockResolvedValue({
+        ReferenceDoc: 'REVERT-TRANSFER-TO-RACK-001',
+      });
+
+      await expect(
+        service.revertTransfer(
+          'TRANSFER-TO-RACK-001',
+          'admin',
+          'Duplicate revert',
+          '00000000-0000-4000-8000-000000000005',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if rack stock is insufficient to revert', async () => {
+      prismaService.inventoryLedger.findMany.mockResolvedValue([
+        {
+          ReferenceDoc: 'TRANSFER-TO-RACK-001',
+          MaterialId: 'MAT-001',
+          Location: 'WAREHOUSE',
+          QtyIn: 0,
+          QtyOut: 100,
+        },
+        {
+          ReferenceDoc: 'TRANSFER-TO-RACK-001',
+          MaterialId: 'MAT-001',
+          Location: 'RACK',
+          QtyIn: 100,
+          QtyOut: 0,
+        },
+      ]);
+      prismaService.inventoryLedger.findFirst.mockResolvedValue(null);
+
+      // material only has 50 in rack
+      prismaService.material.findUnique.mockResolvedValue(mockMaterial);
+
+      await expect(
+        service.revertTransfer(
+          'TRANSFER-TO-RACK-001',
+          'admin',
+          'Wrong quantity',
+          '00000000-0000-4000-8000-000000000006',
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

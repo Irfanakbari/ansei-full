@@ -21,6 +21,8 @@ describe('TransferController', () => {
   beforeEach(async () => {
     const mockService = {
       transferToRack: jest.fn(),
+      getTransferHistory: jest.fn(),
+      revertTransfer: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -66,6 +68,54 @@ describe('TransferController', () => {
         mockUser.username,
         '00000000-0000-4000-8000-000000000001',
         'RACK-A1',
+      );
+    });
+  });
+
+  describe('getTransferHistory', () => {
+    it('should return transfer history', async () => {
+      const mockHistory = {
+        data: [{ referenceDoc: 'REF-1', materialId: 'MAT-001', qty: 10 }],
+        meta: { page: 1, limit: 50, totalItems: 1, totalPages: 1 },
+      };
+      service.getTransferHistory.mockResolvedValue(mockHistory);
+
+      const result = await controller.getTransferHistory({
+        page: 1,
+        limit: 50,
+      });
+      expect(result).toEqual(mockHistory);
+      expect(service.getTransferHistory).toHaveBeenCalledWith({
+        page: 1,
+        limit: 50,
+      });
+    });
+  });
+
+  describe('revertTransfer', () => {
+    it('should revert transfer', async () => {
+      const mockRevert = {
+        success: true,
+        referenceDoc: 'REF-1',
+        partNumber: 'MAT-001',
+        transferQty: 10,
+      };
+      service.revertTransfer.mockResolvedValue(mockRevert);
+
+      const result = await controller.revertTransfer(
+        'REF-1',
+        {
+          reason: 'Wrong quantity',
+          requestId: '00000000-0000-4000-8000-000000000002',
+        },
+        mockUser,
+      );
+      expect(result).toEqual(mockRevert);
+      expect(service.revertTransfer).toHaveBeenCalledWith(
+        'REF-1',
+        mockUser.username,
+        'Wrong quantity',
+        '00000000-0000-4000-8000-000000000002',
       );
     });
   });

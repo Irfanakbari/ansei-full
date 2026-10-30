@@ -27,13 +27,21 @@ export class BomRevisionResponseDto {
   @ApiProperty() Reason: string;
   @ApiProperty() Version: number;
   @ApiProperty() CreatedBy: string;
+  @ApiProperty({ required: false, nullable: true, type: String })
+  CreatedByName?: string | null;
   @ApiProperty() LastEditedBy: string;
+  @ApiProperty({ required: false, nullable: true, type: String })
+  UpdatedByName?: string | null;
   @ApiProperty({ format: 'date-time' }) CreatedAt: string;
   @ApiProperty({ format: 'date-time' }) UpdatedAt: string;
   @ApiProperty({ nullable: true, type: String }) SubmittedBy: string | null;
+  @ApiProperty({ required: false, nullable: true, type: String })
+  SubmittedByName?: string | null;
   @ApiProperty({ nullable: true, type: String, format: 'date-time' })
   SubmittedAt: string | null;
   @ApiProperty({ nullable: true, type: String }) ApprovedBy: string | null;
+  @ApiProperty({ required: false, nullable: true, type: String })
+  ApprovedByName?: string | null;
   @ApiProperty({ nullable: true, type: String, format: 'date-time' })
   ApprovedAt: string | null;
   @ApiProperty({ type: [BomLineResponseDto] }) Lines: BomLineResponseDto[];

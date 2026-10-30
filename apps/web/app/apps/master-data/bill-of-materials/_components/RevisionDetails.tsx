@@ -338,7 +338,7 @@ export default function RevisionDetails({
               {
                 key: "approver",
                 label: "Approved By",
-                children: revision.ApprovedBy ?? "-",
+                children: revision.ApprovedByName || revision.ApprovedBy || "-",
               },
               {
                 key: "createdBy",
@@ -551,10 +551,17 @@ export default function RevisionDetails({
                       },
                       { title: "Action", dataIndex: "Action" },
                       {
-                          title: "Actor",
-                          dataIndex: "ActorName",
-                          render: (value: string | undefined) => value || "-",
-                        },
+                        title: "Actor",
+                        dataIndex: "ActorName",
+                        render: (
+                          value: string | undefined,
+                          record: {
+                            ActorName?: string;
+                            Actor?: string;
+                            CreatedAt: string;
+                          },
+                        ) => record.ActorName || record.Actor || value || "-",
+                      },
                       { title: "Reason", dataIndex: "Reason" },
                     ]}
                   />

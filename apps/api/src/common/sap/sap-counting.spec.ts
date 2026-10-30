@@ -3,6 +3,7 @@ import type { Prisma, SapTransaction } from '../../generated/prisma/client';
 import {
   aggregateCounting,
   captureCountingFinish,
+  captureCountingStart,
   matchesCounting,
   prepareCounting,
 } from './sap-counting';
@@ -415,5 +416,21 @@ describe('SAP STO cancellation', () => {
         }),
       }),
     );
+  });
+  it('skips counting start capture when SAP integration is paused in settings', async () => {
+    process.env.SAP_TRANSACTION_CAPTURE_ENABLED = 'true';
+    const tx = {
+      sapConnectionState: {
+        findUnique: jest.fn().mockResolvedValue({
+          IntegrationSettings: { enabled: false },
+        }),
+      },
+      stockOpname: {
+        findUniqueOrThrow: jest.fn(),
+      },
+    } as unknown as Prisma.TransactionClient;
+
+    await captureCountingStart(tx, 'sto-id', 'test-actor');
+    expect(tx.stockOpname.findUniqueOrThrow).not.toHaveBeenCalled();
   });
 });

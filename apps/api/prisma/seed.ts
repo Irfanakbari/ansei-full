@@ -204,7 +204,9 @@ async function main() {
     { Action: 'IPCS.INCOMING_UPDATE', Description: 'Update incoming material' },
     { Action: 'IPCS.INCOMING_DELETE', Description: 'Delete incoming material' },
     // Transfer to rack
+    { Action: 'IPCS.TRANSFER_READ', Description: 'Read material transfer history' },
     { Action: 'IPCS.TRANSFER_CREATE', Description: 'Create material transfer' },
+    { Action: 'IPCS.TRANSFER_REVERT', Description: 'Revert material transfer' },
     // MRP (material run-out)
     { Action: 'IPCS.MRP_READ', Description: 'Read material run-out' },
     // Inventory counting

@@ -106,6 +106,7 @@ describe('ResponseTransformInterceptor', () => {
         CreatedBy: 'admin',
         CreatedByName: 'Administrator',
         LastEditedBy: 'user1',
+        LastEditedByName: 'User One',
         UpdatedBy: 'user1',
         UpdatedByName: 'User One',
         ReceivedBy: 'user1',

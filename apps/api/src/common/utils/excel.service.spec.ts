@@ -43,6 +43,99 @@ describe('ExcelService', () => {
     ).resolves.toEqual([{ 0: 2, 1: 'PO-001', 2: 'Vendor' }, { 0: 'last' }]);
   });
 
+  it('finds a positional header below row 1 in Delivery actual date', async () => {
+    const workbook = new Workbook();
+    workbook.addWorksheet('Forecast').addRow(['legacy']);
+    const worksheet = workbook.addWorksheet('Delivery actual date');
+    worksheet.addRow(['report title']);
+    worksheet.addRow([]);
+    worksheet.addRow([]);
+    worksheet.addRow([
+      '',
+      'header-b',
+      'header-c',
+      'header-d',
+      'header-e',
+      'header-f',
+      'header-g',
+      'header-h',
+      'header-i',
+      'header-j',
+      'header-k',
+      'header-l',
+      'header-m',
+      'header-n',
+    ]);
+    worksheet.addRow([
+      '',
+      'PO-001',
+      '20261004',
+      'V001',
+      'Vendor',
+      '3R27',
+      '20261006',
+      1,
+      'ZN21',
+      '2004536846',
+      10,
+      'FG-001',
+      'Part name',
+      32,
+    ]);
+
+    await expect(
+      service.readExcelByPositionWithMetadata(await createFile(workbook), {
+        worksheetName: 'Delivery actual date',
+        headerColumns: Array.from(
+          { length: 11 },
+          (_, index) => index + 1,
+        ).concat(13),
+        minimumPopulatedHeaderColumns: 8,
+      }),
+    ).resolves.toEqual({
+      usedRequestedWorksheet: true,
+      rows: [
+        {
+          rowNumber: 5,
+          row: {
+            0: '',
+            1: 'PO-001',
+            2: '20261004',
+            3: 'V001',
+            4: 'Vendor',
+            5: '3R27',
+            6: '20261006',
+            7: 1,
+            8: 'ZN21',
+            9: '2004536846',
+            10: 10,
+            11: 'FG-001',
+            12: 'Part name',
+            13: 32,
+          },
+        },
+      ],
+    });
+  });
+
+  it('falls back to the legacy first worksheet when the requested sheet is absent', async () => {
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('Forecast');
+    worksheet.addRow(['header']);
+    worksheet.addRow(['PO-001']);
+
+    await expect(
+      service.readExcelByPositionWithMetadata(await createFile(workbook), {
+        worksheetName: 'Delivery actual date',
+        headerColumns: [0],
+        minimumPopulatedHeaderColumns: 1,
+      }),
+    ).resolves.toEqual({
+      usedRequestedWorksheet: false,
+      rows: [{ rowNumber: 2, row: { 0: 'PO-001' } }],
+    });
+  });
+
   it('wraps invalid workbook errors', async () => {
     const file = {
       buffer: Buffer.from('not an xlsx file'),

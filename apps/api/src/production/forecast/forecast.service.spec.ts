@@ -88,6 +88,7 @@ describe('ForecastService', () => {
 
     excelService = {
       readExcelByPosition: jest.fn(),
+      readExcelByPositionWithMetadata: jest.fn(),
       parseDateYYYYMMDD: jest.fn(),
     };
 
@@ -192,7 +193,10 @@ describe('ForecastService', () => {
         where: expectedWhere,
       });
       expect(prismaService.forecast.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: expectedWhere }),
+        expect.objectContaining({
+          where: expectedWhere,
+          orderBy: [{ DeliveryDate: 'desc' }, { Id: 'desc' }],
+        }),
       );
     });
   });
@@ -328,22 +332,28 @@ describe('ForecastService', () => {
     it.each([undefined, '', 1.5, '2 trips', 0, -1])(
       'rejects %s delivery cycle / ritase values',
       async (value) => {
-        excelService.readExcelByPosition.mockResolvedValue([
-          {
-            0: 'PO-NEW',
-            1: '20260901',
-            2: 'V001',
-            3: 'Vendor A',
-            4: 'Area 1',
-            5: '20260902',
-            6: value,
-            7: 'A',
-            8: 'PO123',
-            9: 1,
-            10: 100,
-            11: 'FG-001',
-          },
-        ]);
+        excelService.readExcelByPositionWithMetadata.mockResolvedValue({
+          usedRequestedWorksheet: false,
+          rows: [
+            {
+              row: {
+                0: 'PO-NEW',
+                1: '20260901',
+                2: 'V001',
+                3: 'Vendor A',
+                4: 'Area 1',
+                5: '20260902',
+                6: value,
+                7: 'A',
+                8: 'PO123',
+                9: 1,
+                10: 100,
+                11: 'FG-001',
+              },
+              rowNumber: 2,
+            },
+          ],
+        });
 
         await expect(service.importExcel(file, 'admin')).rejects.toThrow(
           'Spreadsheet row 2, column G',
@@ -351,6 +361,91 @@ describe('ForecastService', () => {
         expect(prismaService.forecast.createMany).not.toHaveBeenCalled();
       },
     );
+
+    it('imports Part No from L and Quantity from N in Delivery actual date', async () => {
+      excelService.readExcelByPositionWithMetadata.mockResolvedValue({
+        usedRequestedWorksheet: true,
+        rows: [
+          {
+            row: {
+              0: '',
+              1: 'PO-NEW',
+              2: '20260901',
+              3: 'V001',
+              4: 'Vendor A',
+              5: 'Area 1',
+              6: '20260902',
+              7: 1,
+              8: 'A',
+              9: 'PO123',
+              10: 10,
+              11: 'FG-001',
+              12: 'Part name ignored',
+              13: 100,
+            },
+            rowNumber: 8,
+          },
+        ],
+      });
+      excelService.parseDateYYYYMMDD
+        .mockReturnValueOnce(new Date('2026-09-01T00:00:00.000Z'))
+        .mockReturnValueOnce(new Date('2026-09-02T00:00:00.000Z'));
+      prismaService.finishGood.findMany.mockResolvedValue([
+        { PartNumber: 'FG-001' },
+      ]);
+      prismaService.forecast.createMany.mockResolvedValue({ count: 1 });
+
+      await expect(service.importExcel(file, 'admin')).resolves.toEqual({
+        total: 1,
+        created: 1,
+        skipped: 0,
+      });
+      expect(prismaService.forecast.createMany).toHaveBeenCalledWith({
+        data: [
+          expect.objectContaining({
+            FinishGoodId: 'FG-001',
+            Qty: 100,
+            Item: 10,
+          }),
+        ],
+        skipDuplicates: true,
+      });
+    });
+
+    it('uses Delivery actual date positions and preserves the actual spreadsheet row', async () => {
+      excelService.readExcelByPositionWithMetadata.mockResolvedValue({
+        usedRequestedWorksheet: true,
+        rows: [
+          {
+            row: {
+              0: '',
+              1: 'PO-NEW',
+              2: '20260901',
+              3: 'V001',
+              4: 'Vendor A',
+              5: 'Area 1',
+              6: '20260902',
+              7: 0,
+              8: 'A',
+              9: 'PO123',
+              10: 1,
+              11: 'FG-001',
+              12: 'Part name ignored',
+              13: 100,
+            },
+            rowNumber: 8,
+          },
+        ],
+      });
+
+      await expect(service.importExcel(file, 'admin')).rejects.toThrow(
+        'Spreadsheet row 8, column H',
+      );
+      expect(excelService.readExcelByPositionWithMetadata).toHaveBeenCalledWith(
+        file,
+        expect.objectContaining({ worksheetName: 'Delivery actual date' }),
+      );
+    });
   });
 
   describe('remove', () => {
