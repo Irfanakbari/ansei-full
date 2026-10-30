@@ -231,6 +231,93 @@ describe('InventoryCountingService', () => {
       expect(prismaService.stockOpnameDetail.update).not.toHaveBeenCalled();
     });
 
+    it('supports flexible headers with spaces or short column names', async () => {
+      const workbook = new Workbook();
+      const worksheet = workbook.addWorksheet('Results');
+      worksheet.addRow(['Part Number', 'Warehouse', 'Rack']);
+      worksheet.addRow(['MAT-001', 10, 20]);
+      const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+      const file = {
+        originalname: 'results.xlsx',
+        mimetype:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        size: buffer.length,
+        buffer,
+      } as Express.Multer.File;
+
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        Category: ItemCategory.MATERIAL,
+        Status: OpnameStatus.IN_PROGRESS,
+        Details: [],
+      });
+
+      const result = await service.previewResultImport('123', file);
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]).toMatchObject({
+        partNumber: 'MAT-001',
+        qtyWarehouse: 10,
+        qtyRack: 20,
+      });
+    });
+
+    it('supports direct data starting from row 1 without a header row', async () => {
+      const workbook = new Workbook();
+      const worksheet = workbook.addWorksheet('Results');
+      worksheet.addRow(['MAT-001', 15, 30]);
+      const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+      const file = {
+        originalname: 'results.xlsx',
+        mimetype:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        size: buffer.length,
+        buffer,
+      } as Express.Multer.File;
+
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        Category: ItemCategory.MATERIAL,
+        Status: OpnameStatus.IN_PROGRESS,
+        Details: [],
+      });
+
+      const result = await service.previewResultImport('123', file);
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0]).toMatchObject({
+        rowNumber: 1,
+        partNumber: 'MAT-001',
+        qtyWarehouse: 15,
+        qtyRack: 30,
+      });
+    });
+
+    it('generates a result import template pre-populated with part numbers', async () => {
+      prismaService.stockOpname.findUnique.mockResolvedValue({
+        Id: '123',
+        RecordNumber: 'INV-202610-001',
+        Details: [
+          { MaterialId: 'MAT-002' },
+          { MaterialId: 'MAT-001' },
+          { MaterialId: 'MAT-002' },
+        ],
+      });
+
+      const { buffer, fileName } =
+        await service.generateResultImportTemplate('123');
+      expect(fileName).toBe('Template_Result_Import_INV-202610-001.xlsx');
+      expect(buffer).toBeDefined();
+
+      const ExcelJS = require('exceljs');
+      const wb = new ExcelJS.Workbook();
+      await wb.xlsx.load(buffer);
+      const ws = wb.getWorksheet('Counting Results');
+      expect(ws.getRow(1).values).toContain('Part Number');
+      expect(ws.getRow(1).values).toContain('Qty Warehouse');
+      expect(ws.getRow(1).values).toContain('Qty Rack');
+      expect(ws.getRow(2).getCell(1).value).toBe('MAT-001');
+      expect(ws.getRow(3).getCell(1).value).toBe('MAT-002');
+    });
+
     it('applies valid counts to details only and creates no inventory ledger', async () => {
       const file = await createWorkbookFile([['MAT-001', 5, 6]]);
       const details = [

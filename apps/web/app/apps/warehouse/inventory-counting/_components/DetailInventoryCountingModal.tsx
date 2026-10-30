@@ -1011,6 +1011,7 @@ const DetailInventoryCountingModal: React.FC<Props> = ({
       <InventoryCountingResultImportModal
         open={resultImportOpen}
         inventoryCountingId={data.Id}
+        inventoryCountingRecordNumber={data.RecordNumber}
         onClose={() => setResultImportOpen(false)}
         onApplied={() => {
           setDetailRefreshNonce((value) => value + 1);

@@ -582,6 +582,29 @@ export const applyInventoryCountingResultImport = createAsyncThunk<
   },
 );
 
+export const downloadInventoryCountingResultImportTemplate = createAsyncThunk<
+  void,
+  { id: string; recordNumber?: string },
+  { rejectValue: string }
+>(
+  "inventoryCounting/downloadResultImportTemplate",
+  async ({ id, recordNumber }, { rejectWithValue }) => {
+    try {
+      await downloadFile(
+        `/inventory-counting/${id}/results-import/template`,
+        `Template_Result_Import_${recordNumber || id}.xlsx`,
+      );
+    } catch (error: unknown) {
+      return rejectWithValue(
+        getApiErrorMessage(
+          error,
+          "Failed to download counting result import template",
+        ),
+      );
+    }
+  },
+);
+
 export const applyInventoryCountingOcr = createAsyncThunk<
   { success: boolean; updatedCount: number },
   {

@@ -44,6 +44,7 @@ describe('InventoryCountingController', () => {
       applyOcrResults: jest.fn(),
       previewResultImport: jest.fn(),
       applyResultImport: jest.fn(),
+      generateResultImportTemplate: jest.fn(),
       close: jest.fn(),
       generateFinalReport: jest.fn(),
     };
@@ -439,6 +440,25 @@ describe('InventoryCountingController', () => {
         file,
         mockUser.username,
       );
+    });
+
+    it('should stream the generated template', async () => {
+      const res = { set: jest.fn(), send: jest.fn() } as any;
+      service.generateResultImportTemplate.mockResolvedValue({
+        buffer: Buffer.from('xlsx'),
+        fileName: 'Template_Result_Import_INV-001.xlsx',
+      });
+
+      await controller.downloadResultImportTemplate('123', res);
+
+      expect(service.generateResultImportTemplate).toHaveBeenCalledWith('123');
+      expect(res.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'Content-Type':
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        }),
+      );
+      expect(res.send).toHaveBeenCalledWith(Buffer.from('xlsx'));
     });
   });
 

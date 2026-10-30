@@ -238,6 +238,29 @@ export class InventoryCountingController {
     );
   }
 
+  @Get(':id/results-import/template')
+  @Permission('IPCS.INVENTORY_COUNTING_READ')
+  @ApiOperation({
+    summary:
+      'Download an Excel template pre-filled with part numbers for counting result import',
+  })
+  async downloadResultImportTemplate(
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    const { buffer, fileName } =
+      await this.inventoryCountingService.generateResultImportTemplate(id);
+
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`,
+      'Content-Length': buffer.length,
+    });
+
+    res.send(buffer);
+  }
+
   @Post(':id/results-import/preview')
   @Permission('IPCS.INVENTORY_COUNTING_UPDATE')
   @UseInterceptors(

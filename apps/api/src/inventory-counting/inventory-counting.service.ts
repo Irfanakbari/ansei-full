@@ -1827,6 +1827,102 @@ export class InventoryCountingService {
     }
   }
 
+  async generateResultImportTemplate(id: string) {
+    const counting = await this.prisma.stockOpname.findUnique({
+      where: { Id: id },
+      include: {
+        Details: {
+          orderBy: { MaterialId: 'asc' },
+        },
+      },
+    });
+    if (!counting) {
+      throw new NotFoundException(`Inventory counting with ID ${id} not found`);
+    }
+
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('Counting Results');
+
+    worksheet.columns = [
+      { header: 'Part Number', key: 'partNumber', width: 25 },
+      { header: 'Qty Warehouse', key: 'qtyWarehouse', width: 18 },
+      { header: 'Qty Rack', key: 'qtyRack', width: 18 },
+    ];
+
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFD3D3D3' },
+    };
+
+    const partNumbers = [
+      ...new Set(
+        counting.Details.map((d) => d.MaterialId).filter(Boolean) as string[],
+      ),
+    ].sort();
+
+    for (const partNumber of partNumbers) {
+      worksheet.addRow({
+        partNumber,
+        qtyWarehouse: '',
+        qtyRack: '',
+      });
+    }
+
+    const buffer = Buffer.from(await workbook.xlsx.writeBuffer());
+    return {
+      buffer,
+      fileName: `Template_Result_Import_${counting.RecordNumber}.xlsx`,
+    };
+  }
+
+  private isKnownHeader(h0: string, h1: string, h2: string): boolean {
+    const clean = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const c0 = clean(h0);
+    const c1 = clean(h1);
+    const c2 = clean(h2);
+
+    const validCol0 = [
+      'partnumber',
+      'partno',
+      'partnum',
+      'part',
+      'partcode',
+      'materialid',
+      'material',
+      'itemcode',
+    ];
+    const validCol1 = [
+      'qtywarehouse',
+      'warehouse',
+      'qtywh',
+      'whqty',
+      'actualqtywh',
+      'actualqtywarehouse',
+      'warehouseqty',
+      'actualwh',
+    ];
+    const validCol2 = [
+      'qtyrack',
+      'rack',
+      'rackqty',
+      'actualqtyrack',
+      'rackactualqty',
+      'actualrack',
+      'qtyrk',
+      'rkqty',
+    ];
+
+    const match0 = validCol0.some((v) => c0.includes(v) || v.includes(c0));
+    const match1 = validCol1.some((v) => c1.includes(v) || v.includes(c1));
+    const match2 = validCol2.some((v) => c2.includes(v) || v.includes(c2));
+
+    return (match0 && (match1 || match2)) || (match1 && match2);
+  }
+
   private async parseResultImport(file: Express.Multer.File) {
     const workbook = new Workbook();
     try {
@@ -1841,19 +1937,46 @@ export class InventoryCountingService {
     }
     const worksheet = workbook.worksheets[0];
     if (!worksheet) throw new BadRequestException('Excel workbook is empty.');
-    const headers = [1, 2, 3].map((column) =>
-      worksheet.getCell(1, column).text.trim().toLowerCase(),
-    );
-    if (
-      headers[0] !== 'partnumber' ||
-      headers[1] !== 'qty warehouse' ||
-      headers[2] !== 'qty rack'
-    ) {
-      throw new BadRequestException(
-        'Excel columns must be A PartNumber, B Qty Warehouse, C Qty Rack.',
-      );
+
+    let startRow = 2;
+    let headerFound = false;
+
+    for (let r = 1; r <= Math.min(5, worksheet.rowCount); r++) {
+      const h0 = worksheet.getCell(r, 1).text.trim();
+      const h1 = worksheet.getCell(r, 2).text.trim();
+      const h2 = worksheet.getCell(r, 3).text.trim();
+
+      if (this.isKnownHeader(h0, h1, h2)) {
+        headerFound = true;
+        startRow = r + 1;
+        break;
+      }
     }
-    if (worksheet.rowCount - 1 > MAX_RESULT_IMPORT_ROWS) {
+
+    if (!headerFound) {
+      for (let r = 1; r <= Math.min(5, worksheet.rowCount); r++) {
+        const c1 = worksheet.getCell(r, 1).text.trim();
+        const c2 = worksheet.getCell(r, 2).text.trim();
+        const c3 = worksheet.getCell(r, 3).text.trim();
+
+        const c2IsNum = c2 !== '' && Number.isFinite(Number(c2));
+        const c3IsNum = c3 !== '' && Number.isFinite(Number(c3));
+
+        if (c1 && (c2IsNum || c3IsNum)) {
+          startRow = r;
+          headerFound = true;
+          break;
+        }
+      }
+
+      if (!headerFound) {
+        throw new BadRequestException(
+          'Format kolom Excel tidak sesuai. Gunakan Kolom A: Part Number, Kolom B: Qty Warehouse, Kolom C: Qty Rack (atau gunakan template Excel yang disediakan).',
+        );
+      }
+    }
+
+    if (worksheet.rowCount - (startRow - 1) > MAX_RESULT_IMPORT_ROWS) {
       throw new BadRequestException(
         `Excel import is limited to ${MAX_RESULT_IMPORT_ROWS} data rows.`,
       );
@@ -1864,7 +1987,11 @@ export class InventoryCountingService {
       qtyWarehouse: number | null;
       qtyRack: number | null;
     }> = [];
-    for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber += 1) {
+    for (
+      let rowNumber = startRow;
+      rowNumber <= worksheet.rowCount;
+      rowNumber += 1
+    ) {
       const row = worksheet.getRow(rowNumber);
       const partNumber = row.getCell(1).text.trim();
       const warehouseText = row.getCell(2).text.trim();

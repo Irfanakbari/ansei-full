@@ -3,12 +3,13 @@
 
 import { Alert, App, Button, Modal, Space, Table, Tag, Upload } from "antd";
 import type { UploadProps } from "antd";
-import { FileExcelOutlined } from "@ant-design/icons";
+import { DownloadOutlined, FileExcelOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/store";
 import {
   applyInventoryCountingResultImport,
+  downloadInventoryCountingResultImportTemplate,
   previewInventoryCountingResultImport,
   type ResultImportPreviewItem,
   type ResultImportPreviewResponse,
@@ -19,6 +20,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 interface Props {
   open: boolean;
   inventoryCountingId: string;
+  inventoryCountingRecordNumber?: string;
   onClose: () => void;
   onApplied: () => void;
 }
@@ -26,6 +28,7 @@ interface Props {
 export default function InventoryCountingResultImportModal({
   open,
   inventoryCountingId,
+  inventoryCountingRecordNumber,
   onClose,
   onApplied,
 }: Props) {
@@ -35,6 +38,7 @@ export default function InventoryCountingResultImportModal({
   const [preview, setPreview] = useState<ResultImportPreviewResponse | null>(null);
   const [previewing, setPreviewing] = useState(false);
   const [applying, setApplying] = useState(false);
+  const [downloadingTemplate, setDownloadingTemplate] = useState(false);
 
   const reset = () => {
     setFile(null);
@@ -45,6 +49,24 @@ export default function InventoryCountingResultImportModal({
     if (previewing || applying) return;
     reset();
     onClose();
+  };
+
+  const handleDownloadTemplate = async () => {
+    setDownloadingTemplate(true);
+    try {
+      await dispatch(
+        downloadInventoryCountingResultImportTemplate({
+          id: inventoryCountingId,
+          recordNumber: inventoryCountingRecordNumber || inventoryCountingId,
+        }),
+      ).unwrap();
+    } catch (error: unknown) {
+      message.error(
+        typeof error === "string" ? error : "Failed to download template",
+      );
+    } finally {
+      setDownloadingTemplate(false);
+    }
   };
 
   const previewFile = async (selectedFile: File) => {
@@ -115,19 +137,32 @@ export default function InventoryCountingResultImportModal({
         <Alert
           type="info"
           showIcon
-          title="Required columns: A PartNumber, B Qty Warehouse, C Qty Rack"
-          description="Preview validates every row against this inventory counting. Applying updates counting results only; stock and ledger changes remain in the approval and close workflow."
+          title="Format Kolom: Kolom A: Part Number, Kolom B: Qty Warehouse, Kolom C: Qty Rack"
+          description="Bisa menggunakan file Excel dengan header maupun langsung data. Unduh template Excel di bawah untuk mendapatkan template yang sudah terisi otomatis dengan daftar Part Number sesi opname ini."
         />
-        <Upload
-          accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          beforeUpload={beforeUpload}
-          showUploadList={false}
-          disabled={previewing || applying}
-        >
-          <Button icon={<FileExcelOutlined />} loading={previewing}>
-            Select Excel and Preview
+        <Space wrap>
+          <Button
+            icon={<DownloadOutlined />}
+            loading={downloadingTemplate}
+            onClick={handleDownloadTemplate}
+          >
+            Download Template Excel
           </Button>
-        </Upload>
+          <Upload
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            beforeUpload={beforeUpload}
+            showUploadList={false}
+            disabled={previewing || applying}
+          >
+            <Button
+              type="primary"
+              icon={<FileExcelOutlined />}
+              loading={previewing}
+            >
+              Select Excel and Preview
+            </Button>
+          </Upload>
+        </Space>
         {file && <span>{file.name}</span>}
         {preview && (
           <>
