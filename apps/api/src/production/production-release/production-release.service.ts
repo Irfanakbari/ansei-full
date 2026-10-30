@@ -995,7 +995,10 @@ export class ProductionReleaseService {
           const linkedCount = await tx.productionOrder.count({
             where: { ProductionReleaseId: id },
           });
-          if (linkedCount === forecasts.length)
+          if (
+            release.Status === ProductionStatus.RELEASED &&
+            linkedCount === forecasts.length
+          )
             throw new ConflictException(
               'Cannot remove all forecasts. Cancel the production release instead.',
             );

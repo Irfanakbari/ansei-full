@@ -1369,7 +1369,7 @@ describe('ProductionReleaseService', () => {
       });
     });
 
-    it('untags a DRAFT forecast without deleting labels', async () => {
+    it('allows untagging the last DRAFT forecast without deleting labels', async () => {
       prismaService.productionRelease.findUnique.mockResolvedValue({
         ...released,
         Status: ProductionStatus.DRAFT,
@@ -1379,10 +1379,10 @@ describe('ProductionReleaseService', () => {
           { ...cleanForecast, ProductionReleaseId: 'rel-1' },
         ])
         .mockResolvedValueOnce([]);
-      prismaService.productionOrder.count.mockResolvedValue(2);
+      prismaService.productionOrder.count.mockResolvedValue(1);
       prismaService.productionOrder.updateMany.mockResolvedValue({ count: 1 });
       prismaService.productionOrder.aggregate.mockResolvedValue({
-        _sum: { Qty: 8 },
+        _sum: { Qty: null },
       });
 
       await service.untagForecasts(
@@ -1401,7 +1401,7 @@ describe('ProductionReleaseService', () => {
       });
       expect(prismaService.productionRelease.update).toHaveBeenCalledWith({
         where: { Id: 'rel-1' },
-        data: { TotalTargetQty: 8 },
+        data: { TotalTargetQty: 0 },
       });
     });
 
