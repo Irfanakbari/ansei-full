@@ -1,7 +1,7 @@
 /* By Irfan Akbari Vuteq Indonesia - 2026-10-07 */
 "use client";
 
-import { App, Button, Input, Space, Table, Tag } from "antd";
+import { App, Button, Checkbox, Input, Space, Table, Tag } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { useEffect, useRef, useState } from "react";
@@ -217,6 +217,28 @@ export default function ProductionOrderPicker({
         rowSelection={{
           selectedRowKeys: selected,
           preserveSelectedRowKeys: true,
+          columnTitle: (
+            <Checkbox
+              aria-label="Select all matching orders"
+              indeterminate={selected.length > 0 && selected.length < total}
+              checked={total > 0 && selected.length >= total}
+              disabled={loading || selecting || total === 0}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  void selectAll();
+                } else {
+                  invalidateSelection();
+                }
+              }}
+            />
+          ),
+          onSelectAll: (checked) => {
+            if (checked) {
+              void selectAll();
+            } else {
+              invalidateSelection();
+            }
+          },
           onChange: (keys) => onChange(keys.map(String)),
           getCheckboxProps: () => ({ disabled: selecting || loading }),
         }}

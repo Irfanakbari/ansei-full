@@ -64,7 +64,10 @@ export default function ProductionReleasePage() {
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [isAutocompleteModalVisible, setIsAutocompleteModalVisible] =
     useState(false);
-  const [sortedInfo, setSortedInfo] = useState<any>({});
+  const [sortedInfo, setSortedInfo] = useState<any>({
+    columnKey: "PlanDate",
+    order: "descend",
+  });
   const [query, setQuery] = useState({
     page: 1,
     limit: 50,
@@ -91,7 +94,9 @@ export default function ProductionReleasePage() {
     filters: any,
     sorter: any,
   ) => {
-    setSortedInfo(sorter);
+    setSortedInfo(
+      sorter?.order ? sorter : { columnKey: "PlanDate", order: "descend" },
+    );
     const search = String(filters.ReleaseNumber?.[0] ?? "") || undefined;
     const status = String(filters.Status?.[0] ?? "") || undefined;
     setQuery({
@@ -189,6 +194,7 @@ export default function ProductionReleasePage() {
       sorter: (a: ProductionReleaseEntity, b: ProductionReleaseEntity) =>
         new Date(a.PlanDate).getTime() - new Date(b.PlanDate).getTime(),
       sortOrder: sortedInfo.columnKey === "PlanDate" ? sortedInfo.order : null,
+      defaultSortOrder: "descend" as const,
     },
     {
       title: "Forecasts",
