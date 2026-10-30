@@ -36,6 +36,7 @@ import {
   fetchDisplayTarget,
 } from "@/store/features/display/displaySlice";
 import AssemblyScanPanel from "./_components/AssemblyScanPanel";
+import type { AssemblySession } from "@/store/features/production/assembly/assemblySlice";
 import OperatorReportModal from "./_components/OperatorReportModal";
 
 const ProductionFindingModal = dynamic(
@@ -355,6 +356,43 @@ function DisplayPageContent({
     stationConfig.finishGood?.PartNumber,
     stationConfig.selectedPartNumber,
   ]);
+
+  const handleSessionPart = useCallback(
+    (session: AssemblySession) => {
+      const partNumber = session.LabelData.FinishGoodId;
+      setStationConfig((prev) => {
+        if (
+          prev.selectedPartNumber === partNumber &&
+          prev.finishGood?.PartNumber === partNumber
+        ) {
+          return prev;
+        }
+
+        const masterFinishGood = finishGoodsList.find(
+          (finishGood) => finishGood.PartNumber === partNumber,
+        );
+        const finishGood: DisplayFinishGood = masterFinishGood ?? {
+          PartNumber: partNumber,
+          PartName: session.LabelData.PartData.PartName,
+          Alias: null,
+        };
+        const newConfig: DisplayStationConfig = {
+          ...prev,
+          selectedPartNumber: partNumber,
+          finishGood,
+        };
+
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig));
+        } catch (error) {
+          console.error("Failed to persist assembly display part", error);
+        }
+
+        return newConfig;
+      });
+    },
+    [finishGoodsList],
+  );
 
   const handleOpenReportModal = (tab: "form" | "history" = "form") => {
     setReportInitialTab(tab);
@@ -717,9 +755,12 @@ function DisplayPageContent({
 
       <AssemblyScanPanel
         nik={stationConfig.selectedNik ?? stationConfig.manpower?.Nik ?? null}
+        onSessionPart={handleSessionPart}
         onCompleted={() => {
-          if (activeFinishGood?.PartNumber) {
-            void dispatch(fetchDisplayTarget(activeFinishGood.PartNumber));
+          const partNumber =
+            stationConfig.selectedPartNumber ?? activeFinishGood?.PartNumber;
+          if (partNumber) {
+            void dispatch(fetchDisplayTarget(partNumber));
           }
         }}
         paused={isConfigOpen || isReportOpen || isFindingOpen}

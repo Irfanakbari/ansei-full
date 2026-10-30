@@ -26,6 +26,7 @@ interface DisplayState {
   config: ActiveDisplayConfig | null;
   loading: boolean;
   target: DisplayTarget | null;
+  requestedTargetPartNumber: string | null;
   targetLoading: boolean;
   targetError: string | null;
 }
@@ -34,6 +35,7 @@ const initialState: DisplayState = {
   config: null,
   loading: true,
   target: null,
+  requestedTargetPartNumber: null,
   targetLoading: false,
   targetError: null,
 };
@@ -122,6 +124,7 @@ const displaySlice = createSlice({
   reducers: {
     clearDisplayTarget(state) {
       state.target = null;
+      state.requestedTargetPartNumber = null;
       state.targetError = null;
       state.targetLoading = false;
     },
@@ -145,15 +148,18 @@ const displaySlice = createSlice({
         state.config = null;
         state.loading = false;
       })
-      .addCase(fetchDisplayTarget.pending, (state) => {
+      .addCase(fetchDisplayTarget.pending, (state, action) => {
+        state.requestedTargetPartNumber = action.meta.arg;
         state.targetLoading = true;
         state.targetError = null;
       })
       .addCase(fetchDisplayTarget.fulfilled, (state, action) => {
+        if (state.requestedTargetPartNumber !== action.meta.arg) return;
         state.target = action.payload;
         state.targetLoading = false;
       })
       .addCase(fetchDisplayTarget.rejected, (state, action) => {
+        if (state.requestedTargetPartNumber !== action.meta.arg) return;
         state.target = null;
         state.targetLoading = false;
         state.targetError =

@@ -18,12 +18,14 @@ export default function AssemblyScanPanel({
   nik,
   paused,
   onLocked,
+  onSessionPart,
   onCompleted,
   getContainer,
 }: {
   nik: string | null;
   paused: boolean;
   onLocked: (locked: boolean) => void;
+  onSessionPart: (session: AssemblySession) => void;
   onCompleted: () => void;
   getContainer: () => HTMLElement;
 }) {
@@ -60,6 +62,7 @@ export default function AssemblyScanPanel({
       offset.current = Date.parse(result.serverTime) - Date.now();
       setVerified(true);
       setSession(result.session);
+      if (result.session) onSessionPart(result.session);
       setReady(result.active);
       setError(
         result.active
@@ -73,7 +76,7 @@ export default function AssemblyScanPanel({
         setError(String(err));
       }
     }
-  }, [dispatch, nik]);
+  }, [dispatch, nik, onSessionPart]);
   useEffect(() => {
     currentNik.current = nik;
     setSession(null);
@@ -165,6 +168,7 @@ export default function AssemblyScanPanel({
       ).unwrap();
       if (currentNik.current === nik) {
         setSession(result);
+        onSessionPart(result);
         startRequest.current = null;
         message.success("Assembly started");
       }

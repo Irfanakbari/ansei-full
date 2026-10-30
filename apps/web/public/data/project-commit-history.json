@@ -2,11 +2,19 @@
   "repository": {
     "source": "combined-git-history",
     "upstreamRepository": "https://github.com/Vuteq-Indonesia/api-ansei-revamp",
-    "generatedAt": "2026-10-10",
-    "commitCount": 163,
+    "generatedAt": "2026-10-30",
+    "commitCount": 164,
     "format": "standardized-curated-commit-summaries"
   },
   "commits": [
+    {
+      "hash": "release-6.35.0",
+      "shortHash": "v6.35.0",
+      "author": "ANSEI Team",
+      "date": "2026-10-30T00:00:00+07:00",
+      "category": "Feature",
+      "summary": "Version 6.35.0: Automatically synchronize the production display part with accepted assembly label scans"
+    },
     {
       "hash": "release-6.18.1",
       "shortHash": "v6.18.1",
