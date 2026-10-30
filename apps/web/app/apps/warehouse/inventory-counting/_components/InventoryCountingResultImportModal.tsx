@@ -102,8 +102,16 @@ export default function InventoryCountingResultImportModal({
     return Upload.LIST_IGNORE;
   };
 
+  const previewData: ResultImportPreviewResponse | null =
+    preview &&
+    typeof preview === "object" &&
+    "data" in preview &&
+    (preview as { data: ResultImportPreviewResponse }).data
+      ? (preview as { data: ResultImportPreviewResponse }).data
+      : preview;
+
   const apply = async () => {
-    if (!file || !preview?.canApply) return;
+    if (!file || !previewData?.canApply) return;
     setApplying(true);
     try {
       const result = await dispatch(
@@ -131,7 +139,7 @@ export default function InventoryCountingResultImportModal({
       onOk={apply}
       okText="Apply Results"
       confirmLoading={applying}
-      okButtonProps={{ disabled: !preview?.canApply || previewing }}
+      okButtonProps={{ disabled: !previewData?.canApply || previewing }}
     >
       <Space orientation="vertical" size="middle" style={{ width: "100%" }}>
         <Alert
@@ -164,14 +172,14 @@ export default function InventoryCountingResultImportModal({
           </Upload>
         </Space>
         {file && <span>{file.name}</span>}
-        {preview && (
+        {previewData && (
           <>
             <Alert
-              type={preview.canApply ? "success" : "error"}
+              type={previewData.canApply ? "success" : "error"}
               showIcon
-              title={`${preview.validRows} valid, ${preview.invalidRows} invalid of ${preview.totalRows} row(s)`}
+              title={`${previewData.validRows} valid, ${previewData.invalidRows} invalid of ${previewData.totalRows} row(s)`}
               description={
-                preview.canApply
+                previewData.canApply
                   ? "All rows are valid and ready to apply."
                   : "Correct invalid, duplicate, or unregistered part numbers and preview the file again."
               }
@@ -179,7 +187,7 @@ export default function InventoryCountingResultImportModal({
             <Table<ResultImportPreviewItem>
               rowKey="rowNumber"
               size="small"
-              dataSource={preview.items}
+              dataSource={previewData.items || []}
               pagination={{ pageSize: 10, size: "small" }}
               scroll={{ y: 320 }}
               columns={[

@@ -172,6 +172,58 @@ function normalizeOcrPreview(value: unknown): OcrPreviewResponse {
   throw new Error("OCR preview response is invalid.");
 }
 
+function normalizeResultImportPreview(
+  value: unknown,
+): ResultImportPreviewResponse {
+  const candidate =
+    value &&
+    typeof value === "object" &&
+    "data" in value &&
+    (value as { data?: unknown }).data &&
+    typeof (value as { data?: unknown }).data === "object"
+      ? (value as { data: unknown }).data
+      : value;
+
+  if (
+    candidate &&
+    typeof candidate === "object" &&
+    Array.isArray((candidate as { items?: unknown }).items)
+  ) {
+    const preview = candidate as ResultImportPreviewResponse;
+    return {
+      items: preview.items,
+      totalRows: Number(preview.totalRows ?? preview.items.length),
+      validRows: Number(preview.validRows ?? 0),
+      invalidRows: Number(preview.invalidRows ?? 0),
+      canApply: Boolean(preview.canApply),
+    };
+  }
+  throw new Error("Result import preview response is invalid.");
+}
+
+function normalizeApplyResultImport(value: unknown): {
+  success: boolean;
+  updatedCount: number;
+} {
+  const candidate =
+    value &&
+    typeof value === "object" &&
+    "data" in value &&
+    (value as { data?: unknown }).data &&
+    typeof (value as { data?: unknown }).data === "object"
+      ? (value as { data: unknown }).data
+      : value;
+
+  if (candidate && typeof candidate === "object") {
+    const res = candidate as { success?: boolean; updatedCount?: number };
+    return {
+      success: Boolean(res.success ?? true),
+      updatedCount: Number(res.updatedCount ?? 0),
+    };
+  }
+  return { success: true, updatedCount: 0 };
+}
+
 // Response interfaces
 export interface InventoryCountingResponse {
   success: boolean;
@@ -548,10 +600,11 @@ export const previewInventoryCountingResultImport = createAsyncThunk<
     try {
       const formData = new FormData();
       formData.append("file", file);
-      return await postFormData<ResultImportPreviewResponse>(
+      const response = await postFormData<unknown>(
         `/inventory-counting/${id}/results-import/preview`,
         formData,
       );
+      return normalizeResultImportPreview(response);
     } catch (error: unknown) {
       return rejectWithValue(
         getApiErrorMessage(error, "Failed to preview the Excel results"),
@@ -570,10 +623,11 @@ export const applyInventoryCountingResultImport = createAsyncThunk<
     try {
       const formData = new FormData();
       formData.append("file", file);
-      return await postFormData<{ success: boolean; updatedCount: number }>(
+      const response = await postFormData<unknown>(
         `/inventory-counting/${id}/results-import/apply`,
         formData,
       );
+      return normalizeApplyResultImport(response);
     } catch (error: unknown) {
       return rejectWithValue(
         getApiErrorMessage(error, "Failed to apply the Excel results"),
