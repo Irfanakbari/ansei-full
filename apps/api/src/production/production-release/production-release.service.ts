@@ -207,6 +207,7 @@ export class ProductionReleaseService {
                 },
               },
             },
+            orderBy: [{ DeliveryPeriod: 'asc' }, { DeliveryDate: 'asc' }],
           },
           _count: {
             select: {
@@ -404,35 +405,39 @@ export class ProductionReleaseService {
       const assembledLabels = assemblyLabels.filter(
         (label) => label.AssemblySessions.length > 0,
       ).length;
-      const shoppingPercentage =
-        totalMaterialNeeded > 0
-          ? Math.min(
-              100,
-              Math.round((totalShoppingQty / totalMaterialNeeded) * 100),
-            )
-          : 0;
-      const deliveryPercentage =
-        totalLabels > 0
-          ? Math.min(100, Math.round((deliveredLabels / totalLabels) * 100))
-          : 0;
-      const pokayokePercentage =
-        totalLabels > 0
-          ? Math.min(100, Math.round((scannedLabels / totalLabels) * 100))
-          : 0;
-      const assemblyPercentage =
-        assemblyLabels.length > 0
-          ? Math.round((assembledLabels / assemblyLabels.length) * 100)
-          : 0;
+      const calculateCappedPercentage = (done: number, total: number) => {
+        if (!total) return 0;
+        if (done >= total) return 100;
+        return Math.min(99, Math.max(0, Math.floor((done / total) * 100)));
+      };
+      const shoppingPercentage = calculateCappedPercentage(
+        totalShoppingQty,
+        totalMaterialNeeded,
+      );
+      const deliveryPercentage = calculateCappedPercentage(
+        deliveredLabels,
+        totalLabels,
+      );
+      const pokayokePercentage = calculateCappedPercentage(
+        scannedLabels,
+        totalLabels,
+      );
+      const assemblyPercentage = calculateCappedPercentage(
+        assembledLabels,
+        assemblyLabels.length,
+      );
       const stagePercentages = [
         shoppingPercentage,
         pokayokePercentage,
         deliveryPercentage,
         ...(assemblyLabels.length > 0 ? [assemblyPercentage] : []),
       ];
-      const overallPercentage = Math.round(
+      const overallAvg =
         stagePercentages.reduce((sum, percentage) => sum + percentage, 0) /
-          stagePercentages.length,
-      );
+        stagePercentages.length;
+      const overallPercentage = stagePercentages.every((p) => p === 100)
+        ? 100
+        : Math.min(99, Math.round(overallAvg));
 
       return {
         ...release,
@@ -512,6 +517,7 @@ export class ProductionReleaseService {
               },
             },
           },
+          orderBy: [{ DeliveryPeriod: 'asc' }, { DeliveryDate: 'asc' }],
         },
         LabelDatas: {
           select: {

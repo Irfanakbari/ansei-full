@@ -34,6 +34,13 @@ import ProcessIllustration, { type ProcessKind } from "./ProcessIllustration";
 const number = (value: number) => value.toLocaleString("en-US");
 const percentage = (done: number, total: number) =>
   total > 0 ? Math.max(0, (done / total) * 100) : 0;
+const formatProcessPercent = (done: number, total: number) => {
+  if (!total) return "—";
+  if (done >= total) return "100";
+  // Jika belum selesai, jangan pernah tampilkan 100% (maksimal 99%)
+  const pct = Math.floor((done / total) * 100);
+  return Math.min(99, Math.max(0, pct)).toString();
+};
 const time = (value: string | number) =>
   new Date(value).toLocaleTimeString("en-GB", {
     timeZone: "Asia/Jakarta",
@@ -517,16 +524,14 @@ export default function ProductionDashboard() {
                         active={process.active}
                       />
                       <div className={styles.processValue}>
-                        {process.total
-                          ? percentage(process.done, process.total).toFixed(0)
-                          : "—"}
+                        {formatProcessPercent(process.done, process.total)}
                         <small>{process.total ? "%" : ""}</small>
                       </div>
                     </div>
                     <div className={styles.processTrack}>
                       <span
                         style={{
-                          width: `${Math.min(100, percentage(process.done, process.total))}%`,
+                          width: `${process.total && process.done >= process.total ? 100 : Math.min(99, percentage(process.done, process.total))}%`,
                           background: process.color,
                         }}
                       />

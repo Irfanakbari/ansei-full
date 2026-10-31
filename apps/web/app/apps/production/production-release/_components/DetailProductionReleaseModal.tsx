@@ -175,6 +175,8 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
       dataIndex: "DeliveryPeriod",
       key: "DeliveryPeriod",
       align: "right" as const,
+      sorter: (a: any, b: any) =>
+        (a.DeliveryPeriod ?? 0) - (b.DeliveryPeriod ?? 0),
     },
     {
       title: "Delivery Date",
@@ -353,7 +355,9 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
                     <Progress
                       percent={data.progressShopping.percentage}
                       status={
-                        data.progressShopping.percentage === 100
+                        data.progressShopping.percentage === 100 &&
+                        data.progressShopping.totalPicked >=
+                          data.progressShopping.totalTarget
                           ? "success"
                           : "active"
                       }
@@ -382,7 +386,9 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
                     <Progress
                       percent={data.progressAssembly.percentage}
                       status={
-                        data.progressAssembly.percentage === 100
+                        data.progressAssembly.percentage === 100 &&
+                        data.progressAssembly.completed >=
+                          data.progressAssembly.total
                           ? "success"
                           : "active"
                       }
@@ -411,7 +417,9 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
                     <Progress
                       percent={data.progressPokayoke.percentage}
                       status={
-                        data.progressPokayoke.percentage === 100
+                        data.progressPokayoke.percentage === 100 &&
+                        data.progressPokayoke.scanned >=
+                          data.progressPokayoke.total
                           ? "success"
                           : "active"
                       }
@@ -440,7 +448,9 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
                     <Progress
                       percent={data.progressDelivery.percentage}
                       status={
-                        data.progressDelivery.percentage === 100
+                        data.progressDelivery.percentage === 100 &&
+                        data.progressDelivery.scanned >=
+                          data.progressDelivery.total
                           ? "success"
                           : "active"
                       }
@@ -468,7 +478,12 @@ const DetailProductionReleaseModal: React.FC<Props> = ({
                 </strong>
               )}
               columns={forecastColumns}
-              dataSource={data.Forecasts || []}
+              dataSource={[...(data.Forecasts || [])].sort(
+                (a: any, b: any) =>
+                  (a.DeliveryPeriod ?? 0) - (b.DeliveryPeriod ?? 0) ||
+                  (a.DeliveryDate || "").localeCompare(b.DeliveryDate || "") ||
+                  (a.PoId || "").localeCompare(b.PoId || ""),
+              )}
               size="small"
               rowKey={(record) => record.PoId}
               pagination={false}

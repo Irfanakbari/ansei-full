@@ -531,6 +531,45 @@ describe('ProductionReleaseService', () => {
         stageCount: 3,
       });
     });
+
+    it('caps progress at 99 percent until fully complete (e.g. 289 of 290)', async () => {
+      prismaService.productionRelease.findMany.mockResolvedValue([
+        {
+          Id: 'rel-1',
+          Status: 'RELEASED',
+          Forecasts: [],
+          _count: { LabelDatas: 290, Forecasts: 0, Attachments: 0 },
+        },
+      ]);
+      prismaService.productionRelease.count.mockResolvedValue(1);
+      prismaService.billOfMaterials.findMany.mockResolvedValue([]);
+      prismaService.finishGood.findMany.mockResolvedValue([]);
+
+      const mockLabels = Array.from({ length: 290 }, (_, i) => ({
+        Id: i + 1,
+        LabelNumber: `L${i + 1}`,
+        ProductionReleaseId: 'rel-1',
+        Scanned: i < 289,
+        QtyThisBox: 1,
+        RequiresAssembly: false,
+        AssemblySessions: [],
+      }));
+      prismaService.labelData.findMany.mockResolvedValue(mockLabels);
+      prismaService.deliveryHistory.findMany.mockResolvedValue(
+        mockLabels.slice(0, 289).map((l) => ({ LabelDataId: l.LabelNumber })),
+      );
+
+      const result = await service.findAll({ page: 1, limit: 50 });
+
+      // 289 / 290 is 99.65%, which must be capped at 99%, not rounded up to 100%
+      expect(result.data[0].progressPokayoke.percentage).toBe(99);
+      expect(result.data[0].progressPokayoke.scanned).toBe(289);
+      expect(result.data[0].progressPokayoke.total).toBe(290);
+      expect(result.data[0].progressDelivery.percentage).toBe(99);
+      expect(result.data[0].progressDelivery.scanned).toBe(289);
+      expect(result.data[0].progressDelivery.total).toBe(290);
+      expect(result.data[0].progressOverall.percentage).toBeLessThan(100);
+    });
   });
 
   describe('findOne', () => {
