@@ -149,6 +149,8 @@ export default function ForecastPage() {
         poNumber: getFilterText(filters.PoId),
         partNumber: getFilterText(filters.PartNumber),
         search: getFilterText(filters.VendorName),
+        receivingArea: getFilterText(filters.ReceivingArea),
+        vendorCode: getFilterText(filters.VendorCode),
         deliveryDateFrom: deliveryDateRange?.[0],
         deliveryDateTo: deliveryDateRange?.[1],
       }),
@@ -348,6 +350,28 @@ export default function ForecastPage() {
         new Date(a.DeliveryDate).getTime() - new Date(b.DeliveryDate).getTime(),
       sortOrder:
         sortedInfo.columnKey === "DeliveryDate" ? sortedInfo.order : null,
+    },
+    {
+      title: "Receiving Area",
+      dataIndex: "ReceivingArea",
+      key: "ReceivingArea",
+      ellipsis: true,
+      sorter: (a: ForecastEntity, b: ForecastEntity) =>
+        (a.ReceivingArea || "").localeCompare(b.ReceivingArea || ""),
+      sortOrder:
+        sortedInfo.columnKey === "ReceivingArea" ? sortedInfo.order : null,
+      ...getColumnSearchProps("Receiving Area", query.receivingArea),
+    },
+    {
+      title: "Vendor Code",
+      dataIndex: "VendorCode",
+      key: "VendorCode",
+      ellipsis: true,
+      sorter: (a: ForecastEntity, b: ForecastEntity) =>
+        (a.VendorCode || "").localeCompare(b.VendorCode || ""),
+      sortOrder:
+        sortedInfo.columnKey === "VendorCode" ? sortedInfo.order : null,
+      ...getColumnSearchProps("Vendor Code", query.vendorCode),
     },
     {
       title: "Status",

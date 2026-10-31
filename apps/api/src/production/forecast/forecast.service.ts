@@ -116,6 +116,17 @@ export class ForecastService {
       where.FinishGoodId = { contains: query.partNumber, mode: 'insensitive' };
     }
 
+    if (query?.vendorCode) {
+      where.VendorCode = { contains: query.vendorCode, mode: 'insensitive' };
+    }
+
+    if (query?.receivingArea) {
+      where.ReceivingArea = {
+        contains: query.receivingArea,
+        mode: 'insensitive',
+      };
+    }
+
     if (query?.deliveryDate) {
       where.DeliveryDate = {
         gte: new Date(`${query.deliveryDate}T00:00:00.000Z`),
@@ -185,6 +196,17 @@ export class ForecastService {
 
     if (query?.partNumber) {
       where.FinishGoodId = { contains: query.partNumber, mode: 'insensitive' };
+    }
+
+    if (query?.vendorCode) {
+      where.VendorCode = { contains: query.vendorCode, mode: 'insensitive' };
+    }
+
+    if (query?.receivingArea) {
+      where.ReceivingArea = {
+        contains: query.receivingArea,
+        mode: 'insensitive',
+      };
     }
 
     if (query?.deliveryDate) {

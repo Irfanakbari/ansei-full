@@ -66,6 +66,8 @@ export interface ForecastQuery {
   search?: string;
   poNumber?: string;
   partNumber?: string;
+  vendorCode?: string;
+  receivingArea?: string;
   deliveryDate?: string;
   deliveryDateFrom?: string;
   deliveryDateTo?: string;

@@ -199,6 +199,31 @@ describe('ForecastService', () => {
         }),
       );
     });
+
+    it('should filter forecasts by vendorCode and receivingArea', async () => {
+      prismaService.forecast.count.mockResolvedValue(0);
+      prismaService.forecast.findMany.mockResolvedValue([]);
+
+      await service.findAll({
+        page: 1,
+        limit: 50,
+        vendorCode: 'V-001',
+        receivingArea: 'DOCK-A',
+      });
+
+      const expectedWhere = {
+        VendorCode: { contains: 'V-001', mode: 'insensitive' },
+        ReceivingArea: { contains: 'DOCK-A', mode: 'insensitive' },
+      };
+      expect(prismaService.forecast.count).toHaveBeenCalledWith({
+        where: expectedWhere,
+      });
+      expect(prismaService.forecast.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expectedWhere,
+        }),
+      );
+    });
   });
 
   describe('findOne', () => {

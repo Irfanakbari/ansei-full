@@ -20,6 +20,22 @@ export class ForecastQueryDto extends SearchPaginationQueryDto {
   partNumber?: string;
 
   @ApiPropertyOptional({
+    description: 'Filter by exact or partial Vendor Code',
+    example: 'V-001',
+  })
+  @IsOptional()
+  @IsString()
+  vendorCode?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by exact or partial Receiving Area',
+    example: 'DOCK-A',
+  })
+  @IsOptional()
+  @IsString()
+  receivingArea?: string;
+
+  @ApiPropertyOptional({
     description: 'Filter by exact delivery date',
     example: '2026-09-01',
   })

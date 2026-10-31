@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useVuteqSso } from "@vuteq/sso-client-react/react";
 import { withBasePath } from "@/lib/base-path";
 
-const APP_VERSION = "6.36.6";
+const APP_VERSION = "6.36.7";
 
 export default function LoginPage() {
   const router = useRouter();
