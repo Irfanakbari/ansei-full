@@ -2284,6 +2284,7 @@ export class ProductionReleaseService {
         FinishGoodId: true,
         Qty: true,
         DeliveryDate: true,
+        DeliveryPeriod: true,
         PartData: {
           select: {
             PartNumber: true,
@@ -2309,9 +2310,7 @@ export class ProductionReleaseService {
           },
         },
       },
-      orderBy: {
-        DeliveryDate: 'asc',
-      },
+      orderBy: [{ DeliveryPeriod: 'asc' }, { DeliveryDate: 'asc' }],
     });
 
     // Get all unique FinishGood PartNumbers
@@ -2486,6 +2485,7 @@ export class ProductionReleaseService {
         Qty: forecast.Qty,
         QtyRequired: qtyRequired,
         DeliveryDate: forecast.DeliveryDate,
+        DeliveryPeriod: forecast.DeliveryPeriod,
         PartData: forecast.PartData,
         Shopping: shoppingList,
       };

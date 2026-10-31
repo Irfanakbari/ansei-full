@@ -204,13 +204,13 @@ export default function ProductionDashboard() {
     <main
       className={styles.dashboard}
       data-motion={autoPages && !stale ? "running" : "paused"}
-      aria-label="ANSEI production control dashboard"
+      aria-label="PT VUTEQ INDONESIA production control dashboard"
     >
       <header className={styles.header}>
         <div className={styles.brand}>
           <div>
             <h1>
-              ANSEI <span>Production Status</span>
+              PT VUTEQ INDONESIA <span>Production Status</span>
             </h1>
             <p>
               Active Releases <span>•</span> GENBA
@@ -345,7 +345,7 @@ export default function ProductionDashboard() {
             </article>
             <article className={styles.kpi}>
               <p>
-                Awaiting Delivery <span>pcs</span>
+                Ready For Delivery <span>pcs</span>
               </p>
               <div className={styles.kpiValue}>
                 {number(metrics.awaitingDeliveryQty)}
@@ -918,7 +918,7 @@ export default function ProductionDashboard() {
               : "Released Orders Only · Refresh 20s · Cycles 12s · PO Auto Scroll"}
           </span>
         )}
-        <span className={styles.footerBrand}>ANSEI · VUTEQ INDONESIA</span>
+        <span className={styles.footerBrand}>PT VUTEQ INDONESIA</span>
       </footer>
     </main>
   );

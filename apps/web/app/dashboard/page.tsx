@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import ProductionDashboard from "./_components/ProductionDashboard";
 
 export const metadata: Metadata = {
-    title: "ANSEI | Production Control",
+    title: "PT VUTEQ INDONESIA | Production Control",
     description:
         "Live production release, delivery cycle and process progress for the genba.",
     robots: { index: false, follow: false },
